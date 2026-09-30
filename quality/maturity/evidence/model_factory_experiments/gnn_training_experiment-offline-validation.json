@@ -1,0 +1,323 @@
+{
+  "audit": {
+    "create_execute_events": [
+      {
+        "action": "create",
+        "actor_id": "offline-evidence/api",
+        "job_id": 1,
+        "kind": "gnn",
+        "organization_id": 101,
+        "outcome": "success"
+      },
+      {
+        "action": "execute",
+        "actor_id": "offline-evidence/worker",
+        "job_id": 1,
+        "kind": "gnn",
+        "organization_id": 101,
+        "outcome": "completed"
+      }
+    ],
+    "default_platform_writer_used": false,
+    "does_not_prove": "audit_logs persistence or online delivery",
+    "mode": "in_memory_injected_writer",
+    "proves": "sanitized attributable event contract in the runtime code path",
+    "verified_lifecycles": [
+      "create_execute_completed",
+      "create_cancel",
+      "create_execute_failed"
+    ]
+  },
+  "checks": [
+    {
+      "id": "real-runtime:gnn",
+      "passed": true,
+      "status": "completed"
+    },
+    {
+      "id": "finite-real-metrics:gnn",
+      "metric_count": 3,
+      "passed": true
+    },
+    {
+      "id": "deterministic-replay:gnn",
+      "passed": true
+    },
+    {
+      "id": "artifact-checksum:gnn",
+      "passed": true,
+      "sha256": "fa6caf518eda3f176d8672f15a0ec7f513b66b370320f9bc43549b89b6187bed"
+    },
+    {
+      "id": "structured-audit:create-execute:gnn",
+      "passed": true
+    },
+    {
+      "id": "scratch-cleanup",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-missing-explicit-fixture",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentAccessDenied",
+      "id": "reject-cross-tenant-read",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-unknown-experiment-node",
+      "passed": true
+    },
+    {
+      "evidence_eligible": false,
+      "id": "beta-evidence-rejects-missing-artifact",
+      "passed": true,
+      "runtime_status": "completed"
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "cancel",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "cancelled"
+        }
+      ],
+      "id": "structured-audit-cancel-lifecycle",
+      "passed": true
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "failed"
+        }
+      ],
+      "id": "structured-audit-failed-lifecycle",
+      "passed": true
+    }
+  ],
+  "cleanup": {
+    "completed": true,
+    "production_resources_touched": false,
+    "scratch_retained": false
+  },
+  "completed_at": "2026-07-18T05:05:30.146953Z",
+  "data_classification": "fixture",
+  "environment": "offline-local-runtime-with-no-platform-services",
+  "evidence_categories": [
+    "real_service",
+    "deterministic_data",
+    "positive_negative_paths",
+    "audit",
+    "cleanup"
+  ],
+  "experiment": {
+    "artifact_bytes_reproducible": true,
+    "config": {
+      "epochs": 8,
+      "fixture_mode": true,
+      "hidden_dim": 8,
+      "seed": 17
+    },
+    "first_run": {
+      "artifact": {
+        "file_name": "gnn_model.pt",
+        "sha256": "fa6caf518eda3f176d8672f15a0ec7f513b66b370320f9bc43549b89b6187bed",
+        "size_bytes": 3985
+      },
+      "audit_events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "gnn",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "gnn",
+          "organization_id": 101,
+          "outcome": "completed"
+        }
+      ],
+      "data_source": {
+        "fixture": "gnn_fixture_v1",
+        "type": "deterministic_fixture"
+      },
+      "metrics": {
+        "test_accuracy": 0.5,
+        "train_accuracy": 0.5,
+        "train_loss": 0.6750290989875793
+      },
+      "registered_model_count": 1,
+      "registered_version_count": 1,
+      "status": "completed"
+    },
+    "kind": "gnn",
+    "metrics_reproducible": true,
+    "repeat_run": {
+      "artifact": {
+        "file_name": "gnn_model.pt",
+        "sha256": "fa6caf518eda3f176d8672f15a0ec7f513b66b370320f9bc43549b89b6187bed",
+        "size_bytes": 3985
+      },
+      "audit_events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "gnn",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "gnn",
+          "organization_id": 101,
+          "outcome": "completed"
+        }
+      ],
+      "data_source": {
+        "fixture": "gnn_fixture_v1",
+        "type": "deterministic_fixture"
+      },
+      "metrics": {
+        "test_accuracy": 0.5,
+        "train_accuracy": 0.5,
+        "train_loss": 0.6750290989875793
+      },
+      "registered_model_count": 1,
+      "registered_version_count": 1,
+      "status": "completed"
+    }
+  },
+  "module_id": "gnn_training_experiment",
+  "negative_paths": [
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-missing-explicit-fixture",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentAccessDenied",
+      "id": "reject-cross-tenant-read",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-unknown-experiment-node",
+      "passed": true
+    },
+    {
+      "evidence_eligible": false,
+      "id": "beta-evidence-rejects-missing-artifact",
+      "passed": true,
+      "runtime_status": "completed"
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "cancel",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "cancelled"
+        }
+      ],
+      "id": "structured-audit-cancel-lifecycle",
+      "passed": true
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "failed"
+        }
+      ],
+      "id": "structured-audit-failed-lifecycle",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "schema_version": 1,
+  "scope": {
+    "does_not_prove": [
+      "persistence",
+      "rbac_tenant",
+      "audit_persistence",
+      "observability",
+      "performance",
+      "recovery",
+      "e2e",
+      "production_data",
+      "field_acceptance",
+      "long_run",
+      "reproducible_release"
+    ],
+    "note": "Audit proves only the sanitized create/execute/cancel/failure code contract through an injected in-memory writer. It does not prove audit_logs persistence. Observability remains unproven because this is a single-process offline run. No database, broker, service deployment, or production dataset was used.",
+    "proves": [
+      "real_service",
+      "deterministic_data",
+      "positive_negative_paths",
+      "audit",
+      "cleanup"
+    ]
+  },
+  "started_at": "2026-07-18T05:05:27.523232Z"
+}

@@ -1,0 +1,86 @@
+groups:
+  - name: foundation-backend-availability
+    rules:
+      - alert: foundationBackendDown
+        expr: up{job="foundation-backend"} == 0
+        for: 2m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "数字化底座后端不可采集"
+          description: "Prometheus 已连续 2 分钟无法采集后端 {{ $labels.instance }}。"
+
+      - alert: foundationBackendHas5xx
+        expr: sum(increase(http_requests_total{job="foundation-backend",path!~"/metrics|/api/v1/health|/health",status=~"5.."}[5m])) > 0
+        for: 2m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "数字化底座后端出现 5xx"
+          description: "后端最近 5 分钟持续出现 5xx，当前窗口累计值为 {{ $value | humanize }}。"
+
+      - alert: foundationBackendHighErrorRate
+        expr: |
+          (
+            sum(rate(http_requests_total{job="foundation-backend",path!~"/metrics|/api/v1/health|/health",status=~"5.."}[5m]))
+            /
+            sum(rate(http_requests_total{job="foundation-backend",path!~"/metrics|/api/v1/health|/health"}[5m]))
+          ) > 0.05
+          and
+          sum(increase(http_requests_total{job="foundation-backend",path!~"/metrics|/api/v1/health|/health"}[5m])) >= 20
+        for: 5m
+        labels:
+          severity: critical
+          service: backend
+        annotations:
+          summary: "数字化底座后端 5xx 错误率过高"
+          description: "后端 5xx 错误率已连续 5 分钟超过 5%，当前比例为 {{ $value | humanizePercentage }}。"
+
+      - alert: foundationBackendHighLatency
+        expr: |
+          histogram_quantile(
+            0.95,
+            sum by (le) (
+              rate(http_request_duration_seconds_bucket{job="foundation-backend",path!~"/metrics|/api/v1/health|/health"}[5m])
+            )
+          ) > 2
+          and
+          sum(increase(http_request_duration_seconds_count{job="foundation-backend",path!~"/metrics|/api/v1/health|/health"}[5m])) >= 20
+        for: 10m
+        labels:
+          severity: warning
+          service: backend
+        annotations:
+          summary: "数字化底座后端 P95 延迟过高"
+          description: "后端 P95 请求耗时已连续 10 分钟超过 2 秒，当前值为 {{ $value | humanizeDuration }}。"
+
+  - name: foundation-database-pool
+    rules:
+      - alert: foundationDatabasePoolNearExhaustion
+        expr: |
+          db_pool_size{job="foundation-backend"} > 0
+          and
+          (
+            db_pool_checked_out{job="foundation-backend"}
+            /
+            db_pool_size{job="foundation-backend"}
+          ) >= 0.9
+        for: 5m
+        labels:
+          severity: warning
+          service: database
+        annotations:
+          summary: "数字化底座数据库连接池接近耗尽"
+          description: "数据库连接池使用率已连续 5 分钟达到 90% 以上，当前比例为 {{ $value | humanizePercentage }}。"
+
+      - alert: foundationDatabasePoolOverflow
+        expr: db_pool_overflow{job="foundation-backend"} > 0
+        for: 5m
+        labels:
+          severity: critical
+          service: database
+        annotations:
+          summary: "数字化底座数据库连接池发生溢出"
+          description: "数据库连接池已连续 5 分钟使用溢出连接，当前溢出数为 {{ $value | humanize }}。"

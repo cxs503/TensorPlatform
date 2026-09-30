@@ -1,0 +1,2 @@
+"""Dust-collection energy fixture."""
+

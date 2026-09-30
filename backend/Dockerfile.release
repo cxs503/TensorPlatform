@@ -1,0 +1,12 @@
+# Fast, dependency-preserving release image. The approved base already contains
+# the platform runtime (including PyTorch), so this only snapshots application
+# code and never downloads or reinstalls ML dependencies.
+FROM open-foundation-backend:2.2.0
+USER root
+ARG foundation_GIT_REVISION=unknown
+LABEL org.opencontainers.image.revision=${foundation_GIT_REVISION} \
+      org.opencontainers.image.title="foundation AI Platform Backend"
+COPY --chown=foundation:foundation backend/ /app/
+RUN mkdir -p /app/uploads /app/.keys /var/log/open-foundation \
+    && chown -R foundation:foundation /app /var/log/open-foundation
+USER foundation

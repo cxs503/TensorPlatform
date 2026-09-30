@@ -1,0 +1,7 @@
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+pythonpath = ["backend"]
+addopts = "-q --tb=short"
+norecursedirs = ["__pycache__", ".venv", "node_modules", "frontend-vue"]
+filterwarnings = ["ignore::DeprecationWarning", "ignore::PendingDeprecationWarning"]
+markers = ["slow: slow tests", "integration: integration tests"]

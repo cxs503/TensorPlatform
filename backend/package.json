@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "开放数字化底座后端服务",
+  "main": "main.py",
+  "scripts": {
+    "dev": "uvicorn main:app --reload --host 0.0.0.0 --port 8001",
+    "test": "pytest",
+    "test:cov": "pytest --cov=. --cov-report=html",
+    "lint": "flake8 .",
+    "format": "black .",
+    "migrate": "alembic upgrade head",
+    "migrate:down": "alembic downgrade -1"
+  },
+  "keywords": [
+    "foundation",
+    "ai",
+    "platform",
+    "fastapi"
+  ],
+  "author": "foundation New Energy",
+  "license": "Apache-2.0"
+}

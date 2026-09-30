@@ -1,0 +1,11 @@
+# Docker Log Rotation Configuration
+# Copy this file to /etc/docker/daemon.json or add to existing daemon.json
+
+{
+  "log-driver": "json-file",
+  "log-opts": {
+    "max-size": "100m",
+    "max-file": "5",
+    "compress": "true"
+  }
+}

@@ -1,0 +1,675 @@
+# 开放数字化底座 - Docker Compose 配置
+# 版本: 2.2.0
+# 生产环境部署配置
+
+# ==================== 网络配置 ====================
+networks:
+  open-digital-foundation_foundation-network:
+    external: true
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 172.28.0.0/16
+
+# ==================== 卷配置 ====================
+volumes:
+  postgres_data:
+    driver: local
+  redis_data:
+    driver: local
+  minio_data:
+    driver: local
+  kafka_data:
+    driver: local
+  zookeeper_data:
+    driver: local
+  backend_logs:
+    driver: local
+  workspace_data:
+    driver: local
+  grafana_data:
+    external: true
+    name: ${GRAFANA_DATA_VOLUME:-kp-grafana-persistent}
+  prometheus_data:
+    driver: local
+  alertmanager_data:
+    driver: local
+  tdengine_data:
+    driver: local
+  tdengine_log:
+    driver: local
+
+# 管理员初始密码使用文件型 secret，避免凭据出现在 Compose 环境变量中。
+secrets:
+  grafana_admin_password:
+    file: ${GRAFANA_ADMIN_PASSWORD_FILE:-./secrets/grafana_admin_password}
+  alertmanager_webhook_token:
+    file: ${ALERTMANAGER_WEBHOOK_TOKEN_FILE:-./secrets/alertmanager_webhook_token}
+
+# ==================== 服务配置 ====================
+services:
+
+  # -------------------- TDengine 时序数据库 --------------------
+  tdengine:
+    image: tdengine/tdengine:3.3.6.13
+    container_name: open-foundation-tdengine
+    hostname: tdengine
+    restart: unless-stopped
+    environment:
+      - TAOS_FQDN=tdengine
+    ports:
+      - "127.0.0.1:${TDENGINE_NATIVE_PORT:-6030}:6030"
+      - "127.0.0.1:${TDENGINE_REST_PORT:-6041}:6041"
+    volumes:
+      - tdengine_data:/var/lib/taos
+      - tdengine_log:/var/log/taos
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD-SHELL", "taos -s 'SHOW DATABASES' >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 12
+      start_period: 45s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  tdengine-init:
+    image: tdengine/tdengine:3.3.6.13
+    container_name: open-foundation-tdengine-init
+    restart: "no"
+    depends_on:
+      tdengine:
+        condition: service_healthy
+    entrypoint: ["/bin/sh", "-c"]
+    command: ["taos -h tdengine -f /init/init.sql"]
+    volumes:
+      - ./deploy/tdengine/init.sql:/init/init.sql:ro
+    networks:
+      - open-digital-foundation_foundation-network
+
+  # -------------------- 后端API服务 --------------------
+  backend:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: open-foundation-backend:2.2.0
+    container_name: open-foundation-backend
+    hostname: backend
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8001}:8001"
+      - "127.0.0.1:8888:8888"
+    environment:
+      - MPLCONFIGDIR=/tmp
+      # 数据库配置
+      - DATABASE_URL=postgresql://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/open_digital_foundation
+      - MLFLOW_TRACKING_URI=postgresql+psycopg2://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/mlflow
+      # Redis配置
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - REDIS_PASSWORD=${REDIS_PASSWORD:-}
+      # Celery配置
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      # Ray 分布式训练集群（由 docker-compose.ray.yml 启动）
+      - RAY_ADDRESS=${RAY_ADDRESS:-ray://ray-head:10001}
+      # 定时调度（按中国标准时间执行 Cron）
+      - PLATFORM_TIMEZONE=${PLATFORM_TIMEZONE:-Asia/Shanghai}
+      - SCHEDULER_ENABLED=${SCHEDULER_ENABLED:-true}
+      - SCHEDULER_POLL_SECONDS=${SCHEDULER_POLL_SECONDS:-15}
+      # MinIO配置
+      - USE_MINIO=${USE_MINIO:-true}
+      - MINIO_ENDPOINT=minio:9000
+      - MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_SECRET_KEY=${MINIO_SECRET_KEY:-minioadmin}
+      - MINIO_BUCKET=${MINIO_BUCKET:-open-foundation}
+      - MINIO_SECURE=${MINIO_SECURE:-false}
+      # Kafka配置
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:9092
+      # JWT配置
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-}
+      - REFRESH_SECRET_KEY=${REFRESH_SECRET_KEY:-}
+      - ACCESS_TOKEN_EXPIRE_MINUTES=${ACCESS_TOKEN_EXPIRE_MINUTES:-30}
+      - REFRESH_TOKEN_EXPIRE_DAYS=${REFRESH_TOKEN_EXPIRE_DAYS:-7}
+      # CORS配置
+      - CORS_ORIGINS=${CORS_ORIGINS:-http://localhost:3000,http://localhost:8001}
+      # 环境标识
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      # 共享库路径（修复lightgbm libgomp.so.1找不到的问题）
+      - LD_LIBRARY_PATH=/opt/venv/lib/python3.11/site-packages/torch/lib:/opt/venv/lib/python3.11/site-packages/xgboost.libs
+      # MLflow 3.13+ 文件存储模式
+      - MLFLOW_ALLOW_FILE_STORE=true
+      # 日志级别
+      # 智谱AI API
+      - OPENROUTER_API_KEY=${OPENROUTER_API_KEY:-}
+      - ZHIPU_API_KEY=${ZHIPU_API_KEY:-}
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      - ALERTMANAGER_WEBHOOK_TOKEN_FILE=/run/secrets/alertmanager_webhook_token
+    secrets:
+      - alertmanager_webhook_token
+    depends_on:
+      docker-builder:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+      minio:
+        condition: service_healthy
+    networks:
+      - open-digital-foundation_foundation-network
+    volumes:
+      - backend_logs:/var/log/open-foundation
+      - workspace_data:/app/workspaces
+      - ./backend/uploads:/app/uploads
+      - ./data/public_datasets:/app/public_datasets:ro
+      - ./backend/.keys:/app/.keys
+      - ./backend/migrations:/app/migrations:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8001/api/v1/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    deploy:
+      resources:
+        limits:
+          memory: 4G
+        reservations:
+          memory: 1G
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "100m"
+        max-file: "5"
+
+  # -------------------- 隔离Docker构建器 --------------------
+  # Web后端不挂载Docker套接字；只有本内网服务可访问宿主Docker，且它只接受
+  # 数字算法ID并从平台受控目录构建，不接受任意路径或用户Dockerfile。
+  docker-builder:
+    image: open-foundation-backend:2.2.0
+    container_name: kp-docker-builder
+    hostname: docker-builder
+    restart: unless-stopped
+    user: "0:0"
+    command: python -m uvicorn services.docker_builder_service:app --host 0.0.0.0 --port 8010 --workers 1
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - PYTHONDONTWRITEBYTECODE=1
+      - JWT_SECRET_KEY=${JWT_SECRET_KEY:-foundation-jwt-secret-change-in-production}
+      - DOCKER_RUNTIME_NETWORK=open-digital-foundation_foundation-network
+    networks:
+      - open-digital-foundation_foundation-network
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /usr/bin/docker:/usr/bin/docker:ro
+      - ./backend/uploads:/app/uploads
+    read_only: true
+    tmpfs:
+      - /tmp:rw,noexec,nosuid,size=128m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8010/health"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 512M
+        reservations:
+          memory: 128M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "3"
+
+  # -------------------- Celery Worker --------------------
+  celery-worker:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: open-foundation-backend:2.2.0
+    container_name: kp-celery
+    hostname: celery-worker
+    restart: unless-stopped
+    command: celery -A tasks.celery_app worker --loglevel=info --concurrency=2
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - DATABASE_URL=postgresql://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/open_digital_foundation
+      - MLFLOW_TRACKING_URI=postgresql+psycopg2://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/mlflow
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - open-digital-foundation_foundation-network
+    volumes:
+      - ./backend/uploads:/app/uploads
+      - ./backend/tasks/celery_app.py:/app/tasks/celery_app.py:ro
+      - ./backend/tasks/training_tasks.py:/app/tasks/training_tasks.py:ro
+      - ./backend/models/core.py:/app/models/core.py:ro
+      - ./backend/services/real_training_service.py:/app/services/real_training_service.py:ro
+      - ./backend/services/mlflow_tracker.py:/app/services/mlflow_tracker.py:ro
+    healthcheck:
+      test: ["CMD", "celery", "-A", "tasks.celery_app", "inspect", "ping", "-d", "celery@celery-worker"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+        reservations:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # -------------------- Celery Beat (定时任务调度) --------------------
+  celery-beat:
+    build:
+      context: .
+      dockerfile: backend/Dockerfile
+    image: open-foundation-backend:2.2.0
+    container_name: open-foundation-celery-beat
+    hostname: celery-beat
+    restart: unless-stopped
+    command: celery -A tasks.celery_app beat --loglevel=info --pidfile=/tmp/celerybeat.pid
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - DATABASE_URL=postgresql://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/open_digital_foundation
+      - MLFLOW_TRACKING_URI=postgresql+psycopg2://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/mlflow
+      - REDIS_HOST=redis
+      - REDIS_PORT=6379
+      - CELERY_BROKER_URL=redis://redis:6379/0
+      - CELERY_RESULT_BACKEND=redis://redis:6379/1
+      - ENVIRONMENT=${ENVIRONMENT:-production}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD-SHELL", "test -s /tmp/celerybeat.pid && kill -0 $$(cat /tmp/celerybeat.pid)"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 20s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "2"
+
+  # -------------------- 前端服务 --------------------
+  frontend:
+    build:
+      context: .
+      dockerfile: frontend-vue/Dockerfile
+      args:
+        ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:-development}
+    image: open-foundation-frontend:2.2.0
+    container_name: open-foundation-frontend
+    hostname: frontend
+    restart: unless-stopped
+    ports:
+      - "${FRONTEND_PORT:-3000}:3000"
+      - "18080:3000"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "2"
+
+  # Trusted certificate required. This profile is intentionally disabled by
+  # default so an absent/invalid certificate cannot break the HTTP entry point.
+  frontend-https:
+    profiles: ["https"]
+    image: open-foundation-frontend:2.2.0
+    container_name: kp-frontend-https
+    hostname: frontend-https
+    restart: unless-stopped
+    ports:
+      - "${HTTPS_REDIRECT_PORT:-80}:3000"
+      - "${HTTPS_PORT:-443}:3443"
+    depends_on:
+      backend:
+        condition: service_healthy
+    networks:
+      - open-digital-foundation_foundation-network
+    volumes:
+      - ./frontend-vue/dist:/usr/share/nginx/html:ro
+      - ./frontend/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
+      - ${TLS_CERT_FILE:-./secrets/tls/fullchain.pem}:/etc/nginx/tls/fullchain.pem:ro
+      - ${TLS_KEY_FILE:-./secrets/tls/privkey.pem}:/etc/nginx/tls/privkey.pem:ro
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:3000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+
+  # -------------------- PostgreSQL数据库 --------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: open-foundation-postgres
+    hostname: postgres
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${POSTGRES_PORT:-5432}:5432"
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - POSTGRES_USER=foundation
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-foundation123}
+      - POSTGRES_DB=open_digital_foundation
+      - PGDATA=/var/lib/postgresql/data/pgdata
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foundation -d open_digital_foundation"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # -------------------- Redis缓存 --------------------
+  redis:
+    image: redis:7-alpine
+    container_name: open-foundation-redis
+    hostname: redis
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${REDIS_PORT:-6379}:6379"
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 512mb
+      --maxmemory-policy allkeys-lru
+    volumes:
+      - redis_data:/data
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "2"
+
+  # -------------------- MinIO对象存储 --------------------
+  minio:
+    image: minio/minio:latest
+    container_name: open-foundation-minio
+    hostname: minio
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${MINIO_API_PORT:-9000}:9000"
+      - "127.0.0.1:${MINIO_CONSOLE_PORT:-9001}:9001"
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - MINIO_ROOT_USER=${MINIO_ACCESS_KEY:-minioadmin}
+      - MINIO_ROOT_PASSWORD=${MINIO_SECRET_KEY:-minioadmin}
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+      interval: 30s
+      timeout: 20s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "2"
+
+  # -------------------- Kafka消息队列 --------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: open-foundation-kafka
+    hostname: kafka
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${KAFKA_PORT:-9092}:9092"
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - KAFKA_BROKER_ID=1
+      - KAFKA_ZOOKEEPER_CONNECT=zookeeper:2181
+      - KAFKA_LISTENERS=PLAINTEXT://0.0.0.0:9092
+      - KAFKA_ADVERTISED_LISTENERS=PLAINTEXT://kafka:9092
+      - KAFKA_LISTENER_SECURITY_PROTOCOL_MAP=PLAINTEXT:PLAINTEXT
+      - KAFKA_INTER_BROKER_LISTENER_NAME=PLAINTEXT
+      - KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR=1
+      - KAFKA_TRANSACTION_STATE_LOG_MIN_ISR=1
+      - KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR=1
+      - KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS=0
+      - KAFKA_AUTO_CREATE_TOPICS_ENABLE=true
+    depends_on:
+      - zookeeper
+    volumes:
+      - kafka_data:/var/lib/kafka/data
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "kafka-broker-api-versions", "-bootstrap-server", "localhost:9092"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+    deploy:
+      resources:
+        limits:
+          memory: 2G
+        reservations:
+          memory: 512M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "50m"
+        max-file: "3"
+
+  # -------------------- Zookeeper (Kafka依赖) --------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: open-foundation-zookeeper
+    hostname: zookeeper
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ZOOKEEPER_PORT:-2181}:2181"
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - ZOOKEEPER_CLIENT_PORT=2181
+      - ZOOKEEPER_TICK_TIME=2000
+    volumes:
+      - zookeeper_data:/var/lib/zookeeper/data
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "nc", "-z", "localhost", "2181"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "2"
+
+  # ============================================================
+  # Prometheus 指标采集 (v2.2.0)
+  # ============================================================
+  prometheus:
+    image: prom/prometheus:v2.51.0
+    container_name: open-foundation-prometheus
+    hostname: prometheus
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${PROMETHEUS_PORT:-9090}:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml:ro
+      - ./prometheus/rules:/etc/prometheus/rules:ro
+      - prometheus_data:/prometheus
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+      - '--storage.tsdb.path=/prometheus'
+      - '--storage.tsdb.retention.time=15d'
+      - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+      - '--web.console.templates=/usr/share/prometheus/consoles'
+      - '--web.enable-lifecycle'
+    depends_on:
+      - backend
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9090/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    deploy:
+      resources:
+        limits:
+          memory: 1G
+        reservations:
+          memory: 256M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "2"
+
+  # Alertmanager image is intentionally isolated behind a profile. The profile
+  # must only be enabled after the pinned image exists locally; deployment uses
+  # --pull never so production never downloads an unreviewed image implicitly.
+  alertmanager:
+    image: prom/alertmanager:${ALERTMANAGER_VERSION:-v0.27.0}
+    container_name: kp-alertmanager
+    hostname: alertmanager
+    profiles:
+      - observability-notifications
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:${ALERTMANAGER_PORT:-9093}:9093"
+    command:
+      - '--config.file=/etc/alertmanager/alertmanager.yml'
+      - '--storage.path=/alertmanager'
+      - '--data.retention=120h'
+    volumes:
+      - ./alertmanager/alertmanager.yml:/etc/alertmanager/alertmanager.yml:ro
+      - alertmanager_data:/alertmanager
+    secrets:
+      - alertmanager_webhook_token
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:9093/-/healthy"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    deploy:
+      resources:
+        limits:
+          memory: 256M
+        reservations:
+          memory: 64M
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "20m"
+        max-file: "2"
+
+  # ============================================================
+  # Grafana 监控面板 (v2.2.0)
+  # ============================================================
+  grafana:
+    image: grafana/grafana:10.2.0
+    container_name: kp-grafana
+    restart: unless-stopped
+    ports:
+      - "${GRAFANA_PORT:-18082}:3000"
+    environment:
+      - MPLCONFIGDIR=/tmp
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD__FILE=/run/secrets/grafana_admin_password
+      - GF_AUTH_ANONYMOUS_ENABLED=false
+      - GF_USERS_ALLOW_SIGN_UP=false
+      - GF_INSTALL_PLUGINS=grafana-piechart-panel
+    secrets:
+      - grafana_admin_password
+    volumes:
+      - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/provisioning/dashboards/foundation-overview.json:/etc/grafana/dashboards/foundation-overview.json:ro
+    networks:
+      - open-digital-foundation_foundation-network
+    healthcheck:
+      test: ["CMD", "wget", "-q", "--spider", "http://localhost:3000/api/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s

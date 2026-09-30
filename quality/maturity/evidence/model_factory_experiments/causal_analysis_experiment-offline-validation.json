@@ -1,0 +1,346 @@
+{
+  "audit": {
+    "create_execute_events": [
+      {
+        "action": "create",
+        "actor_id": "offline-evidence/api",
+        "job_id": 1,
+        "kind": "causal",
+        "organization_id": 101,
+        "outcome": "success"
+      },
+      {
+        "action": "execute",
+        "actor_id": "offline-evidence/worker",
+        "job_id": 1,
+        "kind": "causal",
+        "organization_id": 101,
+        "outcome": "completed"
+      }
+    ],
+    "default_platform_writer_used": false,
+    "does_not_prove": "audit_logs persistence or online delivery",
+    "mode": "in_memory_injected_writer",
+    "proves": "sanitized attributable event contract in the runtime code path",
+    "verified_lifecycles": [
+      "create_execute_completed",
+      "create_cancel",
+      "create_execute_failed"
+    ]
+  },
+  "checks": [
+    {
+      "id": "real-runtime:causal",
+      "passed": true,
+      "status": "completed"
+    },
+    {
+      "id": "finite-real-metrics:causal",
+      "metric_count": 13,
+      "passed": true
+    },
+    {
+      "id": "deterministic-replay:causal",
+      "passed": true
+    },
+    {
+      "id": "artifact-checksum:causal",
+      "passed": true,
+      "sha256": "87b131575154ed935b023ef108fea92e38c41052c2bf3bc448859bdb471e65f1"
+    },
+    {
+      "id": "structured-audit:create-execute:causal",
+      "passed": true
+    },
+    {
+      "id": "scratch-cleanup",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-missing-explicit-fixture",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentAccessDenied",
+      "id": "reject-cross-tenant-read",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-unknown-experiment-node",
+      "passed": true
+    },
+    {
+      "evidence_eligible": false,
+      "id": "beta-evidence-rejects-missing-artifact",
+      "passed": true,
+      "runtime_status": "completed"
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "cancel",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "cancelled"
+        }
+      ],
+      "id": "structured-audit-cancel-lifecycle",
+      "passed": true
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "failed"
+        }
+      ],
+      "id": "structured-audit-failed-lifecycle",
+      "passed": true
+    }
+  ],
+  "cleanup": {
+    "completed": true,
+    "production_resources_touched": false,
+    "scratch_retained": false
+  },
+  "completed_at": "2026-07-18T05:05:30.146953Z",
+  "data_classification": "fixture",
+  "environment": "offline-local-runtime-with-no-platform-services",
+  "evidence_categories": [
+    "real_service",
+    "deterministic_data",
+    "positive_negative_paths",
+    "audit",
+    "cleanup"
+  ],
+  "experiment": {
+    "artifact_bytes_reproducible": true,
+    "config": {
+      "confounders": [
+        "Z"
+      ],
+      "fixture_mode": true,
+      "method": "linear_regression",
+      "outcome": "Y",
+      "treatment": "X"
+    },
+    "first_run": {
+      "artifact": {
+        "file_name": "causal_ols.json",
+        "sha256": "87b131575154ed935b023ef108fea92e38c41052c2bf3bc448859bdb471e65f1",
+        "size_bytes": 1221
+      },
+      "audit_events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "completed"
+        }
+      ],
+      "data_source": {
+        "fixture": "causal_linear_v1",
+        "type": "deterministic_fixture"
+      },
+      "metrics": {
+        "adjusted_r2": 0.9992223135827096,
+        "causal_effect": 2.0021764969245037,
+        "causal_effect_ci95_high": 2.0288010061476576,
+        "causal_effect_ci95_low": 1.9755519877013499,
+        "causal_effect_p_value_normal_approx": 0.0,
+        "causal_effect_std_error": 0.013583933277119275,
+        "confounding_bias": 1.0236529270416486,
+        "feature_count": 2,
+        "naive_correlation": 0.9884800841955478,
+        "naive_effect": 3.0258294239661523,
+        "r2": 0.9992288214188376,
+        "residual_rmse": 0.06050504668418165,
+        "samples": 240
+      },
+      "registered_model_count": 1,
+      "registered_version_count": 1,
+      "status": "completed"
+    },
+    "kind": "causal",
+    "metrics_reproducible": true,
+    "repeat_run": {
+      "artifact": {
+        "file_name": "causal_ols.json",
+        "sha256": "87b131575154ed935b023ef108fea92e38c41052c2bf3bc448859bdb471e65f1",
+        "size_bytes": 1221
+      },
+      "audit_events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "completed"
+        }
+      ],
+      "data_source": {
+        "fixture": "causal_linear_v1",
+        "type": "deterministic_fixture"
+      },
+      "metrics": {
+        "adjusted_r2": 0.9992223135827096,
+        "causal_effect": 2.0021764969245037,
+        "causal_effect_ci95_high": 2.0288010061476576,
+        "causal_effect_ci95_low": 1.9755519877013499,
+        "causal_effect_p_value_normal_approx": 0.0,
+        "causal_effect_std_error": 0.013583933277119275,
+        "confounding_bias": 1.0236529270416486,
+        "feature_count": 2,
+        "naive_correlation": 0.9884800841955478,
+        "naive_effect": 3.0258294239661523,
+        "r2": 0.9992288214188376,
+        "residual_rmse": 0.06050504668418165,
+        "samples": 240
+      },
+      "registered_model_count": 1,
+      "registered_version_count": 1,
+      "status": "completed"
+    }
+  },
+  "module_id": "causal_analysis_experiment",
+  "negative_paths": [
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-missing-explicit-fixture",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentAccessDenied",
+      "id": "reject-cross-tenant-read",
+      "passed": true
+    },
+    {
+      "error_type": "ExperimentValidationError",
+      "id": "reject-unknown-experiment-node",
+      "passed": true
+    },
+    {
+      "evidence_eligible": false,
+      "id": "beta-evidence-rejects-missing-artifact",
+      "passed": true,
+      "runtime_status": "completed"
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "cancel",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "cancelled"
+        }
+      ],
+      "id": "structured-audit-cancel-lifecycle",
+      "passed": true
+    },
+    {
+      "event_count": 2,
+      "events": [
+        {
+          "action": "create",
+          "actor_id": "offline-evidence/api",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "success"
+        },
+        {
+          "action": "execute",
+          "actor_id": "offline-evidence/worker",
+          "job_id": 1,
+          "kind": "causal",
+          "organization_id": 101,
+          "outcome": "failed"
+        }
+      ],
+      "id": "structured-audit-failed-lifecycle",
+      "passed": true
+    }
+  ],
+  "passed": true,
+  "schema_version": 1,
+  "scope": {
+    "does_not_prove": [
+      "persistence",
+      "rbac_tenant",
+      "audit_persistence",
+      "observability",
+      "performance",
+      "recovery",
+      "e2e",
+      "production_data",
+      "field_acceptance",
+      "long_run",
+      "reproducible_release"
+    ],
+    "note": "Audit proves only the sanitized create/execute/cancel/failure code contract through an injected in-memory writer. It does not prove audit_logs persistence. Observability remains unproven because this is a single-process offline run. No database, broker, service deployment, or production dataset was used.",
+    "proves": [
+      "real_service",
+      "deterministic_data",
+      "positive_negative_paths",
+      "audit",
+      "cleanup"
+    ]
+  },
+  "started_at": "2026-07-18T05:05:27.523232Z"
+}

@@ -1,0 +1,57 @@
+services:
+  ray-head:
+    image: open-foundation-backend:2.2.0
+    container_name: kp-ray-head
+    hostname: ray-head
+    restart: unless-stopped
+    command: ["ray", "start", "--head", "--port=6379", "--dashboard-host=0.0.0.0", "--dashboard-port=8265", "--num-cpus=6", "--block"]
+    shm_size: "1gb"
+    environment:
+      - DATABASE_URL=postgresql://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/open_digital_foundation
+      - MPLCONFIGDIR=/tmp
+    volumes:
+      - ./backend/uploads:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "ray status --address=ray-head:6379 >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    networks:
+      - foundation-network
+
+  ray-worker:
+    image: open-foundation-backend:2.2.0
+    container_name: kp-ray-worker
+    hostname: ray-worker
+    restart: unless-stopped
+    depends_on:
+      - ray-head
+    command: ["sh", "-c", "until ray start --address=ray-head:6379 --num-cpus=6 --block; do sleep 3; done"]
+    shm_size: "1gb"
+    environment:
+      - DATABASE_URL=postgresql://foundation:${POSTGRES_PASSWORD:-foundation123}@postgres:5432/open_digital_foundation
+      - MPLCONFIGDIR=/tmp
+    volumes:
+      - ./backend/uploads:/app/uploads
+    healthcheck:
+      test: ["CMD-SHELL", "ray status --address=ray-head:6379 >/dev/null 2>&1"]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 20s
+    deploy:
+      resources:
+        limits:
+          memory: 6G
+    networks:
+      - foundation-network
+
+networks:
+  foundation-network:
+    external: true
+    name: open-digital-foundation_foundation-network

@@ -1,0 +1,37 @@
+# Kubernetes Ingress配置
+# 使用方法: kubectl apply -f ingress.yaml
+# 注意: 需要先部署ingress-controller
+
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: foundation-ingress
+  namespace: open-foundation
+  annotations:
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "300"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "300"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: open-foundation.example.com
+      http:
+        paths:
+          - path: /api
+            pathType: Prefix
+            backend:
+              service:
+                name: foundation-backend
+                port:
+                  number: 8001
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: foundation-frontend
+                port:
+                  number: 3000
+  tls:
+    - hosts:
+        - open-foundation.example.com
+      secretName: foundation-tls-secret

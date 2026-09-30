@@ -1,0 +1,2 @@
+"""Rotating-equipment fault fixture."""
+

@@ -1,0 +1,10 @@
+# Open Digital Foundation Kubernetes配置
+# 使用方法: kubectl apply -f namespace.yaml
+
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: open-foundation
+  labels:
+    name: open-foundation
+    environment: production

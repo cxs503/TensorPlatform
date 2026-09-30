@@ -1,0 +1,45 @@
+# ===== Python =====
+__pycache__/
+*.py[cod]
+*.so
+.venv/
+venv/
+env/
+*.egg-info/
+.pytest_cache/
+.mypy_cache/
+.coverage
+.coverage.*
+htmlcov/
+
+# ===== Node / 前端构建产物 =====
+node_modules/
+dist/
+.vite/
+*.local
+
+# ===== 运行时数据 / 训练产物(不进版本库,部署时由运行时生成) =====
+backend/uploads/
+**/mlruns/
+*.sqlite
+*.sqlite3
+backend/jupyterhub.sqlite
+backend/jupyterhub_cookie_secret
+
+# ===== 测试临时数据库 =====
+/test.db
+backend/test_new_modules.db
+
+# ===== 敏感配置(含密码,严禁提交) =====
+.env
+.env.local
+!.env.docker.example
+secrets/*
+
+# ===== IDE / 系统 =====
+.DS_Store
+.idea/
+.vscode/
+*.swp
+*.log
+agent_memory.db

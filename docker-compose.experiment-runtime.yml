@@ -1,0 +1,79 @@
+# Model Factory experiment runtime overlay.
+#
+# Apply after the normal production files:
+#   docker compose -f docker-compose.yml -f docker-compose.prod.yml \
+#     -f docker-compose.experiment-runtime.yml config --quiet
+#
+# This overlay deliberately reuses the currently approved backend image.  The
+# experiment revision and the host's verified Python environment are mounted
+# read-only; no dependency is installed and the container environment remains
+# the primary import source.
+
+volumes:
+  experiment_artifacts:
+    name: ${EXPERIMENT_ARTIFACT_VOLUME:-kp-experiment-artifacts}
+
+services:
+  experiment-artifact-init:
+    image: open-foundation-backend:2.2.0
+    user: "0:0"
+    restart: "no"
+    command:
+      - sh
+      - -c
+      - install -d -o foundation -g foundation -m 0750 /app/uploads/experiments
+    volumes:
+      - experiment_artifacts:/app/uploads/experiments
+
+  backend:
+    environment:
+      - EXPERIMENT_ARTIFACT_ROOT=/app/uploads/experiments
+    depends_on:
+      experiment-artifact-init:
+        condition: service_completed_successfully
+    volumes:
+      - experiment_artifacts:/app/uploads/experiments
+      - ${EXPERIMENT_HOST_SITE_PACKAGES:-./backend/.venv/lib/python3.11/site-packages}:/opt/foundation-host-site-packages:ro
+      - ./deploy/experiment-runtime/foundation_host_runtime.pth:/opt/venv/lib/python3.11/site-packages/foundation_host_runtime.pth:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/causal_api.py:/app/api/causal_api.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/deps.py:/app/api/deps.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/experiment_http.py:/app/api/experiment_http.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/gan_training.py:/app/api/gan_training.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/gnn_training.py:/app/api/gnn_training.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/metrics_api.py:/app/api/metrics_api.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/recsys_training.py:/app/api/recsys_training.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/api/tenant_access.py:/app/api/tenant_access.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/models/core.py:/app/models/core.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_algorithms_causal_recsys.py:/app/services/experiment_algorithms_causal_recsys.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_algorithms_gnn_gan.py:/app/services/experiment_algorithms_gnn_gan.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_audit.py:/app/services/experiment_audit.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_runtime.py:/app/services/experiment_runtime.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/tasks/celery_app.py:/app/tasks/celery_app.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/tasks/experiment_tasks.py:/app/tasks/experiment_tasks.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/utils/experiment_metrics.py:/app/utils/experiment_metrics.py:ro
+
+  celery-worker:
+    # Explicit --include is required because this is a no-build overlay and the
+    # approved image may predate tasks.experiment_tasks.
+    command: >-
+      celery -A tasks.celery_app worker
+      --loglevel=${CELERY_LOG_LEVEL:-warning}
+      --concurrency=${CELERY_CONCURRENCY:-4}
+      --include=tasks.experiment_tasks
+    environment:
+      - EXPERIMENT_ARTIFACT_ROOT=/app/uploads/experiments
+    depends_on:
+      experiment-artifact-init:
+        condition: service_completed_successfully
+    volumes:
+      - experiment_artifacts:/app/uploads/experiments
+      - ${EXPERIMENT_HOST_SITE_PACKAGES:-./backend/.venv/lib/python3.11/site-packages}:/opt/foundation-host-site-packages:ro
+      - ./deploy/experiment-runtime/foundation_host_runtime.pth:/opt/venv/lib/python3.11/site-packages/foundation_host_runtime.pth:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/models/core.py:/app/models/core.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_algorithms_causal_recsys.py:/app/services/experiment_algorithms_causal_recsys.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_algorithms_gnn_gan.py:/app/services/experiment_algorithms_gnn_gan.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_audit.py:/app/services/experiment_audit.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/services/experiment_runtime.py:/app/services/experiment_runtime.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/tasks/celery_app.py:/app/tasks/celery_app.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/tasks/experiment_tasks.py:/app/tasks/experiment_tasks.py:ro
+      - ${EXPERIMENT_RUNTIME_SOURCE_ROOT:-./backend}/utils/experiment_metrics.py:/app/utils/experiment_metrics.py:ro

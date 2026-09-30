@@ -1,0 +1,30 @@
+# Compatibility layer for the long-running production stack.  Historic
+# containers use the kp-* names; keeping those names during reconciliation
+# prevents Compose from creating a second API/frontend beside the live one.
+services:
+  tdengine:
+    container_name: kp-tdengine
+  tdengine-init:
+    container_name: kp-tdengine-init
+  backend:
+    container_name: kp-backend
+  celery-worker:
+    container_name: kp-celery
+  celery-beat:
+    container_name: kp-celery-beat
+  frontend:
+    container_name: kp-frontend
+  postgres:
+    container_name: kp-postgres
+  redis:
+    container_name: kp-redis
+  minio:
+    container_name: kp-minio
+  kafka:
+    container_name: kp-kafka
+  zookeeper:
+    container_name: kp-zookeeper
+  prometheus:
+    container_name: kp-prometheus
+  grafana:
+    container_name: kp-grafana
