@@ -2,6 +2,9 @@
 
 TensorPlatform is the shared data and AI platform for the Tensor engineering ecosystem. The upstream distribution name was Open Digital Foundation; this repository is the TensorPlatform-maintained integration and development home.
 
+**System-wide overview:** [Tensor Ecosystem System Overview](https://github.com/cxs503/TensorPhysics/blob/main/docs/SYSTEM_OVERVIEW.md) — architecture, repository boundaries, shared contracts, end-to-end workflow and icebreaker application roadmap.
+
+
 A domain-neutral foundation for data integration, governance, workflow
 orchestration, AI model lifecycle management, deployment and observability.
 
