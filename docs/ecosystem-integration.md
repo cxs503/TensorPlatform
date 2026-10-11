@@ -27,3 +27,12 @@ For an icebreaker/ice-fracture workflow, specialist solvers produce fluid, struc
 3. Dataset creation records source artifacts, transformation/configuration and validation status.
 4. Access to jobs, artifacts and models is permission-checked and auditable.
 5. A minimal integration test proves artifact registration and lineage without requiring a specific storage vendor or ML framework.
+
+## Repository map
+
+- [TensorPlatform](https://github.com/cxs503/TensorPlatform) — shared data and AI services.
+- [TensorPhysics](https://github.com/cxs503/TensorPhysics) — scientific workflow orchestration and multiphysics coordination.
+- [TensorLBM](https://github.com/cxs503/TensorLBM) — lattice Boltzmann solver.
+- [TensorFVM](https://github.com/cxs503/TensorFVM) — finite-volume solver.
+- [TensorFEM](https://github.com/cxs503/TensorFEM) — finite-element solver.
+- [TensorDEM](https://github.com/cxs503/TensorDEM) — discrete-element solver.
