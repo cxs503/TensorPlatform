@@ -1,4 +1,6 @@
-# Open Digital Foundation
+# TensorPlatform
+
+TensorPlatform is the shared data and AI platform for the Tensor engineering ecosystem. The upstream distribution name was Open Digital Foundation; this repository is the TensorPlatform-maintained integration and development home.
 
 A domain-neutral foundation for data integration, governance, workflow
 orchestration, AI model lifecycle management, deployment and observability.
