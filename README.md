@@ -19,3 +19,7 @@ Domain solutions must be delivered as separately maintained adapters/plugins.
 
 Runtime secrets are supplied through environment variables. The release must
 pass `scripts/open_source_gate.py`; generated data and artifacts are ignored.
+
+## Tensor ecosystem integration
+
+This repository's role, interface boundaries, data-exchange requirements and recommended integration path are documented in [Ecosystem Integration](docs/ecosystem-integration.md).
