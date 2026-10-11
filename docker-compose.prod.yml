@@ -1,0 +1,108 @@
+# 开放数字化底座 - 生产环境 Docker Compose 配置
+# 与 docker-compose.yml 配合使用，覆盖生产环境特定配置
+
+services:
+  # 后端服务 - 生产环境配置
+  backend:
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 8G
+        reservations:
+          cpus: '1'
+          memory: 2G
+      restart_policy:
+        condition: on-failure
+        delay: 5s
+        max_attempts: 3
+        window: 120s
+    environment:
+      - ENVIRONMENT=production
+      - LOG_LEVEL=WARNING
+      - WORKERS=4
+    command: python -m uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
+
+  # Celery Worker - 生产环境配置
+  celery-worker:
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '0.5'
+          memory: 1G
+    command: celery -A tasks.celery_app worker --loglevel=warning --concurrency=4
+
+  # PostgreSQL - 生产环境配置
+  postgres:
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 2G
+    command:
+      - postgres
+      - -c
+      - max_connections=200
+      - -c
+      - shared_buffers=1GB
+      - -c
+      - effective_cache_size=3GB
+      - -c
+      - maintenance_work_mem=256MB
+      - -c
+      - checkpoint_completion_target=0.9
+      - -c
+      - wal_buffers=16MB
+      - -c
+      - default_statistics_target=100
+      - -c
+      - random_page_cost=1.1
+      - -c
+      - effective_io_concurrency=200
+
+  # Redis - 生产环境配置
+  redis:
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+    command: >
+      redis-server
+      --appendonly yes
+      --maxmemory 1gb
+      --maxmemory-policy allkeys-lru
+      --save 60 1000
+
+  # MinIO - 生产环境配置
+  minio:
+    deploy:
+      resources:
+        limits:
+          cpus: '1'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
+
+  # Kafka - 生产环境配置
+  kafka:
+    deploy:
+      resources:
+        limits:
+          cpus: '2'
+          memory: 4G
+        reservations:
+          cpus: '1'
+          memory: 1G
+    environment:
+      - KAFKA_HEAP_OPTS=-Xms1g -Xmx2g

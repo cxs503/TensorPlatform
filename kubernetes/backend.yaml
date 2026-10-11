@@ -1,0 +1,127 @@
+# Open Digital Foundation 后端API部署
+# 使用方法: kubectl apply -f backend.yaml
+
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: foundation-backend
+  namespace: open-foundation
+spec:
+  replicas: 2
+  selector:
+    matchLabels:
+      app: foundation-backend
+  template:
+    metadata:
+      labels:
+        app: foundation-backend
+    spec:
+      containers:
+        - name: backend
+          image: open-foundation-backend:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - containerPort: 8001
+              name: http
+          env:
+            - name: DATABASE_URL
+              valueFrom:
+                configMapKeyRef:
+                  name: foundation-config
+                  key: DATABASE_URL
+            - name: REDIS_HOST
+              valueFrom:
+                configMapKeyRef:
+                  name: foundation-config
+                  key: REDIS_HOST
+            - name: REDIS_PORT
+              valueFrom:
+                configMapKeyRef:
+                  name: foundation-config
+                  key: REDIS_PORT
+            - name: MINIO_ENDPOINT
+              valueFrom:
+                configMapKeyRef:
+                  name: foundation-config
+                  key: MINIO_ENDPOINT
+            - name: MINIO_BUCKET
+              valueFrom:
+                configMapKeyRef:
+                  name: foundation-config
+                  key: MINIO_BUCKET
+            - name: USE_MINIO
+              valueFrom:
+                configMapKeyRef:
+                  name: foundation-config
+                  key: USE_MINIO
+            - name: OPENROUTER_API_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: foundation-secrets
+                  key: OPENROUTER_API_KEY
+            - name: JWT_SECRET_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: foundation-secrets
+                  key: JWT_SECRET_KEY
+          resources:
+            requests:
+              memory: "512Mi"
+              cpu: "500m"
+            limits:
+              memory: "1Gi"
+              cpu: "1000m"
+          livenessProbe:
+            httpGet:
+              path: /api/v1/monitoring/health
+              port: 8001
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/v1/monitoring/health
+              port: 8001
+            initialDelaySeconds: 10
+            periodSeconds: 5
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: foundation-backend
+  namespace: open-foundation
+spec:
+  selector:
+    app: foundation-backend
+  ports:
+    - port: 8001
+      targetPort: 8001
+      protocol: TCP
+  type: ClusterIP
+
+---
+apiVersion: autoscaling/v2
+kind: HorizontalPodAutoscaler
+metadata:
+  name: foundation-backend-hpa
+  namespace: open-foundation
+spec:
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: foundation-backend
+  minReplicas: 2
+  maxReplicas: 10
+  metrics:
+    - type: Resource
+      resource:
+        name: cpu
+        target:
+          type: Utilization
+          averageUtilization: 70
+    - type: Resource
+      resource:
+        name: memory
+        target:
+          type: Utilization
+          averageUtilization: 80

@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "id": "dust_collection_efficiency",
+  "name": "除尘风机能效优化",
+  "version": "1.0.0",
+  "industry": "steel_environmental_control",
+  "description": "生成风量、阻力、排放、功率与单位风量能耗的确定性测试序列。",
+  "seed": 31003,
+  "start_time": "2026-01-01T00:00:00Z",
+  "frequency_seconds": 60,
+  "default_rows": 96,
+  "modes": ["baseline", "drift", "fault"],
+  "fields": [
+    {"name": "timestamp", "type": "string", "role": "index", "unit": "ISO-8601", "description": "UTC采样时间"},
+    {"name": "scenario_mode", "type": "string", "role": "metadata", "unit": "1", "description": "场景模式", "enum": ["baseline", "drift", "fault"]},
+    {"name": "fan_frequency_hz", "type": "number", "role": "feature", "unit": "Hz", "description": "风机变频频率", "minimum": 32, "maximum": 50},
+    {"name": "airflow_m3_h", "type": "number", "role": "feature", "unit": "m3/h", "description": "处理风量", "minimum": 140000, "maximum": 310000},
+    {"name": "pressure_drop_pa", "type": "number", "role": "feature", "unit": "Pa", "description": "系统压差", "minimum": 900, "maximum": 2500},
+    {"name": "inlet_dust_g_m3", "type": "number", "role": "feature", "unit": "g/m3", "description": "入口粉尘浓度", "minimum": 10, "maximum": 28},
+    {"name": "outlet_dust_mg_m3", "type": "number", "role": "feature", "unit": "mg/m3", "description": "出口粉尘浓度", "minimum": 2, "maximum": 40},
+    {"name": "fan_power_kw", "type": "number", "role": "feature", "unit": "kW", "description": "风机有功功率", "minimum": 80, "maximum": 330},
+    {"name": "specific_energy_kwh_per_1000m3", "type": "number", "role": "target", "unit": "kWh/1000m3", "description": "单位处理风量能耗", "minimum": 0.35, "maximum": 1.8},
+    {"name": "condition_label", "type": "string", "role": "ground_truth", "unit": "1", "description": "已知设备工况", "enum": ["normal", "resistance_drift", "bag_blockage"]}
+  ],
+  "limitations": ["风机公式仅保持量纲和趋势合理。", "不能替代排放合规检测或实际变频控制。"]
+}
+

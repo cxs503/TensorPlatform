@@ -1,0 +1,9 @@
+# Fast release image from the locally verified Vue production build. The build
+# is produced by `npm run build` before this Dockerfile is used.
+FROM open-foundation-frontend:2.2.0
+USER root
+ARG foundation_RELEASE_REVISION=unknown
+LABEL org.opencontainers.image.revision=${foundation_RELEASE_REVISION} \
+      org.opencontainers.image.title="foundation AI Platform Vue Frontend"
+COPY frontend-vue/dist/ /usr/share/nginx/html/
+COPY frontend/nginx-default.conf /etc/nginx/conf.d/default.conf

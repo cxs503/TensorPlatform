@@ -1,0 +1,35 @@
+# Immutable release overlay for API, Celery worker and Celery beat.
+# ODF_RELEASE_IMAGE must be a repository@sha256:<digest> reference.
+
+services:
+  backend:
+    image: ${ODF_RELEASE_IMAGE:?set an immutable backend image digest}
+    build: !reset null
+    # Keep runtime data, logs and keys, but remove every source-code bind mount
+    # inherited from the development Compose file.
+    volumes: !reset
+      - backend_logs:/var/log/open-foundation
+      - ./backend/uploads:/app/uploads
+      - ./backend/.keys:/app/.keys:ro
+    environment:
+      ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:?set the approved source revision}
+
+  celery-worker:
+    image: ${ODF_RELEASE_IMAGE:?set an immutable backend image digest}
+    build: !reset null
+    volumes: !reset
+      - ./backend/uploads:/app/uploads
+    environment:
+      ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:?set the approved source revision}
+
+  celery-beat:
+    image: ${ODF_RELEASE_IMAGE:?set an immutable backend image digest}
+    build: !reset null
+    environment:
+      ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:?set the approved source revision}
+
+  frontend:
+    image: ${ODF_FRONTEND_RELEASE_IMAGE:?set an immutable frontend image digest}
+    build: !reset null
+    environment:
+      ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:?set the approved source revision}

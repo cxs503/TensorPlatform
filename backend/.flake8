@@ -1,0 +1,8 @@
+# flake8 配置文件
+[flake8]
+max-line-length = 120
+ignore = E501,W503,E203
+exclude = .git,__pycache__,.venv,env,venv,build,dist,migrations,uploads,node_modules
+per-file-ignores =
+    __init__.py: F401
+    tests/*: F811

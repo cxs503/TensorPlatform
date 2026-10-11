@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "policy_id": "foundation-maturity-evidence-v1",
+  "description": "Evidence requirements for Demo, Beta, Release Candidate and Production maturity claims.",
+  "levels": {
+    "demo": {
+      "rank": 0,
+      "label": "Demo",
+      "required_evidence": []
+    },
+    "beta": {
+      "rank": 1,
+      "label": "Beta",
+      "required_evidence": [
+        "real_service",
+        "persistence",
+        "deterministic_data",
+        "positive_negative_paths",
+        "rbac_tenant",
+        "audit",
+        "observability",
+        "e2e",
+        "cleanup"
+      ]
+    },
+    "rc": {
+      "rank": 2,
+      "label": "Production Candidate",
+      "required_evidence": [
+        "real_service",
+        "persistence",
+        "deterministic_data",
+        "positive_negative_paths",
+        "rbac_tenant",
+        "audit",
+        "observability",
+        "performance",
+        "recovery",
+        "e2e",
+        "cleanup"
+      ]
+    },
+    "production": {
+      "rank": 3,
+      "label": "Production",
+      "required_evidence": [
+        "real_service",
+        "persistence",
+        "deterministic_data",
+        "positive_negative_paths",
+        "rbac_tenant",
+        "audit",
+        "observability",
+        "performance",
+        "recovery",
+        "e2e",
+        "cleanup",
+        "production_data",
+        "field_acceptance",
+        "long_run",
+        "reproducible_release"
+      ]
+    }
+  },
+  "evidence_categories": {
+    "real_service": "The path calls a real service or executable implementation; hard-coded success and placeholder results are excluded.",
+    "persistence": "State survives process restart and is stored in the declared durable system.",
+    "deterministic_data": "A versioned fixture, synthetic scenario or replay dataset produces reproducible outputs.",
+    "positive_negative_paths": "Success, validation failure, timeout/cancel and retry or recovery paths are tested as applicable.",
+    "rbac_tenant": "Authentication, permission and cross-tenant denial tests pass.",
+    "audit": "Security- and business-relevant actions create attributable audit records.",
+    "observability": "Health, metrics, structured logs and actionable alert/recovery behavior are verified.",
+    "performance": "A bounded performance baseline passes declared latency, throughput and error thresholds.",
+    "recovery": "Restart, queue retry and/or backup restore behavior passes a documented drill.",
+    "e2e": "A user-visible end-to-end lifecycle passes against the integrated platform.",
+    "cleanup": "Regression assets, jobs, deployments and temporary files are deterministically removed.",
+    "production_data": "A governed representative production or approved anonymized sample has passed distribution validation.",
+    "field_acceptance": "The accountable business and site owners accepted the defined success criteria.",
+    "long_run": "The module passed the declared continuous-operation and fault-injection window.",
+    "reproducible_release": "The tested revision can be rebuilt and deployed from immutable versioned artifacts."
+  },
+  "evidence_statuses": ["pass", "missing", "fail", "expired"],
+  "artifact_types": [
+    "test_report",
+    "service_probe",
+    "data_profile",
+    "security_report",
+    "audit_report",
+    "observability_report",
+    "performance_report",
+    "recovery_report",
+    "e2e_report",
+    "cleanup_report",
+    "acceptance_record",
+    "release_record"
+  ],
+  "category_artifact_types": {
+    "real_service": ["service_probe", "test_report", "e2e_report"],
+    "persistence": ["test_report", "recovery_report", "e2e_report"],
+    "deterministic_data": ["data_profile", "test_report", "e2e_report"],
+    "positive_negative_paths": ["test_report", "e2e_report"],
+    "rbac_tenant": ["security_report", "test_report", "e2e_report"],
+    "audit": ["audit_report", "security_report", "test_report"],
+    "observability": ["observability_report", "test_report", "e2e_report"],
+    "performance": ["performance_report"],
+    "recovery": ["recovery_report"],
+    "e2e": ["e2e_report", "test_report"],
+    "cleanup": ["cleanup_report", "test_report", "e2e_report"],
+    "production_data": ["data_profile"],
+    "field_acceptance": ["acceptance_record"],
+    "long_run": ["performance_report", "observability_report"],
+    "reproducible_release": ["release_record"]
+  }
+}

@@ -1,0 +1,23 @@
+[Unit]
+Description=foundation AI Platform Backend Service
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+User=root
+WorkingDirectory=/root/open-digital-foundation/open-digital-foundation/backend
+EnvironmentFile=/root/open-digital-foundation/open-digital-foundation/backend/.env
+ExecStart=/usr/bin/python3 -m uvicorn main:app --host 0.0.0.0 --port 8001 --workers 4
+Restart=always
+RestartSec=10
+
+# 日志配置
+StandardOutput=append:/var/log/open-foundation/backend.log
+StandardError=append:/var/log/open-foundation/backend-error.log
+
+# 资源限制
+MemoryMax=4G
+CPUQuota=200%
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,27 @@
+{
+  "schema_version": "1.0",
+  "id": "plant_load_forecast",
+  "name": "全厂电力负荷预测",
+  "version": "1.0.0",
+  "industry": "steel_energy",
+  "description": "生成小时、班次、产量、氧气流量和环境温度驱动的全厂电力负荷测试序列。",
+  "seed": 31004,
+  "start_time": "2026-01-01T00:00:00Z",
+  "frequency_seconds": 3600,
+  "default_rows": 168,
+  "modes": ["baseline", "drift", "fault"],
+  "fields": [
+    {"name": "timestamp", "type": "string", "role": "index", "unit": "ISO-8601", "description": "UTC采样时间"},
+    {"name": "scenario_mode", "type": "string", "role": "metadata", "unit": "1", "description": "场景模式", "enum": ["baseline", "drift", "fault"]},
+    {"name": "hour_of_day", "type": "integer", "role": "feature", "unit": "h", "description": "小时", "minimum": 0, "maximum": 23},
+    {"name": "shift_id", "type": "integer", "role": "feature", "unit": "1", "description": "班次", "minimum": 1, "maximum": 3},
+    {"name": "is_weekend", "type": "integer", "role": "feature", "unit": "1", "description": "周末标记", "minimum": 0, "maximum": 1},
+    {"name": "ambient_temperature_c", "type": "number", "role": "feature", "unit": "degC", "description": "环境温度", "minimum": -5, "maximum": 38},
+    {"name": "steel_output_t_h", "type": "number", "role": "feature", "unit": "t/h", "description": "钢材产量", "minimum": 280, "maximum": 560},
+    {"name": "oxygen_flow_nm3_h", "type": "number", "role": "feature", "unit": "Nm3/h", "description": "氧气流量", "minimum": 27000, "maximum": 43000},
+    {"name": "plant_load_mw", "type": "number", "role": "target", "unit": "MW", "description": "全厂电力负荷", "minimum": 110, "maximum": 250},
+    {"name": "event_label", "type": "string", "role": "ground_truth", "unit": "1", "description": "已知负荷事件", "enum": ["normal", "demand_drift", "unplanned_peak"]}
+  ],
+  "limitations": ["不包含真实电价、检修和生产计划。", "不能作为购电计划或需求响应依据。"]
+}
+

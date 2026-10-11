@@ -1,0 +1,49 @@
+# -*-: utf-8 -*-
+"""
+Pre-commit 配置文件
+"""
+repository: https://github.com/pre-commit/pre-commit-hooks
+rev: v4.5.0
+
+hooks:
+  # Code quality
+  - id: trailing-whitespace
+  - id: end-of-file-fixer
+  - id: check-yaml
+    exclude: kubernetes/
+
+  # Python
+  - id: check-ast
+  - id: check-builtin-literals
+  - id: check-case-conflict
+  - id: check-docstring-first
+  - id: check-executables-have-shebangs
+  - id: check-json
+  - id: check-merge-conflict
+  - id: check-shebang-scripts-are-executable
+  - id: check-symlinks
+  - id: check-toml
+  - id: check-xml
+  - id: debug-statements
+  - id: detect-private-key
+  - id: double-quote-string-fixer
+  - id: fix-requirements-txt
+  - id: name-tests-test
+    args: [--testdir, tests]
+  - id: requirements-split
+  - id: startserver
+  - id: check-yaml
+    exclude: kubernetes/
+
+  # Black code formatter
+  - id: black
+    language_version: python3.11
+
+  # isort imports
+  - id: isort
+    args: ['--profile', 'black']
+
+  # mypy type checking
+  - id: mypy
+    files: ^backend/
+    args: [--config, backend/mypy.ini]

@@ -1,0 +1,14 @@
+# Grafana 仪表盘自动配置 — 从文件加载
+apiVersion: 1
+
+providers:
+  - name: 'open-foundation-dashboards'
+    orgId: 1
+    folder: 'Open Foundation'
+    type: file
+    disableDeletion: false
+    updateIntervalSeconds: 30
+    allowUiUpdates: false
+    options:
+      path: /etc/grafana/dashboards
+      foldersFromFilesStructure: false

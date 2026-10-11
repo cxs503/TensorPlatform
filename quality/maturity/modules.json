@@ -1,0 +1,457 @@
+{
+  "assessment_date": "2026-07-18",
+  "assessment_scope": "Foundation-stage platform using test, deterministic synthetic and replay data; no large-scale production-data claim.",
+  "evidence_import_note": "Model-factory causal, recommendation, GNN and GAN experiments have only real-service, deterministic fixture, scoped negative-path, code-level audit and cleanup evidence; all remaining Beta evidence is still required.",
+  "evidence_import_status": "partial_offline",
+  "modules": [
+    {
+      "basis": "登录、健康检查、核心回归、迁移与备份恢复曾完成，但尚未导入不可变发布、长稳和现场验收证据。",
+      "evidence": {},
+      "frontend_label": "production",
+      "id": "core_platform",
+      "known_gaps": [
+        "可信 TLS 与统一身份尚未启用",
+        "当前源码改动尚未固化为不可变发布",
+        "缺少长稳与现场验收记录"
+      ],
+      "name": "基础平台与公共服务",
+      "observed_status": "rc",
+      "owner": "platform",
+      "target_status": "production"
+    },
+    {
+      "basis": "文件型数据闭环可用；持续采集、异常路径和恢复证据仍不完整。",
+      "evidence": {},
+      "frontend_label": "production",
+      "id": "data_governance",
+      "known_gaps": [
+        "缺少持续数据源的断线重连报告",
+        "缺少隔离和审计证据包",
+        "缺少容量与清理报告"
+      ],
+      "name": "数据接入、数据集与质量治理",
+      "observed_status": "beta",
+      "owner": "data-platform",
+      "target_status": "rc"
+    },
+    {
+      "basis": "真实训练到推理生命周期已跑通；生产数据效果、长稳和现场验收不属于当前阶段。",
+      "evidence": {},
+      "frontend_label": "production",
+      "id": "model_factory",
+      "known_gaps": [
+        "缺少受控生产样本分布验证",
+        "缺少连续运行证据",
+        "缺少现场效果验收"
+      ],
+      "name": "训练、MLflow、模型、部署与推理",
+      "observed_status": "rc",
+      "owner": "ml-platform",
+      "target_status": "production"
+    },
+    {
+      "basis": "基本页面和接口存在，部分节点仍需证明为真实执行而非成功占位。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "pipeline_automl",
+      "known_gaps": [
+        "逐节点真实执行证据不足",
+        "失败、取消和重试矩阵不完整",
+        "缺少恢复与性能门禁"
+      ],
+      "name": "Pipeline、AutoML 与特征工程",
+      "observed_status": "beta",
+      "owner": "ml-platform",
+      "target_status": "rc"
+    },
+    {
+      "basis": "存在连接器代码，但尚无持久化配置和模拟协议回放的完整证据。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "industrial_connectivity",
+      "known_gaps": [
+        "缺少协议模拟服务门禁",
+        "缺少断线、重复、乱序和恢复测试",
+        "缺少持久化与租户隔离验证"
+      ],
+      "name": "OPC UA、Modbus、MQTT 与 Kafka 工业接入",
+      "observed_status": "demo",
+      "owner": "industrial-iot",
+      "target_status": "beta"
+    },
+    {
+      "basis": "当前能力以模拟和进程内状态为主，尚未形成虚拟边缘代理的可恢复生命周期。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "edge_delivery",
+      "known_gaps": [
+        "缺少真实制品校验",
+        "缺少断网续传和失败回滚",
+        "缺少心跳、审计和跨租户拒绝证据"
+      ],
+      "name": "边缘注册、制品同步、OTA 与回滚",
+      "observed_status": "demo",
+      "owner": "edge-platform",
+      "target_status": "beta"
+    },
+    {
+      "basis": "部分案例与样本存在，但尚未全部接入确定性场景包和端到端回放。",
+      "evidence": {
+        "cleanup": {
+          "artifact": "quality/maturity/evidence/steel_energy_apps/stage5-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T02:12:45.343441Z",
+          "sha256": "083a1bcbdfc3af8a4ff715367b71c01a63b13d91472753057a5dd341cf4d106d",
+          "status": "pass",
+          "summary": "确定性虚拟场景、离线故障回放及注册资产清理通过；不代表真实服务、持久化或完整 Beta。"
+        },
+        "deterministic_data": {
+          "artifact": "quality/maturity/evidence/steel_energy_apps/stage5-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T02:12:45.343441Z",
+          "sha256": "083a1bcbdfc3af8a4ff715367b71c01a63b13d91472753057a5dd341cf4d106d",
+          "status": "pass",
+          "summary": "确定性虚拟场景、离线故障回放及注册资产清理通过；不代表真实服务、持久化或完整 Beta。"
+        },
+        "positive_negative_paths": {
+          "artifact": "quality/maturity/evidence/steel_energy_apps/stage5-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T02:12:45.343441Z",
+          "sha256": "083a1bcbdfc3af8a4ff715367b71c01a63b13d91472753057a5dd341cf4d106d",
+          "status": "pass",
+          "summary": "确定性虚拟场景、离线故障回放及注册资产清理通过；不代表真实服务、持久化或完整 Beta。"
+        }
+      },
+      "frontend_label": "demo",
+      "id": "steel_energy_apps",
+      "known_gaps": [
+        "需要逐场景数据卡和预期指标",
+        "需要异常、漂移和恢复路径",
+        "虚拟结果必须显式标识"
+      ],
+      "name": "生产过程、除尘、负荷、光伏、故障与碳应用",
+      "observed_status": "demo",
+      "owner": "energy-ai",
+      "target_status": "beta"
+    },
+    {
+      "basis": "可用于离线展示，尚未形成带边界、联锁和故障注入的闭环仿真。",
+      "evidence": {},
+      "frontend_label": "demo",
+      "id": "intelligent_control_twin",
+      "known_gaps": [
+        "缺少确定性闭环仿真",
+        "缺少安全边界和联锁验证",
+        "禁止在无现场验收时声称可生产控制"
+      ],
+      "name": "数字孪生与智能控制",
+      "observed_status": "demo",
+      "owner": "energy-ai",
+      "target_status": "beta"
+    },
+    {
+      "basis": "已有指标和漂移告警接口；需要基线、漂移、恢复的确定性回放证据。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "model_monitoring",
+      "known_gaps": [
+        "告警通知渠道未完整启用",
+        "测试告警与业务告警边界需固化",
+        "缺少恢复和长稳报告"
+      ],
+      "name": "模型监控、漂移、告警与恢复",
+      "observed_status": "beta",
+      "owner": "ml-platform",
+      "target_status": "rc"
+    },
+    {
+      "basis": "当前可作为内部算法目录；授权、调用计量和计费闭环尚未形成。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "algorithm_marketplace",
+      "known_gaps": [
+        "缺少授权执行门禁",
+        "缺少真实调用计量",
+        "缺少版本下架和审计路径"
+      ],
+      "name": "算法目录、授权、计量与计费",
+      "observed_status": "demo",
+      "owner": "platform-business",
+      "target_status": "beta"
+    },
+    {
+      "basis": "已有训练指标和静态基线，但未形成锁定评测集与防泄漏的可重复评测。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "evaluation_center",
+      "known_gaps": [
+        "缺少版本化锁定评测集",
+        "缺少评测数据泄漏检查",
+        "缺少可复核排行榜报告"
+      ],
+      "name": "评测集、盲评、排行榜与报告",
+      "observed_status": "demo",
+      "owner": "ml-governance",
+      "target_status": "beta"
+    },
+    {
+      "basis": "核心资源组织隔离已经建设；需要双组织攻击矩阵、审计完整性和恢复证据。",
+      "evidence": {},
+      "frontend_label": "mixed",
+      "id": "tenant_rbac_audit",
+      "known_gaps": [
+        "缺少双组织全资源越权报告",
+        "缺少审计防篡改证据",
+        "企业 SSO、MFA、SCIM 未接入"
+      ],
+      "name": "租户、RBAC 与审计",
+      "observed_status": "beta",
+      "owner": "security",
+      "target_status": "rc"
+    },
+    {
+      "basis": "页面和部分生成能力存在，当前没有运行中的完整隔离 Notebook 开发环境。",
+      "evidence": {},
+      "frontend_label": "beta",
+      "id": "developer_workspace",
+      "known_gaps": [
+        "缺少工作空间运行与重启恢复",
+        "缺少资源配额和跨租户拒绝",
+        "生成 SDK 需通过可安装和调用门禁"
+      ],
+      "name": "Notebook、SDK 与个人工作空间",
+      "observed_status": "demo",
+      "owner": "developer-platform",
+      "target_status": "beta"
+    },
+    {
+      "basis": "真实OLS已接入统一实验运行时；当前仅具备固定fixture离线证据，尚未完成在线持久化、audit_logs落库、多进程可观测性和E2E准入。",
+      "evidence": {
+        "audit": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/causal_analysis_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "339e025257067a3dd61452a042d3a30a5a69ffa38e63696f58bb02cc5d90977a",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "cleanup": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/causal_analysis_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "339e025257067a3dd61452a042d3a30a5a69ffa38e63696f58bb02cc5d90977a",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "deterministic_data": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/causal_analysis_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "339e025257067a3dd61452a042d3a30a5a69ffa38e63696f58bb02cc5d90977a",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "positive_negative_paths": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/causal_analysis_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "339e025257067a3dd61452a042d3a30a5a69ffa38e63696f58bb02cc5d90977a",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "real_service": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/causal_analysis_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "339e025257067a3dd61452a042d3a30a5a69ffa38e63696f58bb02cc5d90977a",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        }
+      },
+      "frontend_label": "demo",
+      "id": "causal_analysis_experiment",
+      "known_gaps": [
+        "缺少真实队列与数据库持久化回归",
+        "缺少audit_logs在线落库验证（当前audit仅证明内存写入器代码闭环）",
+        "缺少受控组织数据集验证",
+        "缺少多进程可观测性和登录态E2E证据"
+      ],
+      "name": "模型工厂·因果分析实验",
+      "observed_status": "demo",
+      "owner": "ml-platform",
+      "target_status": "beta"
+    },
+    {
+      "basis": "真实矩阵分解已接入统一实验运行时；当前仅具备固定fixture离线证据，尚未完成在线持久化、audit_logs落库、多进程可观测性和E2E准入。",
+      "evidence": {
+        "audit": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/recsys_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "cdf428fa59df871b49340cc5bec7331539ec73f3c46aaf33c41b504a0496cda0",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "cleanup": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/recsys_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "cdf428fa59df871b49340cc5bec7331539ec73f3c46aaf33c41b504a0496cda0",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "deterministic_data": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/recsys_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "cdf428fa59df871b49340cc5bec7331539ec73f3c46aaf33c41b504a0496cda0",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "positive_negative_paths": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/recsys_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "cdf428fa59df871b49340cc5bec7331539ec73f3c46aaf33c41b504a0496cda0",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "real_service": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/recsys_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "cdf428fa59df871b49340cc5bec7331539ec73f3c46aaf33c41b504a0496cda0",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        }
+      },
+      "frontend_label": "demo",
+      "id": "recsys_training_experiment",
+      "known_gaps": [
+        "缺少真实队列与数据库持久化回归",
+        "缺少audit_logs在线落库验证（当前audit仅证明内存写入器代码闭环）",
+        "缺少受控组织数据集验证",
+        "缺少多进程可观测性和登录态E2E证据"
+      ],
+      "name": "模型工厂·推荐系统训练",
+      "observed_status": "demo",
+      "owner": "ml-platform",
+      "target_status": "beta"
+    },
+    {
+      "basis": "真实PyTorch GCN已接入统一实验运行时；当前仅具备固定fixture离线证据，尚未完成在线持久化、audit_logs落库、多进程可观测性和E2E准入。",
+      "evidence": {
+        "audit": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gnn_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "dfc06ebcc92cf10c2cea7052ea88e35ae38adefc20e48634d661961c772789c5",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "cleanup": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gnn_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "dfc06ebcc92cf10c2cea7052ea88e35ae38adefc20e48634d661961c772789c5",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "deterministic_data": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gnn_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "dfc06ebcc92cf10c2cea7052ea88e35ae38adefc20e48634d661961c772789c5",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "positive_negative_paths": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gnn_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "dfc06ebcc92cf10c2cea7052ea88e35ae38adefc20e48634d661961c772789c5",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "real_service": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gnn_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "dfc06ebcc92cf10c2cea7052ea88e35ae38adefc20e48634d661961c772789c5",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        }
+      },
+      "frontend_label": "demo",
+      "id": "gnn_training_experiment",
+      "known_gaps": [
+        "缺少真实队列与数据库持久化回归",
+        "缺少audit_logs在线落库验证（当前audit仅证明内存写入器代码闭环）",
+        "缺少受控组织图数据集验证",
+        "缺少多进程可观测性和登录态E2E证据"
+      ],
+      "name": "模型工厂·GNN训练",
+      "observed_status": "demo",
+      "owner": "ml-platform",
+      "target_status": "beta"
+    },
+    {
+      "basis": "真实PyTorch GAN已接入统一实验运行时；当前仅具备固定fixture离线证据，尚未完成在线持久化、audit_logs落库、多进程可观测性和E2E准入。",
+      "evidence": {
+        "audit": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gan_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "877dd9560ea35319722decc0c91e281713d878e45375f9ffec4fea94dc7c0edb",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "cleanup": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gan_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "877dd9560ea35319722decc0c91e281713d878e45375f9ffec4fea94dc7c0edb",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "deterministic_data": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gan_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "877dd9560ea35319722decc0c91e281713d878e45375f9ffec4fea94dc7c0edb",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "positive_negative_paths": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gan_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "877dd9560ea35319722decc0c91e281713d878e45375f9ffec4fea94dc7c0edb",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        },
+        "real_service": {
+          "artifact": "quality/maturity/evidence/model_factory_experiments/gan_training_experiment-offline-validation.json",
+          "artifact_type": "test_report",
+          "observed_at": "2026-07-18T05:05:30.146953Z",
+          "sha256": "877dd9560ea35319722decc0c91e281713d878e45375f9ffec4fea94dc7c0edb",
+          "status": "pass",
+          "summary": "固定fixture完成真实训练、结构化内存审计、制品校验、负向拒绝与离线清理；审计仅证明代码闭环，不证明audit_logs落库或在线Beta。"
+        }
+      },
+      "frontend_label": "demo",
+      "id": "gan_training_experiment",
+      "known_gaps": [
+        "缺少真实队列与数据库持久化回归",
+        "缺少audit_logs在线落库验证（当前audit仅证明内存写入器代码闭环）",
+        "缺少受控组织数据集验证",
+        "缺少多进程可观测性和登录态E2E证据"
+      ],
+      "name": "模型工厂·GAN训练",
+      "observed_status": "demo",
+      "owner": "ml-platform",
+      "target_status": "beta"
+    }
+  ],
+  "schema_version": 1
+}
