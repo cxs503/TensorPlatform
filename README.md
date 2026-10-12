@@ -12,6 +12,14 @@ This distribution contains no customer identity, production data, private
 models, credentials, deployment addresses, backups, or commercial use cases.
 Domain solutions must be delivered as separately maintained adapters/plugins.
 
+## Role in the Agent-first science factory
+
+TensorPlatform is the **shared trust, data, and research-asset plane** for a lights-out science factory. It gives authorized Agents and workflows governed access to datasets, immutable artifacts, provenance, experiment records, model versions, audit trails, and organizational policy. It does not decide scientific hypotheses or own solver execution logic.
+
+The intended contract is: TensorPhysics executes a bounded experiment and emits a RunManifest plus artifact references; TensorPlatform catalogs those records, applies access and lineage policy, and supports promotion of qualified outputs into reusable datasets and models. A stored result is not automatically validated scientific evidence.
+
+**Architecture:** [Science Factory Architecture](https://github.com/cxs503/TensorPhysics/blob/main/docs/SCIENCE_FACTORY_ARCHITECTURE.md) · [System Overview](https://github.com/cxs503/TensorPhysics/blob/main/docs/SYSTEM_OVERVIEW.md)
+
 ## Role in the Tensor ecosystem
 
 TensorPlatform is the **shared data and AI foundation**, not a second solver or scientific workflow engine.
