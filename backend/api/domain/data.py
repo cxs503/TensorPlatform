@@ -11,7 +11,8 @@ router = APIRouter(tags=["数据中台"])
 
 # ── Data source & dataset management ──
 from api.datasource import router as datasource_router          # prefix="/datasources"
-from api.datasets import router as datasets_router              # prefix="/datasets"
+from api.datasets import router as datasets_router
+from api.tensorphysics_runs import router as tensorphysics_runs_router  # scientific run manifests and artifact references              # prefix="/datasets"
 from api.curated_datasets import router as curated_datasets_router  # prefix="/curated-datasets"
 from api.data_query import router as data_query_router          # prefix="/data-query"
 
@@ -37,6 +38,7 @@ from api.realtime_sensor_monitor import router as realtime_sensor_monitor_router
 # ── Register all sub-routers (preserving their original prefixes) ──
 router.include_router(datasource_router)
 router.include_router(datasets_router)
+router.include_router(tensorphysics_runs_router)
 router.include_router(curated_datasets_router)
 router.include_router(data_query_router)
 router.include_router(data_catalog_router)
