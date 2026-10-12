@@ -104,7 +104,7 @@ def register_run(
             raise HTTPException(status_code=409, detail="run_id already exists with a different manifest")
         return {"run_id": request.run_id, "organization_id": org_id, "created": False, "manifest_sha256": digest}
 
-    db.execute(
+    insert_result = db.execute(
         text("""
             INSERT INTO tensorphysics_runs
                 (organization_id, run_id, status, validation_status, manifest,
@@ -124,6 +124,7 @@ def register_run(
             "user_id": user.get("id"),
         },
     )
+    created = insert_result.rowcount == 1
     db.commit()
     # A concurrent request may have inserted the same key; compare after commit.
     row = db.execute(
@@ -132,7 +133,7 @@ def register_run(
     ).fetchone()
     if not row or row[0] != digest:
         raise HTTPException(status_code=409, detail="run_id already exists with a different manifest")
-    return {"run_id": request.run_id, "organization_id": org_id, "created": True, "manifest_sha256": digest}
+    return {"run_id": request.run_id, "organization_id": org_id, "created": created, "manifest_sha256": digest}
 
 
 @router.get(
