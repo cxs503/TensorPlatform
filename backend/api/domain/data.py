@@ -38,6 +38,7 @@ from api.realtime_sensor_monitor import router as realtime_sensor_monitor_router
 # ── Register all sub-routers (preserving their original prefixes) ──
 router.include_router(datasource_router)
 router.include_router(datasets_router)
+router.include_router(tensorphysics_runs_router)
 router.include_router(curated_datasets_router)
 router.include_router(data_query_router)
 router.include_router(data_catalog_router)
