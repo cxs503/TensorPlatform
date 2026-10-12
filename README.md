@@ -12,6 +12,18 @@ This distribution contains no customer identity, production data, private
 models, credentials, deployment addresses, backups, or commercial use cases.
 Domain solutions must be delivered as separately maintained adapters/plugins.
 
+## Role in the Tensor ecosystem
+
+TensorPlatform is the **shared data and AI foundation**, not a second solver or scientific workflow engine.
+
+- **TensorPhysics** owns scientific workflow execution, solver adapters, multiphysics coordination, run provenance, and numerical acceptance gates.
+- **TensorLBM**, **TensorFVM**, **TensorFEM**, and **TensorDEM** own their specialist numerical kernels and solver-specific validation.
+- **TensorPlatform** provides reusable services for identity and authorization, data catalog and lineage, datasets and experiments, model lifecycle, audit, and platform integration.
+
+The intended engineering loop is: define a case and constraints → plan and execute a reproducible workflow → store run metadata and result artifacts → curate datasets → train and evaluate models → publish versioned models for permitted downstream use. Large fields, trajectories, and checkpoints should be stored as artifacts; the catalog should retain references, provenance, and validation status rather than duplicating large numerical payloads.
+
+**Maturity note:** the README describes the target responsibility boundary, not a claim that every listed service or cross-repository integration is production-ready. See [Ecosystem Integration](docs/ecosystem-integration.md) and the [system overview](https://github.com/cxs503/TensorPhysics/blob/main/docs/SYSTEM_OVERVIEW.md).
+
 ## Core capabilities
 
 - Identity, organizations, RBAC, auditing and tenant isolation
