@@ -2,6 +2,8 @@
 
 TensorPlatform exposes a small metadata-only registry for scientific runs. TensorPhysics remains the owner of solver orchestration and numerical acceptance; TensorPlatform stores run identity, manifest, artifact references, validation status and tenant-scoped provenance.
 
+The cross-repository schema and integration acceptance criteria are defined in [Research-loop integration contract](research-loop-integration-contract.md), with the versioned [manifest JSON Schema](../contracts/tensorphysics-run-manifest-v1.schema.json) and an explicitly non-evidentiary [fixture](../examples/research-loop/manifest.fixture.json).
+
 ## Endpoint
 
 Base path: `/api/v1/tensorphysics/runs`
@@ -45,7 +47,7 @@ The real checksum must be the lowercase SHA-256 digest of the referenced artifac
 - The canonical manifest digest is stored as SHA-256 and JSON is stored in PostgreSQL JSONB.
 - Manifests are limited to 1 MB. Large fields, trajectories and checkpoints must remain in artifact/object storage; the API stores references, not payloads.
 - Run status and numerical validation status are independent. A successful run with `validation_status=not_run` remains explicitly unvalidated.
-- The endpoint does not itself ingest files, verify remote object existence, or claim solver correctness.
+- The endpoint does not itself ingest files, verify remote object existence, enforce the complete nested JSON Schema, or claim solver correctness. Schema enforcement in this increment is a caller-side responsibility.
 
 ## Database
 
