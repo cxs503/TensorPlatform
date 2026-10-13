@@ -1,0 +1,73 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cxs503/TensorPlatform/contracts/tensorphysics-run-manifest-v1.schema.json",
+  "title": "TensorPhysics Run Manifest v1",
+  "description": "Portable metadata contract for a scientific run registered with TensorPlatform. Large numerical payloads remain external artifacts.",
+  "type": "object",
+  "required": ["schema_version", "run_id", "status", "validation_status", "outputs"],
+  "properties": {
+    "schema_version": { "const": 1 },
+    "run_id": { "type": "string", "minLength": 1, "maxLength": 200 },
+    "status": { "enum": ["planned", "validating", "queued", "running", "succeeded", "failed", "cancelled", "preempted"] },
+    "validation_status": { "enum": ["not_run", "passed", "failed", "incomplete"] },
+    "goal": {
+      "type": "object",
+      "properties": {
+        "objective": { "type": "string", "minLength": 1 },
+        "hypothesis": { "type": "string" },
+        "acceptance_criteria": { "type": "array", "items": { "type": "object" } }
+      },
+      "additionalProperties": true
+    },
+    "producer": {
+      "type": "object",
+      "required": ["name"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string" },
+        "revision": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "inputs": { "type": "array", "items": { "type": "object" } },
+    "configuration_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+    "environment": { "type": "object" },
+    "resources": { "type": "object" },
+    "metrics": { "type": "object" },
+    "validation": {
+      "type": "object",
+      "properties": {
+        "status": { "enum": ["not_run", "passed", "failed", "incomplete"] },
+        "validator": { "type": "string" },
+        "checks": { "type": "array", "items": { "type": "object" } },
+        "limitations": { "type": "array", "items": { "type": "string" } },
+        "report_uri": { "type": "string" }
+      },
+      "additionalProperties": true
+    },
+    "outputs": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["uri", "media_type", "checksum_sha256", "size_bytes"],
+        "properties": {
+          "uri": { "type": "string", "minLength": 1 },
+          "media_type": { "type": "string", "minLength": 1 },
+          "checksum_sha256": { "type": "string", "pattern": "^[a-f0-9]{64}$" },
+          "size_bytes": { "type": "integer", "minimum": 0 },
+          "role": { "type": "string" },
+          "schema_uri": { "type": "string" },
+          "units": { "type": "string" },
+          "producer_revision": { "type": "string" }
+        },
+        "additionalProperties": true
+      }
+    },
+    "parent_run_ids": { "type": "array", "uniqueItems": true, "items": { "type": "string", "minLength": 1 } },
+    "failure": { "type": "object" },
+    "created_at": { "type": "string", "format": "date-time" },
+    "completed_at": { "type": "string", "format": "date-time" },
+    "limitations": { "type": "array", "items": { "type": "string" } }
+  },
+  "additionalProperties": true
+}
