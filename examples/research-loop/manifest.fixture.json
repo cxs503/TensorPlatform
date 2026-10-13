@@ -1,0 +1,89 @@
+{
+  "schema_version": 1,
+  "run_id": "research-loop-dem-demo-001",
+  "status": "succeeded",
+  "validation_status": "passed",
+  "goal": {
+    "objective": "Exercise the research-run registration contract with a bounded DEM smoke case",
+    "hypothesis": "A finite, time-ordered solver history can pass the demo-level output checks",
+    "acceptance_criteria": [
+      {
+        "id": "history-finite",
+        "description": "All required numeric history fields are finite",
+        "expected": true
+      },
+      {
+        "id": "time-monotonic",
+        "description": "Recorded simulation time is strictly increasing",
+        "expected": true
+      }
+    ]
+  },
+  "producer": {
+    "name": "TensorPhysics",
+    "version": "0.1.0",
+    "revision": "replace-with-actual-git-revision"
+  },
+  "inputs": [
+    {
+      "name": "case",
+      "value": "TensorDEM bounded smoke case",
+      "unit": "1"
+    },
+    {
+      "name": "steps",
+      "value": 20,
+      "unit": "step"
+    }
+  ],
+  "configuration_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+  "environment": {
+    "python": "replace-with-runtime-version",
+    "platform": "replace-with-runtime-platform"
+  },
+  "resources": {
+    "backend": "local",
+    "wall_time_seconds": 0.0
+  },
+  "metrics": {
+    "history_rows": 20
+  },
+  "validation": {
+    "status": "passed",
+    "validator": "demo-output-checks",
+    "checks": [
+      {
+        "id": "history-finite",
+        "status": "passed"
+      },
+      {
+        "id": "time-monotonic",
+        "status": "passed"
+      }
+    ],
+    "limitations": [
+      "Contract fixture only; not evidence of a physically validated icebreaking simulation."
+    ]
+  },
+  "outputs": [
+    {
+      "uri": "file:///replace-with-actual-artifact-path/history.csv",
+      "media_type": "text/csv",
+      "checksum_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size_bytes": 0,
+      "role": "solver-history",
+      "units": "declared-in-file-schema"
+    },
+    {
+      "uri": "file:///replace-with-actual-artifact-path/validation_report.json",
+      "media_type": "application/json",
+      "checksum_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+      "size_bytes": 0,
+      "role": "validation-report"
+    }
+  ],
+  "parent_run_ids": [],
+  "limitations": [
+    "This fixture documents shape and vocabulary only. Replace placeholder revision, hashes, paths, and metrics with actual run evidence before registration."
+  ]
+}
