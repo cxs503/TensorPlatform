@@ -4,6 +4,8 @@ TensorPlatform is the shared data and AI platform for the Tensor engineering eco
 
 **System-wide overview:** [Tensor Ecosystem System Overview](https://github.com/cxs503/TensorPhysics/blob/main/docs/SYSTEM_OVERVIEW.md) — architecture, repository boundaries, shared contracts, end-to-end workflow and icebreaker application roadmap.
 
+**Engineering plan / whitepaper:** [Tensor Autonomous Research Infrastructure — Engineering Development Plan v1.0](docs/roadmap/TENSOR_AUTONOMOUS_RESEARCH_INFRASTRUCTURE_WHITEPAPER_V1.0.md) — current project inventory, implemented capabilities, open gaps, phased roadmap, closed-loop demo and acceptance gates.
+
 A domain-neutral foundation for data integration, governance, workflow orchestration, AI model lifecycle management, deployment and observability.
 
 This distribution contains no customer identity, production data, private models, credentials, deployment addresses, backups, or commercial use cases. Domain solutions must be delivered as separately maintained adapters/plugins.
