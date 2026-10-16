@@ -335,6 +335,8 @@ def rolling_transform(
     if fill_value is not None:
         out = out.replace([np.inf, -np.inf], np.nan).fillna(float(fill_value))
     return out
+
+
 # -------------------- 转换执行 --------------------
 
 def run_transformations(
