@@ -169,33 +169,6 @@ export const moduleGuides: Record<string, GuideEntry> = {
     tips: ['支持单条和批量推理', '推理结果自动记录到日志', '可查看历史推理记录'],
     api: ['POST /inference/model/{id}', 'POST /inference/model/{id}/batch'],
   },
-  '/app/fault-prediction': {
-    title: '故障预测',
-    desc: '基于传感器数据的工业设备故障预测',
-    steps: ['上传或选择传感器数据集', '配置故障类型标签', '训练故障分类/回归模型', '部署模型→实时监测', '故障预警→提前维护'],
-    tips: ['AI4I公开数据集可直接用于测试', '支持多类故障同时监测', '虚警率高可调整分类阈值'],
-  },
-  '/app/energy-efficiency': {
-    title: '能效管理',
-    desc: '工业能耗监测与优化',
-    steps: ['导入能耗数据(电量/功率/负载)', '数据治理和质量检查', '训练能耗预测模型', '分析能耗模式和异常', '生成节能优化建议'],
-    tips: ['高耗能行业公开数据集可直接使用', '特征工程增加时间特征提升精度', '对比治理前后R²差异评估数据质量'],
-  },
-  '/app/carbon': {
-    title: '碳排管理',
-    desc: '企业碳排放核算与管理',
-    steps: ['配置排放因子(电力/煤/天然气)', '录入排放源数据', '查看排放总量和趋势', '导出碳排报告'],
-    tips: ['排放因子自动更新', '支持SCOPE1/2/3分类'],
-    api: ['GET /carbon/factors', 'POST /carbon/emissions'],
-  },
-  '/app/photovoltaic': {
-    title: '光伏管理',
-    desc: '光伏发电系统监测与功率预测',
-    steps: ['添加光伏系统(容量/位置/状态)', '上传功率/辐照度/温度数据', '训练光伏功率预测模型', '对比预测功率和实际发电'],
-    tips: ['辐照度是最重要的特征', '季节和天气影响显著', '公开数据集可辅助验证'],
-    api: ['GET /photovoltaic/systems', 'POST /photovoltaic/systems'],
-  },
-
   // ── 缺失补充 ──
 
   '/model/model-versions': {
@@ -203,11 +176,6 @@ export const moduleGuides: Record<string, GuideEntry> = {
     steps: ['选择模型→查看版本列表', '添加新版本(关联训练任务)', '对比两个版本的指标差异', '回滚到历史版本'],
     tips: ['每次训练自动生成新版本', 'set-current标记使用中版本', '回滚前建议先备份'],
     api: ['POST /model-version/versions', 'GET /model-version/models/{id}/versions'],
-  },
-  '/model/model-templates': {
-    title: '模型模板', desc: '预置工业AI模板: 温度预测/FeO预测/除尘能效等',
-    steps: ['浏览预置模板列表', '选择匹配场景的模板', '模板自动配置算法/参数/数据格式', '基于模板快速创建训练任务'],
-    tips: ['高温窑炉温度推荐RF+8特征', 'FeO推荐工艺参数优化比例+环冷斜率', '模板可自定义修改'],
   },
   '/model/distributed-training': {
     title: '并行参数搜索', desc: '多个 CPU worker 并行训练同一算法的不同参数组合，选择验证指标最优者',
@@ -239,54 +207,6 @@ export const moduleGuides: Record<string, GuideEntry> = {
     api: ['GET /inference/history'],
   },
 
-  '/data/steel-ai-case': {
-    title: '钢铁AI案例', desc: '6步教学向导: 需求→数据→治理→训练→评估→部署',
-    steps: ['需求分析: 定义预测目标(温度/FeO)', '数据采集: 上传SCADA传感器数据', '数据治理: 自动清洗+质量评分', '模型训练: 选RandomForest+配置参数', '模型评估: R²/RMSE/残差分析', '部署上线: 预测服务API'],
-    tips: ['温度预测(43K行)最优R²=0.82', 'FeO预测(44K行)最优R²=0.78', '每步有代码示例和结果说明'],
-  },
-  '/app/blast-furnace': {
-    title: '生产设备优化', desc: '生产设备燃料比预测+硅含量控制',
-    steps: ['导入生产设备运行参数(风量/温度/压力)', '训练燃料比预测模型', '硅含量回归预测', '优化建议: 调整料批/风温'],
-    tips: ['燃料比是最大成本项', '硅含量影响铁水质量'],
-  },
-  '/app/converter': {
-    title: '转炉控制', desc: '转炉炼钢终点碳/温度预测',
-    steps: ['输入转炉过程参数(氧量/副枪检测)', '训练终点碳/温度模型', '实时预测终点状态', '指导停吹决策'],
-    tips: ['终点碳预测准确度直接影响钢种'],
-  },
-  '/app/gas-system': {
-    title: '煤气系统', desc: '生产设备/焦炉/转炉煤气发生量预测与调度',
-    steps: ['导入煤气产生/消耗数据', '预测各工序煤气产生量', '优化煤气分配(发电/供热)', '减少放散率'],
-    tips: ['煤气放散率是环保考核指标', '多工序耦合需协同优化'],
-  },
-  '/app/energy-analysis': {
-    title: '能源分析', desc: '多维度能源数据分析: 日/月/年趋势, 峰谷分析',
-    steps: ['选择能源数据集', '查看日/月/年能源消耗趋势', '对比不同设备的能效', '识别异常能源消耗', '生成节能建议'],
-    tips: ['峰谷分析可优化用电时段', '同比分析发现能效退化'],
-    api: ['GET /energy'],
-  },
-  '/app/load-forecasting': {
-    title: '负荷预测', desc: '电力负荷预测: 短期(24h)/中期(7d)/长期(30d)',
-    steps: ['导入历史负荷数据(小时/天级)', '添加外部特征(温度/节假日)', '选择预测周期(24h/7d/30d)', '训练LSTM/RF模型', '查看预测精度和置信区间'],
-    tips: ['温度是最重要的外部特征', '节假日负荷模式不同', '公开数据集可验证模型'],
-    api: ['GET /load-forecasting'],
-  },
-  '/app/storage': {
-    title: '储能管理', desc: '储能系统调度优化: 充放电策略/峰谷套利',
-    steps: ['添加储能系统(SOC/容量/功率)', '上传历史运行数据', '训练调度优化模型', '模拟峰谷套利收益'],
-    tips: ['电价差是套利关键', 'SOC保持在20-80%延长寿命', '公开储能数据可验证策略'],
-    api: ['GET /storage'],
-  },
-  '/app/intelligent-control': {
-    title: '智能控制', desc: 'AI驱动的工业过程控制: 设定值优化/模型预测控制',
-    steps: ['选择被控过程(温度/压力/流量)', '训练NARX/MPC控制模型', '设置约束条件(上下限/变化率)', '实时控制→观察响应'],
-    tips: ['MPC适合多变量约束系统', '先离线仿真再上线运行'],
-  },
-  '/app/digital-twin': {
-    title: '数字孪生', desc: '构建设备/产线数字孪生: 3D可视化+实时数据驱动',
-    steps: ['导入设备3D模型(CAD/点云)', '绑定传感器实时数据', '运行仿真→预测设备状态', '优化操作参数'],
-    tips: ['需3D模型引擎支持', '传感器映射是关键'],
-  },
   '/app/industrial-protocol': {
     title: '工业协议', desc: '支持OPC UA/Modbus/MQTT等工业协议数据采集',
     steps: ['选择协议类型(OPC UA/Modbus/MQTT)', '配置连接参数(endpoint/端口/认证)', '测试连接', '浏览可用的数据点/标签'],
@@ -412,10 +332,5 @@ export const moduleGuides: Record<string, GuideEntry> = {
     title: '缓存管理', desc: 'Redis缓存监控与清理',
     steps: ['查看缓存命中率', '查看各缓存Key占用', '手动清理过期缓存'],
     tips: ['高命中率说明缓存有效', '内存不足时自动淘汰旧key'],
-  },
-  '/system/storage-optimization': {
-    title: '存储优化', desc: '磁盘空间管理和文件去重',
-    steps: ['扫描重复文件', '识别大/旧文件', '清理临时文件', '压缩冷数据'],
-    tips: ['build缓存可定期清理', 'minio对象存储自动分层'],
   },
 }

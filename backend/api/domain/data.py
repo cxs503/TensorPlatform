@@ -1,7 +1,7 @@
 """
 Data domain — aggregates all data management APIs.
 
-Aggregates routers from 13 data_* API modules into a single data router.
+Aggregates routers from 21 data_* API modules into a single data router.
 Each sub-module retains its own prefix; the domain router adds no extra prefix,
 so all route paths are preserved exactly.
 """
@@ -14,7 +14,6 @@ from api.datasource import router as datasource_router          # prefix="/datas
 from api.datasets import router as datasets_router
 from api.tensorphysics_runs import router as tensorphysics_runs_router  # scientific run manifests and artifact references              # prefix="/datasets"
 from api.curated_datasets import router as curated_datasets_router  # prefix="/curated-datasets"
-from api.data_query import router as data_query_router          # prefix="/data-query"
 
 # ── Data governance ──
 from api.data_catalog import router as data_catalog_router      # prefix="/catalog"
@@ -40,7 +39,6 @@ router.include_router(datasource_router)
 router.include_router(datasets_router)
 router.include_router(tensorphysics_runs_router)
 router.include_router(curated_datasets_router)
-router.include_router(data_query_router)
 router.include_router(data_catalog_router)
 router.include_router(data_collection_router)
 router.include_router(data_cleaning_router)

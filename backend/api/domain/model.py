@@ -26,7 +26,6 @@ from api.automl_presets import router as automl_presets_router    # prefix="/aut
 from api.enhanced_experiments import router as enhanced_experiments_router  # prefix="/experiments"
 from api.real_training import router as real_training_router      # prefix="/real-training"
 from api.multimodal_training import router as multimodal_training_router  # prefix="/multimodal-training"
-from api.industrial_foundation import router as industrial_foundation_router  # prefix="/industrial-foundation"
 
 # ── Evaluation & explainability ──
 from api.model_evaluation import router as model_evaluation_router  # prefix="/model-evaluation"
@@ -81,7 +80,6 @@ router.include_router(automl_presets_router)
 router.include_router(enhanced_experiments_router)
 router.include_router(real_training_router)
 router.include_router(multimodal_training_router)
-router.include_router(industrial_foundation_router)
 router.include_router(model_evaluation_router)
 router.include_router(model_comparison_router)
 router.include_router(model_explain_router)

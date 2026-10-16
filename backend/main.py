@@ -61,11 +61,14 @@ from middleware.auth_guard import auth_guard_middleware
 # 导入 API 路由 — 全部通过领域聚合层导入（12 个域模块）
 # ============================================================
 
-# ── 领域聚合层（12 个域，覆盖 ~70 个 API 模块）──
+# ── 领域聚合层（10 个域，覆盖共性平台 API 模块）──
+# 2026-10-16 架构收敛：移除能碳/新能源（energy）与 AI 行业应用（ai_app）两个
+# 行业应用域及钢铁虚拟数据等模块，平台回归 domain-neutral 共性底座，
+# 行业方案按 README 约定作为独立 adapter/plugin 交付。
 from api.domain import (
     data, model, deployment,          # 数据 / 模型 / 部署
     iam, observability, platform,     # 认证 / 可观测 / 平台
-    energy, ai_app, iot_edge,         # 能碳 / AI应用 / IoT
+    iot_edge,                         # IoT 与边缘
     ops, tools, misc,                 # 项目运维 / 工具 / 杂项
 )
 
@@ -243,8 +246,6 @@ app: FastAPI = FastAPI(
 # ============================================================
 
 # ── 能碳与新能源 ──
-app.include_router(energy.router, prefix="/api/v1")
-
 # ── 认证与权限 (IAM) ──
 app.include_router(iam.router, prefix="/api/v1")
 
@@ -257,8 +258,6 @@ app.include_router(model.router, prefix="/api/v1")
 app.include_router(deployment.router, prefix="/api/v1")
 
 # ── AI 行业应用 ──
-app.include_router(ai_app.router, prefix="/api/v1")
-
 # ── IoT 与边缘 ──
 app.include_router(iot_edge.router, prefix="/api/v1")
 

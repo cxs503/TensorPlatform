@@ -52,7 +52,6 @@ from api.notebook import router as notebook_router                # prefix="/not
 from api.feature_engineering import router as feature_engineering_router  # prefix="/feature-engineering"
 
 # ── Virtual data generation ──
-from api.virtual_data import router as virtual_data_router        # prefix="/virtual-data"
 
 # ── ONNX export & inference ──
 from api.onnx_api import router as onnx_api_router                # prefix="/onnx"
@@ -71,6 +70,7 @@ from api.datahub_integration import router as datahub_router      # prefix="/dat
 
 # ── DataHub Metadata (catalog/search/profile/glossary) ──
 from api.datahub_metadata import router as datahub_metadata_router  # prefix="/datahub"
+from api.dashboard import router as dashboard_router              # prefix="/dashboard"
 
 # ── Register all sub-routers (preserving their original prefixes) ──
 router.include_router(jupyter_router)
@@ -82,7 +82,7 @@ router.include_router(advanced_features_router)
 router.include_router(mlops_router)
 router.include_router(notebook_router)
 router.include_router(feature_engineering_router)
-router.include_router(virtual_data_router)
 router.include_router(onnx_api_router)
 router.include_router(datahub_router)
 router.include_router(datahub_metadata_router)
+router.include_router(dashboard_router)

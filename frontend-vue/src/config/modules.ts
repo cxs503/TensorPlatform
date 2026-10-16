@@ -1,13 +1,13 @@
 /**
  * 三大板块导航配置
  *
- * 数据中台: 数据采集 → 治理 → 特征工程 → 案例
+ * 数据中台: 数据采集 → 治理 → 特征工程 → 智能体
  * 模型工厂: 模型训练 → 模型管理 → 推理服务
- * 应用中心: AI + 能效 · 钢铁行业案例
+ * 系统中心: 租户 / 权限 / 审计 / 运维
  */
 export interface MenuItem { path: string; title: string; icon: string; unavailable?: boolean; hidden?: boolean; adminOnly?: boolean }
 export interface MenuGroup { title: string; items: MenuItem[] }
-export type ModuleKey = 'research' | 'data' | 'academy' | 'model' | 'app' | 'system'
+export type ModuleKey = 'research' | 'data' | 'academy' | 'model' | 'system'
 export interface Module {
   key: ModuleKey; title: string; icon: string; theme: string; entry: string; desc: string
   items?: MenuItem[]; groups?: MenuGroup[]
@@ -31,12 +31,14 @@ export const MODULES: Module[] = [
         { path: '/data/dashboard', title: '数据大盘', icon: 'Odometer' },
         { path: '/data/public-datasets', title: '公开数据集', icon: 'Collection' },
         { path: '/data/data-source', title: '数据接入', icon: 'Connection' },
+        { path: '/data/industrial-protocol', title: '工业协议', icon: 'Plug' },
         { path: '/data/new-datasets', title: '数据集管理', icon: 'Folder' },
       ]},
       { title: '数据分析', items: [
         { path: '/data/analysis', title: '算法数据分析', icon: 'Histogram' },
         { path: '/data/anomaly-attribution', title: '过程影响分析', icon: 'TrendCharts' },
         { path: '/data/realtime-sensor-monitor', title: '实时仪表监测', icon: 'Monitor' },
+        { path: '/data/ai-agent', title: 'AI智能体', icon: 'ChatDotRound' },
       ]},
       { title: '数据治理', items: [
         { path: '/data/cleaning', title: '数据清洗', icon: 'Brush' },
@@ -47,7 +49,6 @@ export const MODULES: Module[] = [
         { path: '/data/labeling', title: '数据标注', icon: 'Edit' },
         { path: '/data/masking', title: '数据脱敏', icon: 'Lock' },
         { path: '/data/workspace', title: '数据工作台', icon: 'DataAnalysis' },
-        { path: '/data/virtual', title: '虚拟数据', icon: 'MagicStick', hidden: true },
         { path: '/data/knowledge-graph', title: '知识图谱', icon: 'Share', hidden: true },
       ]},
     ]
@@ -114,25 +115,6 @@ export const MODULES: Module[] = [
         { path: '/model/reports', title: '报表中心', icon: 'Document' },
         { path: '/model/billing', title: '成本计费', icon: 'Money' },
         { path: '/model/notifications', title: '告警通知', icon: 'Bell' },
-      ]},
-    ]
-  },
-  {
-    desc: 'AI + 能源服务 · 行业案例',
-    items: [
-      { path: '/data/ai-agent', title: 'AI智能体', icon: 'ChatDotRound' },
-    ],
-    groups: [
-      { title: '能效优化', items: [
-        { path: '/data/load-forecast', title: '负荷预测', icon: 'TrendCharts' },
-        { path: '/data/intelligent-control', title: '智能控制', icon: 'SetUp' },
-        { path: '/data/carbon', title: '碳排放', icon: 'Sunny' },
-      ]},
-      { title: '能源管控', items: [
-        { path: '/data/fault-prediction', title: '故障预测', icon: 'Warning' },
-        { path: '/data/digital-twin', title: '数字孪生', icon: 'Connection' },
-        { path: '/data/photovoltaic', title: '光伏管理', icon: 'Sunny' },
-        { path: '/data/industrial-protocol', title: '工业协议', icon: 'Plug' },
       ]},
     ]
   }

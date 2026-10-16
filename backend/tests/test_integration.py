@@ -44,13 +44,13 @@ class TestRealTraining:
         resp = requests.get(f"{BASE_URL}/api/v1/real-training/scenarios")
         assert resp.status_code == 200
         data = resp.json()
-        assert len(data["scenarios"]) >= 4
-    
+        assert len(data["scenarios"]) >= 1
+
     def test_train_random_forest(self):
         """训练 RandomForest 并验证结果"""
         resp = requests.post(f"{BASE_URL}/api/v1/real-training/train", json={
             "name": "CI-RF-Test",
-            "scenario": "dust_optimization",
+            "scenario": "generic",
             "model_type": "random_forest",
             "n_samples": 500,
             "n_estimators": 20,

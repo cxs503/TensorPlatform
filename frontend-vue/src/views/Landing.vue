@@ -6,8 +6,8 @@
     </header>
 
     <main class="hero">
-      <div class="hero-title">开放底座<span class="grad">工业能效</span>AI平台</div>
-      <div class="hero-sub">AI + 能源服务 · ODF · 让每一份能源都用在刀刃上</div>
+      <div class="hero-title">开放<span class="grad">数字化</span>底座</div>
+      <div class="hero-sub">数据 · 模型 · 智能体 · 一体化 AI 基础设施</div>
 
       <div class="hero-stats">
         <StatCard v-if="userStore.hasPermission('datasets:read')" title="数据集" :value="stats.datasets" icon="FolderOpened" :loading="statsLoading" />
@@ -43,7 +43,7 @@ onMounted(() => {
 })
 
 const { data: statsData, loading: statsLoading } = useAsyncData(() => get<any>('/dashboard/statistics'))
-const landingModuleOrder = ['data', 'model', 'academy', 'app']
+const landingModuleOrder = ['research', 'data', 'model', 'academy']
 
 // 模块下当前用户可访问的菜单项(隐藏项不算)
 function moduleVisibleItems(m: Module): MenuItem[] {

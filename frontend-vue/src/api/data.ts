@@ -45,36 +45,6 @@ export const datasetApi = {
     http.get(`/datasets/${id}/preview`)
 }
 
-// 虚拟数据 API
-export const virtualDataApi = {
-  getDataTypes: () =>
-    http.get('/virtual-data/data-types'),
-
-  generateData: (dataType: string, count?: number) =>
-    http.post(`/virtual-data/generate/${dataType}`, { count }),
-
-  generateAllData: () =>
-    http.post('/virtual-data/generate-all'),
-
-  getStoredData: (dataType?: string) =>
-    http.get(dataType ? `/virtual-data/stored/${dataType}` : '/virtual-data/stored'),
-
-  trainModel: (businessType: string) =>
-    http.post(`/virtual-data/train/${businessType}`),
-
-  getTrainingTasks: () =>
-    http.get('/virtual-data/training-tasks'),
-
-  deployModel: (taskId: number) =>
-    http.post(`/virtual-data/deploy/${taskId}`),
-
-  getDeployments: () =>
-    http.get('/virtual-data/deployments'),
-
-  predict: (deploymentId: number, data: any) =>
-    http.post(`/virtual-data/inference/${deploymentId}`, data)
-}
-
 // 数据源 API
 export const dataSourceApi = {
   getList: () =>

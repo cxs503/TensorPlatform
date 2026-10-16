@@ -13,7 +13,7 @@ from api.deps import require_auth
 from api.tenant_access import scope_query
 from models.core import (
     Project, Dataset, Model, ModelVersion, TrainingJob,
-    CarbonEmission, PhotovoltaicSystem, Alert,
+    Alert,
 )
 
 router = APIRouter(prefix="/dashboard", tags=["仪表盘"])
@@ -119,10 +119,6 @@ def get_dashboard_statistics(db: Session = Depends(get_db)):
             TrainingJob.status == "COMPLETED"
         ).scalar() or 0
 
-        pv_count = db.query(func.count(PhotovoltaicSystem.id)).scalar() or 0
-
-        total_emission = db.query(func.sum(CarbonEmission.emission_amount)).scalar() or 0
-
         alert_count = db.query(func.count(Alert.id)).filter(
             Alert.is_resolved == False
         ).scalar() or 0
@@ -140,8 +136,6 @@ def get_dashboard_statistics(db: Session = Depends(get_db)):
                 "running": training_running,
                 "completed": training_completed,
             },
-            "photovoltaic": {"systems": pv_count},
-            "carbon": {"total_emission_tco2e": round(total_emission, 2)},
             "alerts": {"unresolved": alert_count},
         }
     except Exception as e:

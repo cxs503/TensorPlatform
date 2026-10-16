@@ -1,2 +1,0 @@
-"""Plant electrical-load fixture."""
-

@@ -9,15 +9,6 @@ export interface FeatureMaturity {
 }
 
 const demoPaths = new Set([
-  '/data/virtual',
-  '/data/load-forecast',
-  '/data/fault-prediction',
-  '/data/digital-twin',
-  '/data/carbon',
-  '/data/photovoltaic',
-  '/data/intelligent-control',
-  '/data/steel-ai-case',
-  '/data/steel-energy',
   '/model/code-generator',
   '/model/audio-training',
   '/model/gan-training',

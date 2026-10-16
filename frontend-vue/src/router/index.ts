@@ -33,52 +33,10 @@ const routes: RouteRecordRaw[] = [
       },
       // ==================== 数据中台 ====================
       {
-        path: '/data/virtual',
-        name: 'VirtualData',
-        component: () => import('@/views/data/VirtualData.vue'),
-        meta: { title: '虚拟数据' }
-      },
-      {
         path: '/data/knowledge-graph',
         name: 'KnowledgeGraph',
         component: () => import('@/views/data/KnowledgeGraph.vue'),
         meta: { title: '知识图谱' }
-      },
-      {
-        path: '/data/load-forecast',
-        name: 'LoadForecast',
-        component: () => import('@/views/data/LoadForecast.vue'),
-        meta: { title: '负荷预测' }
-      },
-      {
-        path: '/data/fault-prediction',
-        name: 'FaultPrediction',
-        component: () => import('@/views/data/FaultPrediction.vue'),
-        meta: { title: '故障预测' }
-      },
-      {
-        path: '/data/digital-twin',
-        name: 'DigitalTwin',
-        component: () => import('@/views/data/DigitalTwin.vue'),
-        meta: { title: '数字孪生' }
-      },
-      {
-        path: '/data/carbon',
-        name: 'CarbonTrack',
-        component: () => import('@/views/data/CarbonTrack.vue'),
-        meta: { title: '碳排放' }
-      },
-      {
-        path: '/data/photovoltaic',
-        name: 'Photovoltaic',
-        component: () => import('@/views/data/Photovoltaic.vue'),
-        meta: { title: '光伏管理' }
-      },
-      {
-        path: '/data/intelligent-control',
-        name: 'IntelligentControl',
-        component: () => import('@/views/data/IntelligentControl.vue'),
-        meta: { title: '智能控制' }
       },
       {
         path: '/data/industrial-protocol',
@@ -163,9 +121,6 @@ const routes: RouteRecordRaw[] = [
         path: '/data/catalog',
         name: 'DataHubCatalog', component: () => import('@/views/data/DataHubCatalog.vue'),
         meta: { title: '数据资产目录' }
-      },
-      {
-        meta: { title: '钢铁能源' }
       },
       {
         path: '/academy',

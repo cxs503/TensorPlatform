@@ -91,34 +91,16 @@ def pipeline_inference(req: InferenceRequest, db: Session = Depends(get_db)):
 
 @router.get("/scenarios")
 def list_scenarios():
-    """列出所有可用场景"""
+    """列出所有可用场景（2026-10-16 收敛：仅保留领域中立通用场景）"""
     return {
         "scenarios": [
             {
-                "id": "sinter_temperature",
-                "name": "生产过程终点温度预测",
-                "description": "基于8个传感器特征预测生产过程终点温度",
+                "id": "generic",
+                "name": "通用回归合成数据",
+                "description": "五维随机特征 + 线性真值加噪声的合成回归数据，用于链路联调",
                 "model_type": "regression",
-                "features": ["machine_speed", "bed_thickness", "permeability",
-                             "pressure1", "pressure2", "temp15", "temp16", "temp19"],
-                "target": "end_temp",
-            },
-            {
-                "id": "sinter_feo",
-                "name": "生产过程工艺参数优化FeO预测",
-                "description": "通过工艺参数优化比例和环冷斜率预测FeO含量",
-                "model_type": "regression",
-                "features": ["carbon_ratio", "cooling_slope"],
-                "target": "feo_content",
-            },
-            {
-                "id": "dust_collector",
-                "name": "除尘能效优化",
-                "description": "根据工况参数预测能耗并优化风机转速",
-                "model_type": "regression",
-                "features": ["production_load", "dust_concentration",
-                             "filter_pressure_diff", "temperature", "fan_speed"],
-                "target": "energy_consumption_kwh",
+                "features": ["feature_0", "feature_1", "feature_2", "feature_3", "feature_4"],
+                "target": "target",
             },
         ],
     }

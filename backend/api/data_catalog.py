@@ -1127,11 +1127,6 @@ def scan_data_sources(db: Session = Depends(get_db)):
             "deployments",
             "datasets",
             "model_training_jobs",
-            "photovoltaic_systems",
-            "equipment",
-            "storage_systems",
-            "energy_consumption",
-            "carbon_emissions",
         ]
 
         for table in tables:

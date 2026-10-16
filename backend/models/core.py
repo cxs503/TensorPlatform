@@ -13,6 +13,14 @@ import enum
 import os
 
 
+# ========== 可移植 JSON 列（评估修复） ==========
+# 上游缺陷：列定义直接使用 PostgreSQL 专有的 JSONB，导致 SQLite 下
+# Base.metadata.create_all() 抛 UnsupportedCompilationError，应用与测试
+# 套件均无法在非 PostgreSQL 环境启动。with_variant 在 PostgreSQL 上仍编译为
+# JSONB（语义不变），在其他方言上退化为通用 JSON。
+JSONColumn = JSON().with_variant(JSONB(), "postgresql")
+
+
 # ========== 枚举 ==========
 class UserRole(str, enum.Enum):
     ADMIN = "admin"
@@ -39,11 +47,6 @@ class TrainingStatus(str, enum.Enum):
     COMPLETED = "COMPLETED"
     FAILED = "FAILED"
     CANCELLED = "CANCELLED"
-
-class EmissionScope(str, enum.Enum):
-    SCOPE1 = "SCOPE1"
-    SCOPE2 = "SCOPE2"
-    SCOPE3 = "SCOPE3"
 
 class ComponentStatus(str, enum.Enum):
     DRAFT = "draft"
@@ -80,7 +83,7 @@ class User(Base):
     is_active = Column(Boolean, default=True)
     organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=True)
     # 允许的功能路径白名单(null/空=不限制; 非空数组=仅允许列出的菜单 path)
-    features = Column(JSONB, nullable=True)
+    features = Column(JSONColumn, nullable=True)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
 
@@ -240,8 +243,8 @@ class TrainingJob(Base):
     mlflow_run_id = Column(String(64), nullable=True)
     registered_model_id = Column(Integer, ForeignKey("models.id"), nullable=True)
     status = Column(SAEnum(TrainingStatus), default=TrainingStatus.PENDING)
-    hyperparameters = Column(JSONB, nullable=True)
-    metrics = Column(JSONB, nullable=True)
+    hyperparameters = Column(JSONColumn, nullable=True)
+    metrics = Column(JSONColumn, nullable=True)
     started_at = Column(DateTime, nullable=True)
     completed_at = Column(DateTime, nullable=True)
     error_message = Column(Text, nullable=True)
@@ -261,146 +264,6 @@ class TrainingJob(Base):
             "completed_at": self.completed_at.isoformat() if self.completed_at else None,
             "organization_id": self.organization_id,
             "created_at": self.created_at.isoformat() if self.created_at else None
-        }
-
-
-# ========== 碳排放 ==========
-class EmissionFactor(Base):
-    __tablename__ = "emission_factors"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(128), nullable=False, unique=True)
-    factor_value = Column(Float, nullable=False)
-    unit = Column(String(32), nullable=False)
-    source = Column(String(128), default="IPCC")
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "name": self.name,
-            "factor_value": self.factor_value, "unit": self.unit,
-            "source": self.source
-        }
-
-
-class CarbonEmission(Base):
-    __tablename__ = "carbon_emissions"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    entity_id = Column(String(64), nullable=False, index=True)
-    entity_type = Column(String(64), nullable=True)
-    scope = Column(SAEnum(EmissionScope), nullable=False)
-    source = Column(String(64), nullable=False)
-    emission_amount = Column(Float, nullable=False)
-    unit = Column(String(16), default="tCO2e")
-    factor_id = Column(Integer, ForeignKey("emission_factors.id"), nullable=True)
-    recorded_at = Column(DateTime, default=datetime.utcnow)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "entity_id": self.entity_id,
-            "entity_type": self.entity_type,
-            "scope": self.scope.value if self.scope else None,
-            "source": self.source, "emission_amount": self.emission_amount,
-            "unit": self.unit, "factor_id": self.factor_id,
-            "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None
-        }
-
-
-# ========== 光伏系统 ==========
-class PhotovoltaicSystem(Base):
-    __tablename__ = "photovoltaic_systems"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(128), nullable=False)
-    capacity_kwp = Column(Float, nullable=False)
-    location = Column(String(256), nullable=True)
-    status = Column(String(32), default="active")
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    data_points = relationship("PhotovoltaicData", back_populates="system", cascade="all, delete-orphan")
-
-    def to_dict(self):
-        return {
-            "id": self.id, "name": self.name,
-            "capacity_kwp": self.capacity_kwp, "location": self.location,
-            "status": self.status, "project_id": self.project_id,
-            "created_at": self.created_at.isoformat() if self.created_at else None
-        }
-
-
-class PhotovoltaicData(Base):
-    __tablename__ = "photovoltaic_data"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    system_id = Column(Integer, ForeignKey("photovoltaic_systems.id"), nullable=False, index=True)
-    power_kw = Column(Float, nullable=False)
-    energy_kwh = Column(Float, default=0)
-    irradiance_wm2 = Column(Float, nullable=True)
-    temperature_c = Column(Float, nullable=True)
-    recorded_at = Column(DateTime, default=datetime.utcnow, index=True)
-
-    system = relationship("PhotovoltaicSystem", back_populates="data_points")
-
-    def to_dict(self):
-        return {
-            "id": self.id, "system_id": self.system_id,
-            "power_kw": self.power_kw, "energy_kwh": self.energy_kwh,
-            "irradiance_wm2": self.irradiance_wm2, "temperature_c": self.temperature_c,
-            "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None
-        }
-
-
-# ========== 能耗与能效 ==========
-class EnergyConsumption(Base):
-    __tablename__ = "energy_consumption"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    entity_id = Column(String(64), nullable=False, index=True)
-    entity_type = Column(String(64), nullable=True)
-    energy_type = Column(String(32), nullable=False)  # electricity, gas, coal
-    consumption = Column(Float, nullable=False)
-    unit = Column(String(16), default="kWh")
-    cost_yuan = Column(Float, nullable=True)
-    recorded_at = Column(DateTime, default=datetime.utcnow, index=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "entity_id": self.entity_id,
-            "entity_type": self.entity_type, "energy_type": self.energy_type,
-            "consumption": self.consumption, "unit": self.unit,
-            "cost_yuan": self.cost_yuan,
-            "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None
-        }
-
-
-class EnergyEfficiencySystem(Base):
-    __tablename__ = "energy_efficiency_systems"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(128), nullable=False)
-    optimization_type = Column(String(64), nullable=False)  # dust_collector, desulfurization, air_compressor
-    location = Column(String(256), nullable=True)
-    fan_speed = Column(Float, nullable=True)
-    cleaning_interval = Column(Float, nullable=True)
-    damper_opening = Column(Float, nullable=True)
-    energy_saving_pct = Column(Float, nullable=True)
-    project_id = Column(Integer, ForeignKey("projects.id"), nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-    updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "name": self.name,
-            "optimization_type": self.optimization_type,
-            "location": self.location, "fan_speed": self.fan_speed,
-            "cleaning_interval": self.cleaning_interval,
-            "damper_opening": self.damper_opening,
-            "energy_saving_pct": self.energy_saving_pct,
-            "project_id": self.project_id
         }
 
 
@@ -424,69 +287,6 @@ class Device(Base):
             "protocol": self.protocol, "location": self.location,
             "status": self.status, "project_id": self.project_id,
             "last_seen_at": self.last_seen_at.isoformat() if self.last_seen_at else None
-        }
-
-
-# ========== 除尘器数据 ==========
-class DustCollectorData(Base):
-    __tablename__ = "dust_collector_data"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    entity_id = Column(String(64), nullable=False, index=True)
-    production_load = Column(Float, nullable=True)
-    dust_concentration = Column(Float, nullable=True)
-    filter_pressure_diff = Column(Float, nullable=True)
-    temperature = Column(Float, nullable=True)
-    fan_speed = Column(Float, nullable=True)
-    energy_consumption_kwh = Column(Float, nullable=True)
-    recorded_at = Column(DateTime, default=datetime.utcnow, index=True)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "entity_id": self.entity_id,
-            "production_load": self.production_load,
-            "dust_concentration": self.dust_concentration,
-            "filter_pressure_diff": self.filter_pressure_diff,
-            "temperature": self.temperature,
-            "fan_speed": self.fan_speed,
-            "energy_consumption_kwh": self.energy_consumption_kwh,
-            "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None
-        }
-
-
-# ========== 生产过程数据 ==========
-class SinteringData(Base):
-    __tablename__ = "sintering_data"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    entity_id = Column(String(64), nullable=False, index=True)
-    machine_speed = Column(Float, nullable=True)
-    bed_thickness = Column(Float, nullable=True)
-    permeability = Column(Float, nullable=True)
-    pressure1 = Column(Float, nullable=True)
-    pressure2 = Column(Float, nullable=True)
-    temp15 = Column(Float, nullable=True)
-    temp16 = Column(Float, nullable=True)
-    temp19 = Column(Float, nullable=True)
-    end_temp = Column(Float, nullable=True)
-    carbon_ratio = Column(Float, nullable=True)
-    cooling_slope = Column(Float, nullable=True)
-    feo_content = Column(Float, nullable=True)
-    recorded_at = Column(DateTime, default=datetime.utcnow, index=True)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "entity_id": self.entity_id,
-            "machine_speed": self.machine_speed,
-            "bed_thickness": self.bed_thickness,
-            "permeability": self.permeability,
-            "pressure1": self.pressure1, "pressure2": self.pressure2,
-            "temp15": self.temp15, "temp16": self.temp16,
-            "temp19": self.temp19, "end_temp": self.end_temp,
-            "carbon_ratio": self.carbon_ratio,
-            "cooling_slope": self.cooling_slope,
-            "feo_content": self.feo_content,
-            "recorded_at": self.recorded_at.isoformat() if self.recorded_at else None
         }
 
 
@@ -557,47 +357,6 @@ class AlertRule(Base):
             "threshold": self.threshold, "operator": self.operator,
             "severity": self.severity, "enabled": self.enabled,
             "created_at": self.created_at.isoformat() if self.created_at else None,
-        }
-
-
-# ========== 钢铁设备 ==========
-class SteelEquipment(Base):
-    __tablename__ = "steel_equipment"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(128), nullable=False)
-    type = Column(String(64), nullable=False)
-    process = Column(String(64), nullable=True)
-    capacity = Column(Float, nullable=True)
-    location = Column(String(128), nullable=True)
-    health_score = Column(Float, default=100.0)
-    status = Column(String(32), default="running")
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "name": self.name, "type": self.type,
-            "process": self.process, "capacity": self.capacity,
-            "location": self.location, "health_score": self.health_score,
-            "status": self.status,
-        }
-
-
-# ========== 能源介质 ==========
-class EnergyMedia(Base):
-    __tablename__ = "energy_media"
-
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    name = Column(String(128), nullable=False)
-    type = Column(String(64), nullable=False)
-    unit = Column(String(32), nullable=False)
-    price_per_unit = Column(Float, nullable=True)
-    created_at = Column(DateTime, default=datetime.utcnow)
-
-    def to_dict(self):
-        return {
-            "id": self.id, "name": self.name, "type": self.type,
-            "unit": self.unit, "price_per_unit": self.price_per_unit,
         }
 
 
@@ -797,11 +556,11 @@ class AlgorithmModel(Base):
     version = Column(String(20), default="1.0.0", comment="版本")
     status = Column(String(20), default="published", comment="状态: draft/published/unpublished")
     downloads = Column(Integer, default=0, comment="下载量")
-    input_features = Column(JSONB, default=list, comment="输入特征列表")
+    input_features = Column(JSONColumn, default=list, comment="输入特征列表")
     output_type = Column(String(50), comment="输出类型")
-    metrics = Column(JSONB, default=dict, comment="性能指标")
+    metrics = Column(JSONColumn, default=dict, comment="性能指标")
     use_case = Column(String(500), comment="应用场景")
-    tags = Column(JSONB, default=list, comment="标签")
+    tags = Column(JSONColumn, default=list, comment="标签")
     entry_point = Column(String(200), comment="入口文件")
     params_schema = Column(Text, comment="参数schema JSON")
     estimated_training_time = Column(String(50), comment="预估训练时间")
@@ -848,7 +607,7 @@ class AlgorithmHyperparamPreset(Base):
     description = Column(String(500), nullable=True)
     task_type = Column(String(32), nullable=False)  # classification/regression/time_series
     algorithm = Column(String(64), nullable=False)  # random_forest 等内置 key
-    params = Column(JSONB, default=dict)            # {"n_estimators": 300, ...}
+    params = Column(JSONColumn, default=dict)            # {"n_estimators": 300, ...}
     organization_id = Column(Integer, ForeignKey("organizations.id"), nullable=True)
     created_by = Column(Integer, nullable=True)
     is_builtin = Column(Boolean, default=False)

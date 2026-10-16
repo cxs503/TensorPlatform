@@ -3,16 +3,22 @@
 所有核心 ORM 模型定义在 core.py 中
 """
 # 导入核心模型（唯一定义源）
+# 2026-10-16 架构收敛：移除碳排放/光伏/能耗/钢铁等模型，平台回归 domain-neutral 共性底座。
 from models.core import (
     User, Project, Dataset, Model, ModelVersion, TrainingJob,
-    EmissionFactor, CarbonEmission,
-    PhotovoltaicSystem, PhotovoltaicData,
-    EnergyConsumption, EnergyEfficiencySystem,
     Device, Alert,
     Organization, ApiUsageLog, DataProduct,
-    UserRole, ProjectStatus, ModelStatus, TrainingStatus, EmissionScope,
+    UserRole, ProjectStatus, ModelStatus, TrainingStatus,
     PricingModel, BillingRecord, PricingConfig,
 )
+
+# 数据目录模型（data_assets 等表；迁移 017-019 与 api/curated_datasets.py 依赖）
+from models.data_catalog import (
+    DataAsset, AssetMetadata, DataClassification, DataTag, DataLineage, DataCatalogStats,
+)
+
+# 数据血缘模型（lineage_nodes 等表；迁移 010/031/032 与 api/data_lineage.py 依赖）
+from models.lineage import LineageNode, LineageEdge, LineageGraph, LineageChangeLog
 
 # 可选：数据安全模型
 try:

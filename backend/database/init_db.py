@@ -6,13 +6,10 @@ import os
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 from database.config import engine, Base
-from models.core import (
+from models import (  # noqa: F401  (import registers all ORM tables with Base)
     KnowledgeRule,
     User, Project, Dataset, Model, ModelVersion, TrainingJob,
-    EmissionFactor, CarbonEmission,
-    PhotovoltaicSystem, PhotovoltaicData,
-    EnergyConsumption, EnergyEfficiencySystem,
-    Device, Alert
+    Device, Alert,
 )
 
 

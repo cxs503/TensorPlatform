@@ -29,7 +29,6 @@ from api.metadata import router as metadata_router                # prefix="/met
 from api.tdengine import router as tdengine_router                # prefix="/tdengine"
 
 # ── Data streaming ──
-from api.steel_vdata import router as steel_vdata_router
 from api.streaming import router as streaming_router              # prefix="/streaming"
 
 # ── Register all sub-routers (preserving their original prefixes) ──
@@ -40,5 +39,4 @@ router.include_router(marketplace_router)
 router.include_router(compression_router)
 router.include_router(metadata_router)
 router.include_router(tdengine_router)
-router.include_router(steel_vdata_router)
 router.include_router(streaming_router)

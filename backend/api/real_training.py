@@ -900,7 +900,7 @@ class DatasetTrainingRequest(BaseModel):
     """基于数据集的训练请求"""
     name: str = "训练任务"
     dataset_id: Optional[int] = None     # 数据库数据集ID
-    scenario: Optional[str] = None       # 业务场景: pv_power, fault_prediction, energy_consumption, load_forecasting, dust_optimization
+    scenario: Optional[str] = None       # 合成数据场景: generic（2026-10-16 收敛后仅保留通用场景）
     task_type: str = "regression"        # classification, regression
     model_type: str = "random_forest"    # random_forest, mlp
     epochs: int = 10
@@ -1020,17 +1020,11 @@ def train_with_dataset(req: DatasetTrainingRequest, db: Session = Depends(get_db
 
 @router.get("/scenarios")
 def list_scenarios():
-    """列出支持的业务场景"""
+    """列出支持的合成数据场景（2026-10-16 收敛：仅保留领域中立通用场景）"""
     return {
         "scenarios": [
-            {"id": "pv_power", "name": "光伏功率预测", "task_type": "regression", "features": ["辐照度", "温度", "湿度"], "target": "功率(kW)"},
-            {"id": "fault_prediction", "name": "设备故障预测", "task_type": "classification", "features": ["振动", "温度", "压力"], "target": "故障(0/1)"},
-            {"id": "energy_consumption", "name": "能耗预测", "task_type": "regression", "features": ["产量", "温度", "湿度"], "target": "能耗(kWh)"},
-            {"id": "load_forecasting", "name": "负荷预测", "task_type": "regression", "features": ["小时", "星期几", "温度"], "target": "负荷(kW)"},
-            {"id": "dust_optimization", "name": "除尘优化", "task_type": "regression", "features": ["压差", "粉尘浓度", "转速", "温度"], "target": "能耗"},
-            {"id": "dust_collector", "name": "除尘器运行数据", "task_type": "regression", "features": ["产能负荷", "粉尘浓度", "过滤压差", "温度", "转速"], "target": "能耗(kWh)"},
-            {"id": "steel_quality", "name": "钢铁质量预测", "task_type": "regression", "features": ["碳含量", "锰含量", "温度", "冷却速率"], "target": "质量分数"},
-            {"id": "sinter_temperature", "name": "生产过程终点温度预测", "task_type": "regression", "features": ["机速", "料层厚度", "透气率", "压力1", "压力2", "烟道温度"], "target": "终点温度(°C)"},
-            {"id": "sinter_feo", "name": "生产过程FeO含量预测", "task_type": "regression", "features": ["工艺参数优化比例", "环冷斜率"], "target": "FeO含量(%)"},
+            {"id": "generic", "name": "通用回归合成数据", "task_type": "regression",
+             "features": ["feature_0", "feature_1", "feature_2", "feature_3", "feature_4"],
+             "target": "target"},
         ],
     }

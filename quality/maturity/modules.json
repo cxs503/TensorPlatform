@@ -95,61 +95,6 @@
       "target_status": "beta"
     },
     {
-      "basis": "部分案例与样本存在，但尚未全部接入确定性场景包和端到端回放。",
-      "evidence": {
-        "cleanup": {
-          "artifact": "quality/maturity/evidence/steel_energy_apps/stage5-offline-validation.json",
-          "artifact_type": "test_report",
-          "observed_at": "2026-07-18T02:12:45.343441Z",
-          "sha256": "083a1bcbdfc3af8a4ff715367b71c01a63b13d91472753057a5dd341cf4d106d",
-          "status": "pass",
-          "summary": "确定性虚拟场景、离线故障回放及注册资产清理通过；不代表真实服务、持久化或完整 Beta。"
-        },
-        "deterministic_data": {
-          "artifact": "quality/maturity/evidence/steel_energy_apps/stage5-offline-validation.json",
-          "artifact_type": "test_report",
-          "observed_at": "2026-07-18T02:12:45.343441Z",
-          "sha256": "083a1bcbdfc3af8a4ff715367b71c01a63b13d91472753057a5dd341cf4d106d",
-          "status": "pass",
-          "summary": "确定性虚拟场景、离线故障回放及注册资产清理通过；不代表真实服务、持久化或完整 Beta。"
-        },
-        "positive_negative_paths": {
-          "artifact": "quality/maturity/evidence/steel_energy_apps/stage5-offline-validation.json",
-          "artifact_type": "test_report",
-          "observed_at": "2026-07-18T02:12:45.343441Z",
-          "sha256": "083a1bcbdfc3af8a4ff715367b71c01a63b13d91472753057a5dd341cf4d106d",
-          "status": "pass",
-          "summary": "确定性虚拟场景、离线故障回放及注册资产清理通过；不代表真实服务、持久化或完整 Beta。"
-        }
-      },
-      "frontend_label": "demo",
-      "id": "steel_energy_apps",
-      "known_gaps": [
-        "需要逐场景数据卡和预期指标",
-        "需要异常、漂移和恢复路径",
-        "虚拟结果必须显式标识"
-      ],
-      "name": "生产过程、除尘、负荷、光伏、故障与碳应用",
-      "observed_status": "demo",
-      "owner": "energy-ai",
-      "target_status": "beta"
-    },
-    {
-      "basis": "可用于离线展示，尚未形成带边界、联锁和故障注入的闭环仿真。",
-      "evidence": {},
-      "frontend_label": "demo",
-      "id": "intelligent_control_twin",
-      "known_gaps": [
-        "缺少确定性闭环仿真",
-        "缺少安全边界和联锁验证",
-        "禁止在无现场验收时声称可生产控制"
-      ],
-      "name": "数字孪生与智能控制",
-      "observed_status": "demo",
-      "owner": "energy-ai",
-      "target_status": "beta"
-    },
-    {
       "basis": "已有指标和漂移告警接口；需要基线、漂移、恢复的确定性回放证据。",
       "evidence": {},
       "frontend_label": "beta",

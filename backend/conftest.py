@@ -49,6 +49,11 @@ def db_session():
     from sqlalchemy.orm import sessionmaker
 
     engine = create_engine("sqlite:///:memory:", echo=False)
+    # 评估修复：上游缺陷——原 fixture 创建引擎后从不调用 create_all，
+    # 所有使用 db_session 的测试都因 "no such table" 失败。
+    from database.config import Base
+    import models  # noqa: F401  -- 确保所有 ORM 模型已注册到 Base.metadata
+    Base.metadata.create_all(bind=engine)
     SessionLocal = sessionmaker(bind=engine)
     session = SessionLocal()
     yield session

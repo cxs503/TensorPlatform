@@ -3,7 +3,7 @@
 // ============================================================
 // Domain modules:
 //   auth.ts        — authApi, userApi, apiKeyApi
-//   data.ts        — projectApi, datasetApi, virtualDataApi, dataSourceApi,
+//   data.ts        — projectApi, datasetApi, dataSourceApi,
 //                    dataGovernanceApi, dataCatalogApi, lineageApi, qualityApi,
 //                    securityApi, dataMaskingApi, dataCollectionApi, dataSubscriptionApi
 //   model.ts       — modelApi, trainingApi, modelTrainingApi, hyperoptApi,
@@ -13,9 +13,6 @@
 //   deployment.ts  — deploymentApi
 //   monitoring.ts  — dashboardApi, alertApi, loggingApi, notificationApi,
 //                    alertManageApi, reportApi
-//   energy.ts      — photovoltaicApi, storageApi, faultPredictionApi, carbonApi,
-//                    energyApi, loadForecastingApi, controlApi, digitalTwinApi,
-//                    energyEfficiencyApi, storageOptimizationApi
 //   platform.ts    — workOrderApi, remoteOpsApi, rbacApi, auditApi, kmsApi,
 //                    backupApi, tenantApi, configApi, gpuApi, cacheApi,
 //                    serviceMeshApi, gatewayApi, complianceApi,
@@ -30,7 +27,7 @@ import http from './request'
 export { authApi, userApi, apiKeyApi } from './auth'
 
 // Data
-export { projectApi, datasetApi, virtualDataApi, dataSourceApi,
+export { projectApi, datasetApi, dataSourceApi,
          dataGovernanceApi, dataCatalogApi, lineageApi, qualityApi,
          securityApi, dataMaskingApi, dataCollectionApi, dataSubscriptionApi } from './data'
 
@@ -46,11 +43,6 @@ export { deploymentApi } from './deployment'
 // Monitoring
 export { dashboardApi, alertApi, loggingApi, notificationApi,
          alertManageApi, reportApi } from './monitoring'
-
-// Energy
-export { photovoltaicApi, storageApi, faultPredictionApi, carbonApi,
-         energyApi, loadForecastingApi, controlApi, digitalTwinApi,
-         energyEfficiencyApi, storageOptimizationApi } from './energy'
 
 // Platform
 export { workOrderApi, remoteOpsApi, rbacApi, auditApi, kmsApi,
@@ -68,7 +60,7 @@ export { marketplaceApi, algorithmStoreApi, notebookApi } from './marketplace'
 // Unified api object (backward compatible)
 // ============================================================
 import { authApi, userApi, apiKeyApi } from './auth'
-import { projectApi, datasetApi, virtualDataApi, dataSourceApi,
+import { projectApi, datasetApi, dataSourceApi,
          dataGovernanceApi, dataCatalogApi, lineageApi, qualityApi,
          securityApi, dataMaskingApi, dataCollectionApi, dataSubscriptionApi } from './data'
 import { modelApi, trainingApi, modelTrainingApi, hyperoptApi,
@@ -78,9 +70,6 @@ import { modelApi, trainingApi, modelTrainingApi, hyperoptApi,
 import { deploymentApi } from './deployment'
 import { dashboardApi, alertApi, loggingApi, notificationApi,
          alertManageApi, reportApi } from './monitoring'
-import { photovoltaicApi, storageApi, faultPredictionApi, carbonApi,
-         energyApi, loadForecastingApi, controlApi, digitalTwinApi,
-         energyEfficiencyApi, storageOptimizationApi } from './energy'
 import { workOrderApi, remoteOpsApi, rbacApi, auditApi, kmsApi,
          backupApi, tenantApi, configApi, gpuApi, cacheApi,
          serviceMeshApi, gatewayApi, complianceApi,
@@ -99,16 +88,6 @@ export const api = {
   dashboard: dashboardApi,
   alert: alertApi,
   workOrder: workOrderApi,
-  virtualData: virtualDataApi,
-  photovoltaic: photovoltaicApi,
-  storage: storageApi,
-  faultPrediction: faultPredictionApi,
-  carbon: carbonApi,
-  energy: energyApi,
-  loadForecasting: loadForecastingApi,
-  control: controlApi,
-  digitalTwin: digitalTwinApi,
-  energyEfficiency: energyEfficiencyApi,
   dataSource: dataSourceApi,
   dataGovernance: dataGovernanceApi,
   hyperopt: hyperoptApi,
@@ -145,7 +124,6 @@ export const api = {
   gateway: gatewayApi,
   complianceManagement: complianceManagementApi,
   notebook: notebookApi,
-  storageOptimization: storageOptimizationApi,
   modelTraining: modelTrainingApi,
   rbac: rbacApi,
   marketplace: marketplaceApi,

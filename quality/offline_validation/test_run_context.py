@@ -32,7 +32,7 @@ class RunRegistryTest(unittest.TestCase):
         return path
 
     def test_lifecycle_computes_checksum_and_cleanup(self):
-        run = self.registry.create("sintering_temperature", ttl_hours=2)
+        run = self.registry.create("scenario_temperature", ttl_hours=2)
         path = self._asset(run["run_id"], content=b'{"temperature": 800}\n')
         asset = self.registry.register_asset(
             run["run_id"], kind="jsonl", uri=f"scratch://{run['run_id']}/{path.name}"
@@ -45,7 +45,7 @@ class RunRegistryTest(unittest.TestCase):
 
     def test_production_environment_is_rejected(self):
         with self.assertRaises(ValidationError):
-            self.registry.create("sintering", environment="production")
+            self.registry.create("scenario_generic", environment="production")
 
     def test_external_root_and_unsafe_permissions_are_rejected(self):
         with self.assertRaises(ValidationError):

@@ -627,11 +627,10 @@
         </el-form-item>
         <el-form-item label="分类">
           <el-select v-model="editForm.category" style="width:100%">
-            <el-option label="钢铁工艺" value="steel_process" />
-            <el-option label="能效优化" value="energy_optimization" />
-            <el-option label="新能源" value="renewable_energy" />
-            <el-option label="负荷预测" value="load_forecasting" />
-            <el-option label="预测性维护" value="predictive_maintenance" />
+            <el-option label="回归算法" value="regression" />
+            <el-option label="分类算法" value="classification" />
+            <el-option label="时序预测" value="time_series_forecasting" />
+            <el-option label="控制优化算法" value="control_optimization" />
           </el-select>
         </el-form-item>
         <el-form-item label="任务类型">

@@ -126,7 +126,7 @@ class PipelineContractTest(unittest.TestCase):
                 format="api",
                 pipeline={
                     "id": 7,
-                    "name": "sintering-pipeline",
+                    "name": "demo-pipeline",
                     "tasks": [{"name": "load", "task_type": "data_load"}],
                 },
             )
@@ -141,7 +141,7 @@ class PipelineContractTest(unittest.TestCase):
             ExportReq(
                 format="sdk",
                 pipeline={
-                    "name": "生产过程-01",
+                    "name": "demo-01",
                     "tasks": [{"name": "数据-加载", "task_type": "data_load"}],
                 },
             )

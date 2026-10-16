@@ -65,5 +65,5 @@ INSERT INTO quality_rules (name, description, rule_type, field, threshold, sever
 ('数据完整性检查', '检查关键字段是否有空值', 'completeness', '*', '{"min": 0.95}', 'critical'),
 ('主键唯一性', '检查主键字段是否唯一', 'uniqueness', 'id', '{"max_rate": 0}', 'critical'),
 ('数值范围检查', '检查数值是否在合理范围内', 'range', 'value', '{"min": 0, "max": 1000000}', 'warning'),
-('邮箱格式检查', '检查邮箱字段格式是否正确', 'pattern', 'email', '{"pattern": "^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"}', 'warning')
+('邮箱格式检查', '检查邮箱字段格式是否正确', 'pattern', 'email', '{"pattern": "^[a-zA-Z0-9._%%+-]+@[a-zA-Z0-9.-]+\\.[a-zA-Z]{2,}$"}', 'warning')
 ON CONFLICT DO NOTHING;

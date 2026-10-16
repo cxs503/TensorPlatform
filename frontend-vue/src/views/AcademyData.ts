@@ -337,17 +337,17 @@ plt.legend(); plt.title('Learning Curve: 诊断欠拟合/过拟合')`,
         }
       ]},
       { level: 'scenario', sections: [
-        {
-          title: '2.4 工业案例：多场景回归对比',
-          content: `<b>案例1：生产过程温度预测(RF, R²=0.92)</b><br>
+      {
+        title: '2.4 综合案例：多场景回归对比',
+        content: `<b>案例1：设备温度预测(RF, R²=0.92)</b><br>
 • 数据量：43,884行 → 大样本，RF/XGBoost优势明显<br>
-• 特征重要性分析：烟道温度(31%)>大烟道压力(22%)>料层透气率(18%)<br>
-• 模型选择理由：工业参数间非线性交互强(高机速×低料层→温度骤降)，树模型天然捕获<br><br>
-<b>案例2：光伏发电预测(LightGBM, R²=0.89)</b><br>
+• 特征重要性分析：温度传感器(31%)>压力传感器(22%)>流量计(18%)<br>
+• 模型选择理由：参数间非线性交互强(高负载×低流量→温度骤降)，树模型天然捕获<br><br>
+<b>案例2：交通流量预测(LightGBM, R²=0.89)</b><br>
 • 数据量：52,560行(15分钟/点，1年) → 强季节性<br>
-• 关键特征：lag24(昨天同时刻)、lag168(上周同时刻)、太阳高度角、天气编码<br>
+• 关键特征：lag24(昨天同时刻)、lag168(上周同时刻)、是否节假日、天气编码<br>
 • 陷阱：不能用随机CV，必须用TimeSeriesSplit！`,
-          modelRef: '生产过程温度预测-RF-v2 | R²=0.92 | 光伏预测-LGBM | R²=0.89'
+          modelRef: '设备温度预测-RF-v2 | R²=0.92 | 交通流量预测-LGBM | R²=0.89'
         }
       ]},
       { level: 'practice', sections: [
@@ -920,7 +920,7 @@ outputs = session.run(None, {'input': input_numpy})`,
     { level: 'principle', sections: [
       {
         title: '7.1 ARIMA的数学原理',
-        content: `<b>【科普】预测明天几点出太阳——人类最古老的预测问题之一</b><br><br>从古代农民看天象预测收成，到现代电网预测新能源发电量，时间序列预测贯穿人类文明的每一个阶段。与普通的回归问题不同，时序数据有<b>时间依赖性</b>——今天的数据和昨天紧密相关，顺序不能随意打乱。从统计学的ARIMA，到Facebook的Prophet，再到Transformer架构的Informer，每个算法背后都凝聚了人类对「理解时间」的智慧与探索。<br><br><b>ARIMA(p,d,q) = AR(p) + I(d) + MA(q)：</b><br>
+        content: `<b>【科普】预测明天几点出太阳——人类最古老的预测问题之一</b><br><br>从古代农民看天象预测收成，到现代商业预测销量与客流，时间序列预测贯穿人类文明的每一个阶段。与普通的回归问题不同，时序数据有<b>时间依赖性</b>——今天的数据和昨天紧密相关，顺序不能随意打乱。从统计学的ARIMA，到Facebook的Prophet，再到Transformer架构的Informer，每个算法背后都凝聚了人类对「理解时间」的智慧与探索。<br><br><b>ARIMA(p,d,q) = AR(p) + I(d) + MA(q)：</b><br>
 • AR(p)：yₜ=c+φ₁yₜ₋₁+...+φₚyₜ₋ₚ+εₜ → 用过去p个值预测当前<br>
 • I(d)：对原始序列做d阶差分使其平稳 → Δyₜ=yₜ-yₜ₋₁<br>
 • MA(q)：yₜ=μ+εₜ+θ₁εₜ₋₁+...+θqεₜ₋q → 用过去q个误差修正<br><br>
@@ -981,22 +981,22 @@ threshold = np.percentile(scores, 95)  # 95分位数作为阈值`,
     ]},
     { level: 'scenario', sections: [
       {
-        title: '7.3 工业案例：光伏发电预测',
+        title: '7.3 综合案例：交通流量预测',
         content: `<b>数据：</b>52,560行（15分钟/点，1年）<br>
-<b>特征工程：</b>lag1/24/168(上一时刻/昨天同时刻/上周同时刻)、太阳高度角(天文学计算)、小时/月份/季节编码<br>
+<b>特征工程：</b>lag1/24/168(上一时刻/昨天同时刻/上周同时刻)、是否节假日、小时/月份/季节编码<br>
 <b>模型：</b>LightGBM（处理表格数据+lag特征优于LSTM）<br>
 <b>结果：</b>R²=0.89, MAE/峰值≈8%`,
-        dataRef: '光伏发电数据 — 52,560行',
-        note: '🌤️ <b>天气影响：</b>引入天气预报(NWP)可将预测误差再降20%。阴天辐照度模型容易高估→增加辐照度不确定性量化。'
+        dataRef: '交通流量数据 — 52,560行',
+        note: '🚦 <b>天气影响：</b>引入天气预报可将预测误差再降20%。恶劣天气下流量模式容易偏离→增加不确定性量化。'
       },
     ]},
     { level: 'practice', sections: [
       {
         title: '7.4 平台实操',
-        content: `1. <b>负荷预测</b> → 查看光伏发电趋势预测<br>
-2. <b>异常检测</b> → 探索设备异常模式<br>
+        content: `1. <b>训练任务</b> → 上传数据→选算法→训练→查看时序预测效果<br>
+2. <b>异常检测</b> → 探索数据异常模式<br>
 3. <b>Notebook</b> → 运行完整时序分析代码`,
-        action: { label: '⚡ 打开光伏预测', action: 'nav', path: '/data/load-forecast', primary: true }
+        action: { label: '⚡ 打开训练任务', action: 'nav', path: '/model/training-tasks', primary: true }
       }
     ]}
   ],

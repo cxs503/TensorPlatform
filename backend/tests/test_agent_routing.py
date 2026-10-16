@@ -20,22 +20,22 @@ class AgentRoutingTest(unittest.TestCase):
     def setUp(self):
         self.request = SimpleNamespace(headers={"authorization": "Bearer test"})
 
-    def test_general_process_question_does_not_expose_tools(self):
+    def test_general_knowledge_question_does_not_expose_tools(self):
         tools = _select_tools(
-            "钢铁生产工艺过程中有哪几步需要用到算法辅助，用了哪些算法？",
-            COPILOT_TEMPLATES["energy_operations"],
+            "回归问题中常用的特征工程方法有哪些？",
+            COPILOT_TEMPLATES["platform_overview"],
         )
         self.assertEqual(tools, [])
 
     def test_live_platform_question_selects_only_relevant_tools(self):
         tools = _select_tools(
             "平台有多少数据集和模型？",
-            COPILOT_TEMPLATES["energy_operations"],
+            COPILOT_TEMPLATES["platform_overview"],
         )
         names = {item["function"]["name"] for item in tools}
         self.assertIn("get_platform_stats", names)
         self.assertIn("list_datasets", names)
-        self.assertNotIn("query_energy_summary", names)
+        self.assertNotIn("list_models", names)
 
     def test_context_is_bounded_and_keeps_latest_message(self):
         messages = [
@@ -54,7 +54,7 @@ class AgentRoutingTest(unittest.TestCase):
             "choices": [{"message": {"content": "answer"}}]
         }
         result = chat(
-            ChatReq(messages=[{"role": "user", "content": "介绍钢铁生产工艺算法"}]),
+            ChatReq(messages=[{"role": "user", "content": "介绍一下常用的回归算法"}]),
             self.request,
         )
         self.assertEqual(result["reply"], "answer")
@@ -67,7 +67,7 @@ class AgentRoutingTest(unittest.TestCase):
     def test_provider_timeout_returns_504(self, _call_zhipu):
         with self.assertRaises(HTTPException) as raised:
             chat(
-                ChatReq(messages=[{"role": "user", "content": "介绍生产过程工艺"}]),
+                ChatReq(messages=[{"role": "user", "content": "介绍一下数据治理流程"}]),
                 self.request,
             )
         self.assertEqual(raised.exception.status_code, 504)

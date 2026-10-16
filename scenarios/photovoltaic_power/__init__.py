@@ -1,2 +1,0 @@
-"""Photovoltaic power fixture."""
-

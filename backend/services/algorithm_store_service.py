@@ -13,18 +13,9 @@ from services.algorithm_source_service import (
 )
 
 # 预设方法（首次启动时播种到数据库）
-PRESET_METHODS = [
-    {"name": "生产过程终点温度预测", "category": "steel_process",
-     "description": "RandomForest预测生产过程终点温度，R²≥0.94",
-     "algorithm": "RandomForest", "framework": "Scikit-learn", "difficulty": "intermediate",
-     "tags": ["生产过程", "温度", "钢铁"], "status": "published",
-     "metrics": {"r2": 0.942, "mae": 3.8, "rmse": 5.2}},
-    {"name": "生产过程FeO工艺参数优化比预测", "category": "steel_process",
-     "description": "XGBoost预测生产过程矿FeO含量关键指标",
-     "algorithm": "XGBoost", "framework": "Scikit-learn", "difficulty": "advanced",
-     "tags": ["生产过程", "FeO", "钢铁"], "status": "published",
-     "metrics": {"r2": 0.885, "mae": 0.42, "rmse": 0.58}},
-]
+# 2026-10-16 架构收敛：移除钢铁工艺预设，内置算法统一由
+# sync_builtin_algorithms() 以 category="builtin" 播种。
+PRESET_METHODS: List[Dict[str, Any]] = []
 
 class AlgorithmStore:
     def __init__(self):

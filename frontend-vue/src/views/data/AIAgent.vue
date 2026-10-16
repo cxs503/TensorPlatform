@@ -2,8 +2,7 @@
   <div class="ai-agent">
     <div class="page-header">
       <div style="display:flex;align-items:center;gap:12px">
-        <el-button @click="$router.push('/data/steel-ai-case')" size="small" circle>←</el-button>
-        <div><h2>🤖 AI 智能体</h2><p>智谱 GLM-4-Flash 驱动 · 能源服务助手 · 工业知识问答</p></div>
+        <div><h2>🤖 AI 智能体</h2><p>智谱 GLM-4-Flash 驱动 · 平台数据问答 · 分析助手</p></div>
       </div>
       <div style="display:flex;gap:8px"><el-select v-model="template" size="small" style="width:180px"><el-option v-for="item in templates" :key="item.key" :label="item.name" :value="item.key" /></el-select><el-button size="small" @click="clearHistory" :disabled="messages.length<=1">🗑️ 清除历史</el-button></div>
     </div>
@@ -13,8 +12,8 @@
       <div class="chat-panel">
         <div class="messages" ref="msgBox">
           <div v-if="messages.length === 0" class="welcome">
-            <div class="welcome-icon">⚡</div>
-            <h3>开放底座工业能效 AI 智能体</h3>
+            <div class="welcome-icon">🤖</div>
+            <h3>开放数字化底座 AI 智能体</h3>
             <p>可尝试提问：</p>
             <div class="quick-actions">
               <button v-for="q in quickQuestions" :key="q" @click="send(q)" class="quick-btn">{{ q }}</button>
@@ -46,7 +45,7 @@
           <input
             v-model="input"
             @keyup.enter="send(input)"
-            placeholder="输入问题：查询数据集、画曲线图、分析能耗..."
+            placeholder="输入问题：查询数据集、画曲线图、分析模型..."
             class="chat-input"
             :disabled="loading"
           />
@@ -70,7 +69,7 @@
 
         <h4 style="margin-top: 20px;">知识领域</h4>
         <div class="domain-tags">
-          <span v-for="d in domains" :key="d" class="tag" @click="send(`介绍一下${d}领域的能效优化方法`)">{{ d }}</span>
+          <span v-for="d in domains" :key="d" class="tag" @click="send(`介绍一下${d}领域的常用方法`)">{{ d }}</span>
         </div>
       </div>
     </div>
@@ -103,34 +102,29 @@ let elapsedTimer: ReturnType<typeof setInterval> | null = null
 let requestTimeout: ReturnType<typeof setTimeout> | null = null
 let stoppedByUser = false
 let stoppedByTimeout = false
-const template = ref('energy_operations')
+const template = ref('platform_overview')
 const templates = [
-  { key: 'energy_operations', name: '能源运营日报' },
-  { key: 'process_efficiency', name: '工艺能效诊断' },
-  { key: 'multi_energy_strategy', name: '源网荷储策略' },
+  { key: 'platform_overview', name: '平台运营日报' },
+  { key: 'data_analysis', name: '数据分析助手' },
+  { key: 'mlops_review', name: '模型运维助手' },
 ]
 const msgBox = ref<HTMLElement>()
 const chartInstances: Map<string, echarts.ECharts> = new Map()
 
 const quickQuestions = [
   '平台有多少数据集和模型？',
-  '查看cxs(已治理)数据集，画生产过程机机速曲线',
-  '空压机的能效基线是多少？',
-  '今天的碳排放统计',
+  '列出平台所有数据集',
   '当前系统整体运行状况如何？',
-  '帮我优化24小时能源调度',
+  '列出所有模型和训练任务',
 ]
 
 const tools = [
   { name: '数据中台', icon: '📊', desc: '数据集/目录/血缘/质量', prompt: '查询平台所有数据集，并画一个柱状图' },
   { name: '模型工厂', icon: '🤖', desc: '模型/训练/部署/实验', prompt: '列出所有模型和训练任务' },
-  { name: '设备基线', icon: '⚙️', desc: '8类工业设备能效基线', prompt: '列出空压机和水泵的能效基线' },
-  { name: '能耗总览', icon: '📈', desc: '用电/用水/碳排/费用', prompt: '查询今日能耗汇总并画饼图' },
-  { name: '能源调度', icon: '⚡', desc: '峰谷策略/成本最优', prompt: '帮我优化24小时能源调度，以成本最低为目标' },
-  { name: '故障预测', icon: '🔧', desc: '设备健康度/剩余寿命', prompt: '查询所有设备的健康状态和故障预测' },
+  { name: '平台统计', icon: '📈', desc: '数据集/模型/训练任务总览', prompt: '平台有多少数据集和模型' },
 ]
 
-const domains = ['生产过程', '生产设备', '除尘', '能源调度', '余热回收', '光伏', '碳核算', '数据质量', '模型评估']
+const domains = ['数据治理', '特征工程', '模型评估', '工作流编排', '数据质量']
 
 function parseCharts(content: string): { text: string; charts: any[] } {
   const charts: any[] = []
@@ -284,7 +278,7 @@ function clearHistory() {
   localStorage.removeItem('ai_agent_history')
   messages.value.push({
     role: 'assistant',
-    content: '历史已清除！我是**开放底座工业能效 AI 智能体** ⚡\n\n可直接输入问题进行咨询。',
+    content: '历史已清除！我是**开放数字化底座 AI 智能体** 🤖\n\n可直接输入问题进行咨询。',
   })
   ElMessage.success('聊天历史已清除')
 }
@@ -292,7 +286,7 @@ onMounted(() => {
   if (!loadHistory()) {
     messages.value.push({
       role: 'assistant',
-      content: '你好！我是**开放底座工业能效 AI 智能体** ⚡\n\n基于智谱 GLM-4-Flash 大模型，我可以帮你：\n- 📊 查询数据集中台的所有数据集\n- 📈 对数据列画曲线图、柱状图、饼图\n- ⚙️ 分析工业设备能效基线\n- ⚡ 优化能源调度策略\n\n可直接输入问题进行咨询。',
+      content: '你好！我是**开放数字化底座 AI 智能体** 🤖\n\n基于智谱 GLM-4-Flash 大模型，我可以帮你：\n- 📊 查询数据集中台的所有数据集\n- 📈 对数据列画曲线图、柱状图、饼图\n- 🤖 查询模型工厂的模型与训练任务\n- ⚙️ 汇总平台运营统计\n\n可直接输入问题进行咨询。',
     })
   }
 })
