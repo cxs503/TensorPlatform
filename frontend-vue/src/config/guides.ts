@@ -41,7 +41,7 @@ export const moduleGuides: Record<string, GuideEntry> = {
     title: '特征工程',
     desc: '从原始数据构建AI特征: 滑动窗口/移动平均/傅里叶变换/交互特征',
     steps: ['选择源数据集', '添加转换步骤(可选模板)', '配置转换参数(窗口大小/周期等)', '预览转换结果', '执行特征工程生成新数据集'],
-    tips: ['工业传感器数据推荐: 滑动窗口+移动平均', '时间数据推荐: 周期编码(hour_sin/cos)', '模板可一键套用: FeO/光伏/轴承'],
+    tips: ['工业传感器数据推荐: 滑动窗口+移动平均', '时间数据推荐: 周期编码(hour_sin/cos)', '可按数据列推荐通用特征转换'],
     api: ['GET /feature-engineering/types', 'POST /feature-engineering/preview', 'POST /feature-engineering/run'],
   },
   '/data/public-datasets': {
@@ -115,9 +115,9 @@ export const moduleGuides: Record<string, GuideEntry> = {
   },
   '/model/algorithm-store': {
     title: '算法商店',
-    desc: '预置工业AI算法模板: 除尘优化/脱硫/储能/故障预测等15个模型',
-    steps: ['浏览15个预置模型', '查看模型描述和适用场景', '点击模型查看详细说明', '可直接作为训练模板使用'],
-    tips: ['覆盖能源/钢铁/故障预测场景', '每个模型含推荐算法和参数', '可用作AutoML的初始搜索点'],
+    desc: '浏览通用AI算法及训练配置',
+    steps: ['浏览算法列表', '查看算法描述和适用任务', '点击算法查看详细说明', '可直接作为训练模板使用'],
+    tips: ['按任务类型选择算法', '查看推荐参数', '可用作AutoML的初始搜索点'],
     api: ['GET /algorithm-store/models'],
   },
   '/model/feature-store': {
@@ -220,7 +220,7 @@ export const moduleGuides: Record<string, GuideEntry> = {
   '/app/marketplace': {
     title: '应用市场', desc: 'AI应用模板市场: 一键部署行业解决方案',
     steps: ['浏览解决方案模板', '预览Demo效果', '一键部署到平台', '自定义配置'],
-    tips: ['当前15个预置模型可一键使用'],
+    tips: ['按实际接入情况选择可用模型'],
     api: ['GET /marketplace'],
   },
 

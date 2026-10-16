@@ -76,8 +76,6 @@ def data_profile(dataset_id: int, db: Session = Depends(get_db)):
 # 4. 业务术语表
 # ══════════════════════════════════════════════
 _glossary = [
-    {"term":"生产过程终点温度","en":"BTP","desc":"生产过程机最后一个风箱的废气温度","domain":"钢铁/生产过程"},
-    {"term":"FeO工艺参数优化比","en":"FeO/C Ratio","desc":"氧化亚铁与工艺参数优化量的比值","domain":"钢铁/生产过程"},
     {"term":"光伏发电功率","en":"PV Power","desc":"光伏组件单位时间发电量(kW)","domain":"新能源/光伏"},
     {"term":"R²","en":"R-squared","desc":"决定系数，模型拟合优度指标","domain":"ML/评估"},
     {"term":"均方根误差","en":"RMSE","desc":"预测值与真实值偏差的度量","domain":"ML/评估"},

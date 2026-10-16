@@ -94,18 +94,6 @@ test.describe('数据中台页面', () => {
     await expect(page.locator('#app')).toBeVisible({ timeout: 15000 });
   });
 
-  test('生产过程优化Demo页面加载', async ({ page }) => {
-    const response = await page.goto('/data/steel-ai-case');
-    expect(response?.status()).toBe(200);
-    await expect(page.locator('#app')).toBeVisible({ timeout: 15000 });
-  });
-
-  test('钢铁能源页面加载', async ({ page }) => {
-    const response = await page.goto('/data/steel-energy');
-    expect(response?.status()).toBe(200);
-    await expect(page.locator('#app')).toBeVisible({ timeout: 15000 });
-  });
-
 });
 
 // ========== 模型工厂页面测试 ==========

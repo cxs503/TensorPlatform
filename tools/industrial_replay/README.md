@@ -16,7 +16,7 @@ CSV 字段保持字符串，回放器不会擅自改变标签精度或设备编�
 ```json
 {
   "replay": {
-    "run_id": "sintering-baseline-v1-run-001",
+    "run_id": "sensor-baseline-v1-run-001",
     "sequence": 1,
     "duplicate_number": 0,
     "scheduled_offset_ms": 0,
@@ -35,7 +35,7 @@ CSV 字段保持字符串，回放器不会擅自改变标签精度或设备编�
 
 ```bash
 python3 tools/industrial_replay/replay.py scenario.jsonl \
-  --run-id sintering-baseline-v1-run-001 --dry-run
+  --run-id sensor-baseline-v1-run-001 --dry-run
 ```
 
 无等待输出到文件：

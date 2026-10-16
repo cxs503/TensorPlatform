@@ -20,8 +20,6 @@ const ALL_ROUTES = [
   { path: '/data/quality', title: '数据质量', section: 'data' },
   { path: '/data/feature-engineering', title: '特征工程', section: 'data' },
   { path: '/data/lineage', title: '数据血缘', section: 'data' },
-  { path: '/data/steel-ai-case', title: '生产过程优化Demo', section: 'data' },
-  { path: '/data/steel-energy', title: '钢铁能源', section: 'data' },
   { path: '/data/ai-agent', title: 'AI智能体', section: 'data' },
   // 模型工厂
   { path: '/model/automl', title: 'AutoML对比', section: 'model' },
@@ -165,11 +163,6 @@ test.describe('3. 导航与路由交互', () => {
     expect(page.url()).toContain('/data/');
   });
 
-  test('旧路径重定向: /case/sintering → /data/steel-ai-case', async ({ page }) => {
-    await page.goto('/case/sintering');
-    await page.waitForTimeout(1000);
-    expect(page.url()).toContain('/data/steel-ai-case');
-  });
 });
 
 // ========== Part 4: 数据中台功能测试 ==========
@@ -209,16 +202,6 @@ test.describe('4. 数据中台功能', () => {
     await page.goto('/data/new-datasets');
     await page.waitForTimeout(3000);
     await expect(page.locator('#app')).toBeVisible();
-  });
-
-  test('钢铁能源页面 — 图表渲染', async ({ page }) => {
-    await page.goto('/data/steel-energy');
-    await page.waitForTimeout(3000);
-    await page.screenshot({ path: 'test-results/steel-energy.png', fullPage: true });
-    // 检查 ECharts 画布
-    const canvas = page.locator('canvas').first();
-    const canvasVisible = await canvas.isVisible({ timeout: 5000 }).catch(() => false);
-    console.log(`ECharts canvas visible: ${canvasVisible}`);
   });
 
   test('AI智能体 — 页面渲染', async ({ page }) => {
@@ -452,8 +435,7 @@ test.describe('9. 页面交互功能', () => {
 
 // ========== Part 10: 性能基准测试 ==========
 test.describe('10. 页面加载性能', () => {
-  const PERF_ROUTES = ['/', '/data/dashboard', '/model/new-models', '/model/algorithm-store',
-                       '/data/steel-energy', '/data/steel-ai-case'];
+  const PERF_ROUTES = ['/', '/data/dashboard', '/model/new-models', '/model/algorithm-store'];
 
   for (const route of PERF_ROUTES) {
     test(`加载时间: ${route}`, async ({ page }) => {
@@ -480,4 +462,3 @@ test.describe('10. 页面加载性能', () => {
     }
   });
 });
-

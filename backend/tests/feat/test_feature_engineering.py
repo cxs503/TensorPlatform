@@ -8,7 +8,7 @@ import pandas as pd
 import pytest
 
 from services.feature_engineering_service import (
-    build_feo_template,
+    build_recommendations,
     eval_expression,
     rolling_transform,
     run_transformations,
@@ -79,35 +79,25 @@ def test_rolling_transform_fill_value_replaces_nan():
     assert out.iloc[1] == pytest.approx(1.0)
 
 
-# ----------------------------------------------------------- build_feo_template
-def test_build_feo_template_matches_feo_columns():
-    df = pd.DataFrame(
-        columns=["煤粉", "焦粉", "铁料1", "铁料2", "冷返矿", "环冷罩内温度"]
-    )
-    tpl = build_feo_template(df)
-    tmap = {t["name"]: t for t in tpl["transformations"]}
-    # 工艺参数优化比例 expression should reference coal, coke, iron, return ore
-    assert "工艺参数优化比例" in tmap
-    expr = tmap["工艺参数优化比例"]["expression"]
-    for col in ("煤粉", "焦粉", "铁料1", "铁料2", "冷返矿"):
-        assert "{" + col + "}" in expr
-    # 环冷斜率 is a rolling slope on the hood temp column
-    assert "环冷斜率" in tmap
-    rt = tmap["环冷斜率"]
-    assert rt["type"] == "rolling"
-    assert rt["agg"] == "slope"
-    assert rt["source_column"] == "环冷罩内温度"
-    assert tpl["matched"]["coal"] == "煤粉"
+# ----------------------------------------------------------- build_recommendations
+def test_recommendations_do_not_generate_industry_formulas():
+    df = pd.DataFrame({
+        name: [1.0, 2.0]
+        for name in ["煤粉", "焦粉", "铁料1", "铁料2", "冷返矿", "环冷罩内温度"]
+    })
+    result = build_recommendations(df)
+    assert result["recommendations"]
+    assert all(item["transform"]["type"] != "expression" for item in result["recommendations"])
 
 
-def test_build_feo_template_missing_columns_reports_notes():
-    df = pd.DataFrame(columns=["无关列1", "无关列2"])
-    tpl = build_feo_template(df)
-    assert tpl["transformations"] == []
-    # both feature groups should be reported as unmatched
-    assert any("煤粉" in n for n in tpl["notes"])
-    assert any("罩内温度" in n for n in tpl["notes"])
-    assert tpl["matched"]["coal"] is None
+def test_recommendations_keep_generic_sensor_features():
+    df = pd.DataFrame({
+        "timestamp": pd.date_range("2026-01-01", periods=3, freq="h"),
+        "temperature": [10.0, 20.0, 30.0],
+    })
+    result = build_recommendations(df)
+    types = {item["transform"]["type"] for item in result["recommendations"]}
+    assert {"time_component", "lag", "rolling", "normalize"} <= types
 
 
 # ---------------------------------------------------------- run_transformations

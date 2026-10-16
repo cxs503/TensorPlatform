@@ -28,7 +28,7 @@ def build_output_schema(output_type: str) -> dict:
     return type_map.get(output_type, {"type": "string"})
 
 
-# 15 starter components derived from ALGORITHM_STORE
+# Starter components derived from ALGORITHM_STORE
 COMPONENTS = [
     {
         "name": "除尘系统能效优化",
@@ -87,14 +87,6 @@ COMPONENTS = [
         "parameters": {"algorithm": "Transformer", "framework": "PyTorch", "accuracy": "94%"},
     },
     {
-        "name": "炼钢温度预测",
-        "type": "time_series_forecast",
-        "description": "预测炼钢过程中温度变化趋势",
-        "input_features": ["oxygen_flow", "carbon_content", "slag_composition", "time"],
-        "output_type": "regression",
-        "parameters": {"algorithm": "GRU", "framework": "PyTorch", "accuracy": "93%"},
-    },
-    {
         "name": "电力负荷预测",
         "type": "time_series_forecast",
         "description": "预测电力负荷，优化能源调度",
@@ -109,14 +101,6 @@ COMPONENTS = [
         "input_features": ["irradiance", "temperature", "humidity", "cloud_cover"],
         "output_type": "regression",
         "parameters": {"algorithm": "LightGBM", "framework": "Scikit-learn", "rmse": "0.05"},
-    },
-    {
-        "name": "钢表面缺陷检测",
-        "type": "computer_vision",
-        "description": "检测钢材表面缺陷（裂纹、划痕等）",
-        "input_features": ["image_data"],
-        "output_type": "classification",
-        "parameters": {"algorithm": "ResNet50", "framework": "PyTorch", "accuracy": "97%", "classes": ["normal", "crack", "scratch", "pit"]},
     },
     {
         "name": "安全帽佩戴检测",

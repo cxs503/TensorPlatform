@@ -155,32 +155,33 @@ grid = GridSearchCV(full_pipeline, params, cv=5, scoring='r2', n_jobs=-1)`,
       ]},
       { level: 'scenario', sections: [
         {
-          title: '1.4 真实工业案例：生产过程数据全流程分析',
-          content: `<b>数据概况：</b>生产过程机工艺数据 43,884行×7列<br><br>
+          title: '1.4 通用示例：传感器数据全流程分析',
+          content: `<b>数据概况：</b>使用包含时间、温度和压力等字段的数值数据集<br><br>
 <b>分析步骤：</b><br>
-1. 单变量分布检查 → 机速偏左分布(1.4-2.1)，料层厚度正态(1100-1400)，烟道温度轻度右偏<br>
-2. 缺失率分析 → 整体<1%，完整性良好<br>
-3. 相关性矩阵 → 1#/2#烟道压力r=0.94(冗余特征)，机速与温度r=-0.32(弱负相关)<br>
-4. 派生特征 → 压力差=1#-2#(反映抽风均匀性)，热效率=终点温度/烟道温度(反映热利用)<br><br>
-<b>关键发现：</b>派生特征"热效率"与目标终点温度的相关性(r=0.38)高于任何单一原始特征，且物理意义明确。`,
-          dataRef: '生产过程机工艺数据(钢企Demo) — 43,884行',
-          note: '💡 <b>工业经验：</b>派生特征往往比原始特征更有预测力。工业场景的"比值""差值""效率"类特征背后是物理定律，不是纯统计学巧合。'
+1. 单变量分布检查 → 查看温度、压力等数值列的分布与异常值<br>
+2. 缺失率分析 → 逐列统计完整性<br>
+3. 相关性矩阵 → 检查冗余特征及其与目标的关系<br>
+4. 派生特征 → 根据时间顺序添加滞后值、滑动均值和差分<br><br>
+<b>验证要求：</b>在独立验证集上比较派生前后的效果，避免数据泄漏。`,
+          dataRef: '用户选择的传感器数据集',
+          note: '💡 <b>特征工程：</b>派生特征应具备可解释性，并通过验证集检验其有效性。'
         }
       ]},
       { level: 'practice', sections: [
         {
           title: '1.5 平台实操：完整EDA+特征工程流水线',
-          content: `1. 进入 <b>数据集管理</b> → 选择"生产过程机工艺数据" → 查看数据分布<br>
+          content: `1. 进入 <b>数据集管理</b> → 选择已上传的传感器数据 → 查看数据分布<br>
 2. 在 <b>数据集管理</b> 中选择 <b>清洗分析</b> → 查看清洗前后效果与验收结果<br>
-3. 进入 <b>特征工程</b> → 平台自动派生"压力差""热效率"特征<br>
+3. 进入 <b>特征工程</b> → 选择滞后值、滑动均值等通用转换<br>
 4. 打开 <b>Notebook</b> → 运行下方完整分析代码`,
-          code: `# 完整生产过程数据EDA + 特征工程
+          code: `# 通用传感器数据EDA + 特征工程
 import pandas as pd; import numpy as np
 import matplotlib.pyplot as plt; import seaborn as sns
 from scipy import stats
 
 # 加载数据
-df = pd.read_csv('/app/uploads/datasets/生产过程机工艺数据.csv')
+# 替换为已上传的数据文件，示例要求包含 temperature 数值列
+df = pd.read_csv('/app/uploads/datasets/sensors.csv')
 print(f'Shape: {df.shape}\\n{df.describe().round(2)}')
 
 # 1. 缺失率
@@ -201,20 +202,20 @@ for col in df.select_dtypes(np.number).columns:
     print(f'  {col}: skew={sk:.3f} kurt={ku:.3f}')
 
 # 4. 相关性矩阵（含派生特征）
-df['压力差'] = df['1#大烟道压力'] - df['2#大烟道压力']
-df['热效率'] = df['终点平均温度'] / df['烟道温度']
-corr = df.corr()
+df['temperature_lag1'] = df['temperature'].shift(1)
+df['temperature_mean5'] = df['temperature'].rolling(5, min_periods=1).mean()
+corr = df.select_dtypes(np.number).corr()
 plt.figure(figsize=(14,12))
 mask = np.triu(np.ones_like(corr, dtype=bool))
 sns.heatmap(corr, mask=mask, annot=True, fmt='.2f', cmap='RdBu_r', center=0)
-plt.title('生产过程参数相关性矩阵（含派生特征）'); plt.tight_layout(); plt.show()
+plt.title('传感器参数相关性矩阵（含派生特征）'); plt.tight_layout(); plt.show()
 
 # 5. 目标变量与特征关系
 fig, axes = plt.subplots(2,4, figsize=(16,8))
-for ax, col in zip(axes.flat, df.drop(columns=['终点平均温度']).columns):
-    ax.scatter(df[col], df['终点平均温度'], alpha=0.1, s=1)
-    ax.set_xlabel(col, fontsize=9); ax.set_ylabel('终点温度', fontsize=9)
-plt.suptitle('各特征 vs 终点平均温度'); plt.tight_layout(); plt.show()`,
+for ax, col in zip(axes.flat, df.select_dtypes(np.number).drop(columns=['temperature']).columns):
+    ax.scatter(df[col], df['temperature'], alpha=0.1, s=1)
+    ax.set_xlabel(col, fontsize=9); ax.set_ylabel('temperature', fontsize=9)
+plt.suptitle('各特征 vs temperature'); plt.tight_layout(); plt.show()`,
           codeLang: 'python',
           action: { label: '📓 打开 Notebook', action: 'nav', path: '/model/notebook', primary: true }
         }
