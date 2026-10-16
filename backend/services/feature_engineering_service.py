@@ -1,11 +1,11 @@
 """
 通用特征工程服务 —— 数据治理环节的派生特征计算。
 
-设计目标:可配置、通用(不绑定具体业务),同时满足当前 Demo(FeO 的工艺参数优化比例/环冷斜率)
+设计目标:可配置、通用(不绑定具体业务)
 并可用于其他场景。
 
 支持的转换类型(可扩展):
-  - expression : 算术表达式,列名用 {列名} 包裹。例 "({煤粉}+{焦粉})/({铁料1}+{铁料2})"
+  - expression : 算术表达式,列名用 {列名} 包裹。例 "({sensor_a}+{sensor_b})/2"
                   仅允许 + - * / % ** 和数字、列引用;无函数调用/属性访问,杜绝任意代码执行。
   - rolling    : 按行序(或时间列)滚动聚合。agg ∈ diff|slope|mean|std|var|sum|min|max
                   slope = 滚动窗口内的线性回归斜率;diff = 一阶差分。
@@ -266,12 +266,6 @@ def build_recommendations(df: pd.DataFrame) -> Dict[str, Any]:
             add("difference", "一阶差分", f"计算「{source}」相邻时刻的变化量，突出变化趋势。", {"type": "rolling", "name": f"{source}_一阶差分", "source_column": source, "window": 1, "agg": "diff"})
         add("minmax", "归一化", f"把「{source}」缩放到 0~1，适合量纲差异较大的模型输入。", {"type": "normalize", "name": f"{source}_归一化", "source_column": source, "method": "minmax"}, selected=False)
 
-    # 组合特征只在已有 FeO 领域模板实际匹配时才推荐，避免随意相乘两列。
-    feo = build_feo_template(df)
-    for index, transform in enumerate(feo["transformations"]):
-        if transform.get("type") == "expression":
-            add(f"feo-expression-{index}", "业务组合特征", "根据煤粉、焦粉和铁料列生成可解释的工艺参数优化比例。", transform)
-
     return {
         "profile": {"column_count": int(len(df.columns)), "numeric_columns": numeric_columns, "time_columns": time_columns},
         "recommendations": recommendations,
@@ -445,62 +439,3 @@ def run_transformations(
 
         reserved.add(name)
     return out
-
-
-# -------------------- FeO 场景模板(按列名关键字自动匹配) --------------------
-
-def _find_col(columns: List[str], *keywords) -> Optional[str]:
-    for c in columns:
-        cl = c.lower()
-        if all(k.lower() in c or k in cl for k in keywords):
-            return c
-    # 任一关键字命中
-    for c in columns:
-        if any(k.lower() in c for k in keywords):
-            return c
-    return None
-
-
-def build_feo_template(df: pd.DataFrame) -> Dict[str, Any]:
-    """根据 FeO 数据集的列名自动生成 工艺参数优化比例 + 环冷斜率 转换配置。"""
-    cols = list(df.columns)
-    coal = _find_col(cols, "煤粉")
-    coke = _find_col(cols, "焦粉")
-    iron = [c for c in cols if "铁料" in c]
-    ret = [c for c in cols if ("冷返矿" in c or "炉返矿" in c)]
-    hood = _find_col(cols, "罩内温度") or _find_col(cols, "罩内")
-
-    transformations: List[Dict[str, Any]] = []
-    notes: List[str] = []
-
-    if coal and coke and iron:
-        num = "{" + coal + "}+{" + coke + "}"
-        den = "+".join("{" + c + "}" for c in (iron + ret))
-        transformations.append(
-            {
-                "type": "expression",
-                "name": "工艺参数优化比例",
-                "expression": f"({num})/({den})",
-                "fill_value": 0,
-            }
-        )
-    else:
-        notes.append("未匹配到 煤粉/焦粉/铁料 列,工艺参数优化比例未生成")
-
-    if hood:
-        transformations.append(
-            {
-                "type": "rolling",
-                "name": "环冷斜率",
-                "source_column": hood,
-                "window": 10,
-                "agg": "slope",
-                "fill_value": 0,
-            }
-        )
-    else:
-        notes.append("未匹配到 罩内温度 列,环冷斜率未生成")
-
-    return {"transformations": transformations, "notes": notes, "matched": {
-        "coal": coal, "coke": coke, "iron_count": len(iron), "return_count": len(ret), "hood": hood
-    }}

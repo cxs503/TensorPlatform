@@ -12,7 +12,6 @@ router = APIRouter(prefix="/evaluation-center", tags=["评测中心"])
 BASELINES = [
     {"dataset": "ENB2012 能源效率", "task": "regression", "metric": "R²", "baseline": 0.75, "excellent": 0.95},
     {"dataset": "AI4I 预测性维护", "task": "classification", "metric": "accuracy", "baseline": 0.85, "excellent": 0.97},
-    {"dataset": "钢铁行业能耗", "task": "regression", "metric": "R²", "baseline": 0.35, "excellent": 0.80},
     {"dataset": "联合循环电厂", "task": "regression", "metric": "R²", "baseline": 0.60, "excellent": 0.90},
     {"dataset": "SECOM 半导体故障", "task": "classification", "metric": "accuracy", "baseline": 0.70, "excellent": 0.93},
     {"dataset": "家电能耗预测", "task": "regression", "metric": "R²", "baseline": 0.40, "excellent": 0.85},

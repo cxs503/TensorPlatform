@@ -154,7 +154,7 @@ async function loadGateways() {
       gateways.value = [
         { id: 'gw-001', name: '生产过程车间-1号', ip: '192.168.1.101', status: 'online', models_count: 3, cpu_usage: '45%', memory_usage: '62%', last_seen: new Date().toISOString() },
         { id: 'gw-002', name: '生产设备-边缘节点', ip: '192.168.1.102', status: 'online', models_count: 2, cpu_usage: '38%', memory_usage: '51%', last_seen: new Date().toISOString() },
-        { id: 'gw-003', name: '连铸-工控机', ip: '192.168.2.50', status: 'offline', models_count: 1, cpu_usage: '-', memory_usage: '-', last_seen: '2026-07-09 18:30' },
+        { id: 'gw-003', name: '边缘工控机', ip: '192.168.2.50', status: 'offline', models_count: 1, cpu_usage: '-', memory_usage: '-', last_seen: '2026-07-09 18:30' },
       ]
     }
   } catch (e) { /* ignore */ }

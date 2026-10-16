@@ -27,9 +27,7 @@
               show-icon
             />
             <el-form-item>
-              <el-button type="default" @click="applyTemplate" :disabled="!datasetId">✨ 套用 FeO 模板</el-button>
             </el-form-item>
-            <div v-if="templateNotes.length" class="template-notes">{{ templateNotes.join('；') }}</div>
           </el-form>
         </el-col>
         <el-col v-if="columns.length" :xs="24" :md="12">
@@ -62,7 +60,7 @@
         </div>
       </template>
       <div v-if="!transforms.length" class="empty-hint">
-        <el-empty description="尚未添加转换。可点「+ 公式 / + 滚动」或「套用 FeO 模板」" :image-size="60" />
+        <el-empty description="尚未添加转换。可点「+ 公式 / + 滚动」添加通用特征" :image-size="60" />
       </div>
       <div v-for="(t, i) in transforms" :key="i" class="transform-item">
         <el-form label-width="90px" inline>
@@ -135,7 +133,7 @@
         </el-form>
         <div v-if="t.type === 'expression'" class="expression-row">
           <label class="form-label">表达式(列名用 {'{'}列名{'}'} 包裹，仅 + - * / % **)</label>
-          <el-input v-model="t.expression" @focus="activeIdx = i" placeholder="例:({'煤粉12#仓反馈值'}+{'焦粉13#仓反馈值'})/({'铁料1#仓反馈值'}+{'铁料2#仓反馈值'})" />
+          <el-input v-model="t.expression" @focus="activeIdx = i" placeholder="例:({sensor_a}+{sensor_b})/2" />
         </div>
       </div>
     </el-card>
@@ -401,7 +399,6 @@ const timeColumn = ref<string | null>(null)
 const transforms = ref<any[]>([])
 const activeIdx = ref(-1)
 const aggs = ['slope', 'diff', 'mean', 'std', 'var', 'sum', 'min', 'max']
-const templateNotes = ref<string[]>([])
 const previewData = ref<any>(null)
 const runResult = ref<any>(null)
 const running = ref(false)
@@ -630,7 +627,6 @@ const onDatasetChange = async () => {
   columnMeta.value = []
   transforms.value = []
   timeColumn.value = null
-  templateNotes.value = []
   previewData.value = null
   runResult.value = null
   recommendations.value = []
@@ -737,17 +733,6 @@ const insertCol = (c: string) => {
   transforms.value[idx].expression += '{' + c + '}'
 }
 
-const applyTemplate = async () => {
-  if (datasetId.value == null) return
-  try {
-    const d = await get<any>(`/feature-engineering/templates?dataset_id=${datasetId.value}`)
-    const t = (d.templates || []).find((x: any) => x.key === 'feo')
-    if (!t || !t.transformations?.length) { ElMessage.warning('未匹配到 FeO 模板列'); return }
-    transforms.value = t.transformations.map((x: any) => ({ ...x }))
-    templateNotes.value = t.notes || []
-  } catch (e) { ElMessage.error('模板获取失败') }
-}
-
 const loadSourceDatasetPreview = async () => {
   if (datasetId.value == null) return
   sourceDatasetPreviewLoading.value = true
@@ -790,7 +775,6 @@ const applyRecommendations = () => {
   const selected = recommendations.value.filter((item) => selectedRecommendationKeys.value.includes(item.key))
   transforms.value = selected.map((item) => JSON.parse(JSON.stringify(item.transform)))
   timeColumn.value = recommendationProfile.value?.time_columns?.[0] || null
-  templateNotes.value = []
 }
 
 const previewRecommendations = async () => {

@@ -2,7 +2,7 @@
 通用特征工程 API —— 数据治理模块的派生特征计算。
 
 挂载于 /api/v1/feature-engineering。产出含派生特征列的新数据集(stage=engineered),
-可直接用于训练。支持任意 expression/rolling 转换组合,并预置 FeO 模板。
+可直接用于训练。支持任意 expression/rolling 转换组合。
 """
 import io
 import json
@@ -26,7 +26,6 @@ from api.deps import require_auth, require_permission
 from api.tenant_access import assert_organization_access, is_admin, require_organization
 from services.feature_engineering_service import (
     run_transformations,
-    build_feo_template,
     build_recommendations,
     FEATURE_RULE_TEMPLATE,
     normalize_feature_definition,
@@ -408,18 +407,12 @@ def get_templates(
     db: Session = Depends(get_db),
     current_user: dict = Depends(require_auth),
 ):
-    """为指定数据集生成预置模板(当前:FeO 工艺参数优化比例+环冷斜率)。"""
+    """保留模板查询接口，不再提供行业专用预置。"""
     ds = db.query(Dataset).filter(Dataset.id == dataset_id).first()
     if not ds:
         raise HTTPException(status_code=404, detail="数据集不存在")
     assert_organization_access(ds.organization_id, current_user)
-    # 只读表头即可匹配列名
-    try:
-        df = pd.read_csv(ds.file_path, nrows=1) if ds.file_path and os.path.exists(ds.file_path) else pd.DataFrame()
-    except Exception:
-        df = pd.DataFrame()
-    feo = build_feo_template(df)
-    return {"templates": [{"key": "feo", "title": "生产过程工艺参数优化 FeO(工艺参数优化比例 + 环冷斜率)", **feo}]}
+    return {"templates": []}
 
 
 @router.post("/recommend", dependencies=[Depends(require_permission("datasets:read"))])
@@ -572,7 +565,7 @@ async def merge_label(
     current_user: dict = Depends(require_auth),
 ):
     """把外部化验/标签 CSV 按时间就近合并到数据集。
-    用于把独立的 FeO 化验值(每2h)对齐到秒级传感器数据,产出含标签列的新数据集(stage=labeled),
+    用于把独立的采样标签对齐到传感器数据,产出含标签列的新数据集(stage=labeled),
     仅保留匹配到标签的行,可直接训练。"""
     ds = db.query(Dataset).filter(Dataset.id == source_dataset_id).first()
     if not ds:
