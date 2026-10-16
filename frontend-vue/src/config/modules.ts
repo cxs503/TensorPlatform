@@ -7,13 +7,22 @@
  */
 export interface MenuItem { path: string; title: string; icon: string; unavailable?: boolean; hidden?: boolean; adminOnly?: boolean }
 export interface MenuGroup { title: string; items: MenuItem[] }
-export type ModuleKey = 'data' | 'academy' | 'model' | 'app' | 'system'
+export type ModuleKey = 'research' | 'data' | 'academy' | 'model' | 'app' | 'system'
 export interface Module {
   key: ModuleKey; title: string; icon: string; theme: string; entry: string; desc: string
   items?: MenuItem[]; groups?: MenuGroup[]
 }
 
 export const MODULES: Module[] = [
+  {
+    key: 'research', title: '科研工厂', icon: 'Cpu', theme: 'cyan', entry: '/research/factory',
+    desc: 'Agent 驱动的目标分解、数值计算、证据验证与科研资产沉淀',
+    groups: [
+      { title: '自主科研闭环', items: [
+        { path: '/research/factory', title: '科研工作台', icon: 'Monitor' },
+      ]},
+    ]
+  },
   {
     key: 'data', title: '数据中台', icon: 'Coin', theme: 'indigo', entry: '/data/dashboard',
     desc: '数据采集、治理、特征工程',

@@ -24,6 +24,13 @@ const routes: RouteRecordRaw[] = [
     component: () => import('@/layouts/MainLayout.vue'),
     redirect: '/data/dashboard',
     children: [
+      // ==================== 科研工厂 ====================
+      {
+        path: '/research/factory',
+        name: 'ResearchFactory',
+        component: () => import('@/views/research/ResearchFactory.vue'),
+        meta: { title: '科研工厂' }
+      },
       // ==================== 数据中台 ====================
       {
         path: '/data/virtual',
