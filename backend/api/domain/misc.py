@@ -9,6 +9,10 @@ from fastapi import APIRouter
 
 router = APIRouter(tags=["其他功能"])
 
+# ── Agent-led research factory ──
+from api.research_factory import router as research_factory_router
+router.include_router(research_factory_router)
+
 # ── JupyterLab ──
 from api.jupyter import router as jupyter_router                  # prefix="/jupyter"
 
