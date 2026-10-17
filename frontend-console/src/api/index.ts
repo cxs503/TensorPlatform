@@ -58,3 +58,9 @@ export const activityApi = {
 export const workspaceApi = {
   latest: () => http.get<any>('/tensor/workspace'),
 }
+
+// ── LLM analysis (self-deployed DeepSeek via internal relay) ──
+export const llmApi = {
+  status: () => http.get<any>('/tensor/llm/status'),
+  analyzeExecution: (id: number) => http.post<any>(`/tensor/llm/analyze/execution/${id}`, {}),
+}
