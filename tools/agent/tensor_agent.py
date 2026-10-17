@@ -659,13 +659,16 @@ GOAL_TEMPLATE = """你是 tensor-agent，科研平台的自主开发智能体。
 
 
 def build_llm() -> LLM:
+    # 90s fail-fast retries (proven on this relay): long-reasoning spirals
+    # are killed early and each retry samples fresh reasoning instead of
+    # burning 3min+ per 180s attempt.
     return LLM(
         usage_id="tensor-agent",
         model=os.environ.get("LLM_MODEL", "openai/deepseek-v4-flash"),
         base_url=os.environ.get("LLM_BASE_URL", ""),
         api_key=os.environ.get("LLM_API_KEY", ""),
-        timeout=180,
-        num_retries=3,
+        timeout=90,
+        num_retries=6,
         max_tokens=8192,
     )
 
@@ -681,6 +684,7 @@ class MissionRunner:
         self.max_tools = int(self.budget.get("max_tool_calls", 80))
         self.t0 = time.monotonic()
         self.stop_reason: str | None = None
+        self.finished = False  # set once terminal bookkeeping is done
         self.bridge: EventBridge | None = None
 
     # ── heartbeat + budget thread ──
@@ -696,6 +700,8 @@ class MissionRunner:
             code, resp = self.api.api(
                 "POST", f"/tensor/missions/{self.mission['id']}/heartbeat",
                 {"claim_token": self.claim_token, "progress": progress})
+            if code in (401, 403, 404, 409):
+                return  # mission closed (acceptance/decide/terminal): stop beating
             if code == 200 and resp.get("action") == "stop":
                 self.stop_reason = "owner_stopped"
                 self._pause()
@@ -715,6 +721,18 @@ class MissionRunner:
                 BRIDGE.conversation.pause()
         except Exception as exc:  # noqa: BLE001
             log(f"pause failed: {exc}")
+        # Watchdog: pause() cannot interrupt an in-flight LLM call that has
+        # outlived its timeout discipline (slow-drip reads). If terminal
+        # bookkeeping hasn't finished within 150s, exit the process — the
+        # flock wrapper restarts it and the claim reaper marks this mission
+        # failed/agent_lost.
+        def _escalate() -> None:
+            time.sleep(150)
+            if not self.finished:
+                log(f"m{self.mission['id']}: watchdog — run() wedged past stop "
+                    f"({self.stop_reason}); exiting for flock restart")
+                os._exit(3)
+        threading.Thread(target=_escalate, daemon=True).start()
 
     def run(self) -> None:
         global BRIDGE
@@ -757,7 +775,8 @@ class MissionRunner:
         # timeouts) before calling run_tests/commit/request_acceptance. Resume
         # with an explicit nudge — the mission only counts as finished when
         # acceptance was requested, the owner stopped it, or budget ran out.
-        nudges_left = 2
+        nudges_left = 2       # plain-reply endings: re-enter with an instruction
+        abort_resumes_left = 4  # endpoint-timeout aborts: just re-run(), free
         while True:
             error = None
             try:
@@ -766,11 +785,11 @@ class MissionRunner:
                 error = f"{type(exc).__name__}: {exc}"
                 # Endpoint-timeout aborts (litellm exhausting its retries)
                 # are transient: re-run() resumes from the persisted
-                # conversation. Counted against the same nudge budget.
-                if nudges_left > 0 and not self.stop_reason:
-                    nudges_left -= 1
+                # conversation without growing the context.
+                if abort_resumes_left > 0 and not self.stop_reason:
+                    abort_resumes_left -= 1
                     log(f"m{mid}: run aborted ({error[:200]}) — "
-                        f"resume {2 - nudges_left}/2 in 10s")
+                        f"resume {4 - abort_resumes_left}/4 in 10s")
                     self.bridge.emit("error", {"text": error[:400]})
                     time.sleep(10)
                     continue
@@ -800,6 +819,7 @@ class MissionRunner:
 
         # ── terminal bookkeeping ──
         head = worktree_head(worktree)
+        self.finished = True  # acceptance path: watch thread already exited
         if BRIDGE.acceptance_requested:
             log(f"m{mid}: awaiting acceptance (approval "
                 f"{BRIDGE.acceptance_response.get('approval_id')})")
@@ -820,6 +840,7 @@ class MissionRunner:
              "summary": {"headline": stop,
                          "detail": f"tool_calls={self.bridge.action_count}"},
              "checks": {}})
+        self.finished = True
         log(f"m{mid}: complete -> {code} {str(resp)[:160]} (stop={stop})")
 
 
