@@ -125,7 +125,6 @@ onMounted(() => { refreshPending(); start() })
   border-radius: 8px;
   transition: color 150ms ease, background 150ms ease, border-color 150ms ease;
 }
-.tf-nav a.router-link-active,
 .tf-nav a.is-active {
   color: #9af0d5;
   background: rgba(117, 228, 194, 0.1);
