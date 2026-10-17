@@ -659,16 +659,17 @@ GOAL_TEMPLATE = """你是 tensor-agent，科研平台的自主开发智能体。
 
 
 def build_llm() -> LLM:
-    # 90s fail-fast retries (proven on this relay): long-reasoning spirals
-    # are killed early and each retry samples fresh reasoning instead of
-    # burning 3min+ per 180s attempt.
+    # Fail-fast retries tuned on this relay: 90s proved too tight for
+    # legitimate agentic planning reasoning (deterministic abort chains on
+    # complex contexts), 180s let spirals burn 9min/call. 120s with 4
+    # retries balances both; override per deployment via LLM_TIMEOUT_SECONDS.
     return LLM(
         usage_id="tensor-agent",
         model=os.environ.get("LLM_MODEL", "openai/deepseek-v4-flash"),
         base_url=os.environ.get("LLM_BASE_URL", ""),
         api_key=os.environ.get("LLM_API_KEY", ""),
-        timeout=90,
-        num_retries=6,
+        timeout=int(os.environ.get("LLM_TIMEOUT_SECONDS", "120")),
+        num_retries=4,
         max_tokens=8192,
     )
 
@@ -776,7 +777,8 @@ class MissionRunner:
         # with an explicit nudge — the mission only counts as finished when
         # acceptance was requested, the owner stopped it, or budget ran out.
         nudges_left = 2       # plain-reply endings: re-enter with an instruction
-        abort_resumes_left = 4  # endpoint-timeout aborts: just re-run(), free
+        abort_resumes_left = 6  # endpoint-timeout aborts: just re-run(), free
+        consecutive_aborts = 0
         while True:
             error = None
             try:
@@ -785,15 +787,28 @@ class MissionRunner:
                 error = f"{type(exc).__name__}: {exc}"
                 # Endpoint-timeout aborts (litellm exhausting its retries)
                 # are transient: re-run() resumes from the persisted
-                # conversation without growing the context.
+                # conversation without growing the context. Every second
+                # consecutive abort also injects a short message — same
+                # context re-sampled deterministically re-spirals, a small
+                # context perturbation breaks the loop.
                 if abort_resumes_left > 0 and not self.stop_reason:
                     abort_resumes_left -= 1
+                    consecutive_aborts += 1
                     log(f"m{mid}: run aborted ({error[:200]}) — "
-                        f"resume {4 - abort_resumes_left}/4 in 10s")
+                        f"resume {6 - abort_resumes_left}/6 in 10s")
                     self.bridge.emit("error", {"text": error[:400]})
                     time.sleep(10)
+                    if consecutive_aborts % 2 == 0:
+                        try:
+                            conversation.send_message(
+                                "继续任务。若上一步在长时间思考，请直接给出下一步的具体工具调用，"
+                                "不要重新推演全部方案。")
+                        except Exception as exc2:  # noqa: BLE001
+                            log(f"m{mid}: abort nudge send failed: {exc2}")
                     continue
                 log(f"m{mid}: conversation crashed: {error}")
+            if error is None:
+                consecutive_aborts = 0
             if BRIDGE.acceptance_requested or error or self.stop_reason:
                 break
             if int(time.monotonic() - self.t0) > self.max_wall:
