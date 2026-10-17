@@ -309,7 +309,8 @@ def _authorize_agent(db: Session, mission_id: int, claim_token: str) -> Any:
     ).mappings().first()
     if not row:
         raise HTTPException(status_code=404, detail="mission not found")
-    if not row["claim_token"] or row["claim_token"] != claim_token:
+    # UUID columns come back as uuid.UUID objects — compare as canonical strings
+    if not row["claim_token"] or str(row["claim_token"]) != claim_token:
         raise HTTPException(status_code=403, detail="invalid claim token")
     return row
 
