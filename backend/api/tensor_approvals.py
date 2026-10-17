@@ -1,9 +1,12 @@
-"""Tensor console: human-in-the-loop approvals (stage promotion / stop condition).
+"""Tensor console: human-in-the-loop approvals.
 
-Decide is strictly ADMIN — the agent never approves its own work.
+Kinds: stage_promotion / stop_condition (scenario ladder) and
+dev_acceptance (mission acceptance). Decide is strictly ADMIN — the agent
+never approves its own work.
 """
 from __future__ import annotations
 
+import json
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -23,6 +26,8 @@ def _row(r: Any) -> dict[str, Any]:
         "id": r["id"],
         "scenario_id": r["scenario_id"],
         "scenario_key": r["scenario_key"],
+        "mission_id": r["mission_id"],
+        "mission_goal": r["mission_goal"],
         "kind": r["kind"],
         "from_stage": r["from_stage"],
         "to_stage": r["to_stage"],
@@ -38,11 +43,13 @@ def _row(r: Any) -> dict[str, Any]:
 
 
 _SELECT = """
-    SELECT a.id, a.scenario_id, s.scenario_key, a.kind, a.from_stage, a.to_stage,
+    SELECT a.id, a.scenario_id, s.scenario_key, a.mission_id, m.goal AS mission_goal,
+           a.kind, a.from_stage, a.to_stage,
            a.reason, a.evidence, a.status, a.requested_by, a.decided_by,
            a.decided_at, a.decision_note, a.created_at
     FROM tensor_approval_requests a
-    JOIN tensor_scenarios s ON s.id = a.scenario_id
+    LEFT JOIN tensor_scenarios s ON s.id = a.scenario_id
+    LEFT JOIN tensor_dev_missions m ON m.id = a.mission_id
 """
 
 
@@ -143,9 +150,11 @@ def decide_approval(
 ):
     row = db.execute(
         text("""
-            SELECT a.id, a.scenario_id, a.kind, a.to_stage, a.status, s.scenario_key
+            SELECT a.id, a.scenario_id, a.mission_id, a.kind, a.to_stage, a.status,
+                   s.scenario_key, m.session_id AS mission_session_id
             FROM tensor_approval_requests a
-            JOIN tensor_scenarios s ON s.id = a.scenario_id
+            LEFT JOIN tensor_scenarios s ON s.id = a.scenario_id
+            LEFT JOIN tensor_dev_missions m ON m.id = a.mission_id
             WHERE a.id = :aid
         """),
         {"aid": approval_id},
@@ -155,7 +164,41 @@ def decide_approval(
     if row["status"] != "pending":
         raise HTTPException(status_code=409, detail=f"approval already {row['status']}")
 
-    if body.decision == "approved" and row["kind"] == "stage_promotion":
+    if row["kind"] == "dev_acceptance":
+        # mission acceptance: approve -> succeeded, reject -> failed; the mission
+        # session closes with the decision event (append-only audit chain).
+        mission_status = "succeeded" if body.decision == "approved" else "failed"
+        db.execute(
+            text("""
+                UPDATE tensor_dev_missions
+                SET status = :st, finished_at = now(),
+                    result = result || CAST(:patch AS jsonb)
+                WHERE id = :mid
+            """),
+            {"st": mission_status, "mid": row["mission_id"],
+             "patch": json.dumps({
+                 "accepted": body.decision == "approved",
+                 "decided_by": user.get("username"),
+                 "decision_note": body.note,
+             }, ensure_ascii=False)},
+        )
+        if row["mission_session_id"]:
+            from api.domain.tensor_common import append_event
+
+            append_event(db, row["mission_session_id"], "approval_decided", {
+                "approval_id": approval_id, "kind": "dev_acceptance",
+                "decision": body.decision, "note": body.note,
+                "mission_status": mission_status,
+            })
+            db.execute(
+                text("""
+                    UPDATE tensor_agent_sessions
+                    SET status = :st, closed_at = now() WHERE id = :sid
+                """),
+                {"st": "completed" if body.decision == "approved" else "failed",
+                 "sid": row["mission_session_id"]},
+            )
+    elif body.decision == "approved" and row["kind"] == "stage_promotion":
         # promotion commits together with the decision (single transaction);
         # the new stage opens as pending — its completion evidence comes
         # from registered runs, not from the approval itself.
@@ -187,5 +230,8 @@ def decide_approval(
         "id": approval_id,
         "status": body.decision,
         "scenario_key": row["scenario_key"],
+        "mission_id": row["mission_id"],
+        "mission_status": ("succeeded" if body.decision == "approved" else "failed")
+                          if row["kind"] == "dev_acceptance" else None,
         "promoted_to": row["to_stage"] if (body.decision == "approved" and row["kind"] == "stage_promotion") else None,
     }

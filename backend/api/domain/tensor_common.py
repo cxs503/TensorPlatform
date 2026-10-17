@@ -21,6 +21,10 @@ EVENT_KINDS = (
     "approval_decided",
     "note",
     "error",
+    "tool_call",
+    "tool_result",
+    "web_search",
+    "code_commit",
 )
 STAGES = ("S0", "S1", "S2", "S3", "S4")
 TERMINAL_STATUSES = ("succeeded", "failed", "cancelled")
