@@ -31,6 +31,9 @@ TP_ROOT = Path("/srv/tensor/shared/tensor_eco/TensorPhysics")
 S0_SCRIPT = TP_ROOT / "scenarios/wedge_icebreaking/s0.py"
 PLATFORM_ENV = Path("/srv/tensor/shared/tensor_eco/TensorPlatform/.env")
 RUNS_ROOT = Path("/srv/tensor/shared/tensor_eco/executor-runs")
+ECO_ROOT = Path("/srv/tensor/shared/tensor_eco")
+WORKSPACE_REPOS = ["TensorPhysics", "TensorPlatform", "TensorLBM",
+                   "TensorFVM", "TensorFEM", "TensorDEM"]
 
 EXECUTOR_ID = os.environ.get("TENSOR_EXECUTOR_ID", f"executor-{socket.gethostname()}")
 POLL_SECONDS = 5
@@ -451,6 +454,51 @@ def run_claimed(execution: dict, claim_token: str) -> None:
     request_approval(execution["scenario_key"], metrics, log_path)
 
 
+def _git(path: Path, *args: str) -> tuple[int, str]:
+    try:
+        out = subprocess.run(["git", "-C", str(path), *args],
+                             capture_output=True, text=True, timeout=10)
+        return out.returncode, out.stdout.strip()
+    except Exception:  # noqa: BLE001 — snapshot must never kill the daemon
+        return 1, ""
+
+
+def snapshot_workspace() -> list[dict]:
+    """Live git state of every repo in the six-library workspace."""
+    repos: list[dict] = []
+    for name in WORKSPACE_REPOS:
+        path = ECO_ROOT / name
+        rc, head = _git(path, "rev-parse", "HEAD")
+        if rc != 0 or not head:
+            repos.append({"name": name, "error": "unreadable"})
+            continue
+        _, branch = _git(path, "rev-parse", "--abbrev-ref", "HEAD")
+        rc2, meta = _git(path, "log", "-1", "--format=%cI%x1f%s")
+        commit_at, subject = "", ""
+        if rc2 == 0 and "\x1f" in meta:
+            commit_at, subject = meta.split("\x1f", 1)
+        _, dirty = _git(path, "status", "--porcelain")
+        repos.append({
+            "name": name,
+            "branch": branch or None,
+            "head": head,
+            "head_short": head[:8],
+            "commit_at": commit_at or None,
+            "subject": subject[:100] or None,
+            "dirty_files": len(dirty.splitlines()),
+        })
+    return repos
+
+
+def push_workspace_snapshot() -> None:
+    status, resp = api("POST", "/api/v1/tensor/workspace", {
+        "executor_id": EXECUTOR_ID,
+        "repos": snapshot_workspace(),
+    })
+    if status not in (200, 201):
+        log(f"workspace snapshot: HTTP {status} {resp}")
+
+
 def recover_stale_claims() -> None:
     for status_filter in ("claimed", "running"):
         status, resp = api("GET",
@@ -497,7 +545,11 @@ def main() -> None:
             time.sleep(min(60, attempt * 5))
     log(f"executor {EXECUTOR_ID} online (api={API})")
     recover_stale_claims()
+    snapshot_tick = 0
     while True:
+        snapshot_tick += 1
+        if snapshot_tick % 12 == 1:  # startup + every ~60s
+            push_workspace_snapshot()
         status, resp = api("POST", "/api/v1/tensor/executions/claim", {
             "executor_id": EXECUTOR_ID,
             "hostname": socket.gethostname(),

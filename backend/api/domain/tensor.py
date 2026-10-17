@@ -14,6 +14,7 @@ from api.tensor_approvals import router as tensor_approvals_router         # pre
 from api.tensor_sessions import router as tensor_sessions_router           # prefix="/tensor/sessions"
 from api.tensor_system import router as tensor_system_router               # prefix="/tensor/system"
 from api.tensor_activity import router as tensor_activity_router           # prefix="/tensor/activity"
+from api.tensor_workspace import router as tensor_workspace_router         # prefix="/tensor/workspace"
 
 router.include_router(tensor_scenarios_router)
 router.include_router(tensor_executions_router)
@@ -21,3 +22,4 @@ router.include_router(tensor_approvals_router)
 router.include_router(tensor_sessions_router)
 router.include_router(tensor_system_router)
 router.include_router(tensor_activity_router)
+router.include_router(tensor_workspace_router)

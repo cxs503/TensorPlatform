@@ -27,6 +27,11 @@
         :hint="stats.pending_approvals ? '需要 ADMIN 裁定' : '无待审事项'" /></el-col>
     </el-row>
 
+    <!-- 工作区全景：Tensor 家族六库 -->
+    <div class="tf-ov-row">
+      <WorkspaceFamily :ws="workspace" :now="now" />
+    </div>
+
     <!-- 主行：智能体活动 + 场景阶梯 -->
     <el-row :gutter="16" class="tf-ov-row">
       <el-col :span="15">
@@ -74,7 +79,7 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { scenarioApi, activityApi, runApi } from '@/api'
+import { scenarioApi, activityApi, runApi, workspaceApi } from '@/api'
 import { usePolling } from '@/composables/usePolling'
 import HeroPanel from '@/components/HeroPanel.vue'
 import MetricCard from '@/components/MetricCard.vue'
@@ -84,11 +89,13 @@ import AgentActivity from '@/components/AgentActivity.vue'
 import EventTimeline from '@/components/EventTimeline.vue'
 import EventFeed from '@/components/EventFeed.vue'
 import SolverMatrix from '@/components/SolverMatrix.vue'
+import WorkspaceFamily from '@/components/WorkspaceFamily.vue'
 import type { AgentEvent } from '@/utils/events'
 
 const activity = ref<any>({})
 const scenarios = ref<any[]>([])
 const runs = ref<any[]>([])
+const workspace = ref<any>({})
 const now = ref(Date.now())
 
 const stats = computed(() => activity.value.stats || {})
@@ -127,12 +134,14 @@ async function refreshFast() {
   activity.value = await activityApi.overview()
 }
 async function refreshSlow() {
-  const [s, r] = await Promise.all([
+  const [s, r, w] = await Promise.all([
     scenarioApi.list(),
     runApi.list({ limit: 40 }),
+    workspaceApi.latest(),
   ])
   scenarios.value = s.items || []
   runs.value = r.items || []
+  workspace.value = w || {}
 }
 
 const fast = usePolling(refreshFast, 5000)

@@ -53,3 +53,8 @@ export const systemApi = {
 export const activityApi = {
   overview: (eventsLimit = 60) => http.get<any>('/tensor/activity', { events_limit: eventsLimit }),
 }
+
+// ── workspace (six-repo Tensor family snapshot) ──
+export const workspaceApi = {
+  latest: () => http.get<any>('/tensor/workspace'),
+}
