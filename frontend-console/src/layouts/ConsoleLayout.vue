@@ -17,6 +17,7 @@
           <el-badge v-if="pendingCount > 0" :value="pendingCount" class="tf-nav-badge" />
         </router-link>
         <router-link to="/sessions">Agent 活动</router-link>
+        <router-link to="/missions" class="tf-nav-mission">开发任务</router-link>
         <router-link to="/system">系统状态</router-link>
       </nav>
 

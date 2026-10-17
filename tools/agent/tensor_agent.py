@@ -143,6 +143,7 @@ class EventBridge:
     def __init__(self, api: PlatformAPI, session_id: int) -> None:
         self.api = api
         self.session_id = session_id
+        self.action_count = 0  # every real tool action (terminal/editor/bridge)
         self.q: queue.Queue[tuple[str, dict] | None] = queue.Queue(maxsize=2000)
         self.worker = threading.Thread(target=self._drain, daemon=True)
         self.worker.start()
@@ -189,6 +190,7 @@ def sdk_event_to_platform(event: Any, bridge: EventBridge) -> None:
                                      "text": _clip(action, 1500)})
                 return
             payload = {"tool": tool}
+            bridge.action_count += 1  # honest budget counter: all tool actions
             if getattr(action, "command", None):
                 payload["command"] = _clip(action.command, 600)
             if getattr(action, "path", None):
@@ -651,8 +653,9 @@ GOAL_TEMPLATE = """你是 tensor-agent，科研平台的自主开发智能体。
    request_acceptance（提请人工验收）。
 3. 流程：先检索/理解 → 开发 → run_tests 通过 → commit（中文提交信息）→ request_acceptance。
    测试不过就修，修不过就在 request_acceptance 的 summary 里如实说明。
-4. request_acceptance 成功后立即结束：回一句总结，不再调用任何工具。
-5. 全程用简体中文写提交信息与验收材料；代码注释跟随仓库现有风格。"""
+4. 严禁在未调用 request_acceptance 的情况下结束对话——提前收尾任务将被判 failed。
+5. request_acceptance 成功后立即结束：回一句总结，不再调用任何工具。
+6. 全程用简体中文写提交信息与验收材料；代码注释跟随仓库现有风格。"""
 
 
 def build_llm() -> LLM:
@@ -686,7 +689,7 @@ class MissionRunner:
         while True:
             time.sleep(HEARTBEAT_SECONDS)
             elapsed = int(time.monotonic() - self.t0)
-            progress = {"tool_calls": BRIDGE.tool_calls if BRIDGE else 0,
+            progress = {"tool_calls": self.bridge.action_count,
                         "elapsed_seconds": elapsed,
                         "max_wall_seconds": self.max_wall,
                         "head": worktree_head(BRIDGE.worktree) if BRIDGE else None}
@@ -701,7 +704,7 @@ class MissionRunner:
                 self.stop_reason = "budget_exceeded"
                 self._pause()
                 return
-            if BRIDGE and BRIDGE.tool_calls > self.max_tools + 10:
+            if self.bridge.action_count > self.max_tools + 10:
                 self.stop_reason = "budget_exceeded"
                 self._pause()
                 return
@@ -750,14 +753,40 @@ class MissionRunner:
         log(f"m{mid}: conversation running (budget {self.max_tools} tools / "
             f"{self.max_wall}s)")
         error: str | None = None
-        try:
-            conversation.run()
-        except Exception as exc:  # noqa: BLE001
-            error = f"{type(exc).__name__}: {exc}"
-            log(f"m{mid}: conversation crashed: {error}")
-        finally:
-            time.sleep(3)  # let the event queue drain
-            self.bridge.close()
+        # The LLM can end a run with a plain reply (notably after endpoint
+        # timeouts) before calling run_tests/commit/request_acceptance. Resume
+        # with an explicit nudge — the mission only counts as finished when
+        # acceptance was requested, the owner stopped it, or budget ran out.
+        nudges_left = 2
+        while True:
+            error = None
+            try:
+                conversation.run()
+            except Exception as exc:  # noqa: BLE001
+                error = f"{type(exc).__name__}: {exc}"
+                log(f"m{mid}: conversation crashed: {error}")
+            if BRIDGE.acceptance_requested or error or self.stop_reason:
+                break
+            if int(time.monotonic() - self.t0) > self.max_wall:
+                self.stop_reason = "budget_exceeded"
+                break
+            if nudges_left <= 0:
+                break
+            nudges_left -= 1
+            log(f"m{mid}: run ended without acceptance — nudge "
+                f"{2 - nudges_left}/2, actions so far {self.bridge.action_count}")
+            self.bridge.emit("note", {"subtype": "nudge",
+                                      "text": "任务尚未完成：重新进入循环继续执行。"})
+            try:
+                conversation.send_message(
+                    "你还没有完成任务。请继续：用 run_tests 跑测试 → commit 提交"
+                    "（中文提交信息）→ request_acceptance 提请验收。在 request_acceptance"
+                    " 成功之前不允许结束对话；若确实无法完成，也要先尽力调用工具再说明障碍。")
+            except Exception as exc:  # noqa: BLE001
+                log(f"m{mid}: nudge send failed: {exc}")
+                break
+        time.sleep(3)  # let the event queue drain
+        self.bridge.close()
 
         # ── terminal bookkeeping ──
         head = worktree_head(worktree)
@@ -779,7 +808,7 @@ class MissionRunner:
             {"claim_token": self.claim_token, "status": status,
              "acceptance": False, "branch": f"agent/m{mid}", "head_commit": head,
              "summary": {"headline": stop,
-                         "detail": f"tool_calls={BRIDGE.tool_calls}"},
+                         "detail": f"tool_calls={self.bridge.action_count}"},
              "checks": {}})
         log(f"m{mid}: complete -> {code} {str(resp)[:160]} (stop={stop})")
 

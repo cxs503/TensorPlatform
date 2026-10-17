@@ -22,6 +22,10 @@ export const EVENT_KIND_META: Record<string, { label: string; color: string }> =
   approval_decided:   { label: '人审裁定',   color: '#5b8c5a' },
   note:               { label: '备注',       color: '#90a0b0' },
   error:              { label: '错误',       color: '#c24545' },
+  tool_call:          { label: '工具调用',   color: '#3d5a98' },
+  tool_result:        { label: '工具结果',   color: '#6e7f9e' },
+  web_search:         { label: '联网检索',   color: '#2d8bb5' },
+  code_commit:        { label: '代码提交',   color: '#3fa34d' },
 }
 
 export function kindLabel(kind: string): string {
@@ -53,6 +57,22 @@ export function summarizeEvent(e: AgentEvent): string {
         p.stop_condition ? `终止:${p.stop_condition}` : null,
         n != null ? `${n} run` : null,
       ].filter(Boolean).join(' · ')
+    }
+    case 'tool_call': {
+      const tool = p.tool || '—'
+      const cmd = p.command || (p.args ? String(p.args).slice(0, 60) : '')
+      return [tool, cmd].filter(Boolean).join(' ')
+    }
+    case 'tool_result': {
+      if (p.tool === 'run_tests') return `${p.ok ? '通过' : '失败'} · ${(p.tail || '').slice(-80).trim()}`
+      const text = p.text || ''
+      return text.replace(/^"content=\[TextContent[^)]*\)\s*/m, '').slice(0, 90) || '—'
+    }
+    case 'web_search':
+      return `${p.query || ''} → ${(p.results || '').split('\n').length} 条来源`.trim()
+    case 'code_commit': {
+      const stats = typeof p.stats === 'string' ? p.stats.split('\n').slice(1).join(' ') : ''
+      return `${p.head || ''} ${p.message || ''} ${stats}`.trim() || '—'
     }
     default: {
       const s = JSON.stringify(p)
