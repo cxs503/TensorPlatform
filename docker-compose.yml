@@ -328,7 +328,7 @@ services:
   frontend:
     build:
       context: .
-      dockerfile: frontend-vue/Dockerfile
+      dockerfile: frontend-console/Dockerfile
       args:
         ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:-development}
     image: open-foundation-frontend:2.2.0
@@ -372,7 +372,7 @@ services:
     networks:
       - open-digital-foundation_foundation-network
     volumes:
-      - ./frontend-vue/dist:/usr/share/nginx/html:ro
+      - ./frontend-console/dist:/usr/share/nginx/html:ro
       - ./frontend/nginx-https.conf:/etc/nginx/conf.d/default.conf:ro
       - ${TLS_CERT_FILE:-./secrets/tls/fullchain.pem}:/etc/nginx/tls/fullchain.pem:ro
       - ${TLS_KEY_FILE:-./secrets/tls/privkey.pem}:/etc/nginx/tls/privkey.pem:ro

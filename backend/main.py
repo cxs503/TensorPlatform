@@ -70,6 +70,7 @@ from api.domain import (
     iam, observability, platform,     # 认证 / 可观测 / 平台
     iot_edge,                         # IoT 与边缘
     ops, tools, misc,                 # 项目运维 / 工具 / 杂项
+    tensor,                           # 科研运行台（场景/执行/审批/会话/健康）
 )
 
 # Prometheus 监控指标 (router 已在 observability 域中聚合；保留为独立导入用於 /metrics 空前缀端点)
@@ -272,6 +273,9 @@ app.include_router(tools.router, prefix="/api/v1")
 
 # ── 其他功能（Jupyter, 数据管道, WebSocket, A/B测试, MLOps, Notebook, ONNX 等）──
 app.include_router(misc.router, prefix="/api/v1")
+
+# ── 科研运行台（HPC + AI agent 操作面）──
+app.include_router(tensor.router, prefix="/api/v1")
 
 # ── Prometheus /metrics 端点（空前缀，供 Prometheus 采集）──
 app.include_router(metrics_api.router, prefix="")

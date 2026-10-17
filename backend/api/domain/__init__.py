@@ -9,6 +9,7 @@ from api.domain.iot_edge import router as iot_edge_router
 from api.domain.ops import router as ops_router
 from api.domain.tools import router as tools_router
 from api.domain.misc import router as misc_router
+from api.domain.tensor import router as tensor_router
 
 __all__ = [
     "data_router",
@@ -21,4 +22,5 @@ __all__ = [
     "ops_router",
     "tools_router",
     "misc_router",
+    "tensor_router",
 ]
