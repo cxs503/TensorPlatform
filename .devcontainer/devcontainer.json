@@ -1,0 +1,25 @@
+{
+  "name": "TensorPlatform UI Preview",
+  "image": "node:20",
+  "workspaceFolder": "/workspaces/TensorPlatform",
+  "forwardPorts": [8080],
+  "portsAttributes": {
+    "8080": {
+      "label": "Frontend UI (Vite)",
+      "onAutoForward": "openPreview"
+    }
+  },
+  "containerEnv": {
+    "PORT": "8080"
+  },
+  "postCreateCommand": "cd frontend-vue && npm install --no-audit --no-fund",
+  "postAttachCommand": "cd frontend-vue && npm run dev -- --host",
+  "customizations": {
+    "vscode": {
+      "extensions": [
+        "Vue.volar"
+      ]
+    }
+  },
+  "remoteUser": "node"
+}
