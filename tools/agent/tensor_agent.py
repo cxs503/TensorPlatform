@@ -663,6 +663,11 @@ def build_llm() -> LLM:
     # legitimate agentic planning reasoning (deterministic abort chains on
     # complex contexts), 180s let spirals burn 9min/call. 120s with 4
     # retries balances both; override per deployment via LLM_TIMEOUT_SECONDS.
+    # stream=True is REQUIRED: this relay hangs indefinitely on big-context
+    # NON-streaming completions (~20k+ prompt tokens, any model) while the
+    # same requests streamed return in seconds — measured 2026-10-18.
+    # Streaming additionally needs a non-None on_token callback, wired via
+    # set_token_callbacks() after Conversation construction.
     return LLM(
         usage_id="tensor-agent",
         model=os.environ.get("LLM_MODEL", "openai/deepseek-v4-flash"),
@@ -671,6 +676,7 @@ def build_llm() -> LLM:
         timeout=int(os.environ.get("LLM_TIMEOUT_SECONDS", "120")),
         num_retries=4,
         max_tokens=8192,
+        stream=True,
     )
 
 
@@ -764,6 +770,10 @@ class MissionRunner:
             max_iteration_per_run=self.max_tools + 10,
         )
         BRIDGE.conversation = conversation
+        # Enable streaming end-to-end: the SDK degrades to a non-streaming
+        # completion when on_token is None (LLM.stream=True alone is not
+        # enough), and non-streaming big-context requests hang this relay.
+        conversation.set_token_callbacks([lambda *_a, **_k: None])
         goal = GOAL_TEMPLATE.format(
             mid=mid, goal=self.mission["goal"], repo=self.mission["repo"],
             base_ref=self.mission.get("base_ref") or "main",
