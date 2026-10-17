@@ -255,7 +255,9 @@ def claim_mission(
             append_event(db, dead["session_id"], "decision",
                          {"status": "failed", "stop_condition": "agent_lost"})
 
-    token = uuid.uuid4().hex
+    # dashed canonical form: the UUID column normalizes on store, so the
+    # returned token must round-trip byte-identically (plain .hex would not)
+    token = str(uuid.uuid4())
     row = db.execute(
         text("""
             UPDATE tensor_dev_missions
@@ -533,7 +535,7 @@ def reclaim_mission(
         raise HTTPException(status_code=409, detail=f"cannot reclaim status {row['status']}")
     if row["claimed_by"] != body.agent_id:
         raise HTTPException(status_code=403, detail="claim belongs to another agent")
-    token = uuid.uuid4().hex
+    token = str(uuid.uuid4())
     new_status = "running" if row["status"] == "awaiting_acceptance" else row["status"]
     db.execute(
         text("""
