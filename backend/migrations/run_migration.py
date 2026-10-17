@@ -75,7 +75,14 @@ def run_pending_migrations(*, baseline: bool = False) -> list[str]:
 
             if not baseline:
                 logger.info("Applying database migration %s", version)
-                connection.exec_driver_sql(path.read_text(encoding="utf-8"))
+                # psycopg2 paramstyle interpolation breaks on literal "%"
+                # in SQL bodies (e.g. JSON accuracy fields); run through a raw
+                # DBAPI cursor with no parameters so "%" passes untouched.
+                dbapi_cursor = connection.connection.cursor()
+                try:
+                    dbapi_cursor.execute(path.read_text(encoding="utf-8"))
+                finally:
+                    dbapi_cursor.close()
 
             connection.execute(
                 text(

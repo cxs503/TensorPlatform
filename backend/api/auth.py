@@ -98,6 +98,12 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     if existing:
         raise HTTPException(status_code=409, detail="用户名已存在")
 
+    # Public sign-up must not allow privilege self-assignment; elevated
+    # roles (ADMIN/MANAGER/ENGINEER) are provisioned out-of-band.
+    if (req.role or "VIEWER").upper() != "VIEWER":
+        logger.warning("Registration role request downgraded to VIEWER")
+    granted_role = "VIEWER"
+
     hashed_password = get_password_hash(req.password)
     email = req.email or req.username + "@open-foundation.local"
 
@@ -106,7 +112,7 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
             "INSERT INTO users (username, email, hashed_password, is_active, role) "
             "VALUES (:u, :e, :p, true, :r)"
         ),
-        {"u": req.username, "e": email, "p": hashed_password, "r": req.role},
+        {"u": req.username, "e": email, "p": hashed_password, "r": granted_role},
     )
     db.commit()
 
@@ -115,14 +121,14 @@ def register(req: RegisterRequest, db: Session = Depends(get_db)):
     ).fetchone()
 
     tokens = create_token_pair(
-        {"sub": req.username, "user_id": user_result[0], "role": req.role}
+        {"sub": req.username, "user_id": user_result[0], "role": granted_role}
     )
 
     logger.info("用户注册成功: " + sanitize_for_log(req.username))
     return {
         "username": req.username,
         "email": email,
-        "role": req.role,
+        "role": granted_role,
         "user_id": user_result[0],
         **tokens,
     }
