@@ -375,6 +375,16 @@ class SupervisedRun:
 def request_approval(scenario_key: str, metrics: dict, log_path: Path) -> None:
     green = bool(metrics.get("checks_total")) and \
         metrics.get("checks_passed") == metrics.get("checks_total")
+
+    if green:
+        # promotion only applies while the scenario still sits at S0;
+        # a green re-run after promotion is a regression check, not a gate.
+        st, sc = api("GET", f"/api/v1/tensor/scenarios/{scenario_key}")
+        if st == 200 and sc.get("current_stage") != "S0":
+            log(f"green re-run with current_stage={sc.get('current_stage')}: "
+                "no promotion approval needed")
+            return
+
     kind = "stage_promotion" if green else "stop_condition"
     status, resp = api("POST", "/api/v1/tensor/approvals", {
         "scenario_key": scenario_key,
