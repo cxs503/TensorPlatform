@@ -48,3 +48,8 @@ export const sessionApi = {
 export const systemApi = {
   health: () => http.get<any>('/tensor/system/health'),
 }
+
+// ── activity (overview board) ──
+export const activityApi = {
+  overview: (eventsLimit = 60) => http.get<any>('/tensor/activity', { events_limit: eventsLimit }),
+}
