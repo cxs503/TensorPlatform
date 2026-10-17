@@ -24,12 +24,12 @@ WHERE c.workspace_id IS NULL
       (c.name = '炼钢温度预测'
        AND c.type = 'time_series_forecast'
        AND c.description = '预测炼钢过程中温度变化趋势'
-       AND c.parameters::jsonb = '{"algorithm":"GRU","framework":"PyTorch","accuracy":"93%"}'::jsonb)
+       AND c.parameters::jsonb = '{"algorithm":"GRU","framework":"PyTorch","accuracy":"93%%"}'::jsonb)
       OR
       (c.name = '钢表面缺陷检测'
        AND c.type = 'computer_vision'
        AND c.description = '检测钢材表面缺陷（裂纹、划痕等）'
-       AND c.parameters::jsonb = '{"algorithm":"ResNet50","framework":"PyTorch","accuracy":"97%","classes":["normal","crack","scratch","pit"]}'::jsonb)
+       AND c.parameters::jsonb = '{"algorithm":"ResNet50","framework":"PyTorch","accuracy":"97%%","classes":["normal","crack","scratch","pit"]}'::jsonb)
   )
   AND NOT EXISTS (SELECT 1 FROM pricing_configs p WHERE p.component_id = c.id)
   AND NOT EXISTS (SELECT 1 FROM billing_records b WHERE b.component_id = c.id);
