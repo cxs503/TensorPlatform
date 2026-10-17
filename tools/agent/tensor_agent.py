@@ -764,6 +764,16 @@ class MissionRunner:
                 conversation.run()
             except Exception as exc:  # noqa: BLE001
                 error = f"{type(exc).__name__}: {exc}"
+                # Endpoint-timeout aborts (litellm exhausting its retries)
+                # are transient: re-run() resumes from the persisted
+                # conversation. Counted against the same nudge budget.
+                if nudges_left > 0 and not self.stop_reason:
+                    nudges_left -= 1
+                    log(f"m{mid}: run aborted ({error[:200]}) — "
+                        f"resume {2 - nudges_left}/2 in 10s")
+                    self.bridge.emit("error", {"text": error[:400]})
+                    time.sleep(10)
+                    continue
                 log(f"m{mid}: conversation crashed: {error}")
             if BRIDGE.acceptance_requested or error or self.stop_reason:
                 break
