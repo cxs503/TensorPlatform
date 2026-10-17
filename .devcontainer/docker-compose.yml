@@ -1,0 +1,63 @@
+# TensorPlatform 全栈预览编排（GitHub Codespaces）
+# 仅保留 UI 预览必需的四件套：postgres + redis + backend + frontend
+# 生产级依赖（MinIO/Kafka/TDengine/Ray/Grafana 等）按需另启，不在此轻量预览内。
+services:
+  postgres:
+    image: postgres:16-alpine
+    restart: unless-stopped
+    environment:
+      POSTGRES_USER: foundation
+      POSTGRES_PASSWORD: foundation123
+      POSTGRES_DB: open_digital_foundation
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U foundation -d open_digital_foundation"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  backend:
+    build:
+      context: ..
+      dockerfile: backend/Dockerfile
+    restart: unless-stopped
+    environment:
+      DATABASE_URL: postgresql://foundation:foundation123@postgres:5432/open_digital_foundation
+      REDIS_HOST: redis
+      REDIS_PORT: "6379"
+      # 预览用固定 JWT 密钥，避免每次重启随机密钥导致已登录态失效
+      JWT_SECRET_KEY: codespaces-dev-jwt-secret-2026
+      REFRESH_SECRET_KEY: codespaces-dev-refresh-secret-2026
+      ACCESS_TOKEN_EXPIRE_MINUTES: "60"
+      ENVIRONMENT: development
+      MLFLOW_ALLOW_FILE_STORE: "true"
+      USE_MINIO: "false"
+      MPLCONFIGDIR: /tmp
+      ENABLE_JUPYTER: "false"
+      LOG_LEVEL: INFO
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+
+  frontend:
+    image: node:20
+    working_dir: /workspaces/TensorPlatform/frontend-vue
+    # 首次/每次启动装依赖并起 Vite 开发服务器；代理指向 compose 内的 backend
+    command: >
+      sh -c "npm install --no-audit --no-fund && npm run dev -- --host"
+    environment:
+      VITE_API_TARGET: http://backend:8001
+    depends_on:
+      - backend
+    ports:
+      - "8080"

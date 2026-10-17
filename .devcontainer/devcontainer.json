@@ -1,6 +1,7 @@
 {
-  "name": "TensorPlatform UI Preview",
-  "image": "node:20",
+  "name": "TensorPlatform Full-Stack Preview",
+  "dockerComposeFile": ["docker-compose.yml"],
+  "service": "frontend",
   "workspaceFolder": "/workspaces/TensorPlatform",
   "forwardPorts": [8080],
   "portsAttributes": {
@@ -9,17 +10,11 @@
       "onAutoForward": "openPreview"
     }
   },
-  "containerEnv": {
-    "PORT": "8080"
-  },
-  "postCreateCommand": "cd frontend-vue && npm install --no-audit --no-fund",
-  "postAttachCommand": "cd frontend-vue && npm run dev -- --host",
   "customizations": {
     "vscode": {
       "extensions": [
         "Vue.volar"
       ]
     }
-  },
-  "remoteUser": "node"
+  }
 }
