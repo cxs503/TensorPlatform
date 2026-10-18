@@ -39,5 +39,6 @@ jobs:
           cache: npm
           cache-dependency-path: frontend-vue/package-lock.json
       - run: npm ci
-      - run: npm run type-check
+      # Run the bundler even when the repository-wide legacy type-check has unrelated errors.
       - run: npm run build
+      - run: npm run type-check
