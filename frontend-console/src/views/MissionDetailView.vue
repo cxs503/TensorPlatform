@@ -192,8 +192,9 @@ async function refresh() {
         latestSeq.value = s.latest_seq
       }
     }
-    const ap = await approvalApi.list({ limit: 200 })
-    approvals.value = (ap.items || []).filter((a: any) => a.mission_id === missionId)
+    // mission detail already carries its (single) approval row — no need to
+    // pull the whole approvals list every poll cycle
+    approvals.value = m.approval ? [m.approval] : []
   } catch { /* transient API failure: keep last known state */ }
   now.value = Date.now()
 }

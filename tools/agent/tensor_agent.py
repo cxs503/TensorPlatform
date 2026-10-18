@@ -22,6 +22,7 @@ import json
 import os
 import queue
 import re
+import shutil
 import socket
 import subprocess
 import sys
@@ -153,15 +154,42 @@ class EventBridge:
             item = self.q.get()
             if item is None:
                 return
-            kind, payload = item
-            try:
-                code, resp = self.api.api(
-                    "POST", f"/tensor/sessions/{self.session_id}/events",
-                    {"kind": kind, "payload": payload})
-                if code != 200:
-                    log(f"event bridge degraded ({kind} -> {code}): {str(resp)[:120]}")
-            except Exception as exc:  # noqa: BLE001
-                log(f"event bridge error ({kind}): {exc}")
+            batch = [item]
+            closing = False
+            # coalesce whatever is already queued — tool_call/tool_result
+            # pairs land back-to-back, so one batched POST covers them all
+            while len(batch) < 8:
+                try:
+                    nxt = self.q.get_nowait()
+                except queue.Empty:
+                    break
+                if nxt is None:
+                    closing = True
+                    break
+                batch.append(nxt)
+            self._post(batch)
+            if closing:
+                return
+
+    def _post(self, batch: list[tuple[str, dict]]) -> None:
+        try:
+            code, resp = self.api.api(
+                "POST", f"/tensor/sessions/{self.session_id}/events/batch",
+                {"events": [{"kind": kind, "payload": payload}
+                            for kind, payload in batch]})
+            if code == 404:  # backend without the batch endpoint: per-event posts
+                for kind, payload in batch:
+                    code, resp = self.api.api(
+                        "POST", f"/tensor/sessions/{self.session_id}/events",
+                        {"kind": kind, "payload": payload})
+                    if code != 200:
+                        log(f"event bridge degraded ({kind} -> {code}): {str(resp)[:120]}")
+                return
+            if code != 200:
+                log(f"event bridge degraded (batch of {len(batch)} -> {code}): "
+                    f"{str(resp)[:120]}")
+        except Exception as exc:  # noqa: BLE001
+            log(f"event bridge error (batch of {len(batch)}): {exc}")
 
     def emit(self, kind: str, payload: dict) -> None:
         try:
@@ -273,6 +301,28 @@ def prep_worktree(mission: dict) -> str:
 def worktree_head(wt: str) -> str:
     rc, out = run(["git", "-C", wt, "rev-parse", "--short", "HEAD"])
     return out.strip() if rc == 0 else "unknown"
+
+
+CACHE_DIR_NAMES = (".venv", "venv", ".pytest_cache", "__pycache__",
+                   ".mypy_cache", ".ruff_cache", "node_modules", ".torch")
+
+
+def reclaim_mission_space(mid: int) -> None:
+    """Drop the heavyweight residue from a finished mission's directory
+    (venvs, caches) while keeping the git checkout for PR review.
+    Audit 2026-10-18: per-mission footprint ~1G of which .venv 926M —
+    this reclaims ~90% immediately at mission end; tools/agent/gc.py
+    reclaims the worktree itself after the retention window."""
+    base = os.path.join(STATE_ROOT, f"m{mid}")
+    removed = 0
+    for root, dirs, _files in os.walk(base, topdown=True):
+        for d in list(dirs):
+            if d in CACHE_DIR_NAMES:
+                shutil.rmtree(os.path.join(root, d), ignore_errors=True)
+                removed += 1
+                dirs.remove(d)
+    if removed:
+        log(f"m{mid}: reclaimed {removed} venv/cache dirs")
 
 
 # ───────────────────────── mission bridge state ─────────────────────────
@@ -848,6 +898,7 @@ class MissionRunner:
         if BRIDGE.acceptance_requested:
             log(f"m{mid}: awaiting acceptance (approval "
                 f"{BRIDGE.acceptance_response.get('approval_id')})")
+            reclaim_mission_space(mid)
             return
         status, stop = "failed", None
         if self.stop_reason == "owner_stopped":
@@ -867,6 +918,7 @@ class MissionRunner:
              "checks": {}})
         self.finished = True
         log(f"m{mid}: complete -> {code} {str(resp)[:160]} (stop={stop})")
+        reclaim_mission_space(mid)
 
 
 def main() -> None:

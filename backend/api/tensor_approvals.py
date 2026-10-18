@@ -56,6 +56,7 @@ _SELECT = """
 @router.get("", dependencies=[Depends(require_auth)])
 def list_approvals(
     status: str | None = None,
+    mission_id: int | None = None,
     limit: int = 50,
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
@@ -67,6 +68,9 @@ def list_approvals(
     if status:
         filters += " AND a.status = :st"
         params["st"] = status
+    if mission_id:
+        filters += " AND a.mission_id = :mid"
+        params["mid"] = mission_id
     rows = db.execute(
         text(f"{_SELECT} WHERE {filters} ORDER BY a.id DESC LIMIT :limit"),
         {**params, "limit": limit},

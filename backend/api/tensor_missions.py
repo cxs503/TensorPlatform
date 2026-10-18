@@ -52,6 +52,8 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "repo": r["repo"],
         "base_ref": r["base_ref"],
         "budget": r["budget"] or {},
+        "runner": r["runner"],
+        "origin": r["origin"],
         "status": r["status"],
         "claimed_by": r["claimed_by"],
         "session_id": r["session_id"],
@@ -66,8 +68,8 @@ def _mission_row(r: Any) -> dict[str, Any]:
 def _load_mission(db: Session, mission_id: int) -> Any:
     row = db.execute(
         text("""
-            SELECT id, organization_id, goal, repo, base_ref, budget, status,
-                   claim_token, claimed_by, session_id, result, created_by,
+            SELECT id, organization_id, goal, repo, base_ref, budget, runner, origin,
+                   status, claim_token, claimed_by, session_id, result, created_by,
                    created_at, heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE id = :mid
         """),
@@ -85,6 +87,8 @@ class MissionCreate(BaseModel):
     repo: str = Field(min_length=2, max_length=120)
     base_ref: str = Field(default="main", min_length=1, max_length=120)
     budget: dict[str, Any] = Field(default_factory=dict)
+    runner: str = Field(default="openhands", pattern="^(openhands|native)$")
+    origin: str = Field(default="owner", pattern="^(owner|agent)$")
     organization_id: int | None = Field(default=None, ge=1)
 
 
@@ -107,12 +111,14 @@ def create_mission(
 
     mission_id = db.execute(
         text("""
-            INSERT INTO tensor_dev_missions (organization_id, goal, repo, base_ref, budget, created_by)
-            VALUES (:org, :goal, :repo, :ref, CAST(:budget AS jsonb), :uid)
+            INSERT INTO tensor_dev_missions
+                (organization_id, goal, repo, base_ref, budget, runner, origin, created_by)
+            VALUES (:org, :goal, :repo, :ref, CAST(:budget AS jsonb), :runner, :origin, :uid)
             RETURNING id
         """),
         {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
-         "ref": body.base_ref, "budget": _dumps(budget), "uid": user.get("id")},
+         "ref": body.base_ref, "budget": _dumps(budget), "runner": body.runner,
+         "origin": body.origin, "uid": user.get("id")},
     ).scalar()
 
     session_id = db.execute(
@@ -134,6 +140,8 @@ def create_mission(
         "repo": body.repo.strip(),
         "base_ref": body.base_ref,
         "budget": budget,
+        "runner": body.runner,
+        "origin": body.origin,
         "created_by": user.get("username"),
     })
     db.commit()
@@ -163,8 +171,9 @@ def list_missions(
     ).scalar()
     rows = db.execute(
         text(f"""
-            SELECT id, goal, repo, base_ref, budget, status, claimed_by, session_id,
-                   result, created_by, created_at, heartbeat_at, finished_at
+            SELECT id, goal, repo, base_ref, budget, runner, origin, status,
+                   claimed_by, session_id, result, created_by, created_at,
+                   heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE {filters}
             ORDER BY id DESC LIMIT :limit OFFSET :offset
         """),
@@ -226,6 +235,7 @@ class MissionClaim(BaseModel):
     agent_id: str = Field(min_length=1, max_length=120)
     hostname: str | None = Field(default=None, max_length=200)
     version: str | None = Field(default=None, max_length=40)
+    runner: str | None = Field(default=None, pattern="^(openhands|native)$")
 
 
 @router.post("/claim", dependencies=[Depends(require_auth)])
@@ -258,21 +268,24 @@ def claim_mission(
     # dashed canonical form: the UUID column normalizes on store, so the
     # returned token must round-trip byte-identically (plain .hex would not)
     token = str(uuid.uuid4())
+    # runner-scoped claim: coexisting daemons each pull only their own class
+    runner_filter = "AND runner = :runner" if body.runner else ""
     row = db.execute(
-        text("""
+        text(f"""
             UPDATE tensor_dev_missions
             SET status = 'claimed', claim_token = :tok, claimed_by = :agent,
                 heartbeat_at = now()
             WHERE id = (
                 SELECT id FROM tensor_dev_missions
-                WHERE status = 'queued'
+                WHERE status = 'queued' {runner_filter}
                 ORDER BY id
                 LIMIT 1
                 FOR UPDATE SKIP LOCKED
             )
-            RETURNING id, goal, repo, base_ref, budget, session_id, organization_id
+            RETURNING id, goal, repo, base_ref, budget, runner, origin,
+                      session_id, organization_id
         """),
-        {"tok": token, "agent": body.agent_id},
+        {"tok": token, "agent": body.agent_id, "runner": body.runner},
     ).mappings().first()
     db.commit()
 
@@ -292,6 +305,8 @@ def claim_mission(
             "repo": row["repo"],
             "base_ref": row["base_ref"],
             "budget": row["budget"] or {},
+            "runner": row["runner"],
+            "origin": row["origin"],
             "claim_token": token,
         },
         "session_id": row["session_id"],
