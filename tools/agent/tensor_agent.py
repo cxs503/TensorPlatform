@@ -924,6 +924,10 @@ def build_llm(model: str | None = None) -> LLM:
         num_retries=4,
         max_tokens=8192,
         stream=True,
+        # relay models differ in supported params (e.g. Qwen3.8-27B rejects
+        # reasoning_effort=high, accepts xhigh/medium/low) — drop instead of
+        # 400-ing the whole run (m20 lesson)
+        drop_params=True,
     )
 
 
