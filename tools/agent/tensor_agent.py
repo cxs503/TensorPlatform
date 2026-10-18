@@ -900,6 +900,11 @@ ORCHESTRATION_BLOCK = """
 - 收尾仍必须 request_acceptance：汇总各子任务结果与证据，由 owner 终审。"""
 
 
+# relay deployments whose reasoning_effort accept-set is narrower than the
+# SDK default "high"; module-level so native_harness shares one source
+REASONING_EFFORT_OVERRIDES = {"Qwen3.8-27B": "medium"}
+
+
 def build_llm(model: str | None = None) -> LLM:
     # mission rows carry the bare relay model id; litellm needs the
     # openai/ provider prefix to route to our relay endpoint
@@ -922,7 +927,7 @@ def build_llm(model: str | None = None) -> LLM:
     # Literal["low","medium","high"] (pydantic rejects "xhigh" locally) and
     # the relay deployment's accept-set (Qwen3.8-27B: xhigh/medium/low) —
     # m33 pinned that intersection to medium/low.
-    effort = {"Qwen3.8-27B": "medium"}.get(model_id.split("/", 1)[-1])
+    effort = REASONING_EFFORT_OVERRIDES.get(model_id.split("/", 1)[-1])
     return LLM(
         usage_id="tensor-agent",
         model=model_id,
@@ -1026,22 +1031,30 @@ class MissionRunner:
 
         state_dir = os.path.join(STATE_ROOT, f"m{mid}", "state")
         os.makedirs(state_dir, exist_ok=True)
-        agent = Agent(llm=build_llm(self.model),
-                      tools=[Tool(name=FileEditorTool.name),
-                             Tool(name=MissionToolSet.name)])
-        conversation = Conversation(
-            agent=agent,
-            workspace=workspace,
-            callbacks=[lambda ev: sdk_event_to_platform(ev, self.bridge)],
-            persistence_dir=state_dir,
-            visualizer=None,
-            max_iteration_per_run=self.max_tools + 10,
-        )
-        BRIDGE.conversation = conversation
-        # Enable streaming end-to-end: the SDK degrades to a non-streaming
-        # completion when on_token is None (LLM.stream=True alone is not
-        # enough), and non-streaming big-context requests hang this relay.
-        conversation.set_token_callbacks([lambda *_a, **_k: None])
+        runner_kind = self.mission.get("runner") or "openhands"
+        if runner_kind == "native":
+            # 自研 harness：litellm 直连 + 自有工具循环，零 OpenHands 运行时。
+            # 惰性导入避免环（native_harness 反向 import 本模块拿桥工具）。
+            from native_harness import NativeHarness
+            conversation = NativeHarness(self, workspace, state_dir)
+            BRIDGE.conversation = conversation
+        else:
+            agent = Agent(llm=build_llm(self.model),
+                          tools=[Tool(name=FileEditorTool.name),
+                                 Tool(name=MissionToolSet.name)])
+            conversation = Conversation(
+                agent=agent,
+                workspace=workspace,
+                callbacks=[lambda ev: sdk_event_to_platform(ev, self.bridge)],
+                persistence_dir=state_dir,
+                visualizer=None,
+                max_iteration_per_run=self.max_tools + 10,
+            )
+            BRIDGE.conversation = conversation
+            # Enable streaming end-to-end: the SDK degrades to a non-streaming
+            # completion when on_token is None (LLM.stream=True alone is not
+            # enough), and non-streaming big-context requests hang this relay.
+            conversation.set_token_callbacks([lambda *_a, **_k: None])
         repo_name, _ = resolve_repo(self.mission["repo"])
         if co_wts:
             repo_layout = (f"主仓库检出在工作区 ./{repo_name}/ 子目录，agent/m{mid} 分支，"
@@ -1061,7 +1074,8 @@ class MissionRunner:
             orchestration=ORCHESTRATION_BLOCK.format(max_children=DISPATCH_MAX_CHILDREN))
         conversation.send_message(goal)
         log(f"m{mid}: conversation running (budget {self.max_tools} tools / "
-            f"{self.max_wall}s, model={self.model or 'env-default'})")
+            f"{self.max_wall}s, model={self.model or 'env-default'}, "
+            f"runner={runner_kind})")
         error: str | None = None
         # The LLM can end a run with a plain reply (notably after endpoint
         # timeouts) before calling run_tests/commit/request_acceptance. Resume
@@ -1202,4 +1216,7 @@ def main() -> None:
 
 
 if __name__ == "__main__":
+    # native_harness 反向 import 本模块（拿桥工具实现）。把 __main__ 注册为
+    # tensor_agent，避免模块被二次执行造成 BRIDGE 等全局态双实例。
+    sys.modules.setdefault("tensor_agent", sys.modules[__name__])
     main()
