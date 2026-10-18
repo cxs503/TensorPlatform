@@ -170,8 +170,18 @@ def verify_dev_acceptance(api: API, mission: dict,
     failed = re.findall(r"(\d+) failed", t_out)
     n_pass = int(passed[-1]) if passed else 0
     n_fail = int(failed[-1]) if failed else 0
+    skips = re.findall(r"(\d+) skipped", t_out)
+    n_skip = int(skips[-1]) if skips else 0
     if t_code == 124:
         return "escalate", f"默认套件复跑超时（>1800s）——证据不足"
+    # 红队 C3 教训：声称 checks 超过同头复跑容量（passed+failed+skipped）=
+    # 口径矛盾。agent 跑子集时 claimed < 容量属正常，claimed > 容量不可能。
+    claimed_total = (evidence.get("checks") or {}).get("total")
+    if (t_code == 0 and isinstance(claimed_total, int)
+            and claimed_total > n_pass + n_fail + n_skip):
+        return "escalate", (f"声称 checks {claimed_total} 项超过同头复跑容量 "
+                            f"{n_pass}+{n_fail}+{n_skip}={n_pass+n_fail+n_skip}"
+                            "——口径矛盾，留人工")
     goal = mission.get("goal", "")
     if (re.search(r"默认测试全绿|全量测试|pytest -x -q tests|默认套件", goal)
             and (t_code != 0 or n_fail > 0)):
