@@ -198,10 +198,32 @@ def verify_dev_acceptance(api: API, mission: dict,
         return ("reject", f"goal 要求默认套件全绿，复跑 exit={t_code}、"
                 f"{n_pass} passed / {n_fail} failed\n复跑尾部：\n{tail[-800:]}")
     claimed = evidence.get("summary") or {}
+    # 机器摘录交叉核（m45 教训机制化）：request_acceptance 的 evidence_files
+    # 由平台直读工件生成 summary.evidence_machine。有摘录时——
+    #   摘录任一 check passed=False → 硬否决（工件自己说不过，转述不作数）；
+    #   摘录与摘要数字是否一致交给 LLM 裁决（避免格式差异机械误杀）；
+    #   goal 明确要求 validation_report 判据而未附摘录 → 留人工（mid>47 起，
+    #   m47 是参数上线前最后一个场景腿，仍走旧口径 LLM 红队）。
+    machine = claimed.get("evidence_machine") or {}
+    machine_block = ""
+    if machine.get("files"):
+        for f in machine["files"]:
+            for c in f.get("checks") or []:
+                if c.get("passed") is False:
+                    return "reject", (f"工件机器摘录判 {c.get('name')} passed=False："
+                                      f"{c.get('detail')}（{f.get('file')}）"
+                                      "——工件不过门，验收转述不作数")
+        machine_block = ("\n机器直读工件摘录（evidence_files，可信级高于验收摘要，"
+                         "请比对摘要数字与摘录数字是否逐字一致）：\n"
+                         + json.dumps(machine, ensure_ascii=False)[:1800] + "\n")
+    if (mid > 47 and "validation_report" in goal and not machine.get("files")):
+        return "escalate", ("goal 要求 validation_report 工件判据，但验收未附 "
+                            "evidence_files 机器摘录——数字来源不可核验，留人工")
     context = (f"goal：{goal[:1200]}\n\n"
                f"验收摘要：{json.dumps(claimed, ensure_ascii=False)[:1400]}\n"
                f"声称 checks：{(evidence.get('checks') or {}).get('passed')}"
-               f"/{(evidence.get('checks') or {}).get('total')}\n\n"
+               f"/{(evidence.get('checks') or {}).get('total')}\n"
+               f"{machine_block}\n"
                f"默认套件复跑：exit={'0' if t_code == 0 else t_code}，"
                f"{n_pass} passed / {n_fail} failed\n"
                f"复跑尾部：\n{tail[-1200:]}\n\n"

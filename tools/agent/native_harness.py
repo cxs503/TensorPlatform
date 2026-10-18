@@ -327,7 +327,8 @@ _TOOL_FUNCS: dict[str, Callable[[NativeHarness, dict[str, Any]], str]] = {
     "request_acceptance": lambda h, a: _call_bridge(
         h, a, name="request_acceptance",
         fields={"headline": "headline", "summary": "summary",
-                "checks_passed": "checks_passed", "checks_total": "checks_total"}),
+                "checks_passed": "checks_passed", "checks_total": "checks_total",
+                "evidence_files": "evidence_files"}),
     "dispatch_sub_mission": lambda h, a: _call_bridge(
         h, a, name="dispatch_sub_mission",
         fields={"goal": "goal", "repo": "repo", "role": "role", "model": "model",
@@ -360,9 +361,13 @@ _TOOL_SCHEMAS = [
     _mk("fetch_url", "抓取白名单域 URL 内容。",
         {"url": {"type": "string"}}, ["url"]),
     _mk("request_acceptance",
-        "提请人工验收。成功后立即结束对话，不再调用任何工具。",
+        "提请人工验收。有判据工件（validation_report.json 等）时必须把路径填进 "
+        "evidence_files——平台直读工件生成机器摘录，审批器以工件数字为准。"
+        "成功后立即结束对话，不再调用任何工具。",
         {"headline": {"type": "string"}, "summary": {"type": "string"},
-         "checks_passed": {"type": "integer"}, "checks_total": {"type": "integer"}},
+         "checks_passed": {"type": "integer"}, "checks_total": {"type": "integer"},
+         "evidence_files": {"type": "array", "items": {"type": "string"},
+                            "description": "判据工件 JSON 路径（≤4 个）"}},
         ["headline", "summary", "checks_passed", "checks_total"]),
     _mk("dispatch_sub_mission",
         "编排者专用：派发子任务（role 经 roles.json 解析模型，与 model 互斥）。",
