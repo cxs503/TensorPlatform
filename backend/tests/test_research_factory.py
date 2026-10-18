@@ -1,11 +1,19 @@
 """Integration tests for the persistent research runner."""
 import hashlib
+import importlib.util
 import json
 import sqlite3
+from pathlib import Path
 
 import pytest
 
-from api import research_factory as rf
+# Load this isolated router module without importing api/__init__.py, which
+# eagerly imports the entire platform application and unrelated dependencies.
+MODULE_PATH = Path(__file__).resolve().parents[1] / "api" / "research_factory.py"
+MODULE_SPEC = importlib.util.spec_from_file_location("research_factory_under_test", MODULE_PATH)
+assert MODULE_SPEC is not None and MODULE_SPEC.loader is not None
+rf = importlib.util.module_from_spec(MODULE_SPEC)
+MODULE_SPEC.loader.exec_module(rf)
 
 
 @pytest.fixture()
