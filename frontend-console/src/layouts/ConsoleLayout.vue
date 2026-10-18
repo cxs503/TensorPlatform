@@ -12,6 +12,7 @@
       <nav class="tf-nav" aria-label="主导航">
         <router-link to="/" exact-active-class="is-active">运行总览</router-link>
         <router-link to="/runs">计算结果</router-link>
+        <router-link to="/reports">进展报告</router-link>
         <router-link to="/approvals" class="tf-nav-approval">
           人工审批
           <el-badge v-if="pendingCount > 0" :value="pendingCount" class="tf-nav-badge" />
