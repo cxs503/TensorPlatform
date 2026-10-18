@@ -64,3 +64,20 @@ export const llmApi = {
   status: () => http.get<any>('/tensor/llm/status'),
   analyzeExecution: (id: number) => http.post<any>(`/tensor/llm/analyze/execution/${id}`, {}),
 }
+
+// ── dev missions (autonomous agent development tasks) ──
+export const missionApi = {
+  list: (params?: any) => http.get<any>('/tensor/missions', params),
+  get: (id: number) => http.get<any>(`/tensor/missions/${id}`),
+  create: (body: {
+    goal: string
+    repo: string
+    base_ref?: string
+    co_repos?: string[]
+    budget?: Record<string, number>
+    model?: string
+  }) => http.post<any>('/tensor/missions', body),
+  children: (id: number) => http.get<any>(`/tensor/missions/${id}/children`),
+  stop: (id: number, reason?: string) =>
+    http.post<any>(`/tensor/missions/${id}/stop`, { reason }),
+}
