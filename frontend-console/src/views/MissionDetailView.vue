@@ -10,6 +10,19 @@
 
     <el-row v-if="mission" :gutter="16">
       <el-col :span="8">
+        <div class="tf-card" v-if="mission.parent_mission_id || mission.co_repos?.length">
+          <div class="tf-card-title">编排关系</div>
+          <div class="tf-md-meta">
+            <div class="tf-md-row" v-if="mission.parent_mission_id"><span>父任务</span>
+              <router-link class="tf-mono tf-link"
+                :to="`/missions/${mission.parent_mission_id}`">#{{ mission.parent_mission_id }}</router-link>
+            </div>
+            <div class="tf-md-row" v-if="mission.co_repos?.length"><span>协同仓库</span>
+              <span class="tf-mono">{{ mission.co_repos.join(' + ') }}</span>
+            </div>
+          </div>
+        </div>
+
         <div class="tf-card">
           <div class="tf-card-title">任务状态</div>
           <div class="tf-md-meta">
@@ -76,6 +89,21 @@
       </el-col>
 
       <el-col :span="16">
+        <div class="tf-card" v-if="children.length">
+          <div class="tf-card-title">
+            子任务树
+            <span class="tf-dim" style="margin-left: auto">编排者派发的子任务（agent 派发/服务端包络）</span>
+          </div>
+          <div v-for="c in children" :key="c.id" class="tf-md-child">
+            <div class="tf-rs">
+              <router-link class="tf-mono tf-link" :to="`/missions/${c.id}`">#{{ c.id }}</router-link>
+              <StatusBadge :status="c.status" />
+              <span v-if="c.model" class="tf-mono tf-dim">{{ c.model }}</span>
+            </div>
+            <div class="tf-md-child-goal">{{ c.goal }}</div>
+          </div>
+        </div>
+
         <div class="tf-card">
           <div class="tf-card-title">
             开发过程事件流
@@ -123,6 +151,7 @@ const missionId = Number(route.params.id)
 const mission = ref<any>(null)
 const events = ref<any[]>([])
 const approvals = ref<any[]>([])
+const children = ref<any[]>([])
 const latestSeq = ref(0)
 const now = ref(Date.now())
 const openSeqs = ref(new Set<number>())
@@ -195,6 +224,16 @@ async function refresh() {
     // mission detail already carries its (single) approval row — no need to
     // pull the whole approvals list every poll cycle
     approvals.value = m.approval ? [m.approval] : []
+    // children tree: only poll while any child is still in flight
+    if (m.parent_mission_id === null || m.parent_mission_id === undefined) {
+      const inflight = children.value.length === 0 ||
+        children.value.some((c: any) =>
+          !['succeeded', 'failed', 'stopped', 'awaiting_acceptance'].includes(c.status))
+      if (inflight) {
+        const ch = await missionApi.children(missionId).catch(() => null)
+        if (ch?.items) children.value = ch.items
+      }
+    }
   } catch { /* transient API failure: keep last known state */ }
   now.value = Date.now()
 }
@@ -254,6 +293,9 @@ onUnmounted(() => { stopPolling(); if (clock) clearInterval(clock) })
   margin-bottom: 4px;
 }
 .tf-md-approval { border-top: 1px solid var(--tf-line-200); padding-top: 8px; &:first-of-type { border-top: none; } }
+.tf-md-child { border-top: 1px solid var(--tf-line-200); padding: 8px 0; &:first-of-type { border-top: none; } }
+.tf-md-child .tf-rs { display: flex; align-items: center; gap: 10px; }
+.tf-md-child-goal { margin-top: 5px; font-size: 12px; color: var(--tf-ink-900); }
 .tf-md-evidence {
   margin-top: 6px; font-size: 12px; color: var(--tf-ink-900);
   white-space: pre-wrap; word-break: break-word; max-height: 180px; overflow: auto;

@@ -259,43 +259,63 @@ def run(cmd: list[str], cwd: str | None = None, timeout: int = 120) -> tuple[int
     return proc.returncode, (proc.stdout + proc.stderr)[-4000:]
 
 
+def _add_worktree(repo_path: str, wt: str, mid: int, base_ref: str) -> None:
+    """One jailed checkout of repo_path at wt, branch agent/m<mid>."""
+    os.makedirs(os.path.dirname(wt), exist_ok=True)
+    if os.path.isdir(os.path.join(wt, ".git")):
+        return
+    # resolve base_ref locally, else shallow-fetch from origin once
+    rc, _ = run(["git", "-C", repo_path, "cat-file", "-e", f"{base_ref}^{{commit}}"])
+    ref = base_ref
+    if rc != 0:
+        log(f"base_ref {base_ref} not local — fetching")
+        rc, out = run(["git", "-C", repo_path, "fetch", "origin", base_ref,
+                       "--depth=1", "--no-tags"], timeout=300)
+        if rc == 0:
+            ref = "FETCH_HEAD"
+        else:
+            rc2, _ = run(["git", "-C", repo_path, "cat-file", "-e", "origin/main^{commit}"])
+            if rc2 == 0:
+                log(f"fetch failed ({out[:120]}) — falling back to origin/main")
+                ref = "origin/main"
+            else:
+                raise RuntimeError(f"cannot resolve base ref {base_ref}: {out[:200]}")
+    branch = f"agent/m{mid}"
+    rc, out = run(["git", "-C", repo_path, "worktree", "add", "-b", branch, wt, ref],
+                  timeout=300)
+    if rc != 0:
+        raise RuntimeError(f"worktree add failed: {out}")
+    # jail + identity, all scoped to this worktree
+    for key, val in (
+        ("remote.origin.pushurl", "no-push"),
+        ("user.name", "tensor-agent"),
+        ("user.email", "tensor-agent@tensor-platform"),
+    ):
+        run(["git", "-C", wt, "config", key, val])
+
+
 def prep_worktree(mission: dict) -> str:
     repo_name, repo_path = resolve_repo(mission["repo"])
     mid = mission["id"]
     base_ref = mission.get("base_ref") or "main"
     wt = os.path.join(STATE_ROOT, f"m{mid}", repo_name)
-    os.makedirs(os.path.dirname(wt), exist_ok=True)
-
-    if not os.path.isdir(os.path.join(wt, ".git")):
-        # resolve base_ref locally, else shallow-fetch from origin once
-        rc, _ = run(["git", "-C", repo_path, "cat-file", "-e", f"{base_ref}^{{commit}}"])
-        ref = base_ref
-        if rc != 0:
-            log(f"base_ref {base_ref} not local — fetching")
-            rc, out = run(["git", "-C", repo_path, "fetch", "origin", base_ref,
-                           "--depth=1", "--no-tags"], timeout=300)
-            if rc == 0:
-                ref = "FETCH_HEAD"
-            else:
-                rc2, _ = run(["git", "-C", repo_path, "cat-file", "-e", "origin/main^{commit}"])
-                if rc2 == 0:
-                    log(f"fetch failed ({out[:120]}) — falling back to origin/main")
-                    ref = "origin/main"
-                else:
-                    raise RuntimeError(f"cannot resolve base ref {base_ref}: {out[:200]}")
-        branch = f"agent/m{mid}"
-        rc, out = run(["git", "-C", repo_path, "worktree", "add", "-b", branch, wt, ref],
-                      timeout=300)
-        if rc != 0:
-            raise RuntimeError(f"worktree add failed: {out}")
-        # jail + identity, all scoped to this worktree
-        for key, val in (
-            ("remote.origin.pushurl", "no-push"),
-            ("user.name", "tensor-agent"),
-            ("user.email", "tensor-agent@tensor-platform"),
-        ):
-            run(["git", "-C", wt, "config", key, val])
+    _add_worktree(repo_path, wt, mid, base_ref)
     return wt
+
+
+def prep_co_worktrees(mission: dict) -> dict[str, str]:
+    """Cross-project composition: sibling checkouts for co_repos, all under
+    the mission directory (m<id>/<repo>) so one workspace spans the coupled
+    solvers. Co-repos always ride origin/main; per-repo refs can be added
+    when a ladder needs them."""
+    out: dict[str, str] = {}
+    mid = mission["id"]
+    for name in (mission.get("co_repos") or []):
+        repo_name, repo_path = resolve_repo(name)
+        wt = os.path.join(STATE_ROOT, f"m{mid}", repo_name)
+        _add_worktree(repo_path, wt, mid, "main")
+        out[repo_name] = wt
+    return out
 
 
 def worktree_head(wt: str) -> str:
@@ -436,6 +456,46 @@ class RequestAcceptanceAction(Action):
 
 
 class RequestAcceptanceObservation(Observation):
+    ok: bool = False
+    message: str = ""
+
+    @property
+    def to_llm_content(self) -> Sequence[Any]:
+        return [TextContent(text=self.message)]
+
+
+class DispatchSubMissionAction(Action):
+    goal: str = Field(description="Sub-mission goal (Chinese, self-contained, "
+                                  "with machine-checkable acceptance criteria)")
+    repo: str = Field(description="Primary repo short name, e.g. TensorDEM")
+    role: str | None = Field(default=None,
+                             description="Role name resolved via roles.json "
+                                         "(architect/implementer/verifier/documenter)")
+    model: str | None = Field(default=None,
+                              description="Explicit relay model id (mutually exclusive with role)")
+    base_ref: str = Field(default="main")
+    co_repos: list[str] | None = Field(default=None,
+                                       description="Extra repos the sub-mission worktree set covers")
+    max_tool_calls: int | None = Field(default=None)
+    max_wall_seconds: int | None = Field(default=None)
+
+
+class DispatchSubMissionObservation(Observation):
+    ok: bool = False
+    message: str = ""
+
+    @property
+    def to_llm_content(self) -> Sequence[Any]:
+        return [TextContent(text=self.message)]
+
+
+class AwaitChildrenAction(Action):
+    timeout_minutes: int = Field(default=25,
+                                 description="Max wall time to wait for children (bounded)")
+    poll_seconds: int = Field(default=30)
+
+
+class AwaitChildrenObservation(Observation):
     ok: bool = False
     message: str = ""
 
@@ -601,6 +661,108 @@ def do_request_acceptance(action: RequestAcceptanceAction) -> RequestAcceptanceO
     return RequestAcceptanceObservation(ok=ok, message=text)
 
 
+# ── orchestration bridge (P2 cross-project dispatch) ──
+
+# must mirror api/tensor_missions.py DISPATCH_MAX_CHILDREN / caps
+DISPATCH_MAX_CHILDREN = 8
+CHILD_TERMINAL = ("succeeded", "failed", "stopped", "awaiting_acceptance")
+
+
+def load_role_map() -> dict[str, str]:
+    """roles.json (owner-editable, next to this script) maps role → relay
+    model id. Re-read on every dispatch so edits apply without a restart."""
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "roles.json")
+    try:
+        with open(path, encoding="utf-8") as fh:
+            data = json.load(fh)
+        return {str(k): str(v) for k, v in data.items()
+                if not str(k).startswith("_")}
+    except (OSError, ValueError):
+        return {}
+
+
+def do_dispatch_sub_mission(action: DispatchSubMissionAction) -> DispatchSubMissionObservation:
+    assert BRIDGE is not None
+    BRIDGE.tool_calls += 1
+    model, role = action.model, action.role
+    if model and role:
+        return DispatchSubMissionObservation(
+            ok=False, message="role 与 model 二选一，不要同时给出。")
+    if not model and role:
+        roles = load_role_map()
+        model = roles.get(role)
+        if not model:
+            return DispatchSubMissionObservation(
+                ok=False, message=f"角色 {role!r} 未定义（roles.json 现有角色："
+                                  f"{sorted(roles) or '无——文件缺失'}）。请用 model= 显式指定。")
+    if not model:
+        return DispatchSubMissionObservation(
+            ok=False, message="必须给出 role=（经 roles.json 解析）或 model= 显式模型。")
+    budget: dict[str, int] = {}
+    if action.max_tool_calls:
+        budget["max_tool_calls"] = action.max_tool_calls
+    if action.max_wall_seconds:
+        budget["max_wall_seconds"] = action.max_wall_seconds
+    code, resp = BRIDGE.api.api(
+        "POST", "/tensor/missions/dispatch",
+        {"parent_id": BRIDGE.mission_id, "claim_token": BRIDGE.claim_token,
+         "goal": action.goal, "repo": action.repo, "base_ref": action.base_ref,
+         "co_repos": action.co_repos, "role": role, "model": model,
+         "budget": budget})
+    ok = code == 200
+    if ok:
+        text = (f"子任务已入队：m{resp.get('id')}（model={model}，role={role or '-'}，"
+                f"预算 {resp.get('budget')}）。它会由绑定该模型的常驻守护认领执行；"
+                f"用 await_children 等待其终态。")
+    else:
+        text = f"派发失败（HTTP {code}）：{str(resp)[:300]}"
+    BRIDGE.events.emit("note", {"subtype": "dispatch_sub_mission", "http": code,
+                                "role": role, "model": model,
+                                "child_id": resp.get("id") if ok else None,
+                                "goal": action.goal[:200]})
+    return DispatchSubMissionObservation(ok=ok, message=text)
+
+
+def _children_snapshot() -> tuple[int, list[dict], str]:
+    assert BRIDGE is not None
+    code, resp = BRIDGE.api.api(
+        "GET", f"/tensor/missions/{BRIDGE.mission_id}/children")
+    if code != 200:
+        return code, [], str(resp)[:300]
+    return code, list(resp.get("items", [])), ""
+
+
+def do_await_children(action: AwaitChildrenAction) -> AwaitChildrenObservation:
+    assert BRIDGE is not None
+    BRIDGE.tool_calls += 1
+    deadline = time.monotonic() + max(1, min(action.timeout_minutes, 60)) * 60
+    poll = max(10, min(action.poll_seconds, 120))
+    last: list[dict] = []
+    while True:
+        code, items, err = _children_snapshot()
+        if code != 200:
+            return AwaitChildrenObservation(ok=False,
+                                            message=f"children 查询失败（HTTP {code}）：{err}")
+        last = items
+        pending = [it for it in items if it["status"] not in CHILD_TERMINAL]
+        if not pending:
+            summary = "; ".join(
+                f"m{it['id']}[{it['status']}] {it['goal'][:60]}" for it in items) or "无子任务"
+            BRIDGE.events.emit("note", {"subtype": "await_children_done",
+                                        "children": [{"id": it["id"],
+                                                      "status": it["status"]} for it in items]})
+            return AwaitChildrenObservation(
+                ok=True,
+                message=f"全部子任务已到终态：{summary}。请基于结果继续编排或汇总提请验收。")
+        if time.monotonic() >= deadline:
+            summary = "; ".join(f"m{it['id']}[{it['status']}]" for it in items)
+            return AwaitChildrenObservation(
+                ok=False,
+                message=f"等待超时（{action.timeout_minutes} 分钟），仍有未终态子任务：{summary}。"
+                        "可再次调用 await_children 继续等待，或检查子任务详情。")
+        time.sleep(poll)
+
+
 class _FixedTool(ToolDefinition):
     """One ToolDefinition subclass per bridge tool; executor closes over the
     module-global BRIDGE (single-mission daemon)."""
@@ -664,6 +826,18 @@ RequestAcceptanceTool = _fixed(
     "done, tests pass and changes are committed. The mission then awaits the "
     "owner's decision.",
     RequestAcceptanceAction, RequestAcceptanceObservation, do_request_acceptance)
+DispatchSubMissionTool = _fixed(
+    "DispatchSubMissionTool",
+    "Orchestrator only: queue a sub-mission for another resident model "
+    "(role resolves via roles.json). Envelope (repo whitelist, budget caps, "
+    "tree depth) is enforced server-side.",
+    DispatchSubMissionAction, DispatchSubMissionObservation, do_dispatch_sub_mission)
+AwaitChildrenTool = _fixed(
+    "AwaitChildrenTool",
+    "Orchestrator only: poll sub-missions until every child reaches a "
+    "terminal status (succeeded/failed/stopped/awaiting_acceptance) or the "
+    "bounded timeout expires. Heartbeats continue during the wait.",
+    AwaitChildrenAction, AwaitChildrenObservation, do_await_children)
 
 
 class MissionToolSet(ToolDefinition[Action, Observation]):
@@ -679,7 +853,8 @@ class MissionToolSet(ToolDefinition[Action, Observation]):
             TerminalTool.create(conv_state, executor=terminal)[0],
         ]
         for tool_cls in (CommitTool, RunTestsTool, WebSearchTool,
-                         FetchUrlTool, RequestAcceptanceTool):
+                         FetchUrlTool, RequestAcceptanceTool,
+                         DispatchSubMissionTool, AwaitChildrenTool):
             tools.extend(tool_cls.create(conv_state))
         return tools
 
@@ -693,19 +868,36 @@ GOAL_TEMPLATE = """你是 tensor-agent，科研平台的自主开发智能体。
 
 {goal}
 
-仓库：{repo}（当前工作区即该仓库的 agent/m{mid} 分支检出，基于 {base_ref}）。
-预算：最多约 {tool_budget} 次工具调用、{wall_minutes} 分钟墙钟。
+仓库：{repo}（{repo_layout}）。
+{corepos}预算：最多约 {tool_budget} 次工具调用、{wall_minutes} 分钟墙钟。
 
 工作规则：
 1. 只在当前工作区内开发；git push 已被禁用，永远不要尝试推送。
 2. 可用工具：terminal（bash）、str_replace_editor（文件编辑）、web_search（GitHub+arXiv 检索）、
    fetch_url（白名单域抓取）、commit（提交全部变更）、run_tests（跑测试套件）、
-   request_acceptance（提请人工验收）。
+   request_acceptance（提请人工验收）{orchestration_tools}。
 3. 流程：先检索/理解 → 开发 → run_tests 通过 → commit（中文提交信息）→ request_acceptance。
    测试不过就修，修不过就在 request_acceptance 的 summary 里如实说明。
 4. 严禁在未调用 request_acceptance 的情况下结束对话——提前收尾任务将被判 failed。
 5. request_acceptance 成功后立即结束：回一句总结，不再调用任何工具。
-6. 全程用简体中文写提交信息与验收材料；代码注释跟随仓库现有风格。"""
+6. 全程用简体中文写提交信息与验收材料；代码注释跟随仓库现有风格。{orchestration}"""
+
+COREPOS_BLOCK = """协同仓库（跨项目组合）：{corepos_list}
+  每个协同仓库同样检出 agent/m{mid} 分支（基于 main）。commit 工具只作用于主仓库；
+  协同仓库的提交用 terminal 里 git -C <目录> 完成。你的工作区根目录同时包含上述所有仓库。
+"""
+
+ORCHESTRATION_TOOLS = "、dispatch_sub_mission（编排者派发子任务）、await_children（等待子任务终态）"
+
+ORCHESTRATION_BLOCK = """
+编排规则（仅当本任务要求你编排子任务时使用，普通开发任务忽略）：
+- dispatch_sub_mission(goal, repo, role=..., budget=...) 把一个子任务入队，交给绑定该角色的
+  常驻模型守护执行；子任务完成后走同样的 owner 验收链。角色见 roles.json（architect/
+  implementer/verifier/documenter），也可用 model= 显式指定模型。
+- await_children(timeout_minutes=...) 轮询等待全部子任务到达终态（succeeded/failed/stopped/
+  awaiting_acceptance 都算终态），返回每个子任务的 id/状态/分支。等待期间心跳自动续命。
+- 子任务最多 {max_children} 个/编排任务，树深 2 层封顶（子任务不能再派发），服务端硬门。
+- 收尾仍必须 request_acceptance：汇总各子任务结果与证据，由 owner 终审。"""
 
 
 def build_llm(model: str | None = None) -> LLM:
@@ -801,7 +993,12 @@ class MissionRunner:
         global BRIDGE
         mid = self.mission["id"]
         worktree = prep_worktree(self.mission)
-        log(f"m{mid}: worktree {worktree} @ {worktree_head(worktree)}")
+        co_wts = prep_co_worktrees(self.mission)
+        # multi-repo missions work from the mission root so one terminal
+        # sees every coupled solver; single-repo missions keep cwd=worktree
+        workspace = os.path.dirname(worktree) if co_wts else worktree
+        log(f"m{mid}: worktree {worktree} @ {worktree_head(worktree)}"
+            + (f" (+co {', '.join(co_wts)})" if co_wts else ""))
         self.api.api("POST", f"/tensor/missions/{mid}/start",
                      {"claim_token": self.claim_token})
 
@@ -819,7 +1016,7 @@ class MissionRunner:
                              Tool(name=MissionToolSet.name)])
         conversation = Conversation(
             agent=agent,
-            workspace=worktree,
+            workspace=workspace,
             callbacks=[lambda ev: sdk_event_to_platform(ev, self.bridge)],
             persistence_dir=state_dir,
             visualizer=None,
@@ -830,10 +1027,23 @@ class MissionRunner:
         # completion when on_token is None (LLM.stream=True alone is not
         # enough), and non-streaming big-context requests hang this relay.
         conversation.set_token_callbacks([lambda *_a, **_k: None])
+        repo_name, _ = resolve_repo(self.mission["repo"])
+        if co_wts:
+            repo_layout = (f"主仓库检出在工作区 ./{repo_name}/ 子目录，agent/m{mid} 分支，"
+                           f"基于 {self.mission.get('base_ref') or 'main'}")
+            corepos = COREPOS_BLOCK.format(
+                corepos_list="、".join(sorted(co_wts)), mid=mid)
+        else:
+            repo_layout = (f"当前工作区即该仓库的 agent/m{mid} 分支检出，"
+                           f"基于 {self.mission.get('base_ref') or 'main'}")
+            corepos = ""
         goal = GOAL_TEMPLATE.format(
             mid=mid, goal=self.mission["goal"], repo=self.mission["repo"],
+            repo_layout=repo_layout, corepos=corepos,
             base_ref=self.mission.get("base_ref") or "main",
-            tool_budget=self.max_tools, wall_minutes=self.max_wall // 60)
+            tool_budget=self.max_tools, wall_minutes=self.max_wall // 60,
+            orchestration_tools=ORCHESTRATION_TOOLS,
+            orchestration=ORCHESTRATION_BLOCK.format(max_children=DISPATCH_MAX_CHILDREN))
         conversation.send_message(goal)
         log(f"m{mid}: conversation running (budget {self.max_tools} tools / "
             f"{self.max_wall}s, model={self.model or 'env-default'})")

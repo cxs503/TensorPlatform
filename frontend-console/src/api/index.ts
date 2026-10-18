@@ -73,8 +73,11 @@ export const missionApi = {
     goal: string
     repo: string
     base_ref?: string
+    co_repos?: string[]
     budget?: Record<string, number>
+    model?: string
   }) => http.post<any>('/tensor/missions', body),
+  children: (id: number) => http.get<any>(`/tensor/missions/${id}/children`),
   stop: (id: number, reason?: string) =>
     http.post<any>(`/tensor/missions/${id}/stop`, { reason }),
 }

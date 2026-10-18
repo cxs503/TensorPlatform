@@ -51,6 +51,8 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "goal": r["goal"],
         "repo": r["repo"],
         "base_ref": r["base_ref"],
+        "co_repos": list(r["co_repos"] or []) if r.get("co_repos") is not None else None,
+        "parent_mission_id": r.get("parent_mission_id"),
         "budget": r["budget"] or {},
         "runner": r["runner"],
         "origin": r["origin"],
@@ -69,7 +71,8 @@ def _mission_row(r: Any) -> dict[str, Any]:
 def _load_mission(db: Session, mission_id: int) -> Any:
     row = db.execute(
         text("""
-            SELECT id, organization_id, goal, repo, base_ref, budget, runner, origin,
+            SELECT id, organization_id, goal, repo, base_ref, co_repos,
+                   parent_mission_id, budget, runner, origin,
                    model, status, claim_token, claimed_by, session_id, result,
                    created_by, created_at, heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE id = :mid
@@ -87,6 +90,8 @@ class MissionCreate(BaseModel):
     goal: str = Field(min_length=10, max_length=4000)
     repo: str = Field(min_length=2, max_length=120)
     base_ref: str = Field(default="main", min_length=1, max_length=120)
+    # cross-project composition: extra repos the mission's worktree set covers
+    co_repos: list[str] | None = None
     budget: dict[str, Any] = Field(default_factory=dict)
     runner: str = Field(default="openhands", pattern="^(openhands|native)$")
     origin: str = Field(default="owner", pattern="^(owner|agent)$")
@@ -114,14 +119,15 @@ def create_mission(
     mission_id = db.execute(
         text("""
             INSERT INTO tensor_dev_missions
-                (organization_id, goal, repo, base_ref, budget, runner, origin,
-                 model, created_by)
-            VALUES (:org, :goal, :repo, :ref, CAST(:budget AS jsonb), :runner, :origin,
-                    :model, :uid)
+                (organization_id, goal, repo, base_ref, co_repos, budget, runner,
+                 origin, model, created_by)
+            VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
+                    :runner, :origin, :model, :uid)
             RETURNING id
         """),
         {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
-         "ref": body.base_ref, "budget": _dumps(budget), "runner": body.runner,
+         "ref": body.base_ref, "corepos": body.co_repos, "budget": _dumps(budget),
+         "runner": body.runner,
          "origin": body.origin, "model": body.model, "uid": user.get("id")},
     ).scalar()
 
@@ -143,6 +149,7 @@ def create_mission(
         "goal": body.goal.strip(),
         "repo": body.repo.strip(),
         "base_ref": body.base_ref,
+        "co_repos": body.co_repos or [],
         "budget": budget,
         "runner": body.runner,
         "origin": body.origin,
@@ -151,6 +158,164 @@ def create_mission(
     })
     db.commit()
     return {"id": mission_id, "session_id": session_id, "status": "queued", "budget": budget}
+
+
+# ───────────────────────── agent dispatch (orchestration) ─────────────────────────
+# The tensor_agent platform account is VIEWER and cannot POST /tensor/missions.
+# Instead, a *running* orchestrator mission authenticates with its own claim
+# token and dispatches sub-missions here; the envelope below (repo whitelist,
+# tree depth, budget caps, fan-out and daily limits) is enforced server-side,
+# so no privilege escalation is needed anywhere.
+
+REPO_WHITELIST = (
+    "TensorLBM", "TensorPhysics", "TensorDEM", "TensorFEM", "TensorFVM",
+    "TensorPlatform",
+)
+DISPATCH_MAX_CHILDREN = 8          # per orchestrator mission
+DISPATCH_DAILY_CAP = 24            # agent-originated missions per 24h (global)
+DISPATCH_BUDGET_CAPS = {"max_tool_calls": 80, "max_wall_seconds": 7200,
+                        "max_tokens": 3_000_000}
+
+
+class MissionDispatch(BaseModel):
+    parent_id: int = Field(ge=1)
+    claim_token: str = Field(min_length=8)
+    goal: str = Field(min_length=10, max_length=4000)
+    repo: str = Field(min_length=2, max_length=120)
+    base_ref: str = Field(default="main", min_length=1, max_length=120)
+    co_repos: list[str] | None = None
+    # role names resolve to models through tools/agent/roles.json on the
+    # agent side; a raw relay model id may also be pinned directly
+    role: str | None = Field(default=None, min_length=2, max_length=40)
+    model: str | None = Field(default=None, min_length=2, max_length=64)
+    budget: dict[str, Any] = Field(default_factory=dict)
+
+
+@router.post("/dispatch", dependencies=[Depends(require_auth)])
+def dispatch_mission(
+    body: MissionDispatch,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    parent = _authorize_agent(db, body.parent_id, body.claim_token)
+    if parent["status"] != "running":
+        raise HTTPException(status_code=409,
+                            detail=f"parent mission is {parent['status']}, not running")
+
+    prow = db.execute(
+        text("SELECT parent_mission_id FROM tensor_dev_missions WHERE id = :mid"),
+        {"mid": body.parent_id},
+    ).mappings().first()
+    if prow["parent_mission_id"] is not None:
+        raise HTTPException(status_code=422,
+                            detail="sub-missions cannot dispatch (tree depth is capped at 2)")
+
+    repos = [body.repo.strip()] + [r.strip() for r in (body.co_repos or [])]
+    for r in repos:
+        if r not in REPO_WHITELIST:
+            raise HTTPException(status_code=422, detail=f"repo {r!r} is outside the dispatch whitelist")
+    if len(set(repos)) != len(repos):
+        raise HTTPException(status_code=422, detail="repo list contains duplicates")
+    if not body.model:
+        # children must be model-pinned: a NULL-model child would wait on the
+        # default daemon, which may be busy running this very orchestrator
+        raise HTTPException(status_code=422, detail="dispatch requires an explicit model (role resolves to one)")
+
+    budget = dict(DISPATCH_BUDGET_CAPS)
+    for key in DISPATCH_BUDGET_CAPS:
+        if key in body.budget:
+            try:
+                budget[key] = max(1, min(DISPATCH_BUDGET_CAPS[key], int(body.budget[key])))
+            except (TypeError, ValueError):
+                raise HTTPException(status_code=422, detail=f"budget.{key} must be an integer")
+
+    children = db.execute(
+        text("SELECT count(*) FROM tensor_dev_missions WHERE parent_mission_id = :p"),
+        {"p": body.parent_id},
+    ).scalar()
+    if children >= DISPATCH_MAX_CHILDREN:
+        raise HTTPException(status_code=422,
+                            detail=f"parent already has {children} children (max {DISPATCH_MAX_CHILDREN})")
+    day_count = db.execute(
+        text("""
+            SELECT count(*) FROM tensor_dev_missions
+            WHERE origin = 'agent' AND created_at > now() - interval '24 hours'
+        """),
+    ).scalar()
+    if day_count >= DISPATCH_DAILY_CAP:
+        raise HTTPException(status_code=429,
+                            detail=f"agent dispatch daily cap reached ({DISPATCH_DAILY_CAP}/24h)")
+
+    # inherit the orchestrator's org so owner sees the whole tree in one list
+    org_id = db.execute(
+        text("SELECT organization_id FROM tensor_dev_missions WHERE id = :mid"),
+        {"mid": body.parent_id},
+    ).scalar()
+    mission_id = db.execute(
+        text("""
+            INSERT INTO tensor_dev_missions
+                (organization_id, goal, repo, base_ref, co_repos, budget, runner,
+                 origin, model, parent_mission_id, created_by)
+            VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
+                    'openhands', 'agent', :model, :parent, :uid)
+            RETURNING id
+        """),
+        {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
+         "ref": body.base_ref, "corepos": body.co_repos or None,
+         "budget": _dumps(budget), "model": body.model, "parent": body.parent_id,
+         "uid": user.get("id")},
+    ).scalar()
+    session_id = db.execute(
+        text("""
+            INSERT INTO tensor_agent_sessions
+                (organization_id, agent_name, status, budget, started_by)
+            VALUES (:org, 'tensor-agent', 'active', CAST(:budget AS jsonb), :uid)
+            RETURNING id
+        """),
+        {"org": org_id, "budget": _dumps(budget), "uid": user.get("id")},
+    ).scalar()
+    db.execute(
+        text("UPDATE tensor_dev_missions SET session_id = :sid WHERE id = :mid"),
+        {"sid": session_id, "mid": mission_id},
+    )
+    append_event(db, parent["session_id"], "note", {
+        "subtype": "sub_mission_dispatched", "child_id": mission_id,
+        "repo": body.repo.strip(), "co_repos": body.co_repos or [],
+        "role": body.role, "model": body.model, "goal": body.goal.strip()[:200],
+    })
+    append_event(db, session_id, "plan", {
+        "mission_id": mission_id, "parent_mission_id": body.parent_id,
+        "goal": body.goal.strip(), "repo": body.repo.strip(),
+        "base_ref": body.base_ref, "co_repos": body.co_repos or [],
+        "budget": budget, "runner": "openhands", "origin": "agent",
+        "model": body.model, "dispatched_by": parent["claimed_by"],
+    })
+    db.commit()
+    return {"id": mission_id, "session_id": session_id, "parent_id": body.parent_id,
+            "status": "queued", "budget": budget, "role": body.role}
+
+
+@router.get("/{mission_id}/children", dependencies=[Depends(require_auth)])
+def list_children(
+    mission_id: int,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    _load_mission(db, mission_id)
+    rows = db.execute(
+        text("""
+            SELECT id, goal, repo, co_repos, parent_mission_id, model, origin,
+                   status, claimed_by, created_at, finished_at
+            FROM tensor_dev_missions WHERE parent_mission_id = :mid ORDER BY id
+        """),
+        {"mid": mission_id},
+    ).mappings().all()
+    return {"parent_id": mission_id, "items": [{
+        "id": r["id"], "goal": r["goal"], "repo": r["repo"],
+        "co_repos": list(r["co_repos"] or []), "model": r["model"],
+        "origin": r["origin"], "status": r["status"], "claimed_by": r["claimed_by"],
+        "created_at": _iso(r["created_at"]), "finished_at": _iso(r["finished_at"]),
+    } for r in rows]}
 
 
 @router.get("", dependencies=[Depends(require_auth)])
@@ -176,7 +341,8 @@ def list_missions(
     ).scalar()
     rows = db.execute(
         text(f"""
-            SELECT id, goal, repo, base_ref, budget, runner, origin, model, status,
+            SELECT id, goal, repo, base_ref, co_repos, parent_mission_id, budget,
+                   runner, origin, model, status,
                    claimed_by, session_id, result, created_by, created_at,
                    heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE {filters}
@@ -298,8 +464,8 @@ def claim_mission(
                 LIMIT 1
                 FOR UPDATE SKIP LOCKED
             )
-            RETURNING id, goal, repo, base_ref, budget, runner, origin, model,
-                      session_id, organization_id
+            RETURNING id, goal, repo, base_ref, co_repos, budget, runner, origin,
+                      model, session_id, organization_id
         """),
         {"tok": token, "agent": body.agent_id, "runner": body.runner,
          "claim_model": body.model},
@@ -321,6 +487,7 @@ def claim_mission(
             "goal": row["goal"],
             "repo": row["repo"],
             "base_ref": row["base_ref"],
+            "co_repos": list(row["co_repos"] or []) if row["co_repos"] is not None else [],
             "budget": row["budget"] or {},
             "runner": row["runner"],
             "origin": row["origin"],
