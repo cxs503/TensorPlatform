@@ -997,12 +997,16 @@ class MissionRunner:
         except Exception as exc:  # noqa: BLE001
             log(f"pause failed: {exc}")
         # Watchdog: pause() cannot interrupt an in-flight LLM call that has
-        # outlived its timeout discipline (slow-drip reads). If terminal
-        # bookkeeping hasn't finished within 150s, exit the process — the
-        # flock wrapper restarts it and the claim reaper marks this mission
-        # failed/agent_lost.
+        # outlived its timeout discipline (slow-drip reads / retry chains).
+        # If terminal bookkeeping hasn't finished in time, exit the process —
+        # the flock wrapper restarts it and the claim reaper marks this
+        # mission failed/agent_lost. The bound must EXCEED the worst-case
+        # legitimate unwind: litellm runs timeout×(num_retries+1) before it
+        # gives up (m34: 150s watchdog fired mid-retry-chain after budget
+        # stop → honest budget_exceeded misfiled as agent_lost again).
+        unwind = int(os.environ.get("LLM_TIMEOUT_SECONDS", "120")) * 5 + 60
         def _escalate() -> None:
-            time.sleep(150)
+            time.sleep(unwind)
             if not self.finished:
                 log(f"m{self.mission['id']}: watchdog — run() wedged past stop "
                     f"({self.stop_reason}); exiting for flock restart")
