@@ -42,3 +42,11 @@ The existing registry is therefore a metadata registration primitive, not a comp
 - [ ] Unauthorized cross-organization reads/writes are rejected.
 - [ ] `validation_status=not_run`, `failed`, and `incomplete` are never treated as validated evidence.
 - [ ] A later dataset-promotion record retains source run IDs, source artifact references, transformations, and validation evidence.
+
+## Artifact integrity and evidence bundle (local research runner)
+
+The SpringChainBenchmark runner writes SHA-256 and byte-size metadata for each downloadable artifact. The manifest records a schema_version, run status, independent validation status, configuration digest, producer revision (or unknown when the deployment does not inject GIT_COMMIT_SHA), output checksums, metrics, and explicit limitations. The manifest intentionally does not embed its own checksum; the API's persisted task result carries the manifest file's checksum to avoid a self-referential hash.
+
+validation_status=not_run is deliberate: finite-value checks only establish that the computed state remained finite. They do not establish physical correctness, conservation, convergence, or validity for icebreaking. Consumers must not promote this run to scientifically validated evidence based only on process completion.
+
+The integration test verifies that checksums and sizes match the exact artifact bytes written by the runner. This is an integrity/provenance gate, not a cryptographic signature or proof that the computation itself is scientifically correct.
