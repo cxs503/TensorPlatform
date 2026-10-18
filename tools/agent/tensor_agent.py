@@ -55,8 +55,9 @@ REPO_PATHS = {
 }
 REPO_TEST_PYTHON = {
     "TensorLBM": "/srv/tensor/shared/venvs/tensorlbm/bin/python",
-    # the eco venv has all other tensor repos installed -e
-    "_default": "/srv/tensor/shared/venvs/tensor_eco/bin/python",
+    # hermes venv: pytest 9.1.1 + torch 2.14, 跑通 TensorDEM 全套（m42 实测
+    # 217 passed/26.8s）；eco venv 无 pytest（m42 验收复跑 exit=1 教训）
+    "_default": "/srv/tensor/shared/hermes-agent/.venv/bin/python",
 }
 FETCH_DOMAIN_ALLOWLIST = (
     "api.github.com", "github.com", "raw.githubusercontent.com",
