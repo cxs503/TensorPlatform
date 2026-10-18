@@ -2,10 +2,14 @@
 
 One polled endpoint: executors (heartbeat), in-flight executions with
 log tails, recent terminal executions, the cross-session append-only
-event stream, and registry stats. Everything measured, nothing cached.
+event stream, and registry stats. Live sections are measured per call;
+the monotone stats block is cached in-process for 60s (it walks the
+append-only event table and sums runs JSONB — cost grows with history,
+while the numbers barely move between polls).
 """
 from __future__ import annotations
 
+import time
 from typing import Any
 
 from fastapi import APIRouter, Depends
@@ -18,6 +22,45 @@ from database.config import get_db
 
 router = APIRouter(prefix="/tensor/activity", tags=["科研运行台·活动"])
 
+_STATS_TTL_S = 60.0
+_stats_cache: dict[int, tuple[float, dict[str, Any]]] = {}
+
+
+def _registry_stats(db: Session, org_id: int) -> dict[str, Any]:
+    hit = _stats_cache.get(org_id)
+    now = time.monotonic()
+    if hit is not None and now - hit[0] < _STATS_TTL_S:
+        return hit[1]
+    runs = db.execute(text("""
+        SELECT count(*) AS n,
+               count(*) FILTER (WHERE validation_status = 'passed') AS passed,
+               COALESCE(SUM(jsonb_array_length(manifest -> 'outputs')), 0) AS artifacts
+        FROM tensorphysics_runs WHERE organization_id = :org
+    """), {"org": org_id}).mappings().first()
+    exec_stats = db.execute(text("""
+        SELECT status, count(*) AS n FROM tensor_executions
+        WHERE organization_id = :org GROUP BY status
+    """), {"org": org_id}).mappings().all()
+    pending = db.execute(text("""
+        SELECT count(*) FROM tensor_approval_requests
+        WHERE organization_id = :org AND status = 'pending'
+    """), {"org": org_id}).scalar()
+    events_total = db.execute(text("""
+        SELECT count(*) FROM tensor_agent_session_events e
+        JOIN tensor_agent_sessions s ON s.id = e.session_id
+        WHERE s.organization_id = :org
+    """), {"org": org_id}).scalar()
+    stats = {
+        "runs_total": int(runs["n"]),
+        "runs_passed": int(runs["passed"]),
+        "artifacts": int(runs["artifacts"]),
+        "executions_by_status": {r["status"]: r["n"] for r in exec_stats},
+        "pending_approvals": int(pending or 0),
+        "events_total": int(events_total or 0),
+    }
+    _stats_cache[org_id] = (now, stats)
+    return stats
+
 
 def _iso(v: Any) -> str | None:
     return v.isoformat() if v is not None else None
@@ -26,6 +69,7 @@ def _iso(v: Any) -> str | None:
 @router.get("", dependencies=[Depends(require_auth)])
 def activity_overview(
     events_limit: int = 60,
+    before_id: int | None = None,
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
@@ -101,6 +145,8 @@ def activity_overview(
     ]
 
     # ── cross-session append-only event stream (the agent's heartbeat trail) ──
+    # before_id lets clients page backwards instead of re-reading the head
+    cursor = "AND e.id < :before" if before_id else ""
     out["recent_events"] = [
         {
             "id": e["id"],
@@ -113,43 +159,17 @@ def activity_overview(
             "payload": e["payload"] or {},
             "created_at": _iso(e["created_at"]),
         }
-        for e in db.execute(text("""
+        for e in db.execute(text(f"""
             SELECT e.id, e.session_id, e.seq, e.kind, e.payload, e.created_at,
                    s.agent_name, s.execution_id, x.execution_key
             FROM tensor_agent_session_events e
             JOIN tensor_agent_sessions s ON s.id = e.session_id
             LEFT JOIN tensor_executions x ON x.id = s.execution_id
-            WHERE s.organization_id = :org
+            WHERE s.organization_id = :org {cursor}
             ORDER BY e.id DESC LIMIT :lim
-        """), {"org": org_id, "lim": events_limit}).mappings().all()
+        """), {"org": org_id, "lim": events_limit, "before": before_id}).mappings().all()
     ]
 
-    # ── registry stats ──
-    runs = db.execute(text("""
-        SELECT count(*) AS n,
-               count(*) FILTER (WHERE validation_status = 'passed') AS passed,
-               COALESCE(SUM(jsonb_array_length(manifest -> 'outputs')), 0) AS artifacts
-        FROM tensorphysics_runs WHERE organization_id = :org
-    """), {"org": org_id}).mappings().first()
-    exec_stats = db.execute(text("""
-        SELECT status, count(*) AS n FROM tensor_executions
-        WHERE organization_id = :org GROUP BY status
-    """), {"org": org_id}).mappings().all()
-    pending = db.execute(text("""
-        SELECT count(*) FROM tensor_approval_requests
-        WHERE organization_id = :org AND status = 'pending'
-    """), {"org": org_id}).scalar()
-    events_total = db.execute(text("""
-        SELECT count(*) FROM tensor_agent_session_events e
-        JOIN tensor_agent_sessions s ON s.id = e.session_id
-        WHERE s.organization_id = :org
-    """), {"org": org_id}).scalar()
-    out["stats"] = {
-        "runs_total": int(runs["n"]),
-        "runs_passed": int(runs["passed"]),
-        "artifacts": int(runs["artifacts"]),
-        "executions_by_status": {r["status"]: r["n"] for r in exec_stats},
-        "pending_approvals": int(pending or 0),
-        "events_total": int(events_total or 0),
-    }
+    # ── registry stats (60s in-process cache — see module docstring) ──
+    out["stats"] = _registry_stats(db, org_id)
     return out

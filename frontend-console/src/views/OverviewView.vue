@@ -96,6 +96,24 @@
       </el-col>
     </el-row>
 
+    <div v-if="activeMissions.length" class="tf-section-heading">
+      <span>在飞开发任务</span>
+      <small>自主智能体开发 missions 实时状态</small>
+    </div>
+    <div v-if="activeMissions.length" class="tf-ov-row tf-ov-mission-strip">
+      <router-link v-for="m in activeMissions" :key="m.id" class="tf-ov-mission"
+        :to="`/missions/${m.id}`">
+        <span class="tf-mono">#{{ m.id }}</span>
+        <StatusBadge :status="m.status" />
+        <span class="tf-ov-mission-goal">{{ missionBrief(m.goal) }}</span>
+        <span class="tf-mono tf-ov-mission-prog">
+          {{ m.result?.progress?.tool_calls ?? 0 }}/{{ m.budget?.max_tool_calls ?? '—' }} 工具 ·
+          {{ Math.round((m.result?.progress?.elapsed_seconds ?? 0) / 60) }}/{{
+            Math.round((m.budget?.max_wall_seconds ?? 0) / 60) }} 分
+        </span>
+      </router-link>
+    </div>
+
     <div class="tf-section-heading">
       <span>Agent 事件流</span>
       <small>按事件记录追踪决策、执行与验证</small>
@@ -115,11 +133,12 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { scenarioApi, activityApi, runApi, workspaceApi } from '@/api'
+import { scenarioApi, activityApi, runApi, workspaceApi, missionApi } from '@/api'
 import { usePolling } from '@/composables/usePolling'
 import HeroPanel from '@/components/HeroPanel.vue'
 import MetricCard from '@/components/MetricCard.vue'
 import ScienceWarning from '@/components/ScienceWarning.vue'
+import StatusBadge from '@/components/StatusBadge.vue'
 import StageLadder from '@/components/StageLadder.vue'
 import AgentActivity from '@/components/AgentActivity.vue'
 import EventTimeline from '@/components/EventTimeline.vue'
@@ -132,9 +151,17 @@ const activity = ref<any>({})
 const scenarios = ref<any[]>([])
 const runs = ref<any[]>([])
 const workspace = ref<any>({})
+const missions = ref<any[]>([])
 const now = ref(Date.now())
 const apiOnline = ref(false)
 const lastUpdatedAt = ref<number | null>(null)
+
+const activeMissions = computed(() =>
+  missions.value.filter((m) =>
+    ['queued', 'claimed', 'running', 'awaiting_acceptance'].includes(m.status)))
+function missionBrief(goal: string) {
+  return goal.length > 46 ? goal.slice(0, 46) + '…' : goal
+}
 
 const stats = computed(() => activity.value.stats || {})
 const scenario = computed(() => scenarios.value[0] || null)
@@ -175,6 +202,10 @@ async function refreshFast() {
   } catch {
     apiOnline.value = false
   }
+  try {
+    const m = await missionApi.list()
+    missions.value = m.items || []
+  } catch { /* keep last known missions */ }
 }
 async function refreshSlow() {
   try {
@@ -279,4 +310,15 @@ onUnmounted(() => {
   .tf-ov-connection-note { align-items: flex-start; flex-wrap: wrap; }
   .tf-ov-connection-note :deep(.el-button) { margin-left: 38px; }
 }
+.tf-ov-mission-strip { display: flex; flex-direction: column; gap: 8px; }
+.tf-ov-mission {
+  display: flex; align-items: center; gap: 10px;
+  padding: 9px 12px; border: 1px solid var(--tf-line-200); border-radius: 8px;
+  text-decoration: none; color: inherit; font-size: 12.5px;
+  &:hover { background: #f7fafc; border-color: var(--tf-mint-600); }
+}
+.tf-ov-mission-goal {
+  flex: 1; min-width: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
+}
+.tf-ov-mission-prog { color: var(--tf-ink-500); flex-shrink: 0; font-size: 11.5px; }
 </style>
