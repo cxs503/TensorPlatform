@@ -158,6 +158,16 @@ def verify_dev_acceptance(api: API, mission: dict,
         if not (head.startswith(claimed) or claimed.startswith(head)):
             return "reject", (f"头不一致：审批证据 {claimed[:12]}，"
                               f"worktree 实际 {head[:12]}")
+    # C5 教训（m42）：测试在脏树上全过但交付未落 commit——gc 回收即蒸发。
+    # 交付必须是分支上的 commit：工作树脏 or 零新提交 → 不批。
+    _, dirty = sh("git status --porcelain", cwd=wt)
+    if dirty.strip():
+        return "escalate", (f"工作树有 {len(dirty.splitlines())} 项未提交变更"
+                            "——交付未落 commit，留人工")
+    base = mission.get("base_ref") or "main"
+    _, ahead = sh(f"git rev-list --count {base}..HEAD", cwd=wt)
+    if ahead.strip().isdigit() and int(ahead.strip()) == 0:
+        return "escalate", f"分支相对基线 {base} 零新提交——交付未落 commit"
     _, stat = sh(f"git show --stat --oneline {head}", cwd=wt)
     stat = stat[:1500]
     # 按仓库口径复跑默认套件（与 do_run_tests 缺省命令同口径）。

@@ -621,6 +621,14 @@ def do_fetch_url(action: FetchUrlAction) -> FetchUrlObservation:
 
 def do_request_acceptance(action: RequestAcceptanceAction) -> RequestAcceptanceObservation:
     assert BRIDGE is not None
+    # C5 协议门（m42 教训）：交付必须先落 commit——脏工作树提请验收会被
+    # gc 回收蒸发。审批器同规则双保险（auto_approver C5 硬规）。
+    rc, dirty = run(["git", "-C", BRIDGE.worktree, "status", "--porcelain"])
+    if rc == 0 and dirty.strip():
+        return RequestAcceptanceObservation(
+            ok=False,
+            message=(f"拒绝提请：工作树有 {len(dirty.splitlines())} 项未提交变更。"
+                     "先用 commit 工具落 commit，再 request_acceptance。"))
     BRIDGE.tool_calls += 1
     head = worktree_head(BRIDGE.worktree)
     code, resp = BRIDGE.api.api(
