@@ -1,4 +1,5 @@
 """Integration tests for the persistent research runner."""
+import hashlib
 import json
 import sqlite3
 
@@ -43,8 +44,26 @@ def test_create_execute_persist_and_download_artifacts(isolated_store):
     assert rf.get_task(task["id"])["result"]["peak_displacement"] > 0
     root = rf.ARTIFACT_DIR / task["id"]
     assert (root / "timeseries.csv").is_file()
-    manifest = json.loads((root / "run-manifest.json").read_text(encoding="utf-8"))
+    manifest_path = root / "run-manifest.json"
+    manifest_bytes = manifest_path.read_bytes()
+    manifest = json.loads(manifest_bytes.decode("utf-8"))
     assert manifest["run_id"] == task["id"]
+    assert manifest["schema_version"] == 1
+    assert manifest["status"] == "succeeded"
+    assert manifest["validation_status"] == "not_run"
+    assert manifest["validation"]["status"] == "not_run"
+    assert manifest["outputs"][0]["role"] == "timeseries"
+    csv_path = root / "timeseries.csv"
+    csv_bytes = csv_path.read_bytes()
+    csv_output = manifest["outputs"][0]
+    assert csv_output["checksum_sha256"] == hashlib.sha256(csv_bytes).hexdigest()
+    assert csv_output["size_bytes"] == len(csv_bytes)
+    artifacts = {item["name"]: item for item in run["result"]["artifacts"]}
+    assert artifacts["timeseries.csv"]["sha256"] == hashlib.sha256(csv_bytes).hexdigest()
+    assert artifacts["timeseries.csv"]["size_bytes"] == len(csv_bytes)
+    assert artifacts["run-manifest.json"]["sha256"] == hashlib.sha256(manifest_bytes).hexdigest()
+    assert artifacts["run-manifest.json"]["size_bytes"] == len(manifest_bytes)
+    assert len(manifest["configuration_sha256"]) == 64
 
 
 def test_parameter_bounds_are_rejected(isolated_store):
