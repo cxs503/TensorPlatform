@@ -241,6 +241,10 @@ class MissionClaim(BaseModel):
     hostname: str | None = Field(default=None, max_length=200)
     version: str | None = Field(default=None, max_length=40)
     runner: str | None = Field(default=None, pattern="^(openhands|native)$")
+    # model-pinned daemons claim only their own missions; the designated
+    # default daemon additionally picks up legacy NULL-model missions
+    model: str | None = Field(default=None, min_length=2, max_length=64)
+    claim_null_model: bool = False
 
 
 @router.post("/claim", dependencies=[Depends(require_auth)])
@@ -273,8 +277,15 @@ def claim_mission(
     # dashed canonical form: the UUID column normalizes on store, so the
     # returned token must round-trip byte-identically (plain .hex would not)
     token = str(uuid.uuid4())
-    # runner-scoped claim: coexisting daemons each pull only their own class
+    # runner-scoped claim: coexisting daemons each pull only their own class;
+    # model pinning routes each queued mission to its per-model daemon
     runner_filter = "AND runner = :runner" if body.runner else ""
+    if body.model and body.claim_null_model:
+        model_filter = "AND (model = :claim_model OR model IS NULL)"
+    elif body.model:
+        model_filter = "AND model = :claim_model"
+    else:
+        model_filter = ""
     row = db.execute(
         text(f"""
             UPDATE tensor_dev_missions
@@ -282,7 +293,7 @@ def claim_mission(
                 heartbeat_at = now()
             WHERE id = (
                 SELECT id FROM tensor_dev_missions
-                WHERE status = 'queued' {runner_filter}
+                WHERE status = 'queued' {runner_filter} {model_filter}
                 ORDER BY id
                 LIMIT 1
                 FOR UPDATE SKIP LOCKED
@@ -290,7 +301,8 @@ def claim_mission(
             RETURNING id, goal, repo, base_ref, budget, runner, origin, model,
                       session_id, organization_id
         """),
-        {"tok": token, "agent": body.agent_id, "runner": body.runner},
+        {"tok": token, "agent": body.agent_id, "runner": body.runner,
+         "claim_model": body.model},
     ).mappings().first()
     db.commit()
 

@@ -928,19 +928,32 @@ class MissionRunner:
 
 
 def main() -> None:
+    # model pinning (P0 seven-daemon fleet): --model <id> claims only
+    # missions queued for that model; --claim-null additionally picks up
+    # legacy NULL-model missions (the designated default daemon)
+    args = sys.argv[1:]
+    pinned_model: str | None = None
+    claim_null = False
+    if "--model" in args:
+        pinned_model = args[args.index("--model") + 1]
+    if "--claim-null" in args:
+        claim_null = True
+    agent_id = AGENT_ID if not pinned_model else f"tensor-agent[{pinned_model}]@{socket.gethostname()}"
     api = PlatformAPI()
     code, _ = api.api("GET", "/health")
     if code != 200:
         log("platform not reachable — exiting")
         sys.exit(1)
-    log(f"tensor-agent up ({AGENT_ID}), polling for missions")
+    log(f"tensor-agent up ({agent_id}), polling for missions")
     backoff = 0
     while True:
         try:
             code, claim = api.api("POST", "/tensor/missions/claim",
-                                  {"agent_id": AGENT_ID,
+                                  {"agent_id": agent_id,
                                    "hostname": socket.gethostname(),
-                                   "version": "1.0.0"})
+                                   "version": "1.0.0",
+                                   "model": pinned_model,
+                                   "claim_null_model": claim_null})
             if code != 200:
                 log(f"claim error HTTP {code}: {str(claim)[:200]}")
                 time.sleep(60)
