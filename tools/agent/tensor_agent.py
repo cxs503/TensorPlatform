@@ -708,7 +708,12 @@ GOAL_TEMPLATE = """你是 tensor-agent，科研平台的自主开发智能体。
 6. 全程用简体中文写提交信息与验收材料；代码注释跟随仓库现有风格。"""
 
 
-def build_llm() -> LLM:
+def build_llm(model: str | None = None) -> LLM:
+    # mission rows carry the bare relay model id; litellm needs the
+    # openai/ provider prefix to route to our relay endpoint
+    model_id = model or os.environ.get("LLM_MODEL", "openai/deepseek-v4-flash")
+    if "/" not in model_id:
+        model_id = f"openai/{model_id}"
     # Fail-fast retries tuned on this relay: 90s proved too tight for
     # legitimate agentic planning reasoning (deterministic abort chains on
     # complex contexts), 180s let spirals burn 9min/call. 120s with 4
@@ -720,7 +725,7 @@ def build_llm() -> LLM:
     # set_token_callbacks() after Conversation construction.
     return LLM(
         usage_id="tensor-agent",
-        model=os.environ.get("LLM_MODEL", "openai/deepseek-v4-flash"),
+        model=model_id,
         base_url=os.environ.get("LLM_BASE_URL", ""),
         api_key=os.environ.get("LLM_API_KEY", ""),
         timeout=int(os.environ.get("LLM_TIMEOUT_SECONDS", "120")),
@@ -734,6 +739,7 @@ class MissionRunner:
     def __init__(self, api: PlatformAPI, claim: dict) -> None:
         self.api = api
         self.mission: dict = claim["mission"]
+        self.model: str | None = self.mission.get("model")
         self.claim_token: str = self.mission["claim_token"]
         self.session_id: int = claim["session_id"]
         self.budget: dict = self.mission.get("budget") or {}
@@ -808,7 +814,7 @@ class MissionRunner:
 
         state_dir = os.path.join(STATE_ROOT, f"m{mid}", "state")
         os.makedirs(state_dir, exist_ok=True)
-        agent = Agent(llm=build_llm(),
+        agent = Agent(llm=build_llm(self.model),
                       tools=[Tool(name=FileEditorTool.name),
                              Tool(name=MissionToolSet.name)])
         conversation = Conversation(
@@ -830,7 +836,7 @@ class MissionRunner:
             tool_budget=self.max_tools, wall_minutes=self.max_wall // 60)
         conversation.send_message(goal)
         log(f"m{mid}: conversation running (budget {self.max_tools} tools / "
-            f"{self.max_wall}s)")
+            f"{self.max_wall}s, model={self.model or 'env-default'})")
         error: str | None = None
         # The LLM can end a run with a plain reply (notably after endpoint
         # timeouts) before calling run_tests/commit/request_acceptance. Resume
