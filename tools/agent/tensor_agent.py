@@ -915,6 +915,14 @@ def build_llm(model: str | None = None) -> LLM:
     # same requests streamed return in seconds — measured 2026-10-18.
     # Streaming additionally needs a non-None on_token callback, wired via
     # set_token_callbacks() after Conversation construction.
+    # reasoning_effort is NOT covered by drop_params: the SDK defaults it to
+    # "high" (LLM field default) and litellm treats it as valid for openai/
+    # models so it is always sent — m32 proved drop_params insufficient.
+    # The override value must sit in the INTERSECTION of the openai client's
+    # Literal["low","medium","high"] (pydantic rejects "xhigh" locally) and
+    # the relay deployment's accept-set (Qwen3.8-27B: xhigh/medium/low) —
+    # m33 pinned that intersection to medium/low.
+    effort = {"Qwen3.8-27B": "medium"}.get(model_id.split("/", 1)[-1])
     return LLM(
         usage_id="tensor-agent",
         model=model_id,
@@ -924,10 +932,8 @@ def build_llm(model: str | None = None) -> LLM:
         num_retries=4,
         max_tokens=8192,
         stream=True,
-        # relay models differ in supported params (e.g. Qwen3.8-27B rejects
-        # reasoning_effort=high, accepts xhigh/medium/low) — drop instead of
-        # 400-ing the whole run (m20 lesson)
         drop_params=True,
+        **({"reasoning_effort": effort} if effort else {}),
     )
 
 
@@ -965,13 +971,18 @@ class MissionRunner:
                 self.stop_reason = "owner_stopped"
                 self._pause()
                 return
-            if elapsed > self.max_wall:
-                self.stop_reason = "budget_exceeded"
-                self._pause()
-                return
-            if self.bridge.action_count > self.max_tools + 10:
-                self.stop_reason = "budget_exceeded"
-                self._pause()
+            if self.stop_reason is None:
+                if (elapsed > self.max_wall
+                        or self.bridge.action_count > self.max_tools + 10):
+                    self.stop_reason = "budget_exceeded"
+                    self._pause()
+                    # do NOT return here: run()'s terminal bookkeeping can
+                    # take minutes (in-flight LLM call + pause + complete
+                    # round trips) while the claim reaper strikes at 90s and
+                    # marks agent_lost first — m19/m21 both died this way
+                    # with a 409 on the final complete. Keep beating until
+                    # run() sets self.finished.
+            elif self.finished:
                 return
 
     def _pause(self) -> None:
