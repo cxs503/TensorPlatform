@@ -83,3 +83,47 @@ def test_parameter_bounds_are_rejected(isolated_store):
 def test_tensor_solver_is_not_misrepresented_as_available(isolated_store):
     with pytest.raises(Exception):
         rf.TaskCreate(title="fake dem run", solver="TensorDEM")
+
+def test_asset_search_finds_persisted_run_and_reports_optional_provider(isolated_store, monkeypatch):
+    with sqlite3.connect(str(rf.DB_PATH)) as db:
+        db.execute(
+            """INSERT INTO research_runs
+            (id,title,goal,solver,backend,status,verification,created_at,parameters_json,result_json,error,artifact_dir)
+            VALUES(?,?,?,?,?,?,?,?,?,?,?,?)""",
+            ("RF-TEST-SEARCH", "Icebreaker DEM benchmark", "Compare bonded particle fracture and resistance",
+             "SpringChainBenchmark", "local-cpu", "completed", "not-validated",
+             "2026-10-18T00:00:00+00:00", '{"particles":24}',
+             '{"benchmark":"icebreaking-probe","artifacts":[]}', None, None)
+        )
+    monkeypatch.delenv("XERJ_BASE_URL", raising=False)
+    monkeypatch.delenv("XERJ_INDEX", raising=False)
+    result = rf.search_research_assets(q="bonded particle fracture", limit=10)
+    assert result["total"] == 1
+    assert result["items"][0]["id"] == "RF-TEST-SEARCH"
+    assert result["items"][0]["source"] == "research_factory"
+    assert result["sources"]["local_runs"]["status"] == "available"
+    assert result["sources"]["xerj"]["status"] == "not_configured"
+
+
+def test_asset_search_queries_configured_xerj_and_keeps_local_results(isolated_store, monkeypatch):
+    class FakeResponse:
+        def __enter__(self): return self
+        def __exit__(self, *args): return False
+        def read(self):
+            return json.dumps({"result":{"total":1,"hits":[
+                {"_id":"doc-1","_score":0.91,"_source":{"title":"LBM droplet benchmark","content":"Laplace pressure validation","path":"benchmarks/laplace.md"}}
+            ]}}).encode("utf-8")
+    def fake_urlopen(request, timeout):
+        assert request.full_url == "http://127.0.0.1:8080/v1/indices/research/search"
+        assert json.loads(request.data)["q"] == "Laplace pressure"
+        assert request.headers.get("Authorization") == "ApiKey test-secret"
+        assert timeout == 3.0
+        return FakeResponse()
+    monkeypatch.setenv("XERJ_BASE_URL", "http://127.0.0.1:8080")
+    monkeypatch.setenv("XERJ_INDEX", "research")
+    monkeypatch.setenv("XERJ_API_KEY", "test-secret")
+    monkeypatch.setattr(rf, "urlopen", fake_urlopen)
+    result = rf.search_research_assets(q="Laplace pressure", limit=5)
+    assert result["sources"]["xerj"]["status"] == "available"
+    assert result["items"][0]["source"] == "xerj"
+    assert result["items"][0]["title"] == "LBM droplet benchmark"

@@ -50,3 +50,11 @@ The SpringChainBenchmark runner writes SHA-256 and byte-size metadata for each d
 validation_status=not_run is deliberate: finite-value checks only establish that the computed state remained finite. They do not establish physical correctness, conservation, convergence, or validity for icebreaking. Consumers must not promote this run to scientifically validated evidence based only on process completion.
 
 The integration test verifies that checksums and sizes match the exact artifact bytes written by the runner. This is an integrity/provenance gate, not a cryptographic signature or proof that the computation itself is scientifically correct.
+
+## Unified research asset search (first executable slice)
+
+GET /api/v1/research-factory/assets/search?q=...&limit=10 searches persisted local run records and optionally queries a configured XERJ native index. Local search reads the actual research_runs SQLite table and searches task goals, solver/status metadata, parameters, run metrics, and error text; it does not invent paper or benchmark records. The response includes per-provider status so an unconfigured or unavailable XERJ service is never presented as a successful search.
+
+To enable XERJ, the deployment operator must set XERJ_BASE_URL and XERJ_INDEX; XERJ_API_KEY is optional for local development but should be set when the XERJ node requires authentication. The adapter uses XERJ's native POST /v1/indices/{index}/search endpoint. Indexing remains a separate ingestion responsibility: source repositories, papers, benchmark reports, and failure notes will only appear after they have actually been indexed into the configured corpus.
+
+This first slice deliberately does not merge tenant-scoped TensorPhysics registry rows or the general data catalog into the endpoint yet. Those stores have separate authorization/ownership boundaries and need a permission-preserving federated adapter rather than a cross-database shortcut. XERJ errors degrade gracefully to local-only results; no query content is sent externally unless XERJ is explicitly configured.

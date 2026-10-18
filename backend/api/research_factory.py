@@ -4,7 +4,10 @@ import csv, hashlib, json, math, os, sqlite3, time, uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
-from fastapi import APIRouter, HTTPException
+from urllib.error import HTTPError, URLError
+from urllib.parse import quote
+from urllib.request import Request, urlopen
+from fastapi import APIRouter, HTTPException, Query
 from fastapi.responses import FileResponse
 from pydantic import BaseModel, Field
 
@@ -153,3 +156,91 @@ def artifact(run_id: str,name: str):
     root=Path(row["artifact_dir"]).resolve(); path=(root/name).resolve()
     if path.parent != root or not path.is_file(): raise HTTPException(404,"Artifact not found")
     return FileResponse(path,filename=name)
+
+@router.get("/assets/search")
+def search_research_assets(
+    q: str = Query(..., min_length=2, max_length=240, description="科研资产关键词"),
+    limit: int = Query(10, ge=1, le=50),
+):
+    """Search persisted local research runs and an optional configured XERJ index."""
+    query = q.strip()
+    if len(query) < 2:
+        raise HTTPException(status_code=422, detail="q must contain at least 2 non-space characters")
+    terms = list(dict.fromkeys(part.lower() for part in query.split() if len(part) > 1)) or [query.lower()]
+    with connect() as db:
+        rows = db.execute(
+            """SELECT id,title,goal,solver,backend,status,verification,created_at,
+                      parameters_json,result_json,error
+               FROM research_runs ORDER BY created_at DESC LIMIT 1000"""
+        ).fetchall()
+
+    local_hits = []
+    for row in rows:
+        item = dict(row)
+        result = json.loads(item.pop("result_json")) if item.get("result_json") else {}
+        parameters = json.loads(item.pop("parameters_json") or "{}")
+        searchable = json.dumps(
+            {"title": item.get("title"), "goal": item.get("goal"), "solver": item.get("solver"),
+             "backend": item.get("backend"), "status": item.get("status"), "verification": item.get("verification"),
+             "parameters": parameters, "result": {k:v for k,v in result.items() if k != "samples"},
+             "error": item.get("error")},
+            ensure_ascii=False, default=str
+        ).lower()
+        matched = [term for term in terms if term in searchable]
+        if not matched:
+            continue
+        title = item["title"]
+        score = sum(5 if term in title.lower() else 2 if term in (item.get("goal") or "").lower() else 1 for term in matched)
+        artifacts = result.get("artifacts", [])
+        snippet_source = item.get("goal") or item.get("error") or item.get("solver") or ""
+        local_hits.append({
+            "id": item["id"], "kind": "run", "source": "research_factory",
+            "title": title, "snippet": snippet_source[:280], "score": score,
+            "url": f"/api/v1/research-factory/tasks/{item['id']}",
+            "status": item.get("status"), "validation_status": item.get("verification"),
+            "created_at": item.get("created_at"), "solver": item.get("solver"),
+            "artifacts": artifacts,
+            "metrics": {k:v for k,v in result.items() if k in ("benchmark","peak_displacement","final_total_energy","simulated_time","wall_time_seconds")}
+        })
+    local_hits.sort(key=lambda hit: (hit["score"], hit.get("created_at") or ""), reverse=True)
+    items = local_hits[:limit]
+    sources = {"local_runs": {"status": "available", "matched": len(local_hits), "searched_records": len(rows)}}
+
+    xerj_url = os.getenv("XERJ_BASE_URL", "").strip().rstrip("/")
+    xerj_index = os.getenv("XERJ_INDEX", "").strip()
+    if not xerj_url or not xerj_index:
+        sources["xerj"] = {"status": "not_configured", "matched": 0}
+    else:
+        try:
+            body = json.dumps({"q": query, "size": limit, "from": 0}, ensure_ascii=False).encode("utf-8")
+            headers = {"Content-Type": "application/json", "Accept": "application/json"}
+            api_key = os.getenv("XERJ_API_KEY", "").strip()
+            if api_key:
+                headers["Authorization"] = f"ApiKey {api_key}"
+            request = Request(
+                f"{xerj_url}/v1/indices/{quote(xerj_index, safe='')}/search",
+                data=body, headers=headers, method="POST"
+            )
+            with urlopen(request, timeout=3.0) as response:
+                payload = json.loads(response.read().decode("utf-8"))
+            result_payload = payload.get("result", payload)
+            raw_hits = result_payload.get("hits", []) if isinstance(result_payload, dict) else []
+            total = result_payload.get("total", len(raw_hits)) if isinstance(result_payload, dict) else len(raw_hits)
+            if isinstance(total, dict):
+                total = total.get("value", len(raw_hits))
+            xerj_hits = []
+            for hit in raw_hits[:limit]:
+                source = hit.get("_source", {}) if isinstance(hit, dict) else {}
+                title = source.get("title") or source.get("name") or source.get("path") or hit.get("_id", "XERJ result")
+                xerj_hits.append({
+                    "id": hit.get("_id"), "kind": source.get("kind", "document"), "source": "xerj",
+                    "title": str(title), "snippet": str(source.get("content") or source.get("text") or source.get("description") or "")[:360],
+                    "score": hit.get("_score"), "url": source.get("url") or source.get("path"),
+                    "metadata": source
+                })
+            items.extend(xerj_hits)
+            sources["xerj"] = {"status": "available", "matched": int(total), "returned": len(xerj_hits)}
+        except (HTTPError, URLError, TimeoutError, OSError, ValueError, TypeError):
+            sources["xerj"] = {"status": "error", "matched": 0, "message": "XERJ search request failed; local results are still available"}
+
+    return {"query": query, "total": len(items), "items": items, "sources": sources}
