@@ -1,6 +1,6 @@
 """Persistent research-task API with a real local CPU spring-chain benchmark."""
 from __future__ import annotations
-import csv, json, math, os, sqlite3, time, uuid
+import csv, hashlib, json, math, os, sqlite3, time, uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Literal
@@ -101,15 +101,36 @@ def run_task(run_id: str):
                 samples.append({"time":round((step+1)*dt,8),"max_abs_displacement":max(abs(a) for a in x),"kinetic_energy":kinetic,"elastic_energy":elastic,"total_energy":energy})
         elapsed=round(time.perf_counter()-started,6)
         artifact_dir=ARTIFACT_DIR/run_id; artifact_dir.mkdir(parents=True,exist_ok=True)
-        with (artifact_dir/"timeseries.csv").open("w",newline="",encoding="utf-8") as f:
+        timeseries_path=artifact_dir/"timeseries.csv"
+        with timeseries_path.open("w",newline="",encoding="utf-8") as f:
             writer=csv.DictWriter(f,fieldnames=list(samples[0].keys())); writer.writeheader(); writer.writerows(samples)
+        timeseries_bytes=timeseries_path.read_bytes()
+        timeseries_artifact={"name":"timeseries.csv","url":f"/api/v1/research-factory/tasks/{run_id}/artifacts/timeseries.csv",
+          "media_type":"text/csv","sha256":hashlib.sha256(timeseries_bytes).hexdigest(),"size_bytes":len(timeseries_bytes)}
         result={"benchmark":"damped-mass-spring-chain-v1","description":"Real local CPU integration of a 1D damped spring chain; not an ice DEM simulation.",
           "particles":n,"steps":steps,"dt":dt,"simulated_time":steps*dt,"wall_time_seconds":elapsed,"peak_displacement":peak_disp,
           "initial_kinetic_energy":0.5*impulse*impulse,"peak_total_energy":peak_energy,"final_total_energy":samples[-1]["total_energy"],
-          "sample_count":len(samples),"samples":samples,"artifacts":[{"name":"timeseries.csv","url":f"/api/v1/research-factory/tasks/{run_id}/artifacts/timeseries.csv"},{"name":"run-manifest.json","url":f"/api/v1/research-factory/tasks/{run_id}/artifacts/run-manifest.json"}],
+          "sample_count":len(samples),"samples":samples,"artifacts":[timeseries_artifact],
           "validation":{"finite_state":True,"method":"finite-value check","scientific_validation":"not-established"}}
-        manifest={"run_id":run_id,"title":task["title"],"goal":task["goal"],"solver":task["solver"],"backend":"local-cpu","parameters":p,"result":result}
-        (artifact_dir/"run-manifest.json").write_text(json.dumps(manifest,ensure_ascii=False,indent=2),encoding="utf-8")
+        manifest={"schema_version":1,"run_id":run_id,"status":"succeeded","validation_status":"not_run",
+          "title":task["title"],"goal":{"objective":task["goal"] or task["title"]},"solver":task["solver"],"backend":"local-cpu",
+          "created_at":task["created_at"],"parameters":p,
+          "configuration_sha256":hashlib.sha256(json.dumps(p,sort_keys=True,separators=(",",":"),allow_nan=False).encode("utf-8")).hexdigest(),
+          "producer":{"name":task["solver"],"revision":os.getenv("GIT_COMMIT_SHA","unknown")},
+          "environment":{"backend":"local-cpu"},"resources":{"accelerator":"none"},
+          "metrics":{"peak_displacement":peak_disp,"final_total_energy":samples[-1]["total_energy"],"wall_time_seconds":elapsed},
+          "outputs":[{"uri":timeseries_artifact["url"],"media_type":timeseries_artifact["media_type"],
+            "checksum_sha256":timeseries_artifact["sha256"],"size_bytes":timeseries_artifact["size_bytes"],
+            "role":"timeseries","producer_revision":os.getenv("GIT_COMMIT_SHA","unknown")}],
+          "validation":{"status":"not_run","validator":"finite-value-check",
+            "checks":[{"name":"finite_state","status":"passed","description":"All recorded state values were finite."}],
+            "limitations":["No independent scientific benchmark, conservation, or convergence validation was run."]},
+          "limitations":["Successful execution is not equivalent to scientific validation."],"result":result}
+        manifest_path=artifact_dir/"run-manifest.json"
+        manifest_path.write_text(json.dumps(manifest,ensure_ascii=False,indent=2,allow_nan=False),encoding="utf-8")
+        manifest_bytes=manifest_path.read_bytes()
+        result["artifacts"].append({"name":"run-manifest.json","url":f"/api/v1/research-factory/tasks/{run_id}/artifacts/run-manifest.json",
+          "media_type":"application/json","sha256":hashlib.sha256(manifest_bytes).hexdigest(),"size_bytes":len(manifest_bytes)})
         with connect() as db:
             db.execute("""UPDATE research_runs SET status='completed',verification='computed-not-scientifically-validated',
               finished_at=?,result_json=?,artifact_dir=? WHERE id=?""",(datetime.now(timezone.utc).isoformat(),json.dumps(result),str(artifact_dir),run_id))
