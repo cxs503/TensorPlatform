@@ -67,6 +67,26 @@
           </div>
         </div>
 
+        <div class="tf-card tf-ai-card" style="margin-top: 16px">
+          <div class="tf-card-title">
+            <span>AI 解读</span>
+            <span class="tf-ai-model tf-mono" v-if="analysis">{{ analysis.model }}</span>
+          </div>
+          <div class="tf-ai-sub">
+            由自部署 DeepSeek（内网中继）基于本次执行的实测数据生成；结论同时落入会话审计链（note 事件）。
+          </div>
+          <el-button
+            size="small" type="primary" plain :loading="analyzing"
+            :disabled="analyzing" @click="analyze"
+          >{{ analysis ? '重新解读' : '生成解读' }}</el-button>
+          <div v-if="analysis" class="tf-ai-body">
+            <div class="tf-ai-text">{{ analysis.content }}</div>
+            <div class="tf-ai-meta tf-mono">
+              {{ analysis.usage?.total_tokens ?? '—' }} tokens · {{ analysis.latency_ms }}ms
+            </div>
+          </div>
+        </div>
+
         <div class="tf-card" style="margin-top: 16px" v-if="!isTerminal && auth.canOperate">
           <div class="tf-card-title">操作</div>
           <el-button type="danger" size="small" @click="cancel">请求取消</el-button>
@@ -80,7 +100,7 @@
 import { ref, computed, onMounted } from 'vue'
 import { useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
-import { executionApi, sessionApi } from '@/api'
+import { executionApi, sessionApi, llmApi } from '@/api'
 import { useAuthStore } from '@/stores/auth'
 import { usePolling } from '@/composables/usePolling'
 import HeroPanel from '@/components/HeroPanel.vue'
@@ -130,6 +150,25 @@ async function cancel() {
   }
 }
 
+const analyzing = ref(false)
+const analysis = ref<any>(null)
+
+async function analyze() {
+  analyzing.value = true
+  try {
+    analysis.value = await llmApi.analyzeExecution(id)
+    // 解读已作为 note 事件落审计链——拉一次最新事件
+    if (exec.value?.session?.id) {
+      const s = await sessionApi.get(exec.value.session.id)
+      events.value = s.events || []
+    }
+  } catch (e: any) {
+    ElMessage.error(e.message || 'AI 解读失败')
+  } finally {
+    analyzing.value = false
+  }
+}
+
 const { start, stop } = usePolling(refresh, 5000)
 onMounted(async () => {
   await refresh().catch(() => {})
@@ -150,4 +189,10 @@ onMounted(async () => {
 .tf-ev-seq { color: #a5aeb8; }
 .tf-ev-payload { flex: 1; color: var(--tf-ink-500); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
 .tf-ev-time { color: #a5aeb8; }
+.tf-ai-card .tf-card-title { align-items: center; }
+.tf-ai-model { font-size: 11px; color: var(--tf-mint-600); margin-left: auto; }
+.tf-ai-sub { font-size: 12px; color: #a5aeb8; margin: 4px 0 10px; line-height: 1.5; }
+.tf-ai-body { margin-top: 10px; }
+.tf-ai-text { font-size: 13px; line-height: 1.7; color: var(--tf-ink-900); white-space: pre-wrap; }
+.tf-ai-meta { margin-top: 8px; font-size: 11px; color: #a5aeb8; }
 </style>
