@@ -39,10 +39,15 @@ OFF_SWITCH = ECO / "agent_work" / "operator_shift.OFF"
 LOCK = ECO / "operator_shift.lock"          # flock 由 cron 层持
 HELPER = ECO / "TensorPlatform" / "tools" / "agent" / "dispatch_helper.py"
 PY = "/srv/tensor/shared/venvs/tensor_eco/bin/python"
-OPERATOR_MODEL = "glm-5.2"                  # P1 角色映射：operator=最强常驻
+OPERATOR_MODELS = ["deepseek-v4-flash", "glm-5.2", "deepseek-v4-flash"]
+# owner 2026-10-19 冗余原则：同一角色多模型轮换；向 DeepSeek 倾斜（其端点
+# 无额度耗尽问题，其他模型可能耗尽）。轮换按班次序取模——单模型额度断供
+# 时角色不灭；refill 端点行锁保证两班并发处置同一 mission 时只生效一次。
 OPERATOR_REPO = "TensorPlatform"            # 交付物=operator_log，平台侧
-BUDGET = "80,3600,3000000"                  # m51 实证：40 调用只够巡检+处置，
-                                             # 交付三件套没跑到——加倍并加纪律
+BUDGET = "200,7200,8000000"                 # 检查者不死在自己检查的东西上
+                                             # （m51 首班 40 调用 budget_exceeded
+                                             # 实证）；owner 指令逻辑简单不上限，
+                                             # 取宽裕值而非 API 顶格
 SHIFT_GAP = 25 * 60                         # 密集值守：有开发在飞时隔 25 分钟
 IDLE_GAP = 6 * 3600                         # 平台空闲：6 小时一班例行
 IN_FLIGHT = ("queued", "claimed", "running")
@@ -149,6 +154,9 @@ def main() -> int:
                 f"开发在飞 {len(dev_live)}）")
             return 0
 
+    # 模型轮换（冗余原则）：按本角色历史班次数取模，DeepSeek 2/3 倾斜
+    model = OPERATOR_MODELS[len(shifts) % len(OPERATOR_MODELS)]
+
     # base_ref=运行线当前分支（值班 worktree 从这里分叉，auto_approver 按
     # 此判「新 commit」）；分支名取共享 checkout 当前 HEAD 所在分支
     r = subprocess.run(["git", "-C", str(ECO / OPERATOR_REPO),
@@ -163,7 +171,7 @@ def main() -> int:
     env = dict(os.environ, REVIEW_USER=user, REVIEW_PASS=pw)
     r = subprocess.run(
         [PY, str(HELPER), "--repo", OPERATOR_REPO, "--base-ref", base_ref,
-         "--model", OPERATOR_MODEL, "--runner", "native", "--budget", BUDGET,
+         "--model", model, "--runner", "native", "--budget", BUDGET,
          "--origin", "agent", "--memory-key", "platform-operator",
          "--goal-file", str(goal_file)],
         capture_output=True, text=True, timeout=120, env=env)
@@ -171,8 +179,8 @@ def main() -> int:
         log(f"ERROR: dispatch_helper 失败: {r.stderr.strip()[:300]}")
         return 1
     out = json.loads(r.stdout)
-    log(f"DISPATCHED: m{out.get('id')} base={base_ref} model={OPERATOR_MODEL} "
-        f"memory={out.get('memory_injected')}")
+    log(f"DISPATCHED: m{out.get('id')} base={base_ref} model={model} "
+        f"shift#{len(shifts) + 1} memory={out.get('memory_injected')}")
     return 0
 
 
