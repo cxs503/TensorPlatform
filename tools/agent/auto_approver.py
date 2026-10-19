@@ -216,7 +216,10 @@ def verify_dev_acceptance(api: API, mission: dict,
         machine_block = ("\n机器直读工件摘录（evidence_files，可信级高于验收摘要，"
                          "请比对摘要数字与摘录数字是否逐字一致）：\n"
                          + json.dumps(machine, ensure_ascii=False)[:1800] + "\n")
-    if (mid > 47 and "validation_report" in goal and not machine.get("files")):
+    if (mid > 47 and "validation_report" in goal.split("往次任务记忆（平台注入", 1)[0]
+            and not machine.get("files")):
+        # 只看任务自身 goal：注入记忆里会引用往次 validation_report 字样，
+        # 不能拿来触发本任务的摘录要求（approval 33 误升级教训）。
         return "escalate", ("goal 要求 validation_report 工件判据，但验收未附 "
                             "evidence_files 机器摘录——数字来源不可核验，留人工")
     context = (f"goal：{goal[:1200]}\n\n"
