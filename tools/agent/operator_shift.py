@@ -9,6 +9,10 @@ owner 2026-10-19 指令：operator 角色进编制、给足权限、自主行动
   3. 有开发 mission 在飞 → 上一班开始 > SHIFT_GAP 秒即续班（密集值守）
   4. 平台空闲 → 距上一班 > IDLE_GAP 秒才派例行班
   5. 凭据缺 → 退出报错（不静默降级）
+  6. mission 列表读取失败/结构异常 → fail closed：记录错误摘要、非零退出、
+     不派发（GPT 2026-10-19 #23 复审修复：状态不可知 ≠ 队列为空，旧写法
+     `body.get("items", []) if code == 200 else []` 是 fail-open——API 401/
+     500 时会按「无在飞班次」照常开班）
 
 派发本身走 dispatch_helper（注入常驻记忆 platform-operator，origin=agent，
 worktree=独立 jailed agent/m<id>，push 基建级禁用）。值班 goal 由本脚本
@@ -68,12 +72,47 @@ def api(method: str, path: str, body: dict | None = None, tok: str | None = None
         method=method, headers=headers)
     try:
         with urllib.request.urlopen(req, timeout=60) as resp:
-            return resp.status, json.loads(resp.read() or b"null")
+            status, raw = resp.status, resp.read()
     except urllib.error.HTTPError as exc:
         try:
             return exc.code, json.loads(exc.read() or b"null")
         except Exception:  # noqa: BLE001
             return exc.code, {}
+    except Exception as exc:  # noqa: BLE001  传输层：URLError/超时/拒连
+        raise RuntimeError(f"{method} {path} 传输错误: {exc!r}") from exc
+    return status, json.loads(raw or b"null")  # 非 JSON 让 JSONDecodeError 自然抛
+
+
+class MissionListUnavailable(RuntimeError):
+    """mission 列表读取失败/结构异常——状态不可知 ≠ 队列为空，必须 fail closed。"""
+
+
+def fetch_missions(tok: str) -> list[dict]:
+    """读 mission 列表；任何失败（传输/非 200/结构损坏）抛 MissionListUnavailable。
+
+    覆盖：401/500 等非 200、连接失败/超时、响应体非对象、items 缺失或非列表、
+    items 元素非对象——全部拒绝继续，不允许默认空表。
+    """
+    try:
+        code, body = api("GET", "/tensor/missions?limit=100", tok=tok)
+    except RuntimeError as exc:  # 传输层（api 已归一为 RuntimeError）
+        raise MissionListUnavailable(str(exc)) from exc
+    except json.JSONDecodeError as exc:  # 响应非 JSON（代理错误页等）
+        raise MissionListUnavailable(
+            f"GET /tensor/missions 响应非 JSON: {exc}") from exc
+    if code != 200:
+        raise MissionListUnavailable(f"GET /tensor/missions HTTP {code}")
+    if not isinstance(body, dict):
+        raise MissionListUnavailable(f"响应体非对象: {type(body).__name__}")
+    items = body.get("items")
+    if not isinstance(items, list):
+        raise MissionListUnavailable(
+            f"items 缺失或非列表: {type(items).__name__}（响应键: "
+            f"{sorted(body)[:6]}）")
+    for i, m in enumerate(items):
+        if not isinstance(m, dict):
+            raise MissionListUnavailable(f"items[{i}] 非对象: {type(m).__name__}")
+    return items
 
 
 GOAL_TEMPLATE = """platform-operator 值班班次 {date}（角色交接期：例行自主，新颖上报）
@@ -124,8 +163,11 @@ def main() -> int:
         return 1
     tok = body["access_token"]
 
-    code, body = api("GET", "/tensor/missions?limit=100", tok=tok)
-    items = body.get("items", []) if code == 200 else []
+    try:
+        items = fetch_missions(tok)
+    except MissionListUnavailable as exc:
+        log(f"ERROR: mission 列表不可得，fail closed 不派发（{exc}）")
+        return 2
     shifts = [m for m in items if MARKER in (m.get("goal") or "")]
     devs = [m for m in items if MARKER not in (m.get("goal") or "")]
 
