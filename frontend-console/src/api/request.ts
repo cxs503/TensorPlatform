@@ -92,6 +92,9 @@ request.interceptors.response.use(
 
 const http = {
   get: <T = any>(url: string, params?: any): Promise<T> => request.get(url, { params }),
+  // 二进制图件必须走裸实例的 axios config（responseType），经包装层会被误作查询参数
+  getBlob: (url: string): Promise<Blob> =>
+    request.get(url, { responseType: 'blob' }) as unknown as Promise<Blob>,
   post: <T = any>(url: string, data?: any): Promise<T> => request.post(url, data),
   put: <T = any>(url: string, data?: any): Promise<T> => request.put(url, data),
   delete: <T = any>(url: string, data?: any): Promise<T> => request.delete(url, { data })
