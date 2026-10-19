@@ -9,11 +9,15 @@ litellm 直连 + 自有工具 schema/执行器 + 自己的预算与中断纪律�
      （OpenHands pause() 打不断在飞调用，需 150s watchdog 兜底）。
   2. 预算检查内联在每次 LLM 调用与工具执行之间 → 停机即诚实终态。
   3. reasoning_effort 按模型显式覆盖（drop_params 不丢该参，m32/m33 教训）。
-  4. 消息历史每步落盘 → abort 续跑从持久化文件恢复，不依赖 SDK persistence。
+  4. 消息历史每步落盘（版本+校验和）→ abort 续跑从持久化文件恢复，不依赖
+     SDK persistence；切换底座前后灵魂逐位可验。
+  5. LLM 经 llm_gateway 端点池：额度耗尽换端点不换 Session（2026-10-19
+     owner 架构原则：Session 是主体，上下文是灵魂，LLM 是可替换底座）。
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -24,6 +28,7 @@ from typing import Any, Callable
 
 import litellm
 
+import llm_gateway
 import tensor_agent as ta
 
 
@@ -44,12 +49,35 @@ class NativeHarness:
         bare = self.r.model or os.environ.get("LLM_MODEL", "deepseek-v4-flash")
         bare = bare.split("/", 1)[-1]
         self.model = f"openai/{bare}"
+        self.bare_model = bare
         self.messages: list[dict[str, Any]] = self._load_state()
         self.tools = _TOOL_SCHEMAS
+        self.gateway = llm_gateway.Gateway()
+        # 挂起看门狗：litellm 流式读会吞掉读超时（2026-10-19 13:06 实证：SSE
+        # 连接 ESTAB 但永不出块，timeout=120 不抛异常，主循环冻死、心跳停跳
+        # 15+ 分钟）。异常路径归 Gateway 分诊，无异常路径归这里：独立线程监视
+        # 进度时间戳，非工具期停滞超限强退，交给 cron 重生+收割+refill 自愈。
+        self._last_progress = time.monotonic()
+        self._busy_tool = False
+
+        def _stall_watch() -> None:
+            stall_s = float(os.environ.get("LLM_STALL_EXIT_SECONDS", "900"))
+            while not self.stop_event.wait(30):
+                if self.r.stop_reason is not None:
+                    return  # mission 终态：看门狗退役，勿杀空闲守护
+                idle = time.monotonic() - self._last_progress
+                if not self._busy_tool and idle > stall_s:
+                    ta.log(f"native stall watchdog: 非工具期无进度 {idle:.0f}s > "
+                           f"{stall_s:.0f}s，强退待自愈（cron 重生+收割+refill）")
+                    os._exit(137)
+
+        threading.Thread(target=_stall_watch, daemon=True,
+                         name="stall-watchdog").start()
 
     # ── Conversation 同形接口 ──
 
     def send_message(self, text: str) -> None:
+        self._last_progress = time.monotonic()
         self.messages.append({"role": "user", "content": text})
         self._save_state()
 
@@ -63,6 +91,11 @@ class NativeHarness:
             self._run_loop()
         except _Paused:
             return
+        except llm_gateway.GatewayUnavailable as exc:
+            # 配置级故障按终态落地（同 budget_exceeded 通道），不进端点
+            # abort 续跑环——否则冷却期会被反复重入空转
+            ta.log(f"native: {exc}")
+            self.r.stop_reason = "gateway_unavailable"
 
     def _run_loop(self) -> None:
         while True:
@@ -94,7 +127,12 @@ class NativeHarness:
                 self.r.bridge.action_count += 1
                 self.r.bridge.emit("tool_call", {"tool": name,
                                                  "args": ta._clip(args, 900)})
-                result = self._exec(name, args)
+                self._busy_tool = True   # 工具子进程有自家超时，不参与停滞判定
+                try:
+                    result = self._exec(name, args)
+                finally:
+                    self._busy_tool = False
+                    self._last_progress = time.monotonic()
                 self.r.bridge.emit("tool_result", {"text": ta._clip(result, 3500)})
                 self.messages.append({
                     "role": "tool",
@@ -130,26 +168,44 @@ class NativeHarness:
             "timeout": int(os.environ.get("LLM_TIMEOUT_SECONDS", "120")),
             "max_tokens": 8192,
         }
-        base = os.environ.get("LLM_BASE_URL", "")
-        key = os.environ.get("LLM_API_KEY", "")
-        if base:
-            params["base_url"] = base
-        if key:
-            params["api_key"] = key
-        effort = ta.REASONING_EFFORT_OVERRIDES.get(self.model.split("/", 1)[-1])
+        effort = ta.REASONING_EFFORT_OVERRIDES.get(self.bare_model)
         if effort:
             params["reasoning_effort"] = effort
         last: Exception | None = None
-        for attempt in range(4):
+        for attempt in range(6):
+            # 每次尝试重新选端点：上一轮的 quota 冷却可能已把队列前移
+            self._last_progress = time.monotonic()
+            ep, cred = self.gateway.pick(self.bare_model)
+            if ep is None:
+                # 配置了端点池但全部不可用：显式失败，不静默退回 env
+                # （env 多半就是冷却中端点自己的凭证，退回=绕过冷却）
+                raise llm_gateway.GatewayUnavailable(
+                    "llm gateway: 无可用端点（全部冷却/缺凭证/不服务 "
+                    f"{self.bare_model}）——检查 llm_endpoints.json 与冷却状态")
+            call = dict(params)
+            call.update(cred)
+            if ep is not None:
+                actual = ep.serves(self.bare_model)
+                if actual and actual != self.bare_model:
+                    # 别名换底座：任务要的模型 → 该端点实际服役名
+                    call["model"] = f"openai/{actual}"
             try:
-                return self._stream_completion(params)
+                out = self._stream_completion(call)
+                self.gateway.report_ok(ep)
+                return out
             except _Paused:
                 raise
-            except Exception as exc:  # noqa: BLE001  传输层错误：退避后重试
+            except llm_gateway.GatewayUnavailable:
+                raise   # 配置级故障：重试无意义，交上层以 stop 理由落地
+            except Exception as exc:  # noqa: BLE001  分类处置：换底座或退避
                 last = exc
-                ta.log(f"native llm attempt {attempt + 1}/4 failed: "
+                cls = llm_gateway.classify_error(exc)
+                action = self.gateway.report(ep, cls)
+                ta.log(f"native llm attempt {attempt + 1}/6 failed "
+                       f"（{cls} -> {action}）："
                        f"{type(exc).__name__}: {str(exc)[:160]}")
-                if self.stop_event.wait(5 + 5 * attempt):
+                wait_s = 0 if action == "rotate" else 5 + 5 * attempt
+                if self.stop_event.wait(wait_s):
                     raise _Paused from None
         raise RuntimeError(f"llm exhausted retries: {last}") from last
 
@@ -161,6 +217,7 @@ class NativeHarness:
         # tool_calls 的 JSON 参数按 id 跨 chunk 拼接
         pending: dict[int, dict[str, Any]] = {}
         for chunk in response:
+            self._last_progress = time.monotonic()
             if self.stop_event.is_set():
                 response.close()
                 raise _Paused
@@ -252,18 +309,33 @@ class NativeHarness:
     # ── 持久化：每步落盘，abort 续跑恢复 ──
 
     def _save_state(self) -> None:
+        body = json.dumps(self.messages, ensure_ascii=False)
         tmp = self.state_path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
-            json.dump(self.messages, fh, ensure_ascii=False)
+            json.dump({"version": 1,
+                       "checksum": hashlib.sha256(
+                           body.encode("utf-8")).hexdigest(),
+                       "messages": self.messages}, fh, ensure_ascii=False)
         os.replace(tmp, self.state_path)
 
     def _load_state(self) -> list[dict[str, Any]]:
         try:
             with open(self.state_path, encoding="utf-8") as fh:
                 data = json.load(fh)
-            if isinstance(data, list) and data:
-                ta.log(f"native: resumed {len(data)} messages from state")
+            if isinstance(data, list) and data:      # v0 裸数组（历史文件）
+                ta.log(f"native: resumed {len(data)} messages (v0 无校验)")
                 return data
+            if isinstance(data, dict) and data.get("messages"):
+                body = json.dumps(data["messages"], ensure_ascii=False)
+                if (data.get("checksum")
+                        and data["checksum"] != hashlib.sha256(
+                            body.encode("utf-8")).hexdigest()):
+                    ta.log("native: state checksum 不符——弃用恢复，从零开始")
+                    return []
+                msgs = data["messages"]
+                ta.log(f"native: resumed {len(msgs)} messages "
+                       f"(v{data.get('version')}, checksum 一致)")
+                return msgs
         except (OSError, json.JSONDecodeError):
             pass
         return []
@@ -327,7 +399,8 @@ _TOOL_FUNCS: dict[str, Callable[[NativeHarness, dict[str, Any]], str]] = {
     "request_acceptance": lambda h, a: _call_bridge(
         h, a, name="request_acceptance",
         fields={"headline": "headline", "summary": "summary",
-                "checks_passed": "checks_passed", "checks_total": "checks_total"}),
+                "checks_passed": "checks_passed", "checks_total": "checks_total",
+                "evidence_files": "evidence_files"}),
     "dispatch_sub_mission": lambda h, a: _call_bridge(
         h, a, name="dispatch_sub_mission",
         fields={"goal": "goal", "repo": "repo", "role": "role", "model": "model",
@@ -360,9 +433,13 @@ _TOOL_SCHEMAS = [
     _mk("fetch_url", "抓取白名单域 URL 内容。",
         {"url": {"type": "string"}}, ["url"]),
     _mk("request_acceptance",
-        "提请人工验收。成功后立即结束对话，不再调用任何工具。",
+        "提请人工验收。有判据工件（validation_report.json 等）时必须把路径填进 "
+        "evidence_files——平台直读工件生成机器摘录，审批器以工件数字为准。"
+        "成功后立即结束对话，不再调用任何工具。",
         {"headline": {"type": "string"}, "summary": {"type": "string"},
-         "checks_passed": {"type": "integer"}, "checks_total": {"type": "integer"}},
+         "checks_passed": {"type": "integer"}, "checks_total": {"type": "integer"},
+         "evidence_files": {"type": "array", "items": {"type": "string"},
+                            "description": "判据工件 JSON 路径（≤4 个）"}},
         ["headline", "summary", "checks_passed", "checks_total"]),
     _mk("dispatch_sub_mission",
         "编排者专用：派发子任务（role 经 roles.json 解析模型，与 model 互斥）。",

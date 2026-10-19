@@ -1,0 +1,8 @@
+{
+  "_doc": "LLM 端点池（owner 可编辑，如 roles.json）。额度耗尽自动轮转下一端点，Session/上下文不变。密钥只写 env 变量名（必须 LLM_ 或 TENSOR_ 前缀，sanitize_env 白名单口径），不落明文。aliases 是跨模型兜底：键=任务要的模型，值=该端点实际服役名。models 省略=服役全部模型。",
+  "cooldown_seconds": 1800,
+  "transient_threshold": 3,
+  "endpoints": [
+    {"name": "relay-13001", "base_url_env": "LLM_BASE_URL", "api_key_env": "LLM_API_KEY"}
+  ]
+}

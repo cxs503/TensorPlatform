@@ -198,10 +198,35 @@ def verify_dev_acceptance(api: API, mission: dict,
         return ("reject", f"goal 要求默认套件全绿，复跑 exit={t_code}、"
                 f"{n_pass} passed / {n_fail} failed\n复跑尾部：\n{tail[-800:]}")
     claimed = evidence.get("summary") or {}
+    # 机器摘录交叉核（m45 教训机制化）：request_acceptance 的 evidence_files
+    # 由平台直读工件生成 summary.evidence_machine。有摘录时——
+    #   摘录任一 check passed=False → 硬否决（工件自己说不过，转述不作数）；
+    #   摘录与摘要数字是否一致交给 LLM 裁决（避免格式差异机械误杀）；
+    #   goal 明确要求 validation_report 判据而未附摘录 → 留人工（mid>47 起，
+    #   m47 是参数上线前最后一个场景腿，仍走旧口径 LLM 红队）。
+    machine = claimed.get("evidence_machine") or {}
+    machine_block = ""
+    if machine.get("files"):
+        for f in machine["files"]:
+            for c in f.get("checks") or []:
+                if c.get("passed") is False:
+                    return "reject", (f"工件机器摘录判 {c.get('name')} passed=False："
+                                      f"{c.get('detail')}（{f.get('file')}）"
+                                      "——工件不过门，验收转述不作数")
+        machine_block = ("\n机器直读工件摘录（evidence_files，可信级高于验收摘要，"
+                         "请比对摘要数字与摘录数字是否逐字一致）：\n"
+                         + json.dumps(machine, ensure_ascii=False)[:1800] + "\n")
+    if (mid > 47 and "validation_report" in goal.split("往次任务记忆（平台注入", 1)[0]
+            and not machine.get("files")):
+        # 只看任务自身 goal：注入记忆里会引用往次 validation_report 字样，
+        # 不能拿来触发本任务的摘录要求（approval 33 误升级教训）。
+        return "escalate", ("goal 要求 validation_report 工件判据，但验收未附 "
+                            "evidence_files 机器摘录——数字来源不可核验，留人工")
     context = (f"goal：{goal[:1200]}\n\n"
                f"验收摘要：{json.dumps(claimed, ensure_ascii=False)[:1400]}\n"
                f"声称 checks：{(evidence.get('checks') or {}).get('passed')}"
-               f"/{(evidence.get('checks') or {}).get('total')}\n\n"
+               f"/{(evidence.get('checks') or {}).get('total')}\n"
+               f"{machine_block}\n"
                f"默认套件复跑：exit={'0' if t_code == 0 else t_code}，"
                f"{n_pass} passed / {n_fail} failed\n"
                f"复跑尾部：\n{tail[-1200:]}\n\n"
@@ -226,6 +251,53 @@ def verify_stage_promotion(api: API, approval: dict) -> tuple[str, str]:
                f"evidence：{text[:2500]}")
     verdict = llm_verdict(context)
     return verdict["verdict"], verdict["reason"] + f"（判词：{passed_words[:4]}）"
+
+
+MEMORY_ROOT = os.environ.get(
+    "TENSOR_MEMORY_ROOT", "/srv/tensor/shared/tensor_eco/agent_memory")
+
+
+def _memory_append_decision(approval: dict, decision: str) -> None:
+    """裁决入常驻记忆（有路由的 mission）：审批结论是 jsonl 事实账本的一部分。
+    与 tensor_agent.append_memory 各自独立实现——本文件保持纯标准库。
+    与其同规（PR #22 初审第 5 点跟进）：UTC 时间戳、flock 排他写、
+    fingerprint 幂等（审批器重跑/补单时同一裁决不重复入账）。"""
+    mid = approval.get("mission_id")
+    if not mid:
+        return
+    try:
+        route = json.loads(open(os.path.join(
+            MEMORY_ROOT, "_routes", f"m{mid}.json"), encoding="utf-8").read())
+        key = route["memory_key"]
+        d = os.path.join(MEMORY_ROOT, key)
+        os.makedirs(d, exist_ok=True)
+        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+               "mission": mid,
+               "status": f"approval_{decision}",
+               "approval_id": approval.get("id"),
+               "kind": approval.get("kind")}
+        fingerprint = (mid, rec["status"], rec["approval_id"], rec["kind"])
+        import fcntl
+        with open(os.path.join(d, "memory.jsonl"), "a+", encoding="utf-8") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            try:
+                fh.seek(0)
+                for line in fh:
+                    try:
+                        old = json.loads(line)
+                    except (ValueError, TypeError):
+                        continue
+                    if (old.get("mission"), old.get("status"),
+                            old.get("approval_id"), old.get("kind")) == fingerprint:
+                        return        # 已入账：审批器重跑幂等
+                fh.seek(0, os.SEEK_END)
+                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+            finally:
+                fcntl.flock(fh, fcntl.LOCK_UN)
+    except (OSError, ValueError):
+        pass  # 无路由/读写失败：裁决本身不受影响
 
 
 def decide(api: API, approval_id: int, decision: str, note: str) -> None:
@@ -276,9 +348,11 @@ def main() -> None:
             verdict, note = "escalate", f"验证器异常：{exc}"
         if verdict == "approve":
             decide(api, ap["id"], "approved", note)
+            _memory_append_decision(ap, "approved")
             decided += 1
         elif verdict == "reject":
             decide(api, ap["id"], "rejected", note)
+            _memory_append_decision(ap, "rejected")
             decided += 1
         else:
             log(f"approval {ap['id']} escalate（留人工）：{note[:200]}")
