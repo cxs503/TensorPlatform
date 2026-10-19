@@ -259,21 +259,43 @@ MEMORY_ROOT = os.environ.get(
 
 def _memory_append_decision(approval: dict, decision: str) -> None:
     """裁决入常驻记忆（有路由的 mission）：审批结论是 jsonl 事实账本的一部分。
-    与 tensor_agent.append_memory 各自独立实现——本文件保持纯标准库。"""
+    与 tensor_agent.append_memory 各自独立实现——本文件保持纯标准库。
+    与其同规（PR #22 初审第 5 点跟进）：UTC 时间戳、flock 排他写、
+    fingerprint 幂等（审批器重跑/补单时同一裁决不重复入账）。"""
     mid = approval.get("mission_id")
     if not mid:
         return
     try:
         route = json.loads(open(os.path.join(
             MEMORY_ROOT, "_routes", f"m{mid}.json"), encoding="utf-8").read())
-        d = os.path.join(MEMORY_ROOT, route["memory_key"])
+        key = route["memory_key"]
+        d = os.path.join(MEMORY_ROOT, key)
         os.makedirs(d, exist_ok=True)
-        rec = {"ts": time.strftime("%Y-%m-%d %H:%M:%S"), "mission": mid,
+        rec = {"ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+               "mission": mid,
                "status": f"approval_{decision}",
                "approval_id": approval.get("id"),
                "kind": approval.get("kind")}
-        with open(os.path.join(d, "memory.jsonl"), "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        fingerprint = (mid, rec["status"], rec["approval_id"], rec["kind"])
+        import fcntl
+        with open(os.path.join(d, "memory.jsonl"), "a+", encoding="utf-8") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            try:
+                fh.seek(0)
+                for line in fh:
+                    try:
+                        old = json.loads(line)
+                    except (ValueError, TypeError):
+                        continue
+                    if (old.get("mission"), old.get("status"),
+                            old.get("approval_id"), old.get("kind")) == fingerprint:
+                        return        # 已入账：审批器重跑幂等
+                fh.seek(0, os.SEEK_END)
+                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+            finally:
+                fcntl.flock(fh, fcntl.LOCK_UN)
     except (OSError, ValueError):
         pass  # 无路由/读写失败：裁决本身不受影响
 
