@@ -16,6 +16,8 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Run 登记' } },
       { path: 'runs/:runId', name: 'run-detail', component: () => import('@/views/RunDetailView.vue'),
         meta: { title: 'Run 详情' } },
+      { path: 'reports', name: 'reports', component: () => import('@/views/ReportsView.vue'),
+        meta: { title: '进展报告' } },
       { path: 'executions/:id', name: 'execution-detail',
         component: () => import('@/views/ExecutionDetailView.vue'), meta: { title: '执行详情' } },
       { path: 'approvals', name: 'approvals', component: () => import('@/views/ApprovalsView.vue'),

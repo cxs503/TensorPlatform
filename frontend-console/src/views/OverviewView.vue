@@ -42,6 +42,32 @@
       </el-col>
     </el-row>
 
+    <template v-if="latestReport">
+      <div class="tf-section-heading">
+        <span>科研成果速览</span>
+        <small>最新阶段成果 · 云图与判据曲线</small>
+      </div>
+      <div class="tf-card tf-ov-report">
+        <div class="tf-ov-report-head">
+          <div class="tf-ov-report-meta">
+            <span class="tf-ov-report-title">{{ latestReport.title }}</span>
+            <el-tag size="small" effect="plain">{{ latestReport.scenario_key }}</el-tag>
+            <el-tag v-if="latestReport.stage" size="small" type="success" effect="plain">
+              {{ latestReport.stage }}
+            </el-tag>
+          </div>
+          <router-link to="/reports" class="tf-link">全部报告 →</router-link>
+        </div>
+        <div class="tf-ov-report-summary">{{ latestReport.summary }}</div>
+        <div class="tf-ov-report-figs">
+          <figure v-for="f in (latestReport.figures || []).slice(0, 4)" :key="f.name">
+            <img v-if="reportFigUrls[f.name]" :src="reportFigUrls[f.name]" :alt="f.caption || f.name" loading="lazy" />
+            <figcaption>{{ f.caption || f.name }}</figcaption>
+          </figure>
+        </div>
+      </div>
+    </template>
+
     <div class="tf-section-heading">
       <span>计算工作区</span>
       <small>代码版本 · 分支 · 工作区变更</small>
@@ -133,7 +159,8 @@
 
 <script setup lang="ts">
 import { ref, computed, onMounted, onUnmounted } from 'vue'
-import { scenarioApi, activityApi, runApi, workspaceApi, missionApi } from '@/api'
+import { scenarioApi, activityApi, runApi, workspaceApi, missionApi, reportApi } from '@/api'
+import http from '@/api/request'
 import { usePolling } from '@/composables/usePolling'
 import HeroPanel from '@/components/HeroPanel.vue'
 import MetricCard from '@/components/MetricCard.vue'
@@ -152,6 +179,8 @@ const scenarios = ref<any[]>([])
 const runs = ref<any[]>([])
 const workspace = ref<any>({})
 const missions = ref<any[]>([])
+const latestReport = ref<any>(null)
+const reportFigUrls = ref<Record<string, string>>({})
 const now = ref(Date.now())
 const apiOnline = ref(false)
 const lastUpdatedAt = ref<number | null>(null)
@@ -220,6 +249,23 @@ async function refreshSlow() {
   } catch {
     // Keep the last successfully fetched records; the connection banner describes the live status.
   }
+  // Homepage highlights: latest published report; figures re-fetched only when
+  // the report id changes (blob URLs are revoked so old images do not linger).
+  try {
+    const res: any = await reportApi.list({ limit: 1 })
+    const top = (res.items || [])[0] || null
+    if (top && top.id !== latestReport.value?.id) {
+      latestReport.value = top
+      Object.values(reportFigUrls.value).forEach((u) => URL.revokeObjectURL(u))
+      reportFigUrls.value = {}
+      for (const f of (top.figures || []).slice(0, 4)) {
+        try {
+          const blob: any = await http.get(`/tensor/reports/${top.id}/figures/${f.name}`, { responseType: 'blob' })
+          reportFigUrls.value[f.name] = URL.createObjectURL(blob)
+        } catch { /* figure missing: leave the caption visible without an image */ }
+      }
+    }
+  } catch { /* reports are highlights, never a connection signal */ }
 }
 async function retryConnection() {
   await Promise.allSettled([refreshFast(), refreshSlow()])
@@ -242,6 +288,17 @@ onUnmounted(() => {
 <style scoped lang="scss">
 .tf-ov-row { margin-top: 14px; }
 .tf-ov-metrics { row-gap: 14px; }
+.tf-ov-report { margin-top: 14px; }
+.tf-ov-report-head { display: flex; align-items: baseline; justify-content: space-between; gap: 12px; }
+.tf-ov-report-meta { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
+.tf-ov-report-title { font-size: 15px; font-weight: 700; }
+.tf-ov-report-summary { font-size: 13px; color: #606266; margin: 8px 0 4px; line-height: 1.6; }
+.tf-ov-report-figs {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; margin-top: 10px;
+}
+.tf-ov-report-figs figure { margin: 0; }
+.tf-ov-report-figs img { width: 100%; border: 1px solid #e4e7ed; border-radius: 6px; }
+.tf-ov-report-figs figcaption { font-size: 11px; color: #909399; margin-top: 3px; line-height: 1.4; }
 .tf-ov-live {
   display: inline-flex;
   align-items: center;

@@ -81,3 +81,9 @@ export const missionApi = {
   stop: (id: number, reason?: string) =>
     http.post<any>(`/tensor/missions/${id}/stop`, { reason }),
 }
+
+// ── progress reports (published per completed mission/stage) ──
+export const reportApi = {
+  list: (params?: any) => http.get<any>("/tensor/reports", params),
+  get: (id: number) => http.get<any>(`/tensor/reports/${id}`),
+}
