@@ -53,10 +53,31 @@ class NativeHarness:
         self.messages: list[dict[str, Any]] = self._load_state()
         self.tools = _TOOL_SCHEMAS
         self.gateway = llm_gateway.Gateway()
+        # 挂起看门狗：litellm 流式读会吞掉读超时（2026-10-19 13:06 实证：SSE
+        # 连接 ESTAB 但永不出块，timeout=120 不抛异常，主循环冻死、心跳停跳
+        # 15+ 分钟）。异常路径归 Gateway 分诊，无异常路径归这里：独立线程监视
+        # 进度时间戳，非工具期停滞超限强退，交给 cron 重生+收割+refill 自愈。
+        self._last_progress = time.monotonic()
+        self._busy_tool = False
+
+        def _stall_watch() -> None:
+            stall_s = float(os.environ.get("LLM_STALL_EXIT_SECONDS", "900"))
+            while not self.stop_event.wait(30):
+                if self.r.stop_reason is not None:
+                    return  # mission 终态：看门狗退役，勿杀空闲守护
+                idle = time.monotonic() - self._last_progress
+                if not self._busy_tool and idle > stall_s:
+                    ta.log(f"native stall watchdog: 非工具期无进度 {idle:.0f}s > "
+                           f"{stall_s:.0f}s，强退待自愈（cron 重生+收割+refill）")
+                    os._exit(137)
+
+        threading.Thread(target=_stall_watch, daemon=True,
+                         name="stall-watchdog").start()
 
     # ── Conversation 同形接口 ──
 
     def send_message(self, text: str) -> None:
+        self._last_progress = time.monotonic()
         self.messages.append({"role": "user", "content": text})
         self._save_state()
 
@@ -101,7 +122,12 @@ class NativeHarness:
                 self.r.bridge.action_count += 1
                 self.r.bridge.emit("tool_call", {"tool": name,
                                                  "args": ta._clip(args, 900)})
-                result = self._exec(name, args)
+                self._busy_tool = True   # 工具子进程有自家超时，不参与停滞判定
+                try:
+                    result = self._exec(name, args)
+                finally:
+                    self._busy_tool = False
+                    self._last_progress = time.monotonic()
                 self.r.bridge.emit("tool_result", {"text": ta._clip(result, 3500)})
                 self.messages.append({
                     "role": "tool",
@@ -143,6 +169,7 @@ class NativeHarness:
         last: Exception | None = None
         for attempt in range(6):
             # 每次尝试重新选端点：上一轮的 quota 冷却可能已把队列前移
+            self._last_progress = time.monotonic()
             ep, cred = self.gateway.pick(self.bare_model)
             call = dict(params)
             call.update(cred)
@@ -177,6 +204,7 @@ class NativeHarness:
         # tool_calls 的 JSON 参数按 id 跨 chunk 拼接
         pending: dict[int, dict[str, Any]] = {}
         for chunk in response:
+            self._last_progress = time.monotonic()
             if self.stop_event.is_set():
                 response.close()
                 raise _Paused
