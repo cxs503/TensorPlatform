@@ -62,9 +62,7 @@ from middleware.auth_guard import auth_guard_middleware
 # ============================================================
 
 # ── 领域聚合层（10 个域，覆盖共性平台 API 模块）──
-# 2026-10-16 架构收敛：移除能碳/新能源（energy）与 AI 行业应用（ai_app）两个
-# 行业应用域及钢铁虚拟数据等模块，平台回归 domain-neutral 共性底座，
-# 行业方案按 README 约定作为独立 adapter/plugin 交付。
+# 平台采用领域中立的共性底座，行业方案按 README 约定作为独立 adapter/plugin 交付。
 from api.domain import (
     data, model, deployment,          # 数据 / 模型 / 部署
     iam, observability, platform,     # 认证 / 可观测 / 平台

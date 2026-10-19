@@ -13,8 +13,7 @@ from services.algorithm_source_service import (
 )
 
 # 预设方法（首次启动时播种到数据库）
-# 2026-10-16 架构收敛：移除钢铁工艺预设，内置算法统一由
-# sync_builtin_algorithms() 以 category="builtin" 播种。
+# 内置算法统一由 sync_builtin_algorithms() 以 category="builtin" 播种。
 PRESET_METHODS: List[Dict[str, Any]] = []
 
 class AlgorithmStore:

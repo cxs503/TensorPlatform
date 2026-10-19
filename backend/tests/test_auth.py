@@ -175,7 +175,7 @@ class TestProjectModel:
                 "name": "Tagged Project",
                 "description": "With tags",
                 "project_type": "energy",
-                "tags": '{"city": "Beijing", "industry": "steel"}',
+                "tags": '{"city": "Beijing", "industry": "manufacturing"}',
                 "status": "active",
                 "user_id": user_id,
             },

@@ -141,7 +141,7 @@
           <template #header><span>发送真实实验请求</span></template>
           <el-alert title="对象编号用于稳定分组：同一个设备或对象在本实验中始终进入同一组。" type="info" :closable="false" class="form-alert" />
           <el-form label-width="95px">
-            <el-form-item label="对象编号"><el-input v-model="runForm.subject_id" placeholder="例如：blast-furnace-1" /></el-form-item>
+            <el-form-item label="对象编号"><el-input v-model="runForm.subject_id" placeholder="例如：device-1" /></el-form-item>
             <el-form-item label="特征数组">
               <el-input v-model="runForm.features" type="textarea" :rows="3" :placeholder="featurePlaceholder" />
             </el-form-item>

@@ -25,7 +25,7 @@ def setup_db():
 
 class TestOrganizations:
     def test_create_org(self):
-        r = client.post("/api/v1/organizations", json={"name": "测试企业", "industry": "钢铁", "plan": "free"})
+        r = client.post("/api/v1/organizations", json={"name": "测试企业", "industry": "制造业", "plan": "free"})
         assert r.status_code == 200
         assert r.json()["name"] == "测试企业"
 
@@ -42,7 +42,7 @@ class TestOrganizations:
         assert r.status_code == 200
 
     def test_stats(self):
-        client.post("/api/v1/organizations", json={"name": "S1", "industry": "钢铁"})
+        client.post("/api/v1/organizations", json={"name": "S1", "industry": "制造业"})
         r = client.get("/api/v1/organizations/stats")
         assert r.status_code == 200
         assert "total" in r.json()

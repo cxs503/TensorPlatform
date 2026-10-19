@@ -7,7 +7,7 @@ from services.real_training_service import get_training_service
 from database.config import get_db
 
 db = next(get_db())
-X, y, feature_names = get_training_data(db, dataset_id=7, scenario='sinter_temperature')
+X, y, feature_names = get_training_data(db, dataset_id=7, scenario='generic')
 print(f'Data: X={X.shape}, y={y.shape}')
 
 svc = get_training_service()
