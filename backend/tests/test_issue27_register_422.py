@@ -22,7 +22,8 @@ os.environ["REFRESH_SECRET_KEY"] = "test-refresh-key-for-testing-only"
 @pytest.fixture(scope="module")
 def client():
     from main import app
-    return TestClient(app)
+    with TestClient(app) as c:
+        yield c
 
 
 def _assert_422_structure(resp):
