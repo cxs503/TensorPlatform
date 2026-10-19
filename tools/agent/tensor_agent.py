@@ -73,7 +73,10 @@ CLAIM_POLL_SECONDS = 20
 
 
 def sanitize_env() -> None:
-    keep = {k: v for k, v in os.environ.items() if k in ENV_ALLOWLIST}
+    # 白名单 + 平台域前缀：LLM_*/TENSOR_* 是 harness 自身配置（gateway 的
+    # per-endpoint 密钥 env、端点池路径等），放行；其余宿主环境全灭。
+    keep = {k: v for k, v in os.environ.items()
+            if k in ENV_ALLOWLIST or k.startswith(("LLM_", "TENSOR_"))}
     keep.setdefault("PATH", f"{VENV_AGENT}:/usr/local/bin:/usr/bin:/bin")
     keep["CUDA_VISIBLE_DEVICES"] = os.environ.get("CUDA_VISIBLE_DEVICES", "5")
     keep["PYTHONUNBUFFERED"] = "1"

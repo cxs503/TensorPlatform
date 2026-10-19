@@ -9,11 +9,15 @@ litellm 直连 + 自有工具 schema/执行器 + 自己的预算与中断纪律�
      （OpenHands pause() 打不断在飞调用，需 150s watchdog 兜底）。
   2. 预算检查内联在每次 LLM 调用与工具执行之间 → 停机即诚实终态。
   3. reasoning_effort 按模型显式覆盖（drop_params 不丢该参，m32/m33 教训）。
-  4. 消息历史每步落盘 → abort 续跑从持久化文件恢复，不依赖 SDK persistence。
+  4. 消息历史每步落盘（版本+校验和）→ abort 续跑从持久化文件恢复，不依赖
+     SDK persistence；切换底座前后灵魂逐位可验。
+  5. LLM 经 llm_gateway 端点池：额度耗尽换端点不换 Session（2026-10-19
+     owner 架构原则：Session 是主体，上下文是灵魂，LLM 是可替换底座）。
 """
 
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import re
@@ -24,6 +28,7 @@ from typing import Any, Callable
 
 import litellm
 
+import llm_gateway
 import tensor_agent as ta
 
 
@@ -44,8 +49,10 @@ class NativeHarness:
         bare = self.r.model or os.environ.get("LLM_MODEL", "deepseek-v4-flash")
         bare = bare.split("/", 1)[-1]
         self.model = f"openai/{bare}"
+        self.bare_model = bare
         self.messages: list[dict[str, Any]] = self._load_state()
         self.tools = _TOOL_SCHEMAS
+        self.gateway = llm_gateway.Gateway()
 
     # ── Conversation 同形接口 ──
 
@@ -130,26 +137,35 @@ class NativeHarness:
             "timeout": int(os.environ.get("LLM_TIMEOUT_SECONDS", "120")),
             "max_tokens": 8192,
         }
-        base = os.environ.get("LLM_BASE_URL", "")
-        key = os.environ.get("LLM_API_KEY", "")
-        if base:
-            params["base_url"] = base
-        if key:
-            params["api_key"] = key
-        effort = ta.REASONING_EFFORT_OVERRIDES.get(self.model.split("/", 1)[-1])
+        effort = ta.REASONING_EFFORT_OVERRIDES.get(self.bare_model)
         if effort:
             params["reasoning_effort"] = effort
         last: Exception | None = None
-        for attempt in range(4):
+        for attempt in range(6):
+            # 每次尝试重新选端点：上一轮的 quota 冷却可能已把队列前移
+            ep, cred = self.gateway.pick(self.bare_model)
+            call = dict(params)
+            call.update(cred)
+            if ep is not None:
+                actual = ep.serves(self.bare_model)
+                if actual and actual != self.bare_model:
+                    # 别名换底座：任务要的模型 → 该端点实际服役名
+                    call["model"] = f"openai/{actual}"
             try:
-                return self._stream_completion(params)
+                out = self._stream_completion(call)
+                self.gateway.report_ok(ep)
+                return out
             except _Paused:
                 raise
-            except Exception as exc:  # noqa: BLE001  传输层错误：退避后重试
+            except Exception as exc:  # noqa: BLE001  分类处置：换底座或退避
                 last = exc
-                ta.log(f"native llm attempt {attempt + 1}/4 failed: "
+                cls = llm_gateway.classify_error(exc)
+                action = self.gateway.report(ep, cls)
+                ta.log(f"native llm attempt {attempt + 1}/6 failed "
+                       f"（{cls} -> {action}）："
                        f"{type(exc).__name__}: {str(exc)[:160]}")
-                if self.stop_event.wait(5 + 5 * attempt):
+                wait_s = 0 if action == "rotate" else 5 + 5 * attempt
+                if self.stop_event.wait(wait_s):
                     raise _Paused from None
         raise RuntimeError(f"llm exhausted retries: {last}") from last
 
@@ -252,18 +268,33 @@ class NativeHarness:
     # ── 持久化：每步落盘，abort 续跑恢复 ──
 
     def _save_state(self) -> None:
+        body = json.dumps(self.messages, ensure_ascii=False)
         tmp = self.state_path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
-            json.dump(self.messages, fh, ensure_ascii=False)
+            json.dump({"version": 1,
+                       "checksum": hashlib.sha256(
+                           body.encode("utf-8")).hexdigest(),
+                       "messages": self.messages}, fh, ensure_ascii=False)
         os.replace(tmp, self.state_path)
 
     def _load_state(self) -> list[dict[str, Any]]:
         try:
             with open(self.state_path, encoding="utf-8") as fh:
                 data = json.load(fh)
-            if isinstance(data, list) and data:
-                ta.log(f"native: resumed {len(data)} messages from state")
+            if isinstance(data, list) and data:      # v0 裸数组（历史文件）
+                ta.log(f"native: resumed {len(data)} messages (v0 无校验)")
                 return data
+            if isinstance(data, dict) and data.get("messages"):
+                body = json.dumps(data["messages"], ensure_ascii=False)
+                if (data.get("checksum")
+                        and data["checksum"] != hashlib.sha256(
+                            body.encode("utf-8")).hexdigest()):
+                    ta.log("native: state checksum 不符——弃用恢复，从零开始")
+                    return []
+                msgs = data["messages"]
+                ta.log(f"native: resumed {len(msgs)} messages "
+                       f"(v{data.get('version')}, checksum 一致)")
+                return msgs
         except (OSError, json.JSONDecodeError):
             pass
         return []
