@@ -80,9 +80,16 @@ def compose_resident_context(key: str) -> str:
         parts.append("### 工作记忆（上一个自己写的交接笔记）\n" + "\n".join(lines) + "\n")
     jsonl = d / "memory.jsonl"
     if jsonl.exists():
-        recs = [json.loads(x) for x in
-                jsonl.read_text(encoding="utf-8").splitlines()[-MEMORY_TAIL:]
-                if x.strip()]
+        recs = []
+        for x in jsonl.read_text(encoding="utf-8").splitlines()[-MEMORY_TAIL:]:
+            if not x.strip():
+                continue
+            try:
+                r = json.loads(x)
+            except json.JSONDecodeError:
+                continue   # 坏行跳过：一行非 JSON 文本不得瘫掉全线派发（m64 实战教训）
+            if isinstance(r, dict):
+                recs.append(r)
         if recs:
             tail = "\n".join(
                 f"- [{r.get('ts', '')}] m{r.get('mission')} "
