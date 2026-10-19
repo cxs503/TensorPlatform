@@ -112,8 +112,24 @@ def main() -> int:
         assert code == 409, f"T4 FAIL: 非终态 refill 返回 {code}（应 409）"
         PASS.append("T4 对 queued 态再 refill → 409（非终态拒绝）")
 
+        # T5 infra 类终局可续班（m50 实证后资格扩展）：gateway_unavailable/
+        # agent_crash 与 agent_lost 同权；honest FAIL 类仍拒
+        psql(f"""UPDATE tensor_dev_missions SET status='failed', finished_at=now(),
+                 result = result || '{{"stop_condition":"gateway_unavailable"}}'::jsonb
+                 WHERE id={MID}""")
+        code, _ = api("POST", f"/tensor/missions/{MID}/refill",
+                      {"add_tool_calls": 5, "note": "T5 infra 终局资格"}, tok=tok)
+        assert code == 200, f"T5a FAIL: gateway_unavailable 终局 refill 返回 {code}（应 200）"
+        psql(f"""UPDATE tensor_dev_missions SET status='failed', finished_at=now(),
+                 result = result || '{{"stop_condition":"finished_without_acceptance"}}'::jsonb
+                 WHERE id={MID}""")
+        code, _ = api("POST", f"/tensor/missions/{MID}/refill",
+                      {"add_tool_calls": 5}, tok=tok)
+        assert code == 409, f"T5b FAIL: honest FAIL 类 refill 返回 {code}（应 409）"
+        PASS.append("T5 infra 类终局（gateway_unavailable）可 refill；honest FAIL 类（finished_without_acceptance）仍拒")
+
         print("\n".join(f"PASS {x}" for x in PASS))
-        print(f"OK {len(PASS)}/4")
+        print(f"OK {len(PASS)} 判据全过")
         return 0
     finally:
         # 合成行 session_id=NULL（refill 只重开既有会话，不新建），无会话残留；

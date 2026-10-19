@@ -803,11 +803,17 @@ def refill_mission(
     if isinstance(result, str):
         result = json.loads(result)
     stop = (result or {}).get("stop_condition")
-    if stop not in ("agent_lost", "budget_exceeded"):
+    # infra 类终局可续班（m50 实证：LLM 端点抖动→agent_crash，检查点完好
+    # 却无资格 refill）；honest FAIL 类（finished_without_acceptance/
+    # owner_stopped）仍拒绝——那是 agent 自身结论，重派而非续班
+    if stop not in ("agent_lost", "budget_exceeded", "agent_crash",
+                    "gateway_unavailable"):
         raise HTTPException(
             status_code=409,
-            detail=f"stop_condition={stop!r} 非 agent_lost/budget_exceeded——"
-                   "agent 自身终局（如 honest FAIL）请重新派发，不要 refill")
+            detail=f"stop_condition={stop!r} 非 infra 类终局"
+                   "（agent_lost/budget_exceeded/agent_crash/"
+                   "gateway_unavailable）——agent 自身终局（如 honest FAIL）"
+                   "请重新派发，不要 refill")
     if (body.add_tool_calls, body.add_wall_seconds, body.add_tokens,
             body.model) == (0, 0, 0, None):
         raise HTTPException(status_code=422, detail="refill 至少补一项预算或换 model")

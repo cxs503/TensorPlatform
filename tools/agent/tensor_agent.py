@@ -1369,6 +1369,8 @@ class MissionRunner:
             stop = "owner_stopped"          # server already terminal; ignore 409
         elif self.stop_reason == "budget_exceeded":
             stop = "budget_exceeded"
+        elif self.stop_reason == "gateway_unavailable":
+            stop = "gateway_unavailable"    # infra 类终局：refill 可续班
         elif error:
             stop = "agent_crash"
         else:
@@ -1378,6 +1380,7 @@ class MissionRunner:
             {"claim_token": self.claim_token, "status": status,
              "acceptance": False, "branch": f"agent/m{mid}", "head_commit": head,
              "summary": {"headline": stop,
+                         "stop_condition": stop,  # refill 资格按此判（infra 类可续班）
                          "detail": f"tool_calls={self.bridge.action_count}"},
              "checks": {}})
         self.finished = True
