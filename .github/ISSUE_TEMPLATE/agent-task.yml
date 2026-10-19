@@ -1,0 +1,68 @@
+name: Agent collaboration task
+description: Create a bounded task for ChatGPT, Claude Code, or a deployment/test agent
+title: "[Agent Task]: "
+labels: ["agent:ready"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Do not include credentials, private keys, tokens, production data, or sensitive server details.
+  - type: input
+    id: target_repo
+    attributes:
+      label: Target repository
+      description: Repository and target branch
+      placeholder: cxs503/TensorPhysics — main
+    validations:
+      required: true
+  - type: textarea
+    id: objective
+    attributes:
+      label: Objective
+      description: State the intended observable outcome.
+    validations:
+      required: true
+  - type: textarea
+    id: non_goals
+    attributes:
+      label: Non-goals and boundaries
+      description: What must not be changed or executed?
+  - type: textarea
+    id: acceptance
+    attributes:
+      label: Acceptance criteria
+      description: Use a checklist with objective pass/fail criteria.
+      value: |
+        - [ ] 
+    validations:
+      required: true
+  - type: textarea
+    id: tests
+    attributes:
+      label: Test plan
+      description: Exact commands, fixtures, expected outputs, and evidence level (L0-L4).
+    validations:
+      required: true
+  - type: dropdown
+    id: risk
+    attributes:
+      label: Risk tier
+      options:
+        - Low — docs or isolated tests
+        - Medium — code or test environment changes
+        - High — shared deployment, data migration, external cost, or destructive action
+    validations:
+      required: true
+  - type: checkboxes
+    id: approvals
+    attributes:
+      label: Required approvals
+      options:
+        - label: Deployment to a shared environment
+        - label: External or paid compute
+        - label: Destructive operation or data deletion
+  - type: textarea
+    id: evidence
+    attributes:
+      label: Evidence links
+      description: Add PR, exact tested SHA, logs, artifacts, and validation report when available.
