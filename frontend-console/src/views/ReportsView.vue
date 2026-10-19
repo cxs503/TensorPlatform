@@ -89,7 +89,7 @@ async function open(row: any) {
     Object.values(figUrls.value).forEach((u) => URL.revokeObjectURL(u))
     figUrls.value = {}
     for (const f of detail.value.figures || []) {
-      const blob: any = await http.get(`/tensor/reports/${row.id}/figures/${f.name}`, { responseType: 'blob' })
+      const blob: Blob = await http.getBlob(`/tensor/reports/${row.id}/figures/${f.name}`)
       figUrls.value[f.name] = URL.createObjectURL(blob)
     }
   } catch {

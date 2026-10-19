@@ -260,7 +260,7 @@ async function refreshSlow() {
       reportFigUrls.value = {}
       for (const f of (top.figures || []).slice(0, 4)) {
         try {
-          const blob: any = await http.get(`/tensor/reports/${top.id}/figures/${f.name}`, { responseType: 'blob' })
+          const blob: Blob = await http.getBlob(`/tensor/reports/${top.id}/figures/${f.name}`)
           reportFigUrls.value[f.name] = URL.createObjectURL(blob)
         } catch { /* figure missing: leave the caption visible without an image */ }
       }
