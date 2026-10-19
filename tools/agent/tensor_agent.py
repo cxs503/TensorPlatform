@@ -267,7 +267,9 @@ def run(cmd: list[str], cwd: str | None = None, timeout: int = 120) -> tuple[int
 def _add_worktree(repo_path: str, wt: str, mid: int, base_ref: str) -> None:
     """One jailed checkout of repo_path at wt, branch agent/m<mid>."""
     os.makedirs(os.path.dirname(wt), exist_ok=True)
-    if os.path.isdir(os.path.join(wt, ".git")):
+    # worktree 的 .git 是文件（gitdir 指针）不是目录——isdir 恒假会让
+    # refill 重认领撞"branch already exists"崩溃（m49 实战教训）
+    if os.path.exists(os.path.join(wt, ".git")):
         return
     # resolve base_ref locally, else shallow-fetch from origin once
     rc, _ = run(["git", "-C", repo_path, "cat-file", "-e", f"{base_ref}^{{commit}}"])
