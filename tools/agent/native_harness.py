@@ -61,6 +61,12 @@ class NativeHarness:
         self._busy_tool = False
         self._conv_done = True     # 安全默认：run() 进入才武装（claim 失败
                                    # 弃用的 harness 不会成为定时炸弹）
+        # 交付保留（m47/m51 实证：预算全烧在诊断、交付没落=班次作废）。机械
+        # 而非提示词：工作预算触边界且全程无 commit → 锁诊断工具只留交付面。
+        # 续跑恢复：见过的【交付保留】通知即重算进入交付模式。
+        self._delivery_mode = any(
+            str(m.get("content") or "").startswith("【交付保留】")
+            for m in self.messages)
 
         def _stall_watch() -> None:
             stall_s = float(os.environ.get("LLM_STALL_EXIT_SECONDS", "900"))
@@ -109,6 +115,7 @@ class NativeHarness:
     def _run_loop(self) -> None:
         while True:
             self._gate()
+            self._compact_if_needed()   # 长任务上下文压缩（能力放大器）
             content, tool_calls, finish = self._llm()
             self.messages.append({
                 "role": "assistant",
@@ -148,6 +155,7 @@ class NativeHarness:
                     "tool_call_id": tc["id"],
                     "content": ta._clip(result, 3500),
                 })
+                self._check_delivery_reserve()
                 self._save_state()
                 if ta.BRIDGE and ta.BRIDGE.acceptance_requested:
                     return  # 验收已提请：协议要求立即停止一切工具调用
@@ -164,6 +172,99 @@ class NativeHarness:
             self.r.stop_reason = "budget_exceeded"
         if self.r.stop_reason:
             raise _Paused
+
+    # ── 交付保留：机械交付门（治「烧光预算不交付」） ──
+
+    def _delivery_reserve(self) -> int:
+        return max(6, self.r.max_tools // 8)
+
+    def _check_delivery_reserve(self) -> None:
+        """工作预算触边界且全程无 commit → 单次通知 + 锁诊断工具。
+
+        保留区 = max(6, max_tools/8) 次工具调用，只够写交付物+commit+
+        request_acceptance；配合 _gate 的 max_tools+10 硬顶，触发后实际
+        可用 ≈ 保留区+10 次。
+        """
+        if self._delivery_mode:
+            return
+        used = self.r.bridge.action_count
+        if used < self.r.max_tools - self._delivery_reserve():
+            return
+        self._delivery_mode = True
+        self.messages.append({
+            "role": "user",
+            "content": (
+                f"【交付保留】工具预算已用 {used}/{self.r.max_tools}，进入交付"
+                f"保留区（仅剩 {self._delivery_reserve()}+ 次调用），且此前未见"
+                "任何 commit。从现在起诊断类工具会被拒绝，只保留交付面"
+                "（str_replace_editor / run_tests / commit / request_acceptance）。"
+                "立即收尾：①当前结论/处置写进交付物文件 ②commit "
+                "③request_acceptance。没做完的诊断写成交付物里的 [待办] "
+                "交给后续班次——交付了才算完成，没交付=班次作废。")})
+        self._save_state()
+        ta.log(f"native: 交付保留触发（{used}/{self.r.max_tools}，全程无 commit）")
+
+    # ── 上下文压缩：长任务能力放大器（中段机器摘要，头尾逐字保留） ──
+
+    def _compact_if_needed(self) -> None:
+        threshold = int(os.environ.get("NATIVE_COMPACT_TOKENS", "100000"))
+        if _est_tokens(self.messages) < threshold:
+            return
+        keep = int(os.environ.get("NATIVE_COMPACT_KEEP_RECENT", "24"))
+        plan = _plan_compaction(self.messages, keep)
+        if plan is None:
+            return
+        head, middle, tail = plan
+        summary = self._summarize(middle)
+        if not summary:
+            ta.log("native: 压缩摘要为空——本轮跳过（不影响任务）")
+            return
+        n_before = len(self.messages)
+        self.messages = head + [{
+            "role": "user",
+            "content": (
+                f"【上下文压缩】此前 {len(middle)} 条消息已压缩为机器摘要，"
+                "原文不再可见（关键数字、commit sha、结论以摘要为准，尾部近"
+                f" {len(tail)} 条逐字保留）：\n{summary}")}] + tail
+        self._save_state()
+        ta.log(f"native: 上下文压缩 {n_before} → {len(self.messages)} 条"
+               f"（保留头 {len(head)} 尾 {len(tail)}，中段 {len(middle)} 摘要）")
+        self.r.bridge.emit("note", {"subtype": "note",
+                                    "text": f"上下文压缩：中段 {len(middle)} 条→摘要"})
+
+    def _summarize(self, middle: list[dict[str, Any]]) -> str:
+        """中段历史 → 摘要文本。任何失败返回空串（压缩绝不伤任务主循环）。"""
+        payload = json.dumps(middle, ensure_ascii=False)[:120000]
+        ep = None
+        try:
+            ep, cred = self.gateway.pick(self.bare_model)
+            if ep is None:
+                return ""
+            params: dict[str, Any] = {
+                "model": self.model,
+                "messages": [{"role": "user",
+                              "content": _COMPACT_PROMPT + "\n\n" + payload}],
+                "stream": True, "drop_params": True, "max_tokens": 1200,
+                "timeout": int(os.environ.get("LLM_TIMEOUT_SECONDS", "120"))}
+            params.update(cred)
+            actual = ep.serves(self.bare_model)
+            if actual and actual != self.bare_model:
+                params["model"] = f"openai/{actual}"
+            text, _, _ = self._stream_completion(params)
+            self.gateway.report_ok(ep)
+            return (text or "").strip()
+        except _Paused:
+            raise
+        except llm_gateway.GatewayUnavailable:
+            return ""   # 主循环 _llm 会以同因落地 stop_reason，压缩不抢先打断
+        except Exception as exc:  # noqa: BLE001
+            if ep is not None:
+                try:
+                    self.gateway.report(ep, llm_gateway.classify_error(exc))
+                except Exception:  # noqa: BLE001
+                    pass
+            ta.log(f"native: 压缩摘要失败 {type(exc).__name__}: {str(exc)[:120]}")
+            return ""
 
     # ── LLM 层：litellm 直连，流式，重试，可中断 ──
 
@@ -261,6 +362,11 @@ class NativeHarness:
     # ── 工具执行：桥工具复用 tensor_agent 实现，bash/编辑器为本文件自有 ──
 
     def _exec(self, name: str, args: dict[str, Any]) -> str:
+        if self._delivery_mode and name not in _DELIVERY_TOOLS:
+            return ("【交付模式】工作预算已进入交付保留区且尚未交付——诊断工具"
+                    f"已锁。允许：{' / '.join(sorted(_DELIVERY_TOOLS))}。请立即收尾："
+                    "①把结论/处置写进交付物文件 ②commit ③request_acceptance；"
+                    "未完成的诊断写进交付物的 [待办] 交给后续班次。")
         try:
             fn = _TOOL_FUNCS.get(name)
             if fn is None:
@@ -321,7 +427,7 @@ class NativeHarness:
         body = json.dumps(self.messages, ensure_ascii=False)
         tmp = self.state_path + ".tmp"
         with open(tmp, "w", encoding="utf-8") as fh:
-            json.dump({"version": 1,
+            json.dump({"version": 2,   # v2=格式同 v1；语义含压缩/交付保留消息
                        "checksum": hashlib.sha256(
                            body.encode("utf-8")).hexdigest(),
                        "messages": self.messages}, fh, ensure_ascii=False)
@@ -356,6 +462,51 @@ _THINK_RE = re.compile(r"<think>.*?</think>", re.DOTALL)
 def _strip_think(text: str) -> str:
     """MiniMax 等把思考混进 content 的 <think> 标签：展示层剥掉，消息历史保原样。"""
     return _THINK_RE.sub("", text).strip()
+
+
+# ── 交付保留与上下文压缩的模块级件 ──
+
+_DELIVERY_TOOLS = {"str_replace_editor", "run_tests", "commit", "request_acceptance"}
+
+_COMPACT_PROMPT = (
+    "你在为另一个 agent 压缩它的工作对话历史（它正在长任务中途，上下文快满）。"
+    "把下面的消息序列压成一份它可独立继续工作的摘要，必须保留：任务目标与验收"
+    "判据；已做的关键决定；已试过的路径及结论（含失败原因与关键数字）；当前"
+    "假设与正在进行的步骤；重要文件路径、commit sha、命令与输出要点；下一步"
+    "计划与未决问题。紧凑条目式中文，≤600 字，只输出摘要正文。\n\n消息序列：")
+
+
+def _est_tokens(messages: list[dict[str, Any]]) -> int:
+    """粗估 token：中英混合取 2 char/token（ascii≈4:1、CJK≈1:1 的保守折中）。"""
+    n = 0
+    for m in messages:
+        n += len(str(m.get("content") or ""))
+        for tc in m.get("tool_calls") or []:
+            n += len(str((tc.get("function") or {}).get("arguments") or ""))
+    return n // 2
+
+
+def _plan_compaction(messages: list[dict[str, Any]],
+                     keep_recent: int) -> tuple | None:
+    """返回 (head, middle, tail) 或 None（不值得压）。
+
+    head=最前 2 条逐字（goal 所在）；tail=最近 keep_recent 条逐字（当前工作
+    现场）；middle=待摘要中段。两个边界都不许拆散 assistant(tool_calls)/tool
+    配对——OpenAI 协议下孤儿 tool 消息或没有结果的 tool_calls 都会被拒。
+    """
+    if len(messages) <= keep_recent + 2:
+        return None
+    cut = len(messages) - keep_recent
+    while cut > 2 and (messages[cut].get("role") == "tool"
+                       or messages[cut - 1].get("tool_calls")):
+        cut -= 1
+    head = messages[:2]
+    if head[-1].get("tool_calls"):
+        head = messages[:1]
+    middle = messages[len(head):cut]
+    if len(middle) < 8:
+        return None
+    return head, middle, messages[cut:]
 
 
 # ── 工具 schema（litellm tools 参数）与实现分派 ──
