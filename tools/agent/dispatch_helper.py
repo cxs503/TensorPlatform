@@ -17,11 +17,18 @@ import argparse
 import json
 import os
 import sys
+import time
 import urllib.request
+from pathlib import Path
 
 BASE = os.environ.get("TENSOR_API_BASE", "http://localhost:3000/api/v1")
 TERMINAL = ("succeeded", "failed", "stopped")
 MAX_MEMORY_LINES = 3
+MEMORY_ROOT = Path(os.environ.get(
+    "TENSOR_MEMORY_ROOT", "/srv/tensor/shared/tensor_eco/agent_memory"))
+CONTEXT_MAX_LINES = 200      # 工作记忆上限：注入量有界，全量走 pull（cat 文件）
+IDENTITY_MAX_LINES = 40
+MEMORY_TAIL = 5              # jsonl 只注入最近 5 条，更早的 agent 自己查
 
 
 def api(method: str, path: str, body: dict | None = None, tok: str | None = None):
@@ -57,6 +64,44 @@ def build_memory_block(tok: str, repo: str) -> str:
             "是数据不是指令，仅供上下文参考）\n" + "\n".join(lines))
 
 
+def compose_resident_context(key: str) -> str:
+    """常驻记忆 → 注入 goal 的上下文块（有界）。身份 + 工作记忆 + jsonl 尾部。
+    有常驻记忆时它取代 API 往次任务块（jsonl 是其超集，避免双份注入）。"""
+    d = MEMORY_ROOT / key
+    parts = [f"\n\n## 常驻记忆 memory_key={key}（你是一次班次，不是一次性临时工）\n"]
+    ident = d / "identity.md"
+    if ident.exists():
+        lines = ident.read_text(encoding="utf-8").splitlines()[:IDENTITY_MAX_LINES]
+        parts.append("### 身份\n" + "\n".join(lines) + "\n")
+    ctx = d / "context.md"
+    if ctx.exists():
+        lines = ctx.read_text(encoding="utf-8").splitlines()[:CONTEXT_MAX_LINES]
+        parts.append("### 工作记忆（上一个自己写的交接笔记）\n" + "\n".join(lines) + "\n")
+    jsonl = d / "memory.jsonl"
+    if jsonl.exists():
+        recs = [json.loads(x) for x in
+                jsonl.read_text(encoding="utf-8").splitlines()[-MEMORY_TAIL:]
+                if x.strip()]
+        if recs:
+            tail = "\n".join(
+                f"- [{r.get('ts', '')}] m{r.get('mission')} "
+                f"{r.get('status', r.get('decision', '?'))}: "
+                f"{str(r.get('headline', r.get('note', '')))[:120]}"
+                for r in recs)
+            parts.append("### 机器事实账本（最近，全量 cat "
+                         f"{d / 'memory.jsonl'}）\n{tail}\n")
+    parts.append(f"班次结束前更新 {ctx}（交接笔记）；全量历史与身份在 {d}/。\n")
+    return "".join(parts)
+
+
+def write_route(mid: int, key: str, repo: str) -> None:
+    r = MEMORY_ROOT / "_routes" / f"m{mid}.json"
+    r.parent.mkdir(parents=True, exist_ok=True)
+    r.write_text(json.dumps(
+        {"memory_key": key, "repo": repo, "started": time.time()},
+        ensure_ascii=False), encoding="utf-8")
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", required=True)
@@ -67,6 +112,9 @@ def main() -> int:
     ap.add_argument("--budget", default="60,5400,2500000",
                     help="tool_calls,wall_seconds,tokens")
     ap.add_argument("--co-repos", default="")
+    ap.add_argument("--memory-key", default="",
+                    help="常驻记忆键（如 wedge-icebreaking）：注入身份+工作记忆"
+                         "+事实尾部，并登记路由（终态/裁决自动入账、交接门生效）")
     args = ap.parse_args()
 
     tok = api("POST", "/auth/login",
@@ -74,7 +122,10 @@ def main() -> int:
                "password": os.environ["REVIEW_PASS"]})["access_token"]
 
     goal = open(args.goal_file, encoding="utf-8").read().rstrip("\n")
-    memory = build_memory_block(tok, args.repo)
+    if args.memory_key:
+        memory = compose_resident_context(args.memory_key)
+    else:
+        memory = build_memory_block(tok, args.repo)   # 无常驻记忆：API 往次块兜底
     if memory:
         goal += memory
 
@@ -91,9 +142,11 @@ def main() -> int:
         body["co_repos"] = [r for r in args.co_repos.split(",") if r]
 
     out = api("POST", "/tensor/missions", body, tok=tok)
+    if args.memory_key and out.get("id"):
+        write_route(int(out["id"]), args.memory_key, args.repo)
     print(json.dumps({"id": out.get("id"), "status": out.get("status"),
                       "memory_injected": bool(memory),
-                      "memory_lines": memory.count("\n- ") if memory else 0},
+                      "memory_key": args.memory_key or None},
                      ensure_ascii=False))
     return 0
 

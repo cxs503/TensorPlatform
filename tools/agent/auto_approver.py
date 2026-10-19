@@ -253,6 +253,31 @@ def verify_stage_promotion(api: API, approval: dict) -> tuple[str, str]:
     return verdict["verdict"], verdict["reason"] + f"（判词：{passed_words[:4]}）"
 
 
+MEMORY_ROOT = os.environ.get(
+    "TENSOR_MEMORY_ROOT", "/srv/tensor/shared/tensor_eco/agent_memory")
+
+
+def _memory_append_decision(approval: dict, decision: str) -> None:
+    """裁决入常驻记忆（有路由的 mission）：审批结论是 jsonl 事实账本的一部分。
+    与 tensor_agent.append_memory 各自独立实现——本文件保持纯标准库。"""
+    mid = approval.get("mission_id")
+    if not mid:
+        return
+    try:
+        route = json.loads(open(os.path.join(
+            MEMORY_ROOT, "_routes", f"m{mid}.json"), encoding="utf-8").read())
+        d = os.path.join(MEMORY_ROOT, route["memory_key"])
+        os.makedirs(d, exist_ok=True)
+        rec = {"ts": time.strftime("%Y-%m-%d %H:%M:%S"), "mission": mid,
+               "status": f"approval_{decision}",
+               "approval_id": approval.get("id"),
+               "kind": approval.get("kind")}
+        with open(os.path.join(d, "memory.jsonl"), "a", encoding="utf-8") as fh:
+            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+    except (OSError, ValueError):
+        pass  # 无路由/读写失败：裁决本身不受影响
+
+
 def decide(api: API, approval_id: int, decision: str, note: str) -> None:
     code, resp = api.call("POST", f"/tensor/approvals/{approval_id}/decide",
                           {"decision": decision,
@@ -301,9 +326,11 @@ def main() -> None:
             verdict, note = "escalate", f"验证器异常：{exc}"
         if verdict == "approve":
             decide(api, ap["id"], "approved", note)
+            _memory_append_decision(ap, "approved")
             decided += 1
         elif verdict == "reject":
             decide(api, ap["id"], "rejected", note)
+            _memory_append_decision(ap, "rejected")
             decided += 1
         else:
             log(f"approval {ap['id']} escalate（留人工）：{note[:200]}")
