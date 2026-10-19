@@ -4,7 +4,7 @@ import re,sys
 root=Path(sys.argv[1] if len(sys.argv)>1 else '.').resolve()
 skip={'.git','node_modules','dist','__pycache__'}
 forbidden={'uploads','backups','secrets','tokens','memory','logs'}
-rules={'organization brand':r'昆仑|kunlun','customer/domain identity':r'九江|沧州|西昌|亚新|配碳|烧结|高炉','deployment address':r'120\.195\.38\.88','embedded credential':r'admin123|kunlun123'}
+rules={'organization brand':r'昆仑|kunlun','customer/domain identity':r'九江|沧州|西昌|亚新|配碳|烧结|高炉','steel-related content':r'钢铁|钢厂|钢企|炼钢|钢材|高炉|烧结|铁水|钢水|焦炭|焦粉|steel|sinter|blast[\s_-]*furnace|coke[\s_-]*oven','deployment address':r'120\.195\.38\.88','embedded credential':r'admin123|kunlun123'}
 bad=[]
 for p in root.rglob('*'):
  rel=p.relative_to(root)

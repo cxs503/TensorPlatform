@@ -17,8 +17,8 @@ from services.feature_engineering_service import (
 
 # ---------------------------------------------------------------- eval_expression
 def test_eval_expression_basic_arithmetic():
-    df = pd.DataFrame({"煤粉": [10.0, 20.0], "焦粉": [2.0, 4.0]})
-    out = eval_expression("({煤粉}+{焦粉})", df)
+    df = pd.DataFrame({"input_a": [10.0, 20.0], "input_b": [2.0, 4.0]})
+    out = eval_expression("({input_a}+{input_b})", df)
     assert list(out) == [12.0, 24.0]
 
 
@@ -80,10 +80,10 @@ def test_rolling_transform_fill_value_replaces_nan():
 
 
 # ----------------------------------------------------------- build_recommendations
-def test_recommendations_do_not_generate_industry_formulas():
+def test_recommendations_do_not_generate_domain_specific_formulas():
     df = pd.DataFrame({
         name: [1.0, 2.0]
-        for name in ["煤粉", "焦粉", "铁料1", "铁料2", "冷返矿", "环冷罩内温度"]
+        for name in ["input_a", "input_b", "input_c", "input_d", "input_e", "input_f"]
     })
     result = build_recommendations(df)
     assert result["recommendations"]

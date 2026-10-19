@@ -34,7 +34,7 @@ def test_does_not_guess_ambiguous_sklearn_algorithm():
 def test_legacy_metric_type_can_resolve_without_display_name_guessing():
     algorithm = SimpleNamespace(
         metrics={"r2": 0.9},
-        category="steel_process",
+        category="legacy_category",
         algorithm="RandomForest",
         framework="Scikit-learn",
         name="名称不参与解析",

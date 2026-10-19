@@ -370,7 +370,7 @@ def list_transform_types():
             {
                 "type": "expression",
                 "title": "公式/算术表达式",
-                "desc": "列名用 {列名} 包裹,仅允许 + - * / % ** 运算。例:( {煤粉} + {焦粉} ) / ( {铁料1} + {铁料2} )",
+                "desc": "列名用 {列名} 包裹,仅允许 + - * / % ** 运算。例:({input_a}+{input_b})/({input_c}+{input_d})",
                 "params": ["name", "expression", "fill_value"],
             },
             {

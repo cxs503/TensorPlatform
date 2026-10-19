@@ -3,7 +3,7 @@
 所有核心 ORM 模型定义在 core.py 中
 """
 # 导入核心模型（唯一定义源）
-# 2026-10-16 架构收敛：移除碳排放/光伏/能耗/钢铁等模型，平台回归 domain-neutral 共性底座。
+# 平台模型保持领域中立。
 from models.core import (
     User, Project, Dataset, Model, ModelVersion, TrainingJob,
     Device, Alert,

@@ -27,7 +27,7 @@ class TrainRequest(BaseModel):
 
 
 class QuickTrainRequest(BaseModel):
-    scenario: str  # sinter_temperature, sinter_feo, dust_collector
+    scenario: str
     project_id: int
     train_config: Optional[Dict[str, Any]] = None
     n_samples: Optional[int] = 1000
@@ -66,7 +66,7 @@ def train_from_dataset(req: TrainRequest, db: Session = Depends(get_db)):
 def quick_train(req: QuickTrainRequest, db: Session = Depends(get_db)):
     """
     一键完成 demo 案例全流程：生成数据 → 治理 → 训练 → 返回模型ID
-    支持场景: sinter_temperature, sinter_feo, dust_collector
+    使用领域中立的合成数据场景。
     """
     pipeline = DataPipeline(db)
     result = pipeline.quick_train_from_scenario(
