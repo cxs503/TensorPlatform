@@ -16,6 +16,7 @@ from __future__ import annotations
 import argparse
 import json
 import os
+import re
 import sys
 import time
 import urllib.request
@@ -102,6 +103,21 @@ def write_route(mid: int, key: str, repo: str) -> None:
         ensure_ascii=False), encoding="utf-8")
 
 
+_KEY_RE = re.compile(r"^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$")
+
+
+def validate_memory_key(key: str) -> str:
+    """memory_key 是拼进 MEMORY_ROOT 的路径段：白名单字符集 + 解析后仍在
+    记忆根内（PR #22 初审第 3 点——../ 或绝对路径可越界读写）。"""
+    if not _KEY_RE.match(key):
+        raise SystemExit(f"--memory-key 非法：{key!r}"
+                         "（仅 [A-Za-z0-9._-] 单段，≤64，首字符须字母数字）")
+    d = (MEMORY_ROOT / key).resolve()
+    if d.parent != MEMORY_ROOT.resolve():
+        raise SystemExit(f"--memory-key 越界：{key!r} 解析到 {d}")
+    return key
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("--repo", required=True)
@@ -121,6 +137,8 @@ def main() -> int:
               {"username": os.environ["REVIEW_USER"],
                "password": os.environ["REVIEW_PASS"]})["access_token"]
 
+    if args.memory_key:
+        validate_memory_key(args.memory_key)
     goal = open(args.goal_file, encoding="utf-8").read().rstrip("\n")
     if args.memory_key:
         memory = compose_resident_context(args.memory_key)

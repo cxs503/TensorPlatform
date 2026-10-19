@@ -45,6 +45,15 @@ DEFAULT_COOLDOWN = 1800      # quota 冷却：30 分钟（额度一般不是秒�
 DEFAULT_TRANSIENT_N = 3      # 连续 transient 达此数 → 视同端点不健康，轮转
 
 
+class GatewayUnavailable(RuntimeError):
+    """配置了端点池但全部不可用（冷却/缺凭证/不服务该模型）。
+
+    必须显式失败而不是退回 env 默认：env 里多半就是冷却中端点自己的
+    凭证，退回=绕过冷却；缺 env 则是无凭证请求（PR #22 初审第 1 点）。
+    未配置端点池时 Gateway 用 env-default 合成端点，不会走到这里。"""
+
+
+
 def log(msg: str) -> None:
     print(f"[{time.strftime('%H:%M:%S')}] gateway: {msg}", flush=True)
 
@@ -145,7 +154,8 @@ class Gateway:
 
     def pick(self, model: str) -> tuple[Endpoint | None, dict]:
         """选一个健康且能服务 model 的端点。返回 (端点, litellm 参数片段)。
-        全军覆没时返回 (None, {})——调用方退回 env 默认，绝不硬死。"""
+        全军覆没时返回 (None, {})——调用方应 raise GatewayUnavailable 显式
+        失败（勿退回 env：那是绕过冷却或无凭证请求）。"""
         now = time.time()
         for ep in self.endpoints:
             if self._blocked(ep, now):

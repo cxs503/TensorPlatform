@@ -779,7 +779,22 @@ def refill_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    row = _load_mission(db, mission_id)
+    # 行锁（PR #22 初审第 2 点）：并发 refill 的第二个请求阻塞在 FOR UPDATE，
+    # 等第一个提交后看到 queued → 409；UPDATE 再带状态条件双保险，杜绝
+    # 重复加预算/覆盖审计
+    row = db.execute(
+        text("""
+            SELECT id, organization_id, goal, repo, base_ref, co_repos,
+                   parent_mission_id, budget, runner, origin,
+                   model, status, claim_token, claimed_by, session_id, result,
+                   created_by, created_at, heartbeat_at, finished_at
+            FROM tensor_dev_missions WHERE id = :mid
+            FOR UPDATE
+        """),
+        {"mid": mission_id},
+    ).mappings().first()
+    if row is None:
+        raise HTTPException(status_code=404, detail="mission 不存在")
     if row["status"] not in TERMINAL:
         raise HTTPException(
             status_code=409,
@@ -820,12 +835,17 @@ def refill_mission(
                     'max_tokens',
                         COALESCE((budget->>'max_tokens')::bigint, 0) + :tk),
                 result = (result - 'stop_condition') || CAST(:audit AS jsonb)
-            WHERE id = :mid
+            WHERE id = :mid AND status IN ('succeeded', 'failed', 'stopped')
             RETURNING status, model, budget
         """),
         {"mid": mission_id, "model": body.model, "tc": body.add_tool_calls,
          "ws": body.add_wall_seconds, "tk": body.add_tokens, "audit": audit},
     ).mappings().first()
+    if updated is None:
+        # 行锁下仍变不了状态=并发对手先落地：明确冲突，不重复记账
+        db.rollback()
+        raise HTTPException(
+            status_code=409, detail="并发 refill：已被另一请求先行处理")
     if row["session_id"]:
         # 会话是灵魂的载体：随 refill 重开，事件流留续跑审计
         db.execute(

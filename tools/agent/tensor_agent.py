@@ -18,6 +18,7 @@ GIT_CONFIG_GLOBAL points at /dev/null and push is disabled per worktree).
 """
 from __future__ import annotations
 
+import fcntl
 import json
 import os
 import queue
@@ -33,6 +34,7 @@ import urllib.parse
 import urllib.request
 import uuid
 from collections.abc import Sequence
+from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
@@ -695,7 +697,9 @@ def do_request_acceptance(action: RequestAcceptanceAction) -> RequestAcceptanceO
         summary["evidence_machine"] = {"files": excerpts}
     # 常驻记忆交接门：有路由的任务，班次结束前必须更新 context.md（写给
     # 下一个自己的工作笔记）。没更新就提验收 = 临时工行为，打回。
-    route = _memory_route(BRIDGE.mission_id)
+    route = _memory_route(
+        BRIDGE.mission_id,
+        (BRIDGE.mission or {}).get("goal") if getattr(BRIDGE, "mission", None) else None)
     if route:
         ctx = MEMORY_ROOT / route["memory_key"] / "context.md"
         try:
@@ -1016,27 +1020,72 @@ MEMORY_ROOT = Path(os.environ.get(
     "TENSOR_MEMORY_ROOT", "/srv/tensor/shared/tensor_eco/agent_memory"))
 
 
-def _memory_route(mid: int) -> dict | None:
+def _memory_route(mid: int, goal: str | None = None) -> dict | None:
     """mission → 常驻记忆路由（dispatch_helper 派发时写入 _routes/m<id>.json）。
-    无路由 = 临时任务，行为不变（向后兼容）。"""
+    无路由 = 临时任务，行为不变（向后兼容）。
+    自愈（PR #22 初审第 4 点）：mission 创建与路由落盘之间有竞窗、落盘本身
+    也可能失败——goal 里的常驻记忆标记是任务自描述的，凭它重建路由，
+    保证终态/裁决入账与交接门不被绕过。"""
+    p = MEMORY_ROOT / "_routes" / f"m{mid}.json"
     try:
-        return json.loads(
-            (MEMORY_ROOT / "_routes" / f"m{mid}.json").read_text(encoding="utf-8"))
+        return json.loads(p.read_text(encoding="utf-8"))
     except (OSError, ValueError):
-        return None
+        pass
+    if goal:
+        m = re.search(r"## 常驻记忆 memory_key=([A-Za-z0-9][A-Za-z0-9._-]*)",
+                      goal)
+        if m:
+            key = m.group(1)
+            if (MEMORY_ROOT / key).resolve().parent != MEMORY_ROOT.resolve():
+                return None           # 标记被污染：拒绝越界键
+            route = {"memory_key": key, "repo": None,
+                     "started": time.time(), "self_healed": True}
+            try:
+                p.parent.mkdir(parents=True, exist_ok=True)
+                p.write_text(json.dumps(route, ensure_ascii=False),
+                             encoding="utf-8")
+                log(f"m{mid}: memory route 自愈（goal 标记 -> {key}）")
+                return route
+            except OSError:
+                return None
+    return None
 
 
-def append_memory(mid: int, record: dict) -> None:
-    """终态/裁决时把机器事实追加进常驻记忆（append-only jsonl）。"""
-    route = _memory_route(mid)
+def append_memory(mid: int, record: dict, goal: str | None = None) -> None:
+    """终态/裁决时把机器事实追加进常驻记忆（append-only jsonl）。
+
+    PR #22 初审第 5 点加固：UTC 时间戳（跨机可比）、flock 排他写（多进程
+    并发不撕裂行）、事件幂等（同 mission+status+approval+headline 的重复
+    追加跳过——终态与审批两条写入路径可能对同一事件各记一次）。"""
+    route = _memory_route(mid, goal)
     if not route:
         return
     try:
         d = MEMORY_ROOT / route["memory_key"]
         d.mkdir(parents=True, exist_ok=True)
-        rec = {"ts": time.strftime("%Y-%m-%d %H:%M:%S"), "mission": mid, **record}
-        with open(d / "memory.jsonl", "a", encoding="utf-8") as fh:
-            fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+        rec = {"ts": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
+               "mission": mid, **record}
+        fingerprint = (mid, record.get("status"), record.get("approval_id"),
+                       record.get("kind"), record.get("headline"))
+        with open(d / "memory.jsonl", "a+", encoding="utf-8") as fh:
+            fcntl.flock(fh, fcntl.LOCK_EX)
+            try:
+                fh.seek(0)
+                for line in fh:
+                    try:
+                        old = json.loads(line)
+                    except (ValueError, TypeError):
+                        continue
+                    if (old.get("mission"), old.get("status"),
+                            old.get("approval_id"), old.get("kind"),
+                            old.get("headline")) == fingerprint:
+                        return        # 重复事件：已入账，幂等跳过
+                fh.seek(0, os.SEEK_END)
+                fh.write(json.dumps(rec, ensure_ascii=False) + "\n")
+                fh.flush()
+                os.fsync(fh.fileno())
+            finally:
+                fcntl.flock(fh, fcntl.LOCK_UN)
         log(f"m{mid}: memory -> {route['memory_key']} ({record.get('status', '?')})")
     except OSError as exc:
         log(f"m{mid}: memory append failed: {exc}")
@@ -1311,7 +1360,8 @@ class MissionRunner:
                                 "headline": getattr(BRIDGE, "last_headline", ""),
                                 "head": head[:12],
                                 "approval_id": BRIDGE.acceptance_response.get(
-                                    "approval_id")})
+                                    "approval_id")},
+                                goal=self.mission.get("goal"))
             reclaim_mission_space(mid)
             return
         status, stop = "failed", None
@@ -1333,7 +1383,8 @@ class MissionRunner:
         self.finished = True
         log(f"m{mid}: complete -> {code} {str(resp)[:160]} (stop={stop})")
         append_memory(mid, {"status": status, "stop": stop, "head": head[:12],
-                            "detail": f"tool_calls={self.bridge.action_count}"})
+                            "detail": f"tool_calls={self.bridge.action_count}"},
+                      goal=self.mission.get("goal"))
         reclaim_mission_space(mid)
 
 

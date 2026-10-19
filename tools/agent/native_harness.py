@@ -91,6 +91,11 @@ class NativeHarness:
             self._run_loop()
         except _Paused:
             return
+        except llm_gateway.GatewayUnavailable as exc:
+            # 配置级故障按终态落地（同 budget_exceeded 通道），不进端点
+            # abort 续跑环——否则冷却期会被反复重入空转
+            ta.log(f"native: {exc}")
+            self.r.stop_reason = "gateway_unavailable"
 
     def _run_loop(self) -> None:
         while True:
@@ -171,6 +176,12 @@ class NativeHarness:
             # 每次尝试重新选端点：上一轮的 quota 冷却可能已把队列前移
             self._last_progress = time.monotonic()
             ep, cred = self.gateway.pick(self.bare_model)
+            if ep is None:
+                # 配置了端点池但全部不可用：显式失败，不静默退回 env
+                # （env 多半就是冷却中端点自己的凭证，退回=绕过冷却）
+                raise llm_gateway.GatewayUnavailable(
+                    "llm gateway: 无可用端点（全部冷却/缺凭证/不服务 "
+                    f"{self.bare_model}）——检查 llm_endpoints.json 与冷却状态")
             call = dict(params)
             call.update(cred)
             if ep is not None:
@@ -184,6 +195,8 @@ class NativeHarness:
                 return out
             except _Paused:
                 raise
+            except llm_gateway.GatewayUnavailable:
+                raise   # 配置级故障：重试无意义，交上层以 stop 理由落地
             except Exception as exc:  # noqa: BLE001  分类处置：换底座或退避
                 last = exc
                 cls = llm_gateway.classify_error(exc)
