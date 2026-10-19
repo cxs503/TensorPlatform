@@ -128,6 +128,9 @@ def main() -> int:
     ap.add_argument("--budget", default="60,5400,2500000",
                     help="tool_calls,wall_seconds,tokens")
     ap.add_argument("--co-repos", default="")
+    ap.add_argument("--origin", default="owner", choices=["owner", "agent"],
+                    help="mission 归属：owner 代派（默认）或 agent 自主派发"
+                         "（operator 值班班次用 agent——审计上区分谁发起）")
     ap.add_argument("--memory-key", default="",
                     help="常驻记忆键（如 wedge-icebreaking）：注入身份+工作记忆"
                          "+事实尾部，并登记路由（终态/裁决自动入账、交接门生效）")
@@ -154,6 +157,8 @@ def main() -> int:
                              "max_wall_seconds": ws}}
     if args.base_ref:
         body["base_ref"] = args.base_ref
+    if args.origin != "owner":
+        body["origin"] = args.origin
     if args.model:
         body["model"] = args.model
     if args.co_repos:
