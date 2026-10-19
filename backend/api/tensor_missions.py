@@ -87,7 +87,11 @@ def _load_mission(db: Session, mission_id: int) -> Any:
 # ───────────────────────── create / list / detail ─────────────────────────
 
 class MissionCreate(BaseModel):
-    goal: str = Field(min_length=10, max_length=4000)
+    # 4000 上限对常驻记忆 mission 天生太紧（goal 本体 + 注入的身份/工作记忆/
+    # 事实账本尾部三件套合计 ~4-5k，2026-10-19 m50 派发实测 422）。DB 列为
+    # text，上限是纯校验层约束——放到 12k，注入量仍由 dispatch_helper 行数
+    # 上界（40/200/5 行）有界。
+    goal: str = Field(min_length=10, max_length=12000)
     repo: str = Field(min_length=2, max_length=120)
     base_ref: str = Field(default="main", min_length=1, max_length=120)
     # cross-project composition: extra repos the mission's worktree set covers
