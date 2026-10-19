@@ -59,12 +59,14 @@ class NativeHarness:
         # 进度时间戳，非工具期停滞超限强退，交给 cron 重生+收割+refill 自愈。
         self._last_progress = time.monotonic()
         self._busy_tool = False
+        self._conv_done = True     # 安全默认：run() 进入才武装（claim 失败
+                                   # 弃用的 harness 不会成为定时炸弹）
 
         def _stall_watch() -> None:
             stall_s = float(os.environ.get("LLM_STALL_EXIT_SECONDS", "900"))
             while not self.stop_event.wait(30):
-                if self.r.stop_reason is not None:
-                    return  # mission 终态：看门狗退役，勿杀空闲守护
+                if self.r.stop_reason is not None or self._conv_done:
+                    return  # mission 终态/对话结束：看门狗退役，勿杀空闲守护
                 idle = time.monotonic() - self._last_progress
                 if not self._busy_tool and idle > stall_s:
                     ta.log(f"native stall watchdog: 非工具期无进度 {idle:.0f}s > "
@@ -87,6 +89,7 @@ class NativeHarness:
     def run(self) -> None:
         """推进到模型给出纯文本收尾（外层 nudge 接管）或 stop/预算触发。
         _Paused 在此消化——漏到 MissionRunner 会被当成端点 abort 走续跑。"""
+        self._conv_done = False   # nudge/resume 续跑时重新武装看门狗
         try:
             self._run_loop()
         except _Paused:
@@ -96,6 +99,12 @@ class NativeHarness:
             # abort 续跑环——否则冷却期会被反复重入空转
             ta.log(f"native: {exc}")
             self.r.stop_reason = "gateway_unavailable"
+        finally:
+            # 2026-10-19 m52 实证：干净收尾（纯文本→request_acceptance）不设
+            # stop_reason，看门狗线程不退役、_last_progress 冻结，900s 后把
+            # 守护连同下一个在飞 mission 一起杀掉（m51 遗留线程 15:45:48 杀
+            # m52）。run() 返回即本对话结束，看门狗必须退役。
+            self._conv_done = True
 
     def _run_loop(self) -> None:
         while True:
