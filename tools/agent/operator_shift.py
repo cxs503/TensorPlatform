@@ -41,7 +41,8 @@ HELPER = ECO / "TensorPlatform" / "tools" / "agent" / "dispatch_helper.py"
 PY = "/srv/tensor/shared/venvs/tensor_eco/bin/python"
 OPERATOR_MODEL = "glm-5.2"                  # P1 角色映射：operator=最强常驻
 OPERATOR_REPO = "TensorPlatform"            # 交付物=operator_log，平台侧
-BUDGET = "40,3600,2000000"                  # tool_calls,wall_seconds,tokens
+BUDGET = "80,3600,3000000"                  # m51 实证：40 调用只够巡检+处置，
+                                             # 交付三件套没跑到——加倍并加纪律
 SHIFT_GAP = 25 * 60                         # 密集值守：有开发在飞时隔 25 分钟
 IDLE_GAP = 6 * 3600                         # 平台空闲：6 小时一班例行
 IN_FLIGHT = ("queued", "claimed", "running")
@@ -91,7 +92,11 @@ identity.md 与 playbook.md 再动手，产出标准=前任做得到的你要做
 4. 红线（不可违反）：不 git push（worktree 已基建禁用）；不动用户/角色/
    组织表；不删任何数据；kill 仅精确 PID；不碰 GPU0-4 与跳板机端口；
    yueyue 的 /tmp 不动；psql 写操作仅限剧本明列的修复动作。
-预算 40 工具调用，省着用：巡检 SQL 合并单条；日志一次写完再 commit。
+
+预算纪律（m51 教训：预算花在巡检，交付没落=班次作废）：**交付优先**——
+巡检用一次性合并命令（SQL 并单条、日志 tail 各一条）；预算用到一半仍
+未开写 operator_log 就立即停止新诊断，先落 log+commit+request_acceptance
+（约 6 个调用），有余量再回头处置；处置未完写进 log 的 [待办] 交给下一班。
 """
 
 
