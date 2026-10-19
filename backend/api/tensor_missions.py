@@ -419,14 +419,17 @@ def claim_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    # lazy reap: claims whose heartbeat went silent > 90s
+    # lazy reap: claims whose heartbeat went silent > 240s. 90s 实测误杀：
+    # 后端自身停摆（2026-10-19 m49 事件，一个 claim 挂 170s）期间心跳落不了
+    # 地，恢复后第一个 claim 把健康的在飞 mission 收割成 agent_lost。真死
+    # daemon 4 分钟内也能检出，换 240s 只延后误报、不放过真死。
     reaped = db.execute(
         text("""
             UPDATE tensor_dev_missions
             SET status = 'failed', finished_at = now(),
                 result = result || CAST(:patch AS jsonb)
             WHERE status IN ('claimed','running')
-              AND heartbeat_at < now() - interval '90 seconds'
+              AND heartbeat_at < now() - interval '240 seconds'
             RETURNING id, session_id
         """),
         {"patch": _dumps({"stop_condition": "agent_lost"})},
@@ -751,3 +754,86 @@ def reclaim_mission(
                      {"subtype": "mission_reclaimed", "agent": body.agent_id})
     db.commit()
     return {"id": mission_id, "claim_token": token, "status": new_status}
+
+
+class RefillRequest(BaseModel):
+    """换班不换人：给非 agent 过失终态（agent_lost/budget_exceeded）的 mission
+    补预算重新排队。灵魂——native_messages 检查点、worktree、常驻记忆——在
+    主机侧原样保留，daemon 重 claim 后原位续跑；goal 作为新班次开场重述。"""
+    add_tool_calls: int = Field(default=0, ge=0, le=10000)
+    add_wall_seconds: int = Field(default=0, ge=0, le=864000)
+    add_tokens: int = Field(default=0, ge=0, le=10_000_000_000)
+    model: str | None = Field(default=None, min_length=2, max_length=64)
+    note: str | None = Field(default=None, max_length=500)
+
+
+@router.post("/{mission_id}/refill",
+             dependencies=[Depends(require_role("ADMIN", "MANAGER"))])
+def refill_mission(
+    mission_id: int,
+    body: RefillRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    row = _load_mission(db, mission_id)
+    if row["status"] not in TERMINAL:
+        raise HTTPException(
+            status_code=409,
+            detail=f"mission 状态 {row['status']}——refill 只作用于终态")
+    result = row["result"] or {}
+    if isinstance(result, str):
+        result = json.loads(result)
+    stop = (result or {}).get("stop_condition")
+    if stop not in ("agent_lost", "budget_exceeded"):
+        raise HTTPException(
+            status_code=409,
+            detail=f"stop_condition={stop!r} 非 agent_lost/budget_exceeded——"
+                   "agent 自身终局（如 honest FAIL）请重新派发，不要 refill")
+    if (body.add_tool_calls, body.add_wall_seconds, body.add_tokens,
+            body.model) == (0, 0, 0, None):
+        raise HTTPException(status_code=422, detail="refill 至少补一项预算或换 model")
+    audit = _dumps({
+        "refill": {
+            "by": user.get("username") if isinstance(user, dict) else None,
+            "note": body.note,
+            "added": {"tool_calls": body.add_tool_calls,
+                      "wall_seconds": body.add_wall_seconds,
+                      "tokens": body.add_tokens},
+            "model": body.model,
+        },
+    })
+    updated = db.execute(
+        text("""
+            UPDATE tensor_dev_missions
+            SET status = 'queued', claim_token = NULL, claimed_by = NULL,
+                finished_at = NULL, heartbeat_at = now(),
+                model = COALESCE(:model, model),
+                budget = budget || jsonb_build_object(
+                    'max_tool_calls',
+                        COALESCE((budget->>'max_tool_calls')::int, 0) + :tc,
+                    'max_wall_seconds',
+                        COALESCE((budget->>'max_wall_seconds')::int, 0) + :ws,
+                    'max_tokens',
+                        COALESCE((budget->>'max_tokens')::bigint, 0) + :tk),
+                result = (result - 'stop_condition') || CAST(:audit AS jsonb)
+            WHERE id = :mid
+            RETURNING status, model, budget
+        """),
+        {"mid": mission_id, "model": body.model, "tc": body.add_tool_calls,
+         "ws": body.add_wall_seconds, "tk": body.add_tokens, "audit": audit},
+    ).mappings().first()
+    if row["session_id"]:
+        # 会话是灵魂的载体：随 refill 重开，事件流留续跑审计
+        db.execute(
+            text("UPDATE tensor_agent_sessions "
+                 "SET status='active', closed_at=NULL WHERE id=:sid"),
+            {"sid": row["session_id"]},
+        )
+        append_event(db, row["session_id"], "decision", {
+            "status": "queued", "stop_condition": "refilled",
+            "note": body.note, "by": user.get("username")
+            if isinstance(user, dict) else None,
+        })
+    db.commit()
+    return {"id": mission_id, "status": updated["status"],
+            "model": updated["model"], "budget": updated["budget"]}
