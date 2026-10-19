@@ -1,0 +1,62 @@
+{
+  "issue": "#27",
+  "title": "/auth/register 校验失败返回 500，应为 422",
+  "branch": "agent/m56",
+  "commit": "0eba773",
+  "root_cause": "Pydantic v2 的 @validator 抛出 ValueError 后，exc.errors() 的 ctx 字段包含原始 ValueError 对象，JSONResponse 序列化失败导致 TypeError，被全局异常处理器捕获后返回 500",
+  "fix": "在 backend/main.py 的 request_validation_exception_handler 中添加 _sanitize_errors 函数，清洗 errors 列表，只保留 loc/msg/type 三个字段",
+  "files_changed": ["backend/main.py"],
+  "test_files_added": ["backend/tests/test_issue27_register_422.py", "verify_issue27_fix.py"],
+  "test_results": [
+    {
+      "test": "password_missing_special_char",
+      "input": {"username": "testuser", "password": "NoSpecial123"},
+      "expected_status": 422,
+      "actual_status": 422,
+      "sanitized_output": [{"loc": ["password"], "msg": "Value error, 密码必须包含至少一个特殊字符", "type": "value_error"}],
+      "json_serializable": true,
+      "status": "PASS"
+    },
+    {
+      "test": "username_too_short",
+      "input": {"username": "ab", "password": "ValidPass123!"},
+      "expected_status": 422,
+      "actual_status": 422,
+      "sanitized_output": [{"loc": ["username"], "msg": "Value error, 用户名长度必须在3-50个字符之间", "type": "value_error"}],
+      "json_serializable": true,
+      "status": "PASS"
+    },
+    {
+      "test": "password_too_short",
+      "input": {"username": "testuser", "password": "Sh0rt!"},
+      "expected_status": 422,
+      "actual_status": 422,
+      "sanitized_output": [{"loc": ["password"], "msg": "Value error, 密码长度至少8位", "type": "value_error"}],
+      "json_serializable": true,
+      "status": "PASS"
+    },
+    {
+      "test": "password_missing_uppercase",
+      "input": {"username": "testuser", "password": "nouppercase123!"},
+      "expected_status": 422,
+      "actual_status": 422,
+      "sanitized_output": [{"loc": ["password"], "msg": "Value error, 密码必须包含大写字母、小写字母和数字", "type": "value_error"}],
+      "json_serializable": true,
+      "status": "PASS"
+    },
+    {
+      "test": "valid_registration",
+      "input": {"username": "validuser", "password": "ValidPass123!", "email": "test@example.com"},
+      "expected_status": "not_500",
+      "validation_passed": true,
+      "status": "PASS"
+    }
+  ],
+  "summary": {
+    "total_tests": 5,
+    "passed": 5,
+    "failed": 0,
+    "fix_verified": true,
+    "regression_prevented": true
+  }
+}

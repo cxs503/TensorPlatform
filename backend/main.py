@@ -424,11 +424,28 @@ async def root():
 # ============== 统一异常处理 ==============
 
 
+def _sanitize_errors(errors: list) -> list:
+    """Strip non-JSON-serializable values (e.g. ValueError in ctx) from Pydantic error dicts."""
+    sanitized = []
+    for err in errors:
+        clean = {
+            "loc": list(err.get("loc", [])),
+            "msg": err.get("msg", ""),
+            "type": err.get("type", ""),
+        }
+        sanitized.append(clean)
+    return sanitized
+
+
 @app.exception_handler(RequestValidationError)
 async def request_validation_exception_handler(request: Request, exc: RequestValidationError):
     """Log invalid request fields so browser upload errors are diagnosable."""
-    logger.warning("Request validation failed: %s %s errors=%s", request.method, request.url.path, exc.errors())
-    return JSONResponse(status_code=status.HTTP_422_UNPROCESSABLE_ENTITY, content={"detail": exc.errors()})
+    raw_errors = exc.errors()
+    logger.warning("Request validation failed: %s %s errors=%s", request.method, request.url.path, raw_errors)
+    return JSONResponse(
+        status_code=status.HTTP_422_UNPROCESSABLE_ENTITY,
+        content={"detail": _sanitize_errors(raw_errors)},
+    )
 
 
 @app.exception_handler(HTTPException)
