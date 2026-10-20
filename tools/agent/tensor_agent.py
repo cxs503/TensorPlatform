@@ -670,6 +670,54 @@ def _machine_excerpt(path_str: str) -> dict:
     return out
 
 
+GATES_CHECK = Path(os.environ.get(
+    "GATES_CHECK",
+    "/srv/tensor/shared/tensor_eco/agent_work/benchmark_closure/gates_check.py"))
+GATES_PY = os.environ.get("GATES_PY", "/srv/tensor/shared/venvs/tensor_eco/bin/python")
+
+
+def _gates_preflight(worktree: str) -> str | None:
+    """P1a 质量预检（m71/72/73/75/80/86 教训——门禁到 push 时才拦=白跑一轮
+    预算进人工位）：worktree 下有 benchmarks/*/*/gates.json 就地用
+    gates_check --auto 复算，未过打回让 agent 在还能动手改的时刻自修。
+    返回 None=通过或不适用（无 gates.json 的任务不受影响）；字符串=打回消息。
+    环境坏（脚本/venv 缺失、超时、输出不可解析）不拦——派发器 push 侧
+    同一道门兜底，预检层 fail-open 是刻意的（双门冗余，不是单点）。"""
+    try:
+        found = sorted(Path(worktree).glob("benchmarks/*/*/gates.json"))
+    except OSError:
+        return None
+    if not found:
+        return None
+    if not (GATES_CHECK.exists() and Path(GATES_PY).exists()):
+        return None
+    try:
+        r = subprocess.run(
+            [GATES_PY, str(GATES_CHECK), "--worktree", worktree, "--auto"],
+            capture_output=True, text=True, timeout=300)
+    except (subprocess.TimeoutExpired, OSError) as exc:
+        log(f"gates 预检异常 {type(exc).__name__} → 放行（push 侧兜底）")
+        return None
+    if r.returncode == 0:
+        return None
+    try:
+        out = json.loads(r.stdout or "{}")
+    except ValueError:
+        out = {}
+    details = []
+    for c in (out.get("cases") or []):
+        if c.get("rc") == 0:
+            continue
+        probs = "; ".join(str(p) for p in (c.get("problems") or [])[:4])
+        details.append(f"- {c.get('case') or c.get('gates_path')}: {probs}"[:400])
+    return ("拒绝提请：gates 门禁预检不过——派发器 push 侧是同一道门，现在"
+            "过不了 push 也过不了，先修再提：\n" + "\n".join(details)
+            + "\n常见修法：门名用标准名（library_entry/direct_observable/"
+            "monotone_convergence/reference_locked_first/case_readme/figures）；"
+            "evidence 三元组 {v,f,k} 值-文件-键直读工件、零手抄；promote 须"
+            "六门俱全，判据不达标走 terminal+reason（合法完成不扣分）。")
+
+
 def do_request_acceptance(action: RequestAcceptanceAction) -> RequestAcceptanceObservation:
     assert BRIDGE is not None
     # C5 协议门（m42 教训）：交付必须先落 commit——脏工作树提请验收会被
@@ -713,6 +761,10 @@ def do_request_acceptance(action: RequestAcceptanceAction) -> RequestAcceptanceO
                 message=(f"拒绝提请：常驻记忆 {route['memory_key']} 的 context.md "
                          "本班次未更新——先写交接笔记（当前状态/在飞事项/坑与路径，"
                          f"编辑 {ctx}），再 request_acceptance。"))
+    # P1a：gates 门禁预检（有 gates.json 的任务）——打回消息带逐案失败细节
+    gates_note = _gates_preflight(BRIDGE.worktree)
+    if gates_note is not None:
+        return RequestAcceptanceObservation(ok=False, message=gates_note)
     BRIDGE.tool_calls += 1
     head = worktree_head(BRIDGE.worktree)
     payload = {
