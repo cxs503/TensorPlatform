@@ -8,7 +8,6 @@ from datetime import datetime
 from pathlib import Path
 from typing import Dict, List, Optional
 
-import torch
 import numpy as np
 try:
     from transformers import (
