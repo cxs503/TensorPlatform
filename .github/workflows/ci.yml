@@ -71,6 +71,29 @@ jobs:
           python -m pip install --upgrade pip
           pip install -r requirements.txt
           pip install -r requirements-test.txt
+      - name: Prepare sandbox for backend code paths
+        # The backend still hardcodes several /app/... paths in api/*.py and
+        # calls mkdir(exist_ok=True) at module import time.  In the CI runner
+        # those paths are not writable, so the import chain (api/domain/*
+        # -> api/datasets.py -> ...) crashes with PermissionError before any
+        # test can run.  Provision a writable sandbox mirror of the production
+        # layout that backend/Dockerfile{,.release} creates in-container.
+        # This is a CI-only change; the production deploy still runs inside
+        # its own container with the canonical /app tree.
+        run: |
+          sudo mkdir -p \
+            /app/uploads/datasets \
+            /app/uploads/algorithms \
+            /app/uploads/backups \
+            /app/uploads/models \
+            /app/uploads/models/multimodal \
+            /app/uploads/docker-bundles \
+            /app/uploads/optuna.db \
+            /app/saved_models/cv \
+            /app/academy \
+            /app/academy_readmes \
+            /app/.keys
+          sudo chown -R "$(id -u):$(id -g)" /app
       - name: Run backend tests
         run: PYTHONPATH=. pytest -q tests/ --timeout=600
 
