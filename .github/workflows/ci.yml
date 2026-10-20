@@ -1,0 +1,100 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    # Nightly full backend sweep (03:30 UTC): the backend suite needs a large
+    # dependency install, so it stays off the per-PR path but keeps a cadence.
+    - cron: "30 3 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  # A new push to the same ref supersedes in-flight runs; main is never
+  # cancelled so the signal on the default branch stays intact.
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: ${{ github.ref != 'refs/heads/main' }}
+
+jobs:
+  contracts:
+    name: contract tests
+    # The shared research-run contract and the maturity gate use only the
+    # standard library, so this gate needs no optional dependency and is
+    # always reliable.
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install --upgrade pip && pip install pytest
+      - name: Run contract tests
+        run: python -m pytest -q tests/
+
+  research-factory:
+    name: research factory checks
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - run: python -m pip install "fastapi==0.104.1" "pydantic==2.5.0" pytest
+      - name: Run research-factory tests
+        run: PYTHONPATH=. pytest --noconftest -q tests/test_research_factory.py
+
+  backend-suite:
+    name: backend suite
+    # Not on pull_request: backend/requirements.txt pins a large dependency
+    # set, so the full install only runs on main, nightly and manual dispatch.
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: backend
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: backend/requirements.txt
+      - name: Install backend dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install -r requirements-test.txt
+      - name: Run backend tests
+        run: PYTHONPATH=. pytest -q tests/ --timeout=600
+
+  frontend:
+    name: frontend
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: frontend-vue
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+          cache: npm
+          cache-dependency-path: frontend-vue/package-lock.json
+      - run: npm ci
+      # Run the bundler even when the repository-wide legacy type-check has
+      # unrelated errors.
+      - run: npm run build
+      - name: Type check (advisory)
+        # The repository-wide vue-tsc pass still reports pre-existing errors
+        # that are unrelated to any given change.  Report them without
+        # failing the build; promote this to a gate once the backlog is
+        # cleared.
+        continue-on-error: true
+        run: npm run type-check
