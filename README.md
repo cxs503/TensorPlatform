@@ -30,6 +30,8 @@ The intended engineering loop is: define a case and constraints → plan and exe
 
 **Current integration increment:** the [Research-loop integration contract](docs/research-loop-integration-contract.md) defines the versioned run-manifest schema, a non-evidentiary fixture, and the next acceptance gates for registering actual TensorPhysics outputs.
 
+**Engineering quality standard:** [Agent Engineering Quality Gates](docs/engineering/AGENT_ENGINEERING_QUALITY_GATES.md) defines risk-based checks, regression and scientific benchmark gates, evidence manifests, failure attribution, and safe adoption of semantic scanners.
+
 **Maturity note:** the README describes the target responsibility boundary, not a claim that every listed service or cross-repository integration is production-ready. See [Ecosystem Integration](docs/ecosystem-integration.md) and the [system overview](https://github.com/cxs503/TensorPhysics/blob/main/docs/SYSTEM_OVERVIEW.md).
 
 ## Core capabilities
