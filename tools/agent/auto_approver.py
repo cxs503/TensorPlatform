@@ -29,6 +29,8 @@ GRACE_SECONDS = 120          # 刚创建的审批先留给人类 2 分钟
 MAX_DECISIONS_PER_RUN = 8
 NOTE_PREFIX = "[auto-review v1]"
 REVIEWER_MODEL = os.environ.get("REVIEW_LLM_MODEL", "glm-5.2")
+ECO_ROOT = "/srv/tensor/shared/tensor_eco"     # 五克隆根（基线 worktree 用）
+BASE_WT_ROOT = os.path.join(WORK_ROOT, ".base_wt")
 
 REPO_TEST_PYTHON = {
     # 与 agent 实战口径对齐：非 TensorLBM 仓库用 hermes venv（pytest 9.1.1
@@ -88,20 +90,49 @@ def sh(cmd: str, cwd: str | None = None, timeout: int = 60) -> tuple[int, str]:
         return 124, f"timeout after {timeout}s"
 
 
+def verdict_prompt(context: str) -> str:
+    """纯函数：裁决 prompt（便于测试锁定关键规则）。"""
+    fmt = '{"verdict": "approve|reject|escalate", "reason": "不超过120字"}'
+    return (
+        "你是科研平台的验收裁决器。根据给出的证据判断该 acceptance 是否该批准。\n"
+        "规则：证据自洽且达到 goal 的机器判据=approve；证据与复跑矛盾或未达判据=reject；"
+        "证据不足/无法判断/涉及物理精度主张而证据不含数值=escalate。\n"
+        "复跑失败若已标注为基线已有红（与本案交付无关），不得据此 reject；"
+        "拿不准时一律 escalate 而不是 reject。\n"
+        "第一行必须且只能是如下 JSON（不要思考、不要解释）：\n"
+        f"{fmt}\n\n"
+        f"证据：\n{context[:9000]}")
+
+
+def _parse_verdict(text: str) -> dict:
+    """纯函数：裁决输出解析。四级容错：完整 JSON → 宽松 JSON →
+    裸 verdict 键 → 裸单词行；全失败 escalate（绝不误判成 approve/reject）。"""
+    m = re.search(r"\{[^{}]*\"verdict\"[^{}]*\}", text, re.DOTALL)
+    if m:
+        try:
+            obj = json.loads(m.group(0))
+            if obj.get("verdict") in ("approve", "reject", "escalate"):
+                return obj
+        except json.JSONDecodeError:
+            pass
+    mv = re.search(r'\"verdict\"\s*:\s*\"(approve|reject|escalate)\"', text)
+    if mv:
+        mr = re.search(r'\"reason\"\s*:\s*\"([^\"]{0,120})', text)
+        return {"verdict": mv.group(1), "reason": mr.group(1) if mr else ""}
+    mw = re.search(r"^\s*(approve|reject|escalate)\s*$", text, re.M)
+    if mw:
+        return {"verdict": mw.group(1), "reason": ""}
+    return {"verdict": "escalate", "reason": f"裁决输出不可解析：{text[:120]}"}
+
+
 def llm_verdict(context: str) -> dict:
     """glm 裁决：证据上下文 -> {verdict: approve|reject|escalate, reason}。
     流式累计防中继非流式挂起；解析失败一律 escalate。"""
     base = os.environ.get("LLM_BASE_URL", "")
     key = os.environ.get("LLM_API_KEY", "")
-    fmt = '{"verdict": "approve|reject|escalate", "reason": "不超过120字"}'
-    prompt = (
-        "你是科研平台的验收裁决器。根据给出的证据判断该 acceptance 是否该批准。\n"
-        "规则：证据自洽且达到 goal 的机器判据=approve；证据与复跑矛盾或未达判据=reject；"
-        "证据不足/无法判断/涉及物理精度主张而证据不含数值=escalate。\n"
-        f"只输出 JSON：{fmt}\n\n"
-        f"证据：\n{context[:9000]}")
+    prompt = verdict_prompt(context)
     body = json.dumps({"model": REVIEWER_MODEL, "stream": True,
-                       "max_tokens": 2048, "messages": [
+                       "max_tokens": 2048, "temperature": 0, "messages": [
                            {"role": "system", "content": "只输出 JSON。"},
                            {"role": "user", "content": prompt}]}).encode()
     req = urllib.request.Request(
@@ -125,16 +156,60 @@ def llm_verdict(context: str) -> dict:
             except json.JSONDecodeError:
                 continue
     text = "".join(parts) or "".join(reasoning)
-    m = re.search(r"\{[^{}]*\"verdict\"[^{}]*\}", text, re.DOTALL)
-    if not m:
-        return {"verdict": "escalate", "reason": f"裁决输出不可解析：{text[:120]}"}
+    return _parse_verdict(text)
+
+
+def enumerate_failures(wt: str, python: str) -> list[str] | None:
+    """全量枚举 worktree 失败测试 node id（无 -x，--tb=no）。None=枚举不可得。"""
+    code, out = sh(f"{python} -m pytest -q --tb=no tests", cwd=wt, timeout=2400)
+    if code == 124:
+        return None
+    return re.findall(r"^FAILED (\S+)", out, re.M)
+
+
+def baseline_failures(repo_dir: str, base: str, python: str,
+                      node_ids: list[str]) -> set[str] | None:
+    """在 base_ref 临时 worktree 复跑指定失败集，返回基线也红的子集。
+    缓存 .base_wt/<repo>@<base8>（base 前进自动重建）。
+    返回 None=归因机制故障（调用方 escalate，绝不因此 approve/reject）。
+    基线上不存在的测试（本案新增文件）天然不在返回集=计入新增红。"""
+    if not node_ids:
+        return set()
+    src_repo = os.path.join(ECO_ROOT, repo_dir)
+    if not os.path.exists(os.path.join(src_repo, ".git")):
+        return None
+    bdir = os.path.join(BASE_WT_ROOT, f"{repo_dir}@{base[:8]}")
     try:
-        obj = json.loads(m.group(0))
-        if obj.get("verdict") in ("approve", "reject", "escalate"):
-            return obj
-    except json.JSONDecodeError:
-        pass
-    return {"verdict": "escalate", "reason": "裁决 JSON 不完整"}
+        os.makedirs(BASE_WT_ROOT, exist_ok=True)
+        if os.path.exists(bdir):
+            c, cur = sh("git rev-parse HEAD", cwd=bdir)
+            if c != 0 or not cur.strip().startswith(base[:8]):
+                import shutil
+                shutil.rmtree(bdir, ignore_errors=True)
+                sh("git worktree prune", cwd=src_repo)
+        if not os.path.exists(bdir):
+            c, _ = sh(f"git worktree add --detach {bdir} {base}", cwd=src_repo,
+                      timeout=300)
+            if c != 0:
+                return None
+        # 按文件存在性分流：base 上不存在的测试文件（本案新增）混进同一
+        # pytest 命令会让整体 usage-error、一个 FAILED 都不吐（T3 实测）——
+        # 先剔除，它们天然计入新增红。
+        existing = [n for n in node_ids
+                    if os.path.exists(os.path.join(bdir, n.split("::")[0]))]
+        if not existing:
+            return set()
+        quoted = " ".join(f"'{n}'" for n in existing)
+        code, out = sh(f"{python} -m pytest -q --tb=no {quoted}", cwd=bdir,
+                       timeout=1200)
+        if code == 124:
+            return None
+        ran_red = set(re.findall(r"^FAILED (\S+)", out, re.M))
+        if code not in (0, 1) and not ran_red:
+            return None    # pytest 自身没跑起来（环境/参数问题）≠基线全绿
+        return {n for n in existing if n in ran_red}
+    except Exception:   # noqa: BLE001  归因机制故障≠交付有罪
+        return None
 
 
 def verify_dev_acceptance(api: API, mission: dict,
@@ -184,6 +259,19 @@ def verify_dev_acceptance(api: API, mission: dict,
     n_skip = int(skips[-1]) if skips else 0
     if t_code == 124:
         return "escalate", f"默认套件复跑超时（>1800s）——证据不足"
+    # 失败归因（approval 73 误杀教训）：复跑红先区分基线已有红 vs 本案
+    # 新增——main 已知红不能算到交付头上；归因机制故障一律 escalate。
+    new_reds: list[str] = []
+    n_base_red = 0
+    if t_code != 0:
+        head_ids = enumerate_failures(wt, python)
+        if head_ids is None:
+            return "escalate", "默认套件复跑红且失败枚举不可得——归因不明，留人工"
+        base_ids = baseline_failures(repo_dir, base, python, head_ids)
+        if base_ids is None:
+            return "escalate", "基线归因机制故障（worktree/pytest 异常）——留人工"
+        new_reds = [t for t in head_ids if t not in base_ids]
+        n_base_red = len(head_ids) - len(new_reds)
     # 红队 C3 教训：声称 checks 超过同头复跑容量（passed+failed+skipped）=
     # 口径矛盾。agent 跑子集时 claimed < 容量属正常，claimed > 容量不可能。
     claimed_total = (evidence.get("checks") or {}).get("total")
@@ -193,10 +281,13 @@ def verify_dev_acceptance(api: API, mission: dict,
                             f"{n_pass}+{n_fail}+{n_skip}={n_pass+n_fail+n_skip}"
                             "——口径矛盾，留人工")
     goal = mission.get("goal", "")
-    if (re.search(r"默认测试全绿|全量测试|pytest -x -q tests|默认套件", goal)
-            and (t_code != 0 or n_fail > 0)):
-        return ("reject", f"goal 要求默认套件全绿，复跑 exit={t_code}、"
-                f"{n_pass} passed / {n_fail} failed\n复跑尾部：\n{tail[-800:]}")
+    if re.search(r"默认测试全绿|全量测试|pytest -x -q tests|默认套件", goal):
+        if new_reds:
+            return ("reject", f"goal 要求默认套件全绿，复跑存在相对基线新增失败 "
+                    f"{len(new_reds)} 项：{new_reds[:6]}\n复跑尾部：\n{tail[-800:]}")
+        if t_code != 0:
+            return "escalate", (f"复跑 exit={t_code} 但 {n_base_red} 项失败均为"
+                                "基线已有红（与本案交付无关）——是否放行留人工")
     claimed = evidence.get("summary") or {}
     # 机器摘录交叉核（m45 教训机制化）：request_acceptance 的 evidence_files
     # 由平台直读工件生成 summary.evidence_machine。有摘录时——
@@ -228,7 +319,13 @@ def verify_dev_acceptance(api: API, mission: dict,
                f"/{(evidence.get('checks') or {}).get('total')}\n"
                f"{machine_block}\n"
                f"默认套件复跑：exit={'0' if t_code == 0 else t_code}，"
-               f"{n_pass} passed / {n_fail} failed\n"
+               f"{n_pass} passed / {n_fail} failed；"
+               + ("全绿" if t_code == 0 else
+                  (f"新增失败（相对基线，与本案相关）{len(new_reds)} 项："
+                   f"{new_reds[:6]}" if new_reds else
+                   f"{n_base_red} 项失败均为基线已有红——与本案交付无关，"
+                   "不得据此 reject"))
+               + "\n"
                f"复跑尾部：\n{tail[-1200:]}\n\n"
                f"提交：\n{stat}")
     verdict = llm_verdict(context)
