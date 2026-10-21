@@ -1,0 +1,250 @@
+{
+  "generated_at_utc": "2026-10-21T04:50:59Z",
+  "shift": "m139",
+  "readings_collected_at_utc": "2026-10-21T04:50:03Z",
+  "passed": 48,
+  "total": 48,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "inflight_only_expected_ids",
+      "pass": true,
+      "detail": "在飞 id=['134', '135', '139']（期望 ⊆ {134,135,136,139} 且必含本班 139）"
+    },
+    {
+      "check": "inflight_heartbeat_fresh",
+      "pass": true,
+      "detail": "心跳年龄(秒)=[12, 3, 6]，全部 ≤240s（未到收割线）"
+    },
+    {
+      "check": "inflight_stop_condition_null",
+      "pass": true,
+      "detail": "在飞 result.stop_condition=['NULL', 'NULL', 'NULL']（均 NULL，无 infra 终局值）"
+    },
+    {
+      "check": "guardian_count_baseline_10",
+      "pass": true,
+      "detail": "守护进程数（排除 bash 包装的等价口径）=10（R1 扩容后基线 10 = slot1 七台 + slot≥2 三台）；裸 pgrep 读数=10（含采集 bash 自身 +1）"
+    },
+    {
+      "check": "guardian_detail_matches_count",
+      "pass": true,
+      "detail": "2_guardian_detail 逐进程行数=10 == 计数 10"
+    },
+    {
+      "check": "relay_http_200",
+      "pass": true,
+      "detail": "中继 /models HTTP=200（期望 200）"
+    },
+    {
+      "check": "relay_latency_under_5s",
+      "pass": true,
+      "detail": "中继延迟=0.338894s（门限 ≤5s）"
+    },
+    {
+      "check": "relay_model_count_7",
+      "pass": true,
+      "detail": "中继返回 models=7（与前任读数一致 7）"
+    },
+    {
+      "check": "cooldown_empty",
+      "pass": true,
+      "detail": "冷却态内容='{}'（空=无端点冷却，无需清理）"
+    },
+    {
+      "check": "terminal_24h_succeeded_in_band",
+      "pass": true,
+      "detail": "24h succeeded=28（本班快照；band 28..32，平台持续推进会小幅上浮）"
+    },
+    {
+      "check": "terminal_24h_no_unhandled_infra_failures",
+      "pass": true,
+      "detail": "24h 终态 infra 类=[]（本班快照；唯一 infra 项= m135 budget_exceeded，已由本班 refill 收口 → status=running；其余 infra 类=0）"
+    },
+    {
+      "check": "m137_honest_fail",
+      "pass": true,
+      "detail": "m137 result=finished_without_acceptance tool_calls=57 max_wall=14400 elapsed=901（honest FAIL：57 tool / 901s 用尽 nudge 未提交）"
+    },
+    {
+      "check": "m137_zero_commit_evidence",
+      "pass": true,
+      "detail": "m137 分支/工作树=branch_head=e18d83b733b3709b5103d1f1c39eb30e86d2327b wt_head=e18d83b733b3709b5103d1f1c39eb30e86d2327b ahead=0 dirty=0（head 停在 base e18d83b，零提交=零交付）"
+    },
+    {
+      "check": "failed_ids_include_137",
+      "pass": true,
+      "detail": "30h failed 集合=ids=100 112 119 126 137"
+    },
+    {
+      "check": "m135_refill_effect_gate_now_refuses",
+      "pass": true,
+      "detail": "refill_check m135（处置后复跑）='rc=3 [refill_check] m135 status=running stop=None ledger_entries=1 拒绝：mission 仍在飞（running），无续班可言。' —— 处置前 rc=0『budget_exceeded 属 infra 类』，处置后转 3『mission 仍在飞』=续班已生效的机械旁证"
+    },
+    {
+      "check": "m135_refilled_inflight_new_budget",
+      "pass": true,
+      "detail": "m135 续班后='135|running|budget=310/18000|hb_age=9|sc=NULL|audit_by=operator_agent|added=60/3600|claimed_by=tensor-agent[glm-5.2]@localhost.localdomain'（status∈{queued,claimed,running}；预算 250→310 tools / 14400→18000s；stop_condition 已清；平台 result.refill 审计留痕 by+added=60/3600）"
+    },
+    {
+      "check": "refill_rc_all_3_no_infra_object",
+      "pass": true,
+      "detail": "refill_check 退出码=[\"m100 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\", \"m112 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\", \"m119 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\", 'm126 rc=3 拒绝：行内 stop_condition=None 非法/非 infra 类，不续。', \"m137 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\"]（五条 honest FAIL 全 3=拒绝；24h 无 infra 终局 → 本班零 refill 对象）"
+    },
+    {
+      "check": "approval_no_pending_drain",
+      "pass": true,
+      "detail": "审批计数=approved=87 pending=3 rejected=11 （approved 只增不减 87≥86；pending 持 3 且 #103/#104 长期不下降=escalate 空转）"
+    },
+    {
+      "check": "approval_pending_contains_103_104",
+      "pass": true,
+      "detail": "pending 审批=['103|120', '104|133', '106|138']（#103 m120 + #104 m133 在场；平台活体可能追加）"
+    },
+    {
+      "check": "awaiting_matches_pending",
+      "pass": true,
+      "detail": "awaiting_acceptance=['120', '133', '138']；pending 的 mission 集合=['120', '133', '138']（应为其子集）"
+    },
+    {
+      "check": "only_celery_beat_unhealthy",
+      "pass": true,
+      "detail": "非健康容器=['open-foundation-celery-beat|Restarting (73) 35 seconds ago']（期望仅 celery-beat；共 11 容器）"
+    },
+    {
+      "check": "celery_beat_restart_growing",
+      "pass": true,
+      "detail": "celery-beat RestartCount=2809（m133 读 2692，应持续增长）"
+    },
+    {
+      "check": "celery_beat_exit_73",
+      "pass": true,
+      "detail": "celery-beat ExitCode=73（期望 73）"
+    },
+    {
+      "check": "celery_beat_pidfile_rounds_eq_restart",
+      "pass": true,
+      "detail": "Pidfile 报错轮次=2809 == RestartCount=2809（判据自洽）"
+    },
+    {
+      "check": "repo_suite_capacity_14",
+      "pass": true,
+      "detail": "TensorPlatform 默认套件容量='14 passed in 0.03s'（14 例，与审批器复跑口径一致）"
+    },
+    {
+      "check": "r3_claimed_checks_25",
+      "pass": true,
+      "detail": "审批 #104（m133 operator 交付）声称 checks=25 > 容量 14 → 硬门系统性 escalate，operator 类交付永远进不了裁决"
+    },
+    {
+      "check": "approval106_r3_third_instance",
+      "pass": true,
+      "detail": "审批 #106（m138 operator 交付，声称 checks=37）亦入 pending → R3 容量硬门第三例实证"
+    },
+    {
+      "check": "approver_escalate_loop_active",
+      "pass": true,
+      "detail": "审批器 escalate 轮次=a103=59 a104=58 a106=5 a106_claimed=37 pending_lines=455（每 2 分钟重试，pending 不下降）"
+    },
+    {
+      "check": "approval103_dirty_source_is_platform_preflight",
+      "pass": true,
+      "detail": "审批 #103 脏树来源='file_mtime=2026-10-21 10:53:16 commit_time=2026-10-21 10:52:07 accept_line=[10:53:19] m120: awaiting acceptance (approval 103) diff_checked_at_lines=2'（gates_verified.json 在 commit 10:52:07 之后、提请 10:53:19 之前被平台 gates 预检改写 → 脏树是平台自身产生，非交付缺陷）"
+    },
+    {
+      "check": "m120_worktree_dirty_3",
+      "pass": true,
+      "detail": "m120 工作树='head=f459f4bf branch=agent/m120 dirty=3'（3 项 gates_verified.json 未提交 → 审批 #103 触发「交付未落 commit」escalate）"
+    },
+    {
+      "check": "m120_payload_bad_args_zero",
+      "pass": true,
+      "detail": "m120 检查点 bad_args=0（载荷门：0=通过）"
+    },
+    {
+      "check": "m120_not_deadlocked",
+      "pass": true,
+      "detail": "m120 delivery_lock=0（非案例 8 系统死锁型）"
+    },
+    {
+      "check": "oldcode_face_diff_additive_only",
+      "pass": true,
+      "detail": "8e548e7..HEAD tensor_agent.py 差异='tools/agent/tensor_agent.py | 15 ++++++++++++++- 1 file changed, 14 insertions(+), 1 deletion(-) hunks=1'（唯一差异=--slot 身份 additive，无 watchdog/exit 类危险旧码）"
+    },
+    {
+      "check": "import_face_6e223ea",
+      "pass": true,
+      "detail": "tensor_agent.py import 面=6e223ea 10-21 08:33:00 dirty_mtime=2026-10-21 10:35:13"
+    },
+    {
+      "check": "inflight_claim_uses_new_slot_identity",
+      "pass": true,
+      "detail": "在飞认领者='134|running|tensor-agent[qwen3.7-plus#2]@localhost.localdomain 135|running|tensor-agent[glm-5.2]@localhost.localdomain 139|running|tensor-agent[deepseek-v4-flash]@localhost.localdomain'（slot≥2 用 #N 身份=新码在跑）"
+    },
+    {
+      "check": "r2_fix_landed_1d4a668",
+      "pass": true,
+      "detail": "R2 修复提交=1d4a668 fix(approver): 交付完整性改 base..HEAD 全量口径，消灭 m126 类误杀（base..HEAD 全量口径已落 commit，脏树代码入库）"
+    },
+    {
+      "check": "gc_still_dead",
+      "pass": true,
+      "detail": "gc.py 权限=600 denied=13/13（GC 全灭延续）"
+    },
+    {
+      "check": "worktree_count_growing",
+      "pass": true,
+      "detail": "git worktree list 行数=53（m133 读 51 → 本班 53，GC 停摆持续累积）"
+    },
+    {
+      "check": "main_dirty_shrunk_and_clean_of_approver",
+      "pass": true,
+      "detail": "主仓脏项=4（m133 读 6 → 本班 4）；auto_approver.py 已不在脏树（修复入库）"
+    },
+    {
+      "check": "fleet_alive",
+      "pass": true,
+      "detail": "fleet.log 尾=2026-10-21T04:50:01Z fleet pass done, spawned=0（保活在运行，spawned=0=无缺口）"
+    },
+    {
+      "check": "log_consistency::readings 条数",
+      "pass": true,
+      "detail": "log 引用 '44 条'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::守护计数 10",
+      "pass": true,
+      "detail": "log 引用 '**10** = 基线 10'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::中继 models=7",
+      "pass": true,
+      "detail": "log 引用 'models=7'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::审批 approved=87",
+      "pass": true,
+      "detail": "log 引用 'approved=87'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::pending=3",
+      "pass": true,
+      "detail": "log 引用 'pending=3'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::celery-beat restart 2809",
+      "pass": true,
+      "detail": "log 引用 'restart **2809**'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::m135 refill 后 310/18000",
+      "pass": true,
+      "detail": "log 引用 '310/18000'；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::worktree 53",
+      "pass": true,
+      "detail": "log 引用 '=**53**'；工件一致=True（log 与 readings 未脱钩）"
+    }
+  ]
+}
