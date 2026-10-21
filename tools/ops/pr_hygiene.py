@@ -5,7 +5,8 @@
 而 main 已到 f2962d5f）→ owner 批量合并后 PR 大面积 dirty 合不了。
 白名单机械解（只解 append-only 台账/库代码冲突，未知冲突跳过留人工）：
   benchmarks/pending/README.md、operator_log/*.md = 双侧行并集（append-only）；
-  operator_log/*.py、benchmarks/pending/*/gates_verified.json = 取分支侧
+  operator_log/ 非 .md（班次脚本/读数/验证报，每班整体重写）、
+    benchmarks/pending/*/gates_verified.json = 取分支侧
     （本 PR 交付物；差异留在 PR diff 供 owner 裁）；
   benchmarks/validation_report.json = 顶层键并集（逐案证据工件双侧整体
     重写、无工具读取；键冲突取分支侧并记日志，解析失败回退取分支侧）；
@@ -138,9 +139,9 @@ def resolve_conflicts(wt: str) -> tuple[bool, str]:
             open(fp, "w", encoding="utf-8").write(union_resolve_text(raw))
             sh(f'git add "{f}"', wt)
             notes.append(f"{f} 并集")
-        elif f.startswith("operator_log/") and f.endswith(".py"):
-            # 班次校验脚本：双侧各自重写（docstring 都会撞），并集必产坏语法
-            # —— 取分支侧（PR 本身交付物），差异留在 PR diff 供 owner 裁
+        elif f.startswith("operator_log/") and not f.endswith(".md"):
+            # 班次工件（脚本/读数/验证报）：每班整体重写（docstring/JSON 键都撞），
+            # 并集必产坏语法/坏 JSON——取分支侧（PR 本身交付物），差异留 diff 供裁
             sh(f'git checkout --ours "{f}" && git add "{f}"', wt)
             notes.append(f"{f} 取分支侧")
         elif f == "benchmarks/validation_report.json":
