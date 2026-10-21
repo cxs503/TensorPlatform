@@ -1450,11 +1450,24 @@ def main() -> None:
     args = sys.argv[1:]
     pinned_model: str | None = None
     claim_null = False
+    slot = 1
     if "--model" in args:
         pinned_model = args[args.index("--model") + 1]
     if "--claim-null" in args:
         claim_null = True
-    agent_id = AGENT_ID if not pinned_model else f"tensor-agent[{pinned_model}]@{socket.gethostname()}"
+    if "--slot" in args:
+        try:
+            slot = int(args[args.index("--slot") + 1])
+        except (ValueError, IndexError):
+            slot = 1
+    # worker 身份 = slot（会话 runner），非模型 API：同一 API 可挂 N 个 worker。
+    # claim 是平台侧 FOR UPDATE SKIP LOCKED 原子分配，多 worker 并发认领无新竞态类；
+    # 会话状态（worktree/state/claim_token/budget）本就按 mission 隔离。
+    if pinned_model:
+        tag = pinned_model if slot <= 1 else f"{pinned_model}#{slot}"
+        agent_id = f"tensor-agent[{tag}]@{socket.gethostname()}"
+    else:
+        agent_id = AGENT_ID
     api = PlatformAPI()
     code, _ = api.api("GET", "/health")
     if code != 200:
