@@ -148,6 +148,18 @@ with tempfile.TemporaryDirectory() as td:
     assert open(os.path.join(wb3, GATE)).read() == '{"branch": 2}\n'
     PASS.append("T2b3 班次 .py 与 gates_verified 冲突 → 取分支侧（PR diff 披露）")
 
+    # b4) validation_report.json 双侧整体重写 → 顶层键并集、键冲突取分支侧
+    import json as _json
+    VR = "benchmarks/validation_report.json"
+    advance_main({VR: '{"overall_pass": true, "task": "main 版"}\n'}, "m-b4")
+    wb4 = branch("br_b4", {VR: '{"task": "m199 分支版", "criteria": [1, 2]}\n'})
+    ok, how = ph.merge_main_before_push(wb4)
+    assert ok and "顶层键并集" in how and "task" in how, (ok, how)
+    vr = _json.loads(open(os.path.join(wb4, VR)).read())
+    assert vr["task"] == "m199 分支版" and vr["overall_pass"] is True, vr
+    assert vr["criteria"] == [1, 2]
+    PASS.append("T2b4 validation_report 双侧重写 → 顶层键并集、键冲突取分支侧")
+
     # c) 未知文件真冲突 → 拒解、HEAD 不动
     advance_main({SOL: "def f():\n    return 1\n"}, "m-c")
     wc = branch("br_c", {SOL: "def f():\n    return 2\n"})
