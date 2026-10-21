@@ -62,6 +62,17 @@ REPO_TEST_PYTHON = {
     # 217 passed/26.8s）；eco venv 无 pytest（m42 验收复跑 exit=1 教训）
     "_default": "/srv/tensor/shared/hermes-agent/.venv/bin/python",
 }
+
+
+def repo_pythonpath(wt: str) -> str:
+    """测试导入隔离：src 布局 → <wt>/src；平铺 → <wt>。
+
+    2026-10-21 实录：hermes venv 的 tensordem/tensorlbm/tensorphysics 是
+    editable 装的 m42 时代工作树——不压路径时 agent 跑的是陈年代码，
+    新模块 ModuleNotFoundError。与 auto_approver.repo_pythonpath 同口径。
+    """
+    src_dir = os.path.join(wt, "src")
+    return src_dir if os.path.isdir(src_dir) else wt
 FETCH_DOMAIN_ALLOWLIST = (
     "api.github.com", "github.com", "raw.githubusercontent.com",
     "objects.githubusercontent.com", "codeload.github.com",
@@ -545,7 +556,9 @@ def do_run_tests(action: RunTestsAction) -> RunTestsObservation:
     BRIDGE.tool_calls += 1
     default_python = REPO_TEST_PYTHON.get(
         BRIDGE.repo_name, REPO_TEST_PYTHON["_default"])
-    cmd = action.command or f"{default_python} -m pytest -x -q tests"
+    cmd = action.command or (
+        f"PYTHONPATH={repo_pythonpath(BRIDGE.worktree)} {default_python}"
+        " -m pytest -q tests --continue-on-collection-errors")
     BRIDGE.events.emit("tool_call", {"tool": "run_tests", "command": cmd})
     try:
         proc = subprocess.run(cmd, shell=True, cwd=BRIDGE.worktree,

@@ -1,6 +1,7 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 """m139 班次读数采集器：一条命令跑完巡检六步，stdout 原样落 2026-10-21.readings.json。
+"""m142 班次读数采集器：一条命令跑完巡检六步，stdout 原样落 2026-10-21.readings.json。
 
 纪律：判据数字零手抄 —— 本脚本只做「跑命令 + 原样抄录 stdout/exit_code」，
 不做任何解析、汇总或推断；数字的汇总与结论在 operator_log/2026-10-21.md 中另行引用。
@@ -47,6 +48,8 @@ COMMANDS = [
      "curl -s -o /tmp/m139_models.json -w 'http=%{{http_code}} t=%{{time_total}}' "
      "-H \"Authorization: Bearer $LLM_API_KEY\" $LLM_BASE_URL/models; echo; "
      "python3 -c \"import json;d=json.load(open('/tmp/m139_models.json'));"
+     "curl -s -o /tmp/m142_models.json -w 'http=%{{http_code}} t=%{{time_total}}' "
+     "python3 -c \"import json;d=json.load(open('/tmp/m142_models.json'));"
      "print('models=%d' % len(d.get('data',[])))\"".format(w=WORK)),
 
     # ---- 巡检第 4 步：网关冷却态 ----
@@ -193,10 +196,8 @@ COMMANDS = [
      "2>&1 | tail -1".format(p=PLAT)),
     # ---- 本班处置：m135 budget_exceeded → refill 续班（本班唯一写操作）----
     ("5_refill_check_135",
-     "set -a; source {w}/operator.env; set +a; "
      "/srv/tensor/shared/venvs/tensor_eco/bin/python {p}/tools/agent/refill_check.py 135 "
      ">/tmp/rc135.txt 2>&1; echo \"rc=$?\"; tail -2 /tmp/rc135.txt"
-     .format(w=WORK, p=PLAT)),
     ("5_refill_135_post",
      PSQL + "\"SELECT id||'|'||status||'|budget='||(budget->>'max_tool_calls')"
             "||'/'||(budget->>'max_wall_seconds')||'|hb_age='||"
@@ -214,12 +215,32 @@ COMMANDS = [
      "a106_claimed=$(grep -m1 'approval 106 escalate' {w}/auto_approver.log "
      "| sed 's/.*声称 checks \\([0-9]*\\) 项.*/\\1/') "
      "pending_lines=$(grep -c 'pending=' {w}/auto_approver.log)".format(w=WORK)),
+    # ---- m135 续班后状态（m139 班续班，本班观察其已转 awaiting_acceptance）----
+    ("5_m135_post_refill",
+            "||'/'||(budget->>'max_wall_seconds')||'|sc='||"
+            "coalesce((result->'refill'->'added'->>'wall_seconds'),'-')||'|head='||"
+            "coalesce(result->'progress'->>'head','-')||'|tc='||"
+            "coalesce(result->'progress'->>'tool_calls','-')||'|ws='||"
+            "coalesce(result->'progress'->>'elapsed_seconds','-') "
+            "FROM tensor_dev_missions WHERE id=135;\""),
+    ("5_m134_status",
+     PSQL + "\"SELECT id||'|'||status||'|sc='||"
+            "coalesce(result->>'stop_condition','NULL')||'|head='||"
+            "coalesce(result->>'head_commit','-')||'|checks='||"
+            "coalesce(result->'evidence'->'checks'->>'total','-') "
+            "FROM tensor_dev_missions WHERE id=134;\""),
+     "echo a103=$(grep -c 'approval 103 escalate' {w}/auto_approver.log 2>/dev/null) "
+     "a104=$(grep -c 'approval 104 escalate' {w}/auto_approver.log 2>/dev/null) "
+     "a106=$(grep -c 'approval 106 escalate' {w}/auto_approver.log 2>/dev/null) "
+     "a107=$(grep -c 'approval 107 escalate' {w}/auto_approver.log 2>/dev/null) "
+     "pending_lines=$(grep -c 'pending=' {w}/auto_approver.log 2>/dev/null)".format(w=WORK)),
 ]
 
 
 def main() -> int:
     readings = {
         "collected_by": "platform-operator m139 shift",
+        "collected_by": "platform-operator m142 shift",
         "collected_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "note": ("每条为命令原文 + stdout 原样 + 退出码；本文件由 "
                  "collect_2026-10-21.py 机器生成，零手抄"),
