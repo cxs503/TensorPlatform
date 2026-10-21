@@ -10,6 +10,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from api.deps import require_auth
+from services.factory_profile import get_factory_profile, require_factory_agent
 from api.domain.tensor_common import EVENT_KINDS, append_event, resolved_org
 from database.config import get_db
 
@@ -123,9 +124,15 @@ def append_session_event(
 ):
     if body.kind not in EVENT_KINDS:
         raise HTTPException(status_code=422, detail=f"kind must be one of {EVENT_KINDS}")
+    require_factory_agent(user)
     exists = db.execute(
-        text("SELECT id FROM tensor_agent_sessions WHERE id = :sid"),
-        {"sid": session_id},
+        text("""SELECT s.id FROM tensor_agent_sessions s
+             WHERE s.id = :sid AND s.organization_id = :org AND s.status = 'active'
+               AND (:legacy OR EXISTS (SELECT 1 FROM tensor_dev_missions m
+                    WHERE m.session_id=s.id AND m.claimed_user_id=:uid
+                      AND m.status='running'))"""),
+        {"sid": session_id, "org": resolved_org(None, user, db),
+         "uid": user["id"], "legacy": get_factory_profile() is None},
     ).scalar()
     if not exists:
         raise HTTPException(status_code=404, detail="session not found")
@@ -156,9 +163,15 @@ def append_session_events_batch(
     for ev in body.events:
         if ev.kind not in EVENT_KINDS:
             raise HTTPException(status_code=422, detail=f"kind must be one of {EVENT_KINDS}")
+    require_factory_agent(user)
     exists = db.execute(
-        text("SELECT id FROM tensor_agent_sessions WHERE id = :sid"),
-        {"sid": session_id},
+        text("""SELECT s.id FROM tensor_agent_sessions s
+             WHERE s.id = :sid AND s.organization_id = :org AND s.status = 'active'
+               AND (:legacy OR EXISTS (SELECT 1 FROM tensor_dev_missions m
+                    WHERE m.session_id=s.id AND m.claimed_user_id=:uid
+                      AND m.status='running'))"""),
+        {"sid": session_id, "org": resolved_org(None, user, db),
+         "uid": user["id"], "legacy": get_factory_profile() is None},
     ).scalar()
     if not exists:
         raise HTTPException(status_code=404, detail="session not found")
