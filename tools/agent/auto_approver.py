@@ -295,6 +295,65 @@ def presence_split(wt: str, base: str, files: list[str]) -> tuple[list[str], lis
     return present, absent
 
 
+def machine_json_values(wt: str, rel_files: list[str],
+                        abs_files: list[str], per_file: int = 10) -> str:
+    """机器直读交付 JSON 数值（worktree 实读，非 agent 转述）。
+
+    2026-10-21 实录：complete 端点的 evidence_machine 只记文件在场性
+    (ok:true)——物理精度主张没有机器数值可比，LLM 在 escalate/approve
+    间边际摆动（m136/m140 approved vs m134/m141 首发 escalate，同形状
+    证据两种结果）。裁决器自己有 worktree：直接读 JSON 压平数值注入
+    上下文，把摆动变成可比对。
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    for p in list(rel_files) + list(abs_files):
+        if not p.endswith(".json"):
+            continue
+        fp = p if os.path.isabs(p) else os.path.join(wt, p)
+        key = os.path.normpath(fp)
+        if key in seen:
+            continue
+        seen.add(key)
+        try:
+            with open(fp, encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        flat: list[str] = []
+
+        def _walk(o, prefix=""):
+            if len(flat) >= per_file:
+                return
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if len(flat) >= per_file:
+                        return
+                    if isinstance(v, (dict, list)):
+                        _walk(v, f"{prefix}{k}.")
+                    else:
+                        sval = str(v)
+                        flat.append(f"{prefix}{k}"
+                                    + (f"={sval}" if len(sval) <= 24
+                                       else f"=<{len(sval)}字>"))
+            elif isinstance(o, list):
+                for v in o[:6]:
+                    _walk(v, prefix)
+
+        _walk(obj)
+        if flat:
+            try:
+                shown = os.path.relpath(fp, wt)
+            except ValueError:
+                shown = fp
+            out.append(f"{shown}: " + "; ".join(flat))
+    if not out:
+        return ""
+    return ("\n机器直读 JSON 数值（裁决器实读 worktree，可信级同复跑；"
+            "物理精度主张必须与这些数字比对）：\n"
+            + "\n".join(out)[:2000] + "\n")
+
+
 def checks_capacity(machine_checks: int, test_scope: bool,
                     n_pass: int, n_fail: int, n_skip: int) -> int | None:
     """C3 容量分母：checks 有两类——测试数 vs 锚点判据数（范畴不同）。
@@ -422,6 +481,9 @@ def verify_dev_acceptance(api: API, mission: dict,
                           + (f"在场：{present}\n" if present else "")
                           + (f"缺席：{absent}\n" if absent else "")
                           + "——在场文件不得以'未见文件'为由 reject。\n")
+    values_block = machine_json_values(
+        wt, present,
+        [str(f.get("file") or "") for f in machine.get("files") or []])
     machine_block = ""
     if machine.get("files"):
         for f in machine["files"]:
@@ -443,7 +505,7 @@ def verify_dev_acceptance(api: API, mission: dict,
                f"验收摘要：{json.dumps(claimed, ensure_ascii=False)[:1400]}\n"
                f"声称 checks：{(evidence.get('checks') or {}).get('passed')}"
                f"/{(evidence.get('checks') or {}).get('total')}\n"
-               f"{presence_block}{machine_block}\n"
+               f"{presence_block}{machine_block}{values_block}\n"
                f"默认套件复跑：exit={'0' if t_code == 0 else t_code}，"
                f"{n_pass} passed / {n_fail} failed；"
                + ("全绿" if t_code == 0 else
@@ -573,6 +635,11 @@ def main() -> None:
         + (f"（{len(seen)} 已 escalate 停车）" if seen else ""))
     decided = 0
     for ap in items:
+        if str(ap["id"]) in seen:
+            # 停车=冻结：复验每 tick 重跑全套纯属烧机器（m134 实录
+            # 25min/轮，flock 还挡住其他审批）。解冻=人工移出停车表。
+            log(f"approval {ap['id']} 已 escalate 停车——跳过")
+            continue
         if decided >= MAX_DECISIONS_PER_RUN:
             log("到达单轮决定上限，余量下轮")
             break
