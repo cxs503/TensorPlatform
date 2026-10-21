@@ -40,6 +40,18 @@ REPO_TEST_PYTHON = {
 }
 
 
+def repo_pythonpath(wt: str) -> str:
+    """复跑导入隔离：src 布局 → <wt>/src；平铺 → <wt>。
+
+    2026-10-21 实录：hermes venv 的 tensordem/tensorlbm/tensorphysics 是
+    editable 装的 m42 时代工作树——不压路径时复跑的是陈年代码（新模块
+    ModuleNotFoundError → 收集中断 →「0 passed / 0 failed」）。PYTHONPATH
+    前置让 worktree 源码永远赢，venv 卫生不再影响裁决口径。
+    """
+    src_dir = os.path.join(wt, "src")
+    return src_dir if os.path.isdir(src_dir) else wt
+
+
 def log(msg: str) -> None:
     stamp = time.strftime("[%H:%M:%S]")
     line = f"{stamp} {msg}"
@@ -125,23 +137,19 @@ def _parse_verdict(text: str) -> dict:
     return {"verdict": "escalate", "reason": f"裁决输出不可解析：{text[:120]}"}
 
 
-def llm_verdict(context: str) -> dict:
-    """glm 裁决：证据上下文 -> {verdict: approve|reject|escalate, reason}。
-    流式累计防中继非流式挂起；解析失败一律 escalate。"""
-    base = os.environ.get("LLM_BASE_URL", "")
-    key = os.environ.get("LLM_API_KEY", "")
-    prompt = verdict_prompt(context)
+def _stream_chat(base: str, key: str, messages: list) -> str:
+    """流式调裁决 LLM：返回 content，空则 reasoning（思考型模型实录，
+    reasoning 可能先吃光预算、content 落空）。"""
     body = json.dumps({"model": REVIEWER_MODEL, "stream": True,
-                       "max_tokens": 2048, "temperature": 0, "messages": [
-                           {"role": "system", "content": "只输出 JSON。"},
-                           {"role": "user", "content": prompt}]}).encode()
+                       "max_tokens": 4096, "temperature": 0,
+                       "messages": messages}).encode()
     req = urllib.request.Request(
         f"{base.rstrip('/')}/chat/completions", data=body, method="POST",
         headers={"Content-Type": "application/json",
                  "Authorization": f"Bearer {key}"})
     parts: list[str] = []
-    reasoning: list[str] = []   # 思考型模型：reasoning 可能先吃预算，content 落空
-    with urllib.request.urlopen(req, timeout=90) as resp:
+    reasoning: list[str] = []
+    with urllib.request.urlopen(req, timeout=120) as resp:
         for line in resp:
             line = line.decode("utf-8", "replace").strip()
             if not line.startswith("data: ") or line == "data: [DONE]":
@@ -155,16 +163,45 @@ def llm_verdict(context: str) -> dict:
                     reasoning.append(delta["reasoning_content"])
             except json.JSONDecodeError:
                 continue
-    text = "".join(parts) or "".join(reasoning)
-    return _parse_verdict(text)
+    return "".join(parts) or "".join(reasoning)
+
+
+def _unparseable(v: dict) -> bool:
+    return (v.get("verdict") == "escalate"
+            and str(v.get("reason", "")).startswith("裁决输出不可解析"))
+
+
+def llm_verdict(context: str) -> dict:
+    """glm 裁决：证据上下文 -> {verdict: approve|reject|escalate, reason}。
+    流式累计防中继非流式挂起；解析失败加压重试一次，再败一律 escalate。
+    2026-10-21 实录：思考流 content 空 + 2048 截断 → 三单连停
+    （ap108/109/110「裁决输出不可解析」）——修=max_tokens 4096 + 重试。"""
+    base = os.environ.get("LLM_BASE_URL", "")
+    key = os.environ.get("LLM_API_KEY", "")
+    prompt = verdict_prompt(context)
+    sysmsg = {"role": "system", "content": "只输出 JSON。"}
+    v = _parse_verdict(
+        _stream_chat(base, key, [sysmsg, {"role": "user", "content": prompt}]))
+    if _unparseable(v):
+        retry = prompt + (
+            "\n\n上一次输出没有裁决 JSON（思考流/截断）。"
+            "本次第一行必须且只能是该 JSON，不得有任何其他文字。")
+        v2 = _parse_verdict(
+            _stream_chat(base, key,
+                         [sysmsg, {"role": "user", "content": retry}]))
+        if not _unparseable(v2):
+            return v2
+    return v
 
 
 def enumerate_failures(wt: str, python: str) -> list[str] | None:
     """全量枚举 worktree 失败测试 node id（无 -x，--tb=no）。None=枚举不可得。"""
-    code, out = sh(f"{python} -m pytest -q --tb=no tests", cwd=wt, timeout=2400)
+    code, out = sh(
+        f"PYTHONPATH={repo_pythonpath(wt)} {python} -m pytest"
+        f" -q --tb=no tests", cwd=wt, timeout=2400)
     if code == 124:
         return None
-    return re.findall(r"^FAILED (\S+)", out, re.M)
+    return re.findall(r"^(?:FAILED|ERROR) (\S+)", out, re.M)
 
 
 def baseline_failures(repo_dir: str, base: str, python: str,
@@ -200,11 +237,12 @@ def baseline_failures(repo_dir: str, base: str, python: str,
         if not existing:
             return set()
         quoted = " ".join(f"'{n}'" for n in existing)
-        code, out = sh(f"{python} -m pytest -q --tb=no {quoted}", cwd=bdir,
-                       timeout=1200)
+        code, out = sh(
+            f"PYTHONPATH={repo_pythonpath(bdir)} {python} -m pytest"
+            f" -q --tb=no {quoted}", cwd=bdir, timeout=1200)
         if code == 124:
             return None
-        ran_red = set(re.findall(r"^FAILED (\S+)", out, re.M))
+        ran_red = set(re.findall(r"^(?:FAILED|ERROR) (\S+)", out, re.M))
         if code not in (0, 1) and not ran_red:
             return None    # pytest 自身没跑起来（环境/参数问题）≠基线全绿
         return {n for n in existing if n in ran_red}
@@ -323,7 +361,9 @@ def verify_dev_acceptance(api: API, mission: dict,
     # 注意：agent 声称的 checks 可能来自子集命令，与全量复跑口径不同——
     # 声称/复跑差异交给 LLM 裁决，硬否决只在 goal 明确要求默认套件全绿时触发。
     python = REPO_TEST_PYTHON.get(repo_dir, REPO_TEST_PYTHON["_default"])
-    t_code, t_out = sh(f"{python} -m pytest -x -q tests", cwd=wt, timeout=1800)
+    t_code, t_out = sh(
+        f"PYTHONPATH={repo_pythonpath(wt)} {python} -m pytest"
+        f" -q tests --continue-on-collection-errors", cwd=wt, timeout=1800)
     tail = t_out[-2500:]
     passed = re.findall(r"(\d+) passed", t_out)
     failed = re.findall(r"(\d+) failed", t_out)
