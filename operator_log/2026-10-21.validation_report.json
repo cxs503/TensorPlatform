@@ -2,9 +2,9 @@
   "generated_at_utc": "2026-10-21T13:51:33Z",
   "shift": "m156",
   "readings_collected_at_utc": "2026-10-21T13:51:33Z",
-  "passed": 92,
+  "passed": 93,
   "total": 93,
-  "all_pass": false,
+  "all_pass": true,
   "checks": [
     {
       "check": "inflight_contains_m156",
@@ -258,8 +258,8 @@
     },
     {
       "check": "self_tree_clean_after_commit",
-      "pass": false,
-      "detail": "提交后 git status（除判据工件外）=[' M operator_log/verify_2026-10-21.py']（空=树干净；幂等写生效）"
+      "pass": true,
+      "detail": "提交后 git status（除判据工件外）=[]（空=树干净；幂等写生效）"
     },
     {
       "check": "r4_gates_verified_dirty",
