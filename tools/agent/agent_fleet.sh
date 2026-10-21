@@ -18,8 +18,9 @@ while read -r MODEL N; do
   case "$N" in ''|*[!0-9]*|0|1) continue ;; esac
   for slot in $(seq 2 "$N"); do
     LOCK="/srv/tensor/shared/tensor_eco/tensor-agent-${MODEL}-w${slot}.lock"
-    # 已有活 worker 持锁 → 跳过（flock 探测，不长期占用）
-    if flock -n 9>>"$LOCK" 2>/dev/null; then
+    # 已有活 worker 持锁 → 跳过（flock 文件路径形式探测，不长期占用；
+    # 探测释放与新 worker 拿锁间的微窗口由 wrapper 自身 flock 幂等兜底）
+    if flock -n "$LOCK" true 2>/dev/null; then
       # 探测成功 = 无人持锁 → 启动 worker（它自己会拿同一把锁）
       nohup bash "$D/run_agent_multi.sh" "$MODEL" --slot "$slot" \
         >/dev/null 2>&1 &
