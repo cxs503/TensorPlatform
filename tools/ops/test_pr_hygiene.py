@@ -135,18 +135,22 @@ with tempfile.TemporaryDirectory() as td:
         assert m not in body
     PASS.append("T2b2 operator_log 日报并集 + 工作树残留先 stash 再 merge")
 
-    # b3) 班次 .py / gates_verified.json 冲突 → 取分支侧（并集会坏语法/双案错配）
+    # b3) 班次 .py/.json 工件 / gates_verified.json 冲突 → 取分支侧（并集坏语法/双案错配）
     VERI = "operator_log/verify_shift.py"
+    RD = "operator_log/2026-10-21.readings.json"
     GATE = "benchmarks/verified/permeability3d/gates_verified.json"
-    advance_main({VERI: '"""m142 班次门：main 版"""\n', GATE: '{"main": 1}\n'},
-                 "m-b3")
+    advance_main({VERI: '"""m142 班次门：main 版"""\n', GATE: '{"main": 1}\n',
+                  RD: '{"shift": "main 侧班"}\n'}, "m-b3")
     wb3 = branch("br_b3", {VERI: '"""m199 班次门：分支版"""\n',
-                           GATE: '{"branch": 2}\n'})
+                           GATE: '{"branch": 2}\n',
+                           RD: '{"shift": "m199 分支侧班"}\n'})
     ok, how = ph.merge_main_before_push(wb3)
-    assert ok and VERI in how and GATE in how and "分支侧" in how, (ok, how)
+    assert ok and VERI in how and GATE in how and RD in how \
+        and "分支侧" in how, (ok, how)
     assert open(os.path.join(wb3, VERI)).read() == '"""m199 班次门：分支版"""\n'
     assert open(os.path.join(wb3, GATE)).read() == '{"branch": 2}\n'
-    PASS.append("T2b3 班次 .py 与 gates_verified 冲突 → 取分支侧（PR diff 披露）")
+    assert open(os.path.join(wb3, RD)).read() == '{"shift": "m199 分支侧班"}\n'
+    PASS.append("T2b3 班次 .py/.readings 与 gates_verified 冲突 → 取分支侧（diff 披露）")
 
     # b4) validation_report.json 双侧整体重写 → 顶层键并集、键冲突取分支侧
     import json as _json
