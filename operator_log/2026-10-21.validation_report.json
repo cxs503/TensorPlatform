@@ -1,10 +1,10 @@
 {
-  "generated_at_utc": "2026-10-21T14:00:54Z",
+  "generated_at_utc": "2026-10-21T13:51:33Z",
   "shift": "m156",
   "readings_collected_at_utc": "2026-10-21T13:51:33Z",
-  "passed": 93,
+  "passed": 92,
   "total": 93,
-  "all_pass": true,
+  "all_pass": false,
   "checks": [
     {
       "check": "inflight_contains_m156",
@@ -254,12 +254,12 @@
     {
       "check": "delivery_files_in_head_tree_or_precommit",
       "pass": true,
-      "detail": "HEAD 树内 operator_log/ 含=[]（提交后跑=强判据：五件全在；提交前跑=0 属预期）"
+      "detail": "HEAD 树内 operator_log/ 含=['2026-10-21.md', '2026-10-21.readings.json', '2026-10-21.validation_report.json', 'collect_2026-10-21.py', 'verify_2026-10-21.py']（提交后跑=强判据：五件全在；提交前跑=0 属预期）"
     },
     {
       "check": "self_tree_clean_after_commit",
-      "pass": true,
-      "detail": "提交后 git status='?? operator_log/'（空=树干净；幂等写生效）"
+      "pass": false,
+      "detail": "提交后 git status='M operator_log/2026-10-21.validation_report.json\\n M operator_log/verify_2026-10-21.py'（空=树干净；幂等写生效）"
     },
     {
       "check": "r4_gates_verified_dirty",

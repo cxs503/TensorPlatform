@@ -549,7 +549,8 @@ def main() -> int:
     passed = sum(1 for x in results if x["pass"])
     total = len(results)
     report = {
-        "generated_at_utc": datetime.datetime.utcnow().strftime("%Y-%m-%dT%H:%M:%SZ"),
+        # 幂等：用 readings 采集时刻而非 now()，报告内容与运行次数无关（否则提交后复跑必脏树=R4 自家版）
+        "generated_at_utc": r.get("collected_at_utc"),
         "shift": "m156",
         "readings_collected_at_utc": r.get("collected_at_utc"),
         "passed": passed,
