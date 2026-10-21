@@ -1,0 +1,230 @@
+{
+  "generated_at_utc": "2026-10-21T06:50:17Z",
+  "shift": "m142",
+  "readings_collected_at_utc": "2026-10-21T06:48:04Z",
+  "passed": 44,
+  "total": 44,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "inflight_contains_m142",
+      "pass": true,
+      "detail": "在飞 id=['142']（必含本班 142）"
+    },
+    {
+      "check": "inflight_heartbeat_fresh",
+      "pass": true,
+      "detail": "心跳年龄(秒)=[1]，全部 ≤240s（未到收割线）"
+    },
+    {
+      "check": "inflight_stop_condition_null",
+      "pass": true,
+      "detail": "在飞 result.stop_condition=['NULL']（均 NULL，无 infra 终局值）"
+    },
+    {
+      "check": "guardian_count_baseline_10",
+      "pass": true,
+      "detail": "守护进程数（排除 bash 包装的等价口径）=10（基线 10）；裸 pgrep 读数=10"
+    },
+    {
+      "check": "guardian_detail_matches_count",
+      "pass": true,
+      "detail": "2_guardian_detail 逐进程行数=10 == 计数 10"
+    },
+    {
+      "check": "relay_http_200",
+      "pass": true,
+      "detail": "中继 /models HTTP=200（期望 200）"
+    },
+    {
+      "check": "relay_latency_under_5s",
+      "pass": true,
+      "detail": "中继延迟=0.230842s（门限 ≤5s）"
+    },
+    {
+      "check": "relay_model_count_7",
+      "pass": true,
+      "detail": "中继返回 models=7（与前任读数一致 7）"
+    },
+    {
+      "check": "cooldown_empty",
+      "pass": true,
+      "detail": "冷却态内容='{}'（空=无端点冷却，无需清理）"
+    },
+    {
+      "check": "terminal_24h_succeeded_in_band",
+      "pass": true,
+      "detail": "24h succeeded=26（基线区间 20–35，平台推进不钉死）"
+    },
+    {
+      "check": "terminal_24h_awaiting_in_band",
+      "pass": true,
+      "detail": "24h awaiting_acceptance=6（平台推进会增减，不钉死）"
+    },
+    {
+      "check": "terminal_24h_failed_present",
+      "pass": true,
+      "detail": "24h failed=4（≥3，honest FAIL 集合稳定）"
+    },
+    {
+      "check": "terminal_24h_no_unhandled_infra_failures",
+      "pass": true,
+      "detail": "24h failed infra 类 stop_condition=[]（应为空=无 infra 类终局未处置）"
+    },
+    {
+      "check": "m137_honest_fail",
+      "pass": true,
+      "detail": "m137 result=finished_without_acceptance tool_calls=57 max_wall=14400 elapsed=901（honest FAIL：57 tool / 901s 用尽 nudge 未提交）"
+    },
+    {
+      "check": "m137_zero_commit_evidence",
+      "pass": true,
+      "detail": "m137 分支/工作树=branch_head=e18d83b733b3709b5103d1f1c39eb30e86d2327b wt_head=e18d83b733b3709b5103d1f1c39eb30e86d2327b ahead=0 dirty=0（head 停在 base e18d83b，零提交=零交付）"
+    },
+    {
+      "check": "failed_ids_include_137",
+      "pass": true,
+      "detail": "30h failed 集合=ids=100 112 119 126 137"
+    },
+    {
+      "check": "m135_awaiting_acceptance_after_refill",
+      "pass": true,
+      "detail": "m135 续班后='135|awaiting_acceptance|budget=310/18000|sc=NULL|audit_by=operator_agent|added=60/3600|head=4f02b0c|tc=267|ws=6898'（awaiting_acceptance；预算 310/18000；refill.by=operator_agent added=60/3600）"
+    },
+    {
+      "check": "m134_awaiting_acceptance",
+      "pass": true,
+      "detail": "m134='134|awaiting_acceptance|sc=NULL|head=-|checks=2'（awaiting_acceptance；checks=2/2）"
+    },
+    {
+      "check": "refill_rc_all_3_no_infra_object",
+      "pass": true,
+      "detail": "refill_check 退出码=[\"m100 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\", \"m112 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\", \"m119 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\", 'm126 rc=3 拒绝：行内 stop_condition=None 非法/非 infra 类，不续。', \"m137 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\"]（五条 honest FAIL 全 3=拒绝；24h 无 infra 终局 → 本班零 refill 对象）"
+    },
+    {
+      "check": "approval_no_pending_drain",
+      "pass": true,
+      "detail": "审批计数=approved=89 pending=6 rejected=11 （approved 89≥86；pending 持 6 且长期不下降=escalate 空转）"
+    },
+    {
+      "check": "approval_pending_contains_103_104",
+      "pass": true,
+      "detail": "pending 列=['103|120', '104|133', '106|138', '107|139', '108|134', '111|135']（必含 #103(m120) + #104(m133)=R3 锁死实证）"
+    },
+    {
+      "check": "celery_beat_restarting",
+      "pass": true,
+      "detail": "celery-beat=restarting restart=2924 exit=73 created=2026-10-17T04:20:30.246527997Z（stale-pidfile 崩溃循环，exit=73，N 类延续上报）"
+    },
+    {
+      "check": "other_containers_healthy",
+      "pass": true,
+      "detail": "其他容器健康计数：logs 中 'healthy' 出现 10 次（≥9 = 仅 celery-beat 不健康）"
+    },
+    {
+      "check": "celery_beat_restart_growing",
+      "pass": true,
+      "detail": "celery-beat RestartCount=2924（>前任基线 2809，单调增长=循环持续）"
+    },
+    {
+      "check": "import_face_current",
+      "pass": true,
+      "detail": "import face commit=e4edcbc 10-21 13:44:55\ndirty_mtime=2026-10-21 13:42:39（当前最新 face=3159527 或 e4edcbc）"
+    },
+    {
+      "check": "last_commit_recent",
+      "pass": true,
+      "detail": "最近提交=3159527 10-21 14:28:21 fix(approver): v5 机器直读 JSON 数值注入 + 停车前置冻结（approver 修复链）"
+    },
+    {
+      "check": "m120_dirty_from_gates_preflight",
+      "pass": true,
+      "detail": "m120 工作树=head=f459f4bf branch=agent/m120 dirty=3\n M benchmarks/pending/collision_kernels_3d_tg/gates_verified.json\n M benchmarks/pending/cylinder_re40_st/gates（dirty=3，3 个 gates_verified.json 被平台预检改写=R4 实证）"
+    },
+    {
+      "check": "m120_gates_mtime_after_commit",
+      "pass": true,
+      "detail": "m120 gates 写盘时点=file_mtime=2026-10-21 10:53:16\ncommit_time=2026-10-21 10:52:07\naccept_line=[10:53:19] m120: awaiting acceptance (approval 103)\ndiff_checked_at_lines=2（mtime > commit_time = 平台预检写盘晚于交付 commit=R4 根因）"
+    },
+    {
+      "check": "gc_all_denied",
+      "pass": true,
+      "detail": "gc.py 权限=total=13 perms=600 /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py denied=13（600 无 x 位→13/13 denied，X 类延续上报）"
+    },
+    {
+      "check": "worktree_count_growing",
+      "pass": true,
+      "detail": "git worktree list 行数=54（GC 停摆持续累积，≥52）"
+    },
+    {
+      "check": "main_dirty_shrunk_and_clean_of_approver",
+      "pass": true,
+      "detail": "主仓脏项=4；auto_approver.py 已不在脏树（修复入库）"
+    },
+    {
+      "check": "fleet_alive",
+      "pass": true,
+      "detail": "fleet.log 尾=2026-10-21T06:45:01Z fleet pass done, spawned=0（保活在运行，spawned=0=无缺口）"
+    },
+    {
+      "check": "r3_suite_capacity_14",
+      "pass": true,
+      "detail": "repo 默认套件容量=14 passed in 0.03s（=14 pytest 例数=R3 容量硬门基线）"
+    },
+    {
+      "check": "r3_lock_checks_claimed_exceeds_capacity",
+      "pass": true,
+      "detail": "审批 #104 checks_claimed=checks_claimed=25（25 > 14=R3 容量硬门锁死实证）"
+    },
+    {
+      "check": "log_consistency::readings 条数",
+      "pass": true,
+      "detail": "log 引用 readings 条数；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::守护计数 10",
+      "pass": true,
+      "detail": "log 引用 守护计数 10；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::中继 200",
+      "pass": true,
+      "detail": "log 引用 中继 200；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::中继 models=7",
+      "pass": true,
+      "detail": "log 引用 中继 models=7；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::冷却态空",
+      "pass": true,
+      "detail": "log 引用 冷却态空；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::审批 approved≥86",
+      "pass": true,
+      "detail": "log 引用 审批 approved≥86；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::pending=6",
+      "pass": true,
+      "detail": "log 引用 pending=6；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::celery-beat restart 2924",
+      "pass": true,
+      "detail": "log 引用 celery-beat restart 2924；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::worktree 54",
+      "pass": true,
+      "detail": "log 引用 worktree 54；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::suite_capacity 14",
+      "pass": true,
+      "detail": "log 引用 suite_capacity 14；工件一致=True（log 与 readings 未脱钩）"
+    }
+  ]
+}
