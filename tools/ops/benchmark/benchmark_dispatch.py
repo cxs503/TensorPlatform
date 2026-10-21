@@ -26,6 +26,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pr_hygiene import merge_main_before_push  # PR 卫生：推送前并 main
+
 ECO = Path("/srv/tensor/shared/tensor_eco")
 WORK = ECO / "agent_work" / "benchmark_closure"
 RUNS = Path("/srv/tensor/shared/runs/bm_close")
@@ -198,6 +201,11 @@ def push_and_pr(item: dict, mid: int, mission: dict,
     paper=True 走六门（含案例细节+图件）。"""
     wt = ECO / "agent_work" / f"m{mid}" / "TensorLBM"
     branch = f"agent/m{mid}"
+    # PR 卫生：门禁前并 main（白名单机械解；不推带冲突标记的分支）
+    okm, howm = merge_main_before_push(str(wt), "benchmark_dispatch")
+    if not okm:
+        log(f"m{mid}: 并 main 未成（{howm}）→ 本轮不推，下轮重试")
+        return None
     if gates_required:
         g = subprocess.run(
             [PY, str(WORK / "gates_check.py"),

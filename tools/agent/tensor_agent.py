@@ -285,21 +285,33 @@ def _add_worktree(repo_path: str, wt: str, mid: int, base_ref: str) -> None:
     if os.path.exists(os.path.join(wt, ".git")):
         return
     # resolve base_ref locally, else shallow-fetch from origin once
-    rc, _ = run(["git", "-C", repo_path, "cat-file", "-e", f"{base_ref}^{{commit}}"])
+    # 根因修复（2026-10-21 dirty-PR 事故）：base=main 时本地 main 常陈旧
+    # （克隆本地 main 停在旧点）→ 旧基分支 → owner 合并后大面积 dirty。
+    # 一律先 fetch 再用 origin/main；fetch 失败退本地缓存，由收割端
+    # merge_main_before_push 兜底。
     ref = base_ref
-    if rc != 0:
-        log(f"base_ref {base_ref} not local — fetching")
-        rc, out = run(["git", "-C", repo_path, "fetch", "origin", base_ref,
-                       "--depth=1", "--no-tags"], timeout=300)
-        if rc == 0:
-            ref = "FETCH_HEAD"
-        else:
-            rc2, _ = run(["git", "-C", repo_path, "cat-file", "-e", "origin/main^{commit}"])
-            if rc2 == 0:
-                log(f"fetch failed ({out[:120]}) — falling back to origin/main")
-                ref = "origin/main"
+    if base_ref == "main":
+        run(["git", "-C", repo_path, "fetch", "origin", "main", "--no-tags"],
+            timeout=300)
+        rc0, _ = run(["git", "-C", repo_path, "cat-file", "-e",
+                      "origin/main^{commit}"])
+        if rc0 == 0:
+            ref = "origin/main"
+    if ref == base_ref:
+        rc, _ = run(["git", "-C", repo_path, "cat-file", "-e", f"{base_ref}^{{commit}}"])
+        if rc != 0:
+            log(f"base_ref {base_ref} not local — fetching")
+            rc, out = run(["git", "-C", repo_path, "fetch", "origin", base_ref,
+                           "--depth=1", "--no-tags"], timeout=300)
+            if rc == 0:
+                ref = "FETCH_HEAD"
             else:
-                raise RuntimeError(f"cannot resolve base ref {base_ref}: {out[:200]}")
+                rc2, _ = run(["git", "-C", repo_path, "cat-file", "-e", "origin/main^{commit}"])
+                if rc2 == 0:
+                    log(f"fetch failed ({out[:120]}) — falling back to origin/main")
+                    ref = "origin/main"
+                else:
+                    raise RuntimeError(f"cannot resolve base ref {base_ref}: {out[:200]}")
     branch = f"agent/m{mid}"
     rc, out = run(["git", "-C", repo_path, "worktree", "add", "-b", branch, wt, ref],
                   timeout=300)
