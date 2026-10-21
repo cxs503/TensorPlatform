@@ -1,0 +1,367 @@
+{
+  "collected_by": "platform-operator m144 shift",
+  "collected_at_utc": "2026-10-21T08:23:09Z",
+  "note": "每条为命令原文 + stdout 原样 + 退出码；本文件由 collect_2026-10-21.py 机器生成，零手抄",
+  "items": [
+    {
+      "name": "t0_utc",
+      "command": "date -u +%FT%TZ",
+      "exit_code": 0,
+      "stdout": "2026-10-21T08:23:09Z\n",
+      "stderr": "",
+      "elapsed_s": 0.056
+    },
+    {
+      "name": "1_inflight",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT id||'|'||status||'|'||to_char(heartbeat_at,'MM-DD HH24:MI:SS')||'|'||round(extract(epoch from now()-heartbeat_at))::int||'|'||coalesce(result->>'stop_condition','NULL')||'|'||coalesce(claimed_by,'-') FROM tensor_dev_missions WHERE status IN ('claimed','running') ORDER BY id;\"",
+      "exit_code": 0,
+      "stdout": "144|running|10-21 08:23:03|6|NULL|tensor-agent[deepseek-v4-flash]@localhost.localdomain\n",
+      "stderr": "",
+      "elapsed_s": 0.128
+    },
+    {
+      "name": "2_guardian_count",
+      "command": "pgrep -f 'tensor_agen[t].py' | wc -l",
+      "exit_code": 0,
+      "stdout": "10\n",
+      "stderr": "",
+      "elapsed_s": 0.107
+    },
+    {
+      "name": "2_guardian_count_excl_bash",
+      "command": "ps -eo args | awk '/[t]ensor_agent\\.py/ && !/bash -lc/ {n++} END{print n+0}'",
+      "exit_code": 0,
+      "stdout": "10\n",
+      "stderr": "",
+      "elapsed_s": 0.1
+    },
+    {
+      "name": "2_guardian_detail",
+      "command": "ps -eo pid,args | awk '/[t]ensor_agent\\.py/ && !/bash -lc/ {print $1}' | while read p; do echo \"$p start=[$(ps -o lstart= -p $p | tr -s ' ')] cwd=$(readlink /proc/$p/cwd)\"; done",
+      "exit_code": 0,
+      "stdout": "2667668 start=[Tue Oct 20 22:40:01 2026] cwd=/srv/tensor/operator-c\n3979455 start=[Tue Oct 20 13:55:01 2026] cwd=/srv/tensor/operator-c\n3979460 start=[Tue Oct 20 13:55:01 2026] cwd=/srv/tensor/operator-c\n3979464 start=[Tue Oct 20 13:55:01 2026] cwd=/srv/tensor/operator-c\n3979471 start=[Tue Oct 20 13:55:01 2026] cwd=/srv/tensor/operator-c\n3979481 start=[Tue Oct 20 13:55:01 2026] cwd=/srv/tensor/operator-c\n3982479 start=[Wed Oct 21 08:34:37 2026] cwd=/srv/tensor/shared/tensor_eco/agent_work/wt_workers (deleted)\n3982484 start=[Wed Oct 21 08:34:37 2026] cwd=/srv/tensor/shared/tensor_eco/agent_work/wt_workers (deleted)\n3982494 start=[Wed Oct 21 08:34:37 2026] cwd=/srv/tensor/shared/tensor_eco/agent_work/wt_workers (deleted)\n4094676 start=[Tue Oct 20 14:20:01 2026] cwd=/srv/tensor/operator-c\n",
+      "stderr": "",
+      "elapsed_s": 0.421
+    },
+    {
+      "name": "3_relay",
+      "command": "set -a; source /srv/tensor/shared/tensor_eco/agent_work/review.env; set +a; curl -s -o /tmp/m144_models.json -w 'http=%{http_code} t=%{time_total}' -H \"Authorization: Bearer $LLM_API_KEY\" $LLM_BASE_URL/models; echo; python3 -c \"import json;d=json.load(open('/tmp/m144_models.json'));print('models=%d' % len(d.get('data',[])))\"",
+      "exit_code": 0,
+      "stdout": "http=200 t=0.223268\nmodels=7\n",
+      "stderr": "",
+      "elapsed_s": 0.294
+    },
+    {
+      "name": "4_cooldown",
+      "command": "cat /srv/tensor/shared/tensor_eco/agent_work/llm_gateway_state.json; echo",
+      "exit_code": 0,
+      "stdout": "{}\n\n",
+      "stderr": "",
+      "elapsed_s": 0.053
+    },
+    {
+      "name": "5_terminal_24h",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT status||'|'||count(*)||'|'||coalesce(result->>'stop_condition','NULL') FROM tensor_dev_missions WHERE status NOT IN ('claimed','running') AND created_at > now()-interval '24 hours' GROUP BY status, result->>'stop_condition' ORDER BY status;\"",
+      "exit_code": 0,
+      "stdout": "awaiting_acceptance|1|NULL\nfailed|3|finished_without_acceptance\nfailed|1|NULL\nsucceeded|31|NULL\n",
+      "stderr": "",
+      "elapsed_s": 0.128
+    },
+    {
+      "name": "5_failed_30h",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT id||'|'||to_char(heartbeat_at,'MM-DD HH24:MI')||'|'||coalesce(result->>'stop_condition','NULL')||'|'||round(extract(epoch from now()-heartbeat_at)/3600)::int||'h' FROM tensor_dev_missions WHERE status='failed' AND heartbeat_at > now()-interval '30 hours' ORDER BY id;\"",
+      "exit_code": 0,
+      "stdout": "100|10-20 04:54|finished_without_acceptance|27h\n112|10-20 10:15|finished_without_acceptance|22h\n119|10-20 23:39|finished_without_acceptance|9h\n126|10-21 00:18|NULL|8h\n137|10-21 03:38|finished_without_acceptance|5h\n",
+      "stderr": "",
+      "elapsed_s": 0.128
+    },
+    {
+      "name": "5_failed_30h_ids",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT 'ids='||string_agg(id::text,' ' ORDER BY id) FROM tensor_dev_missions WHERE status='failed' AND heartbeat_at > now()-interval '30 hours';\"",
+      "exit_code": 0,
+      "stdout": "ids=100 112 119 126 137\n",
+      "stderr": "",
+      "elapsed_s": 0.13
+    },
+    {
+      "name": "5_failed_24h_infra",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT id||'|'||to_char(heartbeat_at,'MM-DD HH24:MI')||'|'||coalesce(result->>'stop_condition','NULL') FROM tensor_dev_missions WHERE status='failed' AND heartbeat_at > now()-interval '24 hours' ORDER BY id;\"",
+      "exit_code": 0,
+      "stdout": "112|10-20 10:15|finished_without_acceptance\n119|10-20 23:39|finished_without_acceptance\n126|10-21 00:18|NULL\n137|10-21 03:38|finished_without_acceptance\n",
+      "stderr": "",
+      "elapsed_s": 0.131
+    },
+    {
+      "name": "5_approvals",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT status||'='||count(*) FROM tensor_approval_requests GROUP BY status ORDER BY 1;\"",
+      "exit_code": 0,
+      "stdout": "approved=96\npending=1\nrejected=11\n",
+      "stderr": "",
+      "elapsed_s": 0.128
+    },
+    {
+      "name": "5_approval_pending",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT coalesce(string_agg(id::text,' ' ORDER BY id),'(none)') FROM tensor_approval_requests WHERE status NOT IN ('approved','rejected');\"",
+      "exit_code": 0,
+      "stdout": "113\n",
+      "stderr": "",
+      "elapsed_s": 0.125
+    },
+    {
+      "name": "5_approval_100plus",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT id||'|m'||coalesce(mission_id::text,'-')||'|'||status||'|by='||coalesce(decided_by::text,'-')||'|at='||coalesce(to_char(decided_at,'MM-DD HH24:MI:SS'),'-') FROM tensor_approval_requests WHERE id >= 100 ORDER BY id;\"",
+      "exit_code": 0,
+      "stdout": "100|m124|approved|by=1|at=10-21 01:34:20\n101|m131|approved|by=1|at=10-21 02:06:26\n102|m132|approved|by=1|at=10-21 02:28:16\n103|m120|approved|by=1|at=10-21 07:16:40\n104|m133|approved|by=1|at=10-21 07:16:45\n105|m136|approved|by=1|at=10-21 04:18:29\n106|m138|approved|by=1|at=10-21 07:16:49\n107|m139|approved|by=1|at=10-21 07:16:52\n108|m134|approved|by=1|at=10-21 07:17:17\n109|m140|approved|by=1|at=10-21 05:39:04\n110|m141|approved|by=1|at=10-21 06:11:22\n111|m135|approved|by=1|at=10-21 07:17:08\n112|m142|approved|by=1|at=10-21 07:17:10\n113|m143|pending|by=-|at=-\n",
+      "stderr": "",
+      "elapsed_s": 0.123
+    },
+    {
+      "name": "5_approval_drain_src",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT 'by='||coalesce(decided_by::text,'-')||' n='||count(*)||' '||to_char(min(decided_at),'MM-DD HH24:MI')||'..'||to_char(max(decided_at),'MM-DD HH24:MI') FROM tensor_approval_requests WHERE decided_at > now()-interval '3 hours' GROUP BY decided_by ORDER BY 1;\"",
+      "exit_code": 0,
+      "stdout": "by=1 n=9 10-21 05:39..10-21 07:17\n",
+      "stderr": "",
+      "elapsed_s": 0.129
+    },
+    {
+      "name": "5_m142_final",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT id||'|'||status||'|'||coalesce(result->>'stop_condition','NULL')||'|head='||coalesce(result->>'head_commit','-') FROM tensor_dev_missions WHERE id IN (142,143,144) ORDER BY id;\"",
+      "exit_code": 0,
+      "stdout": "142|succeeded|NULL|head=-\n143|awaiting_acceptance|NULL|head=-\n144|running|NULL|head=-\n",
+      "stderr": "",
+      "elapsed_s": 0.129
+    },
+    {
+      "name": "5_m137_result",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT coalesce(result->>'stop_condition','NULL')||' tool_calls='||coalesce(result->'progress'->>'tool_calls','-')||' elapsed='||coalesce(result->'progress'->>'elapsed_seconds','-') FROM tensor_dev_missions WHERE id=137;\"",
+      "exit_code": 0,
+      "stdout": "finished_without_acceptance tool_calls=57 elapsed=901\n",
+      "stderr": "",
+      "elapsed_s": 0.124
+    },
+    {
+      "name": "5_m137_branch",
+      "command": "echo head=$(git -C /srv/tensor/shared/tensor_eco/agent_work/m137/TensorDEM rev-parse --short HEAD 2>/dev/null) ahead=$(git -C /srv/tensor/shared/tensor_eco/agent_work/m137/TensorDEM rev-list --count HEAD --not e18d83b 2>/dev/null) dirty=$(git -C /srv/tensor/shared/tensor_eco/agent_work/m137/TensorDEM status --short 2>/dev/null | wc -l)",
+      "exit_code": 0,
+      "stdout": "head=e18d83b ahead=0 dirty=0\n",
+      "stderr": "",
+      "elapsed_s": 0.061
+    },
+    {
+      "name": "5_refill_check_rc",
+      "command": "set -a; source /srv/tensor/shared/tensor_eco/agent_work/operator.env; set +a; for m in 100 112 119 126 137; do /srv/tensor/shared/venvs/tensor_eco/bin/python /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/refill_check.py $m >/tmp/rc$m.txt 2>&1; echo \"m$m rc=$? $(tail -1 /tmp/rc$m.txt | cut -c1-70)\"; done",
+      "exit_code": 0,
+      "stdout": "m100 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\nm112 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\nm119 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\nm126 rc=3 拒绝：行内 stop_condition=None 非法/非 infra 类，不续。\nm137 rc=3 拒绝：行内 stop_condition='finished_without_acceptance'（owner 锁/honest FAIL\n",
+      "stderr": "",
+      "elapsed_s": 1.696
+    },
+    {
+      "name": "6_containers",
+      "command": "docker ps -a --format '{{.Names}}|{{.Status}}' | sort",
+      "exit_code": 0,
+      "stdout": "kp-celery|Up 2 days (healthy)\nkp-docker-builder|Up 2 days (healthy)\nkp-grafana|Up 2 days (healthy)\nopen-foundation-backend|Up 2 days (healthy)\nopen-foundation-celery-beat|Restarting (73) 25 seconds ago\nopen-foundation-frontend|Up 43 hours (healthy)\nopen-foundation-kafka|Up 2 days (healthy)\nopen-foundation-postgres|Up 2 days (healthy)\nopen-foundation-prometheus|Up 2 days (healthy)\nopen-foundation-redis|Up 2 days (healthy)\nopen-foundation-zookeeper|Up 2 days (healthy)\n",
+      "stderr": "",
+      "elapsed_s": 0.073
+    },
+    {
+      "name": "6_celery_beat_inspect",
+      "command": "docker inspect -f '{{.State.Status}} restart={{.RestartCount}} exit={{.State.ExitCode}}' open-foundation-celery-beat 2>&1",
+      "exit_code": 0,
+      "stdout": "restarting restart=3017 exit=73\n",
+      "stderr": "",
+      "elapsed_s": 0.07
+    },
+    {
+      "name": "6_celery_beat_pidfile_rounds",
+      "command": "docker logs open-foundation-celery-beat 2>&1 | grep -c Pidfile",
+      "exit_code": 0,
+      "stdout": "3017\n",
+      "stderr": "",
+      "elapsed_s": 0.099
+    },
+    {
+      "name": "6_approver_log_tail",
+      "command": "tail -6 /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log",
+      "exit_code": 0,
+      "stdout": "[15:16:02] approval 107 已 escalate 停车——跳过\n[15:16:02] approval 106 已 escalate 停车——跳过\n[15:16:02] approval 104 已 escalate 停车——跳过\n[15:16:02] approval 103 已 escalate 停车——跳过\n[16:22:01] pending=1（6 已 escalate 停车）\n[16:22:01] approval 113 escalate（已停车留人工）：工作树有 3 项未提交变更——交付未落 commit，留人工\n",
+      "stderr": "",
+      "elapsed_s": 0.054
+    },
+    {
+      "name": "6_approver_escalate_rounds",
+      "command": "echo a103=$(grep -c 'approval 103' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null) a104=$(grep -c 'approval 104' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null) a106=$(grep -c 'approval 106' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null) a107=$(grep -c 'approval 107' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null) a111=$(grep -c 'approval 111' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null) a112=$(grep -c 'approval 112' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null) park_lines=$(grep -c '已 escalate 停车' /srv/tensor/shared/tensor_eco/agent_work/auto_approver.log 2>/dev/null)",
+      "exit_code": 0,
+      "stdout": "a103=95 a104=94 a106=41 a107=35 a111=7 a112=7 park_lines=212\n",
+      "stderr": "",
+      "elapsed_s": 0.064
+    },
+    {
+      "name": "6_park_file",
+      "command": "python3 -c \"import json;d=json.load(open('/srv/tensor/shared/tensor_eco/agent_work/approver_escalated.json'));print('parked=%d' % len(d));[print(k, v['mission'], v['ts'], v['note'][:70]) for k, v in sorted(d.items())]\"",
+      "exit_code": 0,
+      "stdout": "parked=7\n103 120 2026-10-21T05:00:03Z 工作树有 3 项未提交变更——交付未落 commit，留人工\n104 133 2026-10-21T05:00:03Z 声称 checks 25 项超过其口径容量 20（机器摘录）——口径矛盾，留人工\n106 138 2026-10-21T05:00:02Z 声称 checks 37 项超过其口径容量 20（机器摘录）——口径矛盾，留人工\n107 139 2026-10-21T05:00:02Z 声称 checks 48 项超过其口径容量 20（机器摘录）——口径矛盾，留人工\n111 135 2026-10-21T07:05:11Z 裁决输出不可解析：Let me analyze the evidence carefully to determine whether to\n112 142 2026-10-21T06:58:02Z 声称 checks 44 项超过其口径容量 20（机器摘录）——口径矛盾，留人工\n113 143 2026-10-21T08:22:01Z 工作树有 3 项未提交变更——交付未落 commit，留人工\n",
+      "stderr": "",
+      "elapsed_s": 0.069
+    },
+    {
+      "name": "6_park_residual_vs_db",
+      "command": "python3 -c \"import json,subprocess;d=json.load(open('/srv/tensor/shared/tensor_eco/agent_work/approver_escalated.json'));q=subprocess.run(['docker','exec','open-foundation-postgres','psql','-U','foundation','-d','open_digital_foundation','-At','-c','SELECT id||chr(58)||status FROM tensor_approval_requests ORDER BY id'],capture_output=True,text=True).stdout;st=dict(l.split(':') for l in q.split() if ':' in l);print('parked_ids=%s' % sorted(d));print('db_status=%s' % [(k, st.get(k,'absent')) for k in sorted(d)])\"",
+      "exit_code": 0,
+      "stdout": "parked_ids=['103', '104', '106', '107', '111', '112', '113']\ndb_status=[('103', 'approved'), ('104', 'approved'), ('106', 'approved'), ('107', 'approved'), ('111', 'approved'), ('112', 'approved'), ('113', 'pending')]\n",
+      "stderr": "",
+      "elapsed_s": 0.149
+    },
+    {
+      "name": "6_park_mtime",
+      "command": "stat -c '%y' /srv/tensor/shared/tensor_eco/agent_work/approver_escalated.json",
+      "exit_code": 0,
+      "stdout": "2026-10-21 16:22:01.693564120 +0800\n",
+      "stderr": "",
+      "elapsed_s": 0.054
+    },
+    {
+      "name": "6_repo_suite_capacity",
+      "command": "cd /srv/tensor/shared/tensor_eco/TensorPlatform && /srv/tensor/shared/hermes-agent/.venv/bin/python -m pytest -x -q tests 2>&1 | tail -1",
+      "exit_code": 0,
+      "stdout": "14 passed in 0.03s\n",
+      "stderr": "",
+      "elapsed_s": 0.28
+    },
+    {
+      "name": "6_r3_lock_evidence",
+      "command": "docker exec open-foundation-postgres psql -U foundation -d open_digital_foundation -At -F'|' -c \"SELECT id||'|claimed='||coalesce(evidence->'checks'->>'total','-')||'|excerpt_checks='||coalesce(jsonb_array_length(evidence->'summary'->'evidence_machine'->'files'->0->'checks')::text,'0')||'|passed_null='||coalesce((SELECT count(*)::text FROM jsonb_array_elements(evidence->'summary'->'evidence_machine'->'files'->0->'checks') e WHERE (e->>'passed') IS NULL),'0') FROM tensor_approval_requests WHERE id IN (104,112) ORDER BY id;\"",
+      "exit_code": 0,
+      "stdout": "104|claimed=25|excerpt_checks=20|passed_null=20\n112|claimed=44|excerpt_checks=20|passed_null=20\n",
+      "stderr": "",
+      "elapsed_s": 0.125
+    },
+    {
+      "name": "6_r3_capacity_truncation",
+      "command": "grep -n 'checks\\[:20\\]' /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/tensor_agent.py; grep -n 'def checks_capacity' /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/auto_approver.py",
+      "exit_code": 0,
+      "stdout": "676:                             for c in checks[:20] if isinstance(c, dict)]\n357:def checks_capacity(machine_checks: int, test_scope: bool,\n",
+      "stderr": "",
+      "elapsed_s": 0.056
+    },
+    {
+      "name": "7_last_commit",
+      "command": "git -C /srv/tensor/shared/tensor_eco/TensorPlatform log -1 --format='%h %ad %s' --date=format:'%m-%d %H:%M:%S' | cat",
+      "exit_code": 0,
+      "stdout": "435e9c8 10-21 15:19:02 approver v6：裁决输出预算 4096→12288 + 网络超时 120→180s\n",
+      "stderr": "",
+      "elapsed_s": 0.055
+    },
+    {
+      "name": "7_import_face_commit",
+      "command": "git -C /srv/tensor/shared/tensor_eco/TensorPlatform log -1 --format='%h %ad' --date=format:'%m-%d %H:%M:%S' -- tools/agent/tensor_agent.py | cat",
+      "exit_code": 0,
+      "stdout": "e4edcbc 10-21 13:44:55\n",
+      "stderr": "",
+      "elapsed_s": 0.055
+    },
+    {
+      "name": "7_face_diff_vs_8e548e7",
+      "command": "git -C /srv/tensor/shared/tensor_eco/TensorPlatform diff --stat 8e548e7..HEAD -- tools/agent/tensor_agent.py | cat; echo hunks=$(git -C /srv/tensor/shared/tensor_eco/TensorPlatform diff 8e548e7..HEAD -- tools/agent/tensor_agent.py | grep -c '^@@')",
+      "exit_code": 0,
+      "stdout": " tools/agent/tensor_agent.py | 30 ++++++++++++++++++++++++++++--\n 1 file changed, 28 insertions(+), 2 deletions(-)\nhunks=3\n",
+      "stderr": "",
+      "elapsed_s": 0.058
+    },
+    {
+      "name": "7_busy_guardian_claims",
+      "command": "for m in qwen3.6-plus glm-5.2 qwen3.7-plus deepseek-v4-flash Qwen3.8-27B glm-5.1 MiniMax-M2.5-AWQ; do echo \"$m: $(grep -h 'claimed mission' /srv/tensor/shared/tensor_eco/agent_work/agent-$m.log 2>/dev/null | tail -1 | cut -c1-90)\"; done",
+      "exit_code": 0,
+      "stdout": "qwen3.6-plus: [13:04:07] claimed mission 141: SI-D: TensorDEM 碎冰浮沉与接触物理单库能力——浮力湿耦合 + 摩擦/恢复系数（SUBOFF 破冰 P\nglm-5.2: [14:44:18] claimed mission 142: platform-operator 值班班次 2026-10-21（角色交接期：例行自主，新颖上报）\nqwen3.7-plus: [15:20:10] claimed mission 143: BENCH-CLOSE:cylinder-w11a2-launch — TensorLBM benchmark 闭环\ndeepseek-v4-flash: [15:43:14] claimed mission 144: platform-operator 值班班次 2026-10-21（角色交接期：例行自主，新颖上报）\nQwen3.8-27B: [11:24:56] claimed mission 38: 在 src/tensorlbm/utils/ 新增 lattice_weights.py（utils 目录不存在则创建\nglm-5.1: [09:24:20] claimed mission 28: P2 冒烟子任务：在仓库 README.md 末尾追加一行“P2 codispatch smoke m2”（英文亦可）\nMiniMax-M2.5-AWQ: \n",
+      "stderr": "",
+      "elapsed_s": 0.063
+    },
+    {
+      "name": "8_worktree_self",
+      "command": "cd /srv/tensor/shared/tensor_eco/agent_work/m144/TensorPlatform && echo branch=$(git rev-parse --abbrev-ref HEAD) head=$(git rev-parse --short HEAD) dirty=$(git status --short | wc -l) ls_tree_log=$(git ls-tree -r --name-only HEAD -- operator_log/ | wc -l)",
+      "exit_code": 0,
+      "stdout": "branch=agent/m144 head=435e9c8 dirty=1 ls_tree_log=0\n",
+      "stderr": "",
+      "elapsed_s": 0.061
+    },
+    {
+      "name": "8_m120_worktree_state",
+      "command": "d=/srv/tensor/shared/tensor_eco/agent_work/m120/TensorLBM; echo head=$(git -C $d rev-parse --short HEAD) dirty=$(git -C $d status --short | wc -l); git -C $d status --short",
+      "exit_code": 0,
+      "stdout": "head=f459f4bf dirty=3\n M benchmarks/pending/collision_kernels_3d_tg/gates_verified.json\n M benchmarks/pending/cylinder_re40_st/gates_verified.json\n M benchmarks/verified/permeability3d/gates_verified.json\n",
+      "stderr": "",
+      "elapsed_s": 0.07
+    },
+    {
+      "name": "8_m120_gates_preflight_source",
+      "command": "D=/srv/tensor/shared/tensor_eco/agent_work/m120/TensorLBM/benchmarks/pending/cylinder_re40_st/gates_verified.json; echo file_mtime=$(stat -c '%y' $D | cut -c1-19); echo commit_time=$(git -C /srv/tensor/shared/tensor_eco/agent_work/m120/TensorLBM show -s --format=%ci f459f4bf | cut -c1-19)",
+      "exit_code": 0,
+      "stdout": "file_mtime=2026-10-21 10:53:16\ncommit_time=2026-10-21 10:52:07\n",
+      "stderr": "",
+      "elapsed_s": 0.057
+    },
+    {
+      "name": "8_m120_ckpt_payload_gate",
+      "command": "python3 -c \"import json;d=json.load(open('/srv/tensor/shared/tensor_eco/agent_work/m120/state/native_messages.json'));ms=d.get('messages',d) if isinstance(d,dict) else d;print('msgs=%d' % len(ms))\"",
+      "exit_code": 0,
+      "stdout": "msgs=96\n",
+      "stderr": "",
+      "elapsed_s": 0.067
+    },
+    {
+      "name": "9_fleet_log",
+      "command": "tail -3 /srv/tensor/shared/tensor_eco/agent_work/fleet.log 2>&1",
+      "exit_code": 0,
+      "stdout": "2026-10-21T08:10:01Z fleet pass done, spawned=0\n2026-10-21T08:15:01Z fleet pass done, spawned=0\n2026-10-21T08:20:01Z fleet pass done, spawned=0\n",
+      "stderr": "",
+      "elapsed_s": 0.053
+    },
+    {
+      "name": "9_crontab_fleet",
+      "command": "crontab -l 2>/dev/null | grep -c fleet",
+      "exit_code": 0,
+      "stdout": "1\n",
+      "stderr": "",
+      "elapsed_s": 0.06
+    },
+    {
+      "name": "9_gc_log",
+      "command": "echo total=$(wc -l < /srv/tensor/shared/tensor_eco/agent_work/gc.log) perms=$(stat -c '%a %n' /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py) denied=$(grep -c '权限不够' /srv/tensor/shared/tensor_eco/agent_work/gc.log)",
+      "exit_code": 0,
+      "stdout": "total=13 perms=600 /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py denied=13\n",
+      "stderr": "",
+      "elapsed_s": 0.056
+    },
+    {
+      "name": "9_worktree_count",
+      "command": "git -C /srv/tensor/shared/tensor_eco/TensorPlatform worktree list | wc -l",
+      "exit_code": 0,
+      "stdout": "55\n",
+      "stderr": "",
+      "elapsed_s": 0.057
+    },
+    {
+      "name": "9_main_dirty",
+      "command": "git -C /srv/tensor/shared/tensor_eco/TensorPlatform status --short | wc -l",
+      "exit_code": 0,
+      "stdout": "4\n",
+      "stderr": "",
+      "elapsed_s": 0.056
+    },
+    {
+      "name": "9_main_dirty_items",
+      "command": "git -C /srv/tensor/shared/tensor_eco/TensorPlatform status --short",
+      "exit_code": 0,
+      "stdout": " M tools/agent/llm_endpoints.json\n?? tools/agent/patch_memcap.py\n?? tools/agent/patch_p0a.py\n?? tools/agent/patch_p1a.py\n",
+      "stderr": "",
+      "elapsed_s": 0.056
+    },
+    {
+      "name": "9_operator_shift_tail",
+      "command": "tail -4 /srv/tensor/shared/tensor_eco/agent_work/operator_shift.log",
+      "exit_code": 0,
+      "stdout": "2026-10-21T06:43:02Z SKIP: 值班班次 m142 在飞（queued）\n2026-10-21T07:13:01Z SKIP: 平台空闲例行间隔未到（距上一班 7199s < 21600s，开发在飞 0）\n2026-10-21T07:43:02Z DISPATCHED: m144 base=fix/approver-token-headroom model=deepseek-v4-flash shift#48 memory=True\n2026-10-21T08:13:01Z SKIP: 值班班次 m144 在飞（running）\n",
+      "stderr": "",
+      "elapsed_s": 0.053
+    }
+  ]
+}
