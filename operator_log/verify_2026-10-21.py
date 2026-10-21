@@ -363,8 +363,12 @@ def main() -> int:
     status = subprocess.run(["git", "-C", os.path.dirname(HERE),
                              "status", "--short"],
                             capture_output=True, text=True, encoding="utf-8").stdout
-    check("self_tree_clean_after_commit", len(files) == 0 or "operator_log" not in status,
-          "提交后 git status=%r（空=树干净；幂等写生效）" % status.strip()[:160])
+    # 排除本脚本自身要写的判据工件（报告每次复跑重写；它脏不代表交付面未落 commit）
+    other = [l for l in status.splitlines()
+             if l.strip() and "2026-10-21.validation_report.json" not in l
+             and "operator_log/2026-10-21.md" not in l]
+    check("self_tree_clean_after_commit", len(files) == 0 or not other,
+          "提交后 git status（除判据工件外）=%r（空=树干净；幂等写生效）" % other[:5])
 
     # --- R4（延续上报）：验收面自造脏树实证 ---
     wt_state = by["8_m120_worktree_state"]["stdout"]
