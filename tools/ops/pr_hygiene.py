@@ -7,6 +7,8 @@
   benchmarks/pending/README.md、operator_log/*.md = 双侧行并集（append-only）；
   operator_log/*.py、benchmarks/pending/*/gates_verified.json = 取分支侧
     （本 PR 交付物；差异留在 PR diff 供 owner 裁）；
+  benchmarks/validation_report.json = 顶层键并集（逐案证据工件双侧整体
+    重写、无工具读取；键冲突取分支侧并记日志，解析失败回退取分支侧）；
   tools/agent/auto_approver.py = 取 main 版 + ours 独有纯函数嫁接，
     py_compile + 四锚点（12288/180/branch_diff_block/machine_json_values）。
 
@@ -105,6 +107,26 @@ def graft_approver(wt: str, p: str) -> str:
     return "approver:main+repo_pythonpath 嫁接"
 
 
+def json_union_resolve(wt: str, p: str) -> str:
+    """validation_report.json：顶层键并集（逐案证据工件，双侧各自整体重写，
+    无工具读取）。键冲突取分支侧并披露；任一侧 JSON 解析失败回退取分支侧。"""
+    fp = os.path.join(wt, p)
+    try:
+        ours = json.loads(sh(f"git show HEAD:{p}", wt).stdout or "{}")
+        theirs = json.loads(sh(f"git show origin/main:{p}", wt).stdout or "{}")
+    except Exception:
+        sh(f'git checkout --ours "{p}" && git add "{p}"', wt)
+        return f"{p} 取分支侧（JSON 解析失败回退）"
+    clash = [k for k in theirs if k in ours]
+    merged = dict(theirs)
+    merged.update(ours)
+    open(fp, "w", encoding="utf-8").write(
+        json.dumps(merged, ensure_ascii=False, indent=2) + "\n")
+    sh(f'git add "{p}"', wt)
+    extra = f"、键冲突取分支侧{clash}" if clash else ""
+    return f"{p} 顶层键并集{extra}"
+
+
 def resolve_conflicts(wt: str) -> tuple[bool, str]:
     """白名单机械解；返回 (全部解掉?, 说明)。未知冲突文件→False。"""
     notes = []
@@ -121,6 +143,8 @@ def resolve_conflicts(wt: str) -> tuple[bool, str]:
             # —— 取分支侧（PR 本身交付物），差异留在 PR diff 供 owner 裁
             sh(f'git checkout --ours "{f}" && git add "{f}"', wt)
             notes.append(f"{f} 取分支侧")
+        elif f == "benchmarks/validation_report.json":
+            notes.append(json_union_resolve(wt, f))
         elif f.startswith("benchmarks/") and f.endswith("/gates_verified.json"):
             # 案例机器工件：main 侧来自他案/旧案，分支侧是本 PR 交付——取分支侧
             sh(f'git checkout --ours "{f}" && git add "{f}"', wt)
