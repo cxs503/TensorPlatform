@@ -212,6 +212,65 @@ def baseline_failures(repo_dir: str, base: str, python: str,
         return None
 
 
+def branch_diff_block(wt: str, base: str) -> str:
+    """交付分支全量画像：commit 列表 + base..HEAD 全量 diffstat。
+
+    m126 误杀教训（2026-10-21）：`git show --stat <head>` 只含末提交——
+    「先交付 .md、后补验收 JSON」的正常多提交交付被误读成"仅改动该 JSON"。
+    判据：分支交付 = base..HEAD 累积，不是末提交。
+    """
+    _, commits = sh(f"git log --oneline {base}..HEAD", cwd=wt)
+    _, stat = sh(f"git diff --stat {base}..HEAD", cwd=wt)
+    n = len(commits.splitlines())
+    return (f"分支提交（{base}..HEAD 共 {n} 个，交付=累积非仅末提交）：\n"
+            f"{commits[:700]}\n"
+            f"分支全量 diffstat（{base}..HEAD）：\n{stat[:1500]}")
+
+
+def claimed_deliverables(goal: str) -> list[str]:
+    """提取 goal 明示的本仓交付文件（产出/新增/交付 + 含 / 的路径）。纯函数。
+
+    只认任务自身 goal 段——注入记忆里引用的往次产物不算本案交付。
+    """
+    head = goal.split("往次任务记忆（平台注入", 1)[0]
+    out = []
+    for m in re.finditer(
+            r"(?:产出|新增|交付)[^\n`]{0,12}?`?([\w./-]+\.[A-Za-z0-9]{1,6})`?", head):
+        p = m.group(1)
+        if "/" in p and not p.startswith("http"):
+            out.append(p)
+    return sorted(set(out))
+
+
+def presence_split(wt: str, base: str, files: list[str]) -> tuple[list[str], list[str]]:
+    """交付文件是否真在 base..HEAD 变更集：在场/缺席二分。机器判据。
+
+    缺席不机械 reject（多仓 mission 的他仓交付会误伤）——只作为缺席事实
+    交给 LLM；在场则构成"不得以未见文件 reject"的硬事实。
+    """
+    if not files:
+        return [], []
+    _, changed = sh(f"git diff --name-only {base}..HEAD", cwd=wt)
+    changed_set = set(changed.split())
+    present = [f for f in files if f in changed_set]
+    absent = [f for f in files if f not in changed_set]
+    return present, absent
+
+
+def guard_false_kill(verdict: str, reason: str, present: list[str]) -> tuple[str, str]:
+    """LLM 裁 reject 且理由是"未见文件"而机器核验在场 → 转人工复核。
+
+    不静默翻 approve（防另一类误放）；只把误杀嫌疑升级人工，附机器事实。
+    m126 误杀教训机制化。
+    """
+    if (verdict == "reject" and present
+            and re.search(r"未见|不存在|缺失|未提交|未落", reason)):
+        return ("escalate",
+                "LLM 裁 reject 理由为文件未见，但机器核验 base..HEAD 在场："
+                f"{present[:6]}——误杀嫌疑，转人工。原始理由：{reason[:160]}")
+    return verdict, reason
+
+
 def verify_dev_acceptance(api: API, mission: dict,
                           evidence: dict) -> tuple[str, str]:
     """返回 (verdict, evidence_text)。verdict ∈ approve/reject/escalate。
@@ -243,8 +302,8 @@ def verify_dev_acceptance(api: API, mission: dict,
     _, ahead = sh(f"git rev-list --count {base}..HEAD", cwd=wt)
     if ahead.strip().isdigit() and int(ahead.strip()) == 0:
         return "escalate", f"分支相对基线 {base} 零新提交——交付未落 commit"
-    _, stat = sh(f"git show --stat --oneline {head}", cwd=wt)
-    stat = stat[:1500]
+    goal = mission.get("goal", "")
+    stat = branch_diff_block(wt, base)
     # 按仓库口径复跑默认套件（与 do_run_tests 缺省命令同口径）。
     # 注意：agent 声称的 checks 可能来自子集命令，与全量复跑口径不同——
     # 声称/复跑差异交给 LLM 裁决，硬否决只在 goal 明确要求默认套件全绿时触发。
@@ -280,7 +339,6 @@ def verify_dev_acceptance(api: API, mission: dict,
         return "escalate", (f"声称 checks {claimed_total} 项超过同头复跑容量 "
                             f"{n_pass}+{n_fail}+{n_skip}={n_pass+n_fail+n_skip}"
                             "——口径矛盾，留人工")
-    goal = mission.get("goal", "")
     if re.search(r"默认测试全绿|全量测试|pytest -x -q tests|默认套件", goal):
         if new_reds:
             return ("reject", f"goal 要求默认套件全绿，复跑存在相对基线新增失败 "
@@ -296,6 +354,14 @@ def verify_dev_acceptance(api: API, mission: dict,
     #   goal 明确要求 validation_report 判据而未附摘录 → 留人工（mid>47 起，
     #   m47 是参数上线前最后一个场景腿，仍走旧口径 LLM 红队）。
     machine = claimed.get("evidence_machine") or {}
+    deliver = claimed_deliverables(goal)
+    present, absent = presence_split(wt, base, deliver)
+    presence_block = ""
+    if deliver:
+        presence_block = ("\n机器核验交付文件在场性（base..HEAD 变更集，可信级最高）：\n"
+                          + (f"在场：{present}\n" if present else "")
+                          + (f"缺席：{absent}\n" if absent else "")
+                          + "——在场文件不得以'未见文件'为由 reject。\n")
     machine_block = ""
     if machine.get("files"):
         for f in machine["files"]:
@@ -317,7 +383,7 @@ def verify_dev_acceptance(api: API, mission: dict,
                f"验收摘要：{json.dumps(claimed, ensure_ascii=False)[:1400]}\n"
                f"声称 checks：{(evidence.get('checks') or {}).get('passed')}"
                f"/{(evidence.get('checks') or {}).get('total')}\n"
-               f"{machine_block}\n"
+               f"{presence_block}{machine_block}\n"
                f"默认套件复跑：exit={'0' if t_code == 0 else t_code}，"
                f"{n_pass} passed / {n_fail} failed；"
                + ("全绿" if t_code == 0 else
@@ -329,8 +395,9 @@ def verify_dev_acceptance(api: API, mission: dict,
                f"复跑尾部：\n{tail[-1200:]}\n\n"
                f"提交：\n{stat}")
     verdict = llm_verdict(context)
-    return verdict["verdict"], (verdict["reason"] + f"\n\n复跑：{n_pass} passed / "
-                                f"{n_fail} failed，head {head[:12]}")
+    v_out, r_out = guard_false_kill(verdict["verdict"], verdict["reason"], present)
+    return v_out, (r_out + f"\n\n复跑：{n_pass} passed / "
+                   f"{n_fail} failed，head {head[:12]}")
 
 
 def verify_stage_promotion(api: API, approval: dict) -> tuple[str, str]:
