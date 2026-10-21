@@ -154,16 +154,17 @@ def decide_approval(
 ):
     row = db.execute(
         text("""
-            SELECT a.id, a.scenario_id, a.mission_id, a.kind, a.to_stage, a.status,
+            SELECT a.id, a.organization_id, a.scenario_id, a.mission_id, a.kind, a.to_stage, a.status,
                    s.scenario_key, m.session_id AS mission_session_id
             FROM tensor_approval_requests a
             LEFT JOIN tensor_scenarios s ON s.id = a.scenario_id
             LEFT JOIN tensor_dev_missions m ON m.id = a.mission_id
             WHERE a.id = :aid
+            FOR UPDATE OF a
         """),
         {"aid": approval_id},
     ).mappings().first()
-    if not row:
+    if not row or int(row["organization_id"]) != resolved_org(None, user, db):
         raise HTTPException(status_code=404, detail="approval not found")
     if row["status"] != "pending":
         raise HTTPException(status_code=409, detail=f"approval already {row['status']}")
@@ -171,6 +172,9 @@ def decide_approval(
     if row["kind"] == "dev_acceptance":
         # mission acceptance: approve -> succeeded, reject -> failed; the mission
         # session closes with the decision event (append-only audit chain).
+        mission = db.execute(text("SELECT status FROM tensor_dev_missions WHERE id=:mid FOR UPDATE"), {"mid": row["mission_id"]}).scalar()
+        if mission != "awaiting_acceptance":
+            raise HTTPException(status_code=409, detail="mission is no longer awaiting acceptance")
         mission_status = "succeeded" if body.decision == "approved" else "failed"
         db.execute(
             text("""
