@@ -1,0 +1,475 @@
+{
+  "generated_at_utc": "2026-10-21T14:00:54Z",
+  "shift": "m156",
+  "readings_collected_at_utc": "2026-10-21T13:51:33Z",
+  "passed": 93,
+  "total": 93,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "inflight_contains_m156",
+      "pass": true,
+      "detail": "在飞 id=['155', '156']（必含本班 156）"
+    },
+    {
+      "check": "inflight_heartbeat_fresh",
+      "pass": true,
+      "detail": "心跳年龄(秒)=[0, 3]，全部 ≤240s（未到收割线）"
+    },
+    {
+      "check": "inflight_stop_condition_null",
+      "pass": true,
+      "detail": "在飞 result.stop_condition=['NULL', 'NULL']（均 NULL，无 infra 终局值）"
+    },
+    {
+      "check": "inflight_no_stale",
+      "pass": true,
+      "detail": "在飞条数=2（本班快照=2，不钉死具体集合）"
+    },
+    {
+      "check": "guardian_count_7_plus_pool",
+      "pass": true,
+      "detail": "守护数（排除 bash 包装，3 次采样=[10, 10, 10]，取众数）=10 = 基线 7 + 池化槽 3（对账 workers.json）；裸 pgrep=10"
+    },
+    {
+      "check": "guardian_detail_matches_count",
+      "pass": true,
+      "detail": "2_guardian_detail 逐进程行数=10（≈10；单次采样，±1 属旁路进程瞬态）"
+    },
+    {
+      "check": "relay_http_200",
+      "pass": true,
+      "detail": "中继 /models HTTP=200（期望 200）"
+    },
+    {
+      "check": "relay_latency_under_5s",
+      "pass": true,
+      "detail": "中继延迟=0.225628s（门限 ≤5s）"
+    },
+    {
+      "check": "relay_model_count_7",
+      "pass": true,
+      "detail": "中继返回 models=7（与前任读数一致 7）"
+    },
+    {
+      "check": "cooldown_empty",
+      "pass": true,
+      "detail": "冷却态内容='{}'（空=无端点冷却，无需清理）"
+    },
+    {
+      "check": "terminal_24h_succeeded_in_band",
+      "pass": true,
+      "detail": "24h succeeded=29（在 20–40 区间，活体平台）"
+    },
+    {
+      "check": "terminal_24h_no_unhandled_infra_failures",
+      "pass": true,
+      "detail": "24h failed infra 类 stop_condition=[]（应为空=无 infra 类终局未处置→零 refill 对象）"
+    },
+    {
+      "check": "m137_honest_fail",
+      "pass": true,
+      "detail": "m137 result=finished_without_acceptance tool_calls=57 elapsed=901（honest FAIL：57 tool / 901s）"
+    },
+    {
+      "check": "m137_zero_commit_evidence",
+      "pass": true,
+      "detail": "m137 分支/工作树=head=e18d83b ahead=0 dirty=0（head 停 base e18d83b，零提交=零交付）"
+    },
+    {
+      "check": "failed_ids_superset_of_previous",
+      "pass": true,
+      "detail": "30h failed 集合=ids=112 119 126 137 150（含前任四条 112/119/126/137，本班新增 m150）"
+    },
+    {
+      "check": "refill_rc_all_3_no_infra_object",
+      "pass": true,
+      "detail": "refill_check 退出码=['m100 rc=3', 'm112 rc=3', 'm119 rc=3', 'm126 rc=3', 'm137 rc=3', 'm150 rc=3']（六条全 3=拒绝；24h 无 infra 终局 → 本班零 refill 对象）"
+    },
+    {
+      "check": "approval_backlog_upper_bound",
+      "pass": true,
+      "detail": "审批计数 approved=104（≥98，单调下界）/rejected=11（=11 稳定）"
+    },
+    {
+      "check": "approval_pending_is_the_two_new_parked_ones",
+      "pass": true,
+      "detail": "pending=121 122（#121 m153 / #122 m152=上班 operator 交付，两者均已进停车表；上班三案 #115/#116/#117 已由 owner 于 11:52Z 人工裁决=清）"
+    },
+    {
+      "check": "approval_backlog_drained_by_owner",
+      "pass": true,
+      "detail": "历史悬案 #103/#104/#106/#107/#108/#111/#112/#113/#114 全部 approved=owner 人工兜底"
+    },
+    {
+      "check": "approval_115_to_119_all_approved_by_owner",
+      "pass": true,
+      "detail": "#115-#119 终裁=115|m146|approved|by=1|created=10-21 09:28:36|decided=10-21 11:52:42 ;; 116|m147|approved|by=1|created=10-21 09:37:13|decided=10-21 11:52:45 ;; 117|m148|approved|by=1|created=10-21 10:02:58|decided=10-21 11:52:49 ;; 118|m149|approved|by=1|created=10-21 10:31:25|decided=10-21 11:52:55 ;; 119|m145|app（全 approved / by=1=owner 人工兜底；含带 R5 停车 note 的 #116）"
+    },
+    {
+      "check": "approval_drain_source_human",
+      "pass": true,
+      "detail": "3h 内裁决来源=by=1 n=6 10-21 11:52..10-21 13:00（decided_by=1 人工裁决，非审批器自动放行；含 #113/#114）"
+    },
+    {
+      "check": "containers_only_beat_unhealthy",
+      "pass": true,
+      "detail": "非健康容器=['open-foundation-celery-beat|Restarting (73) 45 seconds ago']（仅 celery-beat，N 类延续）"
+    },
+    {
+      "check": "celery_beat_restart_growing",
+      "pass": true,
+      "detail": "celery-beat RestartCount=3337（>3300 基线=持续崩溃循环，N 类延续）"
+    },
+    {
+      "check": "parked_file_vs_db_drift",
+      "pass": true,
+      "detail": "停车表 parked=15（本班 15，#121/#122 新增）而库内 pending=121 122（仅 #121/#122 仍开路）→ 13 条已由 owner 人工裁决（approved）却仍留在停车表（Y 类：人工裁决不清表，本班复现）"
+    },
+    {
+      "check": "repo_suite_capacity_14",
+      "pass": true,
+      "detail": "repo 默认套件=14 passed in 0.03s（14 例，旧口径基线；本班已改判分母为摘录截断值）"
+    },
+    {
+      "check": "r3_capacity_denominator_truncated_20",
+      "pass": true,
+      "detail": "#104/112/114/115/117/118 evidence=104|claimed=25|excerpt_checks=20|passed_null=20 ;; 112|claimed=44|excerpt_checks=20|passed_null=20 ;; 113|claimed=6|excerpt_checks=0|passed_null=0 ;; 114|claimed=58|excerpt_checks=20|passed_null=20 ;; 115|claimed=67|excerpt_checks=20|passed_null=20 ;; 116|claimed=3|excerpt_checks=0|passed_null=0 ;; 117|claimed=60|excerpt_checks=20|passed_null=20 ;; 118|claimed=64|excerpt_checks=20|passed_null=20 ;; 119|claimed=6|exce（25/44/58/67/60/64 > 摘录 20=分母被 checks[:20] 截断；#116/#119 无摘录 → 不触该门；本班第九例=#122 m152 operator 交付，见 r3_eighth_case_m152_operator_delivery）"
+    },
+    {
+      "check": "r3_truncation_in_source",
+      "pass": true,
+      "detail": "源码双证=688:                             for c in checks[:20] if isinstance(c, dict)] / 357:def checks_capacity(machine_checks: int, test_scope: bool,（tensor_agent 截断 + auto_approver 以摘录为分母）"
+    },
+    {
+      "check": "import_face_commit_known",
+      "pass": true,
+      "detail": "import 面（tensor_agent.py）= 617f9eb 10-21 21:42:52（本班班中新增 617f9eb=ops PR 卫生 commit，其 tensor_agent 改动为 worktree base 解析（见下条判据=非杀守护类））"
+    },
+    {
+      "check": "face_diff_scope",
+      "pass": true,
+      "detail": "8e548e7..HEAD 对 import 面=tools/agent/tensor_agent.py | 68 +++++++++++++++++++++++++++++++++++---------- ;;  1 file changed, 53 insertions(+), 15 deletions(-) ;; hunks=4（--slot 身份/PYTHONPATH + 617f9eb 的 worktree base 解析修正）"
+    },
+    {
+      "check": "no_kill_daemon_code_in_face_diff",
+      "pass": true,
+      "detail": "617f9eb 对 import 面的新增行=1 行，零 os._exit/SIGKILL/terminate()/_pause/watchdog → 案例 3 换血条件不成立（零换血）"
+    },
+    {
+      "check": "inflight_claim_map_consistent",
+      "pass": true,
+      "detail": "认领映射=qwen3.6-plus: [13:04:07] claimed mission 141: SI-D: TensorDEM 碎冰浮沉与接触物理单库能力——浮力湿耦合 + 摩擦/恢复系数（SUBOFF 破冰 P / glm-5.2: [17:43:19] claimed mission 148: platform-operator 值班班次 2026-10-21（角色交接期：例行自主，新颖上报） / qwen3.7-plus: [20:59:28] claimed missio（本班 156 由 deepseek-v4-flash、155 由 qwen3.7-plus 认领，与 1_inflight 对账一致；旧班 148=glm-5.2 为历史行）"
+    },
+    {
+      "check": "approver_parsefail_v6_resolved",
+      "pass": true,
+      "detail": "解析失败累计=246 轮，末条 15:05:11（v6 435e9c8 15:19:02 落盘后零新增）"
+    },
+    {
+      "check": "approver_v6_landed",
+      "pass": true,
+      "detail": "审批器 v6=v6=435e9c8 10-21 15:19:02 / head=617f9eb 10-21 21:42:52（已落盘；head 本班班中推进到 617f9eb）"
+    },
+    {
+      "check": "capacity_gate_rounds_growing",
+      "pass": true,
+      "detail": "容量门/脏树门轮次=over_capacity=9 dirty_tree=66 log_lines=3520（活体平台单调累积：over_capacity≥6、dirty_tree≥65，log_lines 随班漂移不钉死）"
+    },
+    {
+      "check": "r5_verifier_exception_class_persistent",
+      "pass": true,
+      "detail": "审批器 verifier 异常累计=37 轮（≥30，跨日复现类）；末条=3123:[17:41:05] approval 116 verifier 异常：TimeoutError: timed out（R5：瞬时异常被 escalate 即永久停车，无重试/退避）"
+    },
+    {
+      "check": "r5_116_parked_by_verifier_timeout_not_dirty_tree",
+      "pass": true,
+      "detail": "#116 停车首因=3123:[17:41:05] approval 116 verifier 异常：TimeoutError: timed out ;; 3124:[17:41:05] approval 116 escalate（已停车留人工）：验证器异常：timed out（停车 note=第一手归因：verifier 超时，R5 非 R4）"
+    },
+    {
+      "check": "r6_m151_stopped_row",
+      "pass": true,
+      "detail": "m151 行=151|stopped|stop_condition=NULL|hb_age_s=5534|head=a115101|tools=44|claimed_by=tensor-agent[qwen3.7-plus]@localhost.localdomain（stopped / 行内 stop_condition 仍 NULL / 停牌时 head=a115101 tools=44）"
+    },
+    {
+      "check": "r6_m151_owner_stop_api_200",
+      "pass": true,
+      "detail": "owner stop API=2026-10-21 12:19:47,888 - main - INFO - Request: {'method': 'POST', 'path': '/api/v1/tensor/missions/151/stop', 'status': 200, 'duration_ms': 14.12} ;; INFO:     172.28.0.8:38544 - \"POST /api/v1/tenso（12:19:47Z POST /missions/151/stop 200 OK，发起方 frontend 容器）"
+    },
+    {
+      "check": "r6_zombie_403_loop_detected",
+      "pass": true,
+      "detail": "僵尸循环=acceptance_403_lines=12 ;; 948:[20:31:23] m151: acceptance HTTP 403: {'detail': 'invalid claim token'} ;; 960:[20:35:35] m151: acceptance HTTP 403: {'detail': 'invalid claim token'} ;; 952:[20:32:20] m151: run ended with（stop 后 12 行 acceptance HTTP 403 invalid claim token，仍 re-iterate）"
+    },
+    {
+      "check": "r6_zombie_state_still_written",
+      "pass": true,
+      "detail": "m151 状态文件 mtime=2026-10-21（stop 后仍被写 → worker 未退）"
+    },
+    {
+      "check": "r6_m151_refill_rc3",
+      "pass": true,
+      "detail": "m151 refill_check=[refill_check] m151 status=stopped stop=None ledger_entries=1 ;; 拒绝：行内 stop_condition=None 非法/非 infra 类，不续。 ;; m151 rc=3（stop_condition=None 非法，非 infra → rc=3 拒绝，符合剧本 owner_stopped 不动）"
+    },
+    {
+      "check": "p_m150_honest_fail",
+      "pass": true,
+      "detail": "m150 行=150|failed|finished_without_acceptance|tools=107|head=c86554df|hb=10-21 12:00..10-21 12:33（honest FAIL：tools=107，head 停 base c86554df）"
+    },
+    {
+      "check": "p_m150_zero_commit_evidence",
+      "pass": true,
+      "detail": "m150 worktree=head=c86554df head_date=2026-10-20 06:14:07 dirty=2（head 停旧 base commit，未落新 commit=零交付）"
+    },
+    {
+      "check": "p_m150_nudges_exhausted",
+      "pass": true,
+      "detail": "m150 日志=39:[20:19:38] m150: run ended without acceptance — nudge 1/2, actions so far 68 ;; 40:[20:24:33] m150: run ended without acceptance — nudge 2/2, actions so far 87 ;; 41:[20:33:14] m150: complete -> 200 {'id': 150, 'statu（nudge 2/2 耗尽 → honest FAIL 收口）"
+    },
+    {
+      "check": "r4_m147_clean_now",
+      "pass": true,
+      "detail": "m147 worktree=head=a115101 dirty=0 gates_verified=0 head_date=2026-10-21 17:36:36 +0800（现态干净 ⇒ #116 停车与脏树无关，停车 note 才是第一手归因）"
+    },
+    {
+      "check": "pool_workers_reconcile_workers_json",
+      "pass": true,
+      "detail": "workers.json 期望追加槽位=3，实测 --slot worker=3（10 = 7 基线 + 3 池化，可复算）"
+    },
+    {
+      "check": "pool_worker_cwd_dangling_observed",
+      "pass": true,
+      "detail": "池化 worker cwd=3982479 cwd=/srv/tensor/shared/tensor_eco/agent_work/wt_workers (deleted) ; 3982484 cwd=/srv/tensor/shared/tensor_eco/agent_work/wt_workers (deleted) ; 3982494 cwd=/srv/tensor/shared/tensor_eco/agent_work/wt_workers (dele（目录已删、仓库内零引用 ⇒ 疑旁路拉起，Z 类观察，无现行危害）"
+    },
+    {
+      "check": "self_branch_is_agent_m156",
+      "pass": true,
+      "detail": "本班 worktree=branch=agent/m156 head=8411901 dirty=1 ls_tree_log=0（分支名=任务分支 agent/m156）"
+    },
+    {
+      "check": "delivery_files_present_on_disk",
+      "pass": true,
+      "detail": "交付目录在场=['2026-10-21.md', '2026-10-21.readings.json', '2026-10-21.validation_report.json', 'collect_2026-10-21.py', 'verify_2026-10-21.py']（≥4：report 由本脚本自产，跑完必在）"
+    },
+    {
+      "check": "delivery_files_in_head_tree_or_precommit",
+      "pass": true,
+      "detail": "HEAD 树内 operator_log/ 含=[]（提交后跑=强判据：五件全在；提交前跑=0 属预期）"
+    },
+    {
+      "check": "self_tree_clean_after_commit",
+      "pass": true,
+      "detail": "提交后 git status='?? operator_log/'（空=树干净；幂等写生效）"
+    },
+    {
+      "check": "r4_gates_verified_dirty",
+      "pass": true,
+      "detail": "m120 worktree=head=f459f4bf dirty=3\n M benchmarks/pending/collision_kernels_3d_tg/gates_verified.json\n M benchmarks/pending/cylinder_r（gates_verified.json ×3 脏，R4 延续：平台预检写交付面）"
+    },
+    {
+      "check": "r4_gates_mtime_after_commit",
+      "pass": true,
+      "detail": "gates_verified.json mtime=file_mtime=2026-10-21 10:53:16 > commit_time=commit_time=2026-10-21 10:52:07（平台预检在 commit 后写盘，R4 根因）"
+    },
+    {
+      "check": "r4_ckpt_payload_stable",
+      "pass": true,
+      "detail": "m120 native_messages=msgs=96（检查点 payload 可解析）"
+    },
+    {
+      "check": "r4_fifth_case_m145_rewritten_but_now_clean",
+      "pass": true,
+      "detail": "m145 worktree=head=5d6333b1 commit_time=2026-10-21 21:32:19 dirty=0（ops 21:32:19 另落 merge commit 后树转净 → 本班现态干净；但 8_m145_gates_mtimes 仍证 gates 被反复改写=R4 写入者在场，见下两条）"
+    },
+    {
+      "check": "r4_m145_gates_written_after_commit",
+      "pass": true,
+      "detail": "m145 gates 写盘时刻=2026-10-21 21:32:18.9030739720 /srv/tensor/shared/tensor_eco/agent_work/m145/TensorLBM/benchmarks/pending/blasius_flat_plate/gates_verified.json ;; 2026-10-21 21:32:18.9640717000 /srv/tensor/shared/tensor_eco/agent_work/m145/TensorLBM（共 9 条，其中 9 条晚于交付 commit 18:30:57 → ops 每 10min 复算持续改写交付面，R4 第二写入者持续生效）"
+    },
+    {
+      "check": "r4_second_writer_is_ops_dispatch",
+      "pass": true,
+      "detail": "第二写入者=527:2026-10-21T20:00:01Z OK m145: gates 复算通过（paper 六门） verdict=terminal /srv/tensor/shared/tensor_eco/agent_work/m145/TensorLBM/benchmarks/pending/rayleigh_benard/gates_verified.json ;; 386:    dest = gp.parent / \"gates_verifie（ops 派发器 benchmark_dispatch 复算；写盘点与 agent 侧预检同址）"
+    },
+    {
+      "check": "gc_all_denied",
+      "pass": true,
+      "detail": "gc.py 权限=total=14 perms=600 /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py denied=14（600 无 x 位→14/14 denied，X 类延续）"
+    },
+    {
+      "check": "worktree_count_growing",
+      "pass": true,
+      "detail": "git worktree list 行数=61（GC 停摆持续累积，≥60；上班 58）"
+    },
+    {
+      "check": "main_dirty_known_items",
+      "pass": true,
+      "detail": "主仓脏项=4（llm_endpoints.json + 3 patch_*.py；无 auto_approver.py=修复已入库）"
+    },
+    {
+      "check": "fleet_alive",
+      "pass": true,
+      "detail": "fleet.log 尾=2026-10-21T13:50:01Z fleet pass done, spawned=0（保活在运行，spawned=0=无缺口）"
+    },
+    {
+      "check": "crontab_fleet_present",
+      "pass": true,
+      "detail": "crontab fleet 行数=1"
+    },
+    {
+      "check": "r3_eighth_case_m152_operator_delivery",
+      "pass": true,
+      "detail": "审批行=121|m153|pending|claimed=3|passed=3|excerpt=0|created=10-21 13:03:21|decided=- ;; 122|m152|pending|claimed=80|passed=80|excerpt=20|created=10-21 13:06:09|decided=-（#122 上班 operator 交付 claimed=80 > 摘录=20=分母截断 → R3 第八例；#121 不触容量门=走 LLM 证据判据）"
+    },
+    {
+      "check": "r3_park_growth_to_15",
+      "pass": true,
+      "detail": "停车表=3517:[21:48:01] approval 121 已 escalate 停车——跳过 ;; 3519:[21:50:01] approval 122 已 escalate 停车——跳过 ;; 3520:[21:50:01] approval 121 已 escalate 停车——跳过 ;; parked=15 ;; keys=103 104 106 107 111 112 113 114 115 116 117 118 119 121 122（R3 容量门家族 10 条 + 脏树门 3 条 + verifier 1 条 + 证据不足 1 条）"
+    },
+    {
+      "check": "approver_evidence_insufficient_class_present",
+      "pass": true,
+      "detail": "verifier 异常累计仍=37（本班零新增，R5 类停增）；同类新增落在 LLM 证据判据面=#121（机器摘录仅 ok:true 无数值 + 摘要 848/9 vs 复跑 849/8+2errors 不一致）"
+    },
+    {
+      "check": "celery_beat_crash_rate_quantified",
+      "pass": true,
+      "detail": "celery-beat 实测 restart_seq= 3337 3338 3338 3338 3339 ;; first=3337 last=3339 delta=2_per_100s ;; status=restarting restart=3339 exitcode=73（100s 内 RestartCount 单调 +1 = 崩溃循环仍在，exit=73=beat 停摆实证）"
+    },
+    {
+      "check": "r6_no_recurrence_since_m151",
+      "pass": true,
+      "detail": "R6 复核=m151_403_lines=12 ;; total_403_lines_all_logs=12 ;; last_m151_403=[20:35:35] m（全守护日志 403 总数=12 且全部属 m151、末条 20:35 → 本班零新增僵尸循环；停表时刻 12:19:47Z 后该守护已改 claim m154，机制缺陷仍在=源码面）"
+    },
+    {
+      "check": "r4_m120_still_persist_dirty",
+      "pass": true,
+      "detail": "m120 worktree=head=f459f4bf dirty=3 ;;  M benchmarks/pending/collision_kernels_3d_tg/gates_verified.json ;;  M benchmarks/pending/cylinder_re40_st/gates_verified.json ;;  M benchmarks/verified/permeability3d/gates_verified.json（10:52:07 commit 后 gates_verified.json ×3 持续脏、mtime 10:53:16 → R4 在本班仍 persist；m145 因 ops 于 21:32 另落 merge commit 而暂时转净）"
+    },
+    {
+      "check": "f_shift_counter_page_relative",
+      "pass": true,
+      "detail": "派发器日志 shift#48 而真值应为第 53 班：marker_in_last100_page=48 ;; marker_all=53 max_id=156 ;; shift#51 ;; shift#48 ;; 2026-10-21T13:43:01Z SKIP: 值班班次 m156 在飞（running）（派发器只读 GET /tensor/missions?limit=100 这一页，老班次滑出窗口即回退；marker_all=53 = 真值 ⇒ 偏差 5 = 滑出窗口的 5 班）"
+    },
+    {
+      "check": "r7_evidence_insufficient_and_no_anchor_excerpt",
+      "pass": true,
+      "detail": "机器摘录结构=110|m141|approved|files=1|file0_keys=file,ok|has_checks=false ;; 121|m153|pending|files=1|file0_keys=file,ok|has_checks=false ;; 122|m152|pending|files=2|file0_keys=checks,file,ok|has_checks=true ;; 3008:[14:11:22] approval 110 -> approved (http 200) {'id': 110, 'status': 'approved', 'scenario_key':（files[0] 仅 file+ok 无 checks 数值 ⇒ 审批器 LLM 无从比对物理精度主张，与 #121 停车 note 一致；有 checks 摘录的 #122 反被容量门拦）"
+    },
+    {
+      "check": "log_consistency::readings 条数",
+      "pass": true,
+      "detail": "log 引用 readings 条数；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::守护计数 10",
+      "pass": true,
+      "detail": "log 引用 守护计数 10；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::中继 200",
+      "pass": true,
+      "detail": "log 引用 中继 200；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::中继 models=7",
+      "pass": true,
+      "detail": "log 引用 中继 models=7；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::冷却态空",
+      "pass": true,
+      "detail": "log 引用 冷却态空；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::approved=104",
+      "pass": true,
+      "detail": "log 引用 approved=104；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::pending=121 122",
+      "pass": true,
+      "detail": "log 引用 pending=121 122；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::celery-beat restart（对基线不等式）",
+      "pass": true,
+      "detail": "log 引用 celery-beat restart（对基线不等式）；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::celery-beat 崩溃速率",
+      "pass": true,
+      "detail": "log 引用 celery-beat 崩溃速率；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::班次号回退 48/53",
+      "pass": true,
+      "detail": "log 引用 班次号回退 48/53；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::worktree 61",
+      "pass": true,
+      "detail": "log 引用 worktree 61；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::摘录截断 20",
+      "pass": true,
+      "detail": "log 引用 摘录截断 20；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::#122 claimed=80",
+      "pass": true,
+      "detail": "log 引用 #122 claimed=80；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::解析失败累计 246",
+      "pass": true,
+      "detail": "log 引用 解析失败累计 246；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::verifier 异常 37 轮",
+      "pass": true,
+      "detail": "log 引用 verifier 异常 37 轮；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::池化对账 3 槽",
+      "pass": true,
+      "detail": "log 引用 池化对账 3 槽；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::停车表 15",
+      "pass": true,
+      "detail": "log 引用 停车表 15；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::R6 僵尸循环 12 行",
+      "pass": true,
+      "detail": "log 引用 R6 僵尸循环 12 行；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::R4 第二写入者 20:00:01",
+      "pass": true,
+      "detail": "log 引用 R4 第二写入者 20:00:01；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::m150 honest FAIL 107",
+      "pass": true,
+      "detail": "log 引用 m150 honest FAIL 107；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::本班在飞 155/156",
+      "pass": true,
+      "detail": "log 引用 本班在飞 155/156；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::GC 全灭 14/14",
+      "pass": true,
+      "detail": "log 引用 GC 全灭 14/14；工件一致=True（log 与 readings 未脱钩）"
+    },
+    {
+      "check": "log_consistency::fleet spawned=0",
+      "pass": true,
+      "detail": "log 引用 fleet spawned=0；工件一致=True（log 与 readings 未脱钩）"
+    }
+  ]
+}
