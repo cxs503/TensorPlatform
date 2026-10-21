@@ -40,6 +40,18 @@ REPO_TEST_PYTHON = {
 }
 
 
+def repo_pythonpath(wt: str) -> str:
+    """复跑导入隔离：src 布局 → <wt>/src；平铺 → <wt>。
+
+    2026-10-21 实录：hermes venv 的 tensordem/tensorlbm/tensorphysics 是
+    editable 装的 m42 时代工作树——不压路径时复跑的是陈年代码（新模块
+    ModuleNotFoundError → 收集中断 →「0 passed / 0 failed」）。PYTHONPATH
+    前置让 worktree 源码永远赢，venv 卫生不再影响裁决口径。
+    """
+    src_dir = os.path.join(wt, "src")
+    return src_dir if os.path.isdir(src_dir) else wt
+
+
 def log(msg: str) -> None:
     stamp = time.strftime("[%H:%M:%S]")
     line = f"{stamp} {msg}"
@@ -125,23 +137,19 @@ def _parse_verdict(text: str) -> dict:
     return {"verdict": "escalate", "reason": f"裁决输出不可解析：{text[:120]}"}
 
 
-def llm_verdict(context: str) -> dict:
-    """glm 裁决：证据上下文 -> {verdict: approve|reject|escalate, reason}。
-    流式累计防中继非流式挂起；解析失败一律 escalate。"""
-    base = os.environ.get("LLM_BASE_URL", "")
-    key = os.environ.get("LLM_API_KEY", "")
-    prompt = verdict_prompt(context)
+def _stream_chat(base: str, key: str, messages: list) -> str:
+    """流式调裁决 LLM：返回 content，空则 reasoning（思考型模型实录，
+    reasoning 可能先吃光预算、content 落空）。"""
     body = json.dumps({"model": REVIEWER_MODEL, "stream": True,
-                       "max_tokens": 2048, "temperature": 0, "messages": [
-                           {"role": "system", "content": "只输出 JSON。"},
-                           {"role": "user", "content": prompt}]}).encode()
+                       "max_tokens": 4096, "temperature": 0,
+                       "messages": messages}).encode()
     req = urllib.request.Request(
         f"{base.rstrip('/')}/chat/completions", data=body, method="POST",
         headers={"Content-Type": "application/json",
                  "Authorization": f"Bearer {key}"})
     parts: list[str] = []
-    reasoning: list[str] = []   # 思考型模型：reasoning 可能先吃预算，content 落空
-    with urllib.request.urlopen(req, timeout=90) as resp:
+    reasoning: list[str] = []
+    with urllib.request.urlopen(req, timeout=120) as resp:
         for line in resp:
             line = line.decode("utf-8", "replace").strip()
             if not line.startswith("data: ") or line == "data: [DONE]":
@@ -155,16 +163,45 @@ def llm_verdict(context: str) -> dict:
                     reasoning.append(delta["reasoning_content"])
             except json.JSONDecodeError:
                 continue
-    text = "".join(parts) or "".join(reasoning)
-    return _parse_verdict(text)
+    return "".join(parts) or "".join(reasoning)
+
+
+def _unparseable(v: dict) -> bool:
+    return (v.get("verdict") == "escalate"
+            and str(v.get("reason", "")).startswith("裁决输出不可解析"))
+
+
+def llm_verdict(context: str) -> dict:
+    """glm 裁决：证据上下文 -> {verdict: approve|reject|escalate, reason}。
+    流式累计防中继非流式挂起；解析失败加压重试一次，再败一律 escalate。
+    2026-10-21 实录：思考流 content 空 + 2048 截断 → 三单连停
+    （ap108/109/110「裁决输出不可解析」）——修=max_tokens 4096 + 重试。"""
+    base = os.environ.get("LLM_BASE_URL", "")
+    key = os.environ.get("LLM_API_KEY", "")
+    prompt = verdict_prompt(context)
+    sysmsg = {"role": "system", "content": "只输出 JSON。"}
+    v = _parse_verdict(
+        _stream_chat(base, key, [sysmsg, {"role": "user", "content": prompt}]))
+    if _unparseable(v):
+        retry = prompt + (
+            "\n\n上一次输出没有裁决 JSON（思考流/截断）。"
+            "本次第一行必须且只能是该 JSON，不得有任何其他文字。")
+        v2 = _parse_verdict(
+            _stream_chat(base, key,
+                         [sysmsg, {"role": "user", "content": retry}]))
+        if not _unparseable(v2):
+            return v2
+    return v
 
 
 def enumerate_failures(wt: str, python: str) -> list[str] | None:
     """全量枚举 worktree 失败测试 node id（无 -x，--tb=no）。None=枚举不可得。"""
-    code, out = sh(f"{python} -m pytest -q --tb=no tests", cwd=wt, timeout=2400)
+    code, out = sh(
+        f"PYTHONPATH={repo_pythonpath(wt)} {python} -m pytest"
+        f" -q --tb=no tests", cwd=wt, timeout=2400)
     if code == 124:
         return None
-    return re.findall(r"^FAILED (\S+)", out, re.M)
+    return re.findall(r"^(?:FAILED|ERROR) (\S+)", out, re.M)
 
 
 def baseline_failures(repo_dir: str, base: str, python: str,
@@ -200,11 +237,12 @@ def baseline_failures(repo_dir: str, base: str, python: str,
         if not existing:
             return set()
         quoted = " ".join(f"'{n}'" for n in existing)
-        code, out = sh(f"{python} -m pytest -q --tb=no {quoted}", cwd=bdir,
-                       timeout=1200)
+        code, out = sh(
+            f"PYTHONPATH={repo_pythonpath(bdir)} {python} -m pytest"
+            f" -q --tb=no {quoted}", cwd=bdir, timeout=1200)
         if code == 124:
             return None
-        ran_red = set(re.findall(r"^FAILED (\S+)", out, re.M))
+        ran_red = set(re.findall(r"^(?:FAILED|ERROR) (\S+)", out, re.M))
         if code not in (0, 1) and not ran_red:
             return None    # pytest 自身没跑起来（环境/参数问题）≠基线全绿
         return {n for n in existing if n in ran_red}
@@ -255,6 +293,80 @@ def presence_split(wt: str, base: str, files: list[str]) -> tuple[list[str], lis
     present = [f for f in files if f in changed_set]
     absent = [f for f in files if f not in changed_set]
     return present, absent
+
+
+def machine_json_values(wt: str, rel_files: list[str],
+                        abs_files: list[str], per_file: int = 10) -> str:
+    """机器直读交付 JSON 数值（worktree 实读，非 agent 转述）。
+
+    2026-10-21 实录：complete 端点的 evidence_machine 只记文件在场性
+    (ok:true)——物理精度主张没有机器数值可比，LLM 在 escalate/approve
+    间边际摆动（m136/m140 approved vs m134/m141 首发 escalate，同形状
+    证据两种结果）。裁决器自己有 worktree：直接读 JSON 压平数值注入
+    上下文，把摆动变成可比对。
+    """
+    out: list[str] = []
+    seen: set[str] = set()
+    for p in list(rel_files) + list(abs_files):
+        if not p.endswith(".json"):
+            continue
+        fp = p if os.path.isabs(p) else os.path.join(wt, p)
+        key = os.path.normpath(fp)
+        if key in seen:
+            continue
+        seen.add(key)
+        try:
+            with open(fp, encoding="utf-8") as fh:
+                obj = json.load(fh)
+        except (OSError, ValueError):
+            continue
+        flat: list[str] = []
+
+        def _walk(o, prefix=""):
+            if len(flat) >= per_file:
+                return
+            if isinstance(o, dict):
+                for k, v in o.items():
+                    if len(flat) >= per_file:
+                        return
+                    if isinstance(v, (dict, list)):
+                        _walk(v, f"{prefix}{k}.")
+                    else:
+                        sval = str(v)
+                        flat.append(f"{prefix}{k}"
+                                    + (f"={sval}" if len(sval) <= 24
+                                       else f"=<{len(sval)}字>"))
+            elif isinstance(o, list):
+                for v in o[:6]:
+                    _walk(v, prefix)
+
+        _walk(obj)
+        if flat:
+            try:
+                shown = os.path.relpath(fp, wt)
+            except ValueError:
+                shown = fp
+            out.append(f"{shown}: " + "; ".join(flat))
+    if not out:
+        return ""
+    return ("\n机器直读 JSON 数值（裁决器实读 worktree，可信级同复跑；"
+            "物理精度主张必须与这些数字比对）：\n"
+            + "\n".join(out)[:2000] + "\n")
+
+
+def checks_capacity(machine_checks: int, test_scope: bool,
+                    n_pass: int, n_fail: int, n_skip: int) -> int | None:
+    """C3 容量分母：checks 有两类——测试数 vs 锚点判据数（范畴不同）。
+
+    有机器摘录 checks → 分母=摘录数（evidence_files 是权威账本）；
+    无摘录且 goal 非测试口径 → 不比数（把锚点数当 pytest 数比
+    = 系统性别 escalate：m133/m138/m139 实录，checks 25/37/48 vs 14）。
+    """
+    if machine_checks > 0:
+        return machine_checks
+    if test_scope:
+        return n_pass + n_fail + n_skip
+    return None
 
 
 def guard_false_kill(verdict: str, reason: str, present: list[str]) -> tuple[str, str]:
@@ -308,7 +420,9 @@ def verify_dev_acceptance(api: API, mission: dict,
     # 注意：agent 声称的 checks 可能来自子集命令，与全量复跑口径不同——
     # 声称/复跑差异交给 LLM 裁决，硬否决只在 goal 明确要求默认套件全绿时触发。
     python = REPO_TEST_PYTHON.get(repo_dir, REPO_TEST_PYTHON["_default"])
-    t_code, t_out = sh(f"{python} -m pytest -x -q tests", cwd=wt, timeout=1800)
+    t_code, t_out = sh(
+        f"PYTHONPATH={repo_pythonpath(wt)} {python} -m pytest"
+        f" -q tests --continue-on-collection-errors", cwd=wt, timeout=1800)
     tail = t_out[-2500:]
     passed = re.findall(r"(\d+) passed", t_out)
     failed = re.findall(r"(\d+) failed", t_out)
@@ -334,10 +448,15 @@ def verify_dev_acceptance(api: API, mission: dict,
     # 红队 C3 教训：声称 checks 超过同头复跑容量（passed+failed+skipped）=
     # 口径矛盾。agent 跑子集时 claimed < 容量属正常，claimed > 容量不可能。
     claimed_total = (evidence.get("checks") or {}).get("total")
+    _machine_early = (evidence.get("summary") or {}).get("evidence_machine") or {}
+    _mc = sum(len(f.get("checks") or [])
+              for f in _machine_early.get("files") or [])
+    _test_scope = bool(re.search(r"默认测试|pytest|测试套件|默认套件", goal))
+    _capacity = checks_capacity(_mc, _test_scope, n_pass, n_fail, n_skip)
     if (t_code == 0 and isinstance(claimed_total, int)
-            and claimed_total > n_pass + n_fail + n_skip):
-        return "escalate", (f"声称 checks {claimed_total} 项超过同头复跑容量 "
-                            f"{n_pass}+{n_fail}+{n_skip}={n_pass+n_fail+n_skip}"
+            and _capacity is not None and claimed_total > _capacity):
+        return "escalate", (f"声称 checks {claimed_total} 项超过其口径容量 "
+                            f"{_capacity}（{_mc and '机器摘录' or '测试复跑'}）"
                             "——口径矛盾，留人工")
     if re.search(r"默认测试全绿|全量测试|pytest -x -q tests|默认套件", goal):
         if new_reds:
@@ -362,6 +481,9 @@ def verify_dev_acceptance(api: API, mission: dict,
                           + (f"在场：{present}\n" if present else "")
                           + (f"缺席：{absent}\n" if absent else "")
                           + "——在场文件不得以'未见文件'为由 reject。\n")
+    values_block = machine_json_values(
+        wt, present,
+        [str(f.get("file") or "") for f in machine.get("files") or []])
     machine_block = ""
     if machine.get("files"):
         for f in machine["files"]:
@@ -383,7 +505,7 @@ def verify_dev_acceptance(api: API, mission: dict,
                f"验收摘要：{json.dumps(claimed, ensure_ascii=False)[:1400]}\n"
                f"声称 checks：{(evidence.get('checks') or {}).get('passed')}"
                f"/{(evidence.get('checks') or {}).get('total')}\n"
-               f"{presence_block}{machine_block}\n"
+               f"{presence_block}{machine_block}{values_block}\n"
                f"默认套件复跑：exit={'0' if t_code == 0 else t_code}，"
                f"{n_pass} passed / {n_fail} failed；"
                + ("全绿" if t_code == 0 else
@@ -419,6 +541,31 @@ def verify_stage_promotion(api: API, approval: dict) -> tuple[str, str]:
 
 MEMORY_ROOT = os.environ.get(
     "TENSOR_MEMORY_ROOT", "/srv/tensor/shared/tensor_eco/agent_memory")
+
+
+ESCALATED_SEEN = os.environ.get(
+    "TENSOR_ESCALATED_SEEN",
+    "/srv/tensor/shared/tensor_eco/agent_work/approver_escalated.json")
+
+
+def escalated_seen() -> dict:
+    """已 escalate 停车的 approval id 表（后端只收 approved|rejected，
+    escalate 落不了库——不本地停车就每 tick 重裁决+重跑套件）。"""
+    try:
+        return json.loads(open(ESCALATED_SEEN, encoding="utf-8").read())
+    except (OSError, ValueError):
+        return {}
+
+
+def escalated_record(store: dict, ap: dict, note: str) -> None:
+    store[str(ap["id"])] = {
+        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "mission": ap.get("mission_id"), "note": note[:200]}
+    try:
+        with open(ESCALATED_SEEN, "w", encoding="utf-8") as fh:
+            json.dump(store, fh, ensure_ascii=False)
+    except OSError:
+        pass  # 停车失败只是回到旧行为（重复 escalate），不影响裁决正确性
 
 
 def _memory_append_decision(approval: dict, decision: str) -> None:
@@ -483,9 +630,16 @@ def main() -> None:
     items = data.get("items", [])
     if not items:
         return
-    log(f"pending={len(items)}")
+    seen = escalated_seen()
+    log(f"pending={len(items)}"
+        + (f"（{len(seen)} 已 escalate 停车）" if seen else ""))
     decided = 0
     for ap in items:
+        if str(ap["id"]) in seen:
+            # 停车=冻结：复验每 tick 重跑全套纯属烧机器（m134 实录
+            # 25min/轮，flock 还挡住其他审批）。解冻=人工移出停车表。
+            log(f"approval {ap['id']} 已 escalate 停车——跳过")
+            continue
         if decided >= MAX_DECISIONS_PER_RUN:
             log("到达单轮决定上限，余量下轮")
             break
@@ -519,7 +673,12 @@ def main() -> None:
             _memory_append_decision(ap, "rejected")
             decided += 1
         else:
-            log(f"approval {ap['id']} escalate（留人工）：{note[:200]}")
+            if str(ap["id"]) in seen:
+                log(f"approval {ap['id']} 已 escalate 停车——跳过")
+                continue
+            escalated_record(seen, ap, note)
+            _memory_append_decision(ap, "escalated")
+            log(f"approval {ap['id']} escalate（已停车留人工）：{note[:200]}")
 
 
 if __name__ == "__main__":
