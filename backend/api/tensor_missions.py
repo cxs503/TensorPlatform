@@ -24,6 +24,7 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from api.deps import require_auth, require_role
+from services.factory_profile import get_factory_profile, validate_projects, validate_base_ref, require_factory_agent
 from api.domain.tensor_common import append_event, resolved_org
 from database.config import get_db
 
@@ -57,6 +58,10 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "runner": r["runner"],
         "origin": r["origin"],
         "model": r.get("model"),
+        "agent_session_id": str(r["agent_session_id"]) if r.get("agent_session_id") else None,
+        "worker_role": r.get("worker_role"),
+        "campaign_id": r.get("campaign_id"),
+        "campaign_phase": r.get("campaign_phase"),
         "status": r["status"],
         "claimed_by": r["claimed_by"],
         "session_id": r["session_id"],
@@ -68,18 +73,20 @@ def _mission_row(r: Any) -> dict[str, Any]:
     }
 
 
-def _load_mission(db: Session, mission_id: int) -> Any:
+def _load_mission(db: Session, mission_id: int, user: dict | None = None, *, lock: bool = False) -> Any:
     row = db.execute(
         text("""
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
-                   model, status, claim_token, claimed_by, session_id, result,
+                   model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
                    created_by, created_at, heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE id = :mid
-        """),
+        """ + (" FOR UPDATE" if lock else "")),
         {"mid": mission_id},
     ).mappings().first()
     if not row:
+        raise HTTPException(status_code=404, detail="mission not found")
+    if user is not None and int(row["organization_id"]) != resolved_org(None, user, db):
         raise HTTPException(status_code=404, detail="mission not found")
     return row
 
@@ -101,6 +108,9 @@ class MissionCreate(BaseModel):
     origin: str = Field(default="owner", pattern="^(owner|agent)$")
     model: str | None = Field(default=None, min_length=2, max_length=64)
     organization_id: int | None = Field(default=None, ge=1)
+    worker_role: str | None = Field(default=None, pattern="^(platform|data|models|applications|infrastructure|verifier|strategy)$")
+    agent_session_id: uuid.UUID | None = None
+    task_key: str | None = Field(default=None, min_length=2, max_length=120, pattern="^[a-zA-Z0-9_.:-]+$")
 
 
 @router.post("", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
@@ -110,6 +120,31 @@ def create_mission(
     user: dict = Depends(require_auth),
 ):
     org_id = resolved_org(body.organization_id, user, db)
+    validate_projects(body.repo, body.co_repos)
+    validate_base_ref(body.base_ref)
+    if len(body.goal.strip()) < 10:
+        raise HTTPException(422, "goal must contain at least 10 non-padding characters")
+    if body.agent_session_id:
+        resident = db.execute(text("SELECT role,model FROM factory_resident_workers WHERE agent_session_id=:sid AND organization_id=:org AND enabled FOR UPDATE"),
+                              {"sid": str(body.agent_session_id), "org": org_id}).mappings().first()
+        if not resident:
+            raise HTTPException(404, "agent session not found or disabled")
+        if body.worker_role and body.worker_role != resident["role"]:
+            raise HTTPException(422, "role differs from agent session")
+        body.worker_role = resident["role"]
+        if body.model and body.model != resident["model"]:
+            raise HTTPException(422, "model differs from agent session")
+        body.model = resident["model"]
+    if body.task_key:
+        db.execute(text("SELECT pg_advisory_xact_lock(hashtextextended(:key, :org))"),
+                   {"key": body.task_key, "org": org_id})
+        existing = db.execute(text("SELECT id,session_id,status,budget,goal,repo,worker_role,agent_session_id,model,base_ref FROM tensor_dev_missions WHERE organization_id=:org AND task_key=:key"),
+                              {"org": org_id, "key": body.task_key}).mappings().first()
+        if existing:
+            if (existing["goal"], existing["repo"], existing["worker_role"], str(existing["agent_session_id"]), existing["model"], existing["base_ref"]) != (body.goal.strip(), body.repo.strip(), body.worker_role, str(body.agent_session_id), body.model, body.base_ref):
+                raise HTTPException(409, "task_key already identifies a different task")
+            return {"id": existing["id"], "session_id": existing["session_id"],
+                    "status": existing["status"], "budget": existing["budget"], "idempotent": True}
     budget = dict(DEFAULT_BUDGET)
     for key, lo, hi in (("max_tool_calls", 1, 2000),
                         ("max_wall_seconds", 60, 86400),
@@ -124,15 +159,16 @@ def create_mission(
         text("""
             INSERT INTO tensor_dev_missions
                 (organization_id, goal, repo, base_ref, co_repos, budget, runner,
-                 origin, model, created_by)
+                 origin, model, created_by, worker_role, task_key, agent_session_id)
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
-                    :runner, :origin, :model, :uid)
+                    :runner, :origin, :model, :uid, :worker_role, :task_key, :agent_session_id)
             RETURNING id
         """),
         {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
          "ref": body.base_ref, "corepos": body.co_repos, "budget": _dumps(budget),
          "runner": body.runner,
-         "origin": body.origin, "model": body.model, "uid": user.get("id")},
+         "origin": body.origin, "model": body.model, "uid": user.get("id"),
+         "worker_role": body.worker_role, "task_key": body.task_key, "agent_session_id": str(body.agent_session_id) if body.agent_session_id else None},
     ).scalar()
 
     session_id = db.execute(
@@ -201,7 +237,7 @@ def dispatch_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    parent = _authorize_agent(db, body.parent_id, body.claim_token)
+    parent = _authorize_agent(db, body.parent_id, body.claim_token, user)
     if parent["status"] != "running":
         raise HTTPException(status_code=409,
                             detail=f"parent mission is {parent['status']}, not running")
@@ -214,9 +250,11 @@ def dispatch_mission(
         raise HTTPException(status_code=422,
                             detail="sub-missions cannot dispatch (tree depth is capped at 2)")
 
+    validate_projects(body.repo, body.co_repos)
+    validate_base_ref(body.base_ref)
     repos = [body.repo.strip()] + [r.strip() for r in (body.co_repos or [])]
     for r in repos:
-        if r not in REPO_WHITELIST:
+        if r not in (get_factory_profile().project_names if get_factory_profile() else REPO_WHITELIST):
             raise HTTPException(status_code=422, detail=f"repo {r!r} is outside the dispatch whitelist")
     if len(set(repos)) != len(repos):
         raise HTTPException(status_code=422, detail="repo list contains duplicates")
@@ -243,8 +281,9 @@ def dispatch_mission(
     day_count = db.execute(
         text("""
             SELECT count(*) FROM tensor_dev_missions
-            WHERE origin = 'agent' AND created_at > now() - interval '24 hours'
+            WHERE organization_id = :org AND origin = 'agent' AND created_at > now() - interval '24 hours'
         """),
+        {"org": resolved_org(None, user, db)},
     ).scalar()
     if day_count >= DISPATCH_DAILY_CAP:
         raise HTTPException(status_code=429,
@@ -261,10 +300,10 @@ def dispatch_mission(
                 (organization_id, goal, repo, base_ref, co_repos, budget, runner,
                  origin, model, parent_mission_id, created_by)
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
-                    'openhands', 'agent', :model, :parent, :uid)
+                    :runner, 'agent', :model, :parent, :uid)
             RETURNING id
         """),
-        {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
+        {"org": org_id, "runner": parent["runner"], "goal": body.goal.strip(), "repo": body.repo.strip(),
          "ref": body.base_ref, "corepos": body.co_repos or None,
          "budget": _dumps(budget), "model": body.model, "parent": body.parent_id,
          "uid": user.get("id")},
@@ -291,7 +330,7 @@ def dispatch_mission(
         "mission_id": mission_id, "parent_mission_id": body.parent_id,
         "goal": body.goal.strip(), "repo": body.repo.strip(),
         "base_ref": body.base_ref, "co_repos": body.co_repos or [],
-        "budget": budget, "runner": "openhands", "origin": "agent",
+        "budget": budget, "runner": parent["runner"], "origin": "agent",
         "model": body.model, "dispatched_by": parent["claimed_by"],
     })
     db.commit()
@@ -305,7 +344,7 @@ def list_children(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    _load_mission(db, mission_id)
+    _load_mission(db, mission_id, user)
     rows = db.execute(
         text("""
             SELECT id, goal, repo, co_repos, parent_mission_id, model, origin,
@@ -346,7 +385,7 @@ def list_missions(
     rows = db.execute(
         text(f"""
             SELECT id, goal, repo, base_ref, co_repos, parent_mission_id, budget,
-                   runner, origin, model, status,
+                   runner, origin, model, agent_session_id, worker_role, campaign_id, campaign_phase, status,
                    claimed_by, session_id, result, created_by, created_at,
                    heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE {filters}
@@ -363,7 +402,7 @@ def get_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    row = _load_mission(db, mission_id)
+    row = _load_mission(db, mission_id, user)
     org_id = resolved_org(None, user, db)
     from api.tenant_access import is_admin
 
@@ -415,6 +454,9 @@ class MissionClaim(BaseModel):
     # default daemon additionally picks up legacy NULL-model missions
     model: str | None = Field(default=None, min_length=2, max_length=64)
     claim_null_model: bool = False
+    mission_id: int | None = Field(default=None, ge=1)
+    agent_session_id: uuid.UUID | None = None
+    worker_role: str | None = Field(default=None, pattern="^(platform|data|models|applications|infrastructure|verifier|strategy)$")
 
 
 @router.post("/claim", dependencies=[Depends(require_auth)])
@@ -423,6 +465,20 @@ def claim_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
+    require_factory_agent(user)
+    org_id = resolved_org(None, user, db)
+    if body.agent_session_id:
+        registered = db.execute(text("SELECT role,model FROM factory_resident_workers WHERE agent_session_id=:sid AND user_id=:uid AND organization_id=:org AND enabled FOR UPDATE"),
+                                {"sid": str(body.agent_session_id), "uid": user["id"], "org": org_id}).mappings().first()
+        if not registered:
+            raise HTTPException(403, "agent session is not bound to this principal")
+        if body.model != registered["model"] or body.worker_role != registered["role"]:
+            raise HTTPException(409, "session configuration changed; refresh before claiming")
+        active = db.execute(text("SELECT id FROM tensor_dev_missions WHERE agent_session_id=:sid AND status IN ('claimed','running') AND heartbeat_at > now()-interval '240 seconds'"), {"sid": str(body.agent_session_id)}).scalar()
+        if active:
+            return {"claimed": False, "busy": True}
+    elif body.worker_role:
+        raise HTTPException(403, "resident role claims require an agent session")
     # lazy reap: claims whose heartbeat went silent > 240s. 90s 实测误杀：
     # 后端自身停摆（2026-10-19 m49 事件，一个 claim 挂 170s）期间心跳落不了
     # 地，恢复后第一个 claim 把健康的在飞 mission 收割成 agent_lost。真死
@@ -432,11 +488,11 @@ def claim_mission(
             UPDATE tensor_dev_missions
             SET status = 'failed', finished_at = now(),
                 result = result || CAST(:patch AS jsonb)
-            WHERE status IN ('claimed','running')
+            WHERE organization_id = :org AND status IN ('claimed','running')
               AND heartbeat_at < now() - interval '240 seconds'
             RETURNING id, session_id
         """),
-        {"patch": _dumps({"stop_condition": "agent_lost"})},
+        {"org": org_id, "patch": _dumps({"stop_condition": "agent_lost"})},
     ).mappings().all()
     for dead in reaped:
         if dead["session_id"]:
@@ -453,6 +509,9 @@ def claim_mission(
     # runner-scoped claim: coexisting daemons each pull only their own class;
     # model pinning routes each queued mission to its per-model daemon
     runner_filter = "AND runner = :runner" if body.runner else ""
+    mission_filter = "AND id = :claim_mission_id" if body.mission_id else ""
+    session_filter = "AND agent_session_id = :agent_session_id" if body.agent_session_id else "AND agent_session_id IS NULL"
+    role_filter = "AND worker_role = :worker_role" if body.worker_role else "AND worker_role IS NULL"
     if body.model and body.claim_null_model:
         model_filter = "AND (model = :claim_model OR model IS NULL)"
     elif body.model:
@@ -463,19 +522,25 @@ def claim_mission(
         text(f"""
             UPDATE tensor_dev_missions
             SET status = 'claimed', claim_token = :tok, claimed_by = :agent,
+                claimed_user_id = :uid,
                 heartbeat_at = now()
             WHERE id = (
                 SELECT id FROM tensor_dev_missions
-                WHERE status = 'queued' {runner_filter} {model_filter}
+                WHERE organization_id = :org AND status = 'queued' {runner_filter} {model_filter} {mission_filter} {role_filter} {session_filter}
+                  AND NOT EXISTS (
+                    SELECT 1 FROM jsonb_array_elements_text(COALESCE(tensor_dev_missions.result->'dependency_ids','[]'::jsonb)) dep_id
+                    LEFT JOIN tensor_dev_missions prerequisite ON prerequisite.id=CAST(dep_id.value AS bigint)
+                    WHERE prerequisite.id IS NULL OR prerequisite.status IN ('queued','claimed','running')
+                  )
                 ORDER BY id
                 LIMIT 1
                 FOR UPDATE SKIP LOCKED
             )
             RETURNING id, goal, repo, base_ref, co_repos, budget, runner, origin,
-                      model, session_id, organization_id
+                      model, session_id, organization_id, worker_role, task_key, agent_session_id, campaign_id, campaign_phase
         """),
-        {"tok": token, "agent": body.agent_id, "runner": body.runner,
-         "claim_model": body.model},
+        {"tok": token, "agent": body.agent_id, "uid": user["id"], "org": org_id, "runner": body.runner,
+         "claim_model": body.model, "claim_mission_id": body.mission_id, "worker_role": body.worker_role, "agent_session_id": str(body.agent_session_id) if body.agent_session_id else None},
     ).mappings().first()
     db.commit()
 
@@ -499,6 +564,11 @@ def claim_mission(
             "runner": row["runner"],
             "origin": row["origin"],
             "model": row["model"],
+            "agent_session_id": str(row["agent_session_id"]) if row["agent_session_id"] else None,
+            "worker_role": row["worker_role"],
+            "task_key": row["task_key"],
+            "campaign_id": row["campaign_id"],
+            "campaign_phase": row["campaign_phase"],
             "claim_token": token,
         },
         "session_id": row["session_id"],
@@ -506,16 +576,21 @@ def claim_mission(
     }
 
 
-def _authorize_agent(db: Session, mission_id: int, claim_token: str) -> Any:
+def _authorize_agent(db: Session, mission_id: int, claim_token: str, user: dict) -> Any:
+    require_factory_agent(user)
     row = db.execute(
         text("""
-            SELECT id, status, claim_token, claimed_by, session_id
-            FROM tensor_dev_missions WHERE id = :mid
+            SELECT id, status, claim_token, claimed_by, claimed_user_id, organization_id, session_id, runner
+            FROM tensor_dev_missions WHERE id = :mid FOR UPDATE
         """),
         {"mid": mission_id},
     ).mappings().first()
     if not row:
         raise HTTPException(status_code=404, detail="mission not found")
+    if int(row["organization_id"]) != resolved_org(None, user, db):
+        raise HTTPException(status_code=404, detail="mission not found")
+    if row["claimed_user_id"] != user["id"]:
+        raise HTTPException(status_code=403, detail="claim belongs to another principal")
     # UUID columns come back as uuid.UUID objects — compare as canonical strings
     if not row["claim_token"] or str(row["claim_token"]) != claim_token:
         raise HTTPException(status_code=403, detail="invalid claim token")
@@ -533,7 +608,7 @@ def start_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    row = _authorize_agent(db, mission_id, body.claim_token)
+    row = _authorize_agent(db, mission_id, body.claim_token, user)
     if row["status"] != "claimed":
         raise HTTPException(status_code=409, detail=f"cannot start from status {row['status']}")
     db.execute(
@@ -562,7 +637,7 @@ def heartbeat_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    row = _authorize_agent(db, mission_id, body.claim_token)
+    row = _authorize_agent(db, mission_id, body.claim_token, user)
     db.execute(
         text("""
             UPDATE tensor_dev_missions
@@ -577,7 +652,7 @@ def heartbeat_mission(
     )
     db.commit()
     return {"id": mission_id, "status": row["status"],
-            "action": "stop" if row["status"] == "stopped" else "continue"}
+            "action": "continue" if row["status"] in ("claimed", "running") else "stop"}
 
 
 class CompleteRequest(BaseModel):
@@ -597,10 +672,22 @@ def complete_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    row = _authorize_agent(db, mission_id, body.claim_token)
+    row = _authorize_agent(db, mission_id, body.claim_token, user)
     if row["status"] in TERMINAL or row["status"] == "awaiting_acceptance":
         raise HTTPException(status_code=409, detail=f"mission already {row['status']}")
-    mission = _load_mission(db, mission_id)
+    if row["status"] != "running":
+        raise HTTPException(status_code=409, detail="mission must be running before completion")
+    if body.status == "succeeded" and not body.acceptance:
+        raise HTTPException(status_code=422, detail="successful work must request acceptance")
+    if body.acceptance and body.status != "succeeded":
+        raise HTTPException(status_code=422, detail="failed work cannot request successful acceptance")
+    gate=body.summary.get('quality_gate')
+    if gate is not None:
+        if not isinstance(gate,dict) or type(gate.get('passed')) is not bool:
+            raise HTTPException(status_code=422, detail='invalid quality gate result')
+        if body.status=='succeeded' and not gate['passed']:
+            raise HTTPException(status_code=422, detail='failed quality gate cannot request successful acceptance')
+    mission = _load_mission(db, mission_id, user)
     evidence = {
         "branch": body.branch,
         "head_commit": body.head_commit,
@@ -697,13 +784,13 @@ def stop_mission(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    row = _load_mission(db, mission_id)
+    row = _load_mission(db, mission_id, user, lock=True)
     if row["status"] in TERMINAL:
         raise HTTPException(status_code=409, detail=f"mission already {row['status']}")
     db.execute(
         text("""
             UPDATE tensor_dev_missions
-            SET status = 'stopped', finished_at = now(), claim_token = NULL
+            SET status = 'stopped', finished_at = now()
             WHERE id = :mid
         """),
         {"mid": mission_id},
@@ -733,15 +820,17 @@ def reclaim_mission(
     user: dict = Depends(require_auth),
 ):
     """Daemon-restart recovery: the same agent re-arms its own claim."""
+    require_factory_agent(user)
+    _load_mission(db, mission_id, user, lock=True)
     row = db.execute(
-        text("SELECT id, status, claimed_by, session_id FROM tensor_dev_missions WHERE id = :mid"),
+        text("SELECT id, status, claimed_by, claimed_user_id, session_id FROM tensor_dev_missions WHERE id = :mid"),
         {"mid": mission_id},
     ).mappings().first()
     if not row:
         raise HTTPException(status_code=404, detail="mission not found")
-    if row["status"] not in ("claimed", "running", "awaiting_acceptance"):
+    if row["status"] not in ("claimed", "running"):
         raise HTTPException(status_code=409, detail=f"cannot reclaim status {row['status']}")
-    if row["claimed_by"] != body.agent_id:
+    if row["claimed_by"] != body.agent_id or row["claimed_user_id"] != user["id"]:
         raise HTTPException(status_code=403, detail="claim belongs to another agent")
     token = str(uuid.uuid4())
     new_status = "running" if row["status"] == "awaiting_acceptance" else row["status"]
@@ -786,7 +875,7 @@ def refill_mission(
         text("""
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
-                   model, status, claim_token, claimed_by, session_id, result,
+                   model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
                    created_by, created_at, heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE id = :mid
             FOR UPDATE
@@ -795,6 +884,8 @@ def refill_mission(
     ).mappings().first()
     if row is None:
         raise HTTPException(status_code=404, detail="mission 不存在")
+    if int(row["organization_id"]) != resolved_org(None, user, db):
+        raise HTTPException(status_code=404, detail="mission not found")
     if row["status"] not in TERMINAL:
         raise HTTPException(
             status_code=409,

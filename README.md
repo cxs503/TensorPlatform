@@ -49,3 +49,7 @@ Runtime secrets are supplied through environment variables. The release must pas
 ## Tensor ecosystem integration
 
 This repository's role, interface boundaries, data-exchange requirements and recommended integration path are documented in [Ecosystem Integration](docs/ecosystem-integration.md).
+
+## Optional resident agent community
+
+Persistent sessions, personal memory, peer discussion and reviewed source development are available as an opt-in extension. See [setup and limitations](docs/factory/resident-community.md) and [comparison and validation report](docs/engineering/RESIDENT_COMMUNITY_EXTRACTION_2026-10-21.md).
