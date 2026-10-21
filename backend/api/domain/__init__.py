@@ -1,15 +1,5 @@
-"""Domain aggregation layer — groups related API routers for cleaner main.py."""
-from api.domain.data import router as data_router
-from api.domain.model import router as model_router
-from api.domain.deployment import router as deployment_router
-from api.domain.iam import router as iam_router
-from api.domain.observability import router as observability_router
-from api.domain.platform import router as platform_router
-from api.domain.iot_edge import router as iot_edge_router
-from api.domain.ops import router as ops_router
-from api.domain.tools import router as tools_router
-from api.domain.misc import router as misc_router
-from api.domain.tensor import router as tensor_router
+"""Load only the requested domain, keeping the agent edition independent."""
+from importlib import import_module
 
 __all__ = [
     "data_router",
@@ -24,3 +14,11 @@ __all__ = [
     "misc_router",
     "tensor_router",
 ]
+
+
+def __getattr__(name):
+    if name in __all__:
+        router = import_module(f"api.domain.{name.removesuffix('_router')}").router
+        globals()[name] = router
+        return router
+    raise AttributeError(name)

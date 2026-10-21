@@ -1,0 +1,162 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "factory-evidence-claims.schema.json",
+  "title": "TensorPlatform artifact-bound structured claims",
+  "type": "object",
+  "properties": {
+    "claims": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "artifact": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[^/]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10485760
+              }
+            },
+            "required": [
+              "name",
+              "sha256",
+              "size_bytes"
+            ],
+            "additionalProperties": false
+          },
+          "pointer": {
+            "type": "string"
+          },
+          "expected": {
+            "type": [
+              "number",
+              "boolean",
+              "string"
+            ]
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1
+          },
+          "label": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "artifact",
+          "pointer",
+          "expected",
+          "unit"
+        ],
+        "additionalProperties": false
+      }
+    },
+    "figures": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "properties": {
+          "image": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[^/]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10485760
+              }
+            },
+            "required": [
+              "name",
+              "sha256",
+              "size_bytes"
+            ],
+            "additionalProperties": false
+          },
+          "data": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[^/]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10485760
+              }
+            },
+            "required": [
+              "name",
+              "sha256",
+              "size_bytes"
+            ],
+            "additionalProperties": false
+          },
+          "script": {
+            "type": "object",
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[^/]+$"
+              },
+              "sha256": {
+                "type": "string",
+                "pattern": "^[0-9a-f]{64}$"
+              },
+              "size_bytes": {
+                "type": "integer",
+                "minimum": 0,
+                "maximum": 10485760
+              }
+            },
+            "required": [
+              "name",
+              "sha256",
+              "size_bytes"
+            ],
+            "additionalProperties": false
+          },
+          "caption": {
+            "type": "string"
+          },
+          "rendering": {
+            "type": "string"
+          }
+        },
+        "required": [
+          "image",
+          "data",
+          "script",
+          "caption"
+        ],
+        "additionalProperties": false
+      }
+    }
+  },
+  "required": [
+    "claims",
+    "figures"
+  ],
+  "additionalProperties": false
+}

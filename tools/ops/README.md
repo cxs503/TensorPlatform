@@ -29,3 +29,10 @@ github.com:443 断连时用；大 blob 走临时文件 --data-binary、cwd 须�
 
 TensorLBM `benchmarks/pending/` 全案+WB2 晋级；marine 五案与结冰不在 B 线范围
 （见 benchmark/README.md）。SI 目标模板与 goal 文本属派发数据，不入库。
+
+## PR 卫生（pr_hygiene）
+
+推送前并 main（白名单机械解：pending 台账/operator_log 日报双侧行并集、
+auto_approver 取 main+纯函数嫁接）+ 存量 dirty PR 保鲜（update-branch API）。
+si_harvest / benchmark_dispatch 推送前调用；tensor_agent 起树 base=main
+一律取新鲜 origin/main。回归：`python3 tools/ops/test_pr_hygiene.py`。
