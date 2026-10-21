@@ -257,6 +257,21 @@ def presence_split(wt: str, base: str, files: list[str]) -> tuple[list[str], lis
     return present, absent
 
 
+def checks_capacity(machine_checks: int, test_scope: bool,
+                    n_pass: int, n_fail: int, n_skip: int) -> int | None:
+    """C3 容量分母：checks 有两类——测试数 vs 锚点判据数（范畴不同）。
+
+    有机器摘录 checks → 分母=摘录数（evidence_files 是权威账本）；
+    无摘录且 goal 非测试口径 → 不比数（把锚点数当 pytest 数比
+    = 系统性别 escalate：m133/m138/m139 实录，checks 25/37/48 vs 14）。
+    """
+    if machine_checks > 0:
+        return machine_checks
+    if test_scope:
+        return n_pass + n_fail + n_skip
+    return None
+
+
 def guard_false_kill(verdict: str, reason: str, present: list[str]) -> tuple[str, str]:
     """LLM 裁 reject 且理由是"未见文件"而机器核验在场 → 转人工复核。
 
@@ -334,10 +349,15 @@ def verify_dev_acceptance(api: API, mission: dict,
     # 红队 C3 教训：声称 checks 超过同头复跑容量（passed+failed+skipped）=
     # 口径矛盾。agent 跑子集时 claimed < 容量属正常，claimed > 容量不可能。
     claimed_total = (evidence.get("checks") or {}).get("total")
+    _machine_early = (evidence.get("summary") or {}).get("evidence_machine") or {}
+    _mc = sum(len(f.get("checks") or [])
+              for f in _machine_early.get("files") or [])
+    _test_scope = bool(re.search(r"默认测试|pytest|测试套件|默认套件", goal))
+    _capacity = checks_capacity(_mc, _test_scope, n_pass, n_fail, n_skip)
     if (t_code == 0 and isinstance(claimed_total, int)
-            and claimed_total > n_pass + n_fail + n_skip):
-        return "escalate", (f"声称 checks {claimed_total} 项超过同头复跑容量 "
-                            f"{n_pass}+{n_fail}+{n_skip}={n_pass+n_fail+n_skip}"
+            and _capacity is not None and claimed_total > _capacity):
+        return "escalate", (f"声称 checks {claimed_total} 项超过其口径容量 "
+                            f"{_capacity}（{_mc and '机器摘录' or '测试复跑'}）"
                             "——口径矛盾，留人工")
     if re.search(r"默认测试全绿|全量测试|pytest -x -q tests|默认套件", goal):
         if new_reds:
@@ -421,6 +441,31 @@ MEMORY_ROOT = os.environ.get(
     "TENSOR_MEMORY_ROOT", "/srv/tensor/shared/tensor_eco/agent_memory")
 
 
+ESCALATED_SEEN = os.environ.get(
+    "TENSOR_ESCALATED_SEEN",
+    "/srv/tensor/shared/tensor_eco/agent_work/approver_escalated.json")
+
+
+def escalated_seen() -> dict:
+    """已 escalate 停车的 approval id 表（后端只收 approved|rejected，
+    escalate 落不了库——不本地停车就每 tick 重裁决+重跑套件）。"""
+    try:
+        return json.loads(open(ESCALATED_SEEN, encoding="utf-8").read())
+    except (OSError, ValueError):
+        return {}
+
+
+def escalated_record(store: dict, ap: dict, note: str) -> None:
+    store[str(ap["id"])] = {
+        "ts": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "mission": ap.get("mission_id"), "note": note[:200]}
+    try:
+        with open(ESCALATED_SEEN, "w", encoding="utf-8") as fh:
+            json.dump(store, fh, ensure_ascii=False)
+    except OSError:
+        pass  # 停车失败只是回到旧行为（重复 escalate），不影响裁决正确性
+
+
 def _memory_append_decision(approval: dict, decision: str) -> None:
     """裁决入常驻记忆（有路由的 mission）：审批结论是 jsonl 事实账本的一部分。
     与 tensor_agent.append_memory 各自独立实现——本文件保持纯标准库。
@@ -483,7 +528,9 @@ def main() -> None:
     items = data.get("items", [])
     if not items:
         return
-    log(f"pending={len(items)}")
+    seen = escalated_seen()
+    log(f"pending={len(items)}"
+        + (f"（{len(seen)} 已 escalate 停车）" if seen else ""))
     decided = 0
     for ap in items:
         if decided >= MAX_DECISIONS_PER_RUN:
@@ -519,7 +566,12 @@ def main() -> None:
             _memory_append_decision(ap, "rejected")
             decided += 1
         else:
-            log(f"approval {ap['id']} escalate（留人工）：{note[:200]}")
+            if str(ap["id"]) in seen:
+                log(f"approval {ap['id']} 已 escalate 停车——跳过")
+                continue
+            escalated_record(seen, ap, note)
+            _memory_append_decision(ap, "escalated")
+            log(f"approval {ap['id']} escalate（已停车留人工）：{note[:200]}")
 
 
 if __name__ == "__main__":
