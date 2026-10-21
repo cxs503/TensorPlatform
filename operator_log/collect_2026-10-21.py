@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
+"""m139 班次读数采集器：一条命令跑完巡检六步，stdout 原样落 2026-10-21.readings.json。
 """m142 班次读数采集器：一条命令跑完巡检六步，stdout 原样落 2026-10-21.readings.json。
 
 纪律：判据数字零手抄 —— 本脚本只做「跑命令 + 原样抄录 stdout/exit_code」，
@@ -44,8 +45,10 @@ COMMANDS = [
     # ---- 巡检第 3 步：中继健康 ----
     ("3_relay",
      "set -a; source {w}/review.env; set +a; "
-     "curl -s -o /tmp/m142_models.json -w 'http=%{{http_code}} t=%{{time_total}}' "
+     "curl -s -o /tmp/m139_models.json -w 'http=%{{http_code}} t=%{{time_total}}' "
      "-H \"Authorization: Bearer $LLM_API_KEY\" $LLM_BASE_URL/models; echo; "
+     "python3 -c \"import json;d=json.load(open('/tmp/m139_models.json'));"
+     "curl -s -o /tmp/m142_models.json -w 'http=%{{http_code}} t=%{{time_total}}' "
      "python3 -c \"import json;d=json.load(open('/tmp/m142_models.json'));"
      "print('models=%d' % len(d.get('data',[])))\"".format(w=WORK)),
 
@@ -191,13 +194,30 @@ COMMANDS = [
     ("6_repo_suite_capacity",
      "cd {p} && /srv/tensor/shared/hermes-agent/.venv/bin/python -m pytest -x -q tests "
      "2>&1 | tail -1".format(p=PLAT)),
-    # ---- m135 续班后状态（m139 班续班，本班观察其已转 awaiting_acceptance）----
-    ("5_m135_post_refill",
+    # ---- 本班处置：m135 budget_exceeded → refill 续班（本班唯一写操作）----
+    ("5_refill_check_135",
+     "/srv/tensor/shared/venvs/tensor_eco/bin/python {p}/tools/agent/refill_check.py 135 "
+     ">/tmp/rc135.txt 2>&1; echo \"rc=$?\"; tail -2 /tmp/rc135.txt"
+    ("5_refill_135_post",
      PSQL + "\"SELECT id||'|'||status||'|budget='||(budget->>'max_tool_calls')"
-            "||'/'||(budget->>'max_wall_seconds')||'|sc='||"
+            "||'/'||(budget->>'max_wall_seconds')||'|hb_age='||"
+            "round(extract(epoch from now()-heartbeat_at))::int||'|sc='||"
             "coalesce(result->>'stop_condition','NULL')||'|audit_by='||"
             "coalesce(result->'refill'->>'by','-')||'|added='||"
             "coalesce((result->'refill'->'added'->>'tool_calls'),'-')||'/'||"
+            "coalesce((result->'refill'->'added'->>'wall_seconds'),'-')||'|claimed_by='||"
+            "coalesce(claimed_by,'-') FROM tensor_dev_missions "
+            "WHERE id=135;\""),
+    ("6_approver_escalate_rounds",
+     "echo a103=$(grep -c 'approval 103 escalate' {w}/auto_approver.log) "
+     "a104=$(grep -c 'approval 104 escalate' {w}/auto_approver.log) "
+     "a106=$(grep -c 'approval 106 escalate' {w}/auto_approver.log) "
+     "a106_claimed=$(grep -m1 'approval 106 escalate' {w}/auto_approver.log "
+     "| sed 's/.*声称 checks \\([0-9]*\\) 项.*/\\1/') "
+     "pending_lines=$(grep -c 'pending=' {w}/auto_approver.log)".format(w=WORK)),
+    # ---- m135 续班后状态（m139 班续班，本班观察其已转 awaiting_acceptance）----
+    ("5_m135_post_refill",
+            "||'/'||(budget->>'max_wall_seconds')||'|sc='||"
             "coalesce((result->'refill'->'added'->>'wall_seconds'),'-')||'|head='||"
             "coalesce(result->'progress'->>'head','-')||'|tc='||"
             "coalesce(result->'progress'->>'tool_calls','-')||'|ws='||"
@@ -209,7 +229,6 @@ COMMANDS = [
             "coalesce(result->>'head_commit','-')||'|checks='||"
             "coalesce(result->'evidence'->'checks'->>'total','-') "
             "FROM tensor_dev_missions WHERE id=134;\""),
-    ("6_approver_escalate_rounds",
      "echo a103=$(grep -c 'approval 103 escalate' {w}/auto_approver.log 2>/dev/null) "
      "a104=$(grep -c 'approval 104 escalate' {w}/auto_approver.log 2>/dev/null) "
      "a106=$(grep -c 'approval 106 escalate' {w}/auto_approver.log 2>/dev/null) "
@@ -220,6 +239,7 @@ COMMANDS = [
 
 def main() -> int:
     readings = {
+        "collected_by": "platform-operator m139 shift",
         "collected_by": "platform-operator m142 shift",
         "collected_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "note": ("每条为命令原文 + stdout 原样 + 退出码；本文件由 "
