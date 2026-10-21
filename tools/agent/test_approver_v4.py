@@ -7,7 +7,7 @@
   T3 llm_verdict 重试：首答思考流（无 JSON）→ 次答合法 JSON → 采用次答；
      两次都败 → escalate（不误判）
   T4 静态锁：三处 pytest 命令带 PYTHONPATH 前置与收集容错、无 -x；
-     FAILED|ERROR 归因口径；max_tokens 4096；worker 侧 do_run_tests 同口径
+     FAILED|ERROR 归因口径；max_tokens 12288（v6 头部空间）；worker 侧 do_run_tests 同口径
 
 运行：python3 tools/agent/test_approver_v4.py
 """
@@ -80,7 +80,7 @@ assert "PYTHONPATH={repo_pythonpath(bdir)}" in src, "T4b（基线复跑无隔离
 assert "--continue-on-collection-errors" in src, "T4c（无收集容错）"
 assert 'f"{python} -m pytest -x -q tests"' not in src, "T4d（旧复跑命令仍在）"
 assert 'r"^(?:FAILED|ERROR) (\\S+)"' in src, "T4e（收集错未入归因口径）"
-assert '"max_tokens": 4096' in src, "T4f（max_tokens 未提）"
+assert '"max_tokens": 12288' in src, "T4f（max_tokens 未提）"
 
 ta_src = (HERE / "tensor_agent.py").read_text(encoding="utf-8")
 assert "PYTHONPATH={repo_pythonpath(BRIDGE.worktree)}" in ta_src, "T4g"

@@ -141,7 +141,7 @@ def _stream_chat(base: str, key: str, messages: list) -> str:
     """流式调裁决 LLM：返回 content，空则 reasoning（思考型模型实录，
     reasoning 可能先吃光预算、content 落空）。"""
     body = json.dumps({"model": REVIEWER_MODEL, "stream": True,
-                       "max_tokens": 4096, "temperature": 0,
+                       "max_tokens": 12288, "temperature": 0,
                        "messages": messages}).encode()
     req = urllib.request.Request(
         f"{base.rstrip('/')}/chat/completions", data=body, method="POST",
@@ -149,7 +149,7 @@ def _stream_chat(base: str, key: str, messages: list) -> str:
                  "Authorization": f"Bearer {key}"})
     parts: list[str] = []
     reasoning: list[str] = []
-    with urllib.request.urlopen(req, timeout=120) as resp:
+    with urllib.request.urlopen(req, timeout=180) as resp:
         for line in resp:
             line = line.decode("utf-8", "replace").strip()
             if not line.startswith("data: ") or line == "data: [DONE]":
