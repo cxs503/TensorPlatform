@@ -294,6 +294,9 @@ def push_and_pr(item: dict, mid: int, mission: dict,
     return None
 
 
+MAX_REPORT_FIGURES = 12  # /tensor/reports figures 列表长度上限
+
+
 def publish_report(item: dict, mid: int, tok: str) -> int | None:
     """代发论文级平台报告（agent 已写 report_<case>.md 在 worktree；图件取
     worktree 根 fig_*.png 与案例目录 figures/*.png——paper 档图件在案例目录）。"""
@@ -313,6 +316,9 @@ def publish_report(item: dict, mid: int, tok: str) -> int | None:
         figs.append({"name": png.stem,
                      "caption": png.stem.replace("fig_", "").replace("_", " "),
                      "png_base64": base64.b64encode(png.read_bytes()).decode()})
+    if len(figs) > MAX_REPORT_FIGURES:  # 平台 schema 上限 12，超发=422 整单丢失
+        log(f"WARN m{mid}: 图件 {len(figs)} 超平台上限，截前 {MAX_REPORT_FIGURES} 张")
+        figs = figs[:MAX_REPORT_FIGURES]
     payload = report_payload(text, figs, mid, item["case"])
     code, out = api("POST", "/tensor/reports", payload, tok=tok)
     if code not in (200, 201):
