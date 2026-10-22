@@ -8,7 +8,11 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from api.tenant_access import create_organization_id, is_admin
+from api.tenant_access import (
+    create_organization_id,
+    is_admin,
+    organization_id as user_organization_id,
+)
 
 LOG_TAIL_BYTES = 16 * 1024
 EVENT_KINDS = (
@@ -31,7 +35,20 @@ TERMINAL_STATUSES = ("succeeded", "failed", "cancelled")
 
 
 def resolved_org(requested_org_id: int | None, user: dict, db: Session) -> int:
-    """Org scope with a platform-default fallback for org-less admins."""
+    """Org scope with a platform-default fallback for org-less admins.
+
+    Single-tenant fallback: when the user has no binding, no org was
+    requested, and the whole platform has exactly one organization, bind
+    to it implicitly — there is no second tenant to leak to. Keeps
+    legacy single-tenant fleets (all agents sharing one service account)
+    working after an upgrade introduces organization binding.
+    """
+    if requested_org_id is None and user_organization_id(user) is None:
+        only = db.execute(
+            text("SELECT MIN(id), COUNT(*) FROM organizations")
+        ).first()
+        if only and only[1] == 1:
+            return int(only[0])
     organization_id = create_organization_id(requested_org_id, user)
     if organization_id is None:
         if is_admin(user):
