@@ -185,6 +185,9 @@ def merge_main_before_push(wt: str, note: str = "pr_hygiene") -> tuple[bool, str
         sh("git stash -u -m pr-hygiene-pre-merge", wt)
     if not fetch_fresh(wt):
         return False, "fetch 失败（443？）——跳过本轮，分支未动"
+    # 已含 main（此前轮次已并入 merge、或人工已并）→ 幂等快道，不再起新 merge
+    if sh("git merge-base --is-ancestor origin/main HEAD", wt).returncode == 0:
+        return True, "已含 main"
     r = sh("git merge --no-commit --no-ff origin/main", wt)
     if sh("git rev-parse -q --verify MERGE_HEAD", wt).returncode != 0:
         sh("git merge --abort", wt)
