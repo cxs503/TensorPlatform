@@ -275,6 +275,10 @@ app.include_router(misc.router, prefix="/api/v1")
 # ── 科研运行台（HPC + AI agent 操作面）──
 app.include_router(tensor.router, prefix="/api/v1")
 
+# ── 公共实况展示面（免登录只读，owner 2026-10-22）──
+from api import public  # noqa: E402
+app.include_router(public.router, prefix="/api/v1")
+
 # ── Prometheus /metrics 端点（空前缀，供 Prometheus 采集）──
 app.include_router(metrics_api.router, prefix="")
 app.include_router(dashboard_router)
