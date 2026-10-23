@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
-"""operator 班次采集器（m210 / 2026-10-23 第 73 班）
+"""operator 班次采集器（m212 / 2026-10-23 第 74 班）
 
 现场直读平台观察面，产出 validation_report.json —— 判据数字零手抄：
 DB 走 docker exec psql、守护走 /proc、中继走 curl、账目走文件直读。
@@ -228,9 +228,9 @@ def main():
 
     passed = sum(1 for c in checks if c["passed"])
     report = {
-        "mission": "m210",
+        "mission": "m212",
         "date": "2026-10-23",
-        "shift": "第 73 班（派发器 shift#52）",
+        "shift": "第 74 班（派发器 shift#53）",
         "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
         "workdir": os.path.abspath(__file__),
         "checks_passed": passed,
