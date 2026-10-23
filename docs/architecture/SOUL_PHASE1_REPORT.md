@@ -18,9 +18,13 @@
 | 2 | B 实现 | `5a1eae581ae74f61269a79cc2733c223d65cb5e1` | feat(soul): Tensor Soul Runtime 第一阶段 MVP（身份/检查点/记忆事件/recall/绑定/晋级门） |
 | 3 | B 实现 | `274f8e8135794a5316f1ca689aeca0f25bead04f` | fix(soul): 091 会话→稳定身份迁移入口 + 迁移登记器接入 bootstrap |
 | 4 | B/C 实现+取证 | `e6b364b0dfcc130bcecad365d29fb137ac97f0d1` | fix(soul): recall 中文任务上下文相关性（CJK 二元组）+ 有界 recall/prepare 测试 + 取证脚本 |
-| 5 | C 报告 | 本文件所在提交（`git log --format=%H -1`） | docs: Tensor Soul 第一阶段交付报告 + 取证脚本静态检查 |
+| 5 | C 报告 | `18f52def1a4209d1f395863ff8c32d2348b3ff46` | docs: Tensor Soul 第一阶段交付报告 + 取证脚本静态检查扩至报告工件 |
+| 6 | C 工件 | `e24cd1d` | docs: 刷新 Soul 第一阶段取证工件（head_commit=18f52de，13/13 判据通过）并标注工件提交口径 |
 
-变更规模（`git diff --numstat 6a3f63d..e6b364b`）：11 文件、+2206/-0 行（不含本报告）。
+变更规模（`git diff --shortstat 6a3f63d..e6b364b` 原样抄录）：`11 files changed, 2206 insertions(+), 2 deletions(-)`（不含本报告）。
+含本报告与取证工件后（`git diff --shortstat 6a3f63d..HEAD`）为 `13 files changed, 3151 insertions(+), 2 deletions(-)`；
+两次删除的 2 行分别是 `backend/factory_app.py` 里被替换的 `for router in (...)` 行与
+`backend/services/factory_bootstrap.py` 里被重排的迁移名列表行。
 其中 `backend/services/soul_runtime.py` 709 行、`backend/api/soul_runtime.py` 395 行、
 `backend/migrations/094_factory_soul.sql` 195 行、`tests/factory/test_soul_runtime.py` 471 行、
 `tests/factory/test_soul_migrations.py` 89 行、审计 153 行。
@@ -55,22 +59,28 @@ CI 触发路径：`.github/workflows/resident-community.yml:8,10,16` 增加 soul
 
 | 运行 | 命令 | 退出码 | 结果 | 耗时 |
 |---|---|---|---|---|
-| 全量 factory | `/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory -q -p no:warnings` | 0 | 95 passed / 0 failed | 54.79 s |
-| Soul 专项 | `/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory/test_soul_runtime.py tests/factory/test_soul_migrations.py -q -p no:warnings` | 0 | 11 passed / 0 failed | 18.42 s |
+| 全量 factory | `/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory -q -p no:warnings` | 0 | 95 passed / 0 failed | 72.41 s |
+| Soul 专项 | `/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory/test_soul_runtime.py tests/factory/test_soul_migrations.py -q -p no:warnings` | 0 | 11 passed / 0 failed | 16.28 s |
 | 非 factory 回归 | `/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests --ignore=tests/factory -q -p no:warnings` | 0 | 23 passed / 0 failed | 0.71 s |
 
-判据总账：**12/12**（3 组运行退出码 + 6 个验收场景用例 + 3 项工件静态检查），见 `soul_phase1_validation.json` 的 `checks_passed/checks_total`。
+判据总账：**13/13**（3 组运行退出码 + 6 个验收场景用例 + 4 项工件静态检查），见 `soul_phase1_validation.json` 的 `checks_passed/checks_total`。
+
+上表与 §3.1 的耗时、passed 数全部逐字抄自上表所述那次真实执行写入的 `soul_phase1_validation.json`
+（`runs[].duration_seconds` / `acceptance_scenarios[].seconds`），未做任何估算或取整；重跑会得到新的计时，
+但 `exit_code` 与 `counts` 不变。pytest 末行原样抄录：`95 passed in 68.76s (0:01:08)` / `11 passed in 13.07s` / `23 passed in 0.43s`。
+4 项工件静态检查为：审计文档含 ≥10 处 `file:line` 引用、`094` 迁移带 64 位 sha256 + 版本登记表 + 共享级 CHECK、
+CI 触发路径含 soul、报告含六场景小节 + NOT RUN + 退出码清单（明细见工件 `static_checks`）。
 
 ### 3.1 六场景 ↔ 测试用例（逐个 passed）
 
 | 场景 | 用例（`tests/factory/test_soul_runtime.py`） | 结果 | 耗时 |
 |---|---|---|---|
-| 场景 1 跨 session 连续性 | `test_agent_identity_and_unfinished_task_survive_independent_sessions`（:76） | passed | 1.577 s |
-| 场景 2 进程重启恢复 | `test_latest_checkpoint_restores_after_process_restart`（:135） | passed | 1.765 s |
-| 场景 3 模型切换连续 | `test_model_binding_switch_preserves_identity_and_durable_state`（:204） | passed | 1.334 s |
-| 场景 4 observe 幂等去重 | `test_observe_is_idempotent_and_detects_conflicting_writes`（:250） | passed | 1.259 s |
-| 场景 5 租户（组织）隔离 | `test_tenant_isolation_for_identity_session_and_memory`（:290） | passed | 1.348 s |
-| 场景 6 未验证信息隔离 | `test_unverified_model_output_cannot_reach_shared_knowledge`（:336） | passed | 1.394 s |
+| 场景 1 跨 session 连续性 | `test_agent_identity_and_unfinished_task_survive_independent_sessions`（:76） | passed | 1.069 s |
+| 场景 2 进程重启恢复 | `test_latest_checkpoint_restores_after_process_restart`（:135） | passed | 1.397 s |
+| 场景 3 模型切换连续 | `test_model_binding_switch_preserves_identity_and_durable_state`（:204） | passed | 1.084 s |
+| 场景 4 observe 幂等去重 | `test_observe_is_idempotent_and_detects_conflicting_writes`（:250） | passed | 1.176 s |
+| 场景 5 租户（组织）隔离 | `test_tenant_isolation_for_identity_session_and_memory`（:290） | passed | 1.074 s |
+| 场景 6 未验证信息隔离 | `test_unverified_model_output_cannot_reach_shared_knowledge`（:336） | passed | 1.351 s |
 
 补充用例（同样真实执行）：`test_recall_and_prepare_are_bounded_and_task_scoped`（:430，覆盖 MVP 第 4 条）；
 `tests/factory/test_soul_migrations.py` 4 个（幂等重放、迁移文件变更被拒、契约表齐备、091 会话挂到单一稳定身份）。
