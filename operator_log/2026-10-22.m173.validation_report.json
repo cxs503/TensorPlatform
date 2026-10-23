@@ -1,0 +1,508 @@
+{
+  "collector": "verify_2026-10-22.m173.py",
+  "shift": "m173 (real shift #61; dispatcher log still labels shift#49)",
+  "generated_at_utc": "2026-10-22T08:24:22Z",
+  "readings_file": "2026-10-22.m173.readings.json",
+  "log_file": "2026-10-22.md",
+  "checks_total": 99,
+  "checks_passed": 99,
+  "checks_failed": 0,
+  "all_pass": true,
+  "checks": [
+    {
+      "check": "collector_items_count",
+      "pass": true,
+      "detail": "读数条数=66（日志声明 66 条）"
+    },
+    {
+      "check": "collector_all_rc0",
+      "pass": true,
+      "detail": "非零退出项=[]"
+    },
+    {
+      "check": "collector_schema_ok",
+      "pass": true,
+      "detail": "读数顶层键=['collector', 'generated_at_utc', 'items', 'shift', 'worktree']"
+    },
+    {
+      "check": "collector_name_m173",
+      "pass": true,
+      "detail": "collector=collect_2026-10-22.m173.py shift=m173 (real shift #61; dispatcher log still labels shift#49)"
+    },
+    {
+      "check": "log_t0_matches_readings",
+      "pass": true,
+      "detail": "日志快照时点 2026-10-22T08:24:22Z 与 readings 一致"
+    },
+    {
+      "check": "inflight_nonempty",
+      "pass": true,
+      "detail": "在飞条数=4 ids=['172', '173', '174', '176']"
+    },
+    {
+      "check": "inflight_contains_self_173",
+      "pass": true,
+      "detail": "在飞快照 ids=['172', '173', '174', '176']（须含本班 173）"
+    },
+    {
+      "check": "inflight_heartbeat_fresh",
+      "pass": true,
+      "detail": "心跳年龄(秒)=[15, 3, 14, 10]，全部 ≤240s（未到收割线）"
+    },
+    {
+      "check": "inflight_stop_condition_null",
+      "pass": true,
+      "detail": "在飞 result.stop_condition=['NULL', 'NULL', 'NULL', 'NULL']（均 NULL）"
+    },
+    {
+      "check": "inflight_recheck_same_ids",
+      "pass": true,
+      "detail": "20s 后复采样 ids=['172', '173', '174', '176']（与首次一致=守护心跳链活）"
+    },
+    {
+      "check": "inflight_recheck_fresh",
+      "pass": true,
+      "detail": "复采样心跳年龄=['5', '8', '4', '15'] 全部 ≤240s"
+    },
+    {
+      "check": "log_heartbeat_matches_readings",
+      "pass": true,
+      "detail": "日志引用的心跳读数 ['172 = 15s', '173 = 3s', '174 = 14s', '176 = 10s'] 均与 readings 同值"
+    },
+    {
+      "check": "log_recheck_heartbeat_matches",
+      "pass": true,
+      "detail": "日志引用的复采样心跳 ['5s', '8s', '4s', '15s'] 均与 readings 同值"
+    },
+    {
+      "check": "queued_171_refilled_by_us",
+      "pass": true,
+      "detail": "queued=['171:agent', '175:owner']（171 为 agent 来源=本班 refill 后回队）"
+    },
+    {
+      "check": "queued_175_owner",
+      "pass": true,
+      "detail": "queued 含 owner 来源 175（SI-5 收尾单，非本班职责）"
+    },
+    {
+      "check": "guardian_count_10",
+      "pass": true,
+      "detail": "pgrep 守护计数=10（期望 10=基线 7 + 池化 3）"
+    },
+    {
+      "check": "guardian_detail_matches_count",
+      "pass": true,
+      "detail": "逐 PID 明细=10 行（与 pgrep 计数一致）"
+    },
+    {
+      "check": "pool_reconcile_self_consistent",
+      "pass": true,
+      "detail": "池化对账=expected_extra_slots=3 | actual_slot_workers=3"
+    },
+    {
+      "check": "relay_200",
+      "pass": true,
+      "detail": "中继=http=200 t=0.368792 | models=7"
+    },
+    {
+      "check": "relay_models_7",
+      "pass": true,
+      "detail": "中继模型数=http=200 t=0.368792 | models=7"
+    },
+    {
+      "check": "relay_latency_under_5s",
+      "pass": true,
+      "detail": "中继耗时=0.369s（门限 <5s）"
+    },
+    {
+      "check": "log_relay_latency_matches_readings",
+      "pass": true,
+      "detail": "日志中继读数与 readings 一致（t=0.369s models=7）"
+    },
+    {
+      "check": "cooldown_cleared_to_empty",
+      "pass": true,
+      "detail": "当前冷却态='{}'（本班清理后应为空对象）"
+    },
+    {
+      "check": "cooldown_before_snapshot_present",
+      "pass": true,
+      "detail": "清理前快照含 relay-13001/transient（证据留痕）"
+    },
+    {
+      "check": "cooldown_was_expired",
+      "pass": true,
+      "detail": "过期判定=relay-13001 delta=-1281 reason=transient×3（delta<0 即已过期，可清）"
+    },
+    {
+      "check": "log_cooldown_delta_matches_readings",
+      "pass": true,
+      "detail": "日志引用的过期量 delta=-1281 与 readings 同值"
+    },
+    {
+      "check": "24h_terminal_rows",
+      "pass": true,
+      "detail": "24h 终态行=20"
+    },
+    {
+      "check": "24h_infra_single_170",
+      "pass": true,
+      "detail": "24h infra 类终局=['170|failed|gateway_unavailable|10-22 07:46:37']（唯一一条=前任 operator 腿 m170）"
+    },
+    {
+      "check": "m169_succeeded",
+      "pass": true,
+      "detail": "m169=169|succeeded|agent|NULL|-|240|28800|10-22 07:48:41"
+    },
+    {
+      "check": "m170_failed_gateway",
+      "pass": true,
+      "detail": "m170=170|failed|agent|gateway_unavailable|-|200|7200|10-22 07:46:37"
+    },
+    {
+      "check": "m171_queued_after_refill",
+      "pass": true,
+      "detail": "m171 status=queued（本班 refill 后回队）"
+    },
+    {
+      "check": "m171_budget_bumped",
+      "pass": true,
+      "detail": "m171 预算 tc/ws=['300', '36000']（240/28800 +60/+7200）"
+    },
+    {
+      "check": "m175_owner_si5",
+      "pass": true,
+      "detail": "m175 origin=owner（owner 派 SI-5 收尾单）"
+    },
+    {
+      "check": "m172_m174_running",
+      "pass": true,
+      "detail": "m172/m174 status=running/running"
+    },
+    {
+      "check": "refill_check_m170_rc0_but_taken_over",
+      "pass": true,
+      "detail": "refill_check m170 输出=[refill_check] m170 status=failed stop='gateway_unavailable' ledger_entries=1 | 可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-22"
+    },
+    {
+      "check": "refill_check_m171_rc3_queued",
+      "pass": true,
+      "detail": "refill_check m171 输出=[refill_check] m171 status=queued stop=None ledger_entries=1 | 拒绝：mission 仍在飞（queued），无续班可言。 | rc=3（本班 refill 已生效 ⇒ 拒绝，预期）"
+    },
+    {
+      "check": "refill_171_http200_queued",
+      "pass": true,
+      "detail": "refill 响应 id=171 status=queued"
+    },
+    {
+      "check": "refill_delta_60_7200",
+      "pass": true,
+      "detail": "预算增量=status=queued tc=300 ws=36000 | delta_tc=60 delta_ws=7200"
+    },
+    {
+      "check": "m171_payload_gate_clean",
+      "pass": true,
+      "detail": "载荷门 m171=m171 msgs=1 bad=0(解析全通过)"
+    },
+    {
+      "check": "m170_payload_gate_clean",
+      "pass": true,
+      "detail": "载荷门 m170=m170 msgs=109 | m170 tool_calls=66"
+    },
+    {
+      "check": "m171_no_endpoint_evidence",
+      "pass": true,
+      "detail": "m171 守护日志含无可用端点/gateway_unavailable 证据"
+    },
+    {
+      "check": "m170_timeout_evidence",
+      "pass": true,
+      "detail": "m170 守护日志末段=: 'failed', 'approval_id': None} (stop=gateway_unavailable) | 1148:[15:46:37] m170: memory -> platform-operator (failed)"
+    },
+    {
+      "check": "approval_approved_120",
+      "pass": true,
+      "detail": "审批计数=approved:120 rejected:11"
+    },
+    {
+      "check": "approval_rejected_11",
+      "pass": true,
+      "detail": "rejected=11"
+    },
+    {
+      "check": "pending_zero",
+      "pass": true,
+      "detail": "pending=0|-（R4' 死锁已由 owner 裁决消解，#134 转 approved）"
+    },
+    {
+      "check": "recent_approved_6",
+      "pass": true,
+      "detail": "最近 approved=6 行"
+    },
+    {
+      "check": "recent_approved_first_136_m169",
+      "pass": true,
+      "detail": "最近 approved 首行=136|169|1|10-22 07:48:41"
+    },
+    {
+      "check": "recent_approved_contains_134_approved",
+      "pass": true,
+      "detail": "#134/m167 现为 approved：['134|167|1|10-22 07:06:22']"
+    },
+    {
+      "check": "parked_29",
+      "pass": true,
+      "detail": "停车表=parked=29 keys=103,104,106,107,111,112,113,114,115,116,117,118,119,121,122,123,124,125,126,127,128,1"
+    },
+    {
+      "check": "parked_vs_db_29_0_29_0",
+      "pass": true,
+      "detail": "停车表 vs DB=29|0|29|0（29 条全 approved 僵尸，零 pending=死锁已消解）"
+    },
+    {
+      "check": "r3_family_25",
+      "pass": true,
+      "detail": "R3 家族矩阵=25 行（+1=#135/m168，checks>20 口径）"
+    },
+    {
+      "check": "r3_family_contains_135_m168",
+      "pass": true,
+      "detail": "矩阵新增行=['135|168|76|approved']"
+    },
+    {
+      "check": "r3_grep_12",
+      "pass": true,
+      "detail": "R3 容量 grep=12（零新增）"
+    },
+    {
+      "check": "r3_last_127",
+      "pass": true,
+      "detail": "R3 末条=[05:26:02] approval 127 escalate（已停车留人工）：声称 checks 104 项超过其口径容量 20（机器摘录）——口径矛盾，留人工"
+    },
+    {
+      "check": "r4_dirty_72",
+      "pass": true,
+      "detail": "R4 dirty_tree grep=72（+1=#136/m169）"
+    },
+    {
+      "check": "r4_last_136",
+      "pass": true,
+      "detail": "R4 末条=[15:40:01] approval 136 escalate（已停车留人工）：工作树有 3 项未提交变更——交付未落 commit，留人工"
+    },
+    {
+      "check": "r5_verifier_37",
+      "pass": true,
+      "detail": "R5 verifier 异常 grep=37（零新增）"
+    },
+    {
+      "check": "r5_last_116",
+      "pass": true,
+      "detail": "R5 末条=[17:41:05] approval 116 verifier 异常：TimeoutError: timed out"
+    },
+    {
+      "check": "r7_evid_46",
+      "pass": true,
+      "detail": "R7 证据不足 grep=46（零新增）"
+    },
+    {
+      "check": "unparseable_246",
+      "pass": true,
+      "detail": "不可解析 grep=246（零新增）"
+    },
+    {
+      "check": "r8_count_3",
+      "pass": true,
+      "detail": "R8 报告发布 HTTP grep=3（零新增）"
+    },
+    {
+      "check": "r9_count_4",
+      "pass": true,
+      "detail": "R9 基线归因 grep=4（+1=#135/m168）"
+    },
+    {
+      "check": "r9_last_135",
+      "pass": true,
+      "detail": "R9 末条=[14:52:02] approval 135 escalate（已停车留人工）：基线归因机制故障（worktree/pytest 异常）——留人工"
+    },
+    {
+      "check": "approver_silent_branch_in_source",
+      "pass": true,
+      "detail": "源码早退分支=631:    if not items: | 632-        return（pending=0 静默返回，不落日志）"
+    },
+    {
+      "check": "approver_alive_via_backend_polls",
+      "pass": true,
+      "detail": "近 40 分钟审批轮询=35 次（≥10 ⇒ tick 存活，日志停更≠停摆）"
+    },
+    {
+      "check": "log_polls_matches_readings",
+      "pass": true,
+      "detail": "日志引用的轮询次数 polls=35 与 readings 同值"
+    },
+    {
+      "check": "log_approver_tail_matches_readings",
+      "pass": true,
+      "detail": "日志引用的审批器末行与 readings 一致：'[15:48:02] approval 136 已 escalate 停车——跳过'"
+    },
+    {
+      "check": "approver_tail_136_skip",
+      "pass": true,
+      "detail": "审批器末行=[15:46:01] approval 136 已 escalate 停车——跳过 | [15:48:02] pending=1（29 已 escalate 停车） | [15:48:02] approval 136 已"
+    },
+    {
+      "check": "approver_lines_5674",
+      "pass": true,
+      "detail": "审批器日志行数=5674"
+    },
+    {
+      "check": "approver_tracebacks_22",
+      "pass": true,
+      "detail": "审批器 Traceback 累计=22（零新增）"
+    },
+    {
+      "check": "approver_remote_disconnected_2",
+      "pass": true,
+      "detail": "RemoteDisconnected 累计=2（零新增）"
+    },
+    {
+      "check": "tick_gaps_window_5",
+      "pass": true,
+      "detail": "近 500 行窗口：window_lines=500 ticks=461 gaps_gt_300s=5"
+    },
+    {
+      "check": "log_tick_gaps_matches_readings",
+      "pass": true,
+      "detail": "日志引用的空档数与 readings 同值（gaps_gt_300s=5）"
+    },
+    {
+      "check": "containers_11_healthy",
+      "pass": true,
+      "detail": "容器行数=11"
+    },
+    {
+      "check": "unhealthy_zero",
+      "pass": true,
+      "detail": "非健康容器=0"
+    },
+    {
+      "check": "celery_beat_restart0",
+      "pass": true,
+      "detail": "celery-beat=running 0 0（running/RestartCount=0/ExitCode=0）"
+    },
+    {
+      "check": "m170_dirty_3",
+      "pass": true,
+      "detail": "m170 worktree=dirty=3 | ?? operator_log/2026-10-22.m170.readings.json | ?? operator_log/collect_2026-10-22.m170.py | ?? operator_log/verify_2026-10-22.m170.py | c24（R14：readings+collect+verify 三件，缺 log、未 commit）"
+    },
+    {
+      "check": "m170_has_collect_verify_no_log",
+      "pass": true,
+      "detail": "m170 滞留件确为 collect/verify/readings 三件（无 log.md）"
+    },
+    {
+      "check": "m166_dirty_8",
+      "pass": true,
+      "detail": "m166 worktree=dirty=8 | 630875d SI-5: 实现 FVM 可交换对照腿——TensorFVM 流解替换 LBM 入 SI-1 单向耦合（连续第二班无变化）"
+    },
+    {
+      "check": "m167_dirty_1",
+      "pass": true,
+      "detail": "m167 worktree=dirty=1 | f0b46488 merge: 并入 main（benchmark_dispatch）（上班 dirty=3 → 现 1，已自愈）"
+    },
+    {
+      "check": "gc_perm_no_x",
+      "pass": true,
+      "detail": "gc.py 权限=-rw------- /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py（无执行位，cron 直执行必失败）"
+    },
+    {
+      "check": "gc_log_17",
+      "pass": true,
+      "detail": "gc.log 行数=17（全「权限不够」，零新增）"
+    },
+    {
+      "check": "dispatcher_label_shift49",
+      "pass": true,
+      "detail": "派发器 m173 行=2026-10-22T08:13:02Z DISPATCHED: m173 base=fix/approver-token-headroom model=deepseek-v4-flash shift#49 memory"
+    },
+    {
+      "check": "dispatched_count_59",
+      "pass": true,
+      "detail": "DISPATCHED 计数=59（真值第 61 班，偏移 2）"
+    },
+    {
+      "check": "wt_dirs_ge_169",
+      "pass": true,
+      "detail": "worktree 目录=169（≥169，活体漂移）"
+    },
+    {
+      "check": "wt_git_70",
+      "pass": true,
+      "detail": "git 注册 worktree=70"
+    },
+    {
+      "check": "self_branch_agent_m173",
+      "pass": true,
+      "detail": "本班 worktree=self_path=/srv/tensor/shared/tensor_eco/agent_work/m173/TensorPlatform/operator_log self_branch=agent/m173 self_head=c245186 self_dirty=3"
+    },
+    {
+      "check": "self_path_is_m173",
+      "pass": true,
+      "detail": "本班路径取自自身 worktree（非主仓）"
+    },
+    {
+      "check": "ledger_tail_has_168",
+      "pass": true,
+      "detail": "常驻账本尾含 m168 记录"
+    },
+    {
+      "check": "log_contains_读数_66_条",
+      "pass": true,
+      "detail": "日志正文含 '66 条'"
+    },
+    {
+      "check": "log_contains_R4'_死锁消解段",
+      "pass": true,
+      "detail": "日志正文含 \"R4'\""
+    },
+    {
+      "check": "log_contains_R12_判读纠正段",
+      "pass": true,
+      "detail": "日志正文含 'R12 判读纠正'"
+    },
+    {
+      "check": "log_contains_R13_单端点池",
+      "pass": true,
+      "detail": "日志正文含 'R13'"
+    },
+    {
+      "check": "log_contains_R14_m170_交付残缺",
+      "pass": true,
+      "detail": "日志正文含 'R14'"
+    },
+    {
+      "check": "log_contains_R15_git_未入库",
+      "pass": true,
+      "detail": "日志正文含 'R15'"
+    },
+    {
+      "check": "log_contains_停车表_29_0_29_0",
+      "pass": true,
+      "detail": "日志正文含 '29|0|29|0'"
+    },
+    {
+      "check": "log_contains_approved_120",
+      "pass": true,
+      "detail": "日志正文含 'approved:120'"
+    },
+    {
+      "check": "log_contains_机器门_rc_0_全通过",
+      "pass": true,
+      "detail": "日志正文含 'rc=0，全部 PASS'"
+    },
+    {
+      "check": "log_contains_本班分支",
+      "pass": true,
+      "detail": "日志正文含 'agent/m173'"
+    }
+  ]
+}
