@@ -112,7 +112,7 @@ Soul 的数据（`factory_memory_events.payload`）就是 AIL 未来的**首选�
 
 1. **预算口径不同**：Soul 按**字符**（`DEFAULT_RECALL_CHARS=2400`、`DEFAULT_PREPARE_CHARS=6000`），
    AIL 按**token**（tiktoken 实测）。字符预算是模型无关的近似；token 预算才是"模型的上下文成本"。
-   本阶段实测了二者偏差：见报告 §4 的 `tokens/char` 比（中英文混排约 0.35–0.45 token/char），
+   本阶段实测了二者偏差：见报告 §4 的 `tokens/char` 比（中英文混排约 0.31–0.38 token/char），
    说明用字符卡预算会**低估**中文语料的真实成本。
 2. **表示层不同**：Soul 的 `payload` 是自由结构，检索只能做 payload 全文的词法重合；
    AIL 把断言拆成 `(topic, value)`，因此能做"同主题冲突检测"（SPEC §10）与"按意图选层"。

@@ -2,24 +2,24 @@
  "issue": "#74",
  "title": "AIL 阶段 1-2：规范、基准与可运行原型",
  "branch": "agent/m204",
- "head_commit": "1b015509b09f3c24d6bb452104ab17a351d17678",
- "generated_at": "2026-10-23T08:45:34Z",
+ "head_commit": "fee8ddc9f20105d2dc7df307394075dbea0b44cc",
+ "generated_at": "2026-10-23T09:10:11Z",
  "python": "3.12.13",
  "python_binary": "/srv/tensor/shared/venvs/tensor_eco/bin/python",
  "pydeps": "/srv/tensor/shared/tensor_eco/agent_work/m204/.pydeps",
  "environment_note": "tiktoken 装在本地 .pydeps（PYTHONPATH 注入）；仓库既有测试用 stdlib 即可运行；不连数据库、不联网、不碰 GPU",
- "checks_passed": 18,
- "checks_total": 18,
+ "checks_passed": 19,
+ "checks_total": 19,
  "checks": [
   {
    "name": "ail_tests_pass",
    "passed": true,
-   "detail": "107 passed in 5.99s"
+   "detail": "115 passed in 29.54s"
   },
   {
    "name": "existing_test_suite_pass",
    "passed": true,
-   "detail": "113 passed in 75.31s (0:01:15)"
+   "detail": "113 passed in 72.12s (0:01:12)"
   },
   {
    "name": "public_wall_pass_standalone",
@@ -49,22 +49,22 @@
   {
    "name": "ail_beats_baselines_T1_tight",
    "passed": true,
-   "detail": "ail=0.730 baselines={\"raw\": 0.3, \"nl_summary\": 0.34, \"json_struct\": 0.3}"
+   "detail": "ail=0.710 baselines={\"raw\": 0.3, \"nl_summary\": 0.34, \"json_struct\": 0.3}"
   },
   {
    "name": "ail_beats_baselines_T2_normal",
    "passed": true,
-   "detail": "ail=0.930 baselines={\"raw\": 0.44, \"nl_summary\": 0.4, \"json_struct\": 0.45}"
+   "detail": "ail=0.900 baselines={\"raw\": 0.44, \"nl_summary\": 0.4, \"json_struct\": 0.45}"
   },
   {
    "name": "ail_beats_baselines_T3_loose",
    "passed": true,
-   "detail": "ail=0.950 baselines={\"raw\": 0.54, \"nl_summary\": 0.59, \"json_struct\": 0.58}"
+   "detail": "ail=0.940 baselines={\"raw\": 0.54, \"nl_summary\": 0.59, \"json_struct\": 0.58}"
   },
   {
    "name": "ail_natural_tokens_far_below_raw",
    "passed": true,
-   "detail": "ail_natural=2332.36 raw_natural=24036.28"
+   "detail": "ail_natural=2467.4 raw_natural=26946.72"
   },
   {
    "name": "all_arms_within_token_budget",
@@ -79,7 +79,7 @@
   {
    "name": "bundles_checksum_self_verified",
    "passed": true,
-   "detail": "tensordem.jsonl=b80e4f5d2ad7; tensorphysics.jsonl=11951555fa37; tensorplatform.jsonl=ac8978f30f27"
+   "detail": "tensordem.jsonl=b80e4f5d2ad7; tensorphysics.jsonl=11951555fa37; tensorplatform.jsonl=fb6f78aebdee"
   },
   {
    "name": "corpus_full_coverage",
@@ -100,6 +100,11 @@
    "name": "existing_chain_untouched",
    "passed": true,
    "detail": "(无差异)"
+  },
+  {
+   "name": "tokens_per_char_measured",
+   "passed": true,
+   "detail": "{\"raw\": 0.314, \"nl_summary\": 0.384, \"json_struct\": 0.309, \"ail\": 0.384}（中英混排应落在 0.25–0.45；用于证明字符预算≠token 预算）"
   }
  ],
  "runs": [
@@ -107,32 +112,36 @@
    "label": "ail_tests",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/ail -q -p no:warnings",
    "exit_code": 0,
-   "duration_seconds": 6.22,
-   "tail": "107 passed in 5.99s",
+   "duration_seconds": 29.79,
+   "tail": "115 passed in 29.54s",
+   "stdout": "........................................................................ [ 62%]\n...........................................                              [100%]\n115 passed in 29.54s\n",
    "stdout_lines": 3
   },
   {
    "label": "existing_test_suite",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest -q tests/ --ignore=tests/ail --ignore=tests/test_public_wall.py -p no:warnings",
    "exit_code": 0,
-   "duration_seconds": 75.76,
-   "tail": "113 passed in 75.31s (0:01:15)",
+   "duration_seconds": 72.47,
+   "tail": "113 passed in 72.12s (0:01:12)",
+   "stdout": "........................................................................ [ 63%]\n.........................................                                [100%]\n113 passed in 72.12s (0:01:12)\n",
    "stdout_lines": 3
   },
   {
    "label": "public_wall_isolation",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest -q tests/test_public_wall.py tests/test_single_tenant_fallback.py -p no:warnings",
    "exit_code": 0,
-   "duration_seconds": 0.7,
+   "duration_seconds": 0.68,
    "tail": "9 passed in 0.40s",
+   "stdout": ".........                                                                [100%]\n9 passed in 0.40s\n",
    "stdout_lines": 2
   },
   {
    "label": "benchmark",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python scripts/run_ail_benchmark.py --out artifacts/ail_benchmark.json --from-snapshot",
    "exit_code": 0,
-   "duration_seconds": 5.35,
+   "duration_seconds": 14.36,
    "tail": "[bench] 工件：artifacts/ail_benchmark.json + bundles ['tensorplatform', 'tensorphysics', 'tensordem']",
+   "stdout": "[snapshot] 读取 471 条记录：tools/ail/corpus/records.snapshot.json\n[bench] 探针 25，语料 ['tensorplatform', 'tensorphysics', 'tensordem']\n[bench] tokenizer=tiktoken\n  raw          natural_tokens= 26946.7 T2 tokens= 1032.9 acc=0.440\n  nl_summary   natural_tokens= 11741.8 T2 tokens= 1149.6 acc=0.400\n  json_struct  natural_tokens= 18048.8 T2 tokens= 1143.8 acc=0.450\n  ail          natural_tokens=  2467.4 T2 tokens= 1188.8 acc=0.900\n[bench] 工件：artifacts/ail_benchmark.json + bundles ['tensorplatform', 'tensorphysics', 'tensordem']\n",
    "stdout_lines": 8
   },
   {
@@ -141,44 +150,54 @@
    "exit_code": 0,
    "duration_seconds": 0.0,
    "tail": "",
+   "stdout": "",
    "stdout_lines": 0
+  },
+  {
+   "label": "tokens_per_char",
+   "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -c \nimport json\nfrom pathlib import Path\nfrom tools.ail.corpus import load_snapshot\nfrom tools.ail.runner import build_corpus_bundles\nfrom tools.ail.arms import ARM_NAMES, run_arm\nfrom tools.ail.probes import probes_for\nfrom tools.ail.tokens import default_counter\n\ncounter = default_counter()\nrecords, _ = load_snapshot(Path(\"tools/ail/corpus/records.snapshot.json\"))\nbundles, _ = build_corpus_bundles(records)\nout = {}\nfor arm in ARM_NAMES:\n    nums = []\n    for corpus, bundle in bundles.items():\n        subset = [r for r in records if r.corpus == corpus]\n        for probe in probes_for(corpus):\n            res = run_arm(arm, records=subset, bundle=bundle, token_budget=1200,\n                          counter=counter, intent=probe.intent, query=probe.question)\n            nums.append((res.tokens, res.chars))\n    tk = sum(n for n, _ in nums) / len(nums)\n    ch = sum(c for _, c in nums) / len(nums)\n    # 与报告 §4 同口径：先算每个探针的比值，再对探针取均值\n    per_probe = [n / c for n, c in nums if c]\n    out[arm] = {\"token_per_char\": sum(per_probe) / len(per_probe),\n                \"tokens_mean\": tk, \"chars_mean\": ch}\nprint(json.dumps(out, ensure_ascii=False))\n",
+   "exit_code": 0,
+   "duration_seconds": 1.63,
+   "tail": "{\"raw\": {\"token_per_char\": 0.3139272200270533, \"tokens_mean\": 1032.88, \"chars_mean\": 3310.16}, \"nl_summary\": {\"token_per_char\": 0.38354755952336544, \"tokens_mean\": 1149.64, \"chars_mean\": 2997.76}, \"json_struct\": {\"token_per_char\": 0.30853775156105523, \"tokens_mean\": 1143.76, \"chars_mean\": 3714.48}, \"ail\": {\"token_per_char\": 0.3843670431606699, \"tokens_mean\": 1188.8, \"chars_mean\": 3384.36}}",
+   "stdout": "{\"raw\": {\"token_per_char\": 0.3139272200270533, \"tokens_mean\": 1032.88, \"chars_mean\": 3310.16}, \"nl_summary\": {\"token_per_char\": 0.38354755952336544, \"tokens_mean\": 1149.64, \"chars_mean\": 2997.76}, \"json_struct\": {\"token_per_char\": 0.30853775156105523, \"tokens_mean\": 1143.76, \"chars_mean\": 3714.48}, \"ail\": {\"token_per_char\": 0.3843670431606699, \"tokens_mean\": 1188.8, \"chars_mean\": 3384.36}}\n",
+   "stdout_lines": 1
   }
  ],
  "benchmark_headline": {
   "T1_tight": {
    "raw_tokens": 369.2,
-   "ail_tokens": 393.16,
+   "ail_tokens": 393.64,
    "raw_accuracy": 0.3,
-   "ail_accuracy": 0.73
+   "ail_accuracy": 0.71
   },
   "T2_normal": {
    "raw_tokens": 1032.88,
-   "ail_tokens": 1188.52,
+   "ail_tokens": 1188.8,
    "raw_accuracy": 0.44,
-   "ail_accuracy": 0.93
+   "ail_accuracy": 0.9
   },
   "raw_natural_cost": {
-   "tokens_mean": 24036.28,
-   "tokens_max": 37543,
+   "tokens_mean": 26946.72,
+   "tokens_max": 43140,
    "accuracy": 0.96
   },
   "T2_normal_nl_vs_ail": {
    "nl_tokens": 1149.64,
    "nl_accuracy": 0.4,
-   "ail_tokens": 1188.52,
-   "ail_accuracy": 0.93
+   "ail_tokens": 1188.8,
+   "ail_accuracy": 0.9
   },
   "T2_normal_json_vs_ail": {
    "json_tokens": 1143.76,
    "json_accuracy": 0.45,
-   "ail_tokens": 1188.52,
-   "ail_accuracy": 0.93
+   "ail_tokens": 1188.8,
+   "ail_accuracy": 0.9
   }
  },
  "benchmark_table": {
   "raw": {
-   "natural_tokens_mean": 24036.28,
-   "natural_tokens_max": 37543,
+   "natural_tokens_mean": 26946.72,
+   "natural_tokens_max": 43140,
    "natural_recovery_accuracy": 0.96,
    "tiers": {
     "T1_tight": {
@@ -189,7 +208,9 @@
      "answerable_rate": 0.08,
      "exact_rate": 0.08,
      "traceable_rate": 0.08,
-     "no_confident_error_rate": 0.96
+     "no_confident_error_rate": 0.96,
+     "latency_ms_median_mean": 16.12784,
+     "latency_ms_median_max": 26.386
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -199,7 +220,9 @@
      "answerable_rate": 0.32,
      "exact_rate": 0.28,
      "traceable_rate": 0.24,
-     "no_confident_error_rate": 0.92
+     "no_confident_error_rate": 0.92,
+     "latency_ms_median_mean": 17.07972,
+     "latency_ms_median_max": 26.95
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -209,7 +232,9 @@
      "answerable_rate": 0.56,
      "exact_rate": 0.52,
      "traceable_rate": 0.24,
-     "no_confident_error_rate": 0.84
+     "no_confident_error_rate": 0.84,
+     "latency_ms_median_mean": 19.16976,
+     "latency_ms_median_max": 29.757
     }
    },
    "by_quad_T2_normal": {
@@ -220,8 +245,8 @@
    }
   },
   "nl_summary": {
-   "natural_tokens_mean": 10929.0,
-   "natural_tokens_max": 18357,
+   "natural_tokens_mean": 11741.76,
+   "natural_tokens_max": 19920,
    "natural_recovery_accuracy": 0.64,
    "tiers": {
     "T1_tight": {
@@ -232,7 +257,9 @@
      "answerable_rate": 0.24,
      "exact_rate": 0.2,
      "traceable_rate": 0.0,
-     "no_confident_error_rate": 0.92
+     "no_confident_error_rate": 0.92,
+     "latency_ms_median_mean": 8.7238,
+     "latency_ms_median_max": 14.317
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -242,7 +269,9 @@
      "answerable_rate": 0.36,
      "exact_rate": 0.36,
      "traceable_rate": 0.0,
-     "no_confident_error_rate": 0.88
+     "no_confident_error_rate": 0.88,
+     "latency_ms_median_mean": 9.55444,
+     "latency_ms_median_max": 15.327
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -252,7 +281,9 @@
      "answerable_rate": 0.76,
      "exact_rate": 0.72,
      "traceable_rate": 0.0,
-     "no_confident_error_rate": 0.88
+     "no_confident_error_rate": 0.88,
+     "latency_ms_median_mean": 11.83708,
+     "latency_ms_median_max": 18.39
     }
    },
    "by_quad_T2_normal": {
@@ -263,8 +294,8 @@
    }
   },
   "json_struct": {
-   "natural_tokens_mean": 16613.56,
-   "natural_tokens_max": 25465,
+   "natural_tokens_mean": 18048.76,
+   "natural_tokens_max": 28225,
    "natural_recovery_accuracy": 0.85,
    "tiers": {
     "T1_tight": {
@@ -275,7 +306,9 @@
      "answerable_rate": 0.08,
      "exact_rate": 0.08,
      "traceable_rate": 0.08,
-     "no_confident_error_rate": 0.96
+     "no_confident_error_rate": 0.96,
+     "latency_ms_median_mean": 11.90604,
+     "latency_ms_median_max": 18.894
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -285,7 +318,9 @@
      "answerable_rate": 0.36,
      "exact_rate": 0.28,
      "traceable_rate": 0.24,
-     "no_confident_error_rate": 0.92
+     "no_confident_error_rate": 0.92,
+     "latency_ms_median_mean": 12.95988,
+     "latency_ms_median_max": 19.884
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -295,7 +330,9 @@
      "answerable_rate": 0.6,
      "exact_rate": 0.56,
      "traceable_rate": 0.28,
-     "no_confident_error_rate": 0.88
+     "no_confident_error_rate": 0.88,
+     "latency_ms_median_mean": 14.60576,
+     "latency_ms_median_max": 22.392
     }
    },
    "by_quad_T2_normal": {
@@ -306,43 +343,49 @@
    }
   },
   "ail": {
-   "natural_tokens_mean": 2332.36,
-   "natural_tokens_max": 4284,
+   "natural_tokens_mean": 2467.4,
+   "natural_tokens_max": 4445,
    "natural_recovery_accuracy": 0.97,
    "tiers": {
     "T1_tight": {
      "token_budget": 400,
-     "tokens_mean": 393.16,
+     "tokens_mean": 393.64,
      "tokens_max": 400,
-     "recovery_accuracy": 0.73,
-     "answerable_rate": 0.68,
+     "recovery_accuracy": 0.71,
+     "answerable_rate": 0.64,
      "exact_rate": 0.6,
-     "traceable_rate": 0.68,
-     "no_confident_error_rate": 0.96
+     "traceable_rate": 0.64,
+     "no_confident_error_rate": 0.96,
+     "latency_ms_median_mean": 13.14652,
+     "latency_ms_median_max": 19.704
     },
     "T2_normal": {
      "token_budget": 1200,
-     "tokens_mean": 1188.52,
-     "tokens_max": 1200,
-     "recovery_accuracy": 0.93,
-     "answerable_rate": 0.96,
+     "tokens_mean": 1188.8,
+     "tokens_max": 1199,
+     "recovery_accuracy": 0.9,
+     "answerable_rate": 0.92,
      "exact_rate": 0.92,
-     "traceable_rate": 0.92,
-     "no_confident_error_rate": 0.92
+     "traceable_rate": 0.84,
+     "no_confident_error_rate": 0.92,
+     "latency_ms_median_mean": 18.17176,
+     "latency_ms_median_max": 26.195
     },
     "T3_loose": {
      "token_budget": 3000,
-     "tokens_mean": 2153.0,
-     "tokens_max": 2997,
-     "recovery_accuracy": 0.95,
+     "tokens_mean": 2212.68,
+     "tokens_max": 3000,
+     "recovery_accuracy": 0.94,
      "answerable_rate": 0.96,
      "exact_rate": 0.96,
-     "traceable_rate": 0.96,
-     "no_confident_error_rate": 0.92
+     "traceable_rate": 0.92,
+     "no_confident_error_rate": 0.92,
+     "latency_ms_median_mean": 16.88612,
+     "latency_ms_median_max": 35.311
     }
    },
    "by_quad_T2_normal": {
-    "state": 0.944444,
+    "state": 0.861111,
     "decision": 0.8,
     "evidence": 0.964286,
     "next_action": 1.0

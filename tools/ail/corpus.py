@@ -48,12 +48,16 @@ class Record:
     valid_from: str | None = None
 
     def to_dict(self) -> dict:
+        # 必须逐字段列全：漏掉任何一个都会让 snapshot 往返失真。
+        # 曾经漏 valid_from，导致 --from-snapshot 与现场抽取给出不同的
+        # item_digest（时间戳退化成 retrieved_at），基准不可复现。
         return {"record_id": self.record_id, "corpus": self.corpus,
                 "source_path": self.source_path, "pointer": self.pointer,
                 "sha256": self.sha256, "retrieved_at": self.retrieved_at,
                 "kind_hint": self.kind_hint, "title": self.title,
                 "raw_text": self.raw_text, "value": self.value,
-                "topic_hint": self.topic_hint, "tags": list(self.tags)}
+                "topic_hint": self.topic_hint, "tags": list(self.tags),
+                "valid_from": self.valid_from}
 
 
 def sha256_file(path: Path) -> str:
@@ -548,6 +552,33 @@ def extract_all(*, retrieved_at: str = DEFAULT_RETRIEVED_AT) -> list[Record]:
     return records
 
 
+def snapshot_drift(path: Path) -> list[dict]:
+    """比对快照记录与当前磁盘来源，报告内容已变化的来源文件。
+
+    用途：memory.jsonl 这类**持续增长**的工件会让"现场抽取"每次给出不同语料，
+    基准必须钉在快照上才可复现。此函数把漂移显式暴露，而不是让它悄悄改变结论。
+    返回 [{"path","snapshot_sha256","current_sha256","status"}]，status ∈
+    {"changed","missing"}；无漂移返回 []。
+    """
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    drift: list[dict] = []
+    for entry in payload.get("sources", []):
+        rel = entry["path"]
+        target = (PLATFORM_ROOT / rel) if not os.path.isabs(rel) else Path(rel)
+        if not target.is_file():
+            alt = ECOSYSTEM_ROOT / rel
+            target = alt if alt.is_file() else target
+        if not target.is_file():
+            drift.append({"path": rel, "snapshot_sha256": entry["sha256"],
+                          "current_sha256": None, "status": "missing"})
+            continue
+        current = sha256_file(target)
+        if current != entry["sha256"]:
+            drift.append({"path": rel, "snapshot_sha256": entry["sha256"],
+                          "current_sha256": current, "status": "changed"})
+    return drift
+
+
 def write_snapshot(records: list[Record], path: Path, *, retrieved_at: str) -> dict:
     """把记录写成快照（含来源清单）。只允许写到调用方给的受控路径。"""
     path.parent.mkdir(parents=True, exist_ok=True)
@@ -572,5 +603,11 @@ def write_snapshot(records: list[Record], path: Path, *, retrieved_at: str) -> d
 
 def load_snapshot(path: Path) -> tuple[list[Record], dict]:
     payload = json.loads(path.read_text(encoding="utf-8"))
-    records = [Record(**rec) for rec in payload["records"]]
+    fields = set(Record.__dataclass_fields__)
+    records = []
+    for rec in payload["records"]:
+        unknown = set(rec) - fields
+        if unknown:
+            raise AILCorpusError(f"快照含未知字段 {sorted(unknown)}：schema 已变更，请重建快照")
+        records.append(Record(**rec))
     return records, payload

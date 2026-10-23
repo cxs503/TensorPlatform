@@ -8,6 +8,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import platform
 import statistics
@@ -20,7 +21,8 @@ from . import AIL_VERSION, SCHEMA_VERSION
 from .arms import ARM_NAMES, run_arm
 from .bundle import AILBundle
 from .convert import coverage_report, convert_records, item_digest
-from .corpus import DEFAULT_RETRIEVED_AT, Record, extract_all, load_snapshot, write_snapshot
+from .corpus import (DEFAULT_RETRIEVED_AT, Record, extract_all, load_snapshot,
+                     snapshot_drift, write_snapshot)
 from .probes import PROBES, Probe, probes_for, quad_coverage, score_context
 from .tokens import default_counter
 
@@ -277,14 +279,34 @@ def main(argv: list[str] | None = None) -> int:
         if not snapshot_path.is_file():
             raise SystemExit(f"快照不存在：{snapshot_path}（先不带 --from-snapshot 跑一次生成）")
         records, _ = load_snapshot(snapshot_path)
+        source_mode = "snapshot"
+        drift = snapshot_drift(snapshot_path)
         print(f"[snapshot] 读取 {len(records)} 条记录：{snapshot_path}")
+        if drift:
+            # 不阻断：漂移是事实，必须报出来，由人判断是否需要重建快照。
+            print(f"[snapshot] 警告：{len(drift)} 个来源已变化（语料可能滞后于磁盘）：")
+            for item in drift[:5]:
+                print(f"  - {item['status']}: {item['path']}")
     else:
         records = extract_all(retrieved_at=args.retrieved_at)
         snapshot = write_snapshot(records, snapshot_path, retrieved_at=args.retrieved_at)
+        source_mode = "live_extract"
+        drift = []
         print(f"[extract] 抽取 {len(records)} 条记录 -> {snapshot_path} "
               f"({snapshot['counts_by_corpus']})")
 
     payload = run_benchmark(records=records, retrieved_at=args.retrieved_at, arms=arms)
+    payload["corpus_source"] = {
+        "mode": source_mode,
+        "snapshot_path": str(snapshot_path),
+        "snapshot_sha256": (hashlib.sha256(snapshot_path.read_bytes()).hexdigest()
+                            if snapshot_path.is_file() else None),
+        "record_count": len(records),
+        "drift": drift,
+        "note": ("可复现性契约：报告数字一律以 mode=snapshot 运行产生。"
+                 "mode=live_extract 会随持续增长的来源（如 agent_memory/*.jsonl）漂移，"
+                 "仅供重建快照时使用。"),
+    }
     bundles, _ = build_corpus_bundles(records)
     written = write_artifacts(payload, Path(args.out), bundles)
     print(f"[bench] 探针 {payload['probe_count']}，语料 {list(payload['corpora'])}")

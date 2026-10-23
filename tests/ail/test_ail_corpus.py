@@ -2,6 +2,7 @@
 from __future__ import annotations
 
 import hashlib
+import json
 import unittest
 from pathlib import Path
 
@@ -151,3 +152,55 @@ class ConversionTests(unittest.TestCase):
 
 if __name__ == "__main__":
     unittest.main()
+
+class SnapshotRoundTripRegressionTests(unittest.TestCase):
+    """回归：Record.to_dict() 必须逐字段列全。
+
+    历史 bug：漏掉 valid_from，导致 --from-snapshot 与现场抽取给出不同的
+    item_digest（真实时间戳退化成 retrieved_at），基准因此不可复现。
+    """
+
+    def test_to_dict_covers_every_dataclass_field(self):
+        import dataclasses
+
+        from tools.ail.corpus import Record
+
+        inst = Record(
+            record_id="r1", corpus="tensorplatform", source_path="p",
+            pointer="/a", sha256="0" * 64, retrieved_at="2026-10-23T07:00:00Z",
+            kind_hint="state", title="t", raw_text="x", value=1,
+            topic_hint="k", tags=["a"], valid_from="2026-10-19T16:19:19Z")
+        dumped = set(inst.to_dict())
+        declared = {f.name for f in dataclasses.fields(Record)}
+        self.assertEqual(dumped, declared,
+                         f"to_dict 漏字段：{sorted(declared - dumped)}")
+
+    def test_valid_from_survives_snapshot_roundtrip(self):
+        import tempfile
+
+        from tools.ail.corpus import Record, load_snapshot, write_snapshot
+
+        rec = Record(
+            record_id="r1", corpus="tensorplatform", source_path="p",
+            pointer="/a", sha256="0" * 64, retrieved_at="2026-10-23T07:00:00Z",
+            kind_hint="state", title="t", raw_text="x", value=1,
+            topic_hint="k", tags=[], valid_from="2026-10-19T16:19:19Z")
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "snap.json"
+            write_snapshot([rec], path, retrieved_at="2026-10-23T07:00:00Z")
+            back, _ = load_snapshot(path)
+        self.assertEqual(back[0].valid_from, "2026-10-19T16:19:19Z")
+        self.assertEqual(back[0].to_dict(), rec.to_dict())
+
+    def test_load_snapshot_rejects_unknown_fields(self):
+        import tempfile
+
+        from tools.ail.corpus import AILCorpusError, load_snapshot
+
+        bad = {"retrieved_at": "x", "sources": [],
+               "records": [{"record_id": "r1", "surprise": 1}]}
+        with tempfile.TemporaryDirectory() as tmp:
+            path = Path(tmp) / "bad.json"
+            path.write_text(json.dumps(bad), encoding="utf-8")
+            with self.assertRaises(AILCorpusError):
+                load_snapshot(path)

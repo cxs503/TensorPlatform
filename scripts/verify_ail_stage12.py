@@ -24,6 +24,37 @@ PYTHON = sys.executable
 OUT = ROOT / "ail_stage12_validation.json"
 
 
+RATIO_SNIPPET = r"""
+import json
+from pathlib import Path
+from tools.ail.corpus import load_snapshot
+from tools.ail.runner import build_corpus_bundles
+from tools.ail.arms import ARM_NAMES, run_arm
+from tools.ail.probes import probes_for
+from tools.ail.tokens import default_counter
+
+counter = default_counter()
+records, _ = load_snapshot(Path("tools/ail/corpus/records.snapshot.json"))
+bundles, _ = build_corpus_bundles(records)
+out = {}
+for arm in ARM_NAMES:
+    nums = []
+    for corpus, bundle in bundles.items():
+        subset = [r for r in records if r.corpus == corpus]
+        for probe in probes_for(corpus):
+            res = run_arm(arm, records=subset, bundle=bundle, token_budget=1200,
+                          counter=counter, intent=probe.intent, query=probe.question)
+            nums.append((res.tokens, res.chars))
+    tk = sum(n for n, _ in nums) / len(nums)
+    ch = sum(c for _, c in nums) / len(nums)
+    # 与报告 §4 同口径：先算每个探针的比值，再对探针取均值
+    per_probe = [n / c for n, c in nums if c]
+    out[arm] = {"token_per_char": sum(per_probe) / len(per_probe),
+                "tokens_mean": tk, "chars_mean": ch}
+print(json.dumps(out, ensure_ascii=False))
+"""
+
+
 def _env() -> dict:
     env = dict(os.environ)
     parts = [str(PYDEPS), str(ROOT)]
@@ -42,6 +73,7 @@ def run(label: str, args: list[str], *, timeout: int = 1800) -> dict:
     tail = ((proc.stdout or "").strip().splitlines() or [""])[-1][:400]
     return {"label": label, "command": " ".join(args), "exit_code": proc.returncode,
             "duration_seconds": duration, "tail": tail,
+            "stdout": proc.stdout or "",
             "stdout_lines": len((proc.stdout or "").splitlines())}
 
 
@@ -189,6 +221,24 @@ def main() -> int:
     runs.append(diff_run)
     check("existing_chain_untouched", diff_run["exit_code"] == 0 and not diff_run["tail"],
           diff_run["tail"] or "(无差异)")
+
+    # 6b) 字符预算 ≠ token 预算的实测口径（报告 §4 / ADR §4.1 的数字来源）。
+    # 报告正文引用了 tokens/char 比，这里现场复算一次，避免"文档数字无人核对"。
+    ratio_probe = run("tokens_per_char", [PYTHON, "-c", RATIO_SNIPPET])
+    runs.append(ratio_probe)
+    ratio_ok = False
+    ratio_detail = ratio_probe["tail"]
+    try:
+        ratios = json.loads((ratio_probe.get("stdout") or "").strip().splitlines()[-1])
+        vals = [v["token_per_char"] for v in ratios.values()]
+        ratio_ok = (ratio_probe["exit_code"] == 0
+                    and 0.25 <= min(vals) and max(vals) <= 0.45)
+        ratio_detail = json.dumps({k: round(v["token_per_char"], 3) for k, v in ratios.items()},
+                                  ensure_ascii=False)
+    except (ValueError, KeyError, IndexError):
+        ratio_ok = False
+    check("tokens_per_char_measured", ratio_ok,
+          f"{ratio_detail}（中英混排应落在 0.25–0.45；用于证明字符预算≠token 预算）")
 
     # 7) 明确未执行项
     not_run = [
