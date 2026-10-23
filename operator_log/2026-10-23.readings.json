@@ -1,0 +1,338 @@
+{
+ "mission": "m220",
+ "shift": "第78班 (派发器 shift#46)",
+ "collected_at_utc": "2026-10-23T14:54:33Z",
+ "step1_inflight": {
+  "missions": [
+   {
+    "id": 211,
+    "status": "running",
+    "hb_age_s": 11,
+    "repo": "TensorLBM",
+    "stop_condition": null,
+    "model": "deepseek-v4-flash"
+   },
+   {
+    "id": 219,
+    "status": "running",
+    "hb_age_s": 1,
+    "repo": "TensorLBM",
+    "stop_condition": null,
+    "model": "deepseek-v4-flash"
+   },
+   {
+    "id": 220,
+    "status": "running",
+    "hb_age_s": 14,
+    "repo": "TensorPlatform",
+    "stop_condition": null,
+    "model": "deepseek-v4-flash"
+   },
+   {
+    "id": 221,
+    "status": "running",
+    "hb_age_s": 13,
+    "repo": "TensorLBM",
+    "stop_condition": null,
+    "model": "qwen3.6-plus"
+   }
+  ],
+  "count": 4,
+  "max_hb_s": 14,
+  "stale_over_240s": [],
+  "with_stop_condition": []
+ },
+ "step2_guardian": {
+  "measured_total": 16,
+  "authority_sum": 16,
+  "authority_source": "/srv/tensor/shared/tensor_eco/agent_work/workers.json",
+  "per_model": {
+   "qwen3.6-plus": {
+    "authority": 3,
+    "measured": 3
+   },
+   "qwen3.7-plus": {
+    "authority": 6,
+    "measured": 6
+   },
+   "glm-5.2": {
+    "authority": 1,
+    "measured": 1
+   },
+   "glm-5.1": {
+    "authority": 2,
+    "measured": 2
+   },
+   "deepseek-v4-flash": {
+    "authority": 3,
+    "measured": 3
+   },
+   "MiniMax-M2.5-AWQ": {
+    "authority": 1,
+    "measured": 1
+   }
+  },
+  "per_model_all_equal": true,
+  "slot_workers": "10"
+ },
+ "step3_relay": {
+  "http_code": 200,
+  "time_total_s": 0.710762,
+  "models": 7,
+  "endpoints_n": 1,
+  "cooldown_seconds": 600,
+  "transient_threshold": 3,
+  "config_source": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/llm_endpoints.json",
+  "worktree_copy_cooldown_seconds": 1800,
+  "worktree_copy_stale": true,
+  "code_caps_600": true
+ },
+ "step4_cooldown": {
+  "path": "/srv/tensor/shared/tensor_eco/agent_work/llm_gateway_state.json",
+  "before_snapshot": {
+   "relay-13001": {
+    "blocked_until": 1792761796.3541338,
+    "reason": "transient×3",
+    "marked_at": 1792761196.3541343
+   }
+  },
+  "before_snapshot_path": "/srv/tensor/shared/tensor_eco/agent_work/probe_m220/gateway_state_before.json",
+  "before_delta_s": {
+   "relay-13001": -5477.6
+  },
+  "before_all_expired": true,
+  "now_state": {},
+  "now_active": {},
+  "mtime_local": "2026-10-23 22:27:19"
+ },
+ "step5_terminal": {
+  "h24_failed": 4,
+  "h24_succeeded": 24,
+  "today_failed": 4,
+  "last_failed_age_s": 5994,
+  "failed_missions": [
+   {
+    "id": 208,
+    "status": "failed",
+    "stop_condition": "gateway_unavailable",
+    "age_s": 15100,
+    "detail": "tool_calls=99",
+    "model": "qwen3.6-plus"
+   },
+   {
+    "id": 216,
+    "status": "failed",
+    "stop_condition": "gateway_unavailable",
+    "age_s": 5994,
+    "detail": "tool_calls=99",
+    "model": "qwen3.6-plus"
+   },
+   {
+    "id": 217,
+    "status": "failed",
+    "stop_condition": "gateway_unavailable",
+    "age_s": 6029,
+    "detail": "tool_calls=64",
+    "model": "deepseek-v4-flash"
+   },
+   {
+    "id": 218,
+    "status": "failed",
+    "stop_condition": "gateway_unavailable",
+    "age_s": 6000,
+    "detail": "tool_calls=74",
+    "model": "deepseek-v4-flash"
+   }
+  ],
+  "awaiting_acceptance": 0,
+  "refill_checks": [
+   {
+    "id": 208,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T10:42:54Z failed）。按剧本 refill 并写账本。"
+   },
+   {
+    "id": 211,
+    "rc": 3,
+    "last_line": "拒绝：mission 仍在飞（running），无续班可言。"
+   },
+   {
+    "id": 216,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T13:14:40Z failed）。按剧本 refill 并写账本。"
+   },
+   {
+    "id": 217,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   {
+    "id": 218,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T13:14:34Z failed）。按剧本 refill 并写账本。"
+   }
+  ],
+  "load_gates": [
+   {
+    "id": 208,
+    "present": true,
+    "msgs": 191,
+    "tool_calls": 99,
+    "bad_args": 0
+   },
+   {
+    "id": 211,
+    "present": true,
+    "msgs": 214,
+    "tool_calls": 111,
+    "bad_args": 0
+   },
+   {
+    "id": 216,
+    "present": true,
+    "msgs": 175,
+    "tool_calls": 99,
+    "bad_args": 0
+   },
+   {
+    "id": 217,
+    "present": true,
+    "msgs": 104,
+    "tool_calls": 64,
+    "bad_args": 0
+   },
+   {
+    "id": 218,
+    "present": true,
+    "msgs": 121,
+    "tool_calls": 74,
+    "bad_args": 0
+   }
+  ],
+  "goal_211_legs": [
+   {
+    "id": 211,
+    "status": "running"
+   }
+  ],
+  "goal_216_legs": [
+   {
+    "id": 208,
+    "status": "failed"
+   },
+   {
+    "id": 216,
+    "status": "failed"
+   },
+   {
+    "id": 221,
+    "status": "running"
+   }
+  ],
+  "goal_217_legs": [
+   {
+    "id": 217,
+    "status": "failed"
+   },
+   {
+    "id": 219,
+    "status": "running"
+   }
+  ],
+  "refill_audit": [
+   {
+    "id": 211,
+    "status": "running",
+    "max_tool_calls": "420",
+    "max_wall_seconds": "36000",
+    "by": "operator_agent",
+    "added": "60/7200"
+   }
+  ]
+ },
+ "step5b_cluster": {
+  "lines": [
+   "agent-qwen3.7-plus.log|[05:22:50] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[05:30:15] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[06:39:43] gateway: endpoint relay-13001 冷却 600s（transient×3）",
+   "agent-qwen3.7-plus.log|[06:39:43] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[06:39:48] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[06:40:12] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[01:38:27] gateway: endpoint relay-13001 冷却 600s（transient×3）",
+   "agent-qwen3.7-plus.log|[01:38:27] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[01:38:30] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[18:11:20] gateway: endpoint relay-13001 冷却 600s（transient×3）",
+   "agent-qwen3.7-plus.log|[18:11:20] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.7-plus.log|[20:31:46] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.7-plus）——检查 llm_endpoints.json 与冷却状态"
+  ],
+  "count": 79,
+  "cooling_events": 24,
+  "no_endpoint_lines": 55,
+  "wave_2113_local": [
+   "agent-deepseek-v4-flash-w2.log|[21:13:16] gateway: endpoint relay-13001 冷却 600s（transient×3）",
+   "agent-deepseek-v4-flash-w2.log|[21:13:16] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 deepseek-v4-flash）——检查 llm_endpoints.json 与冷却状态",
+   "agent-deepseek-v4-flash-w3.log|[21:14:02] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 deepseek-v4-flash）——检查 llm_endpoints.json 与冷却状态",
+   "agent-deepseek-v4-flash.log|[21:14:31] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 deepseek-v4-flash）——检查 llm_endpoints.json 与冷却状态",
+   "agent-qwen3.6-plus.log|[21:14:37] native: llm gateway: 无可用端点（全部冷却/缺凭证/不服务 qwen3.6-plus）——检查 llm_endpoints.json 与冷却状态"
+  ]
+ },
+ "step6_containers": {
+  "total": 11,
+  "healthy": 11,
+  "unhealthy": [],
+  "lines": [
+   "open-foundation-frontend|Up 32 hours (healthy)",
+   "open-foundation-backend|Up 33 hours (healthy)",
+   "kp-celery|Up 33 hours (healthy)",
+   "open-foundation-celery-beat|Up 33 hours (healthy)",
+   "kp-docker-builder|Up 33 hours (healthy)",
+   "open-foundation-postgres|Up 4 days (healthy)",
+   "open-foundation-prometheus|Up 4 days (healthy)",
+   "open-foundation-kafka|Up 4 days (healthy)",
+   "open-foundation-zookeeper|Up 4 days (healthy)",
+   "open-foundation-redis|Up 4 days (healthy)",
+   "kp-grafana|Up 4 days (healthy)"
+  ]
+ },
+ "audit": {
+  "approval": {
+   "approved": 147,
+   "rejected": 11,
+   "pending": 0
+  },
+  "parking_lot": "{}",
+  "pass_all": {
+   "exists": true,
+   "mtime_local": "2026-10-23 08:14:56",
+   "rounds": 440,
+   "last_line": "[22:54:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
+  },
+  "approver_log_lines": 7435,
+  "approver_log_last": "[22:54:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+  "worktree_total": 94,
+  "worktree_tensorplatform": 90,
+  "main_repo_dirty": 13,
+  "main_repo_dirty_lines": [
+   "M tools/agent/auto_approver.py",
+   " M tools/agent/llm_endpoints.json",
+   " T tools/agent/workers.json",
+   " M tools/ops/benchmark/benchmark_dispatch.py",
+   " M tools/ops/benchmark/test_benchmark_dispatch.py",
+   " M tools/ops/pr_hygiene.py",
+   " M tools/ops/si_harvest.py",
+   " M tools/ops/test_pr_hygiene.py",
+   "?? tools/agent/patch_memcap.py",
+   "?? tools/agent/patch_p0a.py",
+   "?? tools/agent/patch_p1a.py",
+   "?? tools/agent/test_approver_passall.py",
+   "?? tools/agent/test_approver_passall2.py"
+  ],
+  "main_repo_branch": "fix/approver-token-headroom",
+  "this_worktree_dirty": 4,
+  "this_branch": "agent/m220",
+  "this_head": "c245186 frontend: /api/ 静态后缀先于资源 regex（大屏 marked 404 修复）",
+  "gc_log_last": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够",
+  "operator_shift_log_tail": "2026-10-23T14:43:01Z SKIP: 值班班次 m220 在飞（running）",
+  "benchmark_dispatch_tail": "2026-10-23T22:50:04Z IDLE: 无可派条目（全部完成/失败/等待中）"
+ }
+}

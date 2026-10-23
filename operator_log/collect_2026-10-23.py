@@ -1,250 +1,296 @@
 #!/usr/bin/env python3
-# -*- coding: utf-8 -*-
-"""operator 班次采集器（m212 / 2026-10-23 第 74 班）
+"""operator 班次 m220（2026-10-23 第 78 班）巡检读数采集器——一条命令跑完六步 + 审计面。
 
-现场直读平台观察面，产出 validation_report.json —— 判据数字零手抄：
-DB 走 docker exec psql、守护走 /proc、中继走 curl、账目走文件直读。
-一次运行即快照，提交后勿复跑（心跳秒数变化会自造脏树）。
+判据数字零手抄（identity.md 纪律）：所有读数当场从 DB/进程/文件/端点直读，
+stdout 即 readings JSON。凭据坑（m210 回退链）：中继复验必须在 bash 终端
+`set -a; source review.env; set +a` 后由 curl 完成，本脚本只读环境变量
+RELAY_PROBE（形如 "200 0.737 7"），绝不在 python 子进程内 source。
+
+用法（在 worktree 根，即本文件上两级）：
+  set -a; source /srv/tensor/shared/tensor_eco/agent_work/review.env; set +a
+  RELAY_PROBE="$(curl -s -o /tmp/relay.body -w '%{http_code} %{time_total}' \
+      -H "Authorization: Bearer $LLM_API_KEY" "$LLM_BASE_URL/models") \
+    $(python3 -c 'import json;print(len(json.load(open("/tmp/relay.body"))["data"]))')"
+  python3 operator_log/collect_2026-10-23.py > operator_log/2026-10-23.readings.json
 """
+from __future__ import annotations
+
 import json
 import os
 import subprocess
-import sys
-from datetime import datetime, timezone
+import time
+from pathlib import Path
 
-WORKDIR = "/srv/tensor/shared/tensor_eco"
-AGENT_WORK = os.path.join(WORKDIR, "agent_work")
-AUTHORITATIVE_WORKERS = os.path.join(AGENT_WORK, "workers.json")
-MAIN_REPO = os.path.join(WORKDIR, "TensorPlatform")
-OUT = os.path.join(os.path.dirname(os.path.abspath(__file__)),
-                   "2026-10-23.validation_report.json")
-
-DOCKER_ENV = dict(os.environ, DOCKER_HOST="unix:///run/user/1020/docker.sock")
+ECO = Path("/srv/tensor/shared/tensor_eco")
+AGENT_WORK = ECO / "agent_work"
+REPO = Path(__file__).resolve().parents[1]
+PSQL = ["docker", "exec", "open-foundation-postgres", "psql", "-U", "foundation",
+        "-d", "open_digital_foundation", "-A", "-F", "|", "-t", "-c"]
+ENV = dict(os.environ, DOCKER_HOST="unix:///run/user/1020/docker.sock")
 
 
-def sh(cmd, shell=True, env=None, timeout=60):
-    """跑命令，返回 (rc, stdout.strip())。失败不抛，交给判据处理。"""
-    try:
-        p = subprocess.run(cmd, shell=shell, capture_output=True, text=True,
-                           env=env, timeout=timeout)
-        return p.returncode, (p.stdout or "").strip(), (p.stderr or "").strip()
-    except Exception as exc:  # noqa: BLE001
-        return 127, "", str(exc)
+def psql(sql: str) -> list[list[str]]:
+    """只读查询：单条 SQL 一次取全部列，少调用。"""
+    out = subprocess.run(PSQL + [sql], capture_output=True, text=True,
+                         env=ENV, timeout=120).stdout
+    return [ln.split("|") for ln in out.strip().splitlines() if ln.strip()]
 
 
-def psql(sql):
-    """只读 SQL：docker exec psql -At -F '|'。"""
-    rc, out, err = sh(["docker", "exec", "open-foundation-postgres", "psql",
-                       "-U", "foundation", "-d", "open_digital_foundation",
-                       "-At", "-F", "|", "-c", sql], shell=False, env=DOCKER_ENV)
-    if rc != 0:
-        return None, (err or out)
-    rows = [line.split("|") for line in out.splitlines() if line]
-    return rows, ""
+def shell(cmd: str) -> str:
+    return subprocess.run(cmd, shell=True, capture_output=True, text=True,
+                          cwd=REPO, timeout=180).stdout.strip()
 
 
-def main():
-    checks = []
-    info = {}
+def refill_check(mid: int) -> dict:
+    """机械门 refill_check（playbook 案例 2）：rc + 末行文字。"""
+    code = ("set -a; source /srv/tensor/shared/tensor_eco/agent_work/operator.env; set +a; "
+            f"/srv/tensor/shared/venvs/tensor_eco/bin/python TensorPlatform/tools/agent/"
+            f"refill_check.py {mid}")
+    r = subprocess.run(["bash", "-lc", code], capture_output=True, text=True,
+                       cwd="/srv/tensor/shared/tensor_eco", timeout=180)
+    lines = [x for x in r.stdout.strip().splitlines() if x.strip()]
+    return {"id": mid, "rc": r.returncode,
+            "last_line": lines[-1] if lines else ""}
 
-    def add(cid, name, passed, detail):
-        checks.append({"id": cid, "name": name,
-                       "passed": bool(passed), "detail": detail})
 
-    # ---- 1. 在飞心跳鲜度 ------------------------------------------------
-    rows, err = psql(
-        "SELECT id,status,round(extract(epoch from (now()-heartbeat_at))) , "
-        "coalesce(result->>'stop_condition','-') FROM tensor_dev_missions "
-        "WHERE status IN ('claimed','running') ORDER BY id")
-    if rows is None:
-        add(1, "在飞心跳鲜度", False, "DB 不可读: %s" % err)
-        info["inflight"] = []
-    else:
-        inflight = []
-        for r in rows:
-            inflight.append({"id": int(r[0]), "status": r[1],
-                             "hb_age_s": int(r[2]), "stop_condition": r[3]})
-        info["inflight"] = inflight
-        max_hb = max([x["hb_age_s"] for x in inflight], default=-1)
-        bad = [x for x in inflight if x["hb_age_s"] > 240 or x["stop_condition"] != "-"]
-        add(1, "在飞心跳鲜度", rows and not bad,
-            "在飞 %d 条，max(hb_age)=%ss（收割线 240s），异常 %d 条；明细 %s"
-            % (len(inflight), max_hb, len(bad),
-               ", ".join("m%d/%s/%ss" % (x["id"], x["status"], x["hb_age_s"])
-                         for x in inflight)))
-
-    # ---- 2. 守护计数（权威源等式） --------------------------------------
-    with open(AUTHORITATIVE_WORKERS, "r", encoding="utf-8") as fh:
-        wj = json.load(fh)
-    expect = {k: v for k, v in wj.items()
-              if not k.startswith("_") and isinstance(v, int)}
-    expect_total = sum(expect.values())
-    rc, out, _ = sh('pgrep -f "tensor_agen[t].py" | wc -l')
-    actual = int(out or 0)
-    # 实测按模型分组（--model 参数直读 /proc）
-    rc2, pids, _ = sh('pgrep -f "tensor_agen[t].py"')
-    by_model = {}
-    for pid in (pids or "").split():
-        try:
-            with open("/proc/%s/cmdline" % pid, "rb") as fh:
-                argv = fh.read().split(b"\0")
-            args = [a.decode("utf-8", "replace") for a in argv]
-        except OSError:
-            continue
-        if "--model" in args:
-            m = args[args.index("--model") + 1]
-            by_model[m] = by_model.get(m, 0) + 1
-    info["guards"] = {"expect_total": expect_total, "actual_total": actual,
-                      "expect_by_model": expect, "actual_by_model": by_model}
-    add(2, "守护计数=权威源 ΣN", actual == expect_total and by_model == expect,
-        "实测 %d / 权威源 ΣN=%d / 分模型实测 %s" % (actual, expect_total, by_model))
-
-    # ---- 3. 中继健康 ----------------------------------------------------
-    # 中继凭据：优先继承环境（守护/cron 注入），回退 operator.env（后者通常不含 LLM_*）
-    env = {}
-    with open(os.path.join(AGENT_WORK, "operator.env"), "r", encoding="utf-8") as fh:
-        for line in fh:
-            line = line.strip()
-            if not line or line.startswith("#") or "=" not in line:
-                continue
-            k, v = line.split("=", 1)
-            env[k.strip()] = v.strip().strip('"').strip("'")
-    base = os.environ.get("LLM_BASE_URL") or env.get("LLM_BASE_URL", "")
-    key = os.environ.get("LLM_API_KEY") or env.get("LLM_API_KEY", "")
-    # 回退：从在飞守护进程的环境取（那是平台的权威运行态，凭据不落工件）
-    if not base or not key:
-        rc, gpids, _ = sh('pgrep -f "tensor_agen[t].py"')
-        for gpid in (gpids or "").split():
+def load_gate(mid: int) -> dict:
+    """载荷门：检查点内全部 tool_call arguments 是否 json 可解（案例 6）。"""
+    p = AGENT_WORK / f"m{mid}" / "state" / "native_messages.json"
+    if not p.exists():
+        return {"id": mid, "present": False}
+    d = json.loads(p.read_text(encoding="utf-8"))
+    msgs = d.get("messages", [])
+    n = bad = 0
+    for m in msgs:
+        for tc in (m.get("tool_calls") or []):
+            n += 1
             try:
-                with open("/proc/%s/environ" % gpid, "rb") as fh:
-                    genv = dict(
-                        kv.split(b"=", 1) for kv in fh.read().split(b"\0") if b"=" in kv)
-            except OSError:
-                continue
-            base = base or genv.get(b"LLM_BASE_URL", b"").decode()
-            key = key or genv.get(b"LLM_API_KEY", b"").decode()
-            if base and key:
-                break
-    info["relay_base_set"] = bool(base)
-    info["relay_key_set"] = bool(key)
-    rc, out, _ = sh(["curl", "-s", "-o", "/dev/null",
-                     "-w", "%{http_code} %{time_total}",
-                     "-H", "Authorization: Bearer %s" % key,
-                     "%s/models" % base], shell=False, timeout=30)
-    parts = (out or "").split()
-    code = parts[0] if parts else "err"
-    tsec = float(parts[1]) if len(parts) > 1 else -1.0
-    add(3, "中继健康", code == "200" and 0 <= tsec < 5.0,
-        "GET /models → HTTP %s t=%.3fs（阈值 200 且 <5s）" % (code, tsec))
+                json.loads(tc.get("function", {}).get("arguments") or "{}")
+            except Exception:  # noqa: BLE001
+                bad += 1
+    return {"id": mid, "present": True, "msgs": len(msgs),
+            "tool_calls": n, "bad_args": bad}
 
-    # ---- 4. 网关冷却态 --------------------------------------------------
-    state_path = os.path.join(AGENT_WORK, "llm_gateway_state.json")
-    try:
-        with open(state_path, "r", encoding="utf-8") as fh:
-            state = json.load(fh)
-    except Exception as exc:  # noqa: BLE001
-        state = {"_error": str(exc)}
-    now_ts = datetime.now(timezone.utc).timestamp()
-    active = {}
-    for ep, v in (state or {}).items():
-        if isinstance(v, dict):
-            till = v.get("blocked_until")
-            if isinstance(till, (int, float)) and till > now_ts:
-                active[ep] = v
-    info["cooldown_raw"] = state
-    add(4, "网关冷却态（无未过期封锁）", not active,
-        "冷却态=%s 未过期封锁 %d 个" % (json.dumps(state, ensure_ascii=False), len(active)))
 
-    # ---- 5. 终态 mission result ----------------------------------------
-    rows, err = psql(
-        "SELECT coalesce(result->>'stop_condition','none'),count(*),"
-        "coalesce(max(finished_at)::text,'-') FROM tensor_dev_missions "
-        "WHERE finished_at > now()-interval '24 hours' AND status IN "
-        "('succeeded','failed','stopped') GROUP BY 1 ORDER BY 2 DESC")
-    r13_rows, err2 = psql(
-        "SELECT count(*),coalesce(max(finished_at)::text,'-'),"
-        "round(extract(epoch from (now()-max(finished_at)))/3600.0,2) FROM "
-        "tensor_dev_missions WHERE status='failed' AND "
-        "result->>'stop_condition'='gateway_unavailable' AND "
-        "finished_at > now()-interval '24 hours'")
-    recent, err3 = psql(
-        "SELECT id,status,to_char(finished_at,'HH24:MI:SS') FROM "
-        "tensor_dev_missions WHERE finished_at > now()-interval '3 hours' "
-        "ORDER BY finished_at DESC")
-    today_failed, _ = psql(
-        "SELECT count(*) FROM tensor_dev_missions WHERE status='failed' AND "
-        "finished_at > date_trunc('day', now())")
-    if rows is None or r13_rows is None or recent is None:
-        add(5, "终态 mission result", False, "DB 不可读: %s%s" % (err, err2))
-    else:
-        term = {r[0]: int(r[1]) for r in rows}
-        recent_list = [{"id": int(r[0]), "status": r[1], "finished": r[2]} for r in recent]
-        r13_n = int(r13_rows[0][0]) if r13_rows else 0
-        r13_last = r13_rows[0][1] if r13_rows else "-"
-        r13_age = float(r13_rows[0][2] or 0) if r13_rows else 0.0
-        non_succ_recent = [x for x in recent_list if x["status"] != "succeeded"]
-        info["terminal_24h"] = term
-        info["recent_3h"] = recent_list
-        info["r13"] = {"failed_24h": r13_n, "last_finished_at": r13_last,
-                       "hours_since_last": r13_age,
-                       "failed_today": int(today_failed[0][0]) if today_failed else -1}
-        failed_today_n = int(today_failed[0][0]) if today_failed else -1
-        ok = (non_succ_recent == [] and failed_today_n == 0)
-        add(5, "终态 mission result（无新 infra 终局/honest FAIL）", ok,
-            "24h 终态 %s；R13 同型 failed_24h=%d 末条 %s 距今 %.2fh；今日新增 failed=%d；"
-            "近 3h 终态 %d 条，非 succeeded %d 条"
-            % (json.dumps(term, ensure_ascii=False), r13_n, r13_last, r13_age,
-               failed_today_n, len(recent_list), len(non_succ_recent)))
+def poses_legs(prefix_from: int, width: int) -> list[dict]:
+    """承接门：同 goal 前缀的全部腿（playbook 案例 7 附加门②）。"""
+    rows = psql(f"SELECT id,status FROM tensor_dev_missions WHERE "
+                f"left(goal,{width})=left((SELECT goal FROM tensor_dev_missions "
+                f"WHERE id={prefix_from}),{width}) ORDER BY id")
+    return [{"id": int(r[0]), "status": r[1]} for r in rows]
 
-    # ---- 附加项（非五步，沿前任口径跟踪，仅记录不判 FAIL） ---------------
-    rows, _ = psql("SELECT status,count(*) FROM tensor_approval_requests GROUP BY 1")
-    info["approvals"] = {r[0]: int(r[1]) for r in (rows or [])}
-    esc_path = os.path.join(AGENT_WORK, "approver_escalated.json")
-    try:
-        with open(esc_path, "r", encoding="utf-8") as fh:
-            info["escalated"] = json.load(fh)
-    except Exception as exc:  # noqa: BLE001
-        info["escalated"] = {"_error": str(exc)}
-    pass_all = os.path.join(AGENT_WORK, "auto_approver.PASS_ALL")
-    rc, out, _ = sh(["ls", "-la", "--time-style=+%Y-%m-%d %H:%M", pass_all], shell=False)
-    rc2, tail1, _ = sh(["tail", "-1", os.path.join(AGENT_WORK, "auto_approver.log")],
-                       shell=False)
-    rc3, rounds, _ = sh('grep -c "PASS_ALL 模式" %s/auto_approver.log' % AGENT_WORK)
-    info["passall"] = {"exists": os.path.exists(pass_all), "ls": out,
-                       "last_line": tail1, "rounds_cumulative": int(rounds or 0)}
-    rc, containers, _ = sh(["docker", "ps", "--format", "{{.Names}}|{{.Status}}"],
-                          shell=False, env=DOCKER_ENV)
-    clines = [l for l in (containers or "").splitlines() if l]
-    info["containers"] = {"total": len(clines),
-                          "healthy": len([l for l in clines if "(healthy)" in l])}
-    rc, wt, _ = sh(["git", "-C", MAIN_REPO, "worktree", "list"], shell=False)
-    wt_lines = [l for l in (wt or "").splitlines() if l]
-    info["worktrees"] = {"total": len(wt_lines),
-                         "tensorplatform": len([l for l in wt_lines if "/TensorPlatform" in l])}
-    rc, dirty, _ = sh(["git", "-C", MAIN_REPO, "status", "--short"], shell=False)
-    info["main_repo_dirty"] = len([l for l in (dirty or "").splitlines() if l])
-    gc_log = os.path.join(AGENT_WORK, "gc.log")
-    info["gc_log_last"] = sh(["tail", "-1", gc_log], shell=False)[1]
 
-    passed = sum(1 for c in checks if c["passed"])
-    report = {
-        "mission": "m212",
-        "date": "2026-10-23",
-        "shift": "第 74 班（派发器 shift#53）",
-        "generated_at": datetime.now(timezone.utc).strftime("%Y-%m-%dT%H:%M:%SZ"),
-        "workdir": os.path.abspath(__file__),
-        "checks_passed": passed,
-        "checks_total": len(checks),
-        "checks": checks,
-        "info": info,
+def main() -> int:
+    now = time.time()
+    R: dict = {"mission": "m220", "shift": "第78班 (派发器 shift#46)",
+               "collected_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                                                 time.gmtime(now))}
+
+    # ── 步骤 1：在飞心跳鲜度 ──
+    rows = psql("SELECT id,status,coalesce(round(extract(epoch FROM "
+                "(now()-heartbeat_at)))::text,'-'),repo,"
+                "coalesce(result->>'stop_condition',''),coalesce(model,'-') "
+                "FROM tensor_dev_missions WHERE status IN "
+                "('queued','claimed','running') ORDER BY id")
+    inflight = [{"id": int(r[0]), "status": r[1], "hb_age_s": int(r[2]),
+                 "repo": r[3], "stop_condition": r[4] or None, "model": r[5]}
+                for r in rows]
+    R["step1_inflight"] = {
+        "missions": inflight,
+        "count": len(inflight),
+        "max_hb_s": max((m["hb_age_s"] for m in inflight), default=0),
+        "stale_over_240s": [m["id"] for m in inflight if m["hb_age_s"] > 240],
+        "with_stop_condition": [m["id"] for m in inflight
+                                if m["stop_condition"]],
     }
-    with open(OUT, "w", encoding="utf-8") as fh:
-        json.dump(report, fh, ensure_ascii=False, indent=2)
-    print("checks %d/%d -> %s" % (passed, len(checks), OUT))
-    for c in checks:
-        print("[%s] %s: %s" % ("PASS" if c["passed"] else "FAIL", c["name"], c["detail"]))
-    return 0 if passed == len(checks) else 1
+
+    # ── 步骤 2：守护计数 vs 权威源 ΣN（R18：剧本写 7，实况 16）──
+    auth_path = AGENT_WORK / "workers.json"
+    auth = json.loads(auth_path.read_text(encoding="utf-8"))
+    slots = {k: v for k, v in auth.items() if not k.startswith("_")}
+    ps = shell("ps -eo args | awk '/[t]ensor_agent\\.py/ && !/bash -lc/ "
+               "{print}'").splitlines()
+    measured = len(ps)
+    per_model = {m: {"authority": n,
+                     "measured": sum(1 for ln in ps if m in ln)}
+                 for m, n in slots.items()}
+    R["step2_guardian"] = {
+        "measured_total": measured,
+        "authority_sum": sum(slots.values()),
+        "authority_source": str(auth_path),
+        "per_model": per_model,
+        "per_model_all_equal": all(v["authority"] == v["measured"]
+                                   for v in per_model.values()),
+        "slot_workers": shell("ps -eo args | grep -Ec -- '--slot [2-9]' || true"),
+    }
+
+    # ── 步骤 3：中继健康（bash 侧 curl 传入）──
+    probe = (os.environ.get("RELAY_PROBE") or "").split()
+    R["step3_relay"] = {"http_code": int(probe[0]) if probe else None,
+                        "time_total_s": float(probe[1]) if len(probe) > 1 else None,
+                        "models": int(probe[2]) if len(probe) > 2 else None}
+    # R17 同型坑：worktree 内的 tools/agent/*.json 可能是陈旧副本，
+    # 守护进程实际 import 的是主仓 /srv/tensor/shared/tensor_eco/TensorPlatform 下的配置，
+    # 故端点池口径一律读**主仓活体文件**，并把 worktree 副本一并留证以便判读偏差。
+    ep_live_path = ECO / "TensorPlatform" / "tools/agent" / "llm_endpoints.json"
+    ep_copy_path = REPO / "tools" / "agent" / "llm_endpoints.json"
+    ep = json.loads(ep_live_path.read_text("utf-8"))
+    ep_copy = json.loads(ep_copy_path.read_text("utf-8"))
+    R["step3_relay"]["endpoints_n"] = len(ep.get("endpoints", []))
+    R["step3_relay"]["cooldown_seconds"] = ep.get("cooldown_seconds")
+    R["step3_relay"]["transient_threshold"] = ep.get("transient_threshold")
+    R["step3_relay"]["config_source"] = str(ep_live_path)
+    R["step3_relay"]["worktree_copy_cooldown_seconds"] = ep_copy.get(
+        "cooldown_seconds")
+    R["step3_relay"]["worktree_copy_stale"] = (
+        ep_copy.get("cooldown_seconds") != ep.get("cooldown_seconds"))
+    # 源码事实：report() 恒用 min(cooldown, 600)，故配置 >600 无意义
+    gw_src = (ECO / "TensorPlatform/tools/agent/llm_gateway.py").read_text("utf-8")
+    R["step3_relay"]["code_caps_600"] = "min(self.cooldown, 600)" in gw_src
+
+    # ── 步骤 4：网关冷却态（含清理前快照与过期判定）──
+    st_path = AGENT_WORK / "llm_gateway_state.json"
+    state = json.loads(st_path.read_text(encoding="utf-8") or "{}")
+    snap = AGENT_WORK / "probe_m220" / "gateway_state_before.json"
+    before = json.loads(snap.read_text(encoding="utf-8")) if snap.exists() else {}
+    R["step4_cooldown"] = {
+        "path": str(st_path),
+        "before_snapshot": before,
+        "before_snapshot_path": str(snap) if snap.exists() else None,
+        "before_delta_s": {k: round(v.get("blocked_until", 0) - now, 1)
+                           for k, v in before.items()},
+        "before_all_expired": all(v.get("blocked_until", 0) < now
+                                  for v in before.values()) if before else True,
+        "now_state": state,
+        "now_active": {k: v for k, v in state.items()
+                       if (v.get("blocked_until") or 0) > now},
+        "mtime_local": time.strftime("%Y-%m-%d %H:%M:%S",
+                                     time.localtime(st_path.stat().st_mtime)),
+    }
+
+    # ── 步骤 5：终态 mission 审计面（24h + 承接门 + 三关机械门）──
+    t = psql("SELECT count(*) FILTER (WHERE status='failed'),"
+             "count(*) FILTER (WHERE status='succeeded'),"
+             "count(*) FILTER (WHERE status='failed' AND finished_at >= "
+             "date_trunc('day', now())),"
+             "coalesce(extract(epoch FROM (now()-max(finished_at)"
+             " FILTER (WHERE status='failed')))::int::text,'-') "
+             "FROM tensor_dev_missions WHERE finished_at > now()"
+             "-interval '24 hours'")
+    fails = psql("SELECT id,status,coalesce(result->>'stop_condition',''),"
+                 "round(extract(epoch FROM (now()-finished_at)))::text,"
+                 "coalesce(result->>'detail',''),coalesce(model,'-') "
+                 "FROM tensor_dev_missions WHERE status='failed' AND "
+                 "finished_at > now()-interval '24 hours' ORDER BY id")
+    aw = psql("SELECT count(*) FROM tensor_dev_missions WHERE "
+              "status='awaiting_acceptance'")
+    R["step5_terminal"] = {
+        "h24_failed": int(t[0][0]),
+        "h24_succeeded": int(t[0][1]),
+        "today_failed": int(t[0][2]),
+        "last_failed_age_s": None if t[0][3] == "-" else int(t[0][3]),
+        "failed_missions": [{"id": int(r[0]), "status": r[1],
+                             "stop_condition": r[2] or None,
+                             "age_s": int(r[3]), "detail": r[4],
+                             "model": r[5]} for r in fails],
+        "awaiting_acceptance": int(aw[0][0]),
+        "refill_checks": [refill_check(i) for i in (208, 211, 216, 217, 218)],
+        "load_gates": [load_gate(i) for i in (208, 211, 216, 217, 218)],
+        "goal_211_legs": poses_legs(211, 32),
+        "goal_216_legs": poses_legs(216, 32),
+        "goal_217_legs": poses_legs(217, 32),
+    }
+    # refill 审计面（本班若有 refill，处置后自证）
+    R["step5_terminal"]["refill_audit"] = [
+        {"id": int(r[0]), "status": r[1], "max_tool_calls": r[2],
+         "max_wall_seconds": r[3], "by": r[4], "added": r[5]}
+        for r in psql(
+            "SELECT id,status,budget->>'max_tool_calls',"
+            "budget->>'max_wall_seconds',"
+            "coalesce(result->'refill'->>'by',''),"
+            "coalesce(result->'refill'->'added'->>'tool_calls','')||'/'||"
+            "coalesce(result->'refill'->'added'->>'wall_seconds','') "
+            "FROM tensor_dev_missions WHERE result ? 'refill' "
+            "AND id >= 200 ORDER BY id")]
+
+    # ── 步骤 5b：群杀窗口证据（直读守护日志，禁手抄）──
+    # 判据：同一冷却事件前后的 "gateway: endpoint ... 冷却" 与 "无可用端点" 行 + 各腿终态时刻
+    cluster = []
+    for lg in sorted(AGENT_WORK.glob("agent-*.log")):
+        txt = lg.read_text(encoding="utf-8", errors="replace")
+        for ln in txt.splitlines():
+            if "无可用端点" in ln or "冷却 600s" in ln:
+                cluster.append(f"{lg.name}|{ln.strip()[:160]}")
+    R["step5b_cluster"] = {
+        "lines": cluster[-12:],
+        "count": len(cluster),
+        "cooling_events": sum(1 for x in cluster if "冷却 600s" in x),
+        "no_endpoint_lines": sum(1 for x in cluster if "无可用端点" in x),
+        # 本波窗口（本地时间 CST+8 21:1x = UTC 13:1x）：群杀当场证据
+        "wave_2113_local": [x for x in cluster
+                            if any(f"[21:1{n}:" in x for n in range(10))],
+    }
+
+    # ── 步骤 6：容器与非健康项 ──
+    dstat = shell('DOCKER_HOST=unix:///run/user/1020/docker.sock docker ps '
+                  '--format "{{.Names}}|{{.Status}}"')
+    cl = [ln for ln in dstat.splitlines() if ln.strip()]
+    R["step6_containers"] = {
+        "total": len(cl),
+        "healthy": sum(1 for ln in cl if "healthy" in ln),
+        "unhealthy": [ln for ln in cl if "healthy" not in ln],
+        "lines": cl,
+    }
+
+    # ── 审计面（审批 / 停车 / PASS_ALL / worktree / 脏树 / gc）──
+    ap = psql("SELECT count(*) FILTER (WHERE status='approved'),"
+              "count(*) FILTER (WHERE status='rejected'),"
+              "count(*) FILTER (WHERE status='pending') "
+              "FROM tensor_approval_requests")
+    lots = AGENT_WORK / "approver_escalated.json"
+    pa = AGENT_WORK / "auto_approver.PASS_ALL"
+    alog = AGENT_WORK / "auto_approver.log"
+    alines = alog.read_text(encoding="utf-8", errors="replace").splitlines()
+    pall = [ln for ln in alines if "PASS_ALL" in ln]
+    R["audit"] = {
+        "approval": {"approved": int(ap[0][0]), "rejected": int(ap[0][1]),
+                     "pending": int(ap[0][2])},
+        "parking_lot": (lots.read_text(encoding="utf-8").strip()
+                        if lots.exists() else "missing"),
+        "pass_all": {
+            "exists": pa.exists(),
+            "mtime_local": (time.strftime("%Y-%m-%d %H:%M:%S",
+                                          time.localtime(pa.stat().st_mtime))
+                            if pa.exists() else None),
+            "rounds": len(pall),
+            "last_line": pall[-1] if pall else None,
+        },
+        "approver_log_lines": len(alines),
+        "approver_log_last": alines[-1] if alines else None,
+        "worktree_total": int(shell("git worktree list | wc -l")),
+        "worktree_tensorplatform": int(
+            shell("git worktree list | grep -c '/TensorPlatform' || true")),
+        # 主仓口径（worktree 之外的真仓库，注意别与本站 worktree 混读）
+        "main_repo_dirty": int(shell(
+            f"git -C {ECO}/TensorPlatform status --porcelain | wc -l")),
+        "main_repo_dirty_lines": shell(
+            f"git -C {ECO}/TensorPlatform status --porcelain").splitlines()[:20],
+        "main_repo_branch": shell(f"git -C {ECO}/TensorPlatform branch --show-current"),
+        "this_worktree_dirty": int(
+            shell("git status --porcelain | wc -l")),
+        "this_branch": shell("git branch --show-current"),
+        "this_head": shell("git log --oneline -1"),
+        "gc_log_last": (AGENT_WORK / "gc.log").read_text(
+            encoding="utf-8", errors="replace").strip().splitlines()[-1],
+        "operator_shift_log_tail": (AGENT_WORK / "operator_shift.log")
+        .read_text(encoding="utf-8", errors="replace").strip().splitlines()[-1],
+        "benchmark_dispatch_tail": (AGENT_WORK / "benchmark_closure/"
+                                    "benchmark_dispatch.log").read_text(
+            encoding="utf-8", errors="replace").strip().splitlines()[-1],
+    }
+    print(json.dumps(R, ensure_ascii=False, indent=1))
+    return 0
 
 
 if __name__ == "__main__":
-    sys.exit(main())
+    raise SystemExit(main())
