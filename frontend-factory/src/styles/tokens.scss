@@ -1,0 +1,162 @@
+// TensorPlatform 科研运行台设计令牌
+// 以科研工作流为中心：深海蓝、科学绿、明确的状态语义与高对比度信息层级。
+:root {
+  color-scheme: light;
+  --tf-navy-900: #0b1730;
+  --tf-navy-800: #10213f;
+  --tf-navy-700: #18365a;
+  --tf-teal-600: #176477;
+  --tf-mint-400: #75e4c2;
+  --tf-mint-600: #198a70;
+  --tf-amber-700: #94600c;
+  --tf-amber-050: #fff7e8;
+  --tf-danger-600: #bd3e4b;
+  --tf-ink-900: #172235;
+  --tf-ink-700: #34445a;
+  --tf-ink-500: #64748b;
+  --tf-ink-400: #8290a3;
+  --tf-line-200: #dfe6ef;
+  --tf-line-100: #edf1f6;
+  --tf-bg-050: #f4f7fb;
+  --tf-surface: #ffffff;
+  --tf-radius-sm: 8px;
+  --tf-radius-md: 12px;
+  --tf-radius-lg: 16px;
+  --tf-shadow-sm: 0 2px 8px rgba(16, 33, 63, 0.035);
+  --tf-shadow-md: 0 8px 24px rgba(16, 33, 63, 0.07);
+  --el-color-primary: #176477;
+  --el-color-success: #198a70;
+  --el-color-warning: #b7791f;
+  --el-color-danger: #bd3e4b;
+}
+
+* { box-sizing: border-box; }
+
+html, body, #app {
+  min-height: 100%;
+  margin: 0;
+  font-family: Inter, "PingFang SC", "Microsoft YaHei", system-ui, -apple-system, sans-serif;
+  background: var(--tf-bg-050);
+  color: var(--tf-ink-900);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+body { min-width: 320px; }
+button, input, textarea, select { font: inherit; }
+a { color: inherit; }
+
+::selection { background: rgba(117, 228, 194, 0.35); }
+
+:focus-visible {
+  outline: 3px solid rgba(23, 100, 119, 0.45);
+  outline-offset: 2px;
+}
+
+// 科研语境头部：强调平台任务与实时运行状态，而非传统 SaaS 欢迎横幅。
+.tf-hero {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(ellipse at 92% 0%, rgba(117, 228, 194, 0.16), transparent 38%),
+    linear-gradient(125deg, var(--tf-navy-900) 0%, var(--tf-navy-800) 56%, #17465a 100%);
+  color: #eef6f8;
+  border: 1px solid rgba(255, 255, 255, 0.07);
+  border-radius: var(--tf-radius-lg);
+  padding: 22px 26px;
+  margin-bottom: 18px;
+  box-shadow: var(--tf-shadow-md);
+
+  .tf-hero-title { font-size: clamp(20px, 2vw, 26px); line-height: 1.25; font-weight: 700; letter-spacing: -0.35px; }
+  .tf-hero-sub { max-width: 780px; font-size: 13px; line-height: 1.75; color: #c6d4e2; margin-top: 9px; }
+  .tf-hero-mint { color: var(--tf-mint-400); font-weight: 700; }
+}
+
+.tf-card {
+  min-width: 0;
+  background: var(--tf-surface);
+  border: 1px solid var(--tf-line-200);
+  border-radius: var(--tf-radius-md);
+  padding: 18px 20px;
+  box-shadow: var(--tf-shadow-sm);
+  transition: border-color 160ms ease, box-shadow 160ms ease, transform 160ms ease;
+}
+
+.tf-card-title {
+  font-size: 14px;
+  font-weight: 700;
+  color: var(--tf-navy-700);
+  margin-bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.tf-mono {
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  font-variant-numeric: tabular-nums;
+}
+
+.tf-science-warning {
+  background: var(--tf-amber-050);
+  border: 1px solid #f0d9ad;
+  border-left: 4px solid var(--tf-amber-700);
+  padding: 12px 15px;
+  border-radius: var(--tf-radius-sm);
+  font-size: 13px;
+  color: #6b4a12;
+  line-height: 1.75;
+}
+
+.tf-page {
+  width: 100%;
+  max-width: 1600px;
+  padding: 24px clamp(14px, 2.2vw, 32px) 36px;
+  margin: 0 auto;
+}
+
+.tf-section-heading {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  margin: 24px 0 12px;
+  color: var(--tf-ink-900);
+  font-size: 14px;
+  font-weight: 700;
+}
+.tf-section-heading small {
+  color: var(--tf-ink-500);
+  font-size: 12px;
+  font-weight: 400;
+}
+
+.el-card {
+  --el-card-border-color: var(--tf-line-200);
+  border-radius: var(--tf-radius-md);
+  box-shadow: var(--tf-shadow-sm);
+}
+.el-button { font-weight: 600; }
+.el-table { --el-table-border-color: var(--tf-line-100); --el-table-header-bg-color: #f7f9fc; }
+
+@media (hover: hover) {
+  .tf-card:hover { border-color: #c9d7e5; box-shadow: var(--tf-shadow-md); }
+}
+
+@media (max-width: 768px) {
+  .tf-hero { padding: 18px; border-radius: 12px; }
+  .tf-hero .tf-hero-sub { font-size: 12px; }
+  .tf-card { padding: 15px; }
+  .tf-page { padding: 16px 12px 28px; }
+  .tf-section-heading { margin-top: 20px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+  }
+}

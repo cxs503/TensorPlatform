@@ -1,0 +1,14 @@
+{
+  "schema_version": 1,
+  "name": "TensorPlatform 智能体协作平台",
+  "state_root": "../.runtime/agent",
+  "projects": {
+    "factory-project": {"name": "TensorPlatform 智能体协作平台", "path": ".."}
+  },
+  "roles": {
+    "architect": {"name": "任务规划", "model_env": "FACTORY_ARCHITECT_MODEL"},
+    "implementer": {"name": "开发执行", "model_env": "FACTORY_IMPLEMENTER_MODEL"},
+    "verifier": {"name": "独立验证", "model_env": "FACTORY_VERIFIER_MODEL"},
+    "documenter": {"name": "交付文档", "model_env": "FACTORY_DOCUMENTER_MODEL"}
+  }
+}

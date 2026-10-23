@@ -56,6 +56,8 @@ SKIP_AUTH_PREFIXES: Set[str] = {
     "/api/v1/auth/enhanced",  # 增强认证模块有自己的验证逻辑
     "/api/v1/auth/login",  # 登录(也在 SKIP_AUTH_PATHS 中)
     "/api/v1/auth/register",
+    # 公共实况展示面（owner 2026-10-22）：只读端点，GET/HEAD 放行，写仍需认证
+    "/api/v1/public",
 }
 
 

@@ -26,6 +26,12 @@ import time
 import urllib.request
 from pathlib import Path
 
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
+# si_closure 本地无副本时回退平台工具位（tools/ops = 单一事实源，PR #49）
+sys.path.insert(0, str(_HERE.parent.parent / "TensorPlatform" / "tools" / "ops"))
+from pr_hygiene import merge_main_before_push  # PR 卫生：推送前并 main
+
 BASE = Path("/srv/tensor/shared/tensor_eco/agent_work")
 HERE = BASE / "si_closure"
 STATE_F = HERE / "state.json"
@@ -240,6 +246,10 @@ def main() -> None:
                                          "via": "already-open"}
             save_state(st)
             log(f"m{mid}: PR #{existing[0]['number']} 已在——补记")
+            continue
+        okm, howm = merge_main_before_push(wt, "si_harvest")
+        if not okm:
+            log(f"m{mid}: 并 main 未成（{howm}）——本轮不推，分支未动")
             continue
         ok, via = push_branch(wt, br, repo)
         if not ok:

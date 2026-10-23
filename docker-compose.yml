@@ -96,7 +96,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    image: open-foundation-backend:2.2.0
+    image: open-foundation-backend:2.3.1
     container_name: open-foundation-backend
     hostname: backend
     restart: unless-stopped
@@ -192,7 +192,7 @@ services:
   # Web后端不挂载Docker套接字；只有本内网服务可访问宿主Docker，且它只接受
   # 数字算法ID并从平台受控目录构建，不接受任意路径或用户Dockerfile。
   docker-builder:
-    image: open-foundation-backend:2.2.0
+    image: open-foundation-backend:2.3.1
     container_name: kp-docker-builder
     hostname: docker-builder
     restart: unless-stopped
@@ -239,7 +239,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    image: open-foundation-backend:2.2.0
+    image: open-foundation-backend:2.3.1
     container_name: kp-celery
     hostname: celery-worker
     restart: unless-stopped
@@ -291,7 +291,7 @@ services:
     build:
       context: .
       dockerfile: backend/Dockerfile
-    image: open-foundation-backend:2.2.0
+    image: open-foundation-backend:2.3.1
     container_name: open-foundation-celery-beat
     hostname: celery-beat
     restart: unless-stopped
@@ -331,7 +331,7 @@ services:
       dockerfile: frontend-console/Dockerfile
       args:
         ODF_RELEASE_REVISION: ${ODF_RELEASE_REVISION:-development}
-    image: open-foundation-frontend:2.2.0
+    image: open-foundation-frontend:2.3.1
     container_name: open-foundation-frontend
     hostname: frontend
     restart: unless-stopped
@@ -359,7 +359,7 @@ services:
   # default so an absent/invalid certificate cannot break the HTTP entry point.
   frontend-https:
     profiles: ["https"]
-    image: open-foundation-frontend:2.2.0
+    image: open-foundation-frontend:2.3.1
     container_name: kp-frontend-https
     hostname: frontend-https
     restart: unless-stopped

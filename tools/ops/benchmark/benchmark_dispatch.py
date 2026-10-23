@@ -26,6 +26,9 @@ import urllib.error
 import urllib.request
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+from pr_hygiene import merge_main_before_push  # PR 卫生：推送前并 main
+
 ECO = Path("/srv/tensor/shared/tensor_eco")
 WORK = ECO / "agent_work" / "benchmark_closure"
 RUNS = Path("/srv/tensor/shared/runs/bm_close")
@@ -95,6 +98,28 @@ def relay_ok() -> bool:
         base + "/models", headers={"Authorization": "Bearer " + key} if key else {})
     try:
         with urllib.request.urlopen(req, timeout=8) as resp:
+            return resp.status == 200
+    except Exception:  # noqa: BLE001
+        return False
+
+
+def model_chat_ok(model: str, timeout: int = 8) -> bool | None:
+    """Per-model chat-level probing (2026-10-21 relay lesson: /v1/models metadata returns 200
+    but each model's chat backend times out independently; only chat can detect single-lane failures).
+    Returns None when probe configuration is missing (don't block, compatible with legacy behavior)."""
+    base = os.environ.get("LLM_BASE_URL", "").rstrip("/")
+    key = os.environ.get("LLM_API_KEY", "")
+    if not base:
+        return None
+    body = json.dumps({"model": model,
+                       "messages": [{"role": "user", "content": "ping"}],
+                       "max_tokens": 1}).encode()
+    req = urllib.request.Request(
+        base + "/chat/completions", data=body, method="POST",
+        headers={"Authorization": "Bearer " + key,
+                 "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
             return resp.status == 200
     except Exception:  # noqa: BLE001
         return False
@@ -198,6 +223,11 @@ def push_and_pr(item: dict, mid: int, mission: dict,
     paper=True 走六门（含案例细节+图件）。"""
     wt = ECO / "agent_work" / f"m{mid}" / "TensorLBM"
     branch = f"agent/m{mid}"
+    # PR 卫生：门禁前并 main（白名单机械解；不推带冲突标记的分支）
+    okm, howm = merge_main_before_push(str(wt), "benchmark_dispatch")
+    if not okm:
+        log(f"m{mid}: 并 main 未成（{howm}）→ 本轮不推，下轮重试")
+        return None
     if gates_required:
         g = subprocess.run(
             [PY, str(WORK / "gates_check.py"),
@@ -286,6 +316,9 @@ def push_and_pr(item: dict, mid: int, mission: dict,
     return None
 
 
+MAX_REPORT_FIGURES = 12  # /tensor/reports figures 列表长度上限
+
+
 def publish_report(item: dict, mid: int, tok: str) -> int | None:
     """代发论文级平台报告（agent 已写 report_<case>.md 在 worktree；图件取
     worktree 根 fig_*.png 与案例目录 figures/*.png——paper 档图件在案例目录）。"""
@@ -305,6 +338,9 @@ def publish_report(item: dict, mid: int, tok: str) -> int | None:
         figs.append({"name": png.stem,
                      "caption": png.stem.replace("fig_", "").replace("_", " "),
                      "png_base64": base64.b64encode(png.read_bytes()).decode()})
+    if len(figs) > MAX_REPORT_FIGURES:  # 平台 schema 上限 12，超发=422 整单丢失
+        log(f"WARN m{mid}: 图件 {len(figs)} 超平台上限，截前 {MAX_REPORT_FIGURES} 张")
+        figs = figs[:MAX_REPORT_FIGURES]
     payload = report_payload(text, figs, mid, item["case"])
     code, out = api("POST", "/tensor/reports", payload, tok=tok)
     if code not in (200, 201):
@@ -515,6 +551,11 @@ def main() -> int:
             continue
         if item.get("wait_for_pr") and not pr_merged(int(item["wait_for_pr"])):
             continue        # 目标 PR 未合（如同案在库 PR），避免双 PR 撞车
+        ok = model_chat_ok(item["model"])
+        if ok is False:
+            log(f"HOLD {item['key']}: model={item['model']} chat probe failed "
+                f"(per-model relay flap), skipping this round")
+            continue
         mid = dispatch(item)
         if mid:
             state["items"][item["key"]] = {
