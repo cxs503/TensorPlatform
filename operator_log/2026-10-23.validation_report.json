@@ -1,9 +1,9 @@
 {
-  "mission": "m210",
+  "mission": "m212",
   "date": "2026-10-23",
-  "shift": "第 73 班（派发器 shift#52）",
-  "generated_at": "2026-10-23T08:18:16Z",
-  "workdir": "/srv/tensor/shared/tensor_eco/agent_work/m210/TensorPlatform/operator_log/collect_2026-10-23.py",
+  "shift": "第 74 班（派发器 shift#53）",
+  "generated_at": "2026-10-23T08:44:59Z",
+  "workdir": "/srv/tensor/shared/tensor_eco/agent_work/m212/TensorPlatform/operator_log/collect_2026-10-23.py",
   "checks_passed": 5,
   "checks_total": 5,
   "checks": [
@@ -11,7 +11,7 @@
       "id": 1,
       "name": "在飞心跳鲜度",
       "passed": true,
-      "detail": "在飞 4 条，max(hb_age)=13s（收割线 240s），异常 0 条；明细 m204/running/5s, m208/running/13s, m210/running/1s, m211/running/12s"
+      "detail": "在飞 4 条，max(hb_age)=14s（收割线 240s），异常 0 条；明细 m204/running/14s, m208/running/7s, m211/running/7s, m212/running/2s"
     },
     {
       "id": 2,
@@ -23,7 +23,7 @@
       "id": 3,
       "name": "中继健康",
       "passed": true,
-      "detail": "GET /models → HTTP 200 t=0.420s（阈值 200 且 <5s）"
+      "detail": "GET /models → HTTP 200 t=0.222s（阈值 200 且 <5s）"
     },
     {
       "id": 4,
@@ -35,7 +35,7 @@
       "id": 5,
       "name": "终态 mission result（无新 infra 终局/honest FAIL）",
       "passed": true,
-      "detail": "24h 终态 {\"none\": 21, \"gateway_unavailable\": 16}；R13 同型 failed_24h=16 末条 2026-10-22 12:37:25.098976+00 距今 19.68h；今日新增 failed=0；近 3h 终态 9 条，非 succeeded 0 条"
+      "detail": "24h 终态 {\"none\": 22, \"gateway_unavailable\": 16}；R13 同型 failed_24h=16 末条 2026-10-22 12:37:25.098976+00 距今 20.13h；今日新增 failed=0；近 3h 终态 8 条，非 succeeded 0 条"
     }
   ],
   "info": {
@@ -43,25 +43,25 @@
       {
         "id": 204,
         "status": "running",
-        "hb_age_s": 5,
+        "hb_age_s": 14,
         "stop_condition": "-"
       },
       {
         "id": 208,
         "status": "running",
-        "hb_age_s": 13,
-        "stop_condition": "-"
-      },
-      {
-        "id": 210,
-        "status": "running",
-        "hb_age_s": 1,
+        "hb_age_s": 7,
         "stop_condition": "-"
       },
       {
         "id": 211,
         "status": "running",
-        "hb_age_s": 12,
+        "hb_age_s": 7,
+        "stop_condition": "-"
+      },
+      {
+        "id": 212,
+        "status": "running",
+        "hb_age_s": 2,
         "stop_condition": "-"
       }
     ],
@@ -89,10 +89,15 @@
     "relay_key_set": true,
     "cooldown_raw": {},
     "terminal_24h": {
-      "none": 21,
+      "none": 22,
       "gateway_unavailable": 16
     },
     "recent_3h": [
+      {
+        "id": 210,
+        "status": "succeeded",
+        "finished": "08:22:01"
+      },
       {
         "id": 209,
         "status": "succeeded",
@@ -127,42 +132,32 @@
         "id": 202,
         "status": "succeeded",
         "finished": "05:46:02"
-      },
-      {
-        "id": 198,
-        "status": "succeeded",
-        "finished": "05:26:01"
-      },
-      {
-        "id": 201,
-        "status": "succeeded",
-        "finished": "05:22:01"
       }
     ],
     "r13": {
       "failed_24h": 16,
       "last_finished_at": "2026-10-22 12:37:25.098976+00",
-      "hours_since_last": 19.68,
+      "hours_since_last": 20.13,
       "failed_today": 0
     },
     "approvals": {
-      "approved": 141,
+      "approved": 142,
       "rejected": 11
     },
     "escalated": {},
     "passall": {
       "exists": true,
       "ls": "-rw-r--r--. 1 LBM LBM 0 2026-10-23 08:14 /srv/tensor/shared/tensor_eco/agent_work/auto_approver.PASS_ALL",
-      "last_line": "[16:18:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
-      "rounds_cumulative": 242
+      "last_line": "[16:44:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+      "rounds_cumulative": 255
     },
     "containers": {
       "total": 11,
       "healthy": 11
     },
     "worktrees": {
-      "total": 88,
-      "tensorplatform": 84
+      "total": 89,
+      "tensorplatform": 85
     },
     "main_repo_dirty": 13,
     "gc_log_last": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
