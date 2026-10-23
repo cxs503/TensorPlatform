@@ -1,18 +1,18 @@
 {
- "mission": "m222",
- "shift": "第79班 (派发器标注见 goal)",
- "collected_at_utc": "2026-10-23T15:17:36Z",
- "t0_utc": "2026-10-23T15:17:36Z",
- "shift_start_utc": "2026-10-23T15:13:01Z",
- "collected_at_local": "2026-10-23 23:17:36",
- "worktree": "/srv/tensor/shared/tensor_eco/agent_work/m222/TensorPlatform",
+ "mission": "m224",
+ "shift": "第80班 (派发器标注 shift#45，倒序非递增)",
+ "collected_at_utc": "2026-10-23T15:46:02Z",
+ "t0_utc": "2026-10-23T15:46:02Z",
+ "shift_start_utc": "2026-10-23T15:43:02Z",
+ "collected_at_local": "2026-10-23 23:46:02",
+ "worktree": "/srv/tensor/shared/tensor_eco/agent_work/m224/TensorPlatform",
  "step1_inflight": {
-  "count": 3,
+  "count": 4,
   "missions": [
    {
     "id": 211,
     "status": "running",
-    "hb_s": 11,
+    "hb_s": 4,
     "repo": "TensorLBM",
     "stop_condition": null,
     "goal_head": "MP-DAMBREAK:S1 — 2D 溃坝做准（执行 S0 裁决路"
@@ -20,21 +20,29 @@
    {
     "id": 221,
     "status": "running",
-    "hb_s": 13,
+    "hb_s": 6,
     "repo": "TensorLBM",
     "stop_condition": null,
     "goal_head": "BENCH-CLOSE:cylinder-w11a2-harvest"
    },
    {
-    "id": 222,
+    "id": 223,
     "status": "running",
-    "hb_s": 0,
+    "hb_s": 7,
+    "repo": "TensorLBM",
+    "stop_condition": null,
+    "goal_head": "TUTORIAL-WAVE:couette_3d — 为 verif"
+   },
+   {
+    "id": 224,
+    "status": "running",
+    "hb_s": 8,
     "repo": "TensorPlatform",
     "stop_condition": null,
     "goal_head": "platform-operator 值班班次 2026-10-23（"
    }
   ],
-  "max_hb_s": 13,
+  "max_hb_s": 8,
   "stale_over_240s": [],
   "with_stop_condition": []
  },
@@ -74,7 +82,7 @@
  },
  "step3_relay": {
   "http_code": 200,
-  "time_total_s": 0.229834,
+  "time_total_s": 0.320073,
   "models": 7,
   "endpoints_n": 1,
   "endpoint_names": [
@@ -96,16 +104,16 @@
  },
  "step5_terminal": {
   "h24_failed": 4,
-  "h24_succeeded": 26,
+  "h24_succeeded": 27,
   "today_failed": 4,
   "since_shift_failed": 0,
-  "last_failed_age_s": 7376,
+  "last_failed_age_s": 9083,
   "failed_missions": [
    {
     "id": 208,
     "status": "failed",
     "stop_condition": "gateway_unavailable",
-    "age_s": 16483,
+    "age_s": 18189,
     "finished": "10-23 10:42",
     "goal_head": "BENCH-CLOSE:cylinder-w11a2-harvest"
    },
@@ -113,7 +121,7 @@
     "id": 216,
     "status": "failed",
     "stop_condition": "gateway_unavailable",
-    "age_s": 7377,
+    "age_s": 9083,
     "finished": "10-23 13:14",
     "goal_head": "BENCH-CLOSE:cylinder-w11a2-harvest"
    },
@@ -121,7 +129,7 @@
     "id": 217,
     "status": "failed",
     "stop_condition": "gateway_unavailable",
-    "age_s": 7412,
+    "age_s": 9118,
     "finished": "10-23 13:14",
     "goal_head": "TUTORIAL-WAVE:cavity_natural_conve"
    },
@@ -129,7 +137,7 @@
     "id": 218,
     "status": "failed",
     "stop_condition": "gateway_unavailable",
-    "age_s": 7383,
+    "age_s": 9089,
     "finished": "10-23 13:14",
     "goal_head": "platform-operator 值班班次 2026-10-23（"
    }
@@ -209,7 +217,13 @@
     "max_wall_seconds": "28800"
    },
    {
-    "id": 222,
+    "id": 223,
+    "status": "running",
+    "max_tool_calls": "250",
+    "max_wall_seconds": "21600"
+   },
+   {
+    "id": 224,
     "status": "running",
     "max_tool_calls": "200",
     "max_wall_seconds": "7200"
@@ -231,11 +245,18 @@
     "created": "10-23 14:42:49"
    },
    {
-    "id": 222,
+    "id": 223,
+    "by": "tensor-agent[deepseek-v4-flash]@localhost.localdomain",
+    "model": "deepseek-v4-flash",
+    "origin": "owner",
+    "created": "10-23 15:20:02"
+   },
+   {
+    "id": 224,
     "by": "tensor-agent[deepseek-v4-flash#3]@localhost.localdomain",
     "model": "deepseek-v4-flash",
     "origin": "agent",
-    "created": "10-23 15:13:01"
+    "created": "10-23 15:43:02"
    }
   ],
   "refill_audit": [
@@ -257,19 +278,19 @@
     },
     {
      "file": "agent-deepseek-v4-flash-w2.log",
-     "mtime": "2026-10-23 23:05:44",
+     "mtime": "2026-10-23 23:45:52",
      "count": 2,
      "last": "[21:13:16] gateway: endpoint relay-13001 冷却 600s（transient×3）"
     },
     {
      "file": "agent-deepseek-v4-flash-w3.log",
-     "mtime": "2026-10-23 23:13:05",
+     "mtime": "2026-10-23 23:43:09",
      "count": 2,
      "last": "[18:42:21] gateway: endpoint relay-13001 冷却 600s（transient×3）"
     },
     {
      "file": "agent-deepseek-v4-flash.log",
-     "mtime": "2026-10-23 22:57:27",
+     "mtime": "2026-10-23 23:20:08",
      "count": 4,
      "last": "[20:37:22] gateway: endpoint relay-13001 冷却 600s（transient×3）"
     },
@@ -313,7 +334,7 @@
  },
  "audit": {
   "approval": {
-   "approved": 149,
+   "approved": 150,
    "rejected": 11,
    "pending": 0
   },
@@ -321,19 +342,19 @@
   "pass_all": {
    "exists": true,
    "mtime_local": "2026-10-23 08:14:56",
-   "rounds": 451,
-   "last_line": "[23:16:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
+   "rounds": 466,
+   "last_line": "[23:46:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
   },
-  "approver_log_last": "[23:16:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
-  "worktree_total": 95,
-  "worktree_tensorplatform": 91,
+  "approver_log_last": "[23:46:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+  "worktree_total": 96,
+  "worktree_tensorplatform": 92,
   "main_dirty": 13,
   "main_branch": "fix/approver-token-headroom",
   "main_head": "c245186",
   "gc_log_last": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够",
-  "fleet_log_last": "2026-10-23T15:15:01Z fleet pass done, spawned=0",
-  "worktree_dirty_before_delivery": 2,
-  "worktree_branch": "agent/m222",
+  "fleet_log_last": "2026-10-23T15:45:01Z fleet pass done, spawned=0",
+  "worktree_dirty_before_delivery": 3,
+  "worktree_branch": "agent/m224",
   "worktree_head": "c245186"
  }
 }

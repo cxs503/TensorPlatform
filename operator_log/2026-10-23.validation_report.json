@@ -1,9 +1,9 @@
 {
- "mission": "m222",
- "shift": "第79班（派发器标注见 goal）",
+ "mission": "m224",
+ "shift": "第80班（派发器标注 shift#45，倒序非递增）",
  "date": "2026-10-23",
  "readings": "2026-10-23.readings.json",
- "collected_at_utc": "2026-10-23T15:17:36Z",
+ "collected_at_utc": "2026-10-23T15:46:02Z",
  "evidence_sources": [
   "open_digital_foundation.tensor_dev_missions（只读 SQL）",
   "open_digital_foundation.tensor_approval_requests（只读 SQL）",
@@ -30,42 +30,45 @@
   },
   {
    "id": 218,
-   "why": "operator 班次同 goal，本班 m222 即承接腿"
+   "why": "operator 班次同 goal，更晚腿 m222(succeeded) 已承接，本班 m224 在飞"
   }
  ],
  "checks": {
   "passed": [
-   "S1-count: 在飞 3 条，明细 3 行一致（m211,m221,m222）",
-   "S1-fresh: 最大心跳 13s ≪ 240s 收割线，stale=[]",
+   "S1-count: 在飞 4 条，明细 4 行一致（m211,m221,m223,m224）",
+   "S1-fresh: 最大心跳 8s ≪ 240s 收割线，stale=[]",
    "S1-nostop: 在飞无 stop_condition：[]",
+   "S1-hbdetail: log 列的心跳取自同一快照：m211=4s,m221=6s,m223=7s,m224=8s",
    "S2-equation: 实测 16 = 权威源 ΣN 16，六模型逐项相等=True（源 /srv/tensor/shared/tensor_eco/agent_work/workers.json）",
    "S2-slot: 带 --slot 追加槽 worker=10 台；pgrep 口径 16（口径差异见 log 说明）",
-   "S3-relay: GET /models → 200 / 0.230s / models=7（门限 200 且 <5s）",
+   "S3-relay: GET /models → 200 / 0.320s / models=7（门限 200 且 <5s）",
    "S3-single-endpoint: 端点池 1 个 ['relay-13001']（R13 结构性风险仍在）；活体 cooldown_seconds=600、transient_threshold=3（源 /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/llm_endpoints.json），源码 min(cooldown,600) 生效=True",
    "S3-r17: R17 仍在：worktree 副本 cooldown=1800 ≠ 主仓活体 600 ⇒ 端点配置判读只读主仓",
    "S4-empty: llm_gateway_state.json={}，active={}（无过期项待清，本班零写操作）",
-   "S5-24h: 24h failed=4 = 明细 4 条 = 今日新增 4（succeeded=26）",
+   "S5-24h: 24h failed=4 = 明细 4 条 = 今日新增 4（succeeded=27）",
    "S5-all-gw: failed 全 stop_condition=gateway_unavailable（R13 同型）：m208@10-23 10:42,m216@10-23 13:14,m217@10-23 13:14,m218@10-23 13:14",
-   "S5-no-new: 本班窗口（>=2026-10-23T15:13:01Z）新增 failed=0 ⇒ R13 本班零新增；末条 failed 距今 7376s（≈2.05h）",
-   "S5-lastfail: 末条 failed 距今 7376s ≈ 明细最小 age 7377s（两查询时点差 ≤3s，口径自洽）",
+   "S5-no-new: 本班窗口（>=2026-10-23T15:43:02Z）新增 failed=0 ⇒ R13 本班零新增；末条 failed 距今 9083s（≈2.52h）",
+   "S5-lastfail: 末条 failed 距今 9083s ≈ 明细最小 age 9083s（两查询时点差 ≤3s，口径自洽）",
    "S5-awaiting: awaiting_acceptance=0（R16 屏蔽，勿解读为验收链健康）",
-   "S5b-newest: 今日最新冷却事件 2026-10-23T21:13:16（CST）= UTC 13:13:16，与 m220 记录的同一波重合 ⇒ 距今 ~2.0h 零新增（以末条 failed age 为口径）；冷却行累计 24 条、无可用端点 55 条",
+   "S5b-newest: 今日最新冷却事件 2026-10-23T21:13:16（CST）= UTC 13:13:16，与 m220 记录的同一波重合 ⇒ 距今 ~2.5h 零新增（以末条 failed age 为口径）；冷却行累计 24 条、无可用端点 55 条",
    "S5b-stale-excluded: 日志分日坑已挡：agent-MiniMax-M2.5-AWQ.log,agent-qwen3.7-plus.log 的 mtime 非今日，其 [22:52]/[23:36] 行属昨日，未计入今日判据",
    "P-legs-208: cylinder 线腿 {208: 'failed', 216: 'failed', 221: 'running'} ⇒ m208/m216 均有更晚承接腿 m221(running)，再加 refill = 同 goal 双跑",
    "P-legs-216: cylinder 线（m216 前缀）腿 {208: 'failed', 216: 'failed', 221: 'running'} ⇒ 承接腿 m221(running)",
    "P-legs-217: tutorial 线腿 {217: 'failed', 219: 'succeeded'} ⇒ 已被 m219 **succeeded** 承接（成果交付，重派无意义）",
    "P-refillcheck: refill_check 四腿 rc=0（单用会误导，须叠加承接门）：m208,m216,m217,m218",
    "D-zero-write: refill 审计面仅 m211（上一班 m220 所为，60/7200），本班零 refill / 零冷却态写 / 零 kill / 零换血 / 零 psql 写",
+   "B-inflight-owner: 在飞四条 origin 直读：owner=m211/m223、agent=m221(自动重派)/m224(本班)，全部 running",
+   "G-compress: G 仍在（白烧不误，下界判据）：压缩摘要为空 deepseek-v4-flash-w2=50,deepseek-v4-flash-w3=90,deepseek-v4-flash=418,glm-5.2=1,qwen3.7-plus=1",
    "S6-containers: 容器 11/11 healthy，非健康 []",
-   "A1-approval: 审批 approved=149 / rejected=11 / pending=0；停车表={}",
-   "A2-passall: R16 仍在：PASS_ALL 开关存在（mtime 2026-10-23 08:14:56），累计 451 轮，末条 `[23:16:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空`",
-   "A3-worktree: worktree 95 条（其中 /TensorPlatform 91 条，另 4 条非本仓）；主仓 dirty=13（fix/approver-token-headroom @c245186）",
-   "A4-thisbranch: 本站分支 agent/m222，HEAD c245186，交付前 dirty=2",
+   "A1-approval: 审批 approved=150 / rejected=11 / pending=0；停车表={}",
+   "A2-passall: R16 仍在：PASS_ALL 开关存在（mtime 2026-10-23 08:14:56），累计 466 轮，末条 `[23:46:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空`",
+   "A3-worktree: worktree 96 条（其中 /TensorPlatform 92 条，另 4 条非本仓）；主仓 dirty=13（fix/approver-token-headroom @c245186）",
+   "A4-thisbranch: 本站分支 agent/m224，HEAD c245186，交付前 dirty=3",
    "A5-gc: X 延续：gc.log 末行 `/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够` ⇒ worktree GC 仍全灭"
   ],
   "failed": []
  },
- "checks_total": 27,
- "checks_passed": 27,
- "generated_at_utc": "2026-10-23T15:18:35Z"
+ "checks_total": 30,
+ "checks_passed": 30,
+ "generated_at_utc": "2026-10-23T15:47:37Z"
 }
