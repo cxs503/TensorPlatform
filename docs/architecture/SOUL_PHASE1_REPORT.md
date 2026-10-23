@@ -21,6 +21,11 @@
 | 5 | C 报告 | `18f52def1a4209d1f395863ff8c32d2348b3ff46` | docs: Tensor Soul 第一阶段交付报告 + 取证脚本静态检查扩至报告工件 |
 | 6 | C 工件 | `e24cd1d` | docs: 刷新 Soul 第一阶段取证工件（head_commit=18f52de，13/13 判据通过）并标注工件提交口径 |
 
+段 6 之后还有若干**只改文档/笔记、不改代码**的收尾提交（`git log --oneline 18f52de..HEAD` 可列全，
+含 `5a97649` 报告数字对齐与 `6bbc883` 交接笔记修正，以及写入本段落的这次提交）。
+验收时请以 `git log --format=%H 6a3f63d..HEAD` 为准核对完整 SHA 清单；
+代码未被这些收尾提交触碰，可用 `git diff 18f52de..HEAD -- backend tests tools scripts` 应为空来机械核对（本次核对结果：空）。
+
 变更规模（`git diff --shortstat 6a3f63d..e6b364b` 原样抄录）：`11 files changed, 2206 insertions(+), 2 deletions(-)`（不含本报告）。
 含本报告与取证工件后（`git diff --shortstat 6a3f63d..HEAD`）为 `13 files changed, 3151 insertions(+), 2 deletions(-)`；
 两次删除的 2 行分别是 `backend/factory_app.py` 里被替换的 `for router in (...)` 行与
