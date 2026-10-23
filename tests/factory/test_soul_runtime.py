@@ -425,3 +425,47 @@ def test_unverified_model_output_cannot_reach_shared_knowledge(factory):
                         headers=headers(2), json={'status': 'validated',
                                                   'validator': {'name': 'x'}}
                         ).status_code == 422
+
+# ── 契约 MVP 第 4 条：有界 recall + prepare ────────────────────────────────
+def test_recall_and_prepare_are_bounded_and_task_scoped(factory):
+    """记忆再多也不得倾倒入模型输入：有硬预算、有相关性排序、标明截断。"""
+    client, headers = factory['client'], factory['headers']
+    agent = _agent(client, headers, 'soul-bounded')
+    session = _session(client, headers, agent['agent_id'])
+
+    # 60 条零重合噪音 + 6 条任务相关（单条都装不进 400 字符预算）
+    for i in range(60):
+        _observe(client, headers, agent['agent_id'], key=f'noise-{i}',
+                 session=session['session_id'],
+                 payload={'text': f'噪音记录 {i}：' + '填充' * 60})
+    for i in range(6):
+        _observe(client, headers, agent['agent_id'], key=f'signal-{i}',
+                 session=session['session_id'],
+                 payload={'text': f'能耗表缺失率核对结论 {i}：' + '细节' * 60})
+
+    recalled = client.post(SOUL + '/recall', headers=headers(3),
+                           json={'agent_id': agent['agent_id'],
+                                 'task_context': '能耗表缺失率', 'limit': 24,
+                                 'max_chars': 400}).json()
+    # 硬预算：无论库里多少记忆，字符用量不得超过预算
+    assert recalled['chars_used'] <= recalled['char_budget'] == 400
+    # 6 条相关记录装不进预算 → 截断并如实标注，且不掺零重合噪音
+    assert recalled['truncated'] is True
+    assert 0 < recalled['count'] < 6
+    assert recalled['filtered_irrelevant'] == 60
+    # 相关性打分生效：只返回任务相关记录（而非按写入顺序倾倒）
+    assert all(item['payload']['text'].startswith('能耗表缺失率核对结论')
+               for item in recalled['matches'])
+    assert all(item['relevance'] > 0 for item in recalled['matches'])
+
+    prepared = client.post(SOUL + '/prepare', headers=headers(3),
+                           json={'session_id': session['session_id'],
+                                 'task_context': '能耗表缺失率', 'max_chars': 900}).json()
+    assert prepared['transcript_dump'] is False
+    assert prepared['chars_used'] <= prepared['char_budget'] == 900
+    kinds = [section['kind'] for section in prepared['sections']]
+    assert kinds[0] == 'identity' and 'memories' in kinds
+    # 不回放全量 transcript：66 条记忆里最老的噪音不会出现在 prepare 输出中
+    body = json.dumps(prepared, ensure_ascii=False)
+    assert '噪音记录 59' not in body
+    assert prepared['recall']['count'] <= 6

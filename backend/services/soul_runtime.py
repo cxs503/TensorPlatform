@@ -414,8 +414,19 @@ def _text_of(payload: Any) -> str:
 
 
 def _terms(context: str) -> set[str]:
+    """切词：ASCII 按非字母数字分段；CJK 连写串额外产出二元组。
+
+    中文没有空格，整句会被 isalnum 当成一个 token，导致"能耗表缺失率核对结论"
+    与"能耗表缺失率"零重合、相关性打分成摆设。补二元组让中文任务上下文可召回。
+    """
     raw = "".join(ch.lower() if ch.isalnum() else " " for ch in context)
-    return {token for token in raw.split() if len(token) >= 2}
+    terms: set[str] = set()
+    for token in raw.split():
+        if len(token) >= 2:
+            terms.add(token)
+        if any(ord(ch) > 127 for ch in token) and len(token) > 2:
+            terms.update(token[i:i + 2] for i in range(len(token) - 1))
+    return terms
 
 
 def recall(db: Session, *, organization_id: int, agent_id: str,
@@ -451,10 +462,11 @@ def recall(db: Session, *, organization_id: int, agent_id: str,
         # 排序键：上下文重合 > 已验证 > 本人 > 新近（数据库已倒序，索引即次序）
         scored.append((overlap, trusted, own, item))
     scored.sort(key=lambda entry: (entry[0], entry[1], entry[2]), reverse=True)
-    selected, used, truncated = [], 0, False
+    selected, used, truncated, irrelevant = [], 0, False, 0
     for overlap, _trusted, own, item in scored:
         if overlap == 0 and selected:
-            continue   # 已有匹配后不再塞零匹配记录，避免噪音倾倒
+            irrelevant += 1   # 已有匹配后不再塞零匹配记录，避免噪音倾倒
+            continue
         cost = len(_text_of(item["payload"])) + len(item["source"])
         if used + cost > max_chars or len(selected) >= limit:
             truncated = True
@@ -469,6 +481,7 @@ def recall(db: Session, *, organization_id: int, agent_id: str,
             "agent_id": str(item["agent_id"]), "task_id": item["task_id"]})
     return {"matches": selected, "count": len(selected), "chars_used": used,
             "char_budget": max_chars, "truncated": truncated,
+            "filtered_irrelevant": irrelevant,
             "scanned": len(rows), "scan_limit": RECALL_SCAN_LIMIT,
             "scope": "own + organization-validated", "task_context_terms": sorted(wanted)}
 
