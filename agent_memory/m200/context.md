@@ -11,8 +11,8 @@
   Python 一律 `/srv/tensor/shared/venvs/tensor_eco/bin/python`。
 - 取证脚本 `scripts/verify_soul_phase1.py` 会跑三组 pytest（约 90 秒）并重写 soul_phase1_validation.json；
   它把跑测时的 HEAD 记进 head_commit，所以每次跑完都要再提交一次工件（报告里已注明该口径）。
-- 094 迁移的 sha256 已硬编码在 `backend/services/soul_migrations.py` 的登记表里（跑库时登记），
-  **改动 094 文件内容会让已建库报 MigrationChecksumMismatch**——要改就改新迁移文件（095+）并加进 SOUL_MIGRATIONS。
+- `backend/services/soul_migrations.py` 每次应用迁移时现算 094 文件字节的 sha256 并写进 `factory_soul_schema_versions`，
+  **事后改动 094 内容会让已建库报 MigrationChecksumMismatch**——要改就新建迁移文件（095+）并加进 `SOUL_MIGRATIONS` 元组。
 - `backend/services/factory_bootstrap.py:32-34` 是 Soul 迁移入口；工厂测试都走它，改这里会一次性影响 tests/factory 全量。
 
 ## 未做（后续）
