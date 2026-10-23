@@ -49,6 +49,10 @@ CI 触发路径：`.github/workflows/resident-community.yml:8,10,16` 增加 soul
 
 一次性复现：`PYTHONPATH=/srv/tensor/shared/tensor_eco/agent_work/m200/.pydeps /srv/tensor/shared/venvs/tensor_eco/bin/python scripts/verify_soul_phase1.py`
 
+> 工件口径：`soul_phase1_validation.json` 的 `head_commit` 是**跑测时所处的工作树 HEAD**（代码状态），
+> 该文件随后作为一个只含文档/工件的新提交落库，因此审批时的仓库 HEAD 会再前进一格；
+> 代码内容与跑测时一致（`git diff <head_commit>..HEAD -- backend tests tools` 应为空）。
+
 | 运行 | 命令 | 退出码 | 结果 | 耗时 |
 |---|---|---|---|---|
 | 全量 factory | `/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory -q -p no:warnings` | 0 | 95 passed / 0 failed | 54.79 s |
