@@ -1,0 +1,170 @@
+{
+  "mission": "m210",
+  "date": "2026-10-23",
+  "shift": "第 73 班（派发器 shift#52）",
+  "generated_at": "2026-10-23T08:18:16Z",
+  "workdir": "/srv/tensor/shared/tensor_eco/agent_work/m210/TensorPlatform/operator_log/collect_2026-10-23.py",
+  "checks_passed": 5,
+  "checks_total": 5,
+  "checks": [
+    {
+      "id": 1,
+      "name": "在飞心跳鲜度",
+      "passed": true,
+      "detail": "在飞 4 条，max(hb_age)=13s（收割线 240s），异常 0 条；明细 m204/running/5s, m208/running/13s, m210/running/1s, m211/running/12s"
+    },
+    {
+      "id": 2,
+      "name": "守护计数=权威源 ΣN",
+      "passed": true,
+      "detail": "实测 16 / 权威源 ΣN=16 / 分模型实测 {'qwen3.7-plus': 6, 'glm-5.1': 2, 'deepseek-v4-flash': 3, 'glm-5.2': 1, 'qwen3.6-plus': 3, 'MiniMax-M2.5-AWQ': 1}"
+    },
+    {
+      "id": 3,
+      "name": "中继健康",
+      "passed": true,
+      "detail": "GET /models → HTTP 200 t=0.420s（阈值 200 且 <5s）"
+    },
+    {
+      "id": 4,
+      "name": "网关冷却态（无未过期封锁）",
+      "passed": true,
+      "detail": "冷却态={} 未过期封锁 0 个"
+    },
+    {
+      "id": 5,
+      "name": "终态 mission result（无新 infra 终局/honest FAIL）",
+      "passed": true,
+      "detail": "24h 终态 {\"none\": 21, \"gateway_unavailable\": 16}；R13 同型 failed_24h=16 末条 2026-10-22 12:37:25.098976+00 距今 19.68h；今日新增 failed=0；近 3h 终态 9 条，非 succeeded 0 条"
+    }
+  ],
+  "info": {
+    "inflight": [
+      {
+        "id": 204,
+        "status": "running",
+        "hb_age_s": 5,
+        "stop_condition": "-"
+      },
+      {
+        "id": 208,
+        "status": "running",
+        "hb_age_s": 13,
+        "stop_condition": "-"
+      },
+      {
+        "id": 210,
+        "status": "running",
+        "hb_age_s": 1,
+        "stop_condition": "-"
+      },
+      {
+        "id": 211,
+        "status": "running",
+        "hb_age_s": 12,
+        "stop_condition": "-"
+      }
+    ],
+    "guards": {
+      "expect_total": 16,
+      "actual_total": 16,
+      "expect_by_model": {
+        "qwen3.6-plus": 3,
+        "qwen3.7-plus": 6,
+        "glm-5.2": 1,
+        "glm-5.1": 2,
+        "deepseek-v4-flash": 3,
+        "MiniMax-M2.5-AWQ": 1
+      },
+      "actual_by_model": {
+        "qwen3.7-plus": 6,
+        "glm-5.1": 2,
+        "deepseek-v4-flash": 3,
+        "glm-5.2": 1,
+        "qwen3.6-plus": 3,
+        "MiniMax-M2.5-AWQ": 1
+      }
+    },
+    "relay_base_set": true,
+    "relay_key_set": true,
+    "cooldown_raw": {},
+    "terminal_24h": {
+      "none": 21,
+      "gateway_unavailable": 16
+    },
+    "recent_3h": [
+      {
+        "id": 209,
+        "status": "succeeded",
+        "finished": "08:12:01"
+      },
+      {
+        "id": 206,
+        "status": "succeeded",
+        "finished": "08:08:02"
+      },
+      {
+        "id": 207,
+        "status": "succeeded",
+        "finished": "07:16:01"
+      },
+      {
+        "id": 205,
+        "status": "succeeded",
+        "finished": "06:48:02"
+      },
+      {
+        "id": 203,
+        "status": "succeeded",
+        "finished": "06:22:01"
+      },
+      {
+        "id": 200,
+        "status": "succeeded",
+        "finished": "06:14:02"
+      },
+      {
+        "id": 202,
+        "status": "succeeded",
+        "finished": "05:46:02"
+      },
+      {
+        "id": 198,
+        "status": "succeeded",
+        "finished": "05:26:01"
+      },
+      {
+        "id": 201,
+        "status": "succeeded",
+        "finished": "05:22:01"
+      }
+    ],
+    "r13": {
+      "failed_24h": 16,
+      "last_finished_at": "2026-10-22 12:37:25.098976+00",
+      "hours_since_last": 19.68,
+      "failed_today": 0
+    },
+    "approvals": {
+      "approved": 141,
+      "rejected": 11
+    },
+    "escalated": {},
+    "passall": {
+      "exists": true,
+      "ls": "-rw-r--r--. 1 LBM LBM 0 2026-10-23 08:14 /srv/tensor/shared/tensor_eco/agent_work/auto_approver.PASS_ALL",
+      "last_line": "[16:18:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+      "rounds_cumulative": 242
+    },
+    "containers": {
+      "total": 11,
+      "healthy": 11
+    },
+    "worktrees": {
+      "total": 88,
+      "tensorplatform": 84
+    },
+    "main_repo_dirty": 13,
+    "gc_log_last": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
+  }
+}
