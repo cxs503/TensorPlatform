@@ -1,0 +1,76 @@
+{
+ "mission": "m220",
+ "shift": "第78班 (派发器 shift#46)",
+ "date": "2026-10-23",
+ "readings": "2026-10-23.readings.json",
+ "collected_at_utc": "2026-10-23T14:54:33Z",
+ "evidence_sources": [
+  "open_digital_foundation.tensor_dev_missions（只读 SQL）",
+  "open_digital_foundation.tensor_approval_requests（只读 SQL）",
+  "agent_work/workers.json（守护权威源）",
+  "agent_work/llm_gateway_state.json + probe_m220/ 清理前快照",
+  "agent_work/auto_approver.log + auto_approver.PASS_ALL + approver_escalated.json",
+  "agent_work/agent-*.log（冷却窗口原文）",
+  "tools/agent/llm_endpoints.json + llm_gateway.py 源码",
+  "curl GET /models（bash 终端直连，凭据不进 python 子进程）"
+ ],
+ "dispositions": [
+  {
+   "target": "llm_gateway_state.json",
+   "action": "清理过期冷却态（relay-13001，delta<0 已过期 → {}）",
+   "auto": true
+  },
+  {
+   "target": "m211",
+   "action": "API refill +60 tools / +7200s（gateway_unavailable，三关全过）",
+   "auto": true
+  }
+ ],
+ "not_disposed": [
+  {
+   "id": 208,
+   "why": "cylinder 线同 goal 已被 m221(running) 承接（承接门不过）"
+  },
+  {
+   "id": 216,
+   "why": "同上，benchmark_dispatch 22:42:49Z 已重派第 2/3 次"
+  },
+  {
+   "id": 217,
+   "why": "tutorial 线同 goal 已被 m219(running) 承接"
+  },
+  {
+   "id": 218,
+   "why": "operator 班次同 goal，本班 m220 即承接腿"
+  }
+ ],
+ "checks": {
+  "passed": [
+   "S1-count: 在飞 4 条，明细 4 行一致（含处置后续班的 m211）",
+   "S1-fresh: 最大心跳 14s ≪ 240s 收割线，stale=[]",
+   "S1-nostop: 在飞无 stop_condition：[]",
+   "S2-equation: 实测 16 = 权威源 ΣN 16，六模型逐项相等=True（源 /srv/tensor/shared/tensor_eco/agent_work/workers.json）",
+   "S2-slot: 带 --slot 追加槽 worker=10 台（基线 6 + 池化 10 自洽）",
+   "S3-relay: GET /models → 200 / 0.711s / models=7（门限 200 且 <5s）",
+   "S3-single-endpoint: 端点池 1 个（R13 仍在）；活体配置 cooldown_seconds=600（源 /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/llm_endpoints.json），源码 min(cooldown,600) 生效=True，transient_threshold=3；★ worktree 副本 cooldown=1800 已陈旧（R17 同型，勿以 worktree 副本判读）",
+   "S4-cleared: 清理前 relay-13001 delta={'relay-13001': -5477.6}（已过期）→ 清后 {}，active={}",
+   "S5-24h: 24h failed=4 = 明细 4 条 = 今日新增 4（succeeded=24）",
+   "S5-all-gw: failed 全部 stop_condition=gateway_unavailable（R13 同型）：m208,m216,m217,m218",
+   "S5-lastfail: 末条 failed 距今 5994s（≈1.67h）= 明细最小 age，已推翻上一班『零新增 21.8h』",
+   "S5-wave: 21:13–21:14 本地（UTC 13:13–13:14）冷却窗口日志 5 行（冷却事件 1 次），全库同类行累计 79 行",
+   "P1-refill-audit: m211 refill 落账：by=operator_agent，added=60/7200，预算 360→420 tools / 28800→36000s，状态 running",
+   "P2-refill-gate: refill_check rc：m211=3（已在飞，续班已生效）；其余 {208: 0, 216: 0, 217: 0, 218: 0} = 0 但被承接门挡下（见 P3）",
+   "P3-claim-gate: 承接门：cylinder 线已被 m221(running) 承接、tutorial 线已被 m219(running) 承接 ⇒ 不 refill；mp:dambreak-s1 唯 m211 一条腿 {211: 'running'} ⇒ 可 refill（续班后转 running）",
+   "P4-load-gate: 载荷门：五条终态检查点 bad_args 全 0（m208=0,m211=0,m216=0,m217=0,m218=0）",
+   "S6-containers: 容器 11/11 healthy，非健康 []",
+   "A1-approval: 审批 approved=147 / rejected=11 / pending=0；停车表={}",
+   "A2-passall: R16：PASS_ALL 开关存在（mtime 2026-10-23 08:14:56），累计 440 轮，末条 `[22:54:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空` ⇒ pending=0 不得解读为验收链健康",
+   "A3-worktree: worktree 94 条（其中 /TensorPlatform 90 条）；主仓 dirty=13（分支 fix/approver-token-headroom），本站 dirty=4",
+   "A4-thisbranch: 本站分支 agent/m220，HEAD c245186"
+  ],
+  "failed": []
+ },
+ "checks_total": 21,
+ "checks_passed": 21,
+ "generated_at_utc": "2026-10-23T14:54:45Z"
+}
