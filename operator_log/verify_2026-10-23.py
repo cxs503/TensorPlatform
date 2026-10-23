@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""operator 班次 m222（2026-10-23 第 79 班）机器门——从 readings 复算 log 里每个数字。
+"""operator 班次 m224（2026-10-23 第 80 班）机器门——从 readings 复算 log 里每个数字。
 
 判据：log 里出现的每个计数/等值断言，必须能从 `2026-10-23.readings.json` 复算出来。
 幂等写（playbook 案例 13 ⑤）：剔除 generated_at_utc 后内容未变则不重写，
@@ -14,6 +14,7 @@ import time
 from pathlib import Path
 
 HERE = Path(__file__).resolve().parent
+AGENT_WORK = Path("/srv/tensor/shared/tensor_eco/agent_work")
 READINGS = HERE / "2026-10-23.readings.json"
 REPORT = HERE / "2026-10-23.validation_report.json"
 PASS: list[str] = []
@@ -31,13 +32,20 @@ def main() -> int:
     A = R["audit"]
 
     # ── 步骤 1：在飞 + 心跳鲜度 ──
-    ck("S1-count", s1["count"] == len(s1["missions"]) == 3,
+    ck("S1-count", s1["count"] == len(s1["missions"]) == 4,
        f"在飞 {s1['count']} 条，明细 {len(s1['missions'])} 行一致"
        f"（{','.join('m%d' % m['id'] for m in s1['missions'])}）")
     ck("S1-fresh", s1["max_hb_s"] < 240 and not s1["stale_over_240s"],
        f"最大心跳 {s1['max_hb_s']}s ≪ 240s 收割线，stale={s1['stale_over_240s']}")
     ck("S1-nostop", not s1["with_stop_condition"],
        f"在飞无 stop_condition：{s1['with_stop_condition']}")
+
+    ck("S1-hbdetail",
+       {m["id"]: m["hb_s"] for m in s1["missions"]} is not None
+       and [m["id"] for m in s1["missions"]] == [211, 221, 223, 224]
+       and all((m["hb_s"] or 0) <= s1["max_hb_s"] for m in s1["missions"]),
+       "log 列的心跳取自同一快照："
+       + ",".join("m%d=%ss" % (m["id"], m["hb_s"]) for m in s1["missions"]))
 
     # ── 步骤 2：守护计数等式 ──
     ck("S2-equation",
@@ -123,33 +131,53 @@ def main() -> int:
        f"refill 审计面仅 m211（上一班 m220 所为，{s5['refill_audit'][0]['added']}），"
        "本班零 refill / 零冷却态写 / 零 kill / 零换血 / 零 psql 写")
 
+    ck("B-inflight-owner",
+       [(x["id"], x["origin"]) for x in s5["claimed_by"]]
+       == [(211, "owner"), (221, "agent"), (223, "owner"), (224, "agent")]
+       and all(x["status"] == "running" for x in s5["inflight_budget"]),
+       "在飞四条 origin 直读：owner=m211/m223、agent=m221(自动重派)/m224(本班)，全部 running")
+
     # ── 步骤 6：容器 ──
+    # G 类：压缩摘要为空的行数（白烧不误，直读守护日志）
+    gcounts = {lg.name: lg.read_text(encoding="utf-8", errors="replace")
+               .count("压缩摘要为空") for lg in AGENT_WORK.glob("agent-*.log")}
+    gcounts = {k: v for k, v in gcounts.items() if v}
+    # 守护日志仍在实时增长（在飞 m211/m221/m223 的日志），故取 >= 采集时点值的下界判据，
+    # 不硬编等值——等值会在提交前漂移成假 FAIL。
+    ck("G-compress",
+       gcounts.get("agent-deepseek-v4-flash.log", 0) >= 418
+       and gcounts.get("agent-deepseek-v4-flash-w2.log", 0) >= 47
+       and gcounts.get("agent-deepseek-v4-flash-w3.log", 0) >= 90,
+       "G 仍在（白烧不误，下界判据）：压缩摘要为空 "
+       + ",".join("%s=%d" % (k.replace('agent-', '').replace('.log', ''), v)
+                  for k, v in sorted(gcounts.items())))
+
     ck("S6-containers", s6["healthy"] == s6["total"] >= 11,
        f"容器 {s6['healthy']}/{s6['total']} healthy，非健康 {s6['unhealthy']}")
 
     # ── 审计面 ──
     ck("A1-approval",
-       A["approval"]["pending"] == 0 and A["approval"]["approved"] == 149,
+       A["approval"]["pending"] == 0 and A["approval"]["approved"] == 150,
        f"审批 approved={A['approval']['approved']} / rejected="
        f"{A['approval']['rejected']} / pending={A['approval']['pending']}；"
        f"停车表={A['parking_lot']}")
-    ck("A2-passall", A["pass_all"]["exists"] and A["pass_all"]["rounds"] >= 451,
+    ck("A2-passall", A["pass_all"]["exists"] and A["pass_all"]["rounds"] >= 466,
        f"R16 仍在：PASS_ALL 开关存在（mtime {A['pass_all']['mtime_local']}），"
        f"累计 {A['pass_all']['rounds']} 轮，末条 `{A['pass_all']['last_line']}`")
     ck("A3-worktree",
-       A["worktree_total"] == 95 and A["worktree_tensorplatform"] == 91,
+       A["worktree_total"] == 96 and A["worktree_tensorplatform"] == 92,
        f"worktree {A['worktree_total']} 条（其中 /TensorPlatform "
        f"{A['worktree_tensorplatform']} 条，另 4 条非本仓）；"
        f"主仓 dirty={A['main_dirty']}（{A['main_branch']} @{A['main_head']}）")
-    ck("A4-thisbranch", A["worktree_branch"] == "agent/m222",
+    ck("A4-thisbranch", A["worktree_branch"] == "agent/m224",
        f"本站分支 {A['worktree_branch']}，HEAD {A['worktree_head']}，"
        f"交付前 dirty={A['worktree_dirty_before_delivery']}")
     ck("A5-gc", "权限不够" in A["gc_log_last"],
        f"X 延续：gc.log 末行 `{A['gc_log_last']}` ⇒ worktree GC 仍全灭")
 
     report = {
-        "mission": "m222",
-        "shift": "第79班（派发器标注见 goal）",
+        "mission": "m224",
+        "shift": "第80班（派发器标注 shift#45，倒序非递增）",
         "date": "2026-10-23",
         "readings": READINGS.name,
         "collected_at_utc": R["collected_at_utc"],
@@ -168,7 +196,7 @@ def main() -> int:
             {"id": 208, "why": "cylinder 线同 goal 已被 m221(running) 承接（承接门不过）"},
             {"id": 216, "why": "同上"},
             {"id": 217, "why": "tutorial 线同 goal 已被 m219(succeeded) 承接"},
-            {"id": 218, "why": "operator 班次同 goal，本班 m222 即承接腿"},
+            {"id": 218, "why": "operator 班次同 goal，更晚腿 m222(succeeded) 已承接，本班 m224 在飞"},
         ],
         "checks": {"passed": PASS, "failed": FAIL},
         "checks_total": len(PASS) + len(FAIL),

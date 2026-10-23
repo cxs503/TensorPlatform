@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""operator 班次 m222（2026-10-23 第 79 班）巡检读数采集器——五步 + 审计面一次采完。
+"""operator 班次 m224（2026-10-23 第 80 班）巡检读数采集器——五步 + 审计面一次采完。
 
 判据数字零手抄（identity.md 纪律）：所有读数当场从 DB/进程/文件/端点直读，
 stdout 即 readings JSON。凭据坑（m210 回退链）：中继复验必须在 bash 终端
@@ -29,7 +29,7 @@ PSQL = ["docker", "exec", "open-foundation-postgres", "psql", "-U", "foundation"
         "-d", "open_digital_foundation", "-A", "-F", "|", "-t", "-c"]
 ENV = dict(os.environ, DOCKER_HOST="unix:///run/user/1020/docker.sock")
 # 本班任务起点（派发时点），用于区分「本班巡检窗口内新增」
-SHIFT_START_UTC = "2026-10-23T15:13:01Z"  # 本班 m222 created_at（DB 直读）
+SHIFT_START_UTC = "2026-10-23T15:43:02Z"  # 本班 m224 created_at（DB 直读）
 
 
 def psql(sql: str) -> list[list[str]]:
@@ -99,7 +99,7 @@ def cooling_events() -> dict:
 
 def main() -> int:
     now = time.time()
-    R: dict = {"mission": "m222", "shift": "第79班 (派发器标注见 goal)",
+    R: dict = {"mission": "m224", "shift": "第80班 (派发器标注 shift#45，倒序非递增)",
                "collected_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
                                                  time.gmtime(now)),
                "t0_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime(now)),
