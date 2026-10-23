@@ -1,126 +1,55 @@
 {
-  "generated_by": "collect_2026-10-23.py (m205)",
-  "worktree": "/srv/tensor/shared/tensor_eco/agent_work/m205/TensorPlatform",
-  "step1_inflight": {
-    "count": 2,
-    "rows": [
-      [
-        "204",
-        "running",
-        "1",
-        ""
-      ],
-      [
-        "205",
-        "running",
-        "11",
-        ""
-      ]
-    ],
-    "max_hb_age_s": 11,
-    "threshold_s": 240,
-    "pass": true
-  },
-  "step2_guardians": {
-    "observed_total": 16,
-    "slot_ge2": 10,
-    "slot1": 6,
-    "workers_json_source": "/srv/tensor/shared/tensor_eco/agent_work/workers.json",
-    "workers_json_sum": 16,
-    "equation_holds": true,
-    "per_model": "6 --model qwen3.7-plus;      3 --model qwen3.6-plus;      3 --model deepseek-v4-flash;      2 --model glm-5.1;      1 --model MiniMax-M2.5-AWQ;      1 --model glm-5.2;",
-    "workers_json": {
-      "qwen3.6-plus": 3,
-      "qwen3.7-plus": 6,
-      "glm-5.2": 1,
-      "glm-5.1": 2,
-      "deepseek-v4-flash": 3,
-      "MiniMax-M2.5-AWQ": 1
+  "mission_id": "m209",
+  "shift_real": 72,
+  "shift_dispatcher_tag": "#51",
+  "timestamp_utc": "2026-10-23T08:08:00Z",
+  "base_ref": "c245186",
+  "checks": [
+    {
+      "name": "in_flight_heartbeat_freshness",
+      "passed": true,
+      "detail": "在飞 3 条：m204 hb_age=10s / m208 hb_age=3s / m209 hb_age=12s，均 running 无 stop_condition，max=12s << 240s 收割线"
     },
-    "pass": true
-  },
-  "step3_relay": {
-    "http": 200,
-    "seconds": 0.362,
-    "models": 7,
-    "pass": true
-  },
-  "step4_gateway_state": {
-    "raw": {},
-    "empty": true,
-    "pass": true
-  },
-  "step5_terminal": {
-    "by_status_24h": {
-      "succeeded": "20",
-      "failed": "17"
+    {
+      "name": "guardian_count_equation",
+      "passed": true,
+      "detail": "pgrep -f tensor_agen[t].py = 16；workers.json SigmaN=16 (slot1=6 + slot2plus=10)，等式闭合无缺员"
     },
-    "failed_by_stop_24h": {
-      "gateway_unavailable": "17"
+    {
+      "name": "relay_health",
+      "passed": true,
+      "detail": "curl $LLM_BASE_URL/models = 200 t=0.218629s"
     },
-    "last_failed": [
-      [
-        "190",
-        "65243"
-      ]
-    ],
-    "recent_terminal_3h": [
-      [
-        "203",
-        "succeeded",
-        "1366",
-        "m203 班次（第69班）巡检五步全绿零处置；新增上报 R16 审批器 PASS_ALL 旁路 + "
-      ],
-      [
-        "200",
-        "succeeded",
-        "1846",
-        "Tensor Soul Runtime 第一阶段（RFC #72 / 契约 v0.1 六条 MVP）"
-      ],
-      [
-        "202",
-        "succeeded",
-        "3525",
-        "m202 operator 巡检五步全绿零处置"
-      ],
-      [
-        "198",
-        "succeeded",
-        "4726",
-        "m198 rayleigh_benard 终裁归档完成（TERMINAL）"
-      ],
-      [
-        "201",
-        "succeeded",
-        "4966",
-        "m201 operator 巡检五步全绿零处置"
-      ],
-      [
-        "199",
-        "succeeded",
-        "7005",
-        "m199 operator 巡检五步全绿零处置"
-      ]
-    ],
-    "pass": true
-  },
-  "extra": {
-    "containers_healthy": "11",
-    "containers_total": "11",
-    "celery_beat": "restart=0 exit=0 status=running",
-    "approvals_by_status": {
-      "approved": "137",
-      "rejected": "11"
+    {
+      "name": "gateway_cooldown_state",
+      "passed": true,
+      "detail": "llm_gateway_state.json = {} 空，无过期冷却须清理"
     },
-    "escalated_json": {},
-    "pass_all_switch_exists": true,
-    "pass_all_rounds": 195,
-    "approver_log_tail": "[14:44:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
-    "worktree_total": 85,
-    "worktree_tensorplatform_paths": 81,
-    "main_repo_dirty": 13,
-    "gc_log_tail": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
-  },
+    {
+      "name": "terminal_mission_result",
+      "passed": true,
+      "detail": "24h 终态 succeeded=20 / failed=16（全 gateway_unavailable，末条 m190 距今 ≈70287s ≈19.5h）；近 3h 终态 8 条全 succeeded；无 honest FAIL / owner_stopped"
+    }
+  ],
+  "checks_passed": 5,
   "checks_total": 5,
-  "checks_passed": 5
+  "actions": [],
+  "escalations": [
+    "R16: PASS_ALL 旁路累计 237 轮，pending=0/停车表空非验收链健康标志",
+    "R17: worktree 内 tools/agent/workers.json 陈旧副本 (SigmaN=10)，权威源 SigmaN=16",
+    "R13: 24h failed=16 全 gateway_unavailable，末条 m190 距今 ≈19.5h 零新增",
+    "X: gc.py 权限不够持续；worktree 86→87",
+    "主仓 dirty 13 条未减"
+  ],
+  "approval_stats": {
+    "approved": 140,
+    "rejected": 11,
+    "pending": 0
+  },
+  "pass_all_rounds": 237,
+  "parking_lot": "{}",
+  "containers_healthy": "11/11",
+  "worktree_count": 87,
+  "worktree_tensorplatform": 83,
+  "main_dirty": 13
 }
