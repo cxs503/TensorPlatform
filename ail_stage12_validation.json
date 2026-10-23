@@ -2,8 +2,8 @@
  "issue": "#74",
  "title": "AIL 阶段 1-2：规范、基准与可运行原型",
  "branch": "agent/m204",
- "head_commit": "6839e6238d7feb8e7ffad77fa573b393a642a57f",
- "generated_at": "2026-10-23T09:12:55Z",
+ "head_commit": "39379703b241122dd461c36418700be59c6fa50d",
+ "generated_at": "2026-10-23T09:15:37Z",
  "python": "3.12.13",
  "python_binary": "/srv/tensor/shared/venvs/tensor_eco/bin/python",
  "pydeps": "/srv/tensor/shared/tensor_eco/agent_work/m204/.pydeps",
@@ -14,12 +14,12 @@
   {
    "name": "ail_tests_pass",
    "passed": true,
-   "detail": "115 passed in 28.51s"
+   "detail": "115 passed in 29.06s"
   },
   {
    "name": "existing_test_suite_pass",
    "passed": true,
-   "detail": "113 passed in 67.57s (0:01:07)"
+   "detail": "113 passed in 85.88s (0:01:25)"
   },
   {
    "name": "public_wall_pass_standalone",
@@ -112,25 +112,25 @@
    "label": "ail_tests",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/ail -q -p no:warnings",
    "exit_code": 0,
-   "duration_seconds": 28.74,
-   "tail": "115 passed in 28.51s",
-   "stdout": "........................................................................ [ 62%]\n...........................................                              [100%]\n115 passed in 28.51s\n",
+   "duration_seconds": 29.29,
+   "tail": "115 passed in 29.06s",
+   "stdout": "........................................................................ [ 62%]\n...........................................                              [100%]\n115 passed in 29.06s\n",
    "stdout_lines": 3
   },
   {
    "label": "existing_test_suite",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest -q tests/ --ignore=tests/ail --ignore=tests/test_public_wall.py -p no:warnings",
    "exit_code": 0,
-   "duration_seconds": 67.92,
-   "tail": "113 passed in 67.57s (0:01:07)",
-   "stdout": "........................................................................ [ 63%]\n.........................................                                [100%]\n113 passed in 67.57s (0:01:07)\n",
+   "duration_seconds": 86.27,
+   "tail": "113 passed in 85.88s (0:01:25)",
+   "stdout": "........................................................................ [ 63%]\n.........................................                                [100%]\n113 passed in 85.88s (0:01:25)\n",
    "stdout_lines": 3
   },
   {
    "label": "public_wall_isolation",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest -q tests/test_public_wall.py tests/test_single_tenant_fallback.py -p no:warnings",
    "exit_code": 0,
-   "duration_seconds": 0.67,
+   "duration_seconds": 0.69,
    "tail": "9 passed in 0.40s",
    "stdout": ".........                                                                [100%]\n9 passed in 0.40s\n",
    "stdout_lines": 2
@@ -139,7 +139,7 @@
    "label": "benchmark",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python scripts/run_ail_benchmark.py --out artifacts/ail_benchmark.json --from-snapshot",
    "exit_code": 0,
-   "duration_seconds": 14.19,
+   "duration_seconds": 14.22,
    "tail": "[bench] 工件：artifacts/ail_benchmark.json + bundles ['tensorplatform', 'tensorphysics', 'tensordem']",
    "stdout": "[snapshot] 读取 471 条记录：tools/ail/corpus/records.snapshot.json\n[bench] 探针 25，语料 ['tensorplatform', 'tensorphysics', 'tensordem']\n[bench] tokenizer=tiktoken\n  raw          natural_tokens= 26946.7 T2 tokens= 1032.9 acc=0.440\n  nl_summary   natural_tokens= 11741.8 T2 tokens= 1149.6 acc=0.400\n  json_struct  natural_tokens= 18048.8 T2 tokens= 1143.8 acc=0.450\n  ail          natural_tokens=  2467.4 T2 tokens= 1188.8 acc=0.900\n[bench] 工件：artifacts/ail_benchmark.json + bundles ['tensorplatform', 'tensorphysics', 'tensordem']\n",
    "stdout_lines": 8
@@ -157,7 +157,7 @@
    "label": "tokens_per_char",
    "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -c \nimport json\nfrom pathlib import Path\nfrom tools.ail.corpus import load_snapshot\nfrom tools.ail.runner import build_corpus_bundles\nfrom tools.ail.arms import ARM_NAMES, run_arm\nfrom tools.ail.probes import probes_for\nfrom tools.ail.tokens import default_counter\n\ncounter = default_counter()\nrecords, _ = load_snapshot(Path(\"tools/ail/corpus/records.snapshot.json\"))\nbundles, _ = build_corpus_bundles(records)\nout = {}\nfor arm in ARM_NAMES:\n    nums = []\n    for corpus, bundle in bundles.items():\n        subset = [r for r in records if r.corpus == corpus]\n        for probe in probes_for(corpus):\n            res = run_arm(arm, records=subset, bundle=bundle, token_budget=1200,\n                          counter=counter, intent=probe.intent, query=probe.question)\n            nums.append((res.tokens, res.chars))\n    tk = sum(n for n, _ in nums) / len(nums)\n    ch = sum(c for _, c in nums) / len(nums)\n    # 与报告 §4 同口径：先算每个探针的比值，再对探针取均值\n    per_probe = [n / c for n, c in nums if c]\n    out[arm] = {\"token_per_char\": sum(per_probe) / len(per_probe),\n                \"tokens_mean\": tk, \"chars_mean\": ch}\nprint(json.dumps(out, ensure_ascii=False))\n",
    "exit_code": 0,
-   "duration_seconds": 1.63,
+   "duration_seconds": 1.62,
    "tail": "{\"raw\": {\"token_per_char\": 0.3139272200270533, \"tokens_mean\": 1032.88, \"chars_mean\": 3310.16}, \"nl_summary\": {\"token_per_char\": 0.38354755952336544, \"tokens_mean\": 1149.64, \"chars_mean\": 2997.76}, \"json_struct\": {\"token_per_char\": 0.30853775156105523, \"tokens_mean\": 1143.76, \"chars_mean\": 3714.48}, \"ail\": {\"token_per_char\": 0.3843670431606699, \"tokens_mean\": 1188.8, \"chars_mean\": 3384.36}}",
    "stdout": "{\"raw\": {\"token_per_char\": 0.3139272200270533, \"tokens_mean\": 1032.88, \"chars_mean\": 3310.16}, \"nl_summary\": {\"token_per_char\": 0.38354755952336544, \"tokens_mean\": 1149.64, \"chars_mean\": 2997.76}, \"json_struct\": {\"token_per_char\": 0.30853775156105523, \"tokens_mean\": 1143.76, \"chars_mean\": 3714.48}, \"ail\": {\"token_per_char\": 0.3843670431606699, \"tokens_mean\": 1188.8, \"chars_mean\": 3384.36}}\n",
    "stdout_lines": 1
@@ -209,8 +209,8 @@
      "exact_rate": 0.08,
      "traceable_rate": 0.08,
      "no_confident_error_rate": 0.96,
-     "latency_ms_median_mean": 16.01124,
-     "latency_ms_median_max": 26.122
+     "latency_ms_median_mean": 16.0258,
+     "latency_ms_median_max": 26.249
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -221,8 +221,8 @@
      "exact_rate": 0.28,
      "traceable_rate": 0.24,
      "no_confident_error_rate": 0.92,
-     "latency_ms_median_mean": 16.97384,
-     "latency_ms_median_max": 26.77
+     "latency_ms_median_mean": 16.97044,
+     "latency_ms_median_max": 26.737
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -233,8 +233,8 @@
      "exact_rate": 0.52,
      "traceable_rate": 0.24,
      "no_confident_error_rate": 0.84,
-     "latency_ms_median_mean": 19.07448,
-     "latency_ms_median_max": 29.477
+     "latency_ms_median_mean": 19.06492,
+     "latency_ms_median_max": 29.464
     }
    },
    "by_quad_T2_normal": {
@@ -258,8 +258,8 @@
      "exact_rate": 0.2,
      "traceable_rate": 0.0,
      "no_confident_error_rate": 0.92,
-     "latency_ms_median_mean": 8.6494,
-     "latency_ms_median_max": 14.161
+     "latency_ms_median_mean": 8.63976,
+     "latency_ms_median_max": 14.175
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -270,8 +270,8 @@
      "exact_rate": 0.36,
      "traceable_rate": 0.0,
      "no_confident_error_rate": 0.88,
-     "latency_ms_median_mean": 9.49624,
-     "latency_ms_median_max": 15.222
+     "latency_ms_median_mean": 9.51264,
+     "latency_ms_median_max": 15.289
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -282,8 +282,8 @@
      "exact_rate": 0.72,
      "traceable_rate": 0.0,
      "no_confident_error_rate": 0.88,
-     "latency_ms_median_mean": 11.7412,
-     "latency_ms_median_max": 18.196
+     "latency_ms_median_mean": 11.73624,
+     "latency_ms_median_max": 18.212
     }
    },
    "by_quad_T2_normal": {
@@ -307,8 +307,8 @@
      "exact_rate": 0.08,
      "traceable_rate": 0.08,
      "no_confident_error_rate": 0.96,
-     "latency_ms_median_mean": 11.8368,
-     "latency_ms_median_max": 18.769
+     "latency_ms_median_mean": 11.8314,
+     "latency_ms_median_max": 18.71
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -319,8 +319,8 @@
      "exact_rate": 0.28,
      "traceable_rate": 0.24,
      "no_confident_error_rate": 0.92,
-     "latency_ms_median_mean": 12.87,
-     "latency_ms_median_max": 19.611
+     "latency_ms_median_mean": 12.86832,
+     "latency_ms_median_max": 19.627
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -331,8 +331,8 @@
      "exact_rate": 0.56,
      "traceable_rate": 0.28,
      "no_confident_error_rate": 0.88,
-     "latency_ms_median_mean": 14.52364,
-     "latency_ms_median_max": 22.176
+     "latency_ms_median_mean": 14.514,
+     "latency_ms_median_max": 22.139
     }
    },
    "by_quad_T2_normal": {
@@ -356,8 +356,8 @@
      "exact_rate": 0.6,
      "traceable_rate": 0.64,
      "no_confident_error_rate": 0.96,
-     "latency_ms_median_mean": 12.83996,
-     "latency_ms_median_max": 17.177
+     "latency_ms_median_mean": 12.85988,
+     "latency_ms_median_max": 17.271
     },
     "T2_normal": {
      "token_budget": 1200,
@@ -368,8 +368,8 @@
      "exact_rate": 0.92,
      "traceable_rate": 0.84,
      "no_confident_error_rate": 0.92,
-     "latency_ms_median_mean": 17.81264,
-     "latency_ms_median_max": 25.93
+     "latency_ms_median_mean": 18.00896,
+     "latency_ms_median_max": 25.913
     },
     "T3_loose": {
      "token_budget": 3000,
@@ -380,8 +380,8 @@
      "exact_rate": 0.96,
      "traceable_rate": 0.92,
      "no_confident_error_rate": 0.92,
-     "latency_ms_median_mean": 16.68804,
-     "latency_ms_median_max": 35.064
+     "latency_ms_median_mean": 16.72152,
+     "latency_ms_median_max": 35.137
     }
    },
    "by_quad_T2_normal": {
@@ -407,6 +407,21 @@
    "item": "部署环境验证",
    "status": "NOT RUN",
    "reason": "本阶段只在隔离实验路径内实现，未部署、未接正式工作流"
+  },
+  {
+   "item": "新符号语法 / 二进制编码 / 学习型编码模型",
+   "status": "NOT DONE (有意不做)",
+   "reason": "owner 方向裁定：先证明「用更少上下文准确恢复状态」，再决定是否需要专门语法；ADR-001 §3.4 记录否决理由"
+  },
+  {
+   "item": "真实语料上的隔离 A/B（同一任务喂 raw vs 喂 AIL 给模型）",
+   "status": "NOT RUN",
+   "reason": "属阶段三 A；本阶段只做信息在场性判分，不测模型实际答题"
+  },
+  {
+   "item": "散文式语料的覆盖表现",
+   "status": "NOT RUN",
+   "reason": "本次语料结构化程度高（覆盖率 1.0），大段自然语言周报/评审意见未覆盖，topic/value 规则化抽取的退化曲线未测（报告 §5.5）"
   }
  ],
  "known_pre_existing_issues": [

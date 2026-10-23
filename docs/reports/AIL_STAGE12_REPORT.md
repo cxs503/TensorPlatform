@@ -268,7 +268,8 @@ state 9 / decision 5 / evidence 7 / next_action 4。
 ## 6. 取证明细（命令 + 退出码，全部真实执行）
 
 一键复算：`scripts/verify_ail_stage12.py` → `ail_stage12_validation.json`
-（**19 项 checks，19/19 PASS**，approver 可直接读该工件）。
+（**19 项 checks，19/19 PASS**，approver 可直接读该工件。
+工件 `not_run` 字段列出的 6 条与本报告 §7 一一对应）。
 
 解释器：`/srv/tensor/shared/venvs/tensor_eco/bin/python`（Python 3.12）。
 `PYTHONPATH` 注入 `agent_work/m204/.pydeps`（tiktoken / fastapi / pgserver 的**本地副本**）
