@@ -1,0 +1,83 @@
+{
+  "mission": "m215",
+  "shift": "第77班 (派发器 shift#56)",
+  "date": "2026-10-23",
+  "timestamp": "2026-10-23T10:23:35Z",
+  "checks": {
+    "step1_inflight": {
+      "count": 3,
+      "missions": [
+        {
+          "id": 208,
+          "status": "running",
+          "hb_age_s": 2,
+          "stop_condition": null
+        },
+        {
+          "id": 211,
+          "status": "running",
+          "hb_age_s": 2,
+          "stop_condition": null
+        },
+        {
+          "id": 215,
+          "status": "running",
+          "hb_age_s": 10,
+          "stop_condition": null
+        }
+      ],
+      "max_hb_s": 10,
+      "verdict": "green"
+    },
+    "step2_guardian": {
+      "pgrep_count": 16,
+      "workers_json_sum": 16,
+      "equation_holds": true,
+      "verdict": "green"
+    },
+    "step3_relay": {
+      "http_code": "200",
+      "time_total_s": "0.239940s",
+      "models_count": 7,
+      "verdict": "green"
+    },
+    "step4_cooldown": {
+      "state": "{}",
+      "verdict": "green"
+    },
+    "step5_terminal": {
+      "24h": {
+        "failed": 11,
+        "succeeded": 25
+      },
+      "failed_count": 11,
+      "last_failed_id": "190",
+      "last_failed_age_s": 78370,
+      "verdict": "green"
+    }
+  },
+  "aux": {
+    "approval": {
+      "approved": 146,
+      "rejected": 11
+    },
+    "parking_lot": "empty",
+    "pass_all": {
+      "exists": true,
+      "log_rounds": 304,
+      "last_line": "[18:22:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
+    },
+    "worktree": {
+      "total": 92,
+      "tensorplatform": 88
+    },
+    "dirty": 0,
+    "containers": {
+      "healthy": 11,
+      "total": 11
+    }
+  },
+  "overall": "green",
+  "checks_total": 5,
+  "checks_passed": 5
+}
