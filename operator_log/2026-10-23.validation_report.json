@@ -1,0 +1,102 @@
+{
+  "mission_id": "m213",
+  "shift": 75,
+  "dispatcher_shift": 54,
+  "date": "2026-10-23",
+  "base_commit": "c245186",
+  "branch": "agent/m213",
+  "collected_at": "2026-10-23T09:13:00Z",
+  "checks": [
+    {
+      "id": 1,
+      "name": "在飞心跳鲜度",
+      "status": "pass",
+      "source": "psql tensor_dev_missions WHERE status IN (claimed,running)",
+      "readings": {
+        "in_flight_count": 4,
+        "missions": [
+          {"id": 204, "status": "running", "hb_age_s": 12, "stop_condition": null, "repo": "TensorPlatform"},
+          {"id": 208, "status": "running", "hb_age_s": 4, "stop_condition": null, "repo": "TensorLBM"},
+          {"id": 211, "status": "running", "hb_age_s": 4, "stop_condition": null, "repo": "TensorLBM"},
+          {"id": 213, "status": "running", "hb_age_s": 12, "stop_condition": null, "repo": "TensorPlatform"}
+        ],
+        "max_hb_age_s": 12,
+        "threshold_s": 240,
+        "verdict": "max_hb=12s << 240s threshold"
+      }
+    },
+    {
+      "id": 2,
+      "name": "守护计数等式",
+      "status": "pass",
+      "source": "workers.json (authoritative) + ps tensor_agent.py",
+      "readings": {
+        "workers_json_sum": 16,
+        "actual_count": 16,
+        "breakdown": {
+          "qwen3.7-plus": 6,
+          "qwen3.6-plus": 3,
+          "deepseek-v4-flash": 3,
+          "glm-5.1": 2,
+          "glm-5.2": 1,
+          "MiniMax-M2.5-AWQ": 1
+        },
+        "verdict": "16 = 16, equation closed"
+      }
+    },
+    {
+      "id": 3,
+      "name": "中继健康",
+      "status": "pass",
+      "source": "curl LLM_BASE_URL/models",
+      "readings": {
+        "http_code": 200,
+        "time_total_s": 0.220,
+        "models_count": 7,
+        "verdict": "200 OK, 0.22s < 5s"
+      }
+    },
+    {
+      "id": 4,
+      "name": "网关冷却态",
+      "status": "pass",
+      "source": "agent_work/llm_gateway_state.json",
+      "readings": {
+        "state": {},
+        "blocked_until": null,
+        "verdict": "empty, no cooldown"
+      }
+    },
+    {
+      "id": 5,
+      "name": "终态 mission result",
+      "status": "pass",
+      "source": "psql tensor_dev_missions 24h + 3h",
+      "readings": {
+        "succeeded_24h": 22,
+        "failed_24h": 16,
+        "failed_all_gateway_unavailable": true,
+        "last_failed_id": 190,
+        "last_failed_hours_ago": 20.6,
+        "today_new_failed": 0,
+        "recent_3h_terminal": [
+          {"id": 212, "status": "succeeded"},
+          {"id": 210, "status": "succeeded"},
+          {"id": 209, "status": "succeeded"},
+          {"id": 206, "status": "succeeded"},
+          {"id": 207, "status": "succeeded"},
+          {"id": 205, "status": "succeeded"},
+          {"id": 203, "status": "succeeded"},
+          {"id": 200, "status": "succeeded"}
+        ],
+        "verdict": "R13 zero new 20.6h, 8/8 succeeded in 3h"
+      }
+    }
+  ],
+  "summary": {
+    "checks_passed": 5,
+    "checks_total": 5,
+    "actions_taken": 0,
+    "verdict": "五步全绿，零处置零写操作"
+  }
+}
