@@ -1,0 +1,55 @@
+{
+  "mission_id": "m209",
+  "shift_real": 72,
+  "shift_dispatcher_tag": "#51",
+  "timestamp_utc": "2026-10-23T08:08:00Z",
+  "base_ref": "c245186",
+  "checks": [
+    {
+      "name": "in_flight_heartbeat_freshness",
+      "passed": true,
+      "detail": "在飞 3 条：m204 hb_age=10s / m208 hb_age=3s / m209 hb_age=12s，均 running 无 stop_condition，max=12s << 240s 收割线"
+    },
+    {
+      "name": "guardian_count_equation",
+      "passed": true,
+      "detail": "pgrep -f tensor_agen[t].py = 16；workers.json SigmaN=16 (slot1=6 + slot2plus=10)，等式闭合无缺员"
+    },
+    {
+      "name": "relay_health",
+      "passed": true,
+      "detail": "curl $LLM_BASE_URL/models = 200 t=0.218629s"
+    },
+    {
+      "name": "gateway_cooldown_state",
+      "passed": true,
+      "detail": "llm_gateway_state.json = {} 空，无过期冷却须清理"
+    },
+    {
+      "name": "terminal_mission_result",
+      "passed": true,
+      "detail": "24h 终态 succeeded=20 / failed=16（全 gateway_unavailable，末条 m190 距今 ≈70287s ≈19.5h）；近 3h 终态 8 条全 succeeded；无 honest FAIL / owner_stopped"
+    }
+  ],
+  "checks_passed": 5,
+  "checks_total": 5,
+  "actions": [],
+  "escalations": [
+    "R16: PASS_ALL 旁路累计 237 轮，pending=0/停车表空非验收链健康标志",
+    "R17: worktree 内 tools/agent/workers.json 陈旧副本 (SigmaN=10)，权威源 SigmaN=16",
+    "R13: 24h failed=16 全 gateway_unavailable，末条 m190 距今 ≈19.5h 零新增",
+    "X: gc.py 权限不够持续；worktree 86→87",
+    "主仓 dirty 13 条未减"
+  ],
+  "approval_stats": {
+    "approved": 140,
+    "rejected": 11,
+    "pending": 0
+  },
+  "pass_all_rounds": 237,
+  "parking_lot": "{}",
+  "containers_healthy": "11/11",
+  "worktree_count": 87,
+  "worktree_tensorplatform": 83,
+  "main_dirty": 13
+}
