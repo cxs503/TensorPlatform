@@ -1,0 +1,779 @@
+{
+ "issue": "#72",
+ "title": "Tensor Soul Runtime 第一阶段 MVP（契约 v0.1）",
+ "branch": "agent/m200",
+ "head_commit": "e6b364b0dfcc130bcecad365d29fb137ac97f0d1",
+ "commits": [
+  "e6b364b0dfcc130bcecad365d29fb137ac97f0d1 fix(soul): recall 中文任务上下文相关性（CJK 二元组）+ 有界 recall/prepare 测试 + 取证脚本",
+  "274f8e8135794a5316f1ca689aeca0f25bead04f fix(soul): 091 会话→稳定身份迁移入口 + 迁移登记器接入 bootstrap",
+  "5a1eae581ae74f61269a79cc2733c223d65cb5e1 feat(soul): Tensor Soul Runtime 第一阶段 MVP（身份/检查点/记忆事件/recall/绑定/晋级门）",
+  "4faff59188f15b918b308b4b07f9573617773130 docs: Tensor Soul 现状审计（RFC #72 Phase 0 对照契约 MVP 六条）"
+ ],
+ "generated_at": "2026-10-23T14:08:29+0800",
+ "python": "3.12.13",
+ "python_binary": "/srv/tensor/shared/venvs/tensor_eco/bin/python",
+ "environment_note": "pgserver/fastapi 依赖装在本地 .pydeps（PYTHONPATH 注入），CI 用 requirements-factory-dev.txt；测试库由 pgserver 每次起临时 PostgreSQL，不连生产库",
+ "checks_passed": 13,
+ "checks_total": 13,
+ "runs": [
+  {
+   "label": "factory",
+   "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory -q -p no:warnings",
+   "exit_code": 0,
+   "duration_seconds": 76.92,
+   "tail": "95 passed in 73.57s (0:01:13)",
+   "cases": [
+    {
+     "id": "tests.factory.test_agent_control_plane.test_login_and_scope_configuration",
+     "time": 1.698,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_project_allowlist_and_viewer_cannot_submit",
+     "time": 1.548,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_claim_is_tenant_scoped_and_requires_worker",
+     "time": 1.099,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_only_one_concurrent_claim_wins",
+     "time": 1.309,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_claim_token_alone_does_not_impersonate_another_account",
+     "time": 1.152,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_cross_tenant_details_children_stop_refill_and_events_denied",
+     "time": 1.333,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_worker_cannot_self_accept_or_bypass_acceptance",
+     "time": 1.661,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_stopped_mission_cannot_be_approved_later",
+     "time": 1.387,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_stop_reaches_worker_and_prevents_late_completion",
+     "time": 2.017,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_real_tool_artifact_acceptance_and_tamper_detection",
+     "time": 1.854,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_failed_tool_is_not_reported_as_success",
+     "time": 1.91,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_viewer_cannot_forge_audit_events",
+     "time": 1.56,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_dispatch_uses_factory_projects_and_preserves_native_runner",
+     "time": 1.828,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_stale_claim_reaping_does_not_touch_another_organization",
+     "time": 1.664,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_append_only_audit_is_enforced_by_postgres",
+     "time": 1.351,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_failed_evidence_gate_cannot_request_acceptance",
+     "time": 1.61,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_agent_control_plane.test_native_mission_api_remains_usable_without_factory_profile",
+     "time": 1.614,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_autonomous_development.test_failed_execution_drives_one_actual_repair_attempt",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_autonomous_development.test_independent_tests_cannot_replace_implementation",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_autonomous_development.test_repair_compares_prior_implementation_with_frozen_candidate_tests",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_development_sandbox.test_package_cannot_supply_paths_or_commands[../escape.py]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_development_sandbox.test_package_cannot_supply_paths_or_commands[/tmp/escape.py]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_development_sandbox.test_package_cannot_supply_paths_or_commands[x.sh]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_development_sandbox.test_package_cannot_supply_paths_or_commands[a/b.py]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_development_sandbox.test_package_requires_code_and_tests",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_claim_recomputed_and_tampering_rejected",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_no_path_escape[../escape]",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_no_path_escape[/etc/passwd]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_no_path_escape[.]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_no_path_escape[..]",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_symlink_rejected",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_fake_png_rejected_even_with_matching_digest",
+     "time": 0.063,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_actual_chart_and_provenance",
+     "time": 0.979,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_same_suite_failure_attribution",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_baseline_uses_candidate_tests",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_report_rejects_wrong_model_numeric_claim",
+     "time": 0.007,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_source_counter_change_with_updated_digest_still_rejected",
+     "time": 0.506,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_evidence_gates.test_collector_distinguishes_method_from_subtest_errors",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_model_bridge.test_model_auth_roles_and_draft_has_no_mission_side_effect",
+     "time": 1.966,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_model_bridge.test_codex_bridge_redaction_and_tool_free_command",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_model_bridge.test_codex_failure_and_busy_are_bounded_and_do_not_echo_secrets",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_model_bridge.test_timeout_terminates_the_entire_model_process_group",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_peer_discussion.test_peer_identity_reply_isolation_and_no_task_creation",
+     "time": 1.478,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_peer_discussion.test_external_peer_is_identified_and_cannot_impersonate",
+     "time": 1.261,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_peer_discussion.test_idle_discussion_can_decline_and_does_not_repeat",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_peer_discussion.test_community_topics_preserve_dissent_and_do_not_create_consensus",
+     "time": 1.732,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_peer_discussion.test_api_connection_refusal_retries_before_request_can_commit",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_peer_discussion.test_community_can_reflect_without_external_message_and_wait_afterward",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_platform_exploration.test_source_reader_limits_scope_and_redacts_credentials",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_platform_exploration.test_report_rejects_invented_or_unobserved_citations",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_platform_exploration.test_targeted_claim_preserves_other_tasks_and_tenant_scope",
+     "time": 1.419,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_platform_workspace.test_real_branch_edit_preserves_host_and_checks_stale_writes",
+     "time": 0.022,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_platform_workspace.test_review_requires_peer_exact_commit_and_clean_candidate",
+     "time": 0.022,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_platform_workspace.test_platform_check_rejects_paths_and_oversized_sources",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_progress_report.test_report_preserves_measurements_and_hashes",
+     "time": 0.006,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_progress_report.test_failed_report_has_no_fabricated_results",
+     "time": 0.005,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_observations_drive_next_decision_and_persist_only_own_session",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_repeated_unchanged_tool_request_stops_without_side_effect",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_invalid_final_schema_is_returned_for_correction",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_large_context_uses_on_demand_reads",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_tool_paths_cannot_reach_credentials_or_other_sessions",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_persona_and_full_memory_survive_new_instances_and_model_changes",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_own_experiment_is_readable_before_registration_and_context_not_line_redacted",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_harness.test_historical_experiment_read_requires_same_session",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_sessions.test_session_identity_and_model_change_preserve_memory",
+     "time": 1.767,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_sessions.test_session_claim_routing_and_idempotency",
+     "time": 1.999,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_resident_sessions.test_patch_cannot_change_unadvertised_methods",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_reapplying_soul_migrations_is_idempotent",
+     "time": 1.483,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_changed_migration_file_is_rejected_not_silently_overwritten",
+     "time": 1.431,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_soul_migration_declares_the_contract_tables",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_resident_session_links_to_one_stable_identity",
+     "time": 1.56,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_agent_identity_and_unfinished_task_survive_independent_sessions",
+     "time": 1.82,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_latest_checkpoint_restores_after_process_restart",
+     "time": 1.935,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_model_binding_switch_preserves_identity_and_durable_state",
+     "time": 1.635,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_observe_is_idempotent_and_detects_conflicting_writes",
+     "time": 1.382,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_tenant_isolation_for_identity_session_and_memory",
+     "time": 1.581,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_unverified_model_output_cannot_reach_shared_knowledge",
+     "time": 2.069,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_recall_and_prepare_are_bounded_and_task_scoped",
+     "time": 2.515,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_planner_dispatch_and_synthesis_are_session_scoped_and_idempotent",
+     "time": 1.76,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_research_rejects_fabricated_citations",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_planning_failure_becomes_harness_improvement_task",
+     "time": 1.564,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_runtime_capabilities_do_not_share_other_session_memories",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_manual_planning_assistance_is_recorded",
+     "time": 1.721,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_structured_wait_and_budget_recovery",
+     "time": 1.64,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_full_verified_deliverable_and_tamper_rejection",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_daily_quota_pauses_and_automatically_resumes",
+     "time": 1.509,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_verifier_waits_for_producer_and_cycles_are_rejected",
+     "time": 1.658,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_configured_budget_resumes_without_resetting_history",
+     "time": 1.6,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_unlimited_campaign_budget",
+     "time": 1.625,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_unlimited_runtime_allows_six_workstreams",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_planner_preserves_rejection_and_corrects_citation",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_diagnosis_does_not_replan_without_changed_repair_evidence",
+     "time": 1.057,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_prompt_excerpt_keeps_counts_and_source_refs_without_recursive_code",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_large_registered_report_is_not_mislabeled_hash_failure",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_strategy_campaign.test_generic_campaign_uses_profile_project_and_rejects_unconfigured_target",
+     "time": 1.143,
+     "outcome": "passed"
+    }
+   ],
+   "counts": {
+    "passed": 95,
+    "failed": 0,
+    "total": 95
+   }
+  },
+  {
+   "label": "soul",
+   "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests/factory/test_soul_runtime.py tests/factory/test_soul_migrations.py -q -p no:warnings",
+   "exit_code": 0,
+   "duration_seconds": 20.63,
+   "tail": "11 passed in 16.77s",
+   "cases": [
+    {
+     "id": "tests.factory.test_soul_runtime.test_agent_identity_and_unfinished_task_survive_independent_sessions",
+     "time": 2.018,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_latest_checkpoint_restores_after_process_restart",
+     "time": 1.976,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_model_binding_switch_preserves_identity_and_durable_state",
+     "time": 1.893,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_observe_is_idempotent_and_detects_conflicting_writes",
+     "time": 1.193,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_tenant_isolation_for_identity_session_and_memory",
+     "time": 1.398,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_unverified_model_output_cannot_reach_shared_knowledge",
+     "time": 1.352,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_runtime.test_recall_and_prepare_are_bounded_and_task_scoped",
+     "time": 2.303,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_reapplying_soul_migrations_is_idempotent",
+     "time": 1.294,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_changed_migration_file_is_rejected_not_silently_overwritten",
+     "time": 1.391,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_soul_migration_declares_the_contract_tables",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.factory.test_soul_migrations.test_resident_session_links_to_one_stable_identity",
+     "time": 1.501,
+     "outcome": "passed"
+    }
+   ],
+   "counts": {
+    "passed": 11,
+    "failed": 0,
+    "total": 11
+   }
+  },
+  {
+   "label": "non_factory",
+   "command": "/srv/tensor/shared/venvs/tensor_eco/bin/python -m pytest tests --ignore=tests/factory -q -p no:warnings",
+   "exit_code": 0,
+   "duration_seconds": 0.7,
+   "tail": "23 passed in 0.43s",
+   "cases": [
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_artifact_content_must_match_module",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_artifact_must_stay_inside_repository",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_checksum_tampering_fails",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_complete_beta_evidence_passes",
+     "time": 0.003,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_expired_evidence_fails",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_failed_check_inside_report_fails",
+     "time": 0.002,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_invalid_pass_record_is_rejected_during_lint",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_json_policy_round_trip_is_stable",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_missing_required_evidence_fails_closed",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_repository_inventory_is_structurally_valid",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_maturity_gate.MaturityGateTests.test_unknown_selected_module_is_configuration_error",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_public_wall.test_overview_counts_and_tenant_scope",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_public_wall.test_missions_list_shape",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_public_wall.test_report_detail_and_404",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_public_wall.test_wall_assets_served",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_public_wall.test_public_surface_is_read_only",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_research_loop_contract.test_manifest_schema_declares_registry_status_vocabulary",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_research_loop_contract.test_research_loop_fixture_matches_core_manifest_contract",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_research_loop_contract.test_manifest_schema_keeps_large_artifacts_as_references",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_single_tenant_fallback.test_orgless_single_tenant_falls_back",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_single_tenant_fallback.test_orgless_multi_tenant_still_strict",
+     "time": 0.001,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_single_tenant_fallback.test_bound_user_and_empty_platform_unaffected",
+     "time": 0.0,
+     "outcome": "passed"
+    },
+    {
+     "id": "tests.test_single_tenant_fallback.test_admin_fallback_path_preserved",
+     "time": 0.0,
+     "outcome": "passed"
+    }
+   ],
+   "counts": {
+    "passed": 23,
+    "failed": 0,
+    "total": 23
+   }
+  }
+ ],
+ "acceptance_scenarios": [
+  {
+   "scenario": "1 跨 session 连续性",
+   "test": "tests.factory.test_soul_runtime.test_agent_identity_and_unfinished_task_survive_independent_sessions",
+   "present": true,
+   "outcome": "passed",
+   "seconds": 2.018
+  },
+  {
+   "scenario": "2 进程重启恢复",
+   "test": "tests.factory.test_soul_runtime.test_latest_checkpoint_restores_after_process_restart",
+   "present": true,
+   "outcome": "passed",
+   "seconds": 1.976
+  },
+  {
+   "scenario": "3 模型切换连续",
+   "test": "tests.factory.test_soul_runtime.test_model_binding_switch_preserves_identity_and_durable_state",
+   "present": true,
+   "outcome": "passed",
+   "seconds": 1.893
+  },
+  {
+   "scenario": "4 observe 幂等去重",
+   "test": "tests.factory.test_soul_runtime.test_observe_is_idempotent_and_detects_conflicting_writes",
+   "present": true,
+   "outcome": "passed",
+   "seconds": 1.193
+  },
+  {
+   "scenario": "5 租户(组织)隔离",
+   "test": "tests.factory.test_soul_runtime.test_tenant_isolation_for_identity_session_and_memory",
+   "present": true,
+   "outcome": "passed",
+   "seconds": 1.398
+  },
+  {
+   "scenario": "6 未验证信息隔离",
+   "test": "tests.factory.test_soul_runtime.test_unverified_model_output_cannot_reach_shared_knowledge",
+   "present": true,
+   "outcome": "passed",
+   "seconds": 1.352
+  }
+ ],
+ "static_checks": [
+  {
+   "name": "audit_doc_present_with_file_line_refs",
+   "passed": true,
+   "detail": "docs/architecture/TENSOR_SOUL_AUDIT.md; file:line 引用 46 处"
+  },
+  {
+   "name": "soul_migration_has_sha256_and_version_registry",
+   "passed": true,
+   "detail": "sha256=a394fb69e301478ee4b79f2a17c2ac1b00cd36fe2b1f21836839a545f1d40215; 版本登记表 + 共享级 CHECK 均存在"
+  },
+  {
+   "name": "ci_workflow_triggers_on_soul_paths",
+   "passed": true,
+   "detail": ".github/workflows/resident-community.yml 含 soul 路径触发"
+  },
+  {
+   "name": "report_lists_six_scenarios_with_verdicts_and_not_run",
+   "passed": true,
+   "detail": "docs/architecture/SOUL_PHASE1_REPORT.md; 六场景小节 + NOT RUN + 退出码清单齐备"
+  }
+ ],
+ "not_run": [
+  "神经记忆编码器实验（契约 Optional experiment；须待 A/B 基线后）",
+  "闭源模型 hidden state 修改（契约明示 out of scope）",
+  "生产部署验证：本阶段只做单元/集成测试，未部署到线上集群",
+  "前端 factory 控制台未改动，故 console workflow 未跑"
+ ]
+}

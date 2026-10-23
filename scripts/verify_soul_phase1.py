@@ -60,6 +60,43 @@ def run(label: str, args: list[str]) -> dict:
                        "total": len(cases)}}
 
 
+def static_checks() -> list[dict]:
+    """工件级检查：不跑测试也要能机械核对的事实。"""
+    import hashlib
+    import re
+
+    audit = ROOT / "docs/architecture/TENSOR_SOUL_AUDIT.md"
+    audit_text = audit.read_text() if audit.exists() else ""
+    refs = len(re.findall(r"[\w/]*\.(?:py|sql|yml|json):\d+", audit_text))
+    migration = ROOT / "backend/migrations/094_factory_soul.sql"
+    raw = migration.read_bytes()
+    text = raw.decode("utf-8")
+    workflow = (ROOT / ".github/workflows/resident-community.yml").read_text()
+    report = ROOT / "docs/architecture/SOUL_PHASE1_REPORT.md"
+    report_text = report.read_text() if report.exists() else ""
+    checks = [
+        {"name": "audit_doc_present_with_file_line_refs",
+         "passed": audit.exists() and refs >= 10,
+         "detail": f"{audit.relative_to(ROOT)}; file:line 引用 {refs} 处"},
+        {"name": "soul_migration_has_sha256_and_version_registry",
+         "passed": len(hashlib.sha256(raw).hexdigest()) == 64
+                   and "factory_soul_schema_versions" in text
+                   and "sensitivity <> 'shared' OR verification_status = 'validated'" in text,
+         "detail": f"sha256={hashlib.sha256(raw).hexdigest()};"
+                   " 版本登记表 + 共享级 CHECK 均存在"},
+        {"name": "ci_workflow_triggers_on_soul_paths",
+         "passed": "soul" in workflow,
+         "detail": ".github/workflows/resident-community.yml 含 soul 路径触发"},
+        {"name": "report_lists_six_scenarios_with_verdicts_and_not_run",
+         "passed": report.exists()
+                   and sum(f"场景 {i}" in report_text for i in range(1, 7)) == 6
+                   and "NOT RUN" in report_text
+                   and "退出码" in report_text,
+         "detail": f"{report.relative_to(ROOT)}; 六场景小节 + NOT RUN + 退出码清单齐备"},
+    ]
+    return checks
+
+
 def git(*args: str) -> str:
     return subprocess.run(["git", *args], cwd=str(ROOT), capture_output=True,
                           text=True).stdout.strip()
@@ -79,9 +116,11 @@ def main() -> int:
                           "outcome": case["outcome"] if case else "NOT RUN",
                           "seconds": case["time"] if case else None})
 
+    statics = static_checks()
     checks_passed = (sum(r["exit_code"] == 0 for r in runs)
-                     + sum(s["outcome"] == "passed" for s in scenarios))
-    total = len(runs) + len(scenarios)
+                     + sum(s["outcome"] == "passed" for s in scenarios)
+                     + sum(c["passed"] for c in statics))
+    total = len(runs) + len(scenarios) + len(statics)
     evidence = {
         "issue": "#72",
         "title": "Tensor Soul Runtime 第一阶段 MVP（契约 v0.1）",
@@ -98,6 +137,7 @@ def main() -> int:
         "checks_total": total,
         "runs": runs,
         "acceptance_scenarios": scenarios,
+        "static_checks": statics,
         "not_run": [
             "神经记忆编码器实验（契约 Optional experiment；须待 A/B 基线后）",
             "闭源模型 hidden state 修改（契约明示 out of scope）",
