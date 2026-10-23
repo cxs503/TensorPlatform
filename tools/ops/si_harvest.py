@@ -26,7 +26,10 @@ import time
 import urllib.request
 from pathlib import Path
 
-sys.path.insert(0, str(Path(__file__).resolve().parent))
+_HERE = Path(__file__).resolve().parent
+sys.path.insert(0, str(_HERE))
+# si_closure 本地无副本时回退平台工具位（tools/ops = 单一事实源，PR #49）
+sys.path.insert(0, str(_HERE.parent.parent / "TensorPlatform" / "tools" / "ops"))
 from pr_hygiene import merge_main_before_push  # PR 卫生：推送前并 main
 
 BASE = Path("/srv/tensor/shared/tensor_eco/agent_work")
