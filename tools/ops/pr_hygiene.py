@@ -128,6 +128,21 @@ def json_union_resolve(wt: str, p: str) -> str:
     return f"{p} 顶层键并集{extra}"
 
 
+def ours_unique_lines(wt: str, p: str) -> int:
+    """add/add 冲突中分支侧(ours stage2)独有非空行数。
+    0 = 分支内容是 main 侧子集，取 main 无损（2026-10-23 教训：m194/m196 的
+    backend/api/public.py 每 10 分钟撞同一"未知冲突文件"空转，实为分支持旧版）。"""
+    def blob(stage: int) -> str:
+        r = sh(f"git rev-parse :{stage}:{p}", wt)
+        sha = r.stdout.strip()
+        if r.returncode != 0 or not sha:
+            return ""
+        return sh(f"git cat-file blob {sha}", wt).stdout
+    ours = {ln for ln in blob(2).splitlines() if ln.strip()}
+    theirs = {ln for ln in blob(3).splitlines() if ln.strip()}
+    return len(ours - theirs)
+
+
 def resolve_conflicts(wt: str) -> tuple[bool, str]:
     """白名单机械解；返回 (全部解掉?, 说明)。未知冲突文件→False。"""
     notes = []
@@ -153,7 +168,11 @@ def resolve_conflicts(wt: str) -> tuple[bool, str]:
         elif f.endswith("tools/agent/auto_approver.py"):
             notes.append(graft_approver(wt, f))
         else:
-            return False, f"未知冲突文件 {f}"
+            if ours_unique_lines(wt, f) == 0:
+                sh(f'git checkout --theirs "{f}" && git add "{f}"', wt)
+                notes.append(f"{f} 取 main 侧（分支零独有行机械判）")
+            else:
+                return False, f"未知冲突文件 {f}"
     if unresolved(wt):
         return False, "仍有未解冲突"
     return True, "; ".join(notes) or "clean"

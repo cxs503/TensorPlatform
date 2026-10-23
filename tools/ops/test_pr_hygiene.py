@@ -7,6 +7,7 @@
      a) 落后 main 无重叠 → clean merge commit、main 内容进分支
      b) 双侧改同一台账 → 并集解、双侧条目全在、零标记
      c) 未知文件真冲突 → 拒解、HEAD 不动、无残留合并态
+  T2f/g add/add 零独有→取 main；有独有→停车
   T3 keep_open_prs：异常路径不抛（返回日志列表）
 运行：python3 tools/ops/test_pr_hygiene.py
 """
@@ -183,6 +184,27 @@ with tempfile.TemporaryDirectory() as td:
     assert sh(f"git -C {wc} rev-parse HEAD", td).stdout.strip() == head0
     assert "UU" not in sh(f"git -C {wc} status --porcelain", td).stdout
     PASS.append("T2c 未知代码冲突 → 拒解、HEAD 不动、工作树无残留合并态")
+
+    # f) 未知文件 add/add、分支侧=main 子集（持旧版文件）→ 零独有行机械取 main
+    #    （2026-10-23 实例：m194/m196 的 backend/api/public.py 十分钟级空转）
+    PYX = "backend/api/public.py"
+    advance_main({PYX: "v2 line\nv2 only\n"}, "m-f")
+    wf = branch("br_f", {PYX: "v2 line\n"})  # 分支持旧版（main 的子集）
+    ok, how = ph.merge_main_before_push(wf)
+    assert ok and "零独有" in how, (ok, how)
+    bodyf = open(os.path.join(wf, PYX)).read()
+    assert "v2 only" in bodyf and "v2 line" in bodyf, bodyf
+    PASS.append("T2f 未知文件 add/add 分支零独有行 → 机械取 main、无空转")
+
+    # g) add/add 但分支有独有内容 → 仍拒解停车（不静默丢工作）
+    advance_main({PYX: "v3 line\n"}, "m-g")
+    wg = branch("br_g", {PYX: "分支独有行\nv3 line\n"})
+    headg = sh(f"git -C {wg} rev-parse HEAD", td).stdout.strip()
+    ok, how = ph.merge_main_before_push(wg)
+    assert not ok and "未知冲突文件" in how, (ok, how)
+    assert sh(f"git -C {wg} rev-parse HEAD", td).stdout.strip() == headg
+    assert "UU" not in sh(f"git -C {wg} status --porcelain", td).stdout
+    PASS.append("T2g add/add 分支有独有内容 → 仍拒解停车、不静默丢工作")
 
 # T3 异常路径不抛
 ph_keep = ph.keep_open_prs([("TensorLBM", 999999, None)])
