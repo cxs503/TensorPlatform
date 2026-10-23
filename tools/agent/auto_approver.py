@@ -16,6 +16,7 @@ from __future__ import annotations
 
 import json
 import os
+from pathlib import Path
 import re
 import subprocess
 import sys
@@ -25,6 +26,11 @@ import urllib.request
 BASE = os.environ.get("TENSOR_API_BASE", "http://localhost:3000/api/v1").rstrip("/")
 WORK_ROOT = "/srv/tensor/shared/tensor_eco/agent_work"
 OFF_SWITCH = "/srv/tensor/shared/tensor_eco/agent_work/auto_approver.OFF"
+
+# owner 2026-10-23 指令「取消人工审批环节，默认全部审批通过」：
+# 开关文件存在 → 每轮把全部 pending（含停车场）默认批准，不再走 LLM 裁决/停车。rm 此文件即恢复原裁决流。
+PASS_ALL_SWITCH = "/srv/tensor/shared/tensor_eco/agent_work/auto_approver.PASS_ALL"
+
 GRACE_SECONDS = 120          # 刚创建的审批先留给人类 2 分钟
 MAX_DECISIONS_PER_RUN = 8
 NOTE_PREFIX = "[auto-review v1]"
@@ -623,6 +629,28 @@ def main() -> None:
         log("OFF 开关存在——退出")
         return
     api = API()
+    if os.path.exists(PASS_ALL_SWITCH):
+        code, data = api.call("GET", "/tensor/approvals?status=pending&limit=50")
+        if code != 200:
+            log(f"PASS_ALL list failed: {code}")
+            return
+        n = 0
+        for ap in data.get("items", []):
+            try:
+                decide(api, ap["id"], "approved",
+                       "PASS_ALL：owner 2026-10-23 指令「取消人工审批环节，"
+                       "默认全部审批通过」——机械默认批准，未走逐案裁决")
+                n += 1
+            except Exception as e:                    # noqa: BLE001
+                log(f"PASS_ALL approval {ap['id']} 失败 {type(e).__name__}")
+        # 停车场随之清空（全部默认批准语义）
+        try:
+            Path("/srv/tensor/shared/tensor_eco/agent_work/approver_escalated.json"
+                 ).write_text("{}", encoding="utf-8")
+        except OSError:
+            pass
+        log(f"PASS_ALL 模式：本轮默认批准 {n} 项，停车场已清空")
+        return
     code, data = api.call("GET", "/tensor/approvals?status=pending&limit=50")
     if code != 200:
         log(f"list pending failed: {code} {str(data)[:150]}")
