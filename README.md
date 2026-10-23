@@ -6,6 +6,8 @@ TensorPlatform is the shared data and AI platform for the Tensor engineering eco
 
 **Engineering plan / whitepaper:** [Tensor Autonomous Research Infrastructure — Engineering Development Plan v1.0](docs/roadmap/TENSOR_AUTONOMOUS_RESEARCH_INFRASTRUCTURE_WHITEPAPER_V1.0.md) — current project inventory, implemented capabilities, open gaps, phased roadmap, closed-loop demo and acceptance gates.
 
+**Agent-native IT architecture:** [Agent-Native IT Technology Stack and TensorPlatform Evolution Whitepaper v0.1](docs/architecture/AGENT_NATIVE_IT_TENSORPLATFORM_WHITEPAPER_v0.1.md) — compares human-first and agent-native infrastructure, defines capability contracts, persistent execution, runtime boundaries, governance and a phased migration roadmap. This is a discussion draft; planned capabilities are not claims of implementation.
+
 A domain-neutral foundation for data integration, governance, workflow orchestration, AI model lifecycle management, deployment and observability.
 
 This distribution contains no customer identity, production data, private models, credentials, deployment addresses, backups, or commercial use cases. Domain solutions must be delivered as separately maintained adapters/plugins.
