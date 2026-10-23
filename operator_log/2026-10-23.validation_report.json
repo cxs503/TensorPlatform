@@ -1,0 +1,71 @@
+{
+  "generated_by": "collect_2026-10-23.py (m203)",
+  "step1_inflight": {
+    "count": 1,
+    "rows": [
+      [
+        "203",
+        "running",
+        "2",
+        ""
+      ]
+    ],
+    "max_hb_age_s": 2,
+    "threshold_s": 240,
+    "pass": true
+  },
+  "step2_guardians": {
+    "observed_total": 16,
+    "slot_ge2": 10,
+    "slot1": 6,
+    "workers_json_source": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/workers.json",
+    "workers_json_sum": 16,
+    "equation_holds": true,
+    "worktree_copy_sum_stale": 10,
+    "worktree_copy_matches_source": false,
+    "per_model": "6 --model qwen3.7-plus;      3 --model qwen3.6-plus;      3 --model deepseek-v4-flash;      2 --model glm-5.1;      1 --model MiniMax-M2.5-AWQ;      1 --model glm-5.2;",
+    "pass": true
+  },
+  "step3_relay": {
+    "http": 200,
+    "seconds": 0.214,
+    "models": 7,
+    "pass": true
+  },
+  "step4_gateway_state": {
+    "raw": {},
+    "empty": true,
+    "pass": true
+  },
+  "step5_terminal": {
+    "by_status": {
+      "succeeded": "19",
+      "failed": "17"
+    },
+    "failed_by_stop": {
+      "gateway_unavailable": "17"
+    },
+    "last_failed_id": "190",
+    "last_failed_age_s": 63627,
+    "pass": true
+  },
+  "extra": {
+    "containers_healthy": "11",
+    "containers_total": "11",
+    "celery_beat": "restart=0 exit=0 status=running",
+    "escalated_json": {},
+    "approvals_by_status": {
+      "approved": "136",
+      "rejected": "11"
+    },
+    "pass_all_switch_exists": true,
+    "pass_all_rounds": 181,
+    "pass_all_first": "6978:[08:16:02] PASS_ALL 模式：本轮默认批准 1 项，停车场已清空",
+    "approver_log_tail": "[14:16:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+    "worktree_total": 83,
+    "main_repo_dirty": 13,
+    "gc_log_tail": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
+  },
+  "checks_total": 5,
+  "checks_passed": 5
+}
