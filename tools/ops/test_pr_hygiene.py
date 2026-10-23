@@ -109,6 +109,16 @@ with tempfile.TemporaryDirectory() as td:
     assert "merge:" in sh(f"git -C {wa} log -1 --format=%s", td).stdout
     PASS.append("T2a 落后无重叠 → clean merge commit、main 内容进分支")
 
+    # a0) 已含 main → 幂等快道（merge 后 push 失败重入安全）
+    wa0 = branch("br_a0", {"a0_only.txt": "a0\n"})
+    ok, how = ph.merge_main_before_push(wa0)
+    assert ok and how == "clean", (ok, how)
+    h0 = sh(f"git -C {wa0} rev-parse HEAD", td).stdout.strip()
+    ok, how = ph.merge_main_before_push(wa0)
+    assert ok and how == "已含 main", (ok, how)
+    assert sh(f"git -C {wa0} rev-parse HEAD", td).stdout.strip() == h0
+    PASS.append("T2a0 已含 main → 幂等快道，HEAD 不动（merge 后重入安全）")
+
     # b) 双侧改台账 → 并集解
     advance_main({LED: "- main 侧新案 b\n"}, "m-b")
     wb = branch("br_b", {LED: "- 分支侧新案 b\n"})
