@@ -1,11 +1,11 @@
 {
-  "mission_id": "m213",
-  "shift": 75,
-  "dispatcher_shift": 54,
+  "mission_id": "m214",
+  "shift": 76,
+  "dispatcher_shift": 55,
   "date": "2026-10-23",
   "base_commit": "c245186",
-  "branch": "agent/m213",
-  "collected_at": "2026-10-23T09:13:00Z",
+  "branch": "agent/m214",
+  "collected_at": "2026-10-23T09:44:00Z",
   "checks": [
     {
       "id": 1,
@@ -13,16 +13,15 @@
       "status": "pass",
       "source": "psql tensor_dev_missions WHERE status IN (claimed,running)",
       "readings": {
-        "in_flight_count": 4,
+        "in_flight_count": 3,
         "missions": [
-          {"id": 204, "status": "running", "hb_age_s": 12, "stop_condition": null, "repo": "TensorPlatform"},
-          {"id": 208, "status": "running", "hb_age_s": 4, "stop_condition": null, "repo": "TensorLBM"},
-          {"id": 211, "status": "running", "hb_age_s": 4, "stop_condition": null, "repo": "TensorLBM"},
-          {"id": 213, "status": "running", "hb_age_s": 12, "stop_condition": null, "repo": "TensorPlatform"}
+          {"id": 208, "status": "running", "hb_age_s": 15, "stop_condition": null, "repo": "TensorLBM"},
+          {"id": 211, "status": "running", "hb_age_s": 15, "stop_condition": null, "repo": "TensorLBM"},
+          {"id": 214, "status": "running", "hb_age_s": 10, "stop_condition": null, "repo": "TensorPlatform"}
         ],
-        "max_hb_age_s": 12,
+        "max_hb_age_s": 15,
         "threshold_s": 240,
-        "verdict": "max_hb=12s << 240s threshold"
+        "verdict": "max_hb=15s << 240s threshold; m204 succeeded at 09:22Z"
       }
     },
     {
@@ -41,17 +40,17 @@
           "glm-5.2": 1,
           "MiniMax-M2.5-AWQ": 1
         },
-        "verdict": "16 = 16, equation closed"
+        "verdict": "16 = 16, equation closed, six models pairwise equal"
       }
     },
     {
       "id": 3,
       "name": "中继健康",
       "status": "pass",
-      "source": "curl LLM_BASE_URL/models",
+      "source": "curl LLM_BASE_URL/models (guardian /proc/<pid>/environ)",
       "readings": {
         "http_code": 200,
-        "time_total_s": 0.220,
+        "time_total_s": 0.222,
         "models_count": 7,
         "verdict": "200 OK, 0.22s < 5s"
       }
@@ -73,23 +72,24 @@
       "status": "pass",
       "source": "psql tensor_dev_missions 24h + 3h",
       "readings": {
-        "succeeded_24h": 22,
+        "succeeded_24h": 24,
         "failed_24h": 16,
         "failed_all_gateway_unavailable": true,
         "last_failed_id": 190,
-        "last_failed_hours_ago": 20.6,
+        "last_failed_age_s": 75986,
+        "last_failed_hours_ago": 21.1,
         "today_new_failed": 0,
         "recent_3h_terminal": [
+          {"id": 204, "status": "succeeded"},
+          {"id": 213, "status": "succeeded"},
           {"id": 212, "status": "succeeded"},
           {"id": 210, "status": "succeeded"},
           {"id": 209, "status": "succeeded"},
           {"id": 206, "status": "succeeded"},
           {"id": 207, "status": "succeeded"},
-          {"id": 205, "status": "succeeded"},
-          {"id": 203, "status": "succeeded"},
-          {"id": 200, "status": "succeeded"}
+          {"id": 205, "status": "succeeded"}
         ],
-        "verdict": "R13 zero new 20.6h, 8/8 succeeded in 3h"
+        "verdict": "R13 zero new 21.1h, 8/8 succeeded in 3h"
       }
     }
   ],
