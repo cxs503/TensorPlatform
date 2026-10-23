@@ -176,6 +176,17 @@ def create_agent(body: NewAgent, db: Session = Depends(get_db),
     return {'agent': agent, 'identity_key': 'agent_id', 'model_is_not_identity': True}
 
 
+@router.post('/agents/link-resident/{resident_session_id}')
+def link_resident_session(resident_session_id: uuid.UUID, db: Session = Depends(get_db),
+                          user=Depends(require_role('ADMIN'))):
+    """把 091 时代的 resident 会话挂到稳定 agent 身份（幂等，不搬移旧数据）。"""
+    org = resolved_org(None, user, db)
+    agent = _guard(lambda: soul.ensure_agent_for_resident_session(
+        db, organization_id=org, resident_session_id=str(resident_session_id)))
+    return {'agent': agent, 'identity_key': 'agent_id',
+            'legacy_session_linked': True}
+
+
 @router.get('/agents/{agent_id}')
 def read_agent(agent_id: uuid.UUID, db: Session = Depends(get_db), user=Depends(require_auth)):
     return {'agent': _own(db, user, str(agent_id))}

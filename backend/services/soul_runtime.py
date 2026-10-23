@@ -661,3 +661,36 @@ def list_shared_knowledge(db: Session, *, organization_id: int, limit: int = 20)
         ORDER BY event_id DESC LIMIT :limit"""),
         {"org": organization_id, "limit": max(1, min(100, limit))}).mappings().all()
     return [dict(row) for row in rows]
+
+
+# ── 既有 resident 会话 → 稳定身份的迁移入口 ────────────────────────────────
+def ensure_agent_for_resident_session(db: Session, *, organization_id: int,
+                                      resident_session_id: str) -> dict:
+    """把一个 091 时代的 resident 会话挂到稳定身份上（幂等）。
+
+    091 的 factory_resident_workers 把会话当身份；本函数按 worker_id 派生/复用
+    稳定 agent_id，并记录 legacy_session_id 供审计追溯。
+    同一 worker_id 多次注册的会话得到同一个 agent_id —— 这正是"跨 session 不变"。
+    """
+    resident = db.execute(text("""SELECT agent_session_id,user_id,organization_id,worker_id,role
+        FROM factory_resident_workers WHERE agent_session_id=:sid"""),
+        {"sid": resident_session_id}).mappings().first()
+    if not resident:
+        raise NotFoundError("resident session not found")
+    if int(resident["organization_id"]) != int(organization_id):
+        raise NotFoundError("resident session belongs to another organization")
+    linked = db.execute(text("""SELECT i.* FROM factory_soul_legacy_sessions l
+        JOIN factory_agent_identities i ON i.agent_id=l.agent_id
+        WHERE l.agent_session_id=:sid"""),
+        {"sid": resident_session_id}).mappings().first()
+    if linked:
+        return dict(linked)
+    agent = create_agent(db, organization_id=organization_id,
+                         owner_user_id=int(resident["user_id"]),
+                         worker_id=resident["worker_id"], role=resident["role"])
+    db.execute(text("""INSERT INTO factory_soul_legacy_sessions
+        (agent_session_id,agent_id) VALUES (:sid,:aid)
+        ON CONFLICT (agent_session_id) DO NOTHING"""),
+        {"sid": resident_session_id, "aid": str(agent["agent_id"])})
+    db.commit()
+    return _agent(db, str(agent["agent_id"]), organization_id)

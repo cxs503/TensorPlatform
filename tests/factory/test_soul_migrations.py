@@ -58,3 +58,32 @@ def test_soul_migration_declares_the_contract_tables():
         assert f'CREATE TABLE IF NOT EXISTS {table}' in raw, table
     # 未验证内容不得以共享级落库：数据库层兜底
     assert "sensitivity <> 'shared' OR verification_status = 'validated'" in raw
+
+def test_resident_session_links_to_one_stable_identity(factory):
+    """091 把会话当身份；稳定身份按 worker_id 复用，同一会话重复挂接幂等。"""
+    from services import soul_runtime as soul
+    client, headers = factory['client'], factory['headers']
+    created = client.post('/api/v1/tensor/factory/agents', headers=headers(1),
+                          json={'worker_id': 'legacy-resident', 'role': 'data',
+                                'model': 'gpt-6.1-sol', 'user_id': 3})
+    assert created.status_code == 200, created.text
+    resident_sid = created.json()['agent_session_id']
+
+    first = client.post(f"/api/v1/tensor/soul/agents/link-resident/{resident_sid}",
+                        headers=headers(1)).json()['agent']
+    second = client.post(f"/api/v1/tensor/soul/agents/link-resident/{resident_sid}",
+                         headers=headers(1)).json()['agent']
+    assert first['agent_id'] == second['agent_id']
+    assert first['worker_id'] == 'legacy-resident'
+
+    from sqlalchemy import text
+    with factory['engine'].begin() as db:
+        links = db.execute(text("""SELECT count(*) FROM factory_soul_legacy_sessions
+            WHERE agent_session_id=:sid"""), {'sid': resident_sid}).scalar()
+        agents = db.execute(text("""SELECT count(*) FROM factory_agent_identities
+            WHERE organization_id=1 AND worker_id='legacy-resident'""")).scalar()
+    assert links == 1 and agents == 1
+
+    # 跨组织挂接必失败（不泄露他组织会话）
+    assert client.post(f"/api/v1/tensor/soul/agents/link-resident/{resident_sid}",
+                       headers=headers(7)).status_code == 404

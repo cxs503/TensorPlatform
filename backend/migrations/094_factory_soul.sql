@@ -136,6 +136,13 @@ CREATE TABLE IF NOT EXISTS factory_soul_checkpoints (
 CREATE INDEX IF NOT EXISTS factory_soul_checkpoints_agent
  ON factory_soul_checkpoints(agent_id, created_at DESC);
 
+-- 091 时代会话 → 稳定身份映射：同一 worker_id 的多次会话注册映射到同一个 agent_id。
+CREATE TABLE IF NOT EXISTS factory_soul_legacy_sessions (
+ agent_session_id UUID PRIMARY KEY REFERENCES factory_resident_workers(agent_session_id) ON DELETE CASCADE,
+ agent_id UUID NOT NULL REFERENCES factory_agent_identities(agent_id),
+ linked_at TIMESTAMPTZ NOT NULL DEFAULT now()
+);
+
 -- 模型绑定切换历史：只记"换过什么"，不改身份、不动会话状态。
 CREATE TABLE IF NOT EXISTS factory_soul_binding_history (
  session_id UUID NOT NULL REFERENCES factory_soul_sessions(session_id) ON DELETE CASCADE,
