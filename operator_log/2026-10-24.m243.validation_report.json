@@ -1,0 +1,458 @@
+{
+  "shift_mission_id": 243,
+  "shift": "第88班",
+  "shift_start_utc": "2026-10-24T09:13:01Z",
+  "collected_at_utc": "2026-10-24T09:17:23Z",
+  "readings": "operator_log/2026-10-24.m243.readings.json",
+  "checks_total": 89,
+  "checks_passed": 89,
+  "checks_failed": 0,
+  "all_pass": true,
+  "results": [
+    {
+      "name": "S1-has-inflight",
+      "pass": true,
+      "detail": "在飞 1"
+    },
+    {
+      "name": "S1-hb-fresh",
+      "pass": true,
+      "detail": "max_hb=4s < 240s"
+    },
+    {
+      "name": "S1-none-stale",
+      "pass": true,
+      "detail": "stale=[]"
+    },
+    {
+      "name": "S1-self-included",
+      "pass": true,
+      "detail": "ids=[243]"
+    },
+    {
+      "name": "S1-no-stop-condition",
+      "pass": true,
+      "detail": "with_stop=[]"
+    },
+    {
+      "name": "S2-equation-authority",
+      "pass": true,
+      "detail": "ΣN=16 = measured=16"
+    },
+    {
+      "name": "S2-equation-pgrep",
+      "pass": true,
+      "detail": "ΣN=16 = pgrep=16"
+    },
+    {
+      "name": "S2-per-model-equal",
+      "pass": true,
+      "detail": "per_model={'MiniMax-M2.5-AWQ': (1, 1), 'deepseek-v4-flash': (3, 3), 'glm-5.1': (2, 2), 'glm-5.2': (1, 1), 'qwen3.6-plus': (3, 3), 'qwen3.7-plus': (6, 6)}"
+    },
+    {
+      "name": "S2-slot-workers",
+      "pass": true,
+      "detail": "slot=10"
+    },
+    {
+      "name": "S2-authority-live-recheck",
+      "pass": true,
+      "detail": "live ΣN=16 vs readings=16"
+    },
+    {
+      "name": "S3-http-200",
+      "pass": true,
+      "detail": "http=200"
+    },
+    {
+      "name": "S3-latency",
+      "pass": true,
+      "detail": "t=0.240325s"
+    },
+    {
+      "name": "S3-models-7",
+      "pass": true,
+      "detail": "models=7"
+    },
+    {
+      "name": "S3-single-endpoint",
+      "pass": true,
+      "detail": "endpoints=['relay-13001']"
+    },
+    {
+      "name": "S4-no-active-cooldown",
+      "pass": true,
+      "detail": "active_now={}"
+    },
+    {
+      "name": "S4-state-empty",
+      "pass": true,
+      "detail": "raw={}"
+    },
+    {
+      "name": "S4-action-none",
+      "pass": true,
+      "detail": "none（冷却态为 {} 空，无需清理）"
+    },
+    {
+      "name": "S5-h24-failed-10",
+      "pass": true,
+      "detail": "h24_failed=10"
+    },
+    {
+      "name": "S5-since-shift-zero",
+      "pass": true,
+      "detail": "since_shift=0"
+    },
+    {
+      "name": "S5-failed-by-stop",
+      "pass": true,
+      "detail": "{'budget_exceeded': 1, 'gateway_unavailable': 9}"
+    },
+    {
+      "name": "S5-awaiting-zero",
+      "pass": true,
+      "detail": "awaiting=0"
+    },
+    {
+      "name": "S5-h24-live-recheck",
+      "pass": true,
+      "detail": "live=10 readings=10"
+    },
+    {
+      "name": "S5-since-shift-live-recheck",
+      "pass": true,
+      "detail": "live since=0"
+    },
+    {
+      "name": "R13-events-today-count",
+      "pass": true,
+      "detail": "events_today=4"
+    },
+    {
+      "name": "R13-newest-143132",
+      "pass": true,
+      "detail": "newest=2026-10-24T14:31:32"
+    },
+    {
+      "name": "R13-window-empty",
+      "pass": true,
+      "detail": "since_shift=[]"
+    },
+    {
+      "name": "R13-transient-window-empty",
+      "pass": true,
+      "detail": "transient=0"
+    },
+    {
+      "name": "S6-all-healthy",
+      "pass": true,
+      "detail": "healthy 11/11"
+    },
+    {
+      "name": "S6-none-unhealthy",
+      "pass": true,
+      "detail": "unhealthy=[]"
+    },
+    {
+      "name": "S7-m208-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m216-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m217-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m218-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m221-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m223-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m226-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m229-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m230-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m231-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m208-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m232(succeeded)"
+    },
+    {
+      "name": "S7-m216-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m232(succeeded)"
+    },
+    {
+      "name": "S7-m217-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m219(succeeded)"
+    },
+    {
+      "name": "S7-m218-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m220(succeeded), m222(succeeded), m224(succeeded)"
+    },
+    {
+      "name": "S7-m221-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m232(succeeded)"
+    },
+    {
+      "name": "S7-m223-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m233(succeeded)"
+    },
+    {
+      "name": "S7-m229-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)"
+    },
+    {
+      "name": "S7-m230-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)"
+    },
+    {
+      "name": "S7-m231-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)"
+    },
+    {
+      "name": "S7-m226-reported",
+      "pass": true,
+      "detail": "[上报] 无更晚同前缀腿（MP-DAMBREAK:S2 唯一腿）；owner 派发的业务线 mission，非 operator 自主 refill 权限面 → 上报 owner 裁决"
+    },
+    {
+      "name": "S7-m229-later-leg-live",
+      "pass": true,
+      "detail": "later=[('230', 'failed'), ('231', 'failed'), ('234', 'succeeded'), ('235', 'succeeded'), ('237', 'succeeded'), ('242', 'succeeded'), ('243', 'running')]"
+    },
+    {
+      "name": "S7-m230-later-leg-live",
+      "pass": true,
+      "detail": "later=[('231', 'failed'), ('234', 'succeeded'), ('235', 'succeeded'), ('237', 'succeeded'), ('242', 'succeeded'), ('243', 'running')]"
+    },
+    {
+      "name": "S7-m231-later-leg-live",
+      "pass": true,
+      "detail": "later=[('234', 'succeeded'), ('235', 'succeeded'), ('237', 'succeeded'), ('242', 'succeeded'), ('243', 'running')]"
+    },
+    {
+      "name": "S7-m226-no-later-leg",
+      "pass": true,
+      "detail": "later=[]"
+    },
+    {
+      "name": "A-approval-pending-zero",
+      "pass": true,
+      "detail": "pending=0"
+    },
+    {
+      "name": "A-approval-max-id",
+      "pass": true,
+      "detail": "max_id=182"
+    },
+    {
+      "name": "A-parking-lot-empty",
+      "pass": true,
+      "detail": "lot={}"
+    },
+    {
+      "name": "R16-passall-marker-empty",
+      "pass": true,
+      "detail": "size=0"
+    },
+    {
+      "name": "R16-passall-rounds",
+      "pass": true,
+      "detail": "rounds=991"
+    },
+    {
+      "name": "X-gc-log-perm",
+      "pass": true,
+      "detail": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
+    },
+    {
+      "name": "A-shift-switch-on",
+      "pass": true,
+      "detail": "OFF 未拉"
+    },
+    {
+      "name": "A-worktree-branch",
+      "pass": true,
+      "detail": "branch=agent/m243"
+    },
+    {
+      "name": "DA-cooldown-verified-nonzero",
+      "pass": true,
+      "detail": "verified=16"
+    },
+    {
+      "name": "DA-cooldown-all-correct",
+      "pass": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "DA-monotonic",
+      "pass": true,
+      "detail": "violations=[]"
+    },
+    {
+      "name": "DA-today-events-db-anchored",
+      "pass": true,
+      "detail": "4/4 条今日冷却在 DB 有同刻终态"
+    },
+    {
+      "name": "DA-today-is-4-not-inflated",
+      "pass": true,
+      "detail": "today=4"
+    },
+    {
+      "name": "LOG-shift-id",
+      "pass": true,
+      "detail": "m243 / 第88班"
+    },
+    {
+      "name": "LOG-step-在飞心跳鲜度",
+      "pass": true,
+      "detail": "在飞心跳鲜度"
+    },
+    {
+      "name": "LOG-step-守护计数",
+      "pass": true,
+      "detail": "守护计数"
+    },
+    {
+      "name": "LOG-step-中继健康",
+      "pass": true,
+      "detail": "中继健康"
+    },
+    {
+      "name": "LOG-step-网关冷却态",
+      "pass": true,
+      "detail": "网关冷却态"
+    },
+    {
+      "name": "LOG-step-终态 mission result",
+      "pass": true,
+      "detail": "终态 mission result"
+    },
+    {
+      "name": "LOG-r13-three-segments",
+      "pass": true,
+      "detail": "R13 三段"
+    },
+    {
+      "name": "LOG-report-section",
+      "pass": true,
+      "detail": "[上报] 项在"
+    },
+    {
+      "name": "LOG-next-shift-advice",
+      "pass": true,
+      "detail": "建议段在"
+    },
+    {
+      "name": "LOG-m226",
+      "pass": true,
+      "detail": "m226 上报在"
+    },
+    {
+      "name": "LOG-no-placeholder",
+      "pass": true,
+      "detail": "无占位符"
+    },
+    {
+      "name": "LOG-zero-write",
+      "pass": true,
+      "detail": "零写操作声明"
+    },
+    {
+      "name": "LOG-p0-dating-reported",
+      "pass": true,
+      "detail": "[上报] P0 定日缺陷在"
+    },
+    {
+      "name": "LOG-p2-dirtycode-reported",
+      "pass": true,
+      "detail": "[上报] P2 未提交代码在"
+    },
+    {
+      "name": "LOG-four-report-items",
+      "pass": true,
+      "detail": "三条 [上报] 齐"
+    },
+    {
+      "name": "LOG-m243-refill-zero",
+      "pass": true,
+      "detail": "零 refill 声明"
+    },
+    {
+      "name": "LOG-inflight-count-matches",
+      "pass": true,
+      "detail": "在飞 1 条（日志与 readings 一致）"
+    },
+    {
+      "name": "LOG-guardian-equation",
+      "pass": true,
+      "detail": "守护等式 16"
+    },
+    {
+      "name": "LOG-relay-200",
+      "pass": true,
+      "detail": "中继 200"
+    },
+    {
+      "name": "LOG-shift-88",
+      "pass": true,
+      "detail": "第88班"
+    },
+    {
+      "name": "LOG-p0b-window-anchor",
+      "pass": true,
+      "detail": "采集器窗口锚定修正"
+    },
+    {
+      "name": "LOG-inflight-empty-observed",
+      "pass": true,
+      "detail": "在飞队列清空观察项"
+    },
+    {
+      "name": "S5-h24-window-anchored",
+      "pass": true,
+      "detail": "anchored=10 readings=10"
+    }
+  ]
+}
