@@ -1,0 +1,528 @@
+{
+  "shift_mission_id": 263,
+  "shift": "第 99 班",
+  "shift_start_utc": "2026-10-24T18:13:01Z",
+  "collected_at_utc": "2026-10-24T18:29:29Z",
+  "readings": "operator_log/2026-10-25.m263.readings.json",
+  "checks_total": 103,
+  "checks_passed": 103,
+  "checks_failed": 0,
+  "all_pass": true,
+  "results": [
+    {
+      "name": "S1-has-inflight",
+      "pass": true,
+      "detail": "在飞 2"
+    },
+    {
+      "name": "S1-hb-fresh",
+      "pass": true,
+      "detail": "max_hb=10s < 240s"
+    },
+    {
+      "name": "S1-none-stale",
+      "pass": true,
+      "detail": "stale=[]"
+    },
+    {
+      "name": "S1-self-included",
+      "pass": true,
+      "detail": "ids=[262, 263]"
+    },
+    {
+      "name": "S1-business-legs-present",
+      "pass": true,
+      "detail": "业务线在飞=[262]"
+    },
+    {
+      "name": "S1-no-stop-condition",
+      "pass": true,
+      "detail": "with_stop=[]"
+    },
+    {
+      "name": "S2-equation-authority",
+      "pass": true,
+      "detail": "ΣN=16 = measured=16"
+    },
+    {
+      "name": "S2-equation-pgrep",
+      "pass": true,
+      "detail": "ΣN=16 = pgrep=16"
+    },
+    {
+      "name": "S2-per-model-equal",
+      "pass": true,
+      "detail": "per_model={'MiniMax-M2.5-AWQ': (1, 1), 'deepseek-v4-flash': (3, 3), 'glm-5.1': (2, 2), 'glm-5.2': (1, 1), 'qwen3.6-plus': (3, 3), 'qwen3.7-plus': (6, 6)}"
+    },
+    {
+      "name": "S2-slot-workers",
+      "pass": true,
+      "detail": "slot=10"
+    },
+    {
+      "name": "S2-authority-live-recheck",
+      "pass": true,
+      "detail": "live ΣN=16 vs readings=16"
+    },
+    {
+      "name": "S2b-guards-count-matches",
+      "pass": true,
+      "detail": "guards=16 measured=16"
+    },
+    {
+      "name": "S2b-old-code-detected",
+      "pass": true,
+      "detail": "载旧码 4 台=[2726616, 2726618, 2726910, 2726917]"
+    },
+    {
+      "name": "S2b-old-code-pids-pinned",
+      "pass": true,
+      "detail": "pids=[2726616, 2726618, 2726910, 2726917]"
+    },
+    {
+      "name": "S2b-code-landing-time",
+      "pass": true,
+      "detail": "mtime=2026-10-24 16:35:58"
+    },
+    {
+      "name": "S2b-blank-criterion-is-blind",
+      "pass": true,
+      "detail": "HEAD-diff 恒空 ⇒ m258 判据对未提交修复面天然盲（P3 实证）"
+    },
+    {
+      "name": "S2b-diff-additive",
+      "pass": true,
+      "detail": "added=5"
+    },
+    {
+      "name": "S2b-no-dangerous-additions",
+      "pass": true,
+      "detail": "危险新增=[]"
+    },
+    {
+      "name": "S2b-verdict-recorded",
+      "pass": true,
+      "detail": "零换血：纯 additive（REPO_PATHS 四库扩编），无 watchdog/os._exit 类新增 ⇒ 按案"
+    },
+    {
+      "name": "S2b-old-code-lacks-expansion-repos",
+      "pass": true,
+      "detail": "HEAD 版无四库、磁盘版有 ⇒ 旧码守护无法 claim 扩编线"
+    },
+    {
+      "name": "S2b-unknown-repo-not-triggered",
+      "pass": true,
+      "detail": "unknown repo 命中=0"
+    },
+    {
+      "name": "S2b-live-code-mtime-unchanged",
+      "pass": true,
+      "detail": "live_mtime=1792830959 readings=1792830959"
+    },
+    {
+      "name": "S3-http-200",
+      "pass": true,
+      "detail": "http=200"
+    },
+    {
+      "name": "S3-latency",
+      "pass": true,
+      "detail": "t=0.287364s"
+    },
+    {
+      "name": "S3-models-7",
+      "pass": true,
+      "detail": "models=7"
+    },
+    {
+      "name": "S3-single-endpoint",
+      "pass": true,
+      "detail": "endpoints=['relay-13001']"
+    },
+    {
+      "name": "S4-pre-clear-inherited",
+      "pass": true,
+      "detail": "接班时残留=['relay-13001']"
+    },
+    {
+      "name": "S4-pre-clear-was-expired",
+      "pass": true,
+      "detail": "清理时 delta_s={'relay-13001': -1286.7}（全为负=已过期）"
+    },
+    {
+      "name": "S4-pre-clear-snapshot-exists",
+      "pass": true,
+      "detail": "快照=/nfs/wangxi/tensor_eco/agent_work/probe_m263/llm_gateway_state.snapshot.m263.json"
+    },
+    {
+      "name": "S4-action-cleared-the-expired-item",
+      "pass": true,
+      "detail": "cleared：relay-13001 的 blocked_until 已过期（清理时 delta_s<0），按剧本步骤 4「过期可清」写 {}；清理前已 cp"
+    },
+    {
+      "name": "S4-post-clear-empty",
+      "pass": true,
+      "detail": "raw={} active={}"
+    },
+    {
+      "name": "S4-live-state-now-empty",
+      "pass": true,
+      "detail": "live={}"
+    },
+    {
+      "name": "S4-relay-still-200-after-clear",
+      "pass": true,
+      "detail": "http=200"
+    },
+    {
+      "name": "S5-h24-failed-10",
+      "pass": true,
+      "detail": "h24_failed=10"
+    },
+    {
+      "name": "S5-h24-succeeded-ge-22",
+      "pass": true,
+      "detail": "h24_succeeded=22 >= 22"
+    },
+    {
+      "name": "S5-since-shift-zero",
+      "pass": true,
+      "detail": "since_shift=0"
+    },
+    {
+      "name": "S5-since-shift-empty-or-clean",
+      "pass": true,
+      "detail": "since=[]"
+    },
+    {
+      "name": "S5-failed-by-stop",
+      "pass": true,
+      "detail": "{'agent_lost': 2, 'gateway_unavailable': 8}"
+    },
+    {
+      "name": "S5-window-slid-out-4",
+      "pass": true,
+      "detail": "m221/m223/m226/m229 已滑出 24h 窗口（终态 10-23 17:40~17:46Z）"
+    },
+    {
+      "name": "S5-cool-wave-4-ids-in-window",
+      "pass": true,
+      "detail": "冷却波 4 条仍在窗口内"
+    },
+    {
+      "name": "S5-cool-wave-before-shift-start",
+      "pass": true,
+      "detail": "4 条均落在班次起点之前 ⇒ since_shift_failed=0 成立"
+    },
+    {
+      "name": "S5c-wave-fails-pinned",
+      "pass": true,
+      "detail": "同波=[259, 256, 257, 261]"
+    },
+    {
+      "name": "S5c-wave-within-60s-of-cool",
+      "pass": true,
+      "detail": "冷却标注 17:58:02Z，同波终态 17:58:05~18:01:02（≤180s）"
+    },
+    {
+      "name": "S5c-m261-prev-shift-zero-delivery",
+      "pass": true,
+      "detail": "上一班 m261 零交付（案例 22 判据）"
+    },
+    {
+      "name": "S5c-m261-live-porcelain-empty",
+      "pass": true,
+      "detail": "porcelain=0 行"
+    },
+    {
+      "name": "S5c-m261-log-three-seconds",
+      "pass": true,
+      "detail": "glm-5.2 日志含 m261 认领行"
+    },
+    {
+      "name": "S5-m244-agent-lost-recorded",
+      "pass": true,
+      "detail": "m244=[{'id': 244, 'stop_condition': 'agent_lost', 'age_s': 31132, 'finished': '10-24 09:34'}]"
+    },
+    {
+      "name": "S5-m255-agent-lost-recorded",
+      "pass": true,
+      "detail": "m255=[{'id': 255, 'stop_condition': 'agent_lost', 'age_s': 8057, 'finished': '10-24 15:58'}]"
+    },
+    {
+      "name": "S5-m245-gateway-unavailable-recorded",
+      "pass": true,
+      "detail": "m245=[{'id': 245, 'stop_condition': 'gateway_unavailable', 'age_s': 22926, 'finished': '10-24 11:50'}]"
+    },
+    {
+      "name": "S5-m249-gateway-unavailable-recorded",
+      "pass": true,
+      "detail": "m249=[{'id': 249, 'stop_condition': 'gateway_unavailable', 'age_s': 22877, 'finished': '10-24 11:51'}]"
+    },
+    {
+      "name": "S5-awaiting-zero",
+      "pass": true,
+      "detail": "awaiting=0"
+    },
+    {
+      "name": "S5-candidates-equal-window",
+      "pass": true,
+      "detail": "窗口=[230, 231, 244, 245, 249, 255, 256, 257, 259, 261] 候选=[230, 231, 244, 245, 249, 255, 256, 257, 259, 261]"
+    },
+    {
+      "name": "S5-candidates-all-covered",
+      "pass": true,
+      "detail": "候选逐条有判读"
+    },
+    {
+      "name": "S5-h24-live-recheck",
+      "pass": true,
+      "detail": "live=10 readings=10+since=0"
+    },
+    {
+      "name": "S5-since-shift-live-recheck",
+      "pass": true,
+      "detail": "live since=0"
+    },
+    {
+      "name": "R13-events-today-one-cool-wave",
+      "pass": true,
+      "detail": "events_today=['2026-10-25T01:58:02']"
+    },
+    {
+      "name": "R13-newest-015802",
+      "pass": true,
+      "detail": "newest=2026-10-25T01:58:02"
+    },
+    {
+      "name": "R13-total-all-time",
+      "pass": true,
+      "detail": "total_all_time=30"
+    },
+    {
+      "name": "R13-window-empty",
+      "pass": true,
+      "detail": "since_shift=[]"
+    },
+    {
+      "name": "R13-transient-window-empty",
+      "pass": true,
+      "detail": "transient=[]"
+    },
+    {
+      "name": "R13-window-anchor",
+      "pass": true,
+      "detail": "2026-10-25T02:13:01"
+    },
+    {
+      "name": "R13-cool-before-window-not-inside",
+      "pass": true,
+      "detail": "当日冷却事件均早于班次起点 ⇒ 本班窗口零冷却"
+    },
+    {
+      "name": "DA-cooldown-verified-nonzero",
+      "pass": true,
+      "detail": "verified=18"
+    },
+    {
+      "name": "DA-cooldown-all-correct",
+      "pass": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "DA-monotonic",
+      "pass": true,
+      "detail": "violations=[]"
+    },
+    {
+      "name": "S6-all-healthy",
+      "pass": true,
+      "detail": "11/11 healthy，unhealthy=[]"
+    },
+    {
+      "name": "A-approval-pending-zero",
+      "pass": true,
+      "detail": "pending=0"
+    },
+    {
+      "name": "A-approval-max-id",
+      "pass": true,
+      "detail": "max_id=193"
+    },
+    {
+      "name": "A-parking-lot-empty",
+      "pass": true,
+      "detail": "lot={}"
+    },
+    {
+      "name": "R16-passall-marker-empty",
+      "pass": true,
+      "detail": "size=0"
+    },
+    {
+      "name": "R16-passall-rounds",
+      "pass": true,
+      "detail": "rounds=1267"
+    },
+    {
+      "name": "X-gc-log-perm",
+      "pass": true,
+      "detail": "/bin/sh:行1: /nfs/wangxi/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
+    },
+    {
+      "name": "A-shift-switch-on",
+      "pass": true,
+      "detail": "OFF 未拉"
+    },
+    {
+      "name": "A-worktree-branch",
+      "pass": true,
+      "detail": "branch=agent/m263"
+    },
+    {
+      "name": "A-worktree-count-ge-118",
+      "pass": true,
+      "detail": "worktree=118"
+    },
+    {
+      "name": "LOG-shift-id",
+      "pass": true,
+      "detail": "m263 / 第 99 班"
+    },
+    {
+      "name": "LOG-step-在飞心跳鲜度",
+      "pass": true,
+      "detail": "在飞心跳鲜度"
+    },
+    {
+      "name": "LOG-step-守护计数",
+      "pass": true,
+      "detail": "守护计数"
+    },
+    {
+      "name": "LOG-step-中继健康",
+      "pass": true,
+      "detail": "中继健康"
+    },
+    {
+      "name": "LOG-step-网关冷却态",
+      "pass": true,
+      "detail": "网关冷却态"
+    },
+    {
+      "name": "LOG-step-终态 mission result",
+      "pass": true,
+      "detail": "终态 mission result"
+    },
+    {
+      "name": "LOG-r13-three-segments",
+      "pass": true,
+      "detail": "R13 三段"
+    },
+    {
+      "name": "LOG-report-section",
+      "pass": true,
+      "detail": "[上报] 项段在"
+    },
+    {
+      "name": "LOG-next-shift-advice",
+      "pass": true,
+      "detail": "建议段在"
+    },
+    {
+      "name": "LOG-no-placeholder",
+      "pass": true,
+      "detail": "无占位符"
+    },
+    {
+      "name": "LOG-write-scope-declared",
+      "pass": true,
+      "detail": "写操作面声明（仅清过期冷却残留）在"
+    },
+    {
+      "name": "LOG-cool-clear-documented",
+      "pass": true,
+      "detail": "冷却清理（快照+过期判据+复验）在"
+    },
+    {
+      "name": "LOG-refill-zero",
+      "pass": true,
+      "detail": "零 refill 声明"
+    },
+    {
+      "name": "LOG-inflight-count-matches",
+      "pass": true,
+      "detail": "在飞 2 条（日志与 readings 一致）"
+    },
+    {
+      "name": "LOG-guardian-equation",
+      "pass": true,
+      "detail": "守护等式 16"
+    },
+    {
+      "name": "LOG-relay-200",
+      "pass": true,
+      "detail": "中继 200"
+    },
+    {
+      "name": "LOG-no-raw-transcript",
+      "pass": true,
+      "detail": "结论式记录（无大段流水账代码块）"
+    },
+    {
+      "name": "LOG-n3-prev-shift-zero-delivery",
+      "pass": true,
+      "detail": "[上报] N3 上一班零交付因果在"
+    },
+    {
+      "name": "LOG-p3-criterion-defect",
+      "pass": true,
+      "detail": "[上报] P3 判据缺陷因果在"
+    },
+    {
+      "name": "LOG-four-old-guards",
+      "pass": true,
+      "detail": "4 台载旧码守护 pid 逐台在册"
+    },
+    {
+      "name": "LOG-expansion-risk",
+      "pass": true,
+      "detail": "旧码缺四库的风险面在"
+    },
+    {
+      "name": "LOG-r13-flat-coincidence-not-health",
+      "pass": true,
+      "detail": "R13 持平=口径巧合（滑出4条+新进4条）判读在"
+    },
+    {
+      "name": "LOG-n1-zero-recurrence",
+      "pass": true,
+      "detail": "N1 零复发判读在"
+    },
+    {
+      "name": "LOG-candidate-sql-aligned",
+      "pass": true,
+      "detail": "候选清单 SQL 对齐纪律在"
+    },
+    {
+      "name": "LOG-report-items-complete",
+      "pass": true,
+      "detail": "N3/P3/N1/R18/X/R13 全部在册"
+    },
+    {
+      "name": "LOG-blood-swap-todo",
+      "pass": true,
+      "detail": "换血待办留给下一班（含空闲 pid 与自保提示）"
+    },
+    {
+      "name": "LOG-m226-window-exit",
+      "pass": true,
+      "detail": "m226 滑出巡检窗口提示在"
+    },
+    {
+      "name": "LOG-redlines",
+      "pass": true,
+      "detail": "红线复核在"
+    }
+  ]
+}
