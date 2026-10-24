@@ -1,0 +1,490 @@
+#!/usr/bin/env python3
+"""operator 班次 m254（2026-10-24 第 95 班）巡检读数采集器——五步 + 审计面一次采完。
+
+判据数字零手抄（identity.md 纪律）：所有读数当场从 DB/进程/文件/端点直读，
+stdout 即 readings JSON。凭据坑（m210 回退链）：中继复验必须在 bash 终端
+`set -a; source agent_work/operator.env; set +a` 后由 curl 完成，本脚本只读环境变量
+RELAY_PROBE（形如 "200 0.258 7"），绝不在 python 子进程内 source。
+
+用法（在 worktree 根，即本文件上两级）：
+  set -a; source /srv/tensor/shared/tensor_eco/agent_work/operator.env; set +a
+  RELAY_PROBE="$(curl -s -o /tmp/m254_relay.body -w '%{http_code} %{time_total}' \
+      --max-time 20 -H "Authorization: Bearer $LLM_API_KEY" "$LLM_BASE_URL/models") \
+    $(python3 -c 'import json;print(len(json.load(open("/tmp/m254_relay.body"))["data"]))')"
+  RELAY_PROBE="$RELAY_PROBE" python3 operator_log/collect_2026-10-24.m254.py \
+      > operator_log/2026-10-24.m254.readings.json
+
+沿用 m225/m228/m234 的定日规则（playbook 案例 17）：守护日志行只有 HH:MM:SS、
+不带日期且跨零点续写 ⇒ 以文件 mtime 日期为基准日、末行时刻为日志时钟「当下」，
+行内时刻 > 末行时刻 ⇒ 属前一日。
+"""
+from __future__ import annotations
+
+import json
+import os
+import re
+import subprocess
+import time
+from pathlib import Path
+
+ECO = Path("/srv/tensor/shared/tensor_eco")
+AGENT_WORK = ECO / "agent_work"
+REPO = Path(__file__).resolve().parents[1]
+PSQL = ["docker", "exec", "open-foundation-postgres", "psql", "-U", "foundation",
+        "-d", "open_digital_foundation", "-A", "-F", "|", "-t", "-c"]
+ENV = dict(os.environ, DOCKER_HOST="unix:///run/user/1020/docker.sock")
+# 本班任务起点（派发时点，DB 直读 m254.created_at），用于区分「本班窗口内新增」
+SHIFT_START_UTC = "2026-10-24T13:43:01Z"
+SHIFT_MISSION_ID = 254
+# 候选 refill 腿：24h 内的 infra 类终局（剧本分类学）；逐条过 refill_check + 承接门
+CANDIDATES = [221, 223, 226, 229, 230, 231, 244, 245, 249]
+
+
+def psql(sql: str) -> list[list[str]]:
+    """只读查询：单条 SQL 一次取全部列，少调用。"""
+    out = subprocess.run(PSQL + [sql], capture_output=True, text=True,
+                         env=ENV, timeout=120).stdout
+    return [ln.split("|") for ln in out.strip().splitlines() if ln.strip()]
+
+
+def shell(cmd: str) -> str:
+    return subprocess.run(cmd, shell=True, capture_output=True, text=True,
+                          cwd=REPO, timeout=180).stdout.strip()
+
+
+def refill_check(mid: int) -> dict:
+    """机械门 refill_check（playbook 案例 2）：rc + 末行文字。"""
+    code = ("set -a; source /srv/tensor/shared/tensor_eco/agent_work/operator.env; set +a; "
+            f"/srv/tensor/shared/venvs/tensor_eco/bin/python TensorPlatform/tools/agent/"
+            f"refill_check.py {mid}")
+    r = subprocess.run(["bash", "-lc", code], capture_output=True, text=True,
+                       cwd=str(ECO), timeout=180)
+    lines = [x for x in r.stdout.strip().splitlines() if x.strip()]
+    return {"id": mid, "rc": r.returncode,
+            "last_line": lines[-1] if lines else ""}
+
+
+def poses_legs(prefix_from: int, width: int) -> list[dict]:
+    """承接门判据①：同 goal 前缀的全部腿（playbook 案例 7 附加门②）。"""
+    rows = psql(f"SELECT id,status FROM tensor_dev_missions WHERE "
+                f"left(goal,{width})=left((SELECT goal FROM tensor_dev_missions "
+                f"WHERE id={prefix_from}),{width}) ORDER BY id")
+    return [{"id": int(r[0]), "status": r[1]} for r in rows]
+
+
+def _prev_day(day: str) -> str:
+    """给定 YYYY-MM-DD 返回前一日（日志跨零点定日用，纯标准库）。"""
+    return time.strftime("%Y-%m-%d",
+                         time.localtime(time.mktime(time.strptime(day, "%Y-%m-%d")) - 86400))
+
+
+def _mission_time_anchors() -> dict[tuple[str, str], str]:
+    """从 DB 取 mission 时间锚点：{(事件种类, mission_id): 本地 'YYYY-MM-DD HH:MM:SS'}。
+
+    定日的**权威源**：日志行只有 HH:MM:SS 没有日期，反推日（mtime + 时间倒退计数）
+    在日志有多日空档时会系统性偏移（m242 实测：agent-MiniMax 三条 complete 行偏 1 日、
+    agent-Qwen3.8-27B 偏 1 日、agent-deepseek-v4-flash-w2 偏 1 日，78 条里 53 条错）。
+    改用 DB 时间戳：`claimed mission N` ↔ created_at、`mN: complete` ↔ finished_at，
+    一条 SQL 取全，本地时区由 psql 直接换算（AT TIME ZONE 'Asia/Shanghai'）。
+    """
+    rows = psql("SELECT id, to_char(created_at AT TIME ZONE 'Asia/Shanghai',"
+                "'YYYY-MM-DD HH24:MI:SS'), coalesce(to_char(finished_at AT TIME ZONE "
+                "'Asia/Shanghai','YYYY-MM-DD HH24:MI:SS'),'-') FROM tensor_dev_missions "
+                "WHERE created_at > now()-interval '10 days'")
+    anchors: dict[tuple[str, str], str] = {}
+    for r in rows:
+        if len(r) < 3:
+            continue
+        mid, created, finished = r[0], r[1], r[2]
+        anchors[("claimed", mid)] = created
+        if finished not in ("-", ""):
+            anchors[("finished", mid)] = finished
+    return anchors
+
+
+_ANCHOR_PATTERNS = ((re.compile(r"claimed mission (\d+):"), "claimed"),
+                    (re.compile(r"m(\d+): complete ->"), "finished"),
+                    (re.compile(r"m(\d+): awaiting acceptance"), "finished"))
+
+
+def _secs(hhmmss: str) -> int:
+    """'HH:MM:SS' → 当日秒数（时刻比较用）。"""
+    h, m, sec = hhmmss.split(":")
+    return int(h) * 3600 + int(m) * 60 + int(sec)
+
+
+def _line_anchor(ln: str, anchors: dict[tuple[str, str], str]) -> str | None:
+    """把一行日志解析成已知日期锚点（只认同秒/近分的时间，防 reclaim 误锚）。"""
+    for pat, kind in _ANCHOR_PATTERNS:
+        m = pat.search(ln)
+        if not m:
+            continue
+        stamp = anchors.get((kind, m.group(1)))
+        if not stamp:
+            return None
+        t = re.match(r"\[(\d\d):(\d\d):(\d\d)\]", ln.strip())
+        if not t:
+            return None
+        log_s = _secs(f"{t.group(1)}:{t.group(2)}:{t.group(3)}")
+        db_s = _secs(stamp[11:])
+        if abs(log_s - db_s) > 300:      # 跨 5 分钟即不认（reclaim/多次 complete）
+            return None
+        return stamp[:10]
+    return None
+
+
+def _dated_lines(lg: Path, anchors: dict[tuple[str, str], str] | None = None
+                 ) -> list[tuple[str, str, str]]:
+    """把守护日志的行钉上日期：(YYYY-MM-DD, HH:MM:SS, 行文本)。
+
+    m242 重写（前任算法两处缺陷，见 _mission_time_anchors 文档）：
+      ① DB 锚点定日（主）——`claimed mission N` / `mN: complete` 行用 DB 时间戳定日，
+         锚点之间向前走日（行内时刻倒退即 +1 日），首锚点之前向后走日；
+      ② 无任何锚点的文件退回反推日（mtime 基准 + 倒退计数），并在返回值中标注。
+    主函数 main() 把锚点一致率写进 readings['dating_anchors'] 供机器门断言。
+    """
+    lines = lg.read_text(encoding="utf-8", errors="replace").splitlines()
+    ts: list[tuple[str, str]] = []
+    anchored: dict[int, str] = {}
+    for ln in lines:
+        s = ln.strip()
+        m = re.match(r"\[(\d\d):(\d\d):(\d\d)\]", s)
+        if not m:
+            continue
+        ts.append((f"{m.group(1)}:{m.group(2)}:{m.group(3)}", s[:180]))
+        if anchors:
+            day = _line_anchor(s, anchors)
+            if day:
+                anchored[len(ts) - 1] = day
+    if not ts:
+        return []
+    out: list[tuple[str, str, str]] = [("", t, ln) for t, ln in ts]
+    if anchored:
+        keys = sorted(anchored)
+        for k in keys:
+            out[k] = (anchored[k], out[k][1], out[k][2])
+        # 锚点之间/之外：以最近锚点为基准向前走日
+        cur = anchored[keys[0]]
+        for i in range(keys[0], len(ts)):
+            if i in anchored:
+                cur = anchored[i]
+            out[i] = (cur, out[i][1], out[i][2])
+            nxt = i + 1
+            if nxt < len(ts) and nxt not in anchored and ts[nxt][0] < ts[i][0]:
+                cur = _next_day(cur)
+        # 首锚点之前：向后走日
+        cur = anchored[keys[0]]
+        for i in range(keys[0] - 1, -1, -1):
+            if ts[i][0] > ts[i + 1][0]:
+                cur = _prev_day(cur)
+            out[i] = (cur, out[i][1], out[i][2])
+        return out
+    # 无锚点文件：退回反推日（保持可解释）
+    cur = time.strftime("%Y-%m-%d", time.localtime(lg.stat().st_mtime))
+    out[-1] = (cur, out[-1][1], out[-1][2])
+    for i in range(len(ts) - 2, -1, -1):
+        if ts[i][0] > ts[i + 1][0]:
+            cur = _prev_day(cur)
+        out[i] = (cur, out[i][1], out[i][2])
+    return out
+
+
+def _next_day(day: str) -> str:
+    return time.strftime("%Y-%m-%d",
+                         time.localtime(time.mktime(time.strptime(day, "%Y-%m-%d")) + 86400))
+
+
+def dating_audit(anchors: dict[tuple[str, str], str]) -> dict:
+    """定日正确性**独立**复核（非自证）：每条 `冷却 600s` 行去找同文件内紧随其后
+    （≤120s）的 `mN: complete ->` 行，用该 mission 的 DB finished_at 定日，比对
+    冷却行被指派到的日期。冷却事件是 R13 第③段的实际判据，以此直验它。
+    另加各文件日期单调性检查（定日不得往回跳）。
+    """
+    ok = bad = 0
+    samples, monotonic_bad = [], []
+    for lg in sorted(AGENT_WORK.glob("agent-*.log")):
+        dated = _dated_lines(lg, anchors)
+        for x, y in zip(dated, dated[1:]):
+            if y[0] < x[0]:
+                monotonic_bad.append({"file": lg.name, "at": y[1], "from": x[0], "to": y[0]})
+        for i, (d, t, ln) in enumerate(dated):
+            if "冷却 600s" not in ln:
+                continue
+            exp = None
+            for d2, t2, ln2 in dated[i + 1:i + 4]:
+                m = re.search(r"m(\d+): complete ->", ln2)
+                if m and abs(_secs(t2) - _secs(t)) <= 120:
+                    stamp = anchors.get(("finished", m.group(1)))
+                    if stamp and abs(_secs(stamp[11:]) - _secs(t2)) <= 300:
+                        exp = stamp[:10]
+                    break
+            if exp is None:
+                continue
+            if d == exp:
+                ok += 1
+            else:
+                bad += 1
+                if len(samples) < 5:
+                    samples.append({"file": lg.name, "cool_dated": d, "db": exp,
+                                    "line": ln[:60]})
+    return {"cooldown_events_verified": ok + bad, "cooldown_events_ok": ok,
+            "cooldown_events_bad": bad, "monotonic_violations": monotonic_bad[:5],
+            "first_mismatches": samples}
+
+
+def cooling_events(shift_start_local: str, today: str,
+                   anchors: dict[tuple[str, str], str] | None = None) -> dict:
+    """R13 判据三段式的第③段：冷却事件按定日后的时间线取（案例 17）。"""
+    per_file, cool_ts, transient = [], [], []
+    for lg in sorted(AGENT_WORK.glob("agent-*.log")):
+        dated = _dated_lines(lg, anchors)
+        cools = [(d, t, ln) for d, t, ln in dated if "冷却 600s" in ln]
+        trans = [(d, t, ln) for d, t, ln in dated if "transient -> retry" in ln]
+        if cools:
+            per_file.append({"file": lg.name,
+                             "mtime": time.strftime("%Y-%m-%d %H:%M:%S",
+                                                    time.localtime(lg.stat().st_mtime)),
+                             "count": len(cools),
+                             "last_dated": cools[-1][0] + "T" + cools[-1][1]})
+            cool_ts.extend(d + "T" + t for d, t, _ in cools)
+        for d, t, ln in trans:
+            if d + "T" + t >= shift_start_local:
+                transient.append({"file": lg.name, "at": d + "T" + t})
+    return {"per_file": per_file,
+            "total_all_time": len(cool_ts),
+            "newest_local_ts": max(cool_ts) if cool_ts else None,
+            "events_today": sorted(t for t in cool_ts if t.startswith(today)),
+            "events_since_shift": sorted(t for t in cool_ts if t >= shift_start_local),
+            "transient_since_shift": transient}
+
+
+def main() -> int:
+    now = time.time()
+    _ANCHORS = _mission_time_anchors()
+    # SHIFT_START_UTC 是 UTC，定日线用本地时刻（日志时钟是本地 UTC+8）
+    shift_start_local = time.strftime(
+        "%Y-%m-%dT%H:%M:%S",
+        time.localtime(time.mktime(time.strptime(SHIFT_START_UTC, "%Y-%m-%dT%H:%M:%SZ"))
+                       - time.timezone))
+    if time.daylight:
+        shift_start_local = time.strftime(
+            "%Y-%m-%dT%H:%M:%S",
+            time.localtime(time.mktime(time.strptime(SHIFT_START_UTC,
+                                                     "%Y-%m-%dT%H:%M:%SZ"))
+                           - time.altzone))
+    today = time.strftime("%Y-%m-%d")
+
+    R: dict = {"mission": f"m{SHIFT_MISSION_ID}",
+               "shift": "第94班 (派发器标注 shift#50，标号非递增)",
+               "collected_at_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ",
+                                                 time.gmtime(now)),
+               "shift_start_utc": SHIFT_START_UTC,
+               "shift_start_local": shift_start_local,
+               "collected_at_local": time.strftime("%Y-%m-%d %H:%M:%S",
+                                                   time.localtime(now)),
+               "worktree": str(REPO)}
+
+    # ── 步骤 1：在飞 + 心跳鲜度 ──
+    rows = psql("SELECT id,status,coalesce(round(extract(epoch FROM "
+                "(now()-heartbeat_at)))::text,'-'),coalesce(claimed_by,''),"
+                "coalesce(left(regexp_replace(goal,E'[\\n\\r]+',' '),40),''),"
+                "coalesce(result->>'stop_condition','') "
+                "FROM tensor_dev_missions WHERE status IN ('claimed','running') "
+                "ORDER BY id")
+    missions = [{"id": int(r[0]), "status": r[1],
+                 "hb_s": int(r[2]) if r[2] not in ("-", "") else None,
+                 "claimed_by": r[3], "goal_head": r[4],
+                 "stop_condition": r[5] or None} for r in rows]
+    R["step1_inflight"] = {
+        "count": len(missions), "missions": missions,
+        "ids": [m["id"] for m in missions],
+        "max_hb_s": max((m["hb_s"] or 0) for m in missions) if missions else 0,
+        "stale_over_240s": [m["id"] for m in missions if (m["hb_s"] or 0) > 240],
+        "with_stop_condition": [m["id"] for m in missions if m["stop_condition"]],
+    }
+
+    # ── 步骤 2：守护计数等式（实测 vs 主仓权威源 workers.json，R17/R18）──
+    auth_path = ECO / "TensorPlatform" / "tools" / "agent" / "workers.json"
+    raw = json.loads(auth_path.read_text("utf-8"))
+    auth = {k: v for k, v in raw.items() if not k.startswith("_")}
+    detail = shell("ps -eo args | grep -o '[t]ensor_agent.py --model [^ ]*' "
+                   "| awk '{print $3}' | sort | uniq -c")
+    measured: dict[str, int] = {}
+    for ln in detail.splitlines():
+        n, model = ln.split()
+        measured[model] = measured.get(model, 0) + int(n)
+    per_model = {m: {"authority": auth.get(m, 0), "measured": measured.get(m, 0)}
+                 for m in sorted(set(auth) | set(measured))}
+    R["step2_guardian"] = {
+        "authority_sumN": sum(auth.values()),
+        "authority_source": str(auth_path),
+        "measured_total": sum(measured.values()),
+        "pgrep_count": int(shell("pgrep -f 'tensor_agen[t].py' | wc -l") or 0),
+        "slot_workers": int(shell("ps -eo args | grep -Ec -- '--slot [2-9]' || true")
+                            or 0),
+        "per_model": per_model,
+        "per_model_all_equal": all(v["authority"] == v["measured"]
+                                  for v in per_model.values()),
+        "playbook_expected": 7,
+        "playbook_value_is_R18": True,
+    }
+
+    # ── 步骤 3：中继健康（bash 侧 curl 传入）+ R17 端点口径 ──
+    probe = (os.environ.get("RELAY_PROBE") or "").split()
+    ep_live = ECO / "TensorPlatform" / "tools" / "agent" / "llm_endpoints.json"
+    ep = json.loads(ep_live.read_text("utf-8"))
+    R["step3_relay"] = {
+        "http_code": int(probe[0]) if probe else None,
+        "time_total_s": float(probe[1]) if len(probe) > 1 else None,
+        "models": int(probe[2]) if len(probe) > 2 else None,
+        "endpoints_n": len(ep.get("endpoints", [])),
+        "endpoint_names": [e.get("name") for e in ep.get("endpoints", [])],
+        "cooldown_seconds": ep.get("cooldown_seconds"),
+        "transient_threshold": ep.get("transient_threshold"),
+        "config_source": str(ep_live),
+        "code_caps_600": "min(self.cooldown, 600)" in (
+            ECO / "TensorPlatform/tools/agent/llm_gateway.py").read_text("utf-8"),
+    }
+
+    # ── 步骤 4：网关冷却态 ──
+    st_path = AGENT_WORK / "llm_gateway_state.json"
+    state = json.loads(st_path.read_text(encoding="utf-8") or "{}")
+    R["step4_cooldown"] = {
+        "path": str(st_path),
+        "raw": state,
+        "active_now": {k: v for k, v in state.items()
+                       if (v.get("blocked_until") or 0) > now},
+        "delta_s": {k: round((v.get("blocked_until") or 0) - now, 1)
+                    for k, v in state.items()},
+        "mtime_local": time.strftime("%Y-%m-%d %H:%M:%S",
+                                     time.localtime(st_path.stat().st_mtime)),
+        "action": "none（冷却态为 {} 空，无需清理）" if not state else "pending",
+    }
+
+    # ── 步骤 5：终态 mission（R13 三段式）──
+    # 24h 窗口锚定在 SHIFT_START_UTC（非滚动 now()）：readings 是快照，
+    # 用 now() 会让「24h 前」随时间漂移、跨过最老一条 failed 的边界（m246 实测
+    # m208 距 shift 起点仅 22.5h，用 now() 会在班次内自己掉出窗口→机器门自伤）。
+    h24 = f"finished_at > timestamptz '{SHIFT_START_UTC}' - interval '24 hours'"
+    t = psql("SELECT count(*) FILTER (WHERE status='failed'),"
+             "count(*) FILTER (WHERE status='succeeded'),"
+             "count(*) FILTER (WHERE status='failed' AND finished_at >= "
+             f"'{SHIFT_START_UTC}'),"
+             "coalesce(extract(epoch FROM (timestamptz "
+             f"'{SHIFT_START_UTC}'-max(finished_at)"
+             " FILTER (WHERE status='failed')))::int::text,'-') "
+             f"FROM tensor_dev_missions WHERE {h24}")[0]
+    by_stop = psql("SELECT coalesce(result->>'stop_condition','-'),count(*) "
+                   f"FROM tensor_dev_missions WHERE status='failed' AND {h24} "
+                   "GROUP BY 1 ORDER BY 1")
+    fails = psql("SELECT id,coalesce(result->>'stop_condition','-'),"
+                 f"round(extract(epoch FROM (timestamptz '{SHIFT_START_UTC}'"
+                 "-finished_at)))::text,"
+                 "coalesce(to_char(finished_at,'MM-DD HH24:MI'),'') "
+                 f"FROM tensor_dev_missions WHERE status='failed' AND {h24} ORDER BY id")
+    since = psql("SELECT id,status,coalesce(result->>'stop_condition','-') "
+                 "FROM tensor_dev_missions WHERE finished_at >= "
+                 f"'{SHIFT_START_UTC}' ORDER BY id")
+    aw = psql("SELECT count(*) FROM tensor_dev_missions "
+              "WHERE status='awaiting_acceptance'")[0][0]
+    R["step5_terminal"] = {
+        "h24_failed": int(t[0]), "h24_succeeded": int(t[1]),
+        "since_shift_failed": int(t[2]),
+        "last_failed_age_s": int(t[3]) if t[3] not in ("-", "") else None,
+        "h24_failed_by_stop": {r[0]: int(r[1]) for r in by_stop},
+        "failed_missions": [{"id": int(r[0]), "stop_condition": r[1],
+                             "age_s": int(r[2]), "finished": r[3]} for r in fails],
+        "since_shift_missions": [{"id": int(r[0]), "status": r[1],
+                                  "stop_condition": r[2]} for r in since],
+        "awaiting_acceptance": int(aw),
+    }
+
+    # ── 步骤 5b：R13 冷却事件三段式第③段 ──
+    R["step5b_r13"] = cooling_events(shift_start_local, today, _ANCHORS)
+    R["step5b_r13"]["shift_start_local"] = shift_start_local
+
+    R["dating_anchors"] = dating_audit(_ANCHORS)
+
+    # ── 步骤 6：容器体检（案例 11 增列项）──
+    dstat = shell('DOCKER_HOST=unix:///run/user/1020/docker.sock docker ps '
+                  '--format "{{.Names}}|{{.Status}}"')
+    cl = [ln for ln in dstat.splitlines() if ln.strip()]
+    R["step6_containers"] = {
+        "total": len(cl),
+        "healthy": sum(1 for ln in cl if "healthy" in ln),
+        "unhealthy": [ln for ln in cl if "healthy" not in ln],
+    }
+
+    # ── 步骤 7：refill 候选逐条过两关（refill_check + 承接门）──
+    rc = {f"m{i}": refill_check(i) for i in CANDIDATES}
+    legs = {f"m{i}": poses_legs(i, 34) for i in CANDIDATES}
+    gate = {}
+    for i in CANDIDATES:
+        later = [l for l in legs[f"m{i}"] if l["id"] > i
+                 and l["status"] in ("running", "claimed", "succeeded",
+                                     "awaiting_acceptance")]
+        if i == 226:
+            gate[f"m{i}"] = ("[上报] 无更晚同前缀腿（MP-DAMBREAK:S2 唯一腿）；"
+                             "owner 派发的业务线 mission，非 operator 自主 refill 权限面 → 上报 owner 裁决")
+        elif later:
+            gate[f"m{i}"] = (f"承接门挡下：更晚同前缀腿 "
+                             + ", ".join(f"m{l['id']}({l['status']})" for l in later[:4]))
+        else:
+            gate[f"m{i}"] = "无承接腿（需按剧本处置）"
+    R["step7_refill_gate"] = {"refill_checks": rc, "legs": legs, "verdicts": gate}
+
+    # ── 审计面 ──
+    ap = psql("SELECT count(*) FILTER (WHERE status='approved'),"
+              "count(*) FILTER (WHERE status='rejected'),"
+              "count(*) FILTER (WHERE status='pending') "
+              "FROM tensor_approval_requests")[0]
+    lots = AGENT_WORK / "approver_escalated.json"
+    pa = AGENT_WORK / "auto_approver.PASS_ALL"
+    alog = AGENT_WORK / "auto_approver.log"
+    alines = alog.read_text(encoding="utf-8", errors="replace").splitlines()
+    pall = [ln for ln in alines if "PASS_ALL" in ln]
+    approvals = [ln for ln in alines if re.search(r"approval (\d+) ->", ln)]
+    max_ap = max((int(re.search(r"approval (\d+)", ln).group(1))
+                  for ln in approvals), default=0)
+    gc = AGENT_WORK / "gc.log"
+    fleet = AGENT_WORK / "fleet.log"
+    R["audit"] = {
+        "approval": {"approved": int(ap[0]), "rejected": int(ap[1]),
+                     "pending": int(ap[2])},
+        "approval_max_id": max_ap,
+        "approval_log_last": approvals[-1][:120] if approvals else None,
+        "parking_lot": (lots.read_text(encoding="utf-8").strip()
+                        if lots.exists() else "missing"),
+        "pass_all": {"exists": pa.exists(),
+                     "size_bytes": pa.stat().st_size if pa.exists() else None,
+                     "mtime_local": (time.strftime("%Y-%m-%d %H:%M:%S",
+                                                   time.localtime(pa.stat().st_mtime))
+                                     if pa.exists() else None),
+                     "rounds": len(pall), "last_line": pall[-1][:120] if pall else None},
+        "approver_log_total_lines": len(alines),
+        "approver_log_last": alines[-1][:120] if alines else None,
+        "worktree_total": len([x for x in shell(
+            f"git -C {ECO}/TensorPlatform worktree list").splitlines() if x.strip()]),
+        "worktree_tensorplatform": len([x for x in shell(
+            f"git -C {ECO}/TensorPlatform worktree list").splitlines()
+            if "/TensorPlatform" in x]),
+        "main_dirty": len([x for x in shell(f"git -C {ECO}/TensorPlatform status "
+                                            "--porcelain").splitlines() if x.strip()]),
+        "main_branch": shell(f"git -C {ECO}/TensorPlatform rev-parse --abbrev-ref HEAD"),
+        "main_head": shell(f"git -C {ECO}/TensorPlatform rev-parse --short HEAD"),
+        "gc_log_last": (gc.read_text(encoding="utf-8", errors="replace")
+                        .strip().splitlines() or [""])[-1],
+        "fleet_log_last": (fleet.read_text(encoding="utf-8", errors="replace")
+                           .strip().splitlines() or [""])[-1],
+        "shift_switch_off": (AGENT_WORK / "operator_shift.OFF").exists(),
+        "worktree_branch": shell("git rev-parse --abbrev-ref HEAD"),
+        "worktree_head": shell("git rev-parse --short HEAD"),
+        "worktree_dirty_before_delivery": len(
+            [x for x in shell("git status --porcelain").splitlines() if x.strip()]),
+    }
+    print(json.dumps(R, ensure_ascii=False, indent=1))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())
