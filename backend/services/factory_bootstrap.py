@@ -26,8 +26,12 @@ def bootstrap_development_database(engine) -> None:
         db.exec_driver_sql(base, execution_options={"no_parameters": True})
         for name in ("086_tensor_dev_missions.sql", "087_mission_runner_origin_gc_indexes.sql",
                      "088_mission_model.sql", "089_mission_tree_codispatch.sql",
-                     "090_factory_claim_principal.sql", "091_factory_residents.sql", "092_factory_strategy.sql", "093_factory_discussion.sql"):
+                     "090_factory_claim_principal.sql", "091_factory_residents.sql",
+                     "092_factory_strategy.sql", "093_factory_discussion.sql"):
             db.exec_driver_sql((migrations / name).read_text(), execution_options={"no_parameters": True})
+    # Soul 迁移走带版本+校验和的登记器：重复应用幂等，文件内容变动会报错而不是静默覆盖。
+    from services.soul_migrations import apply_soul_migrations
+    apply_soul_migrations(engine)
 
 
 def provision_account(db, *, organization_id: int, username: str, password: str, role: str) -> int:
