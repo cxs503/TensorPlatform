@@ -103,6 +103,28 @@ def relay_ok() -> bool:
         return False
 
 
+def model_chat_ok(model: str, timeout: int = 8) -> bool | None:
+    """Per-model chat-level probing (2026-10-21 relay lesson: /v1/models metadata returns 200
+    but each model's chat backend times out independently; only chat can detect single-lane failures).
+    Returns None when probe configuration is missing (don't block, compatible with legacy behavior)."""
+    base = os.environ.get("LLM_BASE_URL", "").rstrip("/")
+    key = os.environ.get("LLM_API_KEY", "")
+    if not base:
+        return None
+    body = json.dumps({"model": model,
+                       "messages": [{"role": "user", "content": "ping"}],
+                       "max_tokens": 1}).encode()
+    req = urllib.request.Request(
+        base + "/chat/completions", data=body, method="POST",
+        headers={"Authorization": "Bearer " + key,
+                 "Content-Type": "application/json"})
+    try:
+        with urllib.request.urlopen(req, timeout=timeout) as resp:
+            return resp.status == 200
+    except Exception:  # noqa: BLE001
+        return False
+
+
 def gh_token() -> str:
     tok = os.environ.get("GH_PUSH_TOKEN", "")
     if not tok:
@@ -529,6 +551,11 @@ def main() -> int:
             continue
         if item.get("wait_for_pr") and not pr_merged(int(item["wait_for_pr"])):
             continue        # 目标 PR 未合（如同案在库 PR），避免双 PR 撞车
+        ok = model_chat_ok(item["model"])
+        if ok is False:
+            log(f"HOLD {item['key']}: model={item['model']} chat probe failed "
+                f"(per-model relay flap), skipping this round")
+            continue
         mid = dispatch(item)
         if mid:
             state["items"][item["key"]] = {
