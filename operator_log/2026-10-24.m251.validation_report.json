@@ -1,0 +1,608 @@
+{
+  "shift_mission_id": 251,
+  "shift": "第 93 班",
+  "shift_start_utc": "2026-10-24T12:13:02Z",
+  "collected_at_utc": "2026-10-24T12:15:25Z",
+  "readings": "operator_log/2026-10-24.m251.readings.json",
+  "checks_total": 119,
+  "checks_passed": 119,
+  "checks_failed": 0,
+  "all_pass": true,
+  "results": [
+    {
+      "name": "S1-has-inflight",
+      "pass": true,
+      "detail": "在飞 2"
+    },
+    {
+      "name": "S1-hb-fresh",
+      "pass": true,
+      "detail": "max_hb=9s < 240s"
+    },
+    {
+      "name": "S1-none-stale",
+      "pass": true,
+      "detail": "stale=[]"
+    },
+    {
+      "name": "S1-self-included",
+      "pass": true,
+      "detail": "ids=[250, 251]"
+    },
+    {
+      "name": "S1-no-stop-condition",
+      "pass": true,
+      "detail": "with_stop=[]"
+    },
+    {
+      "name": "S2-equation-authority",
+      "pass": true,
+      "detail": "ΣN=16 = measured=16"
+    },
+    {
+      "name": "S2-equation-pgrep",
+      "pass": true,
+      "detail": "ΣN=16 = pgrep=16"
+    },
+    {
+      "name": "S2-per-model-equal",
+      "pass": true,
+      "detail": "per_model={'MiniMax-M2.5-AWQ': (1, 1), 'deepseek-v4-flash': (3, 3), 'glm-5.1': (2, 2), 'glm-5.2': (1, 1), 'qwen3.6-plus': (3, 3), 'qwen3.7-plus': (6, 6)}"
+    },
+    {
+      "name": "S2-slot-workers",
+      "pass": true,
+      "detail": "slot=10"
+    },
+    {
+      "name": "S2-authority-live-recheck",
+      "pass": true,
+      "detail": "live ΣN=16 vs readings=16"
+    },
+    {
+      "name": "S3-http-200",
+      "pass": true,
+      "detail": "http=200"
+    },
+    {
+      "name": "S3-latency",
+      "pass": true,
+      "detail": "t=0.245716s"
+    },
+    {
+      "name": "S3-models-7",
+      "pass": true,
+      "detail": "models=7"
+    },
+    {
+      "name": "S3-single-endpoint",
+      "pass": true,
+      "detail": "endpoints=['relay-13001']"
+    },
+    {
+      "name": "S4-no-active-cooldown",
+      "pass": true,
+      "detail": "active_now={}"
+    },
+    {
+      "name": "S4-inherited-nonempty",
+      "pass": true,
+      "detail": "raw={'relay-13001': {'blocked_until': 1792843252.0315802, 'reason': 'transient×3', 'marked_at': 1792842652.0315807}}"
+    },
+    {
+      "name": "S4-expired-negative-delta",
+      "pass": true,
+      "detail": "delta_s={'relay-13001': -873.0}"
+    },
+    {
+      "name": "S4-action-pending-then-cleaned",
+      "pass": true,
+      "detail": "pending"
+    },
+    {
+      "name": "S4-live-state-now-empty",
+      "pass": true,
+      "detail": "live={}"
+    },
+    {
+      "name": "S4-snapshot-exists",
+      "pass": true,
+      "detail": "/srv/tensor/shared/tensor_eco/agent_work/probe_m251/gateway_state_before.json"
+    },
+    {
+      "name": "S4-snapshot-matches-readings",
+      "pass": true,
+      "detail": "snap={'relay-13001': {'blocked_until': 1792843252.0315802, 'reason': 'transient×3', 'marked_at': 1792842652.0315807}}"
+    },
+    {
+      "name": "S4-expired-seconds-positive",
+      "pass": true,
+      "detail": "expired_by=1248.3s"
+    },
+    {
+      "name": "S4-post-action-empty",
+      "pass": true,
+      "detail": "after={}"
+    },
+    {
+      "name": "S4-post-probe-200",
+      "pass": true,
+      "detail": "post={'http_code': 200, 'time_total_s': 0.355079, 'models': 7, 'at_utc': '2026-10-24T12:21:40Z'}"
+    },
+    {
+      "name": "S5-h24-failed-12",
+      "pass": true,
+      "detail": "h24_failed=12"
+    },
+    {
+      "name": "S5-h24-succeeded-23",
+      "pass": true,
+      "detail": "h24_succeeded=23"
+    },
+    {
+      "name": "S5-since-shift-empty",
+      "pass": true,
+      "detail": "since=[]"
+    },
+    {
+      "name": "S5-h24-excludes-m208",
+      "pass": true,
+      "detail": "ids=[216, 217, 218, 221, 223, 226, 229, 230, 231, 244, 245, 249]"
+    },
+    {
+      "name": "S5-since-shift-zero",
+      "pass": true,
+      "detail": "since_shift=0"
+    },
+    {
+      "name": "S5-failed-by-stop",
+      "pass": true,
+      "detail": "{'agent_lost': 1, 'budget_exceeded': 1, 'gateway_unavailable': 10}"
+    },
+    {
+      "name": "S5-m244-agent-lost-recorded",
+      "pass": true,
+      "detail": "m244=[{'id': 244, 'stop_condition': 'agent_lost', 'age_s': 9533, 'finished': '10-24 09:34'}]"
+    },
+    {
+      "name": "S5-m245-gateway-unavailable-recorded",
+      "pass": true,
+      "detail": "m245=[{'id': 245, 'stop_condition': 'gateway_unavailable', 'age_s': 1327, 'finished': '10-24 11:50'}]"
+    },
+    {
+      "name": "S5-m249-gateway-unavailable-recorded",
+      "pass": true,
+      "detail": "m249=[{'id': 249, 'stop_condition': 'gateway_unavailable', 'age_s': 1278, 'finished': '10-24 11:51'}]"
+    },
+    {
+      "name": "S5-new-fails-within-cool-wave",
+      "pass": true,
+      "detail": "距冷却事件秒数={245: 3, 249: 52}"
+    },
+    {
+      "name": "S5-m249-zero-delivery-evidence",
+      "pass": true,
+      "detail": "untracked=['?? operator_log/2026-10-24.m249.readings.json', '?? operator_log/collect_2026-10-24.m249.py', '?? operator_log/verify_2026-10-24.m249.py']"
+    },
+    {
+      "name": "S5-awaiting-zero",
+      "pass": true,
+      "detail": "awaiting=0"
+    },
+    {
+      "name": "S5-h24-live-recheck",
+      "pass": true,
+      "detail": "live=12 readings=12"
+    },
+    {
+      "name": "S5-since-shift-live-recheck",
+      "pass": true,
+      "detail": "live since=0"
+    },
+    {
+      "name": "R13-events-today-count",
+      "pass": true,
+      "detail": "events_today=5"
+    },
+    {
+      "name": "R13-newest-195052",
+      "pass": true,
+      "detail": "newest=2026-10-24T19:50:52"
+    },
+    {
+      "name": "R13-new-event-is-the-cleaned-one",
+      "pass": true,
+      "detail": "today=['2026-10-24T01:46:14', '2026-10-24T01:46:15', '2026-10-24T08:01:30', '2026-10-24T14:31:32', '2026-10-24T19:50:52']"
+    },
+    {
+      "name": "R13-window-empty",
+      "pass": true,
+      "detail": "since_shift=[]"
+    },
+    {
+      "name": "R13-transient-window-below-threshold",
+      "pass": true,
+      "detail": "transient=[]"
+    },
+    {
+      "name": "R13-window-transient-zero",
+      "pass": true,
+      "detail": "transient=[]"
+    },
+    {
+      "name": "R13-r13-third-segment-max-age",
+      "pass": true,
+      "detail": "newest=2026-10-24T19:50:52 shift=2026-10-24T20:13:02"
+    },
+    {
+      "name": "S6-all-healthy",
+      "pass": true,
+      "detail": "healthy 11/11"
+    },
+    {
+      "name": "S6-none-unhealthy",
+      "pass": true,
+      "detail": "unhealthy=[]"
+    },
+    {
+      "name": "S7-m216-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m217-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m218-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m221-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m223-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m226-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m229-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m230-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m231-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m244-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m245-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m249-rc0",
+      "pass": true,
+      "detail": "rc=0"
+    },
+    {
+      "name": "S7-m216-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m232(succeeded)"
+    },
+    {
+      "name": "S7-m217-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m219(succeeded)"
+    },
+    {
+      "name": "S7-m218-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m220(succeeded), m222(succeeded), m224(succeeded)"
+    },
+    {
+      "name": "S7-m221-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m232(succeeded)"
+    },
+    {
+      "name": "S7-m223-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m233(succeeded)"
+    },
+    {
+      "name": "S7-m229-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)"
+    },
+    {
+      "name": "S7-m230-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)"
+    },
+    {
+      "name": "S7-m231-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)"
+    },
+    {
+      "name": "S7-m244-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m250(running)"
+    },
+    {
+      "name": "S7-m245-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m250(running)"
+    },
+    {
+      "name": "S7-m249-gate-blocked",
+      "pass": true,
+      "detail": "承接门挡下：更晚同前缀腿 m251(running)"
+    },
+    {
+      "name": "S7-m226-reported",
+      "pass": true,
+      "detail": "[上报] 无更晚同前缀腿（MP-DAMBREAK:S2 唯一腿）；owner 派发的业务线 mission，非 operator 自主 refill 权限面 → 上报 owner 裁决"
+    },
+    {
+      "name": "S7-m229-later-leg-live",
+      "pass": true,
+      "detail": "later=[('230', 'failed'), ('231', 'failed'), ('234', 'succeeded'), ('235', 'succeeded'), ('237', 'succeeded'), ('242', 'succeeded'), ('243', 'succeeded'), ('246', 'succeeded'), ('247', 'succeeded'), ("
+    },
+    {
+      "name": "S7-m230-later-leg-live",
+      "pass": true,
+      "detail": "later=[('231', 'failed'), ('234', 'succeeded'), ('235', 'succeeded'), ('237', 'succeeded'), ('242', 'succeeded'), ('243', 'succeeded'), ('246', 'succeeded'), ('247', 'succeeded'), ('248', 'succeeded')"
+    },
+    {
+      "name": "S7-m231-later-leg-live",
+      "pass": true,
+      "detail": "later=[('234', 'succeeded'), ('235', 'succeeded'), ('237', 'succeeded'), ('242', 'succeeded'), ('243', 'succeeded'), ('246', 'succeeded'), ('247', 'succeeded'), ('248', 'succeeded'), ('249', 'failed')"
+    },
+    {
+      "name": "S7-m226-no-later-leg",
+      "pass": true,
+      "detail": "later=[]"
+    },
+    {
+      "name": "A-approval-pending-zero",
+      "pass": true,
+      "detail": "pending=0"
+    },
+    {
+      "name": "A-approval-max-id",
+      "pass": true,
+      "detail": "max_id=186"
+    },
+    {
+      "name": "A-parking-lot-empty",
+      "pass": true,
+      "detail": "lot={}"
+    },
+    {
+      "name": "R16-passall-marker-empty",
+      "pass": true,
+      "detail": "size=0"
+    },
+    {
+      "name": "R16-passall-rounds",
+      "pass": true,
+      "detail": "rounds=1080"
+    },
+    {
+      "name": "X-gc-log-perm",
+      "pass": true,
+      "detail": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够"
+    },
+    {
+      "name": "A-shift-switch-on",
+      "pass": true,
+      "detail": "OFF 未拉"
+    },
+    {
+      "name": "A-worktree-branch",
+      "pass": true,
+      "detail": "branch=agent/m251"
+    },
+    {
+      "name": "DA-cooldown-verified-nonzero",
+      "pass": true,
+      "detail": "verified=17"
+    },
+    {
+      "name": "DA-cooldown-all-correct",
+      "pass": true,
+      "detail": "bad=0"
+    },
+    {
+      "name": "DA-monotonic",
+      "pass": true,
+      "detail": "violations=[]"
+    },
+    {
+      "name": "DA-today-events-db-anchored",
+      "pass": true,
+      "detail": "5/5 条今日冷却在 DB 有同刻终态"
+    },
+    {
+      "name": "DA-today-count-not-inflated",
+      "pass": true,
+      "detail": "today=5"
+    },
+    {
+      "name": "LOG-shift-id",
+      "pass": true,
+      "detail": "m251 / 第 93 班"
+    },
+    {
+      "name": "LOG-step-在飞心跳鲜度",
+      "pass": true,
+      "detail": "在飞心跳鲜度"
+    },
+    {
+      "name": "LOG-step-守护计数",
+      "pass": true,
+      "detail": "守护计数"
+    },
+    {
+      "name": "LOG-step-中继健康",
+      "pass": true,
+      "detail": "中继健康"
+    },
+    {
+      "name": "LOG-step-网关冷却态",
+      "pass": true,
+      "detail": "网关冷却态"
+    },
+    {
+      "name": "LOG-step-终态 mission result",
+      "pass": true,
+      "detail": "终态 mission result"
+    },
+    {
+      "name": "LOG-r13-three-segments",
+      "pass": true,
+      "detail": "R13 三段"
+    },
+    {
+      "name": "LOG-report-section",
+      "pass": true,
+      "detail": "[上报] 项段在"
+    },
+    {
+      "name": "LOG-next-shift-advice",
+      "pass": true,
+      "detail": "建议段在"
+    },
+    {
+      "name": "LOG-m226",
+      "pass": true,
+      "detail": "m226 上报在"
+    },
+    {
+      "name": "LOG-no-placeholder",
+      "pass": true,
+      "detail": "无占位符"
+    },
+    {
+      "name": "LOG-cleanup-declared",
+      "pass": true,
+      "detail": "冷却态清理 + 清前快照声明在"
+    },
+    {
+      "name": "LOG-other-writes-zero",
+      "pass": true,
+      "detail": "psql写/kill/换血/push 全零声明在"
+    },
+    {
+      "name": "LOG-p2-dirtycode-reported",
+      "pass": true,
+      "detail": "[上报] P2 未提交代码在"
+    },
+    {
+      "name": "LOG-six-report-items",
+      "pass": true,
+      "detail": "P1/P2/N1/R16/X/R13 六条 [上报] 齐"
+    },
+    {
+      "name": "LOG-refill-zero",
+      "pass": true,
+      "detail": "零 refill 声明"
+    },
+    {
+      "name": "LOG-inflight-count-matches",
+      "pass": true,
+      "detail": "在飞 2 条（日志与 readings 一致）"
+    },
+    {
+      "name": "LOG-guardian-equation",
+      "pass": true,
+      "detail": "守护等式 16"
+    },
+    {
+      "name": "LOG-relay-200",
+      "pass": true,
+      "detail": "中继 200"
+    },
+    {
+      "name": "LOG-shift-93",
+      "pass": true,
+      "detail": "第 93 班"
+    },
+    {
+      "name": "LOG-window-anchored",
+      "pass": true,
+      "detail": "采集器窗口锚定沿用"
+    },
+    {
+      "name": "LOG-n1-zero-recurrence",
+      "pass": true,
+      "detail": "[上报] N1 零复发在"
+    },
+    {
+      "name": "LOG-m244-gate",
+      "pass": true,
+      "detail": "m244 承接门判读在"
+    },
+    {
+      "name": "LOG-m249-gate",
+      "pass": true,
+      "detail": "m249 承接门判读在（更晚腿=本班）"
+    },
+    {
+      "name": "LOG-r13-rebound",
+      "pass": true,
+      "detail": "h24_failed 10→12 回升判读在"
+    },
+    {
+      "name": "LOG-r13-cowave-causality",
+      "pass": true,
+      "detail": "两条新终态同一次冷却连带的因果链在"
+    },
+    {
+      "name": "LOG-r13-hits-operator-shift",
+      "pass": true,
+      "detail": "[上报] R13 打到值班链（上班作废）在"
+    },
+    {
+      "name": "LOG-decay-warning",
+      "pass": true,
+      "detail": "下一班窗口衰减预警在"
+    },
+    {
+      "name": "LOG-no-new-failure-mode",
+      "pass": true,
+      "detail": "新颖性申报在"
+    },
+    {
+      "name": "LOG-no-raw-transcript",
+      "pass": true,
+      "detail": "结论式记录（无大段流水账代码块）"
+    },
+    {
+      "name": "S5-h24-window-anchored",
+      "pass": true,
+      "detail": "anchored=12 readings=12"
+    }
+  ]
+}
