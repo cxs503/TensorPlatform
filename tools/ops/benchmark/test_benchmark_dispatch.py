@@ -138,6 +138,8 @@ def test_push_timeout_no_token_leak(isolated, monkeypatch):
         raise subprocess.TimeoutExpired(cmd="git", timeout=180)
 
     monkeypatch.setattr(bm.subprocess, "run", fake_run)
+    monkeypatch.setattr(bm, "merge_main_before_push",
+                    lambda *a, **k: (True, "测试旁路"))  # 并 main 另有套件
     monkeypatch.setattr(bm.time, "sleep", lambda s: None)   # 不真等 225s
     assert bm.push_and_pr(dict(ITEM), 9, {}) is None
     assert seen_env["GIT_TERMINAL_PROMPT"] == "0"
@@ -157,6 +159,8 @@ def test_push_gates_failed(isolated, monkeypatch):
             cmd, 1, json.dumps({"problems": ["x 对不上"]}), "")
 
     monkeypatch.setattr(bm.subprocess, "run", fake_run)
+    monkeypatch.setattr(bm, "merge_main_before_push",
+                    lambda *a, **k: (True, "测试旁路"))  # 并 main 另有套件
     assert bm.push_and_pr(dict(ITEM), 9, {}, gates_required=True) == "GATES_FAILED"
 
 
@@ -189,6 +193,8 @@ def test_push_suite_ok_reaches_push(isolated, monkeypatch):
         raise subprocess.TimeoutExpired(cmd="git", timeout=180)
 
     monkeypatch.setattr(bm.subprocess, "run", fake_run)
+    monkeypatch.setattr(bm, "merge_main_before_push",
+                    lambda *a, **k: (True, "测试旁路"))  # 并 main 另有套件
     monkeypatch.setattr(bm.time, "sleep", lambda s: None)
     assert bm.push_and_pr(dict(ITEM), 9, {}) is None
     log_text = (isolated / "test.log").read_text(encoding="utf-8")
@@ -403,3 +409,108 @@ def test_backlog_backward_step_l4_is_gpu():
     it = [i for i in bl["items"] if i["key"] == "backward-step-l4"]
     assert it, "backlog 缺 backward-step-l4"
     assert it[0].get("gpu") is True
+
+
+# ── per-model chat 探测闸门（2026-10-21 中继两窗口教训） ─────────────
+
+def test_model_chat_ok_no_env_none(monkeypatch):
+    """LLM_BASE_URL 未配置 → None（不拦派发，兼容无探测环境）。"""
+    monkeypatch.delenv("LLM_BASE_URL", raising=False)
+    monkeypatch.delenv("LLM_API_KEY", raising=False)
+    assert bm.model_chat_ok("any-model") is None
+
+
+def test_model_chat_ok_200_true(monkeypatch):
+    """chat 200 → True。"""
+    monkeypatch.setenv("LLM_BASE_URL", "http://relay.test/v1")
+    monkeypatch.setenv("LLM_API_KEY", "k")
+
+    class R:
+        status = 200
+
+        def __enter__(self):
+            return self
+
+        def __exit__(self, *exc):
+            return False
+
+    def fake_urlopen(req, timeout=8):
+        body = json.loads((req.data or b"").decode())
+        assert body["model"] == "m" and body["max_tokens"] == 1
+        assert req.full_url.endswith("/chat/completions")
+        return R()
+
+    monkeypatch.setattr(bm.urllib.request, "urlopen", fake_urlopen)
+    assert bm.model_chat_ok("m") is True
+
+
+def test_model_chat_ok_timeout_false(monkeypatch):
+    """后端超时/连接拒绝 → False（/v1/models 200 也救不了的单道红）。"""
+    monkeypatch.setenv("LLM_BASE_URL", "http://relay.test/v1")
+    monkeypatch.setenv("LLM_API_KEY", "k")
+
+    def boom(req, timeout=8):
+        raise TimeoutError("per-model backend dead")
+
+    monkeypatch.setattr(bm.urllib.request, "urlopen", boom)
+    assert bm.model_chat_ok("m") is False
+
+
+def test_main_gate_holds_red_lane(isolated, monkeypatch):
+    """接线证明：车道红（chat 探测 False）→ 本轮 HOLD 跳过，不派发。"""
+    monkeypatch.setenv("OPERATOR_USER", "op")
+    monkeypatch.setenv("OPERATOR_PASS", "pw")
+
+    def fake_api(method, path, payload=None, tok=None):
+        if path == "/auth/login":
+            return 200, {"access_token": "t"}
+        if path.startswith("/tensor/missions"):
+            return 200, {"items": []}
+        raise AssertionError(path)
+
+    def fake_load_json(p, default=None):
+        return ({"items": [dict(ITEM)]} if p.name == "backlog.json"
+                else {"items": {}})
+
+    calls = []
+    monkeypatch.setattr(bm, "api", fake_api)
+    monkeypatch.setattr(bm, "load_json", fake_load_json)
+    monkeypatch.setattr(bm, "sync_terminal", lambda *a: None)
+    monkeypatch.setattr(bm, "relay_ok", lambda: True)
+    monkeypatch.setattr(bm, "model_chat_ok", lambda m: False)
+    monkeypatch.setattr(bm, "respect_gpu5_marker", lambda c: None)
+    monkeypatch.setattr(bm, "dispatch", lambda item: calls.append(item) or 111)
+    assert bm.main() == 0
+    assert calls == []                       # 红道本轮不派
+    assert "chat probe failed" in (isolated / "test.log").read_text(
+        encoding="utf-8")
+
+
+def test_main_gate_green_lane_dispatches(isolated, monkeypatch):
+    """车道绿（chat 探测 True）→ 正常派发。"""
+    monkeypatch.setenv("OPERATOR_USER", "op")
+    monkeypatch.setenv("OPERATOR_PASS", "pw")
+
+    def fake_api(method, path, payload=None, tok=None):
+        if path == "/auth/login":
+            return 200, {"access_token": "t"}
+        if path.startswith("/tensor/missions"):
+            return 200, {"items": []}
+        raise AssertionError(path)
+
+    def fake_load_json(p, default=None):
+        return ({"items": [dict(ITEM)]} if p.name == "backlog.json"
+                else {"items": {}})
+
+    calls = []
+    monkeypatch.setattr(bm, "api", fake_api)
+    monkeypatch.setattr(bm, "load_json", fake_load_json)
+    monkeypatch.setattr(bm, "sync_terminal", lambda *a: None)
+    monkeypatch.setattr(bm, "relay_ok", lambda: True)
+    monkeypatch.setattr(bm, "model_chat_ok", lambda m: True)
+    monkeypatch.setattr(bm, "respect_gpu5_marker", lambda c: None)
+    monkeypatch.setattr(bm, "dispatch", lambda item: calls.append(item) or 111)
+    assert bm.main() == 0
+    assert len(calls) == 1                   # 绿道照常派
+    assert "DISPATCHED k1" in (isolated / "test.log").read_text(
+        encoding="utf-8")
