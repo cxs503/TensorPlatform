@@ -1,0 +1,839 @@
+{
+ "mission": "m264",
+ "shift": "第100班 (派发器标注 shift#50，标号非递增；接 m263 第99班——m263 已 awaiting_acceptance)",
+ "collected_at_utc": "2026-10-24T19:20:08Z",
+ "shift_start_utc": "2026-10-24T19:13:02Z",
+ "shift_start_local": "2026-10-25T03:13:02",
+ "collected_at_local": "2026-10-25 03:20:08",
+ "worktree": "/nfs/wangxi/tensor_eco/agent_work/m264/TensorPlatform",
+ "step1_inflight": {
+  "count": 2,
+  "missions": [
+   {
+    "id": 262,
+    "status": "running",
+    "hb_s": 10,
+    "claimed_by": "tensor-agent[deepseek-v4-flash]@localhost.localdomain",
+    "goal_head": "TUTORIAL-WAVE:permeability3d — 为 verifie",
+    "stop_condition": null
+   },
+   {
+    "id": 264,
+    "status": "running",
+    "hb_s": 2,
+    "claimed_by": "tensor-agent[glm-5.2]@localhost.localdomain",
+    "goal_head": "platform-operator 值班班次 2026-10-25（角色交接期：",
+    "stop_condition": null
+   }
+  ],
+  "ids": [
+   262,
+   264
+  ],
+  "max_hb_s": 10,
+  "stale_over_240s": [],
+  "with_stop_condition": []
+ },
+ "step2_guardian": {
+  "authority_sumN": 16,
+  "authority_source": "/nfs/wangxi/tensor_eco/TensorPlatform/tools/agent/workers.json",
+  "measured_total": 16,
+  "pgrep_count": 16,
+  "slot_workers": 10,
+  "per_model": {
+   "MiniMax-M2.5-AWQ": {
+    "authority": 1,
+    "measured": 1
+   },
+   "deepseek-v4-flash": {
+    "authority": 3,
+    "measured": 3
+   },
+   "glm-5.1": {
+    "authority": 2,
+    "measured": 2
+   },
+   "glm-5.2": {
+    "authority": 1,
+    "measured": 1
+   },
+   "qwen3.6-plus": {
+    "authority": 3,
+    "measured": 3
+   },
+   "qwen3.7-plus": {
+    "authority": 6,
+    "measured": 6
+   }
+  },
+  "per_model_all_equal": true,
+  "playbook_expected": 7,
+  "playbook_value_is_R18": true
+ },
+ "step2b_blood_swap": {
+  "code_path": "/nfs/wangxi/tensor_eco/TensorPlatform/tools/agent/tensor_agent.py",
+  "code_mtime_local": "2026-10-24 16:35:58",
+  "code_mtime_epoch": 1792830959.0,
+  "guards": [
+   {
+    "pid": 2726616,
+    "model": "glm-5.2",
+    "slot": "1",
+    "start_local": "2026-10-24 14:44:51",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2726618,
+    "model": "deepseek-v4-flash",
+    "slot": "1",
+    "start_local": "2026-10-24 14:44:51",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2726910,
+    "model": "deepseek-v4-flash",
+    "slot": "2",
+    "start_local": "2026-10-24 14:45:00",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2726917,
+    "model": "deepseek-v4-flash",
+    "slot": "3",
+    "start_local": "2026-10-24 14:45:00",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2968476,
+    "model": "qwen3.6-plus",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968494,
+    "model": "glm-5.1",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968520,
+    "model": "qwen3.7-plus",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968523,
+    "model": "MiniMax-M2.5-AWQ",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968542,
+    "model": "qwen3.6-plus",
+    "slot": "2",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968587,
+    "model": "qwen3.6-plus",
+    "slot": "3",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968605,
+    "model": "qwen3.7-plus",
+    "slot": "2",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968615,
+    "model": "qwen3.7-plus",
+    "slot": "3",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968626,
+    "model": "qwen3.7-plus",
+    "slot": "4",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968643,
+    "model": "qwen3.7-plus",
+    "slot": "5",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968669,
+    "model": "qwen3.7-plus",
+    "slot": "6",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968755,
+    "model": "glm-5.1",
+    "slot": "2",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   }
+  ],
+  "guards_n": 16,
+  "guards_predating_code": [
+   2726616,
+   2726618,
+   2726910,
+   2726917
+  ],
+  "guards_predating_code_n": 4,
+  "diff_added_lines": 5,
+  "diff_added_head": [
+   "+    # 2026-10-24 owner 指令扩编：上游新四库（tensor-expand 跟进线）",
+   "+    \"TensorBEM\": \"/nfs/wangxi/tensor_eco/TensorBEM\",",
+   "+    \"TensorSPH\": \"/nfs/wangxi/tensor_eco/TensorSPH\",",
+   "+    \"TensorDG\": \"/nfs/wangxi/tensor_eco/TensorDG\",",
+   "+    \"TensorCAD\": \"/nfs/wangxi/tensor_eco/TensorCAD\","
+  ],
+  "dangerous_additions": [],
+  "diff_is_additive_only": true,
+  "blank_criterion_head_diff_empty": true,
+  "inflight_ids": [
+   262,
+   264
+  ],
+  "verdict": "零换血：主仓 dirty=16 含 tensor_agent.py 改动未提交⇒ diff c245186..HEAD 恒空判据废；改用守护启动 vs 磁盘 mtime 判旧码：磁盘 mtime=16:35:58 CST，4 台旧码 2726616(glm-5.2)/2726618(flash1)/2726910(flash2)/2726917(flash3) 全部启动 14:4x 早于磁盘。身份纪律要求「零在飞时」换血，本班在飞 2 条非零（m262 业务线 + m264 本班自身），且本班在 glm-5.2(pid 2726616)上⇒ 换血即自杀。交接给下一班：零在飞窗口出现时精确 kill。",
+  "old_code_pids": [
+   2726616,
+   2726618,
+   2726910,
+   2726917
+  ],
+  "extended_repo_risk": {
+   "HEAD_grep_TensorBEM": "0",
+   "log_unknown_repo_hits": 0
+  }
+ },
+ "step3_relay": {
+  "http_code": 200,
+  "time_total_s": 0.238645,
+  "models": 7,
+  "endpoints_n": 1,
+  "endpoint_names": [
+   "relay-13001"
+  ],
+  "cooldown_seconds": 600,
+  "transient_threshold": 3,
+  "config_source": "/nfs/wangxi/tensor_eco/TensorPlatform/tools/agent/llm_endpoints.json",
+  "code_caps_600": true
+ },
+ "step4_cooldown": {
+  "path": "/nfs/wangxi/tensor_eco/agent_work/llm_gateway_state.json",
+  "raw": {},
+  "pre_clear_snapshot_path": "/nfs/wangxi/tensor_eco/agent_work/probe_m264/llm_gateway_state.snapshot.m264.json",
+  "pre_clear": {},
+  "pre_clear_delta_s": {},
+  "pre_clear_marked_at_utc": {},
+  "active_now": {},
+  "delta_s": {},
+  "mtime_local": "2026-10-25 02:17:58",
+  "action": "none（冷却态为 {} 空，无需清理）"
+ },
+ "step5_terminal": {
+  "h24_failed": 10,
+  "h24_succeeded": 23,
+  "since_shift_failed": 0,
+  "last_failed_age_s": 4319,
+  "h24_failed_by_stop": {
+   "agent_lost": 2,
+   "gateway_unavailable": 8
+  },
+  "failed_missions": [
+   {
+    "id": 230,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 69089,
+    "finished": "10-24 00:01"
+   },
+   {
+    "id": 231,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 45686,
+    "finished": "10-24 06:31"
+   },
+   {
+    "id": 244,
+    "stop_condition": "agent_lost",
+    "age_s": 34733,
+    "finished": "10-24 09:34"
+   },
+   {
+    "id": 245,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 26527,
+    "finished": "10-24 11:50"
+   },
+   {
+    "id": 249,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 26478,
+    "finished": "10-24 11:51"
+   },
+   {
+    "id": 255,
+    "stop_condition": "agent_lost",
+    "age_s": 11658,
+    "finished": "10-24 15:58"
+   },
+   {
+    "id": 256,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 4328,
+    "finished": "10-24 18:00"
+   },
+   {
+    "id": 257,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 4323,
+    "finished": "10-24 18:00"
+   },
+   {
+    "id": 259,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 4496,
+    "finished": "10-24 17:58"
+   },
+   {
+    "id": 261,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 4319,
+    "finished": "10-24 18:01"
+   }
+  ],
+  "since_shift_missions": [],
+  "awaiting_acceptance": 0
+ },
+ "step5c_cool_wave": {
+  "cool_mark_utc": "2026-10-24T17:58:02Z",
+  "cool_until_utc": "2026-10-24T18:08:02Z",
+  "trigger_log_line": "agent-deepseek-v4-flash.log [01:58:02] gateway: endpoint relay-13001 冷却 600s（transient×3）",
+  "same_wave_fails": [],
+  "m261_prev_shift": {
+   "id": 261,
+   "status": "failed",
+   "stop_condition": "gateway_unavailable",
+   "duration_s": 3,
+   "zero_delivery": true,
+   "evidence": "agent_work/m261/TensorPlatform status --porcelain = 0 行（无交付件），operator_log/ 内无 2026-10-25.md（只有 10-21 三件旧档）；agent-glm-5.2.log [02:00:59] claimed m261 → [02:01:02] complete failed，3 秒止于『无可用端点』"
+  }
+ },
+ "step5b_r13": {
+  "per_file": [
+   {
+    "file": "agent-MiniMax-M2.5-AWQ.log",
+    "mtime": "2026-10-24 16:40:11",
+    "count": 2,
+    "last_dated": "2026-10-22T20:32:03"
+   },
+   {
+    "file": "agent-deepseek-v4-flash-w2.log",
+    "mtime": "2026-10-25 02:51:32",
+    "count": 5,
+    "last_dated": "2026-10-24T14:31:32"
+   },
+   {
+    "file": "agent-deepseek-v4-flash-w3.log",
+    "mtime": "2026-10-25 00:19:37",
+    "count": 3,
+    "last_dated": "2026-10-24T19:50:52"
+   },
+   {
+    "file": "agent-deepseek-v4-flash.log",
+    "mtime": "2026-10-25 03:19:22",
+    "count": 5,
+    "last_dated": "2026-10-25T01:58:02"
+   },
+   {
+    "file": "agent-qwen3.6-plus-w3.log",
+    "mtime": "2026-10-24 16:40:10",
+    "count": 1,
+    "last_dated": "2026-10-24T01:46:14"
+   },
+   {
+    "file": "agent-qwen3.6-plus.log",
+    "mtime": "2026-10-24 17:34:08",
+    "count": 1,
+    "last_dated": "2026-10-23T18:42:51"
+   },
+   {
+    "file": "agent-qwen3.7-plus.log",
+    "mtime": "2026-10-24 17:01:35",
+    "count": 13,
+    "last_dated": "2026-10-22T18:11:20"
+   }
+  ],
+  "total_all_time": 30,
+  "newest_local_ts": "2026-10-25T01:58:02",
+  "events_today": [
+   "2026-10-25T01:58:02"
+  ],
+  "events_since_shift": [],
+  "transient_since_shift": [],
+  "shift_start_local": "2026-10-25T03:13:02"
+ },
+ "dating_anchors": {
+  "cooldown_events_verified": 18,
+  "cooldown_events_ok": 18,
+  "cooldown_events_bad": 0,
+  "monotonic_violations": [],
+  "first_mismatches": []
+ },
+ "step6_containers": {
+  "total": 11,
+  "healthy": 11,
+  "unhealthy": []
+ },
+ "step7_refill_gate": {
+  "refill_checks": {
+   "m230": {
+    "id": 230,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T00:01:33Z failed）。按剧本 refill 并写账本。"
+   },
+   "m231": {
+    "id": 231,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T06:31:35Z failed）。按剧本 refill 并写账本。"
+   },
+   "m244": {
+    "id": 244,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='agent_lost' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m245": {
+    "id": 245,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m249": {
+    "id": 249,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T11:51:44Z failed）。按剧本 refill 并写账本。"
+   },
+   "m255": {
+    "id": 255,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='agent_lost' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m256": {
+    "id": 256,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m257": {
+    "id": 257,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m259": {
+    "id": 259,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m261": {
+    "id": 261,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T18:01:02Z failed）。按剧本 refill 并写账本。"
+   }
+  },
+  "legs": {
+   "m230": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m231": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m244": [
+    {
+     "id": 244,
+     "status": "failed"
+    },
+    {
+     "id": 245,
+     "status": "failed"
+    },
+    {
+     "id": 250,
+     "status": "succeeded"
+    }
+   ],
+   "m245": [
+    {
+     "id": 244,
+     "status": "failed"
+    },
+    {
+     "id": 245,
+     "status": "failed"
+    },
+    {
+     "id": 250,
+     "status": "succeeded"
+    }
+   ],
+   "m249": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m255": [
+    {
+     "id": 253,
+     "status": "succeeded"
+    },
+    {
+     "id": 255,
+     "status": "failed"
+    },
+    {
+     "id": 256,
+     "status": "failed"
+    },
+    {
+     "id": 257,
+     "status": "failed"
+    }
+   ],
+   "m256": [
+    {
+     "id": 253,
+     "status": "succeeded"
+    },
+    {
+     "id": 255,
+     "status": "failed"
+    },
+    {
+     "id": 256,
+     "status": "failed"
+    },
+    {
+     "id": 257,
+     "status": "failed"
+    }
+   ],
+   "m257": [
+    {
+     "id": 253,
+     "status": "succeeded"
+    },
+    {
+     "id": 255,
+     "status": "failed"
+    },
+    {
+     "id": 256,
+     "status": "failed"
+    },
+    {
+     "id": 257,
+     "status": "failed"
+    }
+   ],
+   "m259": [
+    {
+     "id": 259,
+     "status": "failed"
+    },
+    {
+     "id": 262,
+     "status": "running"
+    }
+   ],
+   "m261": [
+    {
+     "id": 258,
+     "status": "succeeded"
+    },
+    {
+     "id": 260,
+     "status": "succeeded"
+    },
+    {
+     "id": 261,
+     "status": "failed"
+    },
+    {
+     "id": 263,
+     "status": "succeeded"
+    },
+    {
+     "id": 264,
+     "status": "running"
+    }
+   ]
+  },
+  "verdicts": {
+   "m230": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)",
+   "m231": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)",
+   "m244": "承接门挡下：更晚同前缀腿 m250(succeeded)",
+   "m245": "承接门挡下：更晚同前缀腿 m250(succeeded)",
+   "m249": "承接门挡下：更晚同前缀腿 m251(succeeded), m252(succeeded), m254(succeeded)",
+   "m255": "承接门挡下：同线更晚腿 m256/m257 已终态、且该线已被派发器标记 done；N1（准备期 fetch 超时→心跳未起→agent_lost）本班零复发，仅记账",
+   "m256": "承接门挡下（重试上限已耗尽）：thermal_cavity_3d 线由派发器 tutorial_wave 在 m257 后判「重试上限（3）→ 放弃标记 done」（dispatch.log 00:20:02），同波 4 条腿 m255(agent_lost)/m256/m257(gateway_unavailable) 全灭；系 R13 冷却波而非可续 infra 单点，refill 只会造第 4 条重复腿",
+   "m257": "承接门挡下（重试上限已耗尽）：thermal_cavity_3d 线由派发器 tutorial_wave 在 m257 后判「重试上限（3）→ 放弃标记 done」（dispatch.log 00:20:02），同波 4 条腿 m255(agent_lost)/m256/m257(gateway_unavailable) 全灭；系 R13 冷却波而非可续 infra 单点，refill 只会造第 4 条重复腿",
+   "m259": "承接门挡下：同线更晚腿 m262(running)（m262 running，派发器已自动重发 permeability3d）",
+   "m261": "承接门挡下：更晚同前缀（operator 值班链）腿 m263=awaiting_acceptance / m264=本班自身 running；派发器 30min 节拍已自动承接，人工 refill 会造双跑（案例 22 同一判据）"
+  }
+ },
+ "audit": {
+  "approval": {
+   "approved": 178,
+   "rejected": 11,
+   "pending": 0
+  },
+  "approval_max_id": 194,
+  "approval_log_last": "[02:52:01] approval 194 -> approved (http 200) {'id': 194, 'status': 'approved', 'scenario_key': None, 'mission_id': 263",
+  "parking_lot": "{}",
+  "pass_all": {
+   "exists": true,
+   "size_bytes": 0,
+   "mtime_local": "2026-10-23 08:14:56",
+   "rounds": 1293,
+   "last_line": "[03:20:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
+  },
+  "approver_log_total_lines": 8319,
+  "approver_log_last": "[03:20:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+  "worktree_total": 119,
+  "worktree_tensorplatform": 115,
+  "main_dirty": 16,
+  "main_branch": "fix/approver-token-headroom",
+  "main_head": "c245186",
+  "gc_log_last": "/bin/sh:行1: /nfs/wangxi/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够",
+  "fleet_log_last": "2026-10-24T19:20:01Z fleet pass done, spawned=0",
+  "shift_switch_off": false,
+  "worktree_branch": "agent/m264",
+  "worktree_head": "c245186",
+  "worktree_dirty_before_delivery": 3
+ }
+}
