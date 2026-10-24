@@ -1,0 +1,25 @@
+{
+ "mission": "m251",
+ "action": "cleanup_expired_cooldown",
+ "gateway_state_path": "/srv/tensor/shared/tensor_eco/agent_work/llm_gateway_state.json",
+ "snapshot_path": "/srv/tensor/shared/tensor_eco/agent_work/probe_m251/gateway_state_before.json",
+ "before": {
+  "relay-13001": {
+   "blocked_until": 1792843252.0315802,
+   "reason": "transient×3",
+   "marked_at": 1792842652.0315807
+  }
+ },
+ "after": {},
+ "before_mtime_local": "2026-10-24 20:16:15",
+ "cleanup_at_utc": "2026-10-24T12:16:18Z",
+ "expired_by_s_at_verify": 1248.3,
+ "blocked_until": 1792843252.0315802,
+ "post_probe": {
+  "http_code": 200,
+  "time_total_s": 0.355079,
+  "models": 7,
+  "at_utc": "2026-10-24T12:21:40Z"
+ },
+ "rule": "playbook 巡检第4步：blocked_until 已过期才清；清前 cp 快照到 agent_work/probe_<id>/"
+}
