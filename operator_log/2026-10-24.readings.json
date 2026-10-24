@@ -1,452 +1,87 @@
 {
- "mission": "m228",
- "shift": "第83班 (派发器标注 shift#48，倒序非递增)",
- "collected_at_utc": "2026-10-23T17:18:08Z",
- "t0_utc": "2026-10-23T17:18:08Z",
- "shift_start_utc": "2026-10-23T17:13:02Z",
- "collected_at_local": "2026-10-24 01:18:08",
- "worktree": "/srv/tensor/shared/tensor_eco/agent_work/m228/TensorPlatform",
- "step1_inflight": {
-  "count": 4,
-  "missions": [
-   {
-    "id": 221,
-    "status": "running",
-    "hb_s": 3,
-    "repo": "TensorLBM",
-    "stop_condition": null,
-    "goal_head": "BENCH-CLOSE:cylinder-w11a2-harvest"
-   },
-   {
-    "id": 223,
-    "status": "running",
-    "hb_s": 2,
-    "repo": "TensorLBM",
-    "stop_condition": null,
-    "goal_head": "TUTORIAL-WAVE:couette_3d — 为 verif"
-   },
-   {
-    "id": 226,
-    "status": "running",
-    "hb_s": 6,
-    "repo": "TensorLBM",
-    "stop_condition": null,
-    "goal_head": "MP-DAMBREAK:S2 — 3D 溃坝+收敛阶梯 必读：线 R"
-   },
-   {
-    "id": 228,
-    "status": "running",
-    "hb_s": 3,
-    "repo": "TensorPlatform",
-    "stop_condition": null,
-    "goal_head": "platform-operator 值班班次 2026-10-24（"
-   }
-  ],
-  "max_hb_s": 6,
-  "stale_over_240s": [],
-  "with_stop_condition": []
- },
- "step2_guardian": {
-  "measured_total": 16,
-  "authority_sum": 16,
-  "authority_source": "/srv/tensor/shared/tensor_eco/agent_work/workers.json",
-  "per_model": {
-   "MiniMax-M2.5-AWQ": {
-    "authority": 1,
-    "measured": 1
-   },
-   "deepseek-v4-flash": {
-    "authority": 3,
-    "measured": 3
-   },
-   "glm-5.1": {
-    "authority": 2,
-    "measured": 2
-   },
-   "glm-5.2": {
-    "authority": 1,
-    "measured": 1
-   },
-   "qwen3.6-plus": {
-    "authority": 3,
-    "measured": 3
-   },
-   "qwen3.7-plus": {
-    "authority": 6,
-    "measured": 6
-   }
+  "collected_at_utc": "2026-10-24T07:19:58.292563Z",
+  "shift_start_utc": "2026-10-24T07:13:02Z",
+  "shift_mission_id": 234,
+  "step1_inflight": "232|running|2026-10-24 07:19:45.294488+00|12|tensor-agent[qwen3.6-plus]@localhost.localdomain|\n233|running|2026-10-24 07:19:47.028103+00|10|tensor-agent[deepseek-v4-flash#2]@localhost.localdomain|\n234|running|2026-10-24 07:19:45.285713+00|12|tensor-agent[glm-5.2]@localhost.localdomain|",
+  "step1_inflight_count": 3,
+  "step2_workers_json_sumN": 16,
+  "step2_workers_json_models": {
+    "_note": "owner 可编辑：model -> worker 槽数（session 并发度）。slot 1 由既有 per-model cron 保活，这里定义追加槽位（2..N）。改完 5 分钟内 fleet 巡检生效。qwen3.6/3.7 加池：审计与开发 mission 排队消解（2026-10-21 SI 战役实测四审计串行）。",
+    "qwen3.6-plus": 3,
+    "qwen3.7-plus": 6,
+    "glm-5.2": 1,
+    "glm-5.1": 2,
+    "deepseek-v4-flash": 3,
+    "MiniMax-M2.5-AWQ": 1
   },
-  "per_model_all_equal": true,
-  "slot_workers": "10",
-  "pgrep_count": "16"
- },
- "step3_relay": {
-  "http_code": 200,
-  "time_total_s": 2.288224,
-  "models": 7,
-  "endpoints_n": 1,
-  "endpoint_names": [
-   "relay-13001"
-  ],
-  "cooldown_seconds": 600,
-  "transient_threshold": 3,
-  "config_source": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/llm_endpoints.json",
-  "worktree_copy_cooldown_seconds": 1800,
-  "worktree_copy_stale": true,
-  "code_caps_600": true
- },
- "step4_cooldown": {
-  "path": "/srv/tensor/shared/tensor_eco/agent_work/llm_gateway_state.json",
-  "raw": {},
-  "now_active": {},
-  "delta_s": {},
-  "mtime_local": "2026-10-23 22:27:19"
- },
- "step5_terminal": {
-  "h24_failed": 4,
-  "h24_succeeded": 31,
-  "today_failed": 4,
-  "since_shift_failed": 0,
-  "last_failed_age_s": 14609,
-  "failed_missions": [
-   {
-    "id": 208,
-    "status": "failed",
-    "stop_condition": "gateway_unavailable",
-    "age_s": 23715,
-    "finished": "10-23 10:42",
-    "goal_head": "BENCH-CLOSE:cylinder-w11a2-harvest"
-   },
-   {
-    "id": 216,
-    "status": "failed",
-    "stop_condition": "gateway_unavailable",
-    "age_s": 14609,
-    "finished": "10-23 13:14",
-    "goal_head": "BENCH-CLOSE:cylinder-w11a2-harvest"
-   },
-   {
-    "id": 217,
-    "status": "failed",
-    "stop_condition": "gateway_unavailable",
-    "age_s": 14644,
-    "finished": "10-23 13:14",
-    "goal_head": "TUTORIAL-WAVE:cavity_natural_conve"
-   },
-   {
-    "id": 218,
-    "status": "failed",
-    "stop_condition": "gateway_unavailable",
-    "age_s": 14615,
-    "finished": "10-23 13:14",
-    "goal_head": "platform-operator 值班班次 2026-10-23（"
-   }
-  ],
-  "awaiting_acceptance": 0,
-  "refill_checks": [
-   {
-    "id": 208,
-    "rc": 0,
-    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T10:42:54Z failed）。按剧本 refill 并写账本。"
-   },
-   {
-    "id": 216,
-    "rc": 0,
-    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T13:14:40Z failed）。按剧本 refill 并写账本。"
-   },
-   {
-    "id": 217,
-    "rc": 0,
-    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
-   },
-   {
-    "id": 218,
-    "rc": 0,
-    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T13:14:34Z failed）。按剧本 refill 并写账本。"
-   }
-  ],
-  "goal_208_legs": [
-   {
-    "id": 208,
-    "status": "failed"
-   },
-   {
-    "id": 216,
-    "status": "failed"
-   },
-   {
-    "id": 221,
-    "status": "running"
-   }
-  ],
-  "goal_216_legs": [
-   {
-    "id": 208,
-    "status": "failed"
-   },
-   {
-    "id": 216,
-    "status": "failed"
-   },
-   {
-    "id": 221,
-    "status": "running"
-   }
-  ],
-  "goal_217_legs": [
-   {
-    "id": 217,
-    "status": "failed"
-   },
-   {
-    "id": 219,
-    "status": "succeeded"
-   }
-  ],
-  "goal_218_legs": [
-   {
-    "id": 192,
-    "status": "succeeded"
-   },
-   {
-    "id": 194,
-    "status": "succeeded"
-   },
-   {
-    "id": 196,
-    "status": "succeeded"
-   },
-   {
-    "id": 197,
-    "status": "succeeded"
-   },
-   {
-    "id": 199,
-    "status": "succeeded"
-   },
-   {
-    "id": 201,
-    "status": "succeeded"
-   },
-   {
-    "id": 202,
-    "status": "succeeded"
-   },
-   {
-    "id": 203,
-    "status": "succeeded"
-   },
-   {
-    "id": 205,
-    "status": "succeeded"
-   },
-   {
-    "id": 207,
-    "status": "succeeded"
-   },
-   {
-    "id": 209,
-    "status": "succeeded"
-   },
-   {
-    "id": 210,
-    "status": "succeeded"
-   },
-   {
-    "id": 212,
-    "status": "succeeded"
-   },
-   {
-    "id": 213,
-    "status": "succeeded"
-   },
-   {
-    "id": 214,
-    "status": "succeeded"
-   },
-   {
-    "id": 215,
-    "status": "succeeded"
-   },
-   {
-    "id": 218,
-    "status": "failed"
-   },
-   {
-    "id": 220,
-    "status": "succeeded"
-   },
-   {
-    "id": 222,
-    "status": "succeeded"
-   },
-   {
-    "id": 224,
-    "status": "succeeded"
-   }
-  ],
-  "inflight_budget": [
-   {
-    "id": 221,
-    "status": "running",
-    "max_tool_calls": "240",
-    "max_wall_seconds": "28800"
-   },
-   {
-    "id": 223,
-    "status": "running",
-    "max_tool_calls": "250",
-    "max_wall_seconds": "21600"
-   },
-   {
-    "id": 226,
-    "status": "running",
-    "max_tool_calls": "300",
-    "max_wall_seconds": "28800"
-   },
-   {
-    "id": 228,
-    "status": "running",
-    "max_tool_calls": "200",
-    "max_wall_seconds": "7200"
-   }
-  ],
-  "claimed_by": [
-   {
-    "id": 221,
-    "by": "tensor-agent[qwen3.6-plus#3]@localhost.localdomain",
-    "model": "qwen3.6-plus",
-    "origin": "agent",
-    "created": "10-23 14:42:49"
-   },
-   {
-    "id": 223,
-    "by": "tensor-agent[deepseek-v4-flash]@localhost.localdomain",
-    "model": "deepseek-v4-flash",
-    "origin": "owner",
-    "created": "10-23 15:20:02"
-   },
-   {
-    "id": 226,
-    "by": "tensor-agent[deepseek-v4-flash#3]@localhost.localdomain",
-    "model": "deepseek-v4-flash",
-    "origin": "owner",
-    "created": "10-23 16:30:02"
-   },
-   {
-    "id": 228,
-    "by": "tensor-agent[deepseek-v4-flash#2]@localhost.localdomain",
-    "model": "deepseek-v4-flash",
-    "origin": "agent",
-    "created": "10-23 17:13:02"
-   }
-  ],
-  "refill_audit": [
-   {
-    "id": 211,
-    "by": "operator_agent",
-    "added": "60/7200"
-   }
-  ]
- },
- "step5b_cluster": {
-  "cooling": {
-   "per_file": [
-    {
-     "file": "agent-MiniMax-M2.5-AWQ.log",
-     "mtime": "2026-10-22 20:32:06",
-     "count": 2,
-     "last_dated": "2026-10-22T20:32:03",
-     "last": "[20:32:03] gateway: endpoint relay-13001 冷却 600s（transient×3）"
-    },
-    {
-     "file": "agent-deepseek-v4-flash-w2.log",
-     "mtime": "2026-10-24 01:13:04",
-     "count": 2,
-     "last_dated": "2026-10-23T21:13:16",
-     "last": "[21:13:16] gateway: endpoint relay-13001 冷却 600s（transient×3）"
-    },
-    {
-     "file": "agent-deepseek-v4-flash-w3.log",
-     "mtime": "2026-10-24 01:15:28",
-     "count": 2,
-     "last_dated": "2026-10-23T18:42:21",
-     "last": "[18:42:21] gateway: endpoint relay-13001 冷却 600s（transient×3）"
-    },
-    {
-     "file": "agent-deepseek-v4-flash.log",
-     "mtime": "2026-10-24 01:10:50",
-     "count": 4,
-     "last_dated": "2026-10-23T20:37:22",
-     "last": "[20:37:22] gateway: endpoint relay-13001 冷却 600s（transient×3）"
-    },
-    {
-     "file": "agent-qwen3.6-plus.log",
-     "mtime": "2026-10-23 21:14:40",
-     "count": 1,
-     "last_dated": "2026-10-23T18:42:51",
-     "last": "[18:42:51] gateway: endpoint relay-13001 冷却 600s（transient×3）"
-    },
-    {
-     "file": "agent-qwen3.7-plus.log",
-     "mtime": "2026-10-22 20:31:49",
-     "count": 13,
-     "last_dated": "2026-10-22T18:11:20",
-     "last": "[18:11:20] gateway: endpoint relay-13001 冷却 600s（transient×3）"
+  "step2_pgrep_count": 16,
+  "step3_relay_http_code": 200,
+  "step3_relay_time_total": "0.192448s",
+  "step3_relay_models_count": 7,
+  "step4_cooldown_state_before": {
+    "relay-13001": {
+      "blocked_until": 1792824092.66,
+      "reason": "transient×3",
+      "marked_at": 1792823492.66
     }
-   ],
-   "total": 24,
-   "newest_local_ts": "2026-10-23T21:13:16",
-   "events_today": [],
-   "files_today": [],
-   "stale_files_excluded": [
-    "agent-MiniMax-M2.5-AWQ.log",
-    "agent-deepseek-v4-flash-w2.log",
-    "agent-deepseek-v4-flash-w3.log",
-    "agent-deepseek-v4-flash.log",
-    "agent-qwen3.6-plus.log",
-    "agent-qwen3.7-plus.log"
-   ],
-   "transient_since_shift": [],
-   "transient_since_shift_n": 0
   },
-  "g_compress_counts": {
-   "agent-deepseek-v4-flash.log": 429,
-   "agent-qwen3.7-plus.log": 1,
-   "agent-glm-5.2.log": 1,
-   "agent-deepseek-v4-flash-w2.log": 79,
-   "agent-deepseek-v4-flash-w3.log": 96
+  "step4_cooldown_expired": true,
+  "step4_cooldown_cleaned": true,
+  "step4_cooldown_after": "{}",
+  "step5_terminal_24h": "231|failed|gateway_unavailable|2026-10-24 06:31:35.672125+00|gateway_unavailable\n230|failed|gateway_unavailable|2026-10-24 00:01:33.240036+00|gateway_unavailable\n226|failed|gateway_unavailable|2026-10-23 17:46:42.421194+00|gateway_unavailable\n229|failed|gateway_unavailable|2026-10-23 17:46:18.159698+00|gateway_unavailable\n221|failed|gateway_unavailable|2026-10-23 17:46:17.17093+00|gateway_unavailable\n223|failed|budget_exceeded|2026-10-23 17:40:21.795824+00|budget_exceeded\n228|succeeded||2026-10-23 17:26:02.360605+00|m228 第83班巡检：四绿一黄零处置，四条 infra 终局被承接门挡下不 refill，机器门 \n227|succeeded||2026-10-23 17:08:01.579153+00|m227 第82班巡检：四绿一黄零处置，R13 三段全静止\n225|succeeded||2026-10-23 16:28:01.967169+00|m225 第81班巡检：四绿一黄零处置，refill 承接门挡下四条 infra 终局，机器门 33\n211|succeeded||2026-10-23 16:26:01.523044+00|MP-DAMBREAK S1 终裁 TERMINAL（判据 3/6，门禁预检 rc=0 合法闭合）：\n224|succeeded||2026-10-23 15:50:01.894439+00|m224 第80班巡检：四绿一黄零处置（R13 本班零新增），refill 承接门挡下全部四条 in\n222|succeeded||2026-10-23 15:22:01.83361+00|m222 第79班巡检：四绿一黄零处置，R13 本班零新增，机器门 27/27\n219|succeeded||2026-10-23 15:08:01.771212+00|cavity_natural_convection 论文级教程交付：真跑三档重算（Nu 2.1097\n220|succeeded||2026-10-23 14:58:01.783542+00|m220 第78班巡检：四绿一红（R13 二次群杀），清过期冷却态 + refill m211 三关\n216|failed|gateway_unavailable|2026-10-23 13:14:40.148283+00|gateway_unavailable\n218|failed|gateway_unavailable|2026-10-23 13:14:34.131818+00|gateway_unavailable\n217|failed|gateway_unavailable|2026-10-23 13:14:05.054958+00|gateway_unavailable\n208|failed|gateway_unavailable|2026-10-23 10:42:54.195793+00|gateway_unavailable\n215|succeeded||2026-10-23 10:26:01.540756+00|operator log 2026-10-23: m215 第77班巡检五步全绿零处置\n214|succeeded||2026-10-23 09:50:01.508722+00|m214 第76班 operator 巡检五步全绿零处置\n204|succeeded||2026-10-23 09:22:01.92986+00|AIL 阶段1-2 完成：同 1200 token 预算下 AIL 四元组恢复 0.900 vs 基\n213|succeeded||2026-10-23 09:18:02.365027+00|m213 第75班 operator 巡检五步全绿零处置\n212|succeeded||2026-10-23 08:50:01.83684+00|operator log 2026-10-23: m212 第74班巡检五步全绿零处置\n210|succeeded||2026-10-23 08:22:01.650626+00|m210 第73班 operator 巡检五步全绿零处置（在飞4 max hb=13s / 守护16\n209|succeeded||2026-10-23 08:12:01.935596+00|m209 第72班 operator 巡检五步全绿零处置\n206|succeeded||2026-10-23 08:08:02.371103+00|MP-DAMBREAK S0 完成：现状审计+文献锚点冻结+路线裁决三件交付物",
+  "step5_h24_failed": 10,
+  "step5_h24_failed_by_stop": "budget_exceeded|1\ngateway_unavailable|9",
+  "step5_since_shift_failed": 0,
+  "step5_since_shift_failed_ids": "",
+  "approvals": "",
+  "containers_healthy": 11,
+  "containers_total": 11,
+  "passall_mtime": "2026-10-23T08:14:56.414947",
+  "passall_last_line": "",
+  "passall_total_lines": 0,
+  "worktree_total": 103,
+  "worktree_tensorplatform": 99,
+  "dirty_count": 0,
+  "m234_created_at": "2026-10-24 07:13:02.475684+00",
+  "passall_file_empty": true,
+  "passall_log_total_lines": 933,
+  "passall_log_last_line": "[15:20:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+  "passall_log_mtime": "2026-10-24 15:20:02 CST",
+  "approvals_max_id": 171,
+  "approvals_succeeded_missions": 153,
+  "approvals_awaiting_acceptance": 0,
+  "gc_log_last": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够",
+  "inflight_ids": [
+    232,
+    233,
+    234
+  ],
+  "inflight_heartbeat_max_s": 12,
+  "refill_check_results": {
+    "m226": {
+      "rc": 0,
+      "verdict": "可续班"
+    },
+    "m229": {
+      "rc": 0,
+      "verdict": "可续班"
+    },
+    "m230": {
+      "rc": 0,
+      "verdict": "可续班"
+    },
+    "m231": {
+      "rc": 0,
+      "verdict": "可续班"
+    }
   },
-  "no_endpoint_lines": 55
- },
- "step6_containers": {
-  "total": 11,
-  "healthy": 11,
-  "unhealthy": []
- },
- "audit": {
-  "approval": {
-   "approved": 154,
-   "rejected": 11,
-   "pending": 0
-  },
-  "parking_lot": "{}",
-  "pass_all": {
-   "exists": true,
-   "mtime_local": "2026-10-23 08:14:56",
-   "rounds": 512,
-   "last_line": "[01:18:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
-  },
-  "approver_log_last": "[01:18:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
-  "worktree_total": 99,
-  "worktree_tensorplatform": 95,
-  "main_dirty": 13,
-  "main_branch": "fix/approver-token-headroom",
-  "main_head": "c245186",
-  "gc_log_last": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够",
-  "fleet_log_last": "2026-10-23T17:15:01Z fleet pass done, spawned=0",
-  "worktree_dirty_before_delivery": 3,
-  "worktree_branch": "agent/m228",
-  "worktree_head": "c245186"
- }
+  "continuation_gate": {
+    "m229": "m234 running (same goal prefix) → 承接门挡下",
+    "m230": "m234 running (same goal prefix) → 承接门挡下",
+    "m231": "m234 running (same goal prefix) → 承接门挡下",
+    "m208": "m232 running (cylinder-w11a2-harvest) → 承接门挡下",
+    "m216": "m232 running → 承接门挡下",
+    "m221": "m232 running → 承接门挡下",
+    "m226": "无更晚同前缀腿 → refcheck=0 但属 owner 业务线，[上报] owner 裁决重派"
+  }
 }
