@@ -92,19 +92,11 @@ def execute(api, resident, mission, audit_sid, cancelled):
     deadline=time.monotonic()+mission['budget'].get('max_wall_seconds',1200)
     folder=ROOT/f'.runtime/agent/m{mid}/artifacts'; folder.mkdir(parents=True,exist_ok=True)
     def event(kind,payload): api.call('POST',f'/tensor/sessions/{audit_sid}/events',{'kind':kind,'payload':payload})
+    from inference_boundary import InferenceBoundary
+    boundary=InferenceBoundary(api,ROOT,sid,deadline,cancelled)
     def infer_once(prompt,schema):
-        # Serial model budget across all resident processes; heartbeat runs independently.
-        with (ROOT/'.runtime/resident-inference.lock').open('a') as gate:
-            while True:
-                if cancelled.is_set() or time.monotonic() >= deadline:
-                    raise RuntimeError('mission interrupted or wall budget exhausted')
-                try:
-                    fcntl.flock(gate,fcntl.LOCK_EX|fcntl.LOCK_NB)
-                    break
-                except BlockingIOError:
-                    cancelled.wait(.5)
-            if len(prompt.encode())+16000 > mission['budget'].get('max_tokens',200000):
-                raise RuntimeError('conservative token budget preflight rejected this prompt')
+        # Task and idle calls share FIFO admission, independently of heartbeat.
+        with boundary.admit(prompt,max_prompt_bytes=mission['budget'].get('max_tokens',200000)-16000) as prompt:
             if cancelled.is_set(): raise RuntimeError('session disabled or heartbeat lost')
             event('tool_call',{'tool':'bounded-gpt-inference','model':model,'agent_session_id':sid})
             begin=time.monotonic(); result=generate(prompt,schema,model=model,timeout_seconds=min(360 if mission.get('campaign_id') else 85,deadline-time.monotonic()))
