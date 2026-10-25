@@ -14,12 +14,14 @@ from campaign import evidence_excerpt
 from persona import Persona
 
 TOOLS={
+ 'workspace.check_result':'{offset?:int,limit?:int}: read saved check receipt and paginated log; receipt may be stale',
+ 'workspace.refresh_support':'{}: import missing support source without overwriting existing work; returns hashes and requires new checks',
  'workspace.status':'{}: create or inspect your persistent real platform Git branch',
  'workspace.read':'{path:str,offset?:int,limit?:int}: read actual platform branch file and SHA before editing',
- 'workspace.write':'{path:str,content:str,expected_sha256:str|null}: write actual platform source in your branch, guarded against stale edits',
+ 'workspace.write':'{path:str,expected_sha256:str|null,content?:str,replacement?:{old:str,new:str}}: atomically write content OR one unique literal replacement in your isolated branch; replacement requires current SHA of existing file',
  'workspace.check':'{}: run real platform regression in offline non-root container; original regression tests frozen, save exact snapshot receipt',
  'workspace.commit':'{message:str}: commit this exact passing platform candidate under your session identity',
- 'workspace.sync':'{}: rebase clean branch onto current platform HEAD; checks and reviews must be renewed after changes',
+ 'workspace.sync':'{protect_candidate?:bool}: sync with mainline, retaining WIP backup and divergence diagnostics; explicit protected mode preserves index/worktree state on conflict or timeout; renew checks and reviews',
  'workspace.inspect':'{owner_session_id?:uuid}: inspect a peer or own candidate commit and diff, no private memory access',
  'workspace.review':'{owner_session_id:uuid,expected_commit:str,decision:approve|request_changes,reason:str}: independently rerun exact peer candidate regression and record substantive review, cannot review yourself',
  'workspace.integrate':'{}: fast-forward tested source only after a different session approves exact commit; no service restart or production deployment',

@@ -1,0 +1,99 @@
+{
+  "shift": "m192",
+  "date": "2026-10-23",
+  "utc_start": "2026-10-22T17:13:01Z",
+  "utc_inspect": "2026-10-22T17:16:48Z",
+  "base": "fix/approver-token-headroom c245186",
+  "model": "glm-5.2",
+
+  "1_inflight": {
+    "count": 2,
+    "missions": [
+      {"id": 191, "status": "running", "origin": "owner", "model": "qwen3.7-plus#6", "hb_age_s": 15, "stop_condition": null, "max_tc": 250, "max_ws": 14400, "result_tc": null, "goal60": "SI-4: SUBOFF 破冰全链演示收官（Phase 2 终阶，第 3 次派发）——LBM⇄FEM 双向 × cohe"},
+      {"id": 192, "status": "running", "origin": "agent", "model": "glm-5.2", "hb_age_s": 10, "stop_condition": null, "max_tc": 200, "max_ws": 7200, "result_tc": null, "goal60": "platform-operator 值班班次 2026-10-23（角色交接期：例行自主，新颖上报）"}
+    ]
+  },
+
+  "2_guardian": {
+    "pgrep_total": 16,
+    "base_instances": 6,
+    "models": {
+      "qwen3.7-plus": 6,
+      "qwen3.6-plus": 3,
+      "deepseek-v4-flash": 3,
+      "glm-5.1": 2,
+      "MiniMax-M2.5-AWQ": 1,
+      "glm-5.2": 1
+    },
+    "note": "基线6 + 池化槽10 = 16，6模型全覆盖"
+  },
+
+  "3_relay": {
+    "http_code": 200,
+    "time_total": 0.213707,
+    "models_count": 7,
+    "models": ["glm-5.1", "glm-5.2", "qwen3.7-plus", "qwen3.6-plus", "Qwen3.8-27B", "MiniMax-M2.5-AWQ", "deepseek-v4-flash"]
+  },
+
+  "4_cooldown": {
+    "before": {"relay-13001": {"blocked_until": 1792673242.0897598, "reason": "transient×3", "marked_at": 1792672642.0897603}},
+    "snapshot_epoch": 1792689227,
+    "delta_s": -15985,
+    "expired": true,
+    "after": "{}"
+  },
+
+  "5_terminal_24h": {
+    "failed_count": 18,
+    "gateway_unavailable_count": 17,
+    "agent_origin_failed": [
+      {"id": 187, "stop": "gateway_unavailable", "tc": 0, "model": "deepseek-v4-flash", "origin": "agent"},
+      {"id": 184, "stop": "gateway_unavailable", "tc": 0, "model": "deepseek-v4-flash", "origin": "agent"},
+      {"id": 178, "stop": "gateway_unavailable", "tc": 108, "model": "deepseek-v4-flash", "origin": "agent"},
+      {"id": 172, "stop": "gateway_unavailable", "tc": null, "model": "qwen3.7-plus", "origin": "agent"}
+    ],
+    "owner_origin_failed_gateway": [183, 179, 182, 180, 181, 188, 185, 189, 190, 176, 177, 171],
+    "succeeded": [
+      {"id": 173, "origin": "agent", "headline": "m173 班次巡检五步全绿 + 两段例行处置"},
+      {"id": 174, "origin": "owner", "headline": "SI-3 LBM×FEM 双向耦合管线完成"},
+      {"id": 175, "origin": "owner", "headline": "SI-5 收尾：m166 交付物落盘收口完成"},
+      {"id": 169, "origin": "agent", "headline": "m169 permeability_fibrous 终裁归档 TERMINAL"}
+    ],
+    "awaiting_acceptance": [
+      {"id": 186, "origin": "agent", "headline": "BENCH-CLOSE:channel-turb-3d", "approval_id": 140}
+    ]
+  },
+
+  "approvals": {"approved": 123, "pending": 1, "rejected": 11},
+  "pending_ids": [140],
+  "parked_count": 32,
+  "approver_log_tail": "[01:16:01] pending=1（32 已 escalate 停车）",
+  "approver_tick_active": true,
+
+  "infra": {
+    "containers_healthy": "11/11",
+    "celery_beat": "running RestartCount=0",
+    "kafka_restart": 3,
+    "worktree_dirs": 68,
+    "worktree_registered": 74,
+    "gc_log_lines": 19
+  },
+
+  "main_repo_dirty": 10,
+  "main_repo_dirty_files": [
+    "M tools/agent/llm_endpoints.json",
+    "T tools/agent/workers.json",
+    "M tools/ops/benchmark/benchmark_dispatch.py",
+    "M tools/ops/benchmark/test_benchmark_dispatch.py",
+    "M tools/ops/pr_hygiene.py",
+    "M tools/ops/si_harvest.py",
+    "M tools/ops/test_pr_hygiene.py",
+    "?? tools/agent/patch_memcap.py",
+    "?? tools/agent/patch_p0a.py",
+    "?? tools/agent/patch_p1a.py"
+  ],
+
+  "dispatcher": {"dispatched_count": 63, "shift_label": "shift#47", "real_shift": 62},
+
+  "m191_worktree": {"repo": "TensorPhysics", "head": "8e09120", "dirty": 4}
+}

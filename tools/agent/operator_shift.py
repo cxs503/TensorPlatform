@@ -120,11 +120,15 @@ GOAL_TEMPLATE = """platform-operator 值班班次 {date}（角色交接期：例
 你是平台的 operator agent（身份见下方常驻记忆）。这一班先完整读
 identity.md 与 playbook.md 再动手，产出标准=前任做得到的你要做得到：
 
-1. 巡检五步（playbook「巡检清单」逐项）：在飞心跳鲜度 / 守护计数=7 /
-   中继健康 / 网关冷却态 / 终态 mission result。
+1. 巡检六步（playbook「巡检清单」逐项）：在飞心跳鲜度 / 守护计数=7 /
+   中继健康 / 网关冷却态 / 终态 mission result / 报告账（R6：cat
+   agent_work/quality/report_debt.json 的 owed/failed_owed 计数——
+   owed>0 即有 mission 无报告未收官）。
 2. 自主处置（例行级，不再请示）：infra 类终局（agent_lost/budget_exceeded/
    agent_crash/gateway_unavailable）按剧本 refill 续班；守护缺员按剧本换血；
-   冷却态过期按剧本清理。honest FAIL 重派与新颖故障：定性记录标 [上报]，
+   冷却态过期按剧本清理；报告账 owed>0 → 按剧本派「报告补账」mission
+   （论文级图文并茂，line 级合并报告可一篇覆盖多单，title/summary 带
+   m<id> 机判可溯）。honest FAIL 重派与新颖故障：定性记录标 [上报]，
    不动手。API 动作凭据见 identity.md「工具面」。
 3. 交付（验收判据，全部满足才算完）：
    a. 在本 worktree 新建 operator_log/{date}.md——结论式记录：巡检结论

@@ -1,0 +1,1728 @@
+{
+ "generated_by": "operator m315（第107班）",
+ "purpose": "N7 承接腿匹配式复核（playbook 案例 25）：旧式 coalesce(task_key,'zzz%') LIKE 在候选 task_key IS NULL 时模式退化为通配，把任意其它 NULL 腿当同族承接腿",
+ "candidates_n": 24,
+ "affected_candidates_n": 10,
+ "affected": [
+  {
+   "id": 249,
+   "ghost_n": 42,
+   "ghost_examples": [
+    258,
+    260,
+    261,
+    263,
+    264,
+    266,
+    268,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    279,
+    280,
+    281,
+    282,
+    283,
+    287,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 261,
+   "ghost_n": 29,
+   "ghost_examples": [
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    279,
+    280,
+    281,
+    282,
+    283,
+    287,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    300,
+    302,
+    303,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311
+   ]
+  },
+  {
+   "id": 271,
+   "ghost_n": 29,
+   "ghost_examples": [
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    279,
+    280,
+    281,
+    282,
+    283,
+    287,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    300,
+    302,
+    303,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311
+   ]
+  },
+  {
+   "id": 287,
+   "ghost_n": 22,
+   "ghost_examples": [
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 289,
+   "ghost_n": 21,
+   "ghost_examples": [
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 290,
+   "ghost_n": 20,
+   "ghost_examples": [
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 291,
+   "ghost_n": 17,
+   "ghost_examples": [
+    292,
+    293,
+    294,
+    298,
+    299,
+    300,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 292,
+   "ghost_n": 18,
+   "ghost_examples": [
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 294,
+   "ghost_n": 16,
+   "ghost_examples": [
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  },
+  {
+   "id": 297,
+   "ghost_n": 14,
+   "ghost_examples": [
+    298,
+    299,
+    300,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ]
+  }
+ ],
+ "per_candidate": {
+  "m244": {
+   "old_n": 2,
+   "new_n": 2,
+   "ghost_legs": [],
+   "old_ids": [
+    245,
+    250
+   ],
+   "new_ids": [
+    245,
+    250
+   ]
+  },
+  "m245": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    250
+   ],
+   "new_ids": [
+    250
+   ]
+  },
+  "m249": {
+   "old_n": 45,
+   "new_n": 3,
+   "ghost_legs": [
+    {
+     "id": 258,
+     "status": "succeeded"
+    },
+    {
+     "id": 260,
+     "status": "succeeded"
+    },
+    {
+     "id": 261,
+     "status": "failed"
+    },
+    {
+     "id": 263,
+     "status": "succeeded"
+    },
+    {
+     "id": 264,
+     "status": "succeeded"
+    },
+    {
+     "id": 266,
+     "status": "succeeded"
+    },
+    {
+     "id": 268,
+     "status": "succeeded"
+    },
+    {
+     "id": 271,
+     "status": "failed"
+    },
+    {
+     "id": 272,
+     "status": "succeeded"
+    },
+    {
+     "id": 273,
+     "status": "succeeded"
+    },
+    {
+     "id": 274,
+     "status": "succeeded"
+    },
+    {
+     "id": 275,
+     "status": "succeeded"
+    },
+    {
+     "id": 276,
+     "status": "succeeded"
+    },
+    {
+     "id": 277,
+     "status": "succeeded"
+    },
+    {
+     "id": 279,
+     "status": "succeeded"
+    },
+    {
+     "id": 280,
+     "status": "succeeded"
+    },
+    {
+     "id": 281,
+     "status": "succeeded"
+    },
+    {
+     "id": 282,
+     "status": "succeeded"
+    },
+    {
+     "id": 283,
+     "status": "succeeded"
+    },
+    {
+     "id": 287,
+     "status": "failed"
+    },
+    {
+     "id": 289,
+     "status": "failed"
+    },
+    {
+     "id": 290,
+     "status": "failed"
+    },
+    {
+     "id": 291,
+     "status": "failed"
+    },
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    251,
+    252,
+    254,
+    258,
+    260,
+    261,
+    263,
+    264,
+    266,
+    268,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    279,
+    280,
+    281,
+    282,
+    283,
+    287,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": [
+    251,
+    252,
+    254
+   ]
+  },
+  "m255": {
+   "old_n": 2,
+   "new_n": 2,
+   "ghost_legs": [],
+   "old_ids": [
+    256,
+    257
+   ],
+   "new_ids": [
+    256,
+    257
+   ]
+  },
+  "m256": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    257
+   ],
+   "new_ids": [
+    257
+   ]
+  },
+  "m257": {
+   "old_n": 0,
+   "new_n": 0,
+   "ghost_legs": [],
+   "old_ids": [],
+   "new_ids": []
+  },
+  "m259": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    262
+   ],
+   "new_ids": [
+    262
+   ]
+  },
+  "m261": {
+   "old_n": 39,
+   "new_n": 10,
+   "ghost_legs": [
+    {
+     "id": 272,
+     "status": "succeeded"
+    },
+    {
+     "id": 273,
+     "status": "succeeded"
+    },
+    {
+     "id": 274,
+     "status": "succeeded"
+    },
+    {
+     "id": 275,
+     "status": "succeeded"
+    },
+    {
+     "id": 276,
+     "status": "succeeded"
+    },
+    {
+     "id": 277,
+     "status": "succeeded"
+    },
+    {
+     "id": 279,
+     "status": "succeeded"
+    },
+    {
+     "id": 280,
+     "status": "succeeded"
+    },
+    {
+     "id": 281,
+     "status": "succeeded"
+    },
+    {
+     "id": 282,
+     "status": "succeeded"
+    },
+    {
+     "id": 283,
+     "status": "succeeded"
+    },
+    {
+     "id": 287,
+     "status": "failed"
+    },
+    {
+     "id": 289,
+     "status": "failed"
+    },
+    {
+     "id": 290,
+     "status": "failed"
+    },
+    {
+     "id": 291,
+     "status": "failed"
+    },
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    }
+   ],
+   "old_ids": [
+    263,
+    264,
+    266,
+    268,
+    271,
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    279,
+    280,
+    281,
+    282,
+    283,
+    287,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": [
+    263,
+    264,
+    266,
+    268,
+    271,
+    299,
+    305,
+    312,
+    314,
+    315
+   ]
+  },
+  "m269": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    270
+   ],
+   "new_ids": [
+    270
+   ]
+  },
+  "m270": {
+   "old_n": 0,
+   "new_n": 0,
+   "ghost_legs": [],
+   "old_ids": [],
+   "new_ids": []
+  },
+  "m271": {
+   "old_n": 34,
+   "new_n": 5,
+   "ghost_legs": [
+    {
+     "id": 272,
+     "status": "succeeded"
+    },
+    {
+     "id": 273,
+     "status": "succeeded"
+    },
+    {
+     "id": 274,
+     "status": "succeeded"
+    },
+    {
+     "id": 275,
+     "status": "succeeded"
+    },
+    {
+     "id": 276,
+     "status": "succeeded"
+    },
+    {
+     "id": 277,
+     "status": "succeeded"
+    },
+    {
+     "id": 279,
+     "status": "succeeded"
+    },
+    {
+     "id": 280,
+     "status": "succeeded"
+    },
+    {
+     "id": 281,
+     "status": "succeeded"
+    },
+    {
+     "id": 282,
+     "status": "succeeded"
+    },
+    {
+     "id": 283,
+     "status": "succeeded"
+    },
+    {
+     "id": 287,
+     "status": "failed"
+    },
+    {
+     "id": 289,
+     "status": "failed"
+    },
+    {
+     "id": 290,
+     "status": "failed"
+    },
+    {
+     "id": 291,
+     "status": "failed"
+    },
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    }
+   ],
+   "old_ids": [
+    272,
+    273,
+    274,
+    275,
+    276,
+    277,
+    279,
+    280,
+    281,
+    282,
+    283,
+    287,
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": [
+    299,
+    305,
+    312,
+    314,
+    315
+   ]
+  },
+  "m284": {
+   "old_n": 3,
+   "new_n": 3,
+   "ghost_legs": [],
+   "old_ids": [
+    285,
+    286,
+    288
+   ],
+   "new_ids": [
+    285,
+    286,
+    288
+   ]
+  },
+  "m285": {
+   "old_n": 2,
+   "new_n": 2,
+   "ghost_legs": [],
+   "old_ids": [
+    286,
+    288
+   ],
+   "new_ids": [
+    286,
+    288
+   ]
+  },
+  "m286": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    288
+   ],
+   "new_ids": [
+    288
+   ]
+  },
+  "m287": {
+   "old_n": 22,
+   "new_n": 0,
+   "ghost_legs": [
+    {
+     "id": 289,
+     "status": "failed"
+    },
+    {
+     "id": 290,
+     "status": "failed"
+    },
+    {
+     "id": 291,
+     "status": "failed"
+    },
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    289,
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": []
+  },
+  "m288": {
+   "old_n": 0,
+   "new_n": 0,
+   "ghost_legs": [],
+   "old_ids": [],
+   "new_ids": []
+  },
+  "m289": {
+   "old_n": 21,
+   "new_n": 0,
+   "ghost_legs": [
+    {
+     "id": 290,
+     "status": "failed"
+    },
+    {
+     "id": 291,
+     "status": "failed"
+    },
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    290,
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": []
+  },
+  "m290": {
+   "old_n": 20,
+   "new_n": 0,
+   "ghost_legs": [
+    {
+     "id": 291,
+     "status": "failed"
+    },
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    291,
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": []
+  },
+  "m291": {
+   "old_n": 19,
+   "new_n": 2,
+   "ghost_legs": [
+    {
+     "id": 292,
+     "status": "failed"
+    },
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    292,
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": [
+    297,
+    302
+   ]
+  },
+  "m292": {
+   "old_n": 18,
+   "new_n": 0,
+   "ghost_legs": [
+    {
+     "id": 293,
+     "status": "succeeded"
+    },
+    {
+     "id": 294,
+     "status": "failed"
+    },
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    293,
+    294,
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": []
+  },
+  "m294": {
+   "old_n": 16,
+   "new_n": 0,
+   "ghost_legs": [
+    {
+     "id": 297,
+     "status": "failed"
+    },
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 302,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    297,
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": []
+  },
+  "m295": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    296
+   ],
+   "new_ids": [
+    296
+   ]
+  },
+  "m297": {
+   "old_n": 15,
+   "new_n": 1,
+   "ghost_legs": [
+    {
+     "id": 298,
+     "status": "succeeded"
+    },
+    {
+     "id": 299,
+     "status": "succeeded"
+    },
+    {
+     "id": 300,
+     "status": "succeeded"
+    },
+    {
+     "id": 303,
+     "status": "succeeded"
+    },
+    {
+     "id": 305,
+     "status": "succeeded"
+    },
+    {
+     "id": 306,
+     "status": "succeeded"
+    },
+    {
+     "id": 307,
+     "status": "succeeded"
+    },
+    {
+     "id": 308,
+     "status": "succeeded"
+    },
+    {
+     "id": 309,
+     "status": "succeeded"
+    },
+    {
+     "id": 310,
+     "status": "succeeded"
+    },
+    {
+     "id": 311,
+     "status": "succeeded"
+    },
+    {
+     "id": 312,
+     "status": "succeeded"
+    },
+    {
+     "id": 314,
+     "status": "succeeded"
+    },
+    {
+     "id": 315,
+     "status": "running"
+    }
+   ],
+   "old_ids": [
+    298,
+    299,
+    300,
+    302,
+    303,
+    305,
+    306,
+    307,
+    308,
+    309,
+    310,
+    311,
+    312,
+    314,
+    315
+   ],
+   "new_ids": [
+    302
+   ]
+  },
+  "m301": {
+   "old_n": 1,
+   "new_n": 1,
+   "ghost_legs": [],
+   "old_ids": [
+    304
+   ],
+   "new_ids": [
+    304
+   ]
+  }
+ },
+ "conclusion": "本班窗口 24 条候选中受幽灵腿影响的条数与明细如上；判承接腿一律以 new_n / new_ids 为准（采集器 collect_2026-10-25.m315.py 已内置新式）"
+}
