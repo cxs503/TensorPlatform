@@ -1,0 +1,67 @@
+{
+  "proposal_id": "20261025-tau-factor-design",
+  "title": "τ×有效Re×分辨率 因子设计实验",
+  "hypothesis": "τ 效应与有效 Re、分辨率存在交互作用，需因子设计而非一次一变量",
+  "evidence_refs": [
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+      "claim": "TG1=RELAXATION_COUPLING，纯 τ 效应 hi: 1.08e-3，x4: 6.54e-3（远超族半宽 1.957e-4）",
+      "machine_check": {
+        "type": "json_value",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+        "key": "gates.TG1.pure_tau_effect_hi.dqw_tau_hi",
+        "expected_equals": -0.0028691249894183847
+      },
+      "verified": true
+    },
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/report.md",
+      "claim": "recomp 臂瞬态污染：u 突降臂 W3 末端 dqw 仍单调衰减，其 W3 值是 |D| 的瞬态污染上界而非稳态估计",
+      "machine_check": {
+        "type": "file_exists",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/report.md"
+      },
+      "verified": true
+    },
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/prereg_tauaxis.md",
+      "claim": "W2-C 先例：X_r(网格,τ)=X∞+A·Δx^p+B·(τ−0.5)·Δx，B=42±7（τ×网格交互存在）",
+      "machine_check": {
+        "type": "file_exists",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/prereg_tauaxis.md"
+      },
+      "verified": true
+    }
+  ],
+  "why_now": "tau_axis 显示纯 τ 效应显著，但 recomp 臂瞬态污染揭示 τ×u∞ 交互；W2-C 先例表明 τ×网格交互存在；当前实验一次一变量，无法解耦交互效应",
+  "falsification_criteria": [
+    "因子设计显示 τ×Re 交互不显著（p > 0.05）",
+    "因子设计显示 τ×分辨率交互不显著（p > 0.05）",
+    "一次一变量与因子设计结果一致（|ΔD| < 族半宽）"
+  ],
+  "controls": [
+    "全因子设计：τ∈{0.5,0.6,0.7} × Re_res∈{5e4,1e5,2e5} × resolution∈{60,80,100}",
+    "每组合 3 次重复（随机种子不同）",
+    "固定 collision=mrt, friction=standard",
+    "W3 窗口 [17200,17600]（与 tau_axis 一致）"
+  ],
+  "budget_hint": {
+    "gpu_hours": 24,
+    "storage_gb": 50,
+    "estimated_wall_clock": "12h"
+  },
+  "expected_artifacts": [
+    "verdict.json（含 ANOVA 分析结果）",
+    "report.md（因子效应图 + 交互作用图）",
+    "prereg.md（冻结因子水平与判据）",
+    "data.csv（全因子实验原始数据）"
+  ],
+  "gap_rule": "R3",
+  "triggered_by": {
+    "rule_id": "R3",
+    "evidence_dir": "/srv/tensor/shared/runs/tau_axis_20261015/",
+    "detail": "report.md §10 分枝建议：relaxation-coupling fix design，但未考虑 τ×Re×resolution 交互"
+  },
+  "generated_at": "2026-10-25T12:00:00Z",
+  "generator_version": "rmg-v0"
+}
