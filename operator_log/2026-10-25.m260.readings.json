@@ -1,0 +1,860 @@
+{
+ "mission": "m260",
+ "shift": "第96班 (派发器标注 shift#49，标号非递增)",
+ "collected_at_utc": "2026-10-24T16:53:46Z",
+ "shift_start_utc": "2026-10-24T16:43:01Z",
+ "shift_start_local": "2026-10-25T00:43:01",
+ "collected_at_local": "2026-10-25 00:53:46",
+ "worktree": "/srv/tensor/shared/tensor_eco/agent_work/m260/TensorPlatform",
+ "step1_inflight": {
+  "count": 3,
+  "missions": [
+   {
+    "id": 256,
+    "status": "running",
+    "hb_s": 11,
+    "claimed_by": "tensor-agent[glm-5.2]@localhost.localdomain",
+    "goal_head": "TUTORIAL-WAVE:thermal_cavity_3d — 为 veri",
+    "stop_condition": null
+   },
+   {
+    "id": 259,
+    "status": "running",
+    "hb_s": 2,
+    "claimed_by": "tensor-agent[deepseek-v4-flash]@localhost.localdomain",
+    "goal_head": "TUTORIAL-WAVE:permeability3d — 为 verifie",
+    "stop_condition": null
+   },
+   {
+    "id": 260,
+    "status": "running",
+    "hb_s": 0,
+    "claimed_by": "tensor-agent[deepseek-v4-flash#2]@localhost.localdomain",
+    "goal_head": "platform-operator 值班班次 2026-10-25（角色交接期：",
+    "stop_condition": null
+   }
+  ],
+  "ids": [
+   256,
+   259,
+   260
+  ],
+  "max_hb_s": 11,
+  "stale_over_240s": [],
+  "with_stop_condition": []
+ },
+ "step2_guardian": {
+  "authority_sumN": 16,
+  "authority_source": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/workers.json",
+  "measured_total": 16,
+  "pgrep_count": 16,
+  "slot_workers": 10,
+  "per_model": {
+   "MiniMax-M2.5-AWQ": {
+    "authority": 1,
+    "measured": 1
+   },
+   "deepseek-v4-flash": {
+    "authority": 3,
+    "measured": 3
+   },
+   "glm-5.1": {
+    "authority": 2,
+    "measured": 2
+   },
+   "glm-5.2": {
+    "authority": 1,
+    "measured": 1
+   },
+   "qwen3.6-plus": {
+    "authority": 3,
+    "measured": 3
+   },
+   "qwen3.7-plus": {
+    "authority": 6,
+    "measured": 6
+   }
+  },
+  "per_model_all_equal": true,
+  "playbook_expected": 7,
+  "playbook_value_is_R18": true
+ },
+ "step2b_blood_swap": {
+  "code_path": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/tensor_agent.py",
+  "code_mtime_local": "2026-10-24 16:35:58",
+  "code_mtime_epoch": 1792830959.0,
+  "guards": [
+   {
+    "pid": 2726616,
+    "model": "glm-5.2",
+    "slot": "1",
+    "start_local": "2026-10-24 14:44:51",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2726618,
+    "model": "deepseek-v4-flash",
+    "slot": "1",
+    "start_local": "2026-10-24 14:44:51",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2726910,
+    "model": "deepseek-v4-flash",
+    "slot": "2",
+    "start_local": "2026-10-24 14:45:00",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2726917,
+    "model": "deepseek-v4-flash",
+    "slot": "3",
+    "start_local": "2026-10-24 14:45:00",
+    "predates_code_landing": true
+   },
+   {
+    "pid": 2968476,
+    "model": "qwen3.6-plus",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968494,
+    "model": "glm-5.1",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968520,
+    "model": "qwen3.7-plus",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968523,
+    "model": "MiniMax-M2.5-AWQ",
+    "slot": "1",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968542,
+    "model": "qwen3.6-plus",
+    "slot": "2",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968587,
+    "model": "qwen3.6-plus",
+    "slot": "3",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968605,
+    "model": "qwen3.7-plus",
+    "slot": "2",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968615,
+    "model": "qwen3.7-plus",
+    "slot": "3",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968626,
+    "model": "qwen3.7-plus",
+    "slot": "4",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968643,
+    "model": "qwen3.7-plus",
+    "slot": "5",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968669,
+    "model": "qwen3.7-plus",
+    "slot": "6",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   },
+   {
+    "pid": 2968755,
+    "model": "glm-5.1",
+    "slot": "2",
+    "start_local": "2026-10-24 16:40:01",
+    "predates_code_landing": false
+   }
+  ],
+  "guards_n": 16,
+  "guards_predating_code": [
+   2726616,
+   2726618,
+   2726910,
+   2726917
+  ],
+  "guards_predating_code_n": 4,
+  "diff_added_lines": 5,
+  "diff_added_head": [
+   "+    # 2026-10-24 owner 指令扩编：上游新四库（tensor-expand 跟进线）",
+   "+    \"TensorBEM\": \"/srv/tensor/shared/tensor_eco/TensorBEM\",",
+   "+    \"TensorSPH\": \"/srv/tensor/shared/tensor_eco/TensorSPH\",",
+   "+    \"TensorDG\": \"/srv/tensor/shared/tensor_eco/TensorDG\",",
+   "+    \"TensorCAD\": \"/srv/tensor/shared/tensor_eco/TensorCAD\","
+  ],
+  "dangerous_additions": [],
+  "diff_is_additive_only": true,
+  "blank_criterion_head_diff_empty": true,
+  "inflight_ids": [
+   256,
+   259,
+   260
+  ],
+  "verdict": "零换血：纯 additive（REPO_PATHS 四库扩编），无 watchdog/os._exit 类新增 ⇒ 按案例 7 无危险旧码；且载旧码守护 3/4 当前 Busy（持在飞 mission）"
+ },
+ "step3_relay": {
+  "http_code": 200,
+  "time_total_s": 1.09735,
+  "models": 7,
+  "endpoints_n": 1,
+  "endpoint_names": [
+   "relay-13001"
+  ],
+  "cooldown_seconds": 600,
+  "transient_threshold": 3,
+  "config_source": "/srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/llm_endpoints.json",
+  "code_caps_600": true
+ },
+ "step4_cooldown": {
+  "path": "/srv/tensor/shared/tensor_eco/agent_work/llm_gateway_state.json",
+  "raw": {},
+  "active_now": {},
+  "delta_s": {},
+  "mtime_local": "2026-10-24 20:16:18",
+  "action": "none（冷却态为 {} 空，无需清理）"
+ },
+ "step5_terminal": {
+  "h24_failed": 10,
+  "h24_succeeded": 23,
+  "since_shift_failed": 0,
+  "last_failed_age_s": 2657,
+  "h24_failed_by_stop": {
+   "agent_lost": 2,
+   "budget_exceeded": 1,
+   "gateway_unavailable": 7
+  },
+  "failed_missions": [
+   {
+    "id": 221,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 82604,
+    "finished": "10-23 17:46"
+   },
+   {
+    "id": 223,
+    "stop_condition": "budget_exceeded",
+    "age_s": 82959,
+    "finished": "10-23 17:40"
+   },
+   {
+    "id": 226,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 82579,
+    "finished": "10-23 17:46"
+   },
+   {
+    "id": 229,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 82603,
+    "finished": "10-23 17:46"
+   },
+   {
+    "id": 230,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 60088,
+    "finished": "10-24 00:01"
+   },
+   {
+    "id": 231,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 36685,
+    "finished": "10-24 06:31"
+   },
+   {
+    "id": 244,
+    "stop_condition": "agent_lost",
+    "age_s": 25732,
+    "finished": "10-24 09:34"
+   },
+   {
+    "id": 245,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 17526,
+    "finished": "10-24 11:50"
+   },
+   {
+    "id": 249,
+    "stop_condition": "gateway_unavailable",
+    "age_s": 17477,
+    "finished": "10-24 11:51"
+   },
+   {
+    "id": 255,
+    "stop_condition": "agent_lost",
+    "age_s": 2657,
+    "finished": "10-24 15:58"
+   }
+  ],
+  "since_shift_missions": [],
+  "awaiting_acceptance": 0
+ },
+ "step5b_r13": {
+  "per_file": [
+   {
+    "file": "agent-MiniMax-M2.5-AWQ.log",
+    "mtime": "2026-10-24 16:40:11",
+    "count": 2,
+    "last_dated": "2026-10-22T20:32:03"
+   },
+   {
+    "file": "agent-deepseek-v4-flash-w2.log",
+    "mtime": "2026-10-25 00:43:16",
+    "count": 5,
+    "last_dated": "2026-10-24T14:31:32"
+   },
+   {
+    "file": "agent-deepseek-v4-flash-w3.log",
+    "mtime": "2026-10-25 00:19:37",
+    "count": 3,
+    "last_dated": "2026-10-24T19:50:52"
+   },
+   {
+    "file": "agent-deepseek-v4-flash.log",
+    "mtime": "2026-10-25 00:53:45",
+    "count": 4,
+    "last_dated": "2026-10-22T20:37:22"
+   },
+   {
+    "file": "agent-qwen3.6-plus-w3.log",
+    "mtime": "2026-10-24 16:40:10",
+    "count": 1,
+    "last_dated": "2026-10-24T01:46:14"
+   },
+   {
+    "file": "agent-qwen3.6-plus.log",
+    "mtime": "2026-10-24 17:34:08",
+    "count": 1,
+    "last_dated": "2026-10-23T18:42:51"
+   },
+   {
+    "file": "agent-qwen3.7-plus.log",
+    "mtime": "2026-10-24 17:01:35",
+    "count": 13,
+    "last_dated": "2026-10-22T18:11:20"
+   }
+  ],
+  "total_all_time": 29,
+  "newest_local_ts": "2026-10-24T19:50:52",
+  "events_today": [],
+  "events_since_shift": [],
+  "transient_since_shift": [],
+  "shift_start_local": "2026-10-25T00:43:01"
+ },
+ "dating_anchors": {
+  "cooldown_events_verified": 17,
+  "cooldown_events_ok": 17,
+  "cooldown_events_bad": 0,
+  "monotonic_violations": [],
+  "first_mismatches": []
+ },
+ "step6_containers": {
+  "total": 11,
+  "healthy": 11,
+  "unhealthy": []
+ },
+ "step7_refill_gate": {
+  "refill_checks": {
+   "m223": {
+    "id": 223,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='budget_exceeded' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m221": {
+    "id": 221,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T17:46:17Z failed）。按剧本 refill 并写账本。"
+   },
+   "m229": {
+    "id": 229,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-23T17:46:18Z failed）。按剧本 refill 并写账本。"
+   },
+   "m226": {
+    "id": 226,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m230": {
+    "id": 230,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T00:01:33Z failed）。按剧本 refill 并写账本。"
+   },
+   "m231": {
+    "id": 231,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T06:31:35Z failed）。按剧本 refill 并写账本。"
+   },
+   "m244": {
+    "id": 244,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='agent_lost' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m245": {
+    "id": 245,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   },
+   "m249": {
+    "id": 249,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='gateway_unavailable' 属 infra 类，且账本全史无驳回标记（账本最晚：2026-10-24T11:51:44Z failed）。按剧本 refill 并写账本。"
+   },
+   "m255": {
+    "id": 255,
+    "rc": 0,
+    "last_line": "可续班：行内 stop_condition='agent_lost' 属 infra 类，且账本全史无驳回标记（无账本条目）。按剧本 refill 并写账本。"
+   }
+  },
+  "legs": {
+   "m223": [
+    {
+     "id": 223,
+     "status": "failed"
+    },
+    {
+     "id": 233,
+     "status": "succeeded"
+    }
+   ],
+   "m221": [
+    {
+     "id": 208,
+     "status": "failed"
+    },
+    {
+     "id": 216,
+     "status": "failed"
+    },
+    {
+     "id": 221,
+     "status": "failed"
+    },
+    {
+     "id": 232,
+     "status": "succeeded"
+    }
+   ],
+   "m229": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m226": [
+    {
+     "id": 226,
+     "status": "failed"
+    }
+   ],
+   "m230": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m231": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m244": [
+    {
+     "id": 244,
+     "status": "failed"
+    },
+    {
+     "id": 245,
+     "status": "failed"
+    },
+    {
+     "id": 250,
+     "status": "succeeded"
+    }
+   ],
+   "m245": [
+    {
+     "id": 244,
+     "status": "failed"
+    },
+    {
+     "id": 245,
+     "status": "failed"
+    },
+    {
+     "id": 250,
+     "status": "succeeded"
+    }
+   ],
+   "m249": [
+    {
+     "id": 225,
+     "status": "succeeded"
+    },
+    {
+     "id": 227,
+     "status": "succeeded"
+    },
+    {
+     "id": 228,
+     "status": "succeeded"
+    },
+    {
+     "id": 229,
+     "status": "failed"
+    },
+    {
+     "id": 230,
+     "status": "failed"
+    },
+    {
+     "id": 231,
+     "status": "failed"
+    },
+    {
+     "id": 234,
+     "status": "succeeded"
+    },
+    {
+     "id": 235,
+     "status": "succeeded"
+    },
+    {
+     "id": 237,
+     "status": "succeeded"
+    },
+    {
+     "id": 242,
+     "status": "succeeded"
+    },
+    {
+     "id": 243,
+     "status": "succeeded"
+    },
+    {
+     "id": 246,
+     "status": "succeeded"
+    },
+    {
+     "id": 247,
+     "status": "succeeded"
+    },
+    {
+     "id": 248,
+     "status": "succeeded"
+    },
+    {
+     "id": 249,
+     "status": "failed"
+    },
+    {
+     "id": 251,
+     "status": "succeeded"
+    },
+    {
+     "id": 252,
+     "status": "succeeded"
+    },
+    {
+     "id": 254,
+     "status": "succeeded"
+    }
+   ],
+   "m255": [
+    {
+     "id": 253,
+     "status": "succeeded"
+    },
+    {
+     "id": 255,
+     "status": "failed"
+    },
+    {
+     "id": 256,
+     "status": "running"
+    },
+    {
+     "id": 257,
+     "status": "queued"
+    }
+   ]
+  },
+  "verdicts": {
+   "m223": "承接门挡下：更晚同前缀腿 m233(succeeded)",
+   "m221": "承接门挡下：更晚同前缀腿 m232(succeeded)",
+   "m229": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)",
+   "m226": "[上报] 无更晚同前缀腿（MP-DAMBREAK:S2 唯一腿）；owner 派发的业务线 mission，非 operator 自主 refill 权限面 → 上报 owner 裁决",
+   "m230": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)",
+   "m231": "承接门挡下：更晚同前缀腿 m234(succeeded), m235(succeeded), m237(succeeded), m242(succeeded)",
+   "m244": "承接门挡下：更晚同前缀腿 m250(succeeded)",
+   "m245": "承接门挡下：更晚同前缀腿 m250(succeeded)",
+   "m249": "承接门挡下：更晚同前缀腿 m251(succeeded), m252(succeeded), m254(succeeded)",
+   "m255": "[上报] N1 复发（worktree 准备期 git fetch 300s 超时 → 心跳未起 → 240s 后 lazy reap 判 agent_lost，第二次实证）；且承接门挡下：m256(running)"
+  }
+ },
+ "audit": {
+  "approval": {
+   "approved": 176,
+   "rejected": 11,
+   "pending": 0
+  },
+  "approval_max_id": 192,
+  "approval_log_last": "[00:20:02] approval 192 -> approved (http 200) {'id': 192, 'status': 'approved', 'scenario_key': None, 'mission_id': 258",
+  "parking_lot": "{}",
+  "pass_all": {
+   "exists": true,
+   "size_bytes": 0,
+   "mtime_local": "2026-10-23 08:14:56",
+   "rounds": 1219,
+   "last_line": "[00:52:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空"
+  },
+  "approver_log_total_lines": 8243,
+  "approver_log_last": "[00:52:01] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空",
+  "worktree_total": 116,
+  "worktree_tensorplatform": 112,
+  "main_dirty": 16,
+  "main_branch": "fix/approver-token-headroom",
+  "main_head": "c245186",
+  "gc_log_last": "/bin/sh:行1: /srv/tensor/shared/tensor_eco/TensorPlatform/tools/agent/gc.py: 权限不够",
+  "fleet_log_last": "2026-10-24T16:50:01Z fleet pass done, spawned=0",
+  "shift_switch_off": false,
+  "worktree_branch": "agent/m260",
+  "worktree_head": "c245186",
+  "worktree_dirty_before_delivery": 4
+ }
+}

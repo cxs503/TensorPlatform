@@ -1,0 +1,122 @@
+{
+  "task": "m293 PL-SEM-1",
+  "new_tests": 17,
+  "new_tests_passed": true,
+  "preexisting_errors": 2,
+  "preexisting_error_reason": "pytest not in system python (not caused by m293)",
+  "si4_anchor_verdict": "non_compliant",
+  "si4_gap_summary": {
+    "provenance_gaps": 1,
+    "physics_switch_gaps": 1,
+    "scale_realism_gaps": 3
+  },
+  "si4_provenance_gaps": [
+    {
+      "id": "si4_provenance_lbm_flow",
+      "category": "provenance",
+      "verdict": "non_compliant",
+      "evidence": [
+        {
+          "file": "scenarios/suboff_icebreaking/si4_full_chain/run_demo.py",
+          "line": 2,
+          "match": "generate_synthetic_lbm_snapshot,",
+          "pattern": "generate_synthetic"
+        },
+        {
+          "file": "scenarios/suboff_icebreaking/si4_full_chain/run_demo.py",
+          "line": 2,
+          "match": "generate_synthetic_lbm_snapshot,",
+          "pattern": "synthetic"
+        },
+        {
+          "file": "scenarios/suboff_icebreaking/si4_full_chain/run_demo.py",
+          "line": 5,
+          "match": "generate_synthetic_lbm_snapshot(seed=42)",
+          "pattern": "generate_synthetic"
+        },
+        {
+          "file": "scenarios/suboff_icebreaking/si4_full_chain/run_demo.py",
+          "line": 5,
+          "match": "generate_synthetic_lbm_snapshot(seed=42)",
+          "pattern": "synthetic"
+        },
+        {
+          "file": "scenarios/suboff_icebreaking/si4_full_chain/run_demo.py",
+          "line": 5,
+          "match": "generate_synthetic_lbm_snapshot(seed=42)",
+          "pattern": "seed="
+        }
+      ],
+      "gap": "检测到合成标记：generate_synthetic_lbm_snapshot,"
+    }
+  ],
+  "si4_physics_gaps": [
+    {
+      "id": "si4_physics_gravity_enabled",
+      "category": "physics_switch",
+      "verdict": "non_compliant",
+      "evidence": [
+        {
+          "file": "scenarios/suboff_icebreaking/si4_full_chain/run_demo.py",
+          "line": 6,
+          "match": "field = BondedParticleField(gravity=None)",
+          "pattern": "gravity\\s*=\\s*None"
+        }
+      ],
+      "gap": "物理效应被禁用：field = BondedParticleField(gravity=None)"
+    }
+  ],
+  "si4_scale_gaps": [
+    {
+      "id": "si4_scale_physical_duration",
+      "category": "scale_realism",
+      "verdict": "non_compliant",
+      "evidence": [
+        {
+          "file": "outputs/si4_full_chain/full_chain_summary.json",
+          "key_path": "total_physical_time_s",
+          "actual": 0.005,
+          "lower_bound": 1.0,
+          "unit": "s"
+        }
+      ],
+      "gap": "total_physical_time_s=0.005s，下限 1.0s"
+    },
+    {
+      "id": "si4_scale_grid_resolution",
+      "category": "scale_realism",
+      "verdict": "non_compliant",
+      "evidence": [
+        {
+          "file": "outputs/si4_full_chain/full_chain_summary.json",
+          "key_path": "n_elements",
+          "actual": 16.0,
+          "lower_bound": 100,
+          "unit": "count"
+        }
+      ],
+      "gap": "n_elements=16.0count，下限 100count"
+    },
+    {
+      "id": "si4_scale_particle_count",
+      "category": "scale_realism",
+      "verdict": "non_compliant",
+      "evidence": [
+        {
+          "file": "outputs/si4_full_chain/dem_snapshot_step0.json",
+          "key_path": "n_particles",
+          "actual": 12.0,
+          "lower_bound": 100,
+          "unit": "count"
+        }
+      ],
+      "gap": "n_particles=12.0count，下限 100count"
+    }
+  ],
+  "deliverables": [
+    "docs/specs/semantic_gate_spec.md",
+    "tools/ops/semantic_gate.py",
+    "tests/test_semantic_gate.py",
+    "docs/semantic_gate_integration_plan.md"
+  ]
+}
