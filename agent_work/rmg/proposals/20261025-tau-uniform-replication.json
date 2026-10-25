@@ -1,0 +1,65 @@
+{
+  "proposal_id": "20261025-tau-uniform-replication",
+  "title": "均匀网格 τ 阶梯复现实验",
+  "hypothesis": "τ×壁耦合效应在均匀网格 BGK 碰撞下同样存在",
+  "evidence_refs": [
+    {
+      "file": "/srv/tensor/shared/runs/tau_ladder_uniform_20261025/verdict.json",
+      "claim": "5 臂全部 fail（result.json not found）",
+      "machine_check": {
+        "type": "file_exists",
+        "path": "/srv/tensor/shared/runs/tau_ladder_uniform_20261025/verdict.json"
+      },
+      "verified": true
+    },
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+      "claim": "TG1=RELAXATION_COUPLING，D_QW 对 τ 强响应（span_ratio=6.87）",
+      "machine_check": {
+        "type": "json_value",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+        "key": "gates.TG1.verdict",
+        "expected_contains": "RELAXATION_COUPLING"
+      },
+      "verified": true
+    },
+    {
+      "file": "/srv/tensor/shared/runs/tau_ladder_uniform_20261025/prereg.md",
+      "claim": "预注册 G1/G2/G3 判据未在 verdict 中体现",
+      "machine_check": {
+        "type": "file_exists",
+        "path": "/srv/tensor/shared/runs/tau_ladder_uniform_20261025/prereg.md"
+      },
+      "verified": true
+    }
+  ],
+  "why_now": "tau_ladder_uniform 5 臂全 FAIL 无后续；tau_axis 已证 AMR 系统 τ 耦合（TG1=RELAXATION_COUPLING），均匀网格待验证",
+  "falsification_criteria": [
+    "均匀网格 τ 阶梯下 D_QW 对 τ 无响应（|ΔD| < 族半宽 1.957e-4）",
+    "BGK 碰撞下 τ 效应与 MRT 无显著差异（span_ratio < 2.0）"
+  ],
+  "controls": [
+    "固定 Re_res=1e5，只变 τ（0.51/0.55/0.60/0.70/1.00）",
+    "与 tau_axis 同 checkpoint 基线（ckpt_16000）",
+    "分辨率阶梯（80/120/160）",
+    "collision=mrt（与 tau_axis 一致）"
+  ],
+  "budget_hint": {
+    "gpu_hours": 8,
+    "storage_gb": 20,
+    "estimated_wall_clock": "4h"
+  },
+  "expected_artifacts": [
+    "verdict.json（含 TG1 τ 响应判决）",
+    "report.md（均匀 vs AMR 对比）",
+    "prereg.md（冻结判据 G1/G2/G3）"
+  ],
+  "gap_rule": "R1+R4",
+  "triggered_by": {
+    "rule_id": "R1",
+    "evidence_dir": "/srv/tensor/shared/runs/tau_ladder_uniform_20261025/",
+    "detail": "5 臂全 FAIL 无后续修复 run"
+  },
+  "generated_at": "2026-10-25T12:00:00Z",
+  "generator_version": "rmg-v0"
+}
