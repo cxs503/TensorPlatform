@@ -1,0 +1,62 @@
+{
+  "task": "m311 PL-SEM-3",
+  "new_tests": 34,
+  "new_tests_passed": true,
+  "preexisting_errors": 2,
+  "preexisting_error_reason": "pytest not in system python (not caused by m311)",
+  "reference_provenance": {
+    "type": "independent_impl",
+    "note": "quality_gate.py 是对 QUALITY_BAR.md 规范的实现，规范为 owner 2026-10-25 指令"
+  },
+  "deliverables": {
+    "quality_gate_tool": "tools/ops/quality_gate.py",
+    "test_suite": "tests/test_quality_gate.py",
+    "integration_plan": "docs/quality_gate_integration_plan.md",
+    "validation_report": "validation_report_m311.json"
+  },
+  "rule_coverage": {
+    "R1_probe_existence": {
+      "tests": 4,
+      "all_pass": true,
+      "kill_tests": 2
+    },
+    "R2_reference_provenance": {
+      "tests": 7,
+      "all_pass": true,
+      "kill_tests": 2
+    },
+    "R3_physics_path": {
+      "tests": 4,
+      "all_pass": true,
+      "kill_tests": 0
+    },
+    "R4_baseline_reds": {
+      "tests": 4,
+      "all_pass": true,
+      "kill_tests": 0
+    },
+    "R5_verdict_history": {
+      "tests": 5,
+      "all_pass": true,
+      "kill_tests": 2
+    },
+    "overall_judgment": {
+      "tests": 6,
+      "all_pass": true
+    },
+    "adversarial_scenarios": {
+      "tests": 4,
+      "all_pass": true
+    }
+  },
+  "total_tests": 34,
+  "pass_count": 34,
+  "fail_count": 0,
+  "discipline": {
+    "no_production_changes": true,
+    "tool_only": true,
+    "validation_naming_convention": "validation_report_m311.json",
+    "branch": "agent/m311",
+    "merge_owner": true
+  }
+}

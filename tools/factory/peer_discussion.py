@@ -1,5 +1,4 @@
 """Optional peer conversation, independent of mission creation and task hierarchy."""
-import fcntl
 import json
 import time
 from resident_harness import Tools, deliberate
@@ -25,12 +24,10 @@ def converse(api,resident,root,source,generate):
  try:
   if not relevant and not periodic:return None
   deadline=time.monotonic()+900
+  from inference_boundary import InferenceBoundary
+  boundary=InferenceBoundary(api,root,sid,deadline)
   def infer(prompt,schema):
-   with (root/'.runtime/resident-inference.lock').open('a') as gate:
-    while True:
-     if time.monotonic()>deadline:raise RuntimeError('peer discussion execution window expired')
-     try:fcntl.flock(gate,fcntl.LOCK_EX|fcntl.LOCK_NB);break
-     except BlockingIOError:time.sleep(.5)
+   with boundary.admit(prompt) as prompt:
     return generate(prompt,schema,model=resident['model'],timeout_seconds=min(240,deadline-time.monotonic()))
   tools=Tools(api,root,source,folder)
   invitation=('这是自主社区活动时段，没有新消息也可以根据长期目标自行了解社区现状、发现值得解决的平台问题、发起议题、建设真实源码分支并邀请独立审查；也可以判断暂时无需行动。不要为了活跃而制造任务、空洞规划或循环复盘。先核查证据，优先小而可验收的实际改进。' if periodic else '')

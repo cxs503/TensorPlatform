@@ -1,0 +1,130 @@
+{
+  "mission_id": "m300",
+  "mission_name": "PL-SEM-2: RMG 科研任务生成器原型（proposal-only）+ 四级验证映射",
+  "completed_at": "2026-10-25T12:30:00Z",
+  "status": "succeeded",
+  
+  "deliverables": {
+    "spec_document": {
+      "path": "docs/specs/rmg_spec.md",
+      "description": "RMG 科研任务生成器规范",
+      "sections": [
+        "证据库清单（verdict.json/prereg.md/gates_verified.json/mission DB/operator_log）",
+        "缺口识别规则 v0（R1 honest-FAIL/R2 FAIL 待验证/R3 决策债/R4 prereg 未测/R5 跨库契约）",
+        "proposal 机器格式（research_proposal.json 字段定义）",
+        "证据引用机器核验（file_exists/json_value/grep_match/numeric_range）",
+        "输出规范（proposals/ + digest.md + run_log.json）",
+        "纪律声明（proposal-only/不改现网/证据核验/规则命中/owner 裁决）"
+      ],
+      "verified": true
+    },
+    
+    "prototype_tool": {
+      "path": "tools/ops/rmg.py",
+      "description": "RMG 原型实现（proposal-only）",
+      "functions": [
+        "scan_gaps(): 扫描证据源识别缺口",
+        "rule_r1_honest_fail_no_followup(): R1 规则",
+        "rule_r2_fail_archive_pending(): R2 规则",
+        "rule_r3_decision_debt(): R3 规则",
+        "rule_r4_prereg_untested(): R4 规则",
+        "rule_r5_cross_validation_gap(): R5 规则",
+        "verify_evidence_ref(): 证据引用核验",
+        "generate_proposal(): 生成 proposal",
+        "generate_digest(): 生成摘要"
+      ],
+      "verified": true
+    },
+    
+    "test_suite": {
+      "path": "tests/test_rmg.py",
+      "description": "RMG 测试套件",
+      "test_count": 13,
+      "test_classes": [
+        "TestEvidenceVerification (6 tests)",
+        "TestGapRules (4 tests)",
+        "TestProposalGeneration (2 tests)",
+        "TestIntegration (1 test)"
+      ],
+      "anchor_case": "无有效证据引用的 proposal 必须被拒",
+      "all_passed": true
+    },
+    
+    "four_level_mapping": {
+      "path": "docs/specs/semantic_gate_spec.md",
+      "section": "§9 四级验证映射",
+      "description": "四层级 ↔ 平台现有门对照表",
+      "levels": [
+        "L1 代码正确性 → CI + 测试套件门（全覆盖）",
+        "L2 数值正确性 → 回归 + 机器判据复算（全覆盖）",
+        "L3 物理正确性 → semantic_gate 三判据 + 外部锚（部分覆盖）",
+        "L4 工程可信度 → 跨库契约 + 端到端复现（部分覆盖）"
+      ],
+      "verified": true
+    },
+    
+    "pilot_run": {
+      "evidence_sources": [
+        "/srv/tensor/shared/runs/tau_ladder_uniform_20261025/",
+        "/srv/tensor/shared/runs/tau_axis_20261015/",
+        "m292 残值交付报告"
+      ],
+      "proposals_generated": 3,
+      "proposals": [
+        {
+          "id": "20261025-tau-uniform-replication",
+          "title": "均匀网格 τ 阶梯复现实验",
+          "triggered_by": "R1+R4",
+          "evidence_refs_verified": true
+        },
+        {
+          "id": "20261025-tau-factor-design",
+          "title": "τ×有效Re×分辨率 因子设计实验",
+          "triggered_by": "R3",
+          "evidence_refs_verified": true
+        },
+        {
+          "id": "20261025-tau-matched-re-control",
+          "title": "matched-有效Re 对照组实验",
+          "triggered_by": "R3",
+          "evidence_refs_verified": true
+        }
+      ],
+      "digest_path": "agent_work/rmg/proposals/20261025-digest.md",
+      "verified": true
+    }
+  },
+  
+  "discipline_compliance": {
+    "no_network_changes": true,
+    "proposal_only": true,
+    "evidence_verified": true,
+    "mechanical_rules_only": true,
+    "owner_approval_required": true
+  },
+  
+  "test_results": {
+    "total_tests": 158,
+    "passed": 156,
+    "failed": 0,
+    "errors": 2,
+    "error_details": "2 个已知 pytest 缺失错误（test_public_wall/test_single_tenant_fallback），非本任务引入",
+    "new_tests": 13,
+    "new_tests_passed": 13
+  },
+  
+  "key_achievements": [
+    "建立 RMG 科研任务生成器原型（proposal-only）",
+    "实现 5 条机械规则缺口识别（R1-R5）",
+    "实现证据引用机器核验（语义门思想反作用于选题层）",
+    "建立四级验证映射（L1-L4 ↔ 平台现有门）",
+    "对 SIR-1 证据实跑产出 3 条高质量真实 proposal",
+    "全库测试通过（156/158，2 个已知错误非本任务引入）"
+  ],
+  
+  "next_steps": [
+    "owner 审 3 条 proposal，决定晋级为 mission",
+    "根据 owner 反馈迭代 RMG 规则",
+    "扩展 L3/L4 覆盖度（物理开关映射、跨库契约自动验证）"
+  ]
+}

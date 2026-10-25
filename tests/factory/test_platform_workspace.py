@@ -40,3 +40,32 @@ def test_platform_check_rejects_paths_and_oversized_sources():
  for name in ['/etc/passwd','../escape.py','.runtime/auth.json']:
   with pytest.raises(ValueError):module.validate({name:'x'})
  with pytest.raises(ValueError):module.validate({'backend/service.py':'x'*1000001})
+
+
+def test_refresh_missing_support_preserves_dirty_candidate(tmp_path):
+ root=repository(tmp_path);w=Workspace(root,uuid.uuid4());w.ensure()
+ support=root/'tools/factory';support.mkdir(parents=True)
+ (support/'new_support.py').write_text('value=3\n')
+ (w.path/'backend/service.py').write_text('local_edit=4\n')
+ result=w.call('workspace.refresh_support',{})
+ assert 'tools/factory/new_support.py' in result['imported']
+ assert (w.path/'backend/service.py').read_text()=='local_edit=4\n'
+ (w.path/'tools/factory/new_support.py').write_text('local_support=5\n')
+ assert w.call('workspace.refresh_support',{})['imported']=={}
+ assert (w.path/'tools/factory/new_support.py').read_text()=='local_support=5\n'
+ (w.base/'check.json').write_text(json.dumps({'passed':False,'log':'collection error'}))
+ assert w.call('workspace.check_result',{'offset':0,'limit':10})['log']=='collection'
+
+
+def test_sync_rebases_and_restores_dirty_and_untracked_work(tmp_path):
+ root=repository(tmp_path);w=Workspace(root,uuid.uuid4());w.ensure()
+ (w.path/'backend/service.py').write_text('local_work=7\n')
+ (w.path/'backend/new.py').write_text('untracked_work=8\n')
+ (root/'backend/upstream.py').write_text('upstream=9\n')
+ git(root,'add','.');git(root,'-c','user.name=test','-c','user.email=test@local','commit','-m','upstream')
+ result=w.call('workspace.sync',{})
+ assert result['rebased'] and result['backup_commit'] and not result['conflicts']
+ assert (w.path/'backend/service.py').read_text()=='local_work=7\n'
+ assert (w.path/'backend/new.py').read_text()=='untracked_work=8\n'
+ assert (w.path/'backend/upstream.py').read_text()=='upstream=9\n'
+ assert git(w.path,'rev-parse','HEAD').strip()==git(root,'rev-parse','HEAD').strip()
