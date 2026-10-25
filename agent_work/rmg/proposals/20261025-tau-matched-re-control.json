@@ -1,0 +1,69 @@
+{
+  "proposal_id": "20261025-tau-matched-re-control",
+  "title": "matched-有效Re 对照组实验",
+  "hypothesis": "τ×有效Re 耦合是 D_QW 符号翻转的主因，需 matched-Re 对照组隔离 τ 纯效应",
+  "evidence_refs": [
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+      "claim": "tau_x4 臂 D_QW=+4.66e-4（符号翻转），recomp_x4 臂 D_QW=-6.07e-3（未翻转），差异 6.54e-3 远超族半宽 1.957e-4",
+      "machine_check": {
+        "type": "json_value",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+        "key": "gates.TG1.dqw_w3.tau_x4",
+        "expected_equals": 0.00046641545261607464
+      },
+      "verified": true
+    },
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+      "claim": "tau_x4 与 recomp_x4 的 Re_res 不同（tau_x4: 2.5e4, recomp_x4: 1e5），无法区分 τ 纯效应与 Re 效应",
+      "machine_check": {
+        "type": "json_value",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/verdict.json",
+        "key": "gates.TG1.dqw_w3.recomp_x4",
+        "expected_equals": -0.006074085687056923
+      },
+      "verified": true
+    },
+    {
+      "file": "/srv/tensor/shared/runs/tau_axis_20261015/report.md",
+      "claim": "§8.5 supp_x4 臂试图补 τ=τ_prod 且 Re 配平 tau_x4 的对照，但双键手术无门控",
+      "machine_check": {
+        "type": "file_exists",
+        "path": "/srv/tensor/shared/runs/tau_axis_20261015/report.md"
+      },
+      "verified": true
+    }
+  ],
+  "why_now": "tau_axis 显示 tau_x4 符号翻转但 Re_res=2.5e4，recomp_x4 未翻转但 Re_res=1e5，两者 Re 不匹配无法区分 τ 纯效应与 Re 效应；需 matched-Re 对照组隔离变量",
+  "falsification_criteria": [
+    "matched-Re 对照组显示 τ 纯效应不显著（|ΔD| < 族半宽 1.957e-4）",
+    "matched-Re 对照组与 tau_axis 结果不一致（|ΔD| > 2×族半宽）",
+    "符号翻转会随 Re 匹配而消失"
+  ],
+  "controls": [
+    "matched-Re 组：τ∈{0.5,0.6,0.7,1.0} × Re_res=2.5e4（与 tau_x4 匹配）",
+    "对照组：τ∈{0.5,0.6,0.7,1.0} × Re_res=1e5（与 tau_mid 匹配）",
+    "固定 resolution=80, collision=mrt, friction=standard",
+    "W3 窗口 [17200,17600]（与 tau_axis 一致）",
+    "每臂 400 步采样（与 tau_axis 一致）"
+  ],
+  "budget_hint": {
+    "gpu_hours": 12,
+    "storage_gb": 30,
+    "estimated_wall_clock": "6h"
+  },
+  "expected_artifacts": [
+    "verdict.json（含 matched-Re 对比判决）",
+    "report.md（τ 纯效应 vs Re 效应分离分析）",
+    "prereg.md（冻结 matched-Re 设计与判据）"
+  ],
+  "gap_rule": "R3",
+  "triggered_by": {
+    "rule_id": "R3",
+    "evidence_dir": "/srv/tensor/shared/runs/tau_axis_20261015/",
+    "detail": "tau_x4 vs recomp_x4 符号翻转差异 6.54e-3，Re 不匹配无法归因"
+  },
+  "generated_at": "2026-10-25T12:00:00Z",
+  "generator_version": "rmg-v0"
+}
