@@ -1,0 +1,818 @@
+{
+ "mission": "m325",
+ "shift": "第109班（上一班 m317 于 09:48Z succeeded 收尾；本班由派发器 10:43:02Z 派出，班前 m321（glm-5.2 同类班次）10:13:02Z 派出即 gateway_unavailable 整班作废。本班处置：清过期冷却态 relay-13001(quota,过期1259s) + refill R6 补账三腿 m318/m319/m320（gateway_unavailable → 端点复验 200）",
+ "generated_at_utc": "2026-10-25T11:03:27Z",
+ "checks_total": 161,
+ "checks_passed": 161,
+ "all_pass": true,
+ "fails": [],
+ "checks": [
+  {
+   "name": "S1-has-inflight",
+   "pass": true,
+   "detail": "在飞 3"
+  },
+  {
+   "name": "S1-hb-fresh",
+   "pass": true,
+   "detail": "max_hb=6s < 240s"
+  },
+  {
+   "name": "S1-none-stale",
+   "pass": true,
+   "detail": "stale=[]"
+  },
+  {
+   "name": "S1-self-included",
+   "pass": true,
+   "detail": "ids=[318, 324, 325]"
+  },
+  {
+   "name": "S1-business-legs-observed",
+   "pass": true,
+   "detail": "m324/m318 状态（{'318': 'succeeded', '324': 'running'}）⇒ 在飞非仅自身，读数未漏采"
+  },
+  {
+   "name": "S1-refilled-leg-claimed",
+   "pass": true,
+   "detail": "本班 refill 的 m318 已被 flash#2 认领续跑（18:57:11 CST），读数计入在飞"
+  },
+  {
+   "name": "S1-no-stop-condition",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "name": "S1-count-eq-ids",
+   "pass": true,
+   "detail": "3"
+  },
+  {
+   "name": "S1-live-recheck",
+   "pass": true,
+   "detail": "live=3 == readings 3 - 终态 1 + 新进 1"
+  },
+  {
+   "name": "S1-queue-snapshot",
+   "pass": true,
+   "detail": "{'queued': 2}"
+  },
+  {
+   "name": "S1-pos-max-id",
+   "pass": true,
+   "detail": "max_id=325"
+  },
+  {
+   "name": "S1-awaiting-zero",
+   "pass": true,
+   "detail": "awaiting=0"
+  },
+  {
+   "name": "S2-authority-sum16",
+   "pass": true,
+   "detail": "ΣN=16"
+  },
+  {
+   "name": "S2-measured-eq-authority",
+   "pass": true,
+   "detail": "measured=16"
+  },
+  {
+   "name": "S2-pgrep-eq-measured",
+   "pass": true,
+   "detail": "pgrep=16"
+  },
+  {
+   "name": "S2-per-model-equal",
+   "pass": true,
+   "detail": "六模型逐项相等"
+  },
+  {
+   "name": "S2-slot-workers",
+   "pass": true,
+   "detail": "非首槽=10"
+  },
+  {
+   "name": "S2-six-models",
+   "pass": true,
+   "detail": "['MiniMax-M2.5-AWQ', 'deepseek-v4-flash', 'glm-5.1', 'glm-5.2', 'qwen3.6-plus', 'qwen3.7-plus']"
+  },
+  {
+   "name": "S2-fleet-spawned0",
+   "pass": true,
+   "detail": "2026-10-25T11:00:01Z fleet pass done, spawned=0"
+  },
+  {
+   "name": "S2-playbook-R18",
+   "pass": true,
+   "detail": "剧本值 7 已废，只用等式"
+  },
+  {
+   "name": "S2b-guards-16",
+   "pass": true,
+   "detail": "guards=16"
+  },
+  {
+   "name": "S2b-old-code-count",
+   "pass": true,
+   "detail": "old=14"
+  },
+  {
+   "name": "S2b-head-lacks-4repos",
+   "pass": true,
+   "detail": "HEAD grep TensorBEM=0"
+  },
+  {
+   "name": "S2b-disk-has-4repos",
+   "pass": true,
+   "detail": "磁盘 grep TensorBEM=1"
+  },
+  {
+   "name": "S2b-zero-kill",
+   "pass": true,
+   "detail": "本班零换血"
+  },
+  {
+   "name": "S2b-code-mtime-pinned",
+   "pass": true,
+   "detail": "2026-10-25 09:12:10"
+  },
+  {
+   "name": "S2b-inflight-three",
+   "pass": true,
+   "detail": "在飞 [318, 324, 325]（R6 补账续跑/业务线/自身）"
+  },
+  {
+   "name": "S2b-self-slot-facts",
+   "pass": true,
+   "detail": "本班跑在旧码 2726618（flash slot1）⇒ 换血必须自保排除；本班零 kill"
+  },
+  {
+   "name": "S2b-oldcode-still-14",
+   "pass": true,
+   "detail": "旧码 14/16 台（未换血，N5 未裁决）"
+  },
+  {
+   "name": "S2c-unknown-repo-pinned",
+   "pass": true,
+   "detail": "unknown repo 命中=4（≥4，旧码根因仍在）"
+  },
+  {
+   "name": "S2c-unknown-repo-legs",
+   "pass": true,
+   "detail": "[287, 289, 290, 294]"
+  },
+  {
+   "name": "S3-http-200",
+   "pass": true,
+   "detail": "200"
+  },
+  {
+   "name": "S3-latency",
+   "pass": true,
+   "detail": "0.343693s < 5s"
+  },
+  {
+   "name": "S3-models-7",
+   "pass": true,
+   "detail": "models=7"
+  },
+  {
+   "name": "S3-single-endpoint",
+   "pass": true,
+   "detail": "['relay-13001']"
+  },
+  {
+   "name": "S3-cooldown-600",
+   "pass": true,
+   "detail": "600"
+  },
+  {
+   "name": "S3-transient-3",
+   "pass": true,
+   "detail": "3"
+  },
+  {
+   "name": "S3-code-caps600",
+   "pass": true,
+   "detail": "min(cooldown,600) 生效"
+  },
+  {
+   "name": "S4-empty-state",
+   "pass": true,
+   "detail": "raw={}"
+  },
+  {
+   "name": "S4-no-active",
+   "pass": true,
+   "detail": "无活跃冷却"
+  },
+  {
+   "name": "S4-action-cleared",
+   "pass": true,
+   "detail": "cleared（班前读数 relay-13001 quota blocked_until 已过期 1259s，按剧本快照"
+  },
+  {
+   "name": "S4-snapshot-taken",
+   "pass": true,
+   "detail": "/srv/tensor/shared/tensor_eco/agent_work/probe_m325/llm_gateway_state.snapshot.json"
+  },
+  {
+   "name": "S4-snapshot-quota-expired",
+   "pass": true,
+   "detail": "班前快照 relay-13001 quota blocked_until=1792923791.3284385（NaN 之外必须有值，过期才可清）"
+  },
+  {
+   "name": "S4-file-exists",
+   "pass": true,
+   "detail": "mtime=2026-10-25 18:55:22"
+  },
+  {
+   "name": "S5-h24-failed-27",
+   "pass": true,
+   "detail": "h24_failed=27"
+  },
+  {
+   "name": "S5-window-delta-pinned",
+   "pass": true,
+   "detail": "窗口 = 上一班 24 条 − m244（滑出）+ 新进 7 条（316/318/319/320/321/322/323）"
+  },
+  {
+   "name": "S5-refilled-slid-out",
+   "pass": true,
+   "detail": "refilled=[318, 319, 320] 已不在 failed 窗口（finished_at 被 refill 清空）"
+  },
+  {
+   "name": "S5-h24-succeeded-ineq",
+   "pass": true,
+   "detail": "h24_succeeded=48（活体，不钉死）"
+  },
+  {
+   "name": "S5-since-shift-zero",
+   "pass": true,
+   "detail": "since_shift=0"
+  },
+  {
+   "name": "S5-since-shift-no-failed-row",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "name": "S5-candidates-equal-window",
+   "pass": true,
+   "detail": "活体 27 条 ids 与 CANDIDATES-REFILLED 逐条相等（候选清单与窗口不脱钩，案例 21）"
+  },
+  {
+   "name": "S5-window-ids-pinned",
+   "pass": true,
+   "detail": "活体窗口 id 集合钉死（处置前 30 条 - 本班 refill 3 条）"
+  },
+  {
+   "name": "S5-by-stop-sums",
+   "pass": true,
+   "detail": "{'agent_lost': 8, 'budget_exceeded': 1, 'gateway_unavailable': 18}"
+  },
+  {
+   "name": "S5-stop-taxonomy",
+   "pass": true,
+   "detail": "['agent_lost', 'budget_exceeded', 'gateway_unavailable']"
+  },
+  {
+   "name": "S5-awaiting-zero",
+   "pass": true,
+   "detail": "0"
+  },
+  {
+   "name": "S5-window-fails-empty",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "name": "S5-last-failed-age-parsed",
+   "pass": true,
+   "detail": "last_failed_age=1297s（m323，本班窗口内最近一条 failed）"
+  },
+  {
+   "name": "S5-since-missions-infra-only",
+   "pass": true,
+   "detail": "[]（infra 类才可 refill，honest FAIL 不行）"
+  },
+  {
+   "name": "S5-h24-live-recheck",
+   "pass": true,
+   "detail": "live=27 ≤ readings 27（refill 清 finished_at，只减不增）"
+  },
+  {
+   "name": "S5d-cool-total-32",
+   "pass": true,
+   "detail": "total=32"
+  },
+  {
+   "name": "S5d-events-since-shift-empty",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "name": "S5d-events-today-pinned",
+   "pass": true,
+   "detail": "['2026-10-25T01:58:02', '2026-10-25T11:31:29', '2026-10-25T18:13:11']"
+  },
+  {
+   "name": "S5d-events-today-before-shift",
+   "pass": true,
+   "detail": "shift_start_local=2026-10-25T18:43:02"
+  },
+  {
+   "name": "S5d-newest-cool",
+   "pass": true,
+   "detail": "2026-10-25T18:13:11"
+  },
+  {
+   "name": "S5d-transient-below-threshold",
+   "pass": true,
+   "detail": "班内 transient=0 条 < 3（未成冷却波）"
+  },
+  {
+   "name": "S5d-dating-20",
+   "pass": true,
+   "detail": "verified=20"
+  },
+  {
+   "name": "S5d-dating-bad-0",
+   "pass": true,
+   "detail": "bad=0"
+  },
+  {
+   "name": "S5d-monotonic",
+   "pass": true,
+   "detail": "[]"
+  },
+  {
+   "name": "S6-containers-all-healthy",
+   "pass": true,
+   "detail": "11/11"
+  },
+  {
+   "name": "S6-containers-11",
+   "pass": true,
+   "detail": "11"
+  },
+  {
+   "name": "S6-approved-ineq",
+   "pass": true,
+   "detail": "approved=216"
+  },
+  {
+   "name": "S6-rejected-11",
+   "pass": true,
+   "detail": "11"
+  },
+  {
+   "name": "S6-pending-0",
+   "pass": true,
+   "detail": "0"
+  },
+  {
+   "name": "S6-approval-max-ineq",
+   "pass": true,
+   "detail": "232"
+  },
+  {
+   "name": "S6-parking-empty",
+   "pass": true,
+   "detail": "{}"
+  },
+  {
+   "name": "S6-passall-present",
+   "pass": true,
+   "detail": "{'exists': True, 'size_bytes': 0, 'mtime_local': '2026-10-23 08:14:56', 'rounds': 1764, 'last_line': '[19:02:02] PASS_ALL 模式：本轮默认批准 0 项，停车场已清空'}"
+  },
+  {
+   "name": "S6-passall-rounds-ineq",
+   "pass": true,
+   "detail": "rounds=1764"
+  },
+  {
+   "name": "S6-worktree-ineq",
+   "pass": true,
+   "detail": "136"
+  },
+  {
+   "name": "S6-main-dirty-ineq",
+   "pass": true,
+   "detail": "dirty=19（P3 续报：未提交修复面让 HEAD-diff 判据恒空）"
+  },
+  {
+   "name": "S6-main-head-base",
+   "pass": true,
+   "detail": "c245186"
+  },
+  {
+   "name": "S6-gc-still-broken",
+   "pass": true,
+   "detail": "X 未修（30 行）"
+  },
+  {
+   "name": "S6-shift-off-absent",
+   "pass": true,
+   "detail": "operator_shift.OFF 未拉"
+  },
+  {
+   "name": "S6-worktree-branch",
+   "pass": true,
+   "detail": "agent/m325"
+  },
+  {
+   "name": "S6-head-descends-base",
+   "pass": true,
+   "detail": "HEAD=c245186 含 base c245186"
+  },
+  {
+   "name": "S6-worktree-no-stray-dirty",
+   "pass": true,
+   "detail": "非交付件改动=[]"
+  },
+  {
+   "name": "S7-candidates-30",
+   "pass": true,
+   "detail": "30"
+  },
+  {
+   "name": "S7-refilled-now-rc3",
+   "pass": true,
+   "detail": "{'m318': 3, 'm319': 3, 'm320': 3}"
+  },
+  {
+   "name": "S7-rest-still-rc0",
+   "pass": true,
+   "detail": "其余 27 条 rc=[0]"
+  },
+  {
+   "name": "S7-refilled-pinned",
+   "pass": true,
+   "detail": "refilled=[318, 319, 320]"
+  },
+  {
+   "name": "S7-verdicts-30",
+   "pass": true,
+   "detail": "30"
+  },
+  {
+   "name": "S7-no-empty-verdict",
+   "pass": true,
+   "detail": "每条有理由"
+  },
+  {
+   "name": "S7-legs-keyed",
+   "pass": true,
+   "detail": "承接腿与裁决一一对应"
+  },
+  {
+   "name": "S7-m301-leg-succeeded",
+   "pass": true,
+   "detail": "m301 承接腿 m304 已 succeeded ⇒ 不 refill"
+  },
+  {
+   "name": "S7-expand-follow-blocked",
+   "pass": true,
+   "detail": "N6 使四腿『等派发器重发』路径失效 ⇒ operator 不 refill"
+  },
+  {
+   "name": "S7-operator-self-legs-blocked",
+   "pass": true,
+   "detail": "operator 值班自腿不 refill（会造双跑值班）"
+  },
+  {
+   "name": "S7-m316-has-successor",
+   "pass": true,
+   "detail": "m316 的承接腿 m324 由派发器重发并在飞 ⇒ 不 refill"
+  },
+  {
+   "name": "S7-m322-m323-root-cause-gated",
+   "pass": true,
+   "detail": "SIR-4-W2/QUAL-2 死于准备期 fetch 阻塞（N1）⇒ 不 refill"
+  },
+  {
+   "name": "S7b-refill-trace-in-db",
+   "pass": true,
+   "detail": "三条腿 result.refill 均已落库：{318: 'object', 319: 'object', 320: 'object'}"
+  },
+  {
+   "name": "S7b-refill-by-operator",
+   "pass": true,
+   "detail": "{318: 'operator_agent', 319: 'operator_agent', 320: 'operator_agent'}（恰加一次，API 行锁）"
+  },
+  {
+   "name": "S7b-refill-added-80",
+   "pass": true,
+   "detail": "{318: '80', 319: '80', 320: '80'}"
+  },
+  {
+   "name": "S7b-budget-400-to-480",
+   "pass": true,
+   "detail": "{318: '480', 319: '480', 320: '480'}"
+  },
+  {
+   "name": "S7b-status-left-terminal",
+   "pass": true,
+   "detail": "{318: 'succeeded', 319: 'running', 320: 'queued'}（failed → queued/续跑）"
+  },
+  {
+   "name": "S7b-n1-legs-untouched",
+   "pass": true,
+   "detail": "{322: ('failed', '-'), 323: ('failed', '-')}（N1 腿零动作，只 [上报]）"
+  },
+  {
+   "name": "S7b-m318-refill-succeeded",
+   "pass": true,
+   "detail": "m318 status/checks = [['succeeded', '11', '11']]（refill 后续跑一次收口，11/11 判据 PASS）"
+  },
+  {
+   "name": "S7b-report-66-published",
+   "pass": true,
+   "detail": "tensor_reports #66 = [['66', '318', 'published']]（R6 欠账真销证的发布物）"
+  },
+  {
+   "name": "S7b-prev-shift-closed",
+   "pass": true,
+   "detail": "上一班 m317 经审批 #232 已 succeeded 收口，本班无需再动"
+  },
+  {
+   "name": "S7c-n1-claimed-finish-window",
+   "pass": true,
+   "detail": "{322: ['10:17:08', '10:21:23', '255'], 323: ['10:17:08', '10:21:25', '257']}（创办→收割 255/257s，恰过 240s 阈值）"
+  },
+  {
+   "name": "S7c-n1-reaper-lines-2",
+   "pass": true,
+   "detail": "['[18:21:23] reaped stale mission 322', '[18:21:25] reaped stale mission 323']"
+  },
+  {
+   "name": "S7c-n1-fetch-timeout-same-shift",
+   "pass": true,
+   "detail": "同刻 flash 日志 `TimeoutExpired: git fetch TensorPhysics timed out after 300 seconds`"
+  },
+  {
+   "name": "S7c-n1-no-worktree-state",
+   "pass": true,
+   "detail": "m322 连 state 都未生成 ⇒ 死在准备期而非任务逻辑（N1 判据）"
+  },
+  {
+   "name": "S10-owed-18",
+   "pass": true,
+   "detail": "owed=18"
+  },
+  {
+   "name": "S10-failed-owed-10",
+   "pass": true,
+   "detail": "failed_owed=10"
+  },
+  {
+   "name": "S10-cutoff",
+   "pass": true,
+   "detail": "2026-10-23"
+  },
+  {
+   "name": "S10-backfill-legs-3",
+   "pass": true,
+   "detail": "[(318, 'running'), (319, 'queued'), (320, 'queued')]"
+  },
+  {
+   "name": "S10-backfill-not-by-this-shift",
+   "pass": true,
+   "detail": "补账单 id 均 > 本班 317 ⇒ 非本班派出（r6 线 08:46:30Z 自主派）"
+  },
+  {
+   "name": "S10-backfill-refilled-by-shift",
+   "pass": true,
+   "detail": "[(318, 'running'), (319, 'queued'), (320, 'queued')]（本班 refill 后：m318 已被认领续跑、m319/m320 排在队列）"
+  },
+  {
+   "name": "S10-action-refilled",
+   "pass": true,
+   "detail": "refilled（欠账已由 r6 线 08:46:30Z 自主派出 m318/m319/m320 三腿覆盖全部欠账，op"
+  },
+  {
+   "name": "S10-N10-interval-gap-pinned",
+   "pass": true,
+   "detail": "[280, 281, 282, 283]（m319 goal 用区间写法 m279-283）"
+  },
+  {
+   "name": "S10-declared-covered-27",
+   "pass": true,
+   "detail": "27 个 m<id> 出现在三腿 goal 中"
+  },
+  {
+   "name": "S10-N11-ledger-has-cron",
+   "pass": true,
+   "detail": "N11 已被 owner 修：crontab 现有 `11,41 * * * * ... report_ledger.py` 条目"
+  },
+  {
+   "name": "S10-owed-delta-10",
+   "pass": true,
+   "detail": "owed 28 → 18（−10）"
+  },
+  {
+   "name": "S10-failed-owed-delta-16",
+   "pass": true,
+   "detail": "failed_owed 26 → 10（−16）"
+  },
+  {
+   "name": "S10-removed-owed-are-report66",
+   "pass": true,
+   "detail": "销掉的 owed = [219, 233, 236, 250, 253, 262, 265, 267, 278, 313]"
+  },
+  {
+   "name": "S10-ledger-cron-fresh",
+   "pass": true,
+   "detail": "ledger 最新一行：[2026-10-25 19:11:01] report_debt: owed=18 [186, 198, 232, 238, 239, 240, 241, 272, 273, 274, 275, 276, 277, 2"
+  },
+  {
+   "name": "S10-debt-fresh",
+   "pass": true,
+   "detail": "report_debt.json generated_at=2026-10-25T11:01:45Z（cron 生效后新鲜，上一班为 08:33Z 陈旧）"
+  },
+  {
+   "name": "S8-queued-not-in-whitelist",
+   "pass": true,
+   "detail": "白名单=['pending', 'dispatched', 'claimed', 'running'] API初态=queued"
+  },
+  {
+   "name": "S8-queued-terminal-7",
+   "pass": true,
+   "detail": "7"
+  },
+  {
+   "name": "S8-float-4-legs-all-failed",
+   "pass": true,
+   "detail": "[(284, 'failed'), (285, 'failed'), (286, 'failed'), (288, 'failed')]"
+  },
+  {
+   "name": "S8-marked-report",
+   "pass": true,
+   "detail": "[上报] N4（m268 首报，本班第 N 次实证）：不动派发器代码（越界）"
+  },
+  {
+   "name": "S8b-file-too-long-ge17",
+   "pass": true,
+   "detail": "File name too long ×17"
+  },
+  {
+   "name": "S8b-defect-line-195",
+   "pass": true,
+   "detail": "[195]"
+  },
+  {
+   "name": "S8b-defect-code-pinned",
+   "pass": true,
+   "detail": "capture_output=True, text=True, timeout=120, env=env, cwd=str(HELPER.parent) + CRITERIA_BLOCK)"
+  },
+  {
+   "name": "S8b-dispatch-py-mtime",
+   "pass": true,
+   "detail": "缺陷代码自 2026-10-25 12:54:27 落盘后未改（N6 未修）"
+  },
+  {
+   "name": "S8b-last-round-crashed",
+   "pass": true,
+   "detail": "仍在崩：File name too long ×17（上一班 m317 记 12，本班 +5）"
+  },
+  {
+   "name": "S8b-dispatched-8",
+   "pass": true,
+   "detail": "8"
+  },
+  {
+   "name": "S8b-last-dispatch-m294",
+   "pass": true,
+   "detail": "2026-10-25T11:00:26Z dispatched follow TensorBEM 09157406..f56ac45f → m294"
+  },
+  {
+   "name": "S8b-marked-report",
+   "pass": true,
+   "detail": "[上报] N6：新颖故障类（第一次见），本班只定性记录、不动手"
+  },
+  {
+   "name": "S8b-live-recheck",
+   "pass": true,
+   "detail": "live=18 vs readings=17"
+  },
+  {
+   "name": "S9-total-recorded",
+   "pass": true,
+   "detail": "total=20"
+  },
+  {
+   "name": "S9-per-file-sum",
+   "pass": true,
+   "detail": "5 文件"
+  },
+  {
+   "name": "S9-no-action",
+   "pass": true,
+   "detail": "记录（不加处置）：容器 11/11 healthy，事件桥仅"
+  },
+  {
+   "name": "L-log-exists",
+   "pass": true,
+   "detail": "/srv/tensor/shared/tensor_eco/agent_work/m325/TensorPlatform/operator_log/2026-10-25.md"
+  },
+  {
+   "name": "L-log-six-steps",
+   "pass": true,
+   "detail": "六步逐条结论（第 6 步 = R6 报告账）"
+  },
+  {
+   "name": "L-log-writes-listed",
+   "pass": true,
+   "detail": "写操作逐条列明（refill ×3 + 冷却态清理）"
+  },
+  {
+   "name": "L-log-no-kill",
+   "pass": true,
+   "detail": "零换血 + 判据明示"
+  },
+  {
+   "name": "L-log-n6",
+   "pass": true,
+   "detail": "N6 定性记录（+5 恶化）"
+  },
+  {
+   "name": "L-log-n4",
+   "pass": true,
+   "detail": "N4 续报"
+  },
+  {
+   "name": "L-log-n5-escalated",
+   "pass": true,
+   "detail": "N5 续报（含自保事实）"
+  },
+  {
+   "name": "L-log-n10-new",
+   "pass": true,
+   "detail": "N10 续报：区间写法 m279-283 不被 m<id> 机判覆盖"
+  },
+  {
+   "name": "L-log-n11-fixed",
+   "pass": true,
+   "detail": "N11 已被 owner 修（crontab 有 report_ledger 条目）"
+  },
+  {
+   "name": "L-log-n1-third",
+   "pass": true,
+   "detail": "N1 第三次实证（本班 m322/m323 被 reaper 冒充 agent_lost）"
+  },
+  {
+   "name": "L-log-p3-pinned",
+   "pass": true,
+   "detail": "P3 续报（dirty 19）"
+  },
+  {
+   "name": "L-log-x-gc",
+   "pass": true,
+   "detail": "X 续报（gc 未修）"
+  },
+  {
+   "name": "L-log-backfill-not-duplicated",
+   "pass": true,
+   "detail": "R6 处置理由在册"
+  },
+  {
+   "name": "L-log-self-protect",
+   "pass": true,
+   "detail": "自保事实（本班跑在旧码守护上）"
+  },
+  {
+   "name": "L-log-next-shift",
+   "pass": true,
+   "detail": "交接建议"
+  },
+  {
+   "name": "L-log-no-push",
+   "pass": true,
+   "detail": "红线自述"
+  },
+  {
+   "name": "L-log-readings-ref",
+   "pass": true,
+   "detail": "读数工件引用"
+  },
+  {
+   "name": "L-log-greens",
+   "pass": true,
+   "detail": "绿项 4 处"
+  },
+  {
+   "name": "L-log-refill-three",
+   "pass": true,
+   "detail": "refill 三条腿逐条在册"
+  },
+  {
+   "name": "L-log-cooling-cleared",
+   "pass": true,
+   "detail": "冷却态清理在册"
+  }
+ ],
+ "readings": "2026-10-25.m325.readings.json",
+ "log": "2026-10-25.md"
+}
