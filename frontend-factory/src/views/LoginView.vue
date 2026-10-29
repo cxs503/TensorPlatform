@@ -2,7 +2,7 @@
   <div class="tf-login">
     <div class="tf-login-panel">
       <div class="tf-login-brand">
-        <span class="tf-login-mark">昆</span>
+        <img class="tf-login-mark" src="@/assets/tensorplatform-logo.svg" alt="TensorPlatform Logo" />
         <div>
           <div class="tf-login-title">TensorPlatform 智能体协作平台</div>
           <div class="tf-login-sub">任务规划 · 智能体协作 · 验证与交付</div>
@@ -79,12 +79,11 @@ async function submit() {
 
 .tf-login-brand { display: flex; gap: 14px; align-items: center; margin-bottom: 26px; }
 .tf-login-mark {
-  background: var(--tf-navy-900);
-  color: var(--tf-mint-400);
-  font-weight: 700;
-  border-radius: 10px;
-  padding: 10px 12px;
-  font-size: 18px;
+  display: block;
+  width: 52px;
+  height: 52px;
+  flex: 0 0 52px;
+  object-fit: contain;
 }
 .tf-login-title { font-size: 17px; font-weight: 600; color: var(--tf-navy-700); }
 .tf-login-sub { font-size: 12px; color: var(--tf-ink-500); margin-top: 4px; }
