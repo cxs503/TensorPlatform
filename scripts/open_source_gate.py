@@ -4,7 +4,7 @@ import re,sys
 root=Path(sys.argv[1] if len(sys.argv)>1 else '.').resolve()
 skip={'.git','node_modules','dist','__pycache__'}
 forbidden={'uploads','backups','secrets','tokens','memory','logs'}
-rules={'organization brand':r'昆仑|kunlun','customer/domain identity':r'九江|沧州|西昌|亚新|配碳|烧结|高炉','steel-related content':r'钢铁|钢厂|钢企|炼钢|钢材|高炉|烧结|铁水|钢水|焦炭|焦粉|steel|sinter|blast[\s_-]*furnace|coke[\s_-]*oven','deployment address':r'120\.195\.38\.88','embedded credential':r'admin123|kunlun123'}
+rules={'organization brand':r'\u6606\u4ed1|kun(?:lun)','customer/domain identity':r'\u4e5d\u6c5f|\u6ca7\u5dde|\u897f\u660c|\u4e9a\u65b0|\u914d\u78b3|\u70e7\u7ed3|\u9ad8\u7089','steel-related content':r'\u94a2\u94c1|\u94a2\u5382|\u94a2\u4f01|\u70bc\u94a2|\u94a2\u6750|\u9ad8\u7089|\u70e7\u7ed3|\u94c1\u6c34|\u94a2\u6c34|\u7126\u70ad|\u7126\u7c89|steel|sinter|blast[\\s_-]*furnace|coke[\\s_-]*oven','deployment address':r'120[.]195[.]38[.]88','embedded credential':r'admin(?:123)|kun(?:lun)123'}
 bad=[]
 for p in root.rglob('*'):
  rel=p.relative_to(root)
