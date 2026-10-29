@@ -2,7 +2,7 @@
   <div class="tf-shell">
     <header class="tf-topbar">
       <button class="tf-brand" type="button" aria-label="返回平台总览" @click="$router.push('/')">
-        <span class="tf-brand-mark">昆</span>
+        <img class="tf-brand-mark" src="@/assets/tensorplatform-logo.svg" alt="TensorPlatform Logo" />
         <span class="tf-brand-copy">
           <span class="tf-brand-name">TensorPlatform 智能体协作平台</span>
           <span class="tf-brand-sub">目标驱动 <i /> 智能体执行与交付</span>
@@ -87,16 +87,11 @@ onMounted(() => { refreshPending(); start() })
   cursor: pointer;
 }
 .tf-brand-mark {
-  display: grid;
-  place-items: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 11px;
-  background: linear-gradient(145deg, #9af0d5, #58c9a9);
-  color: var(--tf-navy-900);
-  font-size: 19px;
-  font-weight: 900;
-  box-shadow: 0 4px 14px rgba(117, 228, 194, 0.18);
+  display: block;
+  width: 40px;
+  height: 40px;
+  flex: 0 0 40px;
+  object-fit: contain;
 }
 .tf-brand-copy { display: flex; flex-direction: column; gap: 4px; }
 .tf-brand-name { font-size: 15px; font-weight: 750; letter-spacing: -0.2px; white-space: nowrap; }
