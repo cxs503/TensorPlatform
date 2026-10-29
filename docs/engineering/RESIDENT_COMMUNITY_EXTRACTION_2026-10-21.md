@@ -1,6 +1,6 @@
 # Resident community harness: upstream extraction and validation
 
-Date: 2026-10-21. Upstream baseline: `3d2e462`. Local source: `5526dc4` on the Kunlun deployment branch. Target: `feat/resident-community-harness`.
+Date: 2026-10-21. Upstream baseline: `3d2e462`. Local source: `5526dc4` on the legacy deployment branch. Target: `feat/resident-community-harness`.
 
 ## Objective and comparison
 
