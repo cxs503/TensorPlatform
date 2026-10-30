@@ -1,0 +1,122 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lineage.schema.json",
+  "title": "TensorPlatform Lineage Record",
+  "description": "谱系追溯记录：环境指纹、输入参数、输出指标、时间戳、判据版本、schema 版本。无版本锁定的基线一律 INVALID。",
+  "type": "object",
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "本 schema 的版本号，语义化版本"
+    },
+    "criteria_version": {
+      "type": "string",
+      "pattern": "^\\d+\\.\\d+\\.\\d+$",
+      "description": "判据/验收标准的版本号"
+    },
+    "timestamp": {
+      "type": "string",
+      "format": "date-time",
+      "description": "记录生成的 UTC 时间戳，ISO 8601 格式"
+    },
+    "environment": {
+      "type": "object",
+      "description": "环境指纹：锁定软硬件栈版本",
+      "properties": {
+        "torch_version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+",
+          "description": "PyTorch 版本号"
+        },
+        "torch_sdaa_version": {
+          "type": ["string", "null"],
+          "description": "torch_sdaa 插件版本（如适用）"
+        },
+        "git_sha": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{7,40}$",
+          "description": "代码仓库 git commit SHA（至少 7 位 hex）"
+        },
+        "device_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "计算设备名称，如 cuda:0, sdaa:0, cpu"
+        },
+        "card_id": {
+          "type": ["string", "null"],
+          "description": "物理卡号/设备标识，如 /dev/tcaicard5"
+        }
+      },
+      "required": ["torch_version", "git_sha", "device_name"],
+      "additionalProperties": false
+    },
+    "input_parameters": {
+      "type": "object",
+      "description": "实验/计算的输入参数",
+      "properties": {
+        "case_name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "算例名称"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "具体参数键值对",
+          "additionalProperties": true
+        }
+      },
+      "required": ["case_name", "parameters"],
+      "additionalProperties": false
+    },
+    "output_metrics": {
+      "type": "object",
+      "description": "输出指标与结果",
+      "properties": {
+        "metrics": {
+          "type": "object",
+          "description": "指标键值对",
+          "additionalProperties": true
+        },
+        "status": {
+          "type": "string",
+          "enum": ["PASS", "FAIL", "INVALID"],
+          "description": "裁决状态"
+        }
+      },
+      "required": ["metrics", "status"],
+      "additionalProperties": false
+    },
+    "baseline": {
+      "type": ["object", "null"],
+      "description": "参考基线（如有）。必须包含 version 字段，否则 INVALID",
+      "properties": {
+        "source": {
+          "type": "string",
+          "minLength": 1,
+          "description": "基线来源，如 analytical, experiment, literature"
+        },
+        "version": {
+          "type": "string",
+          "pattern": "^\\d+\\.\\d+\\.\\d+$",
+          "description": "基线版本号——无版本锁定的基线一律 INVALID"
+        },
+        "reference_value": {
+          "type": "number",
+          "description": "参考值"
+        }
+      },
+      "required": ["source", "version", "reference_value"],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "schema_version",
+    "criteria_version",
+    "timestamp",
+    "environment",
+    "input_parameters",
+    "output_metrics"
+  ],
+  "additionalProperties": false
+}
