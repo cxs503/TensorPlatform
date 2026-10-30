@@ -1,0 +1,488 @@
+{
+  "meta": {
+    "version": "1.0.0",
+    "created_at": "2026-10-31T00:00:00Z",
+    "description": "SWE-bench style evaluation set for TensorPlatform fleet capability baseline. 20 tasks extracted from historical missions (m186-m325), 10 succeeded + 10 failed, covering 5 repos. Acceptance criteria are independent of original author self-tests.",
+    "repos_covered": ["TensorPlatform", "TensorLBM", "TensorPhysics", "TensorDEM", "TensorBEM"],
+    "difficulty_levels": {
+      "easy": "Single-file fix, clear error message, <50 LOC change",
+      "medium": "Multi-file change, requires understanding of module interfaces, 50-200 LOC",
+      "hard": "Cross-module or cross-repo change, requires domain knowledge, >200 LOC or numerical validation"
+    },
+    "models_evaluated": ["qwen3.7-plus", "glm-5.2", "deepseek-v4-flash", "qwen3.6-plus", "glm-5.1"],
+    "source_missions_range": "m186-m325 (2026-10-21 to 2026-10-25)",
+    "conflict_of_interest_check": "No task was authored by any evaluated model's operator session"
+  },
+  "tasks": [
+    {
+      "id": "EVAL-001",
+      "source_mission": "m226",
+      "source_status": "failed",
+      "source_stop": "gateway_unavailable",
+      "repo": "TensorLBM",
+      "difficulty": "hard",
+      "title": "MP-DAMBREAK:S2 — 3D dam-break convergence staircase",
+      "description": "Implement a 3D dam-break validation case with mesh convergence study (3 resolutions). The case should produce water column collapse profiles comparable to experimental data (Martin & Moyce 1952). Requires VOF free-surface tracking, gravity, and no-slip walls. Output: interface position vs time at 3 mesh levels, convergence order.",
+      "acceptance_criteria": [
+        "Case runs to completion on 3 mesh levels (coarse/medium/fine) without crash",
+        "Interface position at t=0.1s matches experimental envelope within 15%",
+        "Convergence order ≥ 1.0 (first-order minimum for VOF)",
+        "Mass conservation error < 2% over full simulation",
+        "Input deck documented with Reynolds number, Froude number, mesh stats"
+      ],
+      "solution_hints": [
+        "Use existing VOF advection scheme in TensorLBM",
+        "Initialize with Heaviside step for water column",
+        "Use Martin & Moyce dimensionless time t* = t*sqrt(g/L0)",
+        "Mesh refinement ratio 2:1, report L1 norm of interface error"
+      ],
+      "tags": ["VOF", "free-surface", "validation", "convergence"]
+    },
+    {
+      "id": "EVAL-002",
+      "source_mission": "m236",
+      "source_status": "succeeded",
+      "repo": "TensorLBM",
+      "difficulty": "medium",
+      "title": "TUTORIAL-WAVE:poiseuille_3d_annulus — 3D annular Poiseuille flow tutorial",
+      "description": "Create a tutorial case for 3D Poiseuille flow in an annular geometry. The case should demonstrate parabolic velocity profile, compute flow rate, and compare with analytical solution. Target: educational use with step-by-step documentation.",
+      "acceptance_criteria": [
+        "Velocity profile at mid-length matches analytical u(r) = (dp/dx)/(4μ) * (R_o² - r² + (R_i²-R_o²)/ln(R_o/R_i) * ln(r/R_i)) within 3%",
+        "Flow rate Q matches analytical within 2%",
+        "Reynolds number < 2000 (laminar regime confirmed)",
+        "Tutorial includes mesh convergence study (≥3 levels)",
+        "Documentation explains boundary conditions and non-dimensionalization"
+      ],
+      "solution_hints": [
+        "Use periodic BC in streamwise direction with body force",
+        "No-slip on inner and outer cylinders",
+        "Analytical solution from White Viscous Fluid Flow, Ch.3",
+        "Grid: structured O-grid or Cartesian with immersed boundary"
+      ],
+      "tags": ["tutorial", "Poiseuille", "annular", "validation"]
+    },
+    {
+      "id": "EVAL-003",
+      "source_mission": "m232",
+      "source_status": "succeeded",
+      "repo": "TensorLBM",
+      "difficulty": "hard",
+      "title": "BENCH-CLOSE:cylinder-w11a2-harvest — Cylinder benchmark data harvest",
+      "description": "Harvest and validate benchmark data for flow past a cylinder at Re=100, W=11, A=2 (width ratio, aspect ratio). Compare drag coefficient Cd, Strouhal number St, and recirculation length Lr with reference data (Schäfer & Turek 1996). Produce a benchmark report with error bars.",
+      "acceptance_criteria": [
+        "Mean Cd within 5% of reference value (Cd_ref ≈ 5.579 for 2D, or 3D correction)",
+        "Strouhal number St = f*D/U within 5% of reference (St_ref ≈ 0.264)",
+        "Recirculation length Lr/D within 10% of reference",
+        "Time-averaged statistics over ≥10 shedding cycles",
+        "Mesh independence demonstrated (≥3 resolutions)"
+      ],
+      "solution_hints": [
+        "Reference: Schäfer & Turek benchmark 2D-1/3D-1",
+        "Use spectral/hp or fine Cartesian mesh near cylinder",
+        "Time integration: at least 200 convective time units",
+        "Report both 2D and 3D results if applicable"
+      ],
+      "tags": ["benchmark", "cylinder", "drag", "Strouhal", "validation"]
+    },
+    {
+      "id": "EVAL-004",
+      "source_mission": "m244",
+      "source_status": "failed",
+      "source_stop": "agent_lost",
+      "repo": "TensorLBM",
+      "difficulty": "hard",
+      "title": "TUTORIAL-WAVE:poiseuille_two_phase_cg — Two-phase Poiseuille with CG tracking",
+      "description": "Implement a two-phase Poiseuille flow tutorial with continuum surface force (CSF) model and curvature computation via height-function or least-squares. Validate against analytical two-layer Poiseuille solution. Challenge: accurate curvature at low resolution.",
+      "acceptance_criteria": [
+        "Two-layer velocity profile matches analytical within 5% at interface",
+        "Spurious currents < 1% of max velocity at equilibrium",
+        "Curvature error < 10% on circular interface test",
+        "Mass conservation < 1% over 1000 time steps",
+        "Tutorial includes parameter study (viscosity ratio, surface tension)"
+      ],
+      "solution_hints": [
+        "CSF: σκ∇α, κ = -∇·n, n = ∇α/|∇α|",
+        "Height-function curvature for structured grids",
+        "Analytical: two-layer with μ₁, μ₂, interface at y=h",
+        "Use viscous scaling for time step (CFL_v < 0.25)"
+      ],
+      "tags": ["two-phase", "CSF", "curvature", "tutorial", "validation"]
+    },
+    {
+      "id": "EVAL-005",
+      "source_mission": "m238",
+      "source_status": "succeeded",
+      "repo": "TensorBEM",
+      "difficulty": "medium",
+      "title": "EXPAND-AUDIT:TensorBEM — Upstream follow-up baseline audit",
+      "description": "Audit the TensorBEM codebase for upstream compatibility. Check that boundary element formulations (hypersingular integrals, Green's functions) match reference implementations. Produce a compatibility report with pass/fail for each module.",
+      "acceptance_criteria": [
+        "All hypersingular integral evaluations match analytical values within 1e-6 for canonical geometries",
+        "Green's function evaluation matches free-space solution within 1e-8",
+        "Matrix assembly produces symmetric system for self-adjoint problems",
+        "Condition number report for test geometries (sphere, cube, cylinder)",
+        "Compatibility matrix: which upstream versions are supported"
+      ],
+      "solution_hints": [
+        "Test cases: unit sphere, unit cube, infinite plate with hole",
+        "Reference: Brebbia et al. Boundary Element Techniques",
+        "Check regularization of hypersingular integrals",
+        "Verify Somigliana identity for elasticity"
+      ],
+      "tags": ["BEM", "audit", "hypersingular", "Green's function", "compatibility"]
+    },
+    {
+      "id": "EVAL-006",
+      "source_mission": "m297",
+      "source_status": "failed",
+      "source_stop": "budget_exceeded",
+      "repo": "TensorPlatform",
+      "difficulty": "medium",
+      "title": "Mission budget management — prevent budget_exceeded failures",
+      "description": "Analyze the mission budget system and implement early-warning mechanisms. When a mission approaches 80% of its tool_call or wall_seconds budget, emit a warning event. When at 90%, trigger graceful checkpoint. Prevent budget_exceeded terminal state through proactive management.",
+      "acceptance_criteria": [
+        "Warning event emitted at 80% budget consumption (tool_calls or wall_seconds)",
+        "Checkpoint triggered at 90% budget",
+        "No mission terminates with budget_exceeded when warning system is active",
+        "Budget consumption rate estimated from recent trajectory",
+        "API endpoint GET /tensor/missions/{id}/budget returns real-time consumption"
+      ],
+      "solution_hints": [
+        "Hook into heartbeat endpoint for budget monitoring",
+        "Exponential moving average for consumption rate",
+        "Graceful degradation: reduce tool complexity as budget depletes",
+        "Store budget events in tensor_mission_events table"
+      ],
+      "tags": ["budget", "monitoring", "platform", "reliability"]
+    },
+    {
+      "id": "EVAL-007",
+      "source_mission": "m322",
+      "source_status": "failed",
+      "source_stop": "agent_lost",
+      "repo": "TensorPhysics",
+      "difficulty": "easy",
+      "title": "SIR-4-W2: Git fetch timeout handling in mission preparation",
+      "description": "Fix the issue where git fetch timeout during mission preparation causes agent_lost termination. The fetch should have a configurable timeout and graceful degradation (use cached ref if fetch fails). Heartbeat should start before git operations complete.",
+      "acceptance_criteria": [
+        "Git fetch has configurable timeout (default 60s, max 300s)",
+        "If fetch fails, mission continues with cached local ref",
+        "Heartbeat thread starts before git operations",
+        "No mission classified as agent_lost due to git timeout",
+        "Warning logged when fetch falls back to cache"
+      ],
+      "solution_hints": [
+        "Move heartbeat start to before git fetch in tensor_agent.py",
+        "Add try/except TimeoutExpired around git fetch",
+        "Use git rev-parse --verify for cache validation",
+        "Config: GIT_FETCH_TIMEOUT env variable"
+      ],
+      "tags": ["git", "timeout", "reliability", "infrastructure"]
+    },
+    {
+      "id": "EVAL-008",
+      "source_mission": "m323",
+      "source_status": "failed",
+      "source_stop": "agent_lost",
+      "repo": "TensorDEM",
+      "difficulty": "easy",
+      "title": "QUAL-2: Quality gate for DEM bonded-particle calibration",
+      "description": "Implement a quality gate for DEM bonded-particle model calibration. The gate checks that calibration parameters (bond stiffness, bond strength, friction) produce macroscopic properties (Young's modulus, Poisson's ratio, compressive strength) within 10% of target values.",
+      "acceptance_criteria": [
+        "Quality gate function validate_dem_calibration(params, targets) returns pass/fail",
+        "Checks: E_macro within 10%, ν_macro within 10%, σ_c within 10%",
+        "Gate integrated into mission completion workflow",
+        "Failed gate produces diagnostic report (which parameter out of range)",
+        "Gate can be bypassed with explicit owner approval flag"
+      ],
+      "solution_hints": [
+        "Run small-scale triaxial test simulation for calibration check",
+        "Compare stress-strain curve slopes for E and ν",
+        "Peak stress for σ_c",
+        "Use existing DEM test infrastructure in TensorDEM"
+      ],
+      "tags": ["DEM", "calibration", "quality-gate", "bonded-particle"]
+    },
+    {
+      "id": "EVAL-009",
+      "source_mission": "m219",
+      "source_status": "succeeded",
+      "repo": "TensorLBM",
+      "difficulty": "medium",
+      "title": "TUTORIAL-WAVE:cavity_natural_convection — Natural convection in square cavity",
+      "description": "Create a tutorial for natural convection in a differentially heated square cavity (Rayleigh-Bénard type). Validate Nusselt number against benchmark correlations for Ra = 10^3, 10^4, 10^5. Demonstrate Boussinesq approximation implementation.",
+      "acceptance_criteria": [
+        "Average Nu matches De Vahl Davis benchmark within 3% for Ra=10^3,10^4,10^5",
+        "Stream function ψ_max matches reference within 5%",
+        "Temperature field symmetric about cavity center (for Ra≤10^5)",
+        "Boussinesq number Bo = βΔT < 0.1 (validity check)",
+        "Tutorial includes grid convergence (≥3 levels) and Ra sweep"
+      ],
+      "solution_hints": [
+        "Reference: De Vahl Davis (1983) Int. J. Numer. Meth. Fluids",
+        "Boussinesq: ρ = ρ₀(1 - β(T-T₀)), body force = -ρg",
+        "Boundary: T_hot left, T_cold right, adiabatic top/bottom",
+        "Non-dimensionalize: length L, velocity α/L, time L²/α"
+      ],
+      "tags": ["tutorial", "natural-convection", "Boussinesq", "validation"]
+    },
+    {
+      "id": "EVAL-010",
+      "source_mission": "m233",
+      "source_status": "succeeded",
+      "repo": "TensorLBM",
+      "difficulty": "medium",
+      "title": "TUTORIAL-WAVE:couette_3d — 3D Couette flow tutorial",
+      "description": "Create a 3D Couette flow tutorial (flow between two parallel plates, one moving). Validate linear velocity profile, compute shear stress, and demonstrate Reynolds number effects. Include comparison with analytical solution.",
+      "acceptance_criteria": [
+        "Velocity profile u(y) = U*y/H linear within 2%",
+        "Wall shear stress τ_w = μU/H within 3%",
+        "Reynolds number Re = UH/ν correctly computed and reported",
+        "Turbulent transition demonstrated for Re > 1000 (if applicable)",
+        "Tutorial includes parameter study (U, H, μ)"
+      ],
+      "solution_hints": [
+        "Moving wall BC: u=U at y=H, u=0 at y=0",
+        "Periodic in x and z",
+        "Analytical: exact Navier-Stokes solution for laminar",
+        "For turbulent: compare with log-law if Re high enough"
+      ],
+      "tags": ["tutorial", "Couette", "shear-flow", "validation"]
+    },
+    {
+      "id": "EVAL-011",
+      "source_mission": "m208",
+      "source_status": "failed",
+      "source_stop": "gateway_unavailable",
+      "repo": "TensorLBM",
+      "difficulty": "hard",
+      "title": "BENCH-CLOSE:cylinder-w11a2 — Cylinder benchmark full campaign",
+      "description": "Complete the full benchmark campaign for flow past cylinder at Re=100, W=11, A=2. This includes mesh generation, simulation at 3+ resolutions, time-averaged statistics, and comparison with Schäfer-Turek reference. Previous attempts failed due to infrastructure issues.",
+      "acceptance_criteria": [
+        "All 3 mesh levels complete without infrastructure failure",
+        "Cd_mean within 5% of Schäfer-Turek reference",
+        "St within 5% of reference",
+        "L_r/D within 10% of reference",
+        "Full report with uncertainty quantification (≥10 shedding cycles)"
+      ],
+      "solution_hints": [
+        "Use existing cylinder mesh generator",
+        "Time step: CFL < 0.5, resolve shedding period with ≥100 steps",
+        "Average over stationary regime (discard initial transient)",
+        "Reference values: Cd≈5.579, St≈0.264 (2D-1 benchmark)"
+      ],
+      "tags": ["benchmark", "cylinder", "campaign", "validation"]
+    },
+    {
+      "id": "EVAL-012",
+      "source_mission": "m241",
+      "source_status": "succeeded",
+      "repo": "TensorCAD",
+      "difficulty": "easy",
+      "title": "EXPAND-AUDIT:TensorCAD — CAD geometry validation audit",
+      "description": "Audit TensorCAD geometry validation pipeline. Check that STL water-tightness, manifold checks, and volume computation are correct for standard test geometries (sphere, cube, cylinder, submarine hull). Produce validation report.",
+      "acceptance_criteria": [
+        "Sphere volume error < 0.1% for ≥1000 triangles",
+        "Water-tightness check correctly identifies non-manifold edges",
+        "Volume computation matches analytical for all test geometries within 1%",
+        "Normal orientation consistent (outward-pointing)",
+        "Report includes geometry statistics (triangle count, aspect ratio distribution)"
+      ],
+      "solution_hints": [
+        "Use divergence theorem for volume: V = (1/3)∮ r·n dA",
+        "Water-tight: every edge shared by exactly 2 triangles",
+        "Test geometries: unit sphere, unit cube, r=1 L=4 cylinder",
+        "Check signed volume (negative = inverted normals)"
+      ],
+      "tags": ["CAD", "geometry", "validation", "STL", "audit"]
+    },
+    {
+      "id": "EVAL-013",
+      "source_mission": "m301",
+      "source_status": "failed",
+      "source_stop": "agent_lost",
+      "repo": "TensorPlatform",
+      "difficulty": "medium",
+      "title": "Mission reclaim mechanism — daemon restart recovery",
+      "description": "Implement robust mission reclaim mechanism for daemon restart recovery. When an agent daemon restarts, it should be able to reclaim its previously running missions without losing progress. The reclaim endpoint should verify mission state and resume heartbeat.",
+      "acceptance_criteria": [
+        "POST /tensor/missions/{id}/reclaim succeeds for missions claimed by requesting agent",
+        "Reclaim fails (403) for missions claimed by different agent",
+        "After reclaim, heartbeat resumes and mission continues",
+        "Reclaim updates claimed_by and heartbeat_at atomically",
+        "Audit log records reclaim events with timestamp and agent identity"
+      ],
+      "solution_hints": [
+        "Check claim_token matches requesting agent's session",
+        "Use database transaction for atomic update",
+        "Reset heartbeat timer on reclaim",
+        "Log to tensor_mission_events with kind='reclaim'"
+      ],
+      "tags": ["platform", "reclaim", "reliability", "daemon"]
+    },
+    {
+      "id": "EVAL-014",
+      "source_mission": "m239",
+      "source_status": "succeeded",
+      "repo": "TensorSPH",
+      "difficulty": "medium",
+      "title": "TUTORIAL-WAVE:SPH hydrostatic validation",
+      "description": "Create an SPH tutorial for hydrostatic pressure validation. Initialize a water column at rest, verify pressure distribution matches ρgh, and check that spurious velocities remain negligible over long simulation times.",
+      "acceptance_criteria": [
+        "Pressure profile p(z) = ρg(h-z) within 3% at all depths",
+        "Spurious velocity < 0.1% of sqrt(gh) after 1000 time steps",
+        "Density variation < 1% (weakly compressible SPH)",
+        "Free surface remains flat (no parasitic waves)",
+        "Tutorial explains kernel selection, smoothing length, and equation of state"
+      ],
+      "solution_hints": [
+        "Use Tait equation of state: p = (c₀²ρ₀/γ)[(ρ/ρ₀)^γ - 1]",
+        "Kernel: Wendland C2 or cubic B-spline",
+        "Initial particle spacing: dx = h/1.3",
+        "Boundary: dynamic boundary particles or repulsive force"
+      ],
+      "tags": ["SPH", "hydrostatic", "tutorial", "validation"]
+    },
+    {
+      "id": "EVAL-015",
+      "source_mission": "m287",
+      "source_status": "failed",
+      "source_stop": "agent_lost",
+      "repo": "TensorPlatform",
+      "difficulty": "easy",
+      "title": "LLM gateway cooldown isolation — per-mission cooldown state",
+      "description": "Fix the LLM gateway cooldown mechanism to isolate cooldown state per-mission or per-agent. Currently, a global cooldown blocks all agents when one hits rate limit. Each agent should have independent cooldown tracking.",
+      "acceptance_criteria": [
+        "Cooldown state keyed by (agent_id, endpoint) not just endpoint",
+        "Agent A hitting rate limit does not block Agent B",
+        "Cooldown expiry correctly computed per-agent",
+        "Gateway state file structure updated to support per-agent keys",
+        "Backward compatible: single-agent deployments work as before"
+      ],
+      "solution_hints": [
+        "Change llm_gateway_state.json structure: {agent_id: {endpoint: {blocked_until, reason}}}",
+        "Update cooldown check logic in llm_gateway.py",
+        "Migrate existing state file on first read",
+        "Add unit test for multi-agent cooldown isolation"
+      ],
+      "tags": ["platform", "LLM-gateway", "cooldown", "isolation"]
+    },
+    {
+      "id": "EVAL-016",
+      "source_mission": "m250",
+      "source_status": "succeeded",
+      "repo": "TensorLBM",
+      "difficulty": "hard",
+      "title": "TUTORIAL-WAVE:poiseuille_two_phase_cg — Two-phase Poiseuille continuation",
+      "description": "Continue the two-phase Poiseuille flow tutorial implementation. Previous leg (m245) failed. Complete the CSF implementation, validate against analytical two-layer solution, and produce tutorial documentation.",
+      "acceptance_criteria": [
+        "Two-phase velocity profile matches analytical within 5%",
+        "Interface remains stable for ≥500 time steps",
+        "Spurious currents < 1% of characteristic velocity",
+        "Tutorial document complete with theory, setup, results",
+        "Parameter study: viscosity ratio μ₁/μ₂ = 0.1, 1, 10"
+      ],
+      "solution_hints": [
+        "CSF force: F = σκ∇α, apply as body force in momentum eq",
+        "Curvature: κ = ∇·(∇α/|∇α|)",
+        "Analytical: u₁(y) and u₂(y) with continuity of u and τ at interface",
+        "Initialize interface as step function, smooth over 2-3 cells"
+      ],
+      "tags": ["two-phase", "CSF", "tutorial", "continuation"]
+    },
+    {
+      "id": "EVAL-017",
+      "source_mission": "m211",
+      "source_status": "succeeded",
+      "repo": "TensorLBM",
+      "difficulty": "hard",
+      "title": "MP-DAMBREAK:S1 — 2D dam-break validation",
+      "description": "Implement 2D dam-break validation case comparing with experimental data (Martin & Moyce 1952, or Koshizuka & Oka 1996). Track free surface evolution, compare dimensionless front position x*/L₀ vs t* = t*sqrt(g/L₀).",
+      "acceptance_criteria": [
+        "Dimensionless front position x*/L₀ vs t* matches experimental envelope within 15%",
+        "Free surface capture without numerical fragmentation",
+        "Mass conservation < 2% over full simulation",
+        "At least 2 mesh resolutions demonstrating convergence",
+        "Comparison plot with experimental data points overlaid"
+      ],
+      "solution_hints": [
+        "Initial condition: water column h₀ = 2L₀, width L₀",
+        "VOF or level-set for interface tracking",
+        "Non-dimensionalize: x* = x/L₀, t* = t*sqrt(g/L₀)",
+        "Reference: Martin & Moyce (1952) or Koshizuka & Oka (1996)"
+      ],
+      "tags": ["dam-break", "VOF", "validation", "free-surface"]
+    },
+    {
+      "id": "EVAL-018",
+      "source_mission": "m318",
+      "source_status": "succeeded",
+      "repo": "TensorPlatform",
+      "difficulty": "easy",
+      "title": "REPORT-BACKFILL: Tutorial wave report consolidation",
+      "description": "Consolidate multiple tutorial-wave mission reports into a single comprehensive report. Extract key results from m219, m220, m223, m224, m233, m236, m239, m240, m245, m250 and produce a unified validation summary.",
+      "acceptance_criteria": [
+        "Report covers all 10 tutorial-wave missions",
+        "Each mission's key validation metric extracted and tabulated",
+        "Cross-mission comparison: which cases pass/fail acceptance criteria",
+        "Report published via POST /tensor/reports with proper metadata",
+        "Report includes figures (validation plots) as base64 PNG"
+      ],
+      "solution_hints": [
+        "Query tensor_reports for mission_ids in [219,220,223,224,233,236,239,240,245,250]",
+        "Extract validation metrics from result.evidence.checks",
+        "Use matplotlib for validation plots",
+        "Publish with mission_id=318, kind='tutorial_wave_summary'"
+      ],
+      "tags": ["report", "consolidation", "tutorial-wave", "platform"]
+    },
+    {
+      "id": "EVAL-019",
+      "source_mission": "m223",
+      "source_status": "failed",
+      "source_stop": "budget_exceeded",
+      "repo": "TensorLBM",
+      "difficulty": "medium",
+      "title": "TUTORIAL-WAVE:couette_3d — Couette flow with budget-aware execution",
+      "description": "Implement 3D Couette flow tutorial with budget-aware execution. The mission previously exceeded budget. Optimize the workflow to complete within 80 tool calls and 7200 seconds while still producing valid results.",
+      "acceptance_criteria": [
+        "Completes within 80 tool calls",
+        "Completes within 7200 wall seconds",
+        "Velocity profile linear within 2%",
+        "Shear stress matches analytical within 3%",
+        "Tutorial documentation complete despite budget constraints"
+      ],
+      "solution_hints": [
+        "Batch mesh generation and post-processing",
+        "Use coarser mesh for initial validation, refine only if needed",
+        "Pre-compute analytical solution inline",
+        "Minimize redundant file I/O operations"
+      ],
+      "tags": ["Couette", "budget-aware", "tutorial", "optimization"]
+    },
+    {
+      "id": "EVAL-020",
+      "source_mission": "m294",
+      "source_status": "failed",
+      "source_stop": "agent_lost",
+      "repo": "TensorPlatform",
+      "difficulty": "medium",
+      "title": "Dispatcher queued-state handling — N4 fix",
+      "description": "Fix the tutorial_wave dispatcher to include 'queued' status in the in-flight whitelist. Currently, missions in 'queued' status are not recognized as active, leading to duplicate dispatches. The fix should prevent N4-type failures.",
+      "acceptance_criteria": [
+        "Dispatcher whitelist includes 'queued' status",
+        "No duplicate dispatches for same task_key when a leg is queued",
+        "Event log shows correct status transitions",
+        "Unit test covers queued-state scenario",
+        "Backward compatible: existing dispatch logic unchanged for other statuses"
+      ],
+      "solution_hints": [
+        "In tutorial_wave/dispatch.py, add 'queued' to ACTIVE_STATUSES",
+        "Check task_key uniqueness across all active statuses",
+        "Add test case: dispatch when existing leg is queued",
+        "Verify no regression in running/claimed status handling"
+      ],
+      "tags": ["dispatcher", "queued", "N4", "platform"]
+    }
+  ]
+}
