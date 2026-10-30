@@ -13,6 +13,10 @@ router = APIRouter(tags=["其他功能"])
 from api.research_factory import router as research_factory_router
 router.include_router(research_factory_router)
 
+# ── Ship performance calculations (resistance, stability, timing) ──
+from api.calculations import router as calculations_router         # prefix="/calculations"
+router.include_router(calculations_router)
+
 # ── JupyterLab ──
 from api.jupyter import router as jupyter_router                  # prefix="/jupyter"
 
