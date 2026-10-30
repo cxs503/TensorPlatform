@@ -5,7 +5,7 @@ Open Digital Foundation — 冒烟测试
 """
 import os
 import sys
-from unittest.mock import MagicMock, patch
+from unittest.mock import patch
 
 import pytest
 
@@ -16,52 +16,12 @@ os.environ.setdefault("JWT_SECRET_KEY", "test-secret-key")
 os.environ.setdefault("REFRESH_SECRET_KEY", "test-refresh-key")
 os.environ.setdefault("MLFLOW_ALLOW_FILE_STORE", "true")
 
-# Mock heavy optional deps before app import
-# 使用 types.ModuleType 创建真正的模块 mock
-import types
+def test_torch_is_not_replaced_by_a_global_stub():
+    """冒烟测试收集不能污染证据生成器使用的真实 PyTorch。"""
+    import torch
 
-
-class _AutoModule(types.ModuleType):
-    """自动创建类属性的模块 mock"""
-    def __init__(self, name, doc=""):
-        super().__init__(name, doc)
-
-    def __getattr__(self, name):
-        if name.startswith("_"):
-            raise AttributeError(name)
-        # 为任何属性访问返回一个可 subclass 的类
-        cls = type(name, (object,), {"__module__": self.__name__})
-        setattr(self, name, cls)
-        return cls
-
-    def __call__(self, *args, **kwargs):
-        return self
-
-
-# 创建 torch mock 模块
-torch_mock = _AutoModule("torch")
-torch_nn_mock = _AutoModule("torch.nn")
-torch_optim_mock = _AutoModule("torch.optim")
-torch_distributed_mock = _AutoModule("torch.distributed")
-torch_utils_mock = _AutoModule("torch.utils")
-torch_utils_data_mock = _AutoModule("torch.utils.data")
-torch_nn_parallel_mock = _AutoModule("torch.nn.parallel")
-
-# 🔑 关键：在父模块上显式设置子模块属性，避免 __getattr__ 拦截
-torch_mock.nn = torch_nn_mock
-torch_mock.optim = torch_optim_mock
-torch_mock.distributed = torch_distributed_mock
-torch_mock.utils = torch_utils_mock
-torch_utils_mock.data = torch_utils_data_mock
-torch_nn_mock.parallel = torch_nn_parallel_mock
-
-sys.modules["torch"] = torch_mock
-sys.modules["torch.nn"] = torch_nn_mock
-sys.modules["torch.optim"] = torch_optim_mock
-sys.modules["torch.distributed"] = torch_distributed_mock
-sys.modules["torch.utils"] = torch_utils_mock
-sys.modules["torch.utils.data"] = torch_utils_data_mock
-sys.modules["torch.nn.parallel"] = torch_nn_parallel_mock
+    assert torch.tensor([1.0]).item() == 1.0
+    assert isinstance(torch.__version__, str)
 
 
 @pytest.fixture(scope="module")
