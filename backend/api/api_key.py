@@ -57,6 +57,12 @@ class CreateAPIKeyReq(BaseModel):
     name: str
 
 
+def _require_key_admin(current_user: dict) -> None:
+    # The current SQL schema stores platform-wide keys, not per-user ownership.
+    if not isinstance(current_user, dict) or current_user.get("role") != "admin":
+        raise HTTPException(status_code=403, detail="仅管理员可管理平台密钥")
+
+
 @router.post("")
 def create_api_key(
     req: CreateAPIKeyReq,
@@ -64,6 +70,7 @@ def create_api_key(
     current_user: dict = Depends(get_current_user),
 ):
     """创建API密钥：生成安全随机密钥，仅本次返回明文。"""
+    _require_key_admin(current_user)
     _ensure_table(db)
 
     raw_key = _generate_raw_key()
@@ -110,6 +117,7 @@ def list_api_keys(
     current_user: dict = Depends(get_current_user),
 ):
     """列出API密钥（仅展示前缀，永不返回完整密钥/哈希）。"""
+    _require_key_admin(current_user)
     _ensure_table(db)
 
     rows = db.execute(
@@ -136,6 +144,76 @@ def list_api_keys(
     return {"total": len(items), "items": items}
 
 
+@router.get("/{key_id}")
+def get_api_key(
+    key_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """读取平台密钥元数据，绝不返回明文或哈希。"""
+    _require_key_admin(current_user)
+    _ensure_table(db)
+    row = db.execute(
+        text(
+            f"SELECT id, name, key_prefix, created_at, last_used_at, is_active "
+            f"FROM {API_KEYS_TABLE} WHERE id = :id"
+        ),
+        {"id": key_id},
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="密钥不存在")
+    return {
+        "id": row.id,
+        "name": row.name,
+        "key_prefix": row.key_prefix,
+        "created_at": row.created_at.isoformat() if row.created_at else None,
+        "last_used_at": row.last_used_at.isoformat() if row.last_used_at else None,
+        "is_active": row.is_active,
+    }
+
+
+@router.post("/{key_id}/revoke")
+def revoke_api_key(
+    key_id: int,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """停用密钥而不删除或轮换其哈希。"""
+    _require_key_admin(current_user)
+    _ensure_table(db)
+    try:
+        row = db.execute(
+            text(
+                f"UPDATE {API_KEYS_TABLE} SET is_active = FALSE "
+                "WHERE id = :id RETURNING id"
+            ),
+            {"id": key_id},
+        ).fetchone()
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="撤销密钥失败") from exc
+    if not row:
+        raise HTTPException(status_code=404, detail="密钥不存在")
+    return {"id": row.id, "message": "密钥已撤销"}
+
+
+@router.get("/{key_id}/usage")
+def get_key_usage(
+    key_id: int,
+    limit: int = 100,
+    db: Session = Depends(get_db),
+    current_user: dict = Depends(get_current_user),
+):
+    """当前存储仅记录最近使用时间，不提供不存在的逐次调用日志。"""
+    key = get_api_key(key_id, db=db, current_user=current_user)
+    return {
+        "id": key_id,
+        "last_used_at": key["last_used_at"],
+        "history_available": False,
+    }
+
+
 @router.delete("/{key_id}")
 def delete_api_key(
     key_id: int,
@@ -143,14 +221,19 @@ def delete_api_key(
     current_user: dict = Depends(get_current_user),
 ):
     """删除API密钥（物理删除）。"""
+    _require_key_admin(current_user)
     _ensure_table(db)
 
-    result = db.execute(
-        text(f"DELETE FROM {API_KEYS_TABLE} WHERE id = :id RETURNING id"),
-        {"id": key_id},
-    )
-    row = result.fetchone()
-    db.commit()
+    try:
+        result = db.execute(
+            text(f"DELETE FROM {API_KEYS_TABLE} WHERE id = :id RETURNING id"),
+            {"id": key_id},
+        )
+        row = result.fetchone()
+        db.commit()
+    except Exception as exc:
+        db.rollback()
+        raise HTTPException(status_code=500, detail="删除密钥失败") from exc
 
     if not row:
         raise HTTPException(status_code=404, detail="密钥不存在")
@@ -165,6 +248,7 @@ def rotate_api_key(
     current_user: dict = Depends(get_current_user),
 ):
     """轮换API密钥：为指定名称生成新密钥，旧哈希失效（直接替换）。"""
+    _require_key_admin(current_user)
     _ensure_table(db)
 
     existing = db.execute(

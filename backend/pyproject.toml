@@ -1,6 +1,6 @@
 [tool.pytest.ini_options]
 testpaths = ["backend/tests"]
-pythonpath = ["backend"]
+pythonpath = [".", ".."]
 addopts = "-q --tb=short"
 norecursedirs = ["__pycache__", ".venv", "node_modules", "frontend-vue"]
 filterwarnings = ["ignore::DeprecationWarning", "ignore::PendingDeprecationWarning"]

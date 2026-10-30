@@ -87,6 +87,10 @@ class CodeOptimizeRequest(BaseModel):
     model: Optional[str] = None
 
 
+class TestGenerateRequest(CodeOptimizeRequest):
+    pass
+
+
 class CodeExplainRequest(BaseModel):
     code: str
     model: Optional[str] = None
@@ -179,6 +183,28 @@ async def optimize_code(req: CodeOptimizeRequest):
         }
     except Exception as e:
         raise HTTPException(status_code=400, detail=str(e))
+
+
+@router.post("/tests")
+async def generate_tests(req: TestGenerateRequest):
+    """生成测试代码；未配置 LLM 时不伪造测试结果。"""
+    llm = get_llm_service()
+    if not getattr(llm, "provider", None):
+        raise HTTPException(status_code=503, detail="测试生成需要配置外部 LLM")
+    try:
+        code = _clean_generated_code(
+            llm.generate_tests(code=req.code, language=req.language, model=req.model),
+            req.language,
+        )
+        return {
+            "success": True,
+            "test_code": code,
+            "language": req.language,
+            "mode": "llm",
+            "provider": llm.provider,
+        }
+    except Exception as exc:
+        raise HTTPException(status_code=500, detail=str(exc)) from exc
 
 
 @router.post("/explain")

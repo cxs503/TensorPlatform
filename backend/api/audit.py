@@ -213,11 +213,14 @@ def export_audit_logs(start_date: str = None, end_date: str = None, format: str 
     """导出审计日志"""
     try:
         q = "SELECT * FROM audit_logs WHERE 1=1"
+        params = {}
         if start_date:
-            q += f" AND created_at >= '{start_date}'"
+            q += " AND created_at >= :start"
+            params["start"] = start_date
         if end_date:
-            q += f" AND created_at <= '{end_date}'"
-        rows = db.execute(text(q)).fetchall()
+            q += " AND created_at <= :end"
+            params["end"] = end_date
+        rows = db.execute(text(q), params).fetchall()
         data = [{"id": r[0], "action": r[1], "entity_type": r[2], "detail": r[4], "user": r[5], "time": str(r[6])} for r in rows]
         return {"data": data, "total": len(data), "format": format}
     except Exception as e:
