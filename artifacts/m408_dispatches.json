@@ -1,0 +1,42 @@
+{
+  "shift": "m408",
+  "dispatches": [
+    {
+      "case": "startup_poiseuille",
+      "task_key": "m408-sweep-startup_poiseuille-rework",
+      "mission_id": 409,
+      "session_id": 409,
+      "status": "queued",
+      "idempotent": false,
+      "prior_missions": [
+        387,
+        386,
+        385,
+        373,
+        359
+      ]
+    },
+    {
+      "case": "blasius_flat_plate",
+      "task_key": "m408-sweep-blasius_flat_plate-bypass",
+      "mission_id": 410,
+      "session_id": 410,
+      "status": "queued",
+      "idempotent": false,
+      "prior_missions": [
+        386
+      ]
+    },
+    {
+      "case": "bstep_3d",
+      "task_key": "m408-sweep-bstep_3d-refine",
+      "mission_id": 411,
+      "session_id": 411,
+      "status": "queued",
+      "idempotent": false,
+      "prior_missions": [
+        387
+      ]
+    }
+  ]
+}
