@@ -25,10 +25,17 @@ backend/uploads/
 *.sqlite3
 backend/jupyterhub.sqlite
 backend/jupyterhub_cookie_secret
+backend/foundation_ai.db
 
 # ===== 测试临时数据库 =====
 /test.db
 backend/test_new_modules.db
+
+# ===== 验证 / 评测产物(由 Agent / 脚本生成,不入库) =====
+validation_report*.json
+ail_stage*_validation.json
+soul_phase*_validation.json
+issue*_validation_report.json
 
 # ===== 敏感配置(含密码,严禁提交) =====
 .env
