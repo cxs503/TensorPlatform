@@ -1,0 +1,89 @@
+{
+  "wave": "P2",
+  "missions": [
+    {
+      "key": "artifact-inventory",
+      "repo": "TensorPlatform",
+      "goal": "【M1 · 88工件快照与布尔判定补齐】扫描 artifacts/ 下全部历史工件（约88个JSON），对每个文件计算 sha256 并检查是否含布尔总判定字段（pass/success/is_valid等）。输出 artifacts/artifact_inventory.json，每条记录含 {file, sha256, has_bool_judgment, judgment_field_name, judgment_value}。对缺失判定字段的工件，根据数值阈值（如误差≤5%→pass）尝试自动补判，补判结果标 auto_inferred:true。honest-FAIL：若工件格式不统一导致>20%无法自动补判，如实报告比例，不硬凑。工件路径：artifacts/artifact_inventory.json。finish纪律：必须附 inventory JSON + 统计摘要（总数/有判定/无判定/自动补判数）。判据：JSON含≥80条记录；每条含sha256字段（64字符hex）；has_bool_judgment为布尔值。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "sdaa-perf-baseline",
+      "repo": "TensorLBM",
+      "goal": "【M2 · 单卡性能基线】选取 cavity_3d_full 案例（或session-001已验证的等效案例），在单张SDAA卡上执行5次重复运行，记录每次的墙钟时间、MLUPS、显存峰值。计算CV（变异系数），要求CV≤2%。输出 artifacts/sdaa_perf_baseline.json，含 {case, device, runs:[{wall_s,mlups,mem_gib}], cv_pct, median_wall_s}。独占卡位，禁co-tenancy。honest-FAIL：若SDAA后端不可用或OOM，如实报告错误日志，转CPU基线并标注。工件路径：artifacts/sdaa_perf_baseline.json。finish纪律：必须附JSON + 5次原始数据。判据：JSON含runs数组长度=5；cv_pct≤2.0；median_wall_s>0。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 1
+    },
+    {
+      "key": "benchmark-validate",
+      "repo": "TensorPlatform",
+      "goal": "【M3 · 对标参考数据集+benchmark_validate端点】①新建 backend/data/benchmark_reference.json：录入SUBOFF（速度3-9m/s，≥4点，含实验Ct/Rt，来源Roddy 1990 ITTC）、DTMB-5415（速度5-30kn，≥4点，来源ITTC V&V Workshop）、KVLCC2（速度14-16kn，≥2点，来源SIMMAN 2008）。每条含{ship_type,speed,experimental_ct,experimental_rt,source_citation}。≥10条记录，3型船各≥2条。②新建 backend/api/domain/ship_benchmark.py：路由POST /calculations/benchmark_validate，输入ship_type+benchmark_id，调用resistance计算，与参考值比较，返回{case_id,calc_ct,ref_ct,error_pct,pass:bool}。③新建 backend/tests/feat/test_ship_benchmark.py：pytest验证误差计算和pass/fail逻辑。honest-FAIL：Holtrop对SUBOFF Fr>0.4误差可能>15%，如实记录，不调参粉饰。若全部工况误差>15%，触发honest-FAIL并建议算法升级。工件路径：backend/data/benchmark_reference.json + backend/api/domain/ship_benchmark.py + artifacts/benchmark_validation.json。finish纪律：必须附参考数据集+端点代码+测试通过+逐点误差表。判据：JSON含≥10条参考记录；3型船各≥2条；端点返回结构含error_pct和pass布尔。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "timing-baseline",
+      "repo": "TensorPlatform",
+      "goal": "【M4 · 计时埋点+timing_baseline端点】①新建 backend/services/ship_timing.py：TimingCollector类，记录每次计算调用的{endpoint,ship_type,wall_clock_ms,cpu_ms,timestamp}，支持get_baseline()返回p50/p90/p99。②在resistance/stability端点注入计时装饰器@timed_calc('resistance')。③新建GET /calculations/timing_baseline：返回各端点p50/p90/p99延迟统计+样本数。④端到端验证：对resistance调用50次（SUBOFF不同速度），输出artifacts/timing_baseline.json。honest-FAIL：若计时装饰器导致性能下降>5%，改为采样计时（每10次记录1次）。工件路径：backend/services/ship_timing.py + artifacts/timing_baseline.json。finish纪律：必须附JSON（含≥50条记录，p50>0且p99≥p90≥p50）。判据：JSON含timing_records数组长度≥50；p50>0；p99≥p90≥p50。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "batch-sweep-api",
+      "repo": "TensorPlatform",
+      "goal": "【M5 · 批量提交API（后端only，无前端）· owner指令≥2真功能开发单】①新建 backend/api/domain/ship_batch.py：路由POST /calculations/batch_sweep，接收JSON array批量工况（每条含ship_type+params），串行调用resistance计算，返回结果数组。支持并发控制（max_concurrent参数，默认5）。②新建 backend/tests/feat/test_ship_batch.py：pytest验证批量提交50工况成功、结果数正确、并发控制生效。③端到端验证：提交SUBOFF×31速度点+DTMB×20速度点=51工况，输出artifacts/batch_sweep_demo.json。honest-FAIL：若batch_sweep超时（>5000s），降级为串行并标注。工件路径：backend/api/domain/ship_batch.py + artifacts/batch_sweep_demo.json。finish纪律：必须附代码+测试通过+51工况结果JSON。判据：端点存在；提交50工况返回50条结果；JSON含results数组长度=51。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "sdaa-lib-survey",
+      "repo": "TensorLBM",
+      "goal": "【M6 · 三库SDAA就绪普查（TensorLBM/TensorFEM/TensorBEM）】对三个库分别执行：①grep -r 'sdaa|torch_sdaa' --include='*.py' 统计引用数；②检查requirements.txt是否含torch_sdaa；③检查benchmarks/目录是否有SDAA测试；④检查triton编译路径是否走SDAA（关键：若triton无SDAA后端，标记triton_sdaa_blocked:true）。输出artifacts/sdaa_lib_survey.json，每条含{lib,sdaa_refs,has_torch_sdaa_dep,has_sdaa_benchmarks,triton_sdaa_blocked,verdict:READY|PARTIAL|BLOCKED}。honest-FAIL：若三库均为BLOCKED，如实报告并建议'先修triton SDAA后端'。工件路径：artifacts/sdaa_lib_survey.json。finish纪律：必须附JSON+每库grep原始输出。判据：JSON含3条记录（TensorLBM/TensorFEM/TensorBEM各1条）；每条含verdict字段且值为READY/PARTIAL/BLOCKED之一。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "fail-root-cause",
+      "repo": "TensorLBM",
+      "goal": "【M7 · FAIL根因分类（10案例）】从session-001历史FAIL案例中选取10个（优先选工件完整者），逐个分析根因。分类维度：OOM/NUMERIC/LOGIC/DATA/ENV/UNKNOWN。每条记录必须含{case_id,root_cause,evidence:'工件字段路径或日志行号',confidence:HIGH|MEDIUM|LOW}。输出artifacts/fail_root_cause.json。honest-FAIL：若>3例工件不足以判定根因（无日志/无中间量），该批标WITHHELD，不硬凑分类。工件路径：artifacts/fail_root_cause.json。finish纪律：必须附JSON+每例evidence可点回工件字段。判据：JSON含≥10条记录；每条含root_cause字段且值为OOM/NUMERIC/LOGIC/DATA/ENV/UNKNOWN之一；evidence字段非空。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "sphere-re100-3d",
+      "repo": "TensorLBM",
+      "goal": "【M8 · 3D球体阻力收敛（Re=100，D≤20）】在SDAA卡上执行sphere_re100案例，网格D=10/20两档。记录每档的Cd vs参考值误差、显存峰值、墙钟。判据：①Cd误差≤3%；②显存峰值≤14.94GiB（m75实测单卡容量）；③若OOM，必须给'OOM发生在哪一行tensor操作'。输出artifacts/sdaa_sphere_re100_envelope.json。honest-FAIL：若D=20仍OOM且分块方案在本波次预算内不可行，写'D≤16为当前基线，3D大网格需分块单独立项'。工件路径：artifacts/sdaa_sphere_re100_envelope.json + docs/sdaa_triage/SPHERE.md。finish纪律：必须附JSON+OOM日志（若有）。判据：JSON含D=10和D=20两档结果；每档含cd_error_pct字段；显存峰值≤14.94。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 2
+    },
+    {
+      "key": "dem-fem-hertz-cpu",
+      "repo": "TensorDEM",
+      "goal": "【M9 · DEM-FEM耦合接口契约+CPU标杆】①定义耦合接口schema schemas/dem_fem_coupling_v1.json：字段含positions/velocities/contact_forces/dt/step，声明dtype与device。②在CPU上跑通Hertz接触标杆：单球压入弹性半空间，拟合F∝δ^1.5，要求指数1.5±0.05；接触刚度vs Hertz解析误差≤3%；能量守恒漂移≤1%。③网格收敛性检查：单元尺寸减半时接触刚度变化<5%。输出artifacts/dem_fem_hertz_cpu.json + docs/sdaa_coupling/HERTZ.md。honest-FAIL：若TensorFEM不支持接触单元，标杆换成'梁受集中力挠度'（解析解同样存在），如实标注。工件路径：schemas/dem_fem_coupling_v1.json + artifacts/dem_fem_hertz_cpu.json。finish纪律：必须附schema+JSON+拟合曲线数据。判据：schema通过jsonschema校验；JSON含fitting_exponent字段且值在1.45-1.55之间；stiffness_error_pct≤3.0。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "ship-proxy-orchestration",
+      "repo": "TensorPlatform",
+      "goal": "【M10 · Ship API代理编排层（批量/计时/缓存/样本）· owner指令≥2真功能开发单】在TensorPlatform worktree内构建Ship API代理编排层，封装对port 8002船舶计算服务的HTTP调用。①新建backend/services/ship_proxy.py：封装resistance/stability调用，含重试/超时/错误处理。②新建POST /ship/batch_sweep：接收参数矩阵，串行/并发调用代理，返回结果数组。③新建POST /ship/benchmark_validate：调用代理获取计算值，与内置参考数据比较，返回error_pct+pass。④新建backend/models/ship_sample.py + Alembic迁移 + POST /ship/samples/bulk + GET /ship/samples：批量存储和分页查询。⑤计时装饰器注入代理层，GET /ship/timing_baseline返回p50/p90/p99。honest-FAIL：精度≤5%对SUBOFF不可达（Holtrop+300%），代理层只能如实报告误差，不能改善精度。冰区≤10%不覆盖（port 8002无冰区能力）。propeller/open_water 404，推进类不纳入。工件路径：backend/services/ship_proxy.py + backend/api/domain/ship_samples.py + artifacts/ship_proxy_demo.json。finish纪律：必须附代码+迁移脚本+测试通过+demo JSON。判据：5个端点均存在（/ship/batch_sweep, /ship/benchmark_validate, /ship/samples/bulk, /ship/samples, /ship/timing_baseline）；批量提交10工况返回10条结果。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "lineage-enhance",
+      "repo": "TensorPlatform",
+      "goal": "【M11 · 谱系追溯增强（后端only）】①完善谱系数据模型：在backend/models/新增LineageRecord（execution_id,config_hash,env_hash,data_hash,param_hash,created_at）。②新建GET /lineage/{execution_id}：返回完整谱系链。③新建POST /lineage/auto_record：execution完成后自动记录谱系。④端到端验证：执行10个工况，验证谱系记录完整率100%。输出artifacts/lineage_test.json。honest-FAIL：若现有execution模型无法扩展，降级为简单记录（仅config_hash），如实标注。工件路径：backend/models/lineage.py + artifacts/lineage_test.json。finish纪律：必须附代码+测试通过+10工况谱系记录。判据：2个端点存在（GET /lineage/{id}, POST /lineage/auto_record）；JSON含10条谱系记录；每条含config_hash字段（非空）。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 0
+    },
+    {
+      "key": "freesurface-laplace",
+      "repo": "TensorLBM",
+      "goal": "【M12 · 自由面3D质量守恒+相场Laplace定律】①自由面3D（dambreak3d）：先测CPU基线质量漂移，再跑SDAA，要求sdaa vs CPU液面高度场L2≤1%。若CPU基线本身>0.1%/1e4步，以CPU基线为准并显式写明。②相场Laplace：复跑2个网格确认Δp·R/σ vs解析值≤3%，与m24/m25/m52历史数值逐项对照。输出artifacts/sdaa_dambreak3d.json + artifacts/sdaa_laplace_recut.json。honest-FAIL：若CPU基线质量漂移>1%/1e4步，判据失效，转'先修CPU侧守恒性'。工件路径：artifacts/sdaa_dambreak3d.json + artifacts/sdaa_laplace_recut.json + docs/sdaa_triage/FREESURFACE.md + docs/sdaa_triage/LAPLACE.md。finish纪律：必须附JSON+质量漂移曲线数据。判据：dambreak3d JSON含mass_drift_pct和l2_error字段；laplace JSON含dp_r_sigma字段且值≤1.03（即误差≤3%）。",
+      "budget": {"max_tool_calls": 140, "max_wall_seconds": 5400, "max_tokens": 4000000},
+      "cards": 2
+    }
+  ]
+}
