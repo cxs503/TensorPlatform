@@ -1,6 +1,8 @@
 """
 数据血缘模型定义
 """
+import hashlib
+import json
 import uuid
 from datetime import datetime
 
@@ -175,4 +177,51 @@ class LineageChangeLog(Base):
             "created_at": self.created_at.isoformat() if self.created_at else None,
             "created_by": self.created_by,
             "organization_id": self.organization_id,
+        }
+
+
+# ==================== M406: 执行谱系追溯模型 ====================
+
+
+def _compute_hash(obj: dict | None) -> str:
+    """对字典做确定性 SHA-256 哈希；None/空 → 空串哈希。"""
+    if not obj:
+        return hashlib.sha256(b"{}").hexdigest()
+    canonical = json.dumps(obj, sort_keys=True, default=str, ensure_ascii=False)
+    return hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+class LineageRecord(Base):
+    """
+    M406 执行谱系记录。
+    每次 execution 完成后记录一组哈希指纹，用于追溯配置/环境/数据/参数的不可变性。
+    """
+
+    __tablename__ = "execution_lineage_records"
+
+    id = Column(String(36), primary_key=True, default=lambda: str(uuid.uuid4()))
+    execution_id = Column(Integer, nullable=False, unique=True, index=True, comment="关联 tensor_executions.id")
+    config_hash = Column(String(64), nullable=False, comment="配置指纹 SHA-256")
+    env_hash = Column(String(64), nullable=False, default="", comment="环境指纹 SHA-256")
+    data_hash = Column(String(64), nullable=False, default="", comment="数据指纹 SHA-256")
+    param_hash = Column(String(64), nullable=False, default="", comment="参数指纹 SHA-256")
+    scenario_key = Column(String(120), default="", comment="场景标识")
+    stage = Column(String(10), default="", comment="执行阶段")
+    status = Column(String(20), default="", comment="执行终态")
+    extra_metadata = Column(JSON, default=dict, comment="扩展元数据")
+    created_at = Column(DateTime, default=datetime.utcnow, comment="创建时间")
+
+    def to_dict(self):
+        return {
+            "id": self.id,
+            "execution_id": self.execution_id,
+            "config_hash": self.config_hash,
+            "env_hash": self.env_hash,
+            "data_hash": self.data_hash,
+            "param_hash": self.param_hash,
+            "scenario_key": self.scenario_key,
+            "stage": self.stage,
+            "status": self.status,
+            "extra_metadata": self.extra_metadata or {},
+            "created_at": self.created_at.isoformat() if self.created_at else None,
         }
