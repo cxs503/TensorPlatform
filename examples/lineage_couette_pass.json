@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "criteria_version": "1.0.0",
+  "timestamp": "2026-10-29T12:00:00Z",
+  "environment": {
+    "torch_version": "2.4.0",
+    "torch_sdaa_version": "1.2.0",
+    "git_sha": "a1b2c3d4e5f6a7b8c9d0e1f2a3b4c5d6e7f8a9b0",
+    "device_name": "sdaa:0",
+    "card_id": "/dev/tcaicard5"
+  },
+  "input_parameters": {
+    "case_name": "couette_2d_sdaa",
+    "parameters": {
+      "lattice": "D2Q9",
+      "collision": "bgk",
+      "boundary": "moving top wall + stationary bottom wall, half-way bounce-back",
+      "nx": 62,
+      "ny": 64,
+      "tau": 0.8,
+      "U0": 0.05,
+      "Re": 31.0,
+      "n_steps": 500,
+      "n_avg_steps": 200
+    }
+  },
+  "output_metrics": {
+    "metrics": {
+      "l2_rel_err": 0.00018003914873895743,
+      "max_abs_err": 1.1955826513226908e-05,
+      "max_rel_err_masked_pct": 0.029148382715642743,
+      "u_top_row_err_pct": 0.002022778115617907,
+      "tau_err_pct": 0.0018811128178671537,
+      "mass_drift_pct": 0.0002768731375282403,
+      "total_elapsed_s": 3.08
+    },
+    "status": "PASS"
+  },
+  "baseline": {
+    "source": "analytical",
+    "version": "1.0.0",
+    "reference_value": 0.0
+  }
+}
