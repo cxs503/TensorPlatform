@@ -1,0 +1,230 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "lineage_mg1.json",
+  "title": "M-G1 谱系：性能门禁判据与已知案例",
+  "version": "1.0",
+  "generated_at": "2026-10-28T00:00:00Z",
+  "generator": "M-G1 lineage extractor",
+  "mission_id": "m304",
+  "description": "性能门禁自动化判据谱系，含 m10 Couette 已知 PASS/FAIL 案例",
+  "criteria": [
+    {
+      "id": "C1",
+      "name": "几何验证",
+      "description": "Cb/L/B 几何参数必须先验证",
+      "type": "precondition",
+      "required": true
+    },
+    {
+      "id": "C2",
+      "name": "误差阈值",
+      "description": "对标实验/参考值误差 ≤15% 为可接受",
+      "type": "threshold",
+      "required": true,
+      "max_error_pct": 15.0
+    },
+    {
+      "id": "C3",
+      "name": "门禁精度",
+      "description": "对已知 PASS/FAIL case 裁决准确率 100%",
+      "type": "accuracy",
+      "required": true,
+      "min_accuracy": 1.0
+    },
+    {
+      "id": "C4",
+      "name": "端到端时限",
+      "description": "端到端流程 <5min",
+      "type": "timing",
+      "required": true,
+      "max_wallclock_s": 300
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "m10_couette_pass_01",
+      "name": "Couette 3D 解析解验证 — PASS",
+      "benchmark": "couette_3d",
+      "expected_verdict": "PASS",
+      "geometry": {
+        "L": 1.0,
+        "B": 0.5,
+        "H": 0.1,
+        "Cb": 1.0
+      },
+      "physics": {
+        "Re": 100,
+        "U_wall": 1.0,
+        "nu": 0.01
+      },
+      "results": {
+        "max_velocity_error_pct": 0.82,
+        "mean_velocity_error_pct": 0.31,
+        "mass_conservation_error_pct": 0.05,
+        "grid_resolution": "64x32x8",
+        "analytical_solution": "u(y) = U*y/H"
+      },
+      "evidence": {
+        "reference_type": "analytical",
+        "reference_source": "Couette flow exact solution",
+        "validation_report": "validation_report_m10_couette_pass.json"
+      }
+    },
+    {
+      "case_id": "m10_couette_pass_02",
+      "name": "Couette 3D 高分辨率 — PASS",
+      "benchmark": "couette_3d",
+      "expected_verdict": "PASS",
+      "geometry": {
+        "L": 1.0,
+        "B": 0.5,
+        "H": 0.1,
+        "Cb": 1.0
+      },
+      "physics": {
+        "Re": 100,
+        "U_wall": 1.0,
+        "nu": 0.01
+      },
+      "results": {
+        "max_velocity_error_pct": 0.45,
+        "mean_velocity_error_pct": 0.18,
+        "mass_conservation_error_pct": 0.02,
+        "grid_resolution": "128x64x16",
+        "analytical_solution": "u(y) = U*y/H"
+      },
+      "evidence": {
+        "reference_type": "analytical",
+        "reference_source": "Couette flow exact solution",
+        "validation_report": "validation_report_m10_couette_pass_hr.json"
+      }
+    },
+    {
+      "case_id": "m10_couette_fail_01",
+      "name": "Couette 3D 粗网格 — FAIL",
+      "benchmark": "couette_3d",
+      "expected_verdict": "FAIL",
+      "geometry": {
+        "L": 1.0,
+        "B": 0.5,
+        "H": 0.1,
+        "Cb": 1.0
+      },
+      "physics": {
+        "Re": 100,
+        "U_wall": 1.0,
+        "nu": 0.01
+      },
+      "results": {
+        "max_velocity_error_pct": 23.7,
+        "mean_velocity_error_pct": 12.4,
+        "mass_conservation_error_pct": 3.2,
+        "grid_resolution": "8x4x2",
+        "analytical_solution": "u(y) = U*y/H"
+      },
+      "evidence": {
+        "reference_type": "analytical",
+        "reference_source": "Couette flow exact solution",
+        "validation_report": "validation_report_m10_couette_fail_coarse.json"
+      }
+    },
+    {
+      "case_id": "m10_couette_fail_02",
+      "name": "Couette 3D 错误边界条件 — FAIL",
+      "benchmark": "couette_3d",
+      "expected_verdict": "FAIL",
+      "geometry": {
+        "L": 1.0,
+        "B": 0.5,
+        "H": 0.1,
+        "Cb": 1.0
+      },
+      "physics": {
+        "Re": 100,
+        "U_wall": 1.0,
+        "nu": 0.01
+      },
+      "results": {
+        "max_velocity_error_pct": 45.2,
+        "mean_velocity_error_pct": 28.6,
+        "mass_conservation_error_pct": 8.1,
+        "grid_resolution": "64x32x8",
+        "analytical_solution": "u(y) = U*y/H",
+        "failure_reason": "wrong_boundary_condition: no-slip applied at moving wall"
+      },
+      "evidence": {
+        "reference_type": "analytical",
+        "reference_source": "Couette flow exact solution",
+        "validation_report": "validation_report_m10_couette_fail_bc.json"
+      }
+    },
+    {
+      "case_id": "m10_couette_fail_03",
+      "name": "Couette 3D 几何未验证 — FAIL",
+      "benchmark": "couette_3d",
+      "expected_verdict": "FAIL",
+      "geometry": null,
+      "physics": {
+        "Re": 100,
+        "U_wall": 1.0,
+        "nu": 0.01
+      },
+      "results": {
+        "max_velocity_error_pct": 5.2,
+        "mean_velocity_error_pct": 2.1,
+        "mass_conservation_error_pct": 0.3,
+        "grid_resolution": "64x32x8",
+        "analytical_solution": "u(y) = U*y/H"
+      },
+      "evidence": {
+        "reference_type": "analytical",
+        "reference_source": "Couette flow exact solution",
+        "validation_report": "validation_report_m10_couette_fail_nogeo.json"
+      },
+      "failure_reason": "geometry_not_verified: Cb/L/B missing"
+    },
+    {
+      "case_id": "sdaa_card16",
+      "name": "SDAA Card 16 — 真实验证案例",
+      "benchmark": "sdaa_card_16",
+      "expected_verdict": "PASS",
+      "geometry": {
+        "L": 150.0,
+        "B": 23.5,
+        "T": 7.2,
+        "Cb": 0.72
+      },
+      "physics": {
+        "Fn": 0.22,
+        "speed_kn": 15.0,
+        "displacement_t": 12500
+      },
+      "results": {
+        "resistance_error_pct": 4.8,
+        "thrust_error_pct": 3.2,
+        "effective_power_error_pct": 5.1,
+        "model_scale": "1:25",
+        "reynolds_number": 4.2e7
+      },
+      "evidence": {
+        "reference_type": "experiment",
+        "reference_source": "SDAA Card 16 towing tank test",
+        "validation_report": "validation_report_sdaa_card16.json"
+      }
+    }
+  ],
+  "verdict_rules": {
+    "PASS": {
+      "geometry_verified": true,
+      "max_error_pct_le": 15.0,
+      "mass_conservation_error_pct_le": 1.0
+    },
+    "FAIL": {
+      "conditions": [
+        "geometry_verified == false",
+        "max_error_pct > 15.0",
+        "mass_conservation_error_pct > 1.0"
+      ]
+    }
+  }
+}
