@@ -32,10 +32,12 @@ router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
 DEFAULT_BUDGET = {"max_tool_calls": 80, "max_wall_seconds": 7200, "max_tokens": 3_000_000}
 MISSION_STATUSES = (
+    # lifecycle statuses (095): suspended, orphan, revoked
     "queued", "claimed", "running", "awaiting_acceptance",
-    "succeeded", "failed", "stopped",
+    "succeeded", "failed", "stopped", "revoked",
+    "suspended", "orphan",
 )
-TERMINAL = ("succeeded", "failed", "stopped")
+TERMINAL = ("succeeded", "failed", "stopped", "revoked", "orphan")
 
 
 def _dumps(value: Any) -> str:
@@ -70,6 +72,13 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "created_at": _iso(r["created_at"]) if r.get("created_at") else None,
         "heartbeat_at": _iso(r["heartbeat_at"]) if r.get("heartbeat_at") else None,
         "finished_at": _iso(r["finished_at"]) if r.get("finished_at") else None,
+        "fail_stage": r.get("fail_stage"),
+        "report_owed": r.get("report_owed", False),
+        "worktree_recyclable": r.get("worktree_recyclable", False),
+        "write_off_at": _iso(r.get("write_off_at")) if r.get("write_off_at") else None,
+        "suspended_at": _iso(r.get("suspended_at")) if r.get("suspended_at") else None,
+        "suspend_reason": r.get("suspend_reason"),
+        "budget_used": r.get("budget_used") or {},
     }
 
 
@@ -79,7 +88,9 @@ def _load_mission(db: Session, mission_id: int, user: dict | None = None, *, loc
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
                    model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
-                   created_by, created_at, heartbeat_at, finished_at
+                   created_by, created_at, heartbeat_at, finished_at,
+                   fail_stage, report_owed, worktree_recyclable, write_off_at,
+                   suspended_at, suspend_reason, budget_used
             FROM tensor_dev_missions WHERE id = :mid
         """ + (" FOR UPDATE" if lock else "")),
         {"mid": mission_id},
@@ -387,7 +398,9 @@ def list_missions(
             SELECT id, goal, repo, base_ref, co_repos, parent_mission_id, budget,
                    runner, origin, model, agent_session_id, worker_role, campaign_id, campaign_phase, status,
                    claimed_by, session_id, result, created_by, created_at,
-                   heartbeat_at, finished_at
+                   heartbeat_at, finished_at,
+                   fail_stage, report_owed, worktree_recyclable, write_off_at,
+                   suspended_at, suspend_reason, budget_used
             FROM tensor_dev_missions WHERE {filters}
             ORDER BY id DESC LIMIT :limit OFFSET :offset
         """),
@@ -628,6 +641,9 @@ def start_mission(
 class HeartbeatRequest(BaseModel):
     claim_token: str = Field(min_length=8)
     progress: dict[str, Any] = Field(default_factory=dict)
+    # Budget usage tracking (reported by worker each heartbeat)
+    tool_calls_used: int | None = Field(default=None, ge=0)
+    tokens_used: int | None = Field(default=None, ge=0)
 
 
 @router.post("/{mission_id}/heartbeat", dependencies=[Depends(require_auth)])
@@ -638,6 +654,15 @@ def heartbeat_mission(
     user: dict = Depends(require_auth),
 ):
     row = _authorize_agent(db, mission_id, body.claim_token, user)
+    # Build budget_used patch from heartbeat report
+    budget_patch = {}
+    if body.tool_calls_used is not None:
+        budget_patch["tool_calls_used"] = body.tool_calls_used
+    if body.tokens_used is not None:
+        budget_patch["tokens_used"] = body.tokens_used
+    # Wall seconds: computed from heartbeat interval (approximate)
+    budget_patch["wall_seconds_used"] = body.progress.get("wall_seconds", 0) if body.progress else 0
+
     db.execute(
         text("""
             UPDATE tensor_dev_missions
@@ -645,10 +670,12 @@ def heartbeat_mission(
                 result = CASE
                     WHEN CAST(:prog AS jsonb) = 'null'::jsonb THEN result
                     ELSE jsonb_set(result, '{progress}', CAST(:prog AS jsonb))
-                END
+                END,
+                budget_used = budget_used || CAST(:bpatch AS jsonb)
             WHERE id = :mid
         """),
-        {"mid": mission_id, "prog": _dumps(body.progress or None)},
+        {"mid": mission_id, "prog": _dumps(body.progress or None),
+         "bpatch": _dumps(budget_patch)},
     )
     db.commit()
     return {"id": mission_id, "status": row["status"],
@@ -663,6 +690,9 @@ class CompleteRequest(BaseModel):
     branch: str | None = Field(default=None, max_length=200)
     head_commit: str | None = Field(default=None, max_length=64)
     checks: dict[str, Any] = Field(default_factory=dict)
+    # Lifecycle: fail_stage is mandatory for failed missions (095)
+    fail_stage: str | None = Field(default=None, max_length=60,
+        description="Stage where failure occurred: tool_loop/build/test/acceptance/agent_lost")
 
 
 @router.post("/{mission_id}/complete", dependencies=[Depends(require_auth)])
@@ -748,15 +778,21 @@ def complete_mission(
         db.commit()
         return {"id": mission_id, "status": "awaiting_acceptance", "approval_id": approval_id}
 
+    # Determine report_owed: if failed and no branch/evidence, report is owed
+    report_owed = (body.status == 'failed' and not body.branch and not evidence.get('branch'))
     db.execute(
         text("""
             UPDATE tensor_dev_missions
             SET status = :st, finished_at = now(), claim_token = NULL,
-                result = result || CAST(:summary AS jsonb)
+                result = result || CAST(:summary AS jsonb),
+                fail_stage = COALESCE(:fs, fail_stage),
+                report_owed = CASE WHEN :ro THEN TRUE ELSE report_owed END,
+                worktree_recyclable = TRUE
             WHERE id = :mid
         """),
         {"st": body.status, "mid": mission_id,
-         "summary": _dumps({**body.summary, "evidence": evidence})},
+         "summary": _dumps({**body.summary, "evidence": evidence}),
+         "fs": body.fail_stage, "ro": report_owed},
     )
     if row["session_id"]:
         append_event(db, row["session_id"], "decision", {
@@ -876,7 +912,9 @@ def refill_mission(
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
                    model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
-                   created_by, created_at, heartbeat_at, finished_at
+                   created_by, created_at, heartbeat_at, finished_at,
+                   fail_stage, report_owed, worktree_recyclable, write_off_at,
+                   suspended_at, suspend_reason, budget_used
             FROM tensor_dev_missions WHERE id = :mid
             FOR UPDATE
         """),
