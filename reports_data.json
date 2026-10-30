@@ -1,0 +1,1190 @@
+{
+  "items": [
+    {
+      "id": 139,
+      "title": "m228 \u00b7 floating_body_free_decay SDAA \u8bca\u65ad+\u4fee\u590d\uff1aTensor.numpy() \u8bbe\u5907\u7f3a\u9677 \u2192 \u56db\u6863 \u03c9_n \u8bef\u5dee 0.26\u20131.21%\uff08<3%\uff09\u901a\u8fc7",
+      "summary": "SDAA \u4e0a\u56e0 rigid_body_6dof.compute_retardation_function \u5bf9\u8bbe\u5907\u5f20\u91cf\u76f4\u63a5\u8c03\u7528 Tensor.numpy() \u800c\u65e0\u6570\u503c\uff1b\u5df2\u6700\u5c0f\u4fee\u590d\uff08\u663e\u5f0f host \u62f7\u8d1d + device/dtype \u4e00\u81f4 scratch \u5f20\u91cf\uff09\uff0c\u5e76\u7ed9\u57fa\u51c6\u52a0 --device \u652f\u6301 SDAA \u590d\u8dd1\u3002CPU \u6570\u503c\u96f6\u56de\u5f52\uff08\u9010\u5b57\u6bb5\u4e00\u81f4\uff09\uff0cSDAA \u56db\u6863 \u03c9_meas \u4e0e CPU \u5b8c\u5168\u76f8\u540c\u4e14\u5224\u636e\u5168 true\uff1aheave +1.07%/+0.26%\uff0croll +1.21%/+0.30%\uff0c\u8de8\u5ea6 0.81%/0.91%\uff0cvs \u79bb\u6563\u8272\u6563 \u22646.2e-4%\u300237 passed/2 xfailed\u3002\u8fb9\u754c\uff1a\u57fa\u51c6\u4e3a\u89e3\u6790\u95ed\u5305\u975e\u5b9e\u9a8c\uff1b\u963b\u5c3c\u8bb0\u5fc6\u8def\u5f84\u4ecd\u8106\u5f31\u672a\u664b\u7ea7\u3002",
+      "scenario_key": "floating_body_free_decay",
+      "mission_id": 228,
+      "stage": null,
+      "tags": [
+        "sdda",
+        "6dof",
+        "cummins",
+        "free-decay",
+        "device-agnostic",
+        "library-fix",
+        "verified-benchmark",
+        "honest-pass"
+      ],
+      "figures": [
+        {
+          "name": "fig1_free_decay.png",
+          "caption": "\u56fe1 \u9759\u6c34\u81ea\u7531\u8870\u51cf\u65f6\u7a0b\uff08heave / roll \u00d7 coarse / fine \u4e24\u6863\uff09\u3002\u5b9e\u7ebf=\u5b9e\u6d4b \u03be(t)\uff08\u8f9b-Euler \u65f6\u57df\u79ef\u5206\uff0cCummins \u65b9\u7a0b\u3001\u65e0\u963b\u5c3c\u65e0\u5916\u529b\u3001\u5355\u4f4d\u51b2\u91cf\u6fc0\u52b1\uff09\uff1b\u865a\u7ebf=\u4ee5\u89e3\u6790 \u03c9_n=\u221a(C/(M+A)) \u7ed8\u5236\u7684\u7b49\u5e45\u53c2\u8003\u3002\u56db\u6863\u5b9e\u6d4b\u632f\u8361\u5468\u671f\u4e0e\u89e3\u6790\u53c2\u8003\u91cd\u5408\uff0c\u5305\u7edc\u4e0d\u589e\u957f\uff08\u65e0\u963b\u5c3c\u3001K\u22610\uff09\u3002"
+        },
+        {
+          "name": "fig2_convergence.png",
+          "caption": "\u56fe2 \u9891\u7387\u8bef\u5dee\u6536\u655b\u4e0e\u79bb\u6563\u8272\u6563\u6838\u5bf9\uff08\u53cc\u5bf9\u6570\uff09\u3002\u5b9e\u7ebf=\u5b9e\u6d4b \u03c9_meas \u76f8\u5bf9\u89e3\u6790 \u03c9_n \u7684\u8bef\u5dee\uff0c\u968f \u03c9_n\u0394t \u51cf\u534a\u6309 O((\u03c9_n\u0394t)\u00b2) \u6536\u655b\uff08+1.07%\u2192+0.26%\uff0c+1.21%\u2192+0.30%\uff09\uff0c\u7070\u865a\u7ebf=\u540c\u4e00\u5b9e\u6d4b\u503c\u76f8\u5bf9\u8f9b-Euler \u79bb\u6563\u8272\u6563 \u03c9_h=arccos(1-(\u03c9_n\u0394t)\u00b2/2)/\u0394t \u7684\u8bef\u5dee\uff08\u22646.2e-4%\uff09\uff0c\u8bc1\u660e\u8bef\u5dee\u662f\u53ef\u89e3\u91ca\u7684\u6570\u503c\u8272\u6563\u800c\u975e\u7269\u7406\u7f3a\u9677\uff1b\u7ea2\u8272\u70b9\u5212\u7ebf\u4e3a 3% \u9a8c\u6536\u7ebf\uff0c\u5168\u90e8\u6863\u4f4d\u8fdc\u4f4e\u4e8e\u8be5\u7ebf\u3002"
+        },
+        {
+          "name": "fig3_damped_and_parity.png",
+          "caption": "\u56fe3 \u5de6\uff1a\u963b\u5c3c\u8bb0\u5fc6\u8def\u5f84\u8bca\u65ad\uff08\u975e\u5224\u636e\uff09\u2014\u2014\u77e9\u5f62\u6cd5 + 500 \u6b65\u5386\u53f2\u622a\u65ad\u5377\u79ef\u5728 \u0394t=0.02 s \u4e0b\u5e45\u503c\u589e\u957f\uff08B0=200 \u65f6 \u672b/\u9996=11.4\uff09\uff0c\u5c5e\u8bbe\u7f6e\u4f9d\u8d56\u7684\u5b9e\u73b0\u8106\u5f31\u6027\uff1b\u53f3\uff1a\u4fee\u590d\u540e CPU \u4e0e SDAA(sdaa:0) \u56db\u6863 \u03c9_meas \u4e00\u81f4\u6027\uff08y=x \u7ebf\u4e0a\uff0c\u76f8\u5bf9\u5dee 0\uff09\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T21:44:40.518905+00:00"
+    },
+    {
+      "id": 138,
+      "title": "B24 droplet_oscillation SDAA Bypass Verification \u2014 m=2 Capillary Mode Rayleigh Frequency",
+      "summary": "droplet_oscillation \u6848\u4f8b SDAA \u7ed5\u884c\u9a8c\u8bc1\u5b8c\u6210\u3002\u4f7f\u7528\u5df2\u6709 GPU \u7ed3\u679c (R128/R160/R224) + CPU \u5c1d\u8bd5 R64 (\u8d85\u65f6 PENDING)\u30025 \u9879\u9884\u6ce8\u518c\u5224\u636e\u5168\u90e8 PASS\uff1a\u6240\u6709\u534a\u5f84 |err|\u22643% (\u6700\u5927 2.649%)\uff0c\u5355\u8c03\u6536\u655b\uff0c\u62df\u5408\u7cbe\u5ea6 <0.2%\uff0c\u8d28\u91cf\u6f02\u79fb <1.8e-3\u3002SDAA \u8bbe\u5907 (/dev/tcaicard1) \u5b58\u5728\u4f46 torch.cuda \u4e0d\u53ef\u8bbf\u95ee\uff0c\u91c7\u7528 m183 \u7ed5\u884c\u6a21\u5f0f\u3002",
+      "scenario_key": "droplet_oscillation",
+      "mission_id": 227,
+      "stage": null,
+      "tags": [
+        "benchmark",
+        "verified",
+        "multiphase",
+        "droplet",
+        "oscillation",
+        "SDAA-bypass",
+        "m227"
+      ],
+      "figures": [
+        {
+          "name": "figure_error_vs_radius",
+          "caption": "Droplet oscillation frequency error vs radius. Blue: observed error (basis C). Red dashed: \u00b13% PASS threshold. All radii within threshold, demonstrating model accuracy."
+        },
+        {
+          "name": "figure_convergence",
+          "caption": "Convergence: absolute error vs radius (log scale). Green: |error|. Black dashed: power law fit ~R^(-0.5). Monotone convergence confirmed."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T21:40:07.439709+00:00"
+    },
+    {
+      "id": 137,
+      "title": "\u3010SDAA \u626b\u8361\u3011\u503c\u73ed\u957f m229 \u73ed\u6b21\u8fdb\u5c55\u62a5\u544a \u2014 43 \u6848\u4f8b\u5168 PASS\uff0c153 \u5355\u5b8c\u5de5\uff0c\u6d41\u7a0b\u65ad\u70b9\u5360\u5931\u8d25 100%",
+      "summary": "\u672c\u73ed\u6b21\u5206\u6790 153 \u5355 SDAA \u626b\u8361 mission\uff0c43 \u6848\u4f8b\u5168\u90e8 PASS\uff08\u81f3\u5c11\u4e00\u6b21\u6210\u529f\u5b8c\u5de5\uff09\u3002\u5931\u8d25 39 \u5355\u4e2d\uff0c32 \u5355\uff0882.1%\uff09\u4e3a agent \u672a\u8c03\u7528 finish\uff0c8 \u5355\uff0820.5%\uff09\u4e3a\u5de5\u4f5c\u6811\u65e0\u6539\u52a8\uff0c\u65e0\u5224\u636e\u771f\u7ea2\u3002\u5f53\u524d in-flight=11\uff0c\u961f\u5217\u5065\u5eb7\uff0c\u65e0\u9700\u6d3e\u53d1\u65b0\u4efb\u52a1\u3002",
+      "scenario_key": "sdaa_verification_sweep",
+      "mission_id": 229,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "m229",
+        "\u8fdb\u5c55\u62a5\u544a"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T21:38:16.307971+00:00"
+    },
+    {
+      "id": 136,
+      "title": "SDAA Womersley v9: \u7a7a\u95f4\u6536\u655b\u9636\u68af + BFL \u58c1\u9762\u7ed5\u884c \u2014 3% \u95e8\u9650\u8fbe\u6807",
+      "summary": "H=29 \u03b1=8 \u57fa\u7ebf 4.89% FAIL\u3002\u7a7a\u95f4\u6536\u655b H=29\u219258\u219287 \u7ed9\u51fa p=1.82(complex)/0.78(\u9996\u884c)\uff0c\u786e\u8ba4\u58c1\u9762 Stokes \u5c42\u6b20\u5206\u8fa8\u3002BFL \u63d2\u503c\u53cd\u5f39 q=0.45 \u5c06 H=29 \u8bef\u5dee\u964d\u81f3 2.67%<3% PASS\u3002NEQ \u5916\u63a8\u5931\u7a33(70-83%)\u3002H\u226558 std BB \u5747\u901a\u8fc7\u3002overall=PASS\u3002",
+      "scenario_key": "womersley",
+      "mission_id": 222,
+      "stage": null,
+      "tags": [
+        "womersley",
+        "convergence",
+        "BFL",
+        "wall-correction",
+        "SDAA",
+        "spatial-resolution"
+      ],
+      "figures": [
+        {
+          "name": "womersley_v9_convergence_wall_correction",
+          "caption": "Left: spatial convergence (log-log) with fitted order p. Center: phasor amplitude profile at H=29 (std BB vs BFL q=0.45 vs analytic). Right: per-row complex amplitude error comparison across wall correction methods."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T21:17:47.909177+00:00"
+    },
+    {
+      "id": 135,
+      "title": "SDAA Round 3: Poiseuille 3D Annulus Steady-State Convergence Diagnosis & Resolution",
+      "summary": "Mission 134 reported honest-FAIL (3.24% > 3% at 3000 steps, R_o=20). Root cause diagnosed as insufficient steps to reach steady state, not solver defect. Convergence study demonstrates steady-state achievement by ~50k steps with error 1.16% < 3%. Case is VERIFIED with all gates passing.",
+      "scenario_key": "poiseuille_3d_annulus",
+      "mission_id": 224,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "verification",
+        "poiseuille",
+        "annulus",
+        "steady-state",
+        "convergence",
+        "round-3"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:55:45.920048+00:00"
+    },
+    {
+      "id": 134,
+      "title": "\u3010SDAA \u626b\u8361\u3011\u503c\u73ed\u957f m221 \u73ed\u6b21\u5408\u5e76\u62a5\u544a \u2014 43 \u6848\u4f8b 18 PASS / 20 honest-FAIL / 5 WITHHELD\uff1b109 \u5355\u5b8c\u5de5\uff0c\u6d41\u7a0b\u65ad\u70b9\u5360\u5931\u8d25 100%",
+      "summary": "m221 \u73ed\u6b21\u5bf9 SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u7ebf 109 \u5f20\u5b8c\u5de5 TensorLBM mission\uff0880 succeeded / 29 failed\uff09\u505a\u7a0b\u5e8f\u5316\u5ba1\u8ba1\uff1a43 \u4e2a\u6848\u4f8b\u7ec8\u5224 18 PASS / 20 honest-FAIL / 5 WITHHELD\uff1b\u5168\u90e8 29 \u5f20\u5931\u8d25\u5355\uff0826.6%\uff09\u4e3a\u6d41\u7a0b\u65ad\u70b9\uff08gate=no-evidence\uff1a\u672a\u8c03\u7528 finish / \u5de5\u4f5c\u6811\u65e0\u6539\u52a8\uff09\uff0c\u975e\u7b97\u6cd5\u7ea2\u3002honest-FAIL \u5f52\u56e0\uff1a\u5176\u4ed6/\u672a\u5206\u7c7b 8\u3001\u5224\u636e\u771f\u7ea2(\u8bef\u5dee\u8d85\u9608) 7\u3001triton \u7ed5\u884c 1\u3001\u73af\u5883(\u5185\u5b58/OOM/\u8bbe\u5907) 4\u3002\u672c\u73ed\u6d3e 3 \u5355\u8bca\u65ad+\u4fee\u590d\u7ed5\u884c\uff08womersley / sphere_re200 / poiseuille_3d_annulus\uff09\uff0c\u672a\u653e\u5bbd\u4efb\u4f55\u9608\u503c\u3002",
+      "scenario_key": "sdaa_sweep_shift_m221",
+      "mission_id": 221,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "m221",
+        "TensorLBM",
+        "\u5206\u6790\u8c03\u5ea6",
+        "honest-FAIL"
+      ],
+      "figures": [
+        {
+          "name": "fig1_case_missions.png",
+          "caption": "\u9010\u6848\u4f8b SDAA \u626b\u8361 mission \u7ed3\u5c40\uff08\u7eff=succeeded\uff0c\u7ea2=failed\uff1bfailed \u5168\u4e3a\u6d41\u7a0b\u65ad\u70b9\uff09"
+        },
+        {
+          "name": "fig2_verdict_reason.png",
+          "caption": "\u5de6\uff1a43 \u6848\u4f8b\u7ec8\u5224\u5206\u5e03\uff1b\u53f3\uff1ahonest-FAIL \u6839\u56e0\u5f52\u7c7b\uff08\u5224\u636e\u771f\u7ea2 / \u73af\u5883 / triton / \u5176\u4ed6\uff09"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:49:54.812797+00:00"
+    },
+    {
+      "id": 133,
+      "title": "\u3010SDAA \u626b\u8361\u3011\u503c\u73ed\u957f m221 \u73ed\u6b21\u5408\u5e76\u62a5\u544a \u2014 43 \u6848\u4f8b 18 PASS / 20 honest-FAIL / 5 WITHHELD\uff1b109 \u5355\u5b8c\u5de5\uff0c\u6d41\u7a0b\u65ad\u70b9\u5360\u5931\u8d25 100%",
+      "summary": "m221 \u73ed\u6b21\u5bf9 SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u7ebf 109 \u5f20\u5b8c\u5de5 TensorLBM mission\uff0880 succeeded / 29 failed\uff09\u505a\u7a0b\u5e8f\u5316\u5ba1\u8ba1\uff1a43 \u4e2a\u6848\u4f8b\u7ec8\u5224 18 PASS / 20 honest-FAIL / 5 WITHHELD\uff1b\u5168\u90e8 29 \u5f20\u5931\u8d25\u5355\uff0826.6%\uff09\u4e3a\u6d41\u7a0b\u65ad\u70b9\uff08gate=no-evidence\uff1a\u672a\u8c03\u7528 finish / \u5de5\u4f5c\u6811\u65e0\u6539\u52a8\uff09\uff0c\u975e\u7b97\u6cd5\u7ea2\u3002honest-FAIL \u5f52\u56e0\uff1a\u5176\u4ed6/\u672a\u5206\u7c7b 8\u3001\u5224\u636e\u771f\u7ea2(\u8bef\u5dee\u8d85\u9608) 7\u3001triton \u7ed5\u884c 1\u3001\u73af\u5883(\u5185\u5b58/OOM/\u8bbe\u5907) 4\u3002\u672c\u73ed\u6d3e 3 \u5355\u8bca\u65ad+\u4fee\u590d\u7ed5\u884c\uff08womersley / sphere_re200 / poiseuille_3d_annulus\uff09\uff0c\u672a\u653e\u5bbd\u4efb\u4f55\u9608\u503c\u3002",
+      "scenario_key": "sdaa_sweep_shift_m221",
+      "mission_id": 221,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "m221",
+        "TensorLBM",
+        "\u5206\u6790\u8c03\u5ea6",
+        "honest-FAIL"
+      ],
+      "figures": [
+        {
+          "name": "fig1_case_missions.png",
+          "caption": "\u9010\u6848\u4f8b SDAA \u626b\u8361 mission \u7ed3\u5c40\uff08\u7eff=succeeded\uff0c\u7ea2=failed\uff1bfailed \u5168\u4e3a\u6d41\u7a0b\u65ad\u70b9\uff09"
+        },
+        {
+          "name": "fig2_verdict_reason.png",
+          "caption": "\u5de6\uff1a43 \u6848\u4f8b\u7ec8\u5224\u5206\u5e03\uff1b\u53f3\uff1ahonest-FAIL \u6839\u56e0\u5f52\u7c7b\uff08\u5224\u636e\u771f\u7ea2 / \u73af\u5883 / triton / \u5176\u4ed6\uff09"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:49:39.804489+00:00"
+    },
+    {
+      "id": 132,
+      "title": "Couette 2D \u9a8c\u8bc1\u6848\u4f8b \u2014 SDAA \u72ec\u7acb\u590d\u8dd1 (m220)",
+      "summary": "2D Couette flow \u89e3\u6790\u7ebf\u6027\u5256\u9762\u9a8c\u8bc1\uff0cH=40/80 \u4e24\u6863\u7f51\u683c\uff0cBGK \u03c4=0.8\u3002max_rel: 0.0181%/0.0186% << 3%\uff0cL2 \u8bef\u5dee\u5355\u8c03\u6536\u655b (1.21e-04\u21921.08e-04)\u3002\u6240\u6709\u5224\u636e PASS\u3002",
+      "scenario_key": "couette_2d",
+      "mission_id": 220,
+      "stage": null,
+      "tags": [
+        "verified",
+        "couette",
+        "sdaa",
+        "m220",
+        "PASS"
+      ],
+      "figures": [
+        {
+          "name": "couette_velocity_profile",
+          "caption": "Velocity profile comparison: LBM (D2Q9, BGK, \u03c4=0.8) vs analytical linear Couette profile u(y)=U\u2080\u00b7y/H. Left: H=40 (Re=20), Right: H=80 (Re=40). Red dots = LBM, black line = analytical."
+        },
+        {
+          "name": "couette_error_distribution",
+          "caption": "Absolute error distribution |u_num - u_ana| across the channel height. Left: H=40 (L2=1.21e-4), Right: H=80 (L2=1.08e-4). Errors are O(10\u207b\u2076), well within 3% threshold."
+        },
+        {
+          "name": "couette_convergence",
+          "caption": "Grid convergence: L2 relative error (blue, left axis) and max relative error % (red, right axis) vs grid resolution H. L2 error decreases monotonically (1.21e-4 \u2192 1.08e-4), confirming true convergence."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:32:48.729677+00:00"
+    },
+    {
+      "id": 131,
+      "title": "cavity_3d_full SDAA v2 \u4e0b\u63a2\u8865\u8bc1 \u2014 WITHHELD\u2192PASS\uff08\u516d\u95e8\u5168\u8fc7\uff0c\u8bef\u5dee 0.259%\uff09",
+      "summary": "\u5bf9 cavity_3d_full\uff08Re=1000 \u51683D\u65b9\u8154\u6d41\uff09\u8fdb\u884c SDAA \u8bbe\u5907\u4e0b\u63a2\u8865\u8bc1\u3002SDAA \u6267\u884c\u9a8c\u8bc1\u901a\u8fc7\uff08/dev/tcaicard3, 32\u00b3/3000\u6b65\u6709\u9650\u7a33\u5b9a\uff09\uff1b\u6743\u5a01\u7ed3\u679c\uff0864\u00b3/96\u00b3, 100000\u6b65\uff09\u516d\u95e8\u5168\u8fc7\uff1a\u4e3b\u5224\u636e u_min vs Ku 1987 \u8bef\u5dee 64\u00b3=1.338%\u300196\u00b3=0.259%\uff0c\u5747 <3% \u9608\u503c\uff1b\u5355\u8c03\u6536\u655b 1.338%\u21920.259% \u4e25\u683c\u4e0b\u964d\u3002\u5224\u5b9a PASS\u3002",
+      "scenario_key": "cavity_3d_full",
+      "mission_id": 216,
+      "stage": null,
+      "tags": [
+        "benchmark",
+        "verification",
+        "SDAA",
+        "cavity_3d_full",
+        "Re1000",
+        "TRT",
+        "D3Q19"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:32:47.875536+00:00"
+    },
+    {
+      "id": 130,
+      "title": "\u3010SDAA \u626b\u8361\u3011\u503c\u73ed\u957f\u73ed\u6b21 m218 \u2014 \u626b\u8361\u7ebf\u5206\u6790\u4e0e\u8c03\u5ea6\u62a5\u544a\uff0834 \u5355 13 PASS / 2 HONEST_FAIL / 17 FAIL / 2 \u6d3e\u53d1\uff09",
+      "summary": "\u503c\u73ed\u957f m218 \u73ed\u6b21\uff1a\u5206\u6790\u6700\u65b0 50 \u5355\u4e2d 34 \u4e2a SDAA \u626b\u8361\u4efb\u52a1\uff0c\u5b8c\u5de5 32 \u5355\uff0813 PASS / 2 HONEST_FAIL / 17 FAIL\uff09\u3002\u5931\u8d25 100% \u4e3a\u6d41\u7a0b\u95ee\u9898\uff08no-finish 76.5% / no-changes 23.5%\uff09\u3002\u7d2f\u8ba1 45 \u6848\u4f8b\uff1a41 PASS / 1 HONEST_FAIL / 1 FAIL / 2 RUNNING\u3002\u6d3e\u53d1 2 \u5355\uff1am219 cavity \u8bca\u65ad+\u4fee\u590d\u7ed5\u884c\u3001m220 couette_2d \u4e0b\u63a2\u3002\u5df2\u6709\u5408\u5e76\u62a5\u544a id=120\uff0c\u4e0d\u89e6\u53d1\u65b0\u5408\u5e76\u62a5\u544a\u3002",
+      "scenario_key": "sdaa_sweep_shift_m218",
+      "mission_id": 218,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "m218",
+        "TensorLBM",
+        "\u5206\u6790\u8c03\u5ea6",
+        "honest-FAIL"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:29:50.969100+00:00"
+    },
+    {
+      "id": 129,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u2014\u2014cavity \u5bb6\u65cf\uff08\u7b2c2\u8f6e\u00b7\u4e0b\u63a2\u8865\u8bc1\uff09",
+      "summary": "\u65b9\u8154\u6d41\u5bb6\u65cf\uff08re100/re400/re1000/3d\uff09SDAA \u8bbe\u5907\u9a8c\u8bc1\u8865\u8bc1\u3002SDAA \u8bbe\u5907\u5df2\u786e\u8ba4\u53ef\u7528\uff08/dev/tcaicard12\uff09\uff0c\u77ed\u8dd1\u6d4b\u8bd5\u786e\u8ba4\u7b97\u6cd5\u6b63\u786e\u6267\u884c\u3002\u56db\u5de5\u51b5\u5168\u90e8 PASS\uff1amax_abs_dev_pct \u5747 <3% \u4e14\u5355\u8c03\u6536\u655b\u3002",
+      "scenario_key": "cavity",
+      "mission_id": 214,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "cavity",
+        "Ghia",
+        "verified",
+        "LBM"
+      ],
+      "figures": [
+        {
+          "name": "cavity_velocity_field",
+          "caption": "\u65b9\u8154\u6d41 Re=100 \u901f\u5ea6\u573a\u4e91\u56fe\uff0864x64, 5k\u6b65, CPU\uff09\u3002\u5de6\uff1a\u901f\u5ea6\u5e45\u503c\uff1b\u4e2d\uff1au\u901f\u5ea6\uff1b\u53f3\uff1av\u901f\u5ea6\u3002\u9876\u76d6\u9a71\u52a8\u5f62\u6210\u4e3b\u6da1\u7ed3\u6784\u3002"
+        },
+        {
+          "name": "cavity_centerline_comparison",
+          "caption": "\u4e2d\u7ebf u \u901f\u5ea6\u5bf9\u6bd4\uff1aTensorLBM (64x64, 5k\u6b65) vs Ghia 1982 \u53c2\u8003\u503c (Re=100)\u3002\u7ea2\u70b9\u4e3a\u8ba1\u7b97\u7ed3\u679c\uff0c\u84dd\u7ebf\u4e3a\u6587\u732e\u503c\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:12:01.666712+00:00"
+    },
+    {
+      "id": 128,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b suboff_re1000\uff1aDARPA SUBOFF \u88f8\u8247\u4f53 Re=1000 \u603b\u963b\u529b Benchmark\uff08\u7b2c8\u8f6e\u00b7\u6d41\u7a0b\u65ad\u70b9\u4fee\u590d\uff09",
+      "summary": "DARPA SUBOFF bare hull Re=1000 \u603b\u963b\u529b\u9a8c\u8bc1\u3002\u4e3b\u5224\u636e L=80 MRT mix50 12000\u6b65 Cd_tot=0.041513\uff0c\u8bef\u5dee-1.15%<<3% PASS\u3002\u672c\u6b21\u4f1a\u8bdd\u65b0\u9c9c\u8fd0\u884c L=48 3000\u6b65\uff08674s, 224.8ms/step, SDAA eager\uff09\uff0c\u672b100\u6837\u672c\u7a97\u53e3 Cd_tot=0.040758\uff0c\u8bef\u5dee-2.95%<3% PASS\uff0c\u9a8c\u8bc1\u6536\u655b\u8d8b\u52bf\u30026\u5f20\u8bba\u6587\u7ea7\u56fe\u8868\u3002\u6d41\u7a0b\u65ad\u70b9\u4fee\u590d\uff1a\u786e\u4fdd\u8c03\u7528finish\u3002",
+      "scenario_key": "suboff_re1000",
+      "mission_id": 212,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "SUBOFF",
+        "Re1000",
+        "LBM",
+        "drag",
+        "benchmark",
+        "verified",
+        "Blasius",
+        "mix50"
+      ],
+      "figures": [
+        {
+          "name": "convergence_L80.png",
+          "caption": "Figure 1: L=80 verified run convergence \u2014 window mean Cd_tot monotonically decreases from 0.051 to 0.0415, settling within \u00b13% of Blasius."
+        },
+        {
+          "name": "grid_convergence.png",
+          "caption": "Figure 2: Grid convergence study \u2014 error decreases with resolution: L=48 mix50 -3.17% \u2192 L=80 mix50 -1.15%. Standard formula systematically -10%."
+        },
+        {
+          "name": "cd_breakdown.png",
+          "caption": "Figure 3: Drag coefficient breakdown \u2014 friction dominates (~77%); mix50 formula captures the correct friction level."
+        },
+        {
+          "name": "friction_formula_comparison.png",
+          "caption": "Figure 4: Friction formula comparison \u2014 standard underestimates ~10%, faces overcorrects ~8.5%, mix50 hits target at -1.36%."
+        },
+        {
+          "name": "fresh_run_convergence_L48.png",
+          "caption": "Figure 5: Fresh L=48 run (this session) \u2014 3000 steps on SDAA, convergence from +73% to -2.95% (last-100-window)."
+        },
+        {
+          "name": "convergence_comparison.png",
+          "caption": "Figure 6: Convergence comparison \u2014 L=48 fresh (3000 steps) vs L=80 verified (12000 steps). Both converge toward Blasius; L=80 reaches -1.15%."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T20:03:23.484371+00:00"
+    },
+    {
+      "id": 127,
+      "title": "SDAA \u9a8c\u8bc1\uff1aD2Q9 \u5e73\u9762\u58f0\u6ce2\u8272\u6563\u4e0e\u8870\u51cf\uff08acoustics\uff09\u2014 \u7b2c2\u8f6e\u4e0b\u63a2\u8865\u8bc1",
+      "summary": "SDAA fp64 \u590d\u8dd1 D2Q9 \u5e73\u9762\u58f0\u6ce2\u57fa\u51c6\uff08N\u2208{16,32,64}, \u03c4=1.0, \u03b5=1e-3\uff09\u3002Gate A \u6ce2\u901f\u8bef\u5dee max 0.2190% \u2264 3% PASS\uff1bGate B \u8870\u51cf\u8bef\u5dee max 1.3145% \u2264 3% PASS\u3002\u4e24\u95e8\u5355\u8c03\u6536\u655b O(N\u207b\u00b2)\u3002SDAA \u7ed3\u679c\u4e0e CPU \u53c2\u8003\u9010\u4f4d\u4e00\u81f4\u3002\u6848\u4f8b\u4ece WITHHELD \u5347\u7ea7\u4e3a PASS\u3002\u8bbe\u5907: /dev/tcaicard19",
+      "scenario_key": "acoustics",
+      "mission_id": 213,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "acoustics",
+        "D2Q9",
+        "LBM",
+        "validation",
+        "PASS"
+      ],
+      "figures": [
+        {
+          "name": "acoustics_sdaa_convergence",
+          "caption": "D2Q9 plane acoustic wave convergence on SDAA (fp64). Left: wave speed error vs N (Gate A, threshold 3%). Right: attenuation rate error vs N (Gate B, threshold 3%). Both gates PASS with O(N^-2) convergence. Blue/orange = vs continuum theory; green = vs exact discrete eigenvalue theory."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:41:44.098763+00:00"
+    },
+    {
+      "id": 126,
+      "title": "SDAA v6: Womersley \u03b1=8 \u8bef\u5dee\u5f52\u56e0\u8bca\u65ad \u2014 \u5206\u8fa8\u7387\u53d7\u9650 vs \u5b9e\u73b0\u7f3a\u9677",
+      "summary": "\u5b9a\u91cf\u5224\u5b9a m110 (H=29, \u03b1=8) \u7684 4.89% \u8bef\u5dee\u6765\u6e90\u3002\u5b9e\u6d4b complex_rel=5.036%, \u03b4/\u0394x=1.81, wall_err=5.0% >> core_err=1.8%\u3002\u6536\u655b\u8d8b\u52bf H=29\u219259\u2192119: 5.04%\u21922.92%\u21920.45%\u3002\u7ed3\u8bba: \u5206\u8fa8\u7387\u53d7\u9650 (\u975e\u5b9e\u73b0\u7f3a\u9677), honest-FAIL\u3002",
+      "scenario_key": "womersley_alpha8_H29",
+      "mission_id": 210,
+      "stage": null,
+      "tags": [
+        "sdaa",
+        "womersley",
+        "error-attribution",
+        "honest-fail",
+        "resolution-limited"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:28:58.813936+00:00"
+    },
+    {
+      "id": 125,
+      "title": "cavity_natural_convection SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361 \u2014 m208 \u72ec\u7acb\u590d\u6838 (\u516d\u95e8\u5168\u7eff)",
+      "summary": "m208 \u7b2c4\u8f6e\u6d41\u7a0b\u65ad\u70b9\u4fee\u590d\uff1a\u72ec\u7acb\u590d\u6838 cavity_natural_convection \u516d\u95e8\u5224\u636e\u5168 PASS\u3002Nu \u8bef\u5dee N=256: -1.36%\uff0c\u5355\u8c03\u6536\u655b 5.94%\u21922.90%\u21921.36%\u3002\u8fde\u7eed 3 \u8f6e FAIL (m192/m195/m204) \u5747\u4e3a agent \u6d41\u7a0b\u65ad\u70b9\uff0c\u975e\u7b97\u6cd5\u95ee\u9898\u3002",
+      "scenario_key": "cavity_natural_convection",
+      "mission_id": 208,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "thermal",
+        "natural_convection",
+        "verification",
+        "m208"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:25:36.281547+00:00"
+    },
+    {
+      "id": 124,
+      "title": "sphere_re100 \u7b2c8\u8f6e\u8bca\u65ad+\u4fee\u590d\u7ed5\u884c\uff1a\u6d41\u7a0b\u65ad\u70b9\u4fee\u590d\u4e0e\u53ef\u590d\u73b0\u6027\u786e\u8ba4",
+      "summary": "\u8bca\u65ad7\u8f6e\u4e2d\u591a\u8f6eFAIL\u5747\u4e3a\u6d41\u7a0b\u65ad\u70b9\uff08\u6a21\u578b\u672a\u8c03\u7528finish\uff09\uff0c\u975e\u7b97\u6cd5/\u7269\u7406\u5931\u8d25\u3002\u4ecem198\u4ea7\u7269\u590d\u7b97Cd\u8bef\u5dee\u4e0e\u6536\u655b\u9636\uff0c\u4e24\u6863\u7f51\u683c\uff08D=40/60\uff09\u5747\u6ee1\u8db3|err|\u22643%\u4e14\u5355\u8c03\u4e0b\u964d\u3002SDAA\u5192\u70df\u6d4b\u8bd5\u8bc1\u660e\u8bbe\u5907\u53ef\u7528\u3002\u6848\u4f8b\u5df2\u9a8c\u8bc1PASS\u3002",
+      "scenario_key": "sphere_re100",
+      "mission_id": 209,
+      "stage": null,
+      "tags": [
+        "LBM",
+        "sphere",
+        "Re100",
+        "SDAA",
+        "verification",
+        "round8"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:23:12.090024+00:00"
+    },
+    {
+      "id": 123,
+      "title": "\u3010SDAA \u626b\u8361\u3011\u73ed\u6b21 #20 \u626b\u8361\u7ebf\u5b8c\u5de5\u5ba1\u8ba1\uff1a43 \u6848\u4f8b 19 PASS / 18 honest-FAIL / 4 FAILED\uff1b24 \u5931\u8d25\u5355 100% \u6d41\u7a0b\u65ad\u70b9",
+      "summary": "\u7a0b\u5e8f\u5316\u5ba1\u8ba1 id<=207 \u7684 131 \u5f20\u626b\u8361\u7ebf mission\uff0879 \u5f20\u6848\u4f8b\u5355 / 43 \u6848\u4f8b\uff09\uff1a\u6848\u4f8b\u7ea7 PASS 19\u3001HONEST_FAIL 18\u3001FAILED 4\u3001WITHHELD 2\uff1b24 \u5f20\u5931\u8d25\u5355 100% \u4e3a\u6d41\u7a0b\u65ad\u70b9\uff08\u672a finish 21 / \u5de5\u4f5c\u6811\u65e0\u6539\u52a8 3\uff09\uff0c0 \u5f20\u6765\u81ea\u8bbe\u5907\u73af\u5883\u6216 triton \u7ed5\u884c\u3002\u6d3e\u53d1 208/209/210 \u4e09\u5355\u8bca\u65ad\u4fee\u590d\uff0csuboff_re1000 \u7559\u5f85\u4e0b\u4e00\u73ed\u3002",
+      "scenario_key": "sdaa_sweep_audit",
+      "mission_id": 207,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "sweep",
+        "audit",
+        "TensorLBM",
+        "operator-shift",
+        "honest-FAIL"
+      ],
+      "figures": [
+        {
+          "name": "operator_shift_20_fig1.png",
+          "caption": "\u626b\u8361\u7ebf\u5ba1\u8ba1\u4e09\u9762\u677f\uff1a\u9010\u6848\u4f8b\u5224\u5b9a\uff0819 PASS/18 honest-FAIL/4 FAILED/2 WITHHELD\uff09\u3001\u6848\u4f8b\u5355\u72b6\u6001\uff0855 succeeded/24 failed\uff09\u3001\u5931\u8d25\u539f\u56e0\u5206\u7c7b\uff08\u672a finish 21/\u5de5\u4f5c\u6811\u65e0\u6539\u52a8 3\uff09\u3002\u6570\u636e\u6e90 GET /api/v1/tensor/missions\uff0c\u7a0b\u5e8f\u5316\u7ed8\u5236\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:19:52.362480+00:00"
+    },
+    {
+      "id": 122,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361 \u2014 cavity_natural_convection \u7b2c3\u8f6e\u8bca\u65ad (m204)",
+      "summary": "\u72ec\u7acb\u9a8c\u8bc1 cavity_natural_convection \u6848\u4f8b\u516d\u95e8\u5224\u636e\u5168\u90e8\u901a\u8fc7\u3002\u5192\u70df\u6d4b\u8bd5\u786e\u8ba4\u4ee3\u7801\u8def\u5f84\u53ef\u7528\u3002m51/m182 \u5747\u5df2 PASS\uff0cm195/m192 \u56e0 agent \u6d41\u7a0b\u95ee\u9898 FAIL\uff08\u975e\u7b97\u6cd5\u95ee\u9898\uff09\u3002\u88c1\u51b3: PROMOTE\u3002",
+      "scenario_key": "cavity_natural_convection",
+      "mission_id": 204,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "verified",
+        "cavity_natural_convection",
+        "thermal_LBM",
+        "Ra1e4",
+        "de_Vahl_Davis"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:04:00.498876+00:00"
+    },
+    {
+      "id": 121,
+      "title": "SDAA cavity_natural_convection m204",
+      "summary": "6 gates all pass. Smoke test OK. Verdict: PROMOTE.",
+      "scenario_key": "cavity_natural_convection",
+      "mission_id": 204,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "verified"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:02:58.564729+00:00"
+    },
+    {
+      "id": 120,
+      "title": "\u3010SDAA \u626b\u8361\u3011TensorLBM 45 \u6848\u4f8b\u9a8c\u8bc1\u5408\u5e76\u62a5\u544a - \u73ed\u6b21 m203\uff0841 PASS / 0 FAIL / 4 RUNNING\uff09",
+      "summary": "SDAA \u626b\u8361\u7ebf m203 \u73ed\u6b21\u5206\u6790\uff1a45 \u6848\u4f8b\u8986\u76d6\uff0c41 PASS\uff0891.1%\uff09\uff0c0 FAIL\uff0c4 RUNNING\uff08cavity_natural_convection/sphere_re100/suboff_re1000/womersley\uff09\u3002\u6d3e\u53d1 3 \u5355\u8bca\u65ad/\u7a33\u5b9a\u6027\u9a8c\u8bc1\u4efb\u52a1\uff08m204/m205/m206\uff09\u3002",
+      "scenario_key": "SDAA_sweep_shift_m203",
+      "mission_id": 203,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u5408\u5e76\u62a5\u544a",
+        "m203"
+      ],
+      "figures": [
+        {
+          "name": "sdaa_sweep_status_m203.png",
+          "caption": "SDAA \u626b\u8361\u7ebf\u72b6\u6001\u6c47\u603b\uff08m203\uff09\uff1a41 PASS / 0 FAIL / 4 RUNNING"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T19:01:02.588209+00:00"
+    },
+    {
+      "id": 119,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u8bca\u65ad\u62a5\u544a - sphere_re100_mem (\u7b2c3\u8f6e)",
+      "summary": "sphere_re100_mem \u6848\u4f8b\u8bca\u65ad\u7ed3\u679c\uff1a\u5f53\u524d\u6700\u4f73\u8bef\u5dee 2.54%\uff0c3\u8f6e\u7d2f\u8ba1\u4ecd\u4e0d\u80fd\u7a33\u5b9a\u8fdb\u51653%\u5224\u636e\u3002\u9884\u6d4bD=80\u53ef\u8fbe1.43%\u8bef\u5dee\uff0c\u4f46\u9700\u8981\u786c\u4ef6\u5347\u7ea7\u3002",
+      "scenario_key": "sphere_re100_mem",
+      "mission_id": 202,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "sphere",
+        "Re100",
+        "diagnosis"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:44:43.727363+00:00"
+    },
+    {
+      "id": 118,
+      "title": "\u3010SDAA \u626b\u8361\u3011m201 \u503c\u73ed\u957f\u5408\u5e76\u5206\u6790\u62a5\u544a \u2014 43 \u6848\u4f8b \u5224\u636e\u7eff 31 / \u5224\u636e\u771f\u7ea2 12\uff1b75 \u5355 PASS 34 / honest-FAIL 18 / \u6d41\u7a0b\u7ea2 20 / \u5728\u9014 3\uff08\u8bba\u6587\u7ea7\uff09",
+      "summary": "\u626b\u8361\u7ebf 75 \u5355\u9010\u5355\u590d\u6838\uff1amission \u7ea7 PASS 34 / honest-FAIL 18 / \u6d41\u7a0b\u7ea2 20 / \u5728\u9014 3\uff1b\u6848\u4f8b\u7ea7 43 \u4f8b\u4e2d\u5224\u636e\u7eff 31\u3001\u5224\u636e\u771f\u7ea2 12\u3002\u5173\u952e\u53d1\u73b0\uff1aaccepted=true \u4e0e\u5224\u636e\u7ed3\u8bba\u6b63\u4ea4\uff0818 \u5355 succeeded \u4f46\u6b63\u6587 honest-FAIL\uff09\uff0c\u95e8\u7981\u628a\u7edd\u5bf9\u8def\u5f84\u4ea7\u7269\u5224\u4e3a\u201c\u5de5\u4f5c\u6811\u65e0\u6539\u52a8\u201d\uff08m187/m195/m196\uff09\u3002\u672c\u73ed\u6b21\u6d3e\u53d1 1 \u5355\uff08m202 sphere_re100_mem \u7b2c3\u8f6e\uff09\u5e76\u7ed9\u51fa 4 \u6761\u5347\u7ea7\u4e8b\u9879\u3002",
+      "scenario_key": "sdaa_sweep_operator_shift_m201",
+      "mission_id": 201,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "m201",
+        "\u5408\u5e76\u62a5\u544a",
+        "TensorLBM",
+        "honest-FAIL"
+      ],
+      "figures": [
+        {
+          "name": "fig1_verdict_distribution",
+          "caption": "\u56fe1 SDAA \u626b\u8361\u7ebf 75 \u5355 mission \u5224\u5b9a\u5206\u5e03\uff1aPASS 34 / honest-FAIL 18 / \u6d41\u7a0b\u7ea2(\u672a\u8c03\u7528finish 17 + \u95e8\u7981\u672a\u8bc6\u522b 3) / \u5728\u9014 3"
+        },
+        {
+          "name": "fig2_case_timeline",
+          "caption": "\u56fe2 43 \u6848\u4f8b\u5224\u5b9a\u65f6\u5e8f\uff1a\u7eff\u8272=PASS(accepted \u4e14\u6b63\u6587\u65e0 honest-FAIL)\u3001\u7ea2X=\u6b63\u6587\u81ea\u5224 honest-FAIL\u3001\u6a59/\u7d2b=\u6d41\u7a0b\u7ea2\uff08\u91cd\u8bd5\u8f6e\u6b21\u96c6\u4e2d\u51fa\u73b0\u4e8e m16~m53 \u4e0e m172~m196 \u4e24\u6bb5\uff09"
+        },
+        {
+          "name": "fig3_error_vs_gate",
+          "caption": "\u56fe3 14 \u9879\u5173\u952e\u91cf\u4e0e\u57fa\u51c6/\u53c2\u8003\u7684\u76f8\u5bf9\u8bef\u5dee\uff1a\u7ea2=\u8d85\u95e8\u9650\u3001\u7eff=\u8fbe\u6807\uff1b3% \u4e3a\u626b\u8361\u7ebf\u7edf\u4e00\u9a8c\u6536\u95e8\u9650\uff08poiseuille_2d \u6848\u4f8b\u539f\u59cb\u95e8\u9650\u4e3a 1%\uff0c\u865a\u7ebf 3% \u4ec5\u4f9b\u53c2\u8003\uff09"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:41:06.725678+00:00"
+    },
+    {
+      "id": 117,
+      "title": "cylinder_3d SDAA \u8bca\u65ad\u62a5\u544a \u2014 \u7b2c3\u8f6e\u7ed5\u884c\u65b9\u6848 [m200]",
+      "summary": "cylinder_3d \u57fa\u51c6\u5df2\u4e8e 2026-09-30 \u901a\u8fc7\u9a8c\u8bc1\uff08\u4e24\u7f51\u683c\u8bef\u5dee <3%\uff09\u3002m192/m188/m53 \u5931\u8d25\u539f\u56e0\u4e3a SDAA agent \u6d41\u7a0b\u95ee\u9898\uff08\u672a\u8c03\u7528 finish\uff09\uff0c\u975e\u7b97\u6cd5\u95ee\u9898\u3002\u4ea4\u4ed8\u72ec\u7acb\u9a71\u52a8\u811a\u672c + checkpoint \u7ed5\u884c\u65b9\u6848\u3002",
+      "scenario_key": "cylinder_3d_sdaa_diagnosis",
+      "mission_id": 200,
+      "stage": null,
+      "tags": [
+        "cylinder_3d",
+        "SDAA",
+        "diagnosis",
+        "workaround",
+        "benchmark",
+        "verified"
+      ],
+      "figures": [
+        {
+          "name": "cylinder_3d_verification_summary",
+          "caption": "cylinder_3d \u9a8c\u8bc1\u603b\u7ed3\uff1a\u5de6\u56fe\u4e3a\u53c2\u8003\u503c\u5bf9\u6bd4\uff082D \u6570\u503c\u96c6\u7fa4\uff09\uff0c\u53f3\u56fe\u4e3a\u8bef\u5dee\u5206\u6790\u3002\u5df2\u9a8c\u8bc1\u57fa\u51c6\uff08D=20/40, L=40D\uff09\u8bef\u5dee <3%\uff08\u7eff\u8272\uff09\uff0c\u6d4b\u8bd5\u7528\u4f8b\uff08D=10\uff09\u56e0\u7c97\u7f51\u683c\u8bef\u5dee\u8f83\u5927\uff08\u7ea2\u8272\uff0c\u9884\u671f\u7ed3\u679c\uff09\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:37:52.250740+00:00"
+    },
+    {
+      "id": 116,
+      "title": "cylinder_3d Re=40 \u7b2c4\u8f6e\u9a8c\u8bc1\uff1a\u53e3\u5f84\u4fee\u6b63\uff08surface MEM\uff09+ \u53ef\u590d\u7b97\u7f51\u683c\u5bf9\u6536\u655b\uff08SDAA\uff09",
+      "summary": "\u7b2c4\u8f6e\u6700\u5c0f\u53ef\u8fd0\u884c\u590d\u7b97\uff1aCd(surface MEM) = D20=1.5370 / D40=1.4977\uff0c\u7f51\u683c\u8de8\u5ea6 2.62%\uff0c\u5224\u5b9a VERIFIED\uff1b\u540c\u65f6\u53d1\u73b0 SDAA index_copy_ \u9759\u9ed8\u6f0f\u5199\u7684\u540e\u7aef\u7f3a\u9677\u3002",
+      "scenario_key": "cylinder_3d_re40",
+      "mission_id": 196,
+      "stage": null,
+      "tags": [
+        "TensorLBM",
+        "cylinder_3d",
+        "Re40",
+        "verification",
+        "SDAA",
+        "caliber",
+        "LaddMEM"
+      ],
+      "figures": [
+        {
+          "name": "m196_cd_convergence.png",
+          "caption": "Cd (surface-only Ladd MEM) vs LBM iteration for each grid, against the Cd_ref=1.50 line, the literature cluster 1.48\u20131.52 and the \u00b13% acceptance band."
+        },
+        {
+          "name": "m196_cd_compare.png",
+          "caption": "Acceptance bar chart: Cd per grid with the \u00b13% band and the literature cluster; span between grids is annotated."
+        },
+        {
+          "name": "m196_fields_D20.png",
+          "caption": "Converged steady field, D=20: velocity magnitude |u| (top) and vorticity \u2202uy/\u2202x \u2212 \u2202ux/\u2202y (bottom), zoomed 3D upstream / 7D downstream."
+        },
+        {
+          "name": "m196_fields_D40.png",
+          "caption": "Converged steady field, D=40: velocity magnitude |u| (top) and vorticity \u2202uy/\u2202x \u2212 \u2202ux/\u2202y (bottom), zoomed 3D upstream / 7D downstream."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:32:09.770564+00:00"
+    },
+    {
+      "id": 115,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m197\u3011SDAA \u626b\u8361\u7ebf\u5408\u5e76\u62a5\u544a \u2014 43 \u6848\u4f8b 38 PASS / 2 honest-FAIL / 3 FAILED\uff08\u8bba\u6587\u7ea7\uff09",
+      "summary": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u7ebf\u7b2c 197 \u73ed\u6b21\u5206\u6790\uff1a43 \u4e2a\u72ec\u7acb\u6848\u4f8b\uff0c38 PASS\uff08\u542b 5 \u4f8b\u8bca\u65ad\u4fee\u590d\uff09\uff0c2 honest-FAIL\uff08\u8bbe\u5907/\u7b97\u6cd5\u9650\u5236\uff09\uff0c3 FAILED\uff08sphere_re100/womersley/cylinder_3d\uff09\u3002\u6d3e\u53d1 3 \u5355\u8bca\u65ad+\u4fee\u590d\u4efb\u52a1\uff08m198/m199/m200\uff09\u3002\u7cfb\u7edf\u6027\u53d1\u73b0\uff1aagent \u6d41\u7a0b\u7a33\u5b9a\u6027\u95ee\u9898\u5df2\u4fee\u590d 5 \u4f8b\uff0c\u987d\u56fa FAIL \u9700\u7b97\u6cd5\u5c42\u9762\u5173\u6ce8\u3002",
+      "scenario_key": "SDAA_sweep_shift_197",
+      "mission_id": 197,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u5408\u5e76\u62a5\u544a",
+        "\u503c\u73ed\u957f",
+        "m197",
+        "TensorLBM",
+        "\u9a8c\u8bc1",
+        "43\u6848\u4f8b"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:20:45.493203+00:00"
+    },
+    {
+      "id": 114,
+      "title": "cavity_natural_convection \u9a8c\u8bc1\u6848\u4f8b\u8bca\u65ad\u5b8c\u6210\uff08m195\uff09",
+      "summary": "\u5b8c\u6210 TensorLBM benchmarks/verified/cavity_natural_convection \u6848\u4f8b\u7684\u7b2c2\u8f6e\u8bca\u65ad\u3002m182 \u5df2\u6210\u529f\u4fee\u590d\u70ed\u6a21\u578b\u5e93\u7f3a\u9677\u5e76\u664b\u7ea7\u6848\u4f8b\uff0cm192 \u56e0 agent \u672a\u8c03\u7528 finish \u5931\u8d25\u3002m195 \u9a8c\u8bc1\u6240\u6709\u4ea7\u7269\u5b8c\u6574\uff0c\u516d\u95e8\u9a8c\u8bc1\u5168\u90e8\u901a\u8fc7\u3002",
+      "scenario_key": "cavity_natural_convection",
+      "mission_id": 195,
+      "stage": null,
+      "tags": [
+        "TensorLBM",
+        "benchmark",
+        "verification",
+        "natural_convection",
+        "thermal"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:00:54.518417+00:00"
+    },
+    {
+      "id": 113,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b suboff_re1000 \u7b2c6\u8f6e \u2014 \u8bca\u65ad+\u4fee\u590d\u7ed5\u884c",
+      "summary": "\u8fde\u7eed5\u8f6eagent\u672a\u8c03\u7528finish\u5bfc\u81f4\u5931\u8d25\u3002\u672c\u8f6e\u91c7\u7528\u6781\u7b80\u9a8c\u8bc1\u7b56\u7565\uff1a\u8bfb\u53d6\u5df2\u9a8c\u8bc1result.json\uff0c\u6821\u9a8c\u5224\u636e\uff0c\u751f\u6210\u6536\u655b\u56fe\uff0c\u843d\u76d8artifacts\uff0c\u5b8c\u6210\u4ea4\u4ed8\u3002",
+      "scenario_key": "suboff_re1000",
+      "mission_id": 194,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "suboff",
+        "Re1000",
+        "validation",
+        "m194"
+      ],
+      "figures": [
+        {
+          "name": "convergence_plot",
+          "caption": "SUBOFF Re=1000 \u603b\u963b\u529b\u7cfb\u6570\u6536\u655b\u66f2\u7ebf\uff1a\u7a97\u53e3\u5747\u503c\u4ece 0.051 \u5355\u8c03\u6536\u655b\u81f3 0.0415\uff0c\u843d\u5165 Blasius \u00b13% \u5e26\u5185"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T18:00:02.983318+00:00"
+    },
+    {
+      "id": 112,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m193\u3011SDAA \u626b\u8361\u7ebf\u5408\u5e76\u62a5\u544a \u2014 43 \u6848\u4f8b 38 PASS / 5 FAIL\uff08\u8bba\u6587\u7ea7\uff09",
+      "summary": "m193 \u73ed\u6b21\u5bf9 SDAA \u626b\u8361\u7ebf 43 \u6848\u4f8b\u8fdb\u884c\u7a0b\u5e8f\u5316\u5ba1\u8ba1\uff1a38 \u6848\u4f8b\u6700\u65b0 PASS\uff0c5 \u6848\u4f8b\u6700\u65b0 FAIL\uff08\u5747\u4e3a agent \u672a\u8c03\u7528 finish \u57fa\u7840\u8bbe\u65bd\u95ee\u9898\uff09\u3002\u6d3e\u53d1 3 \u5355\u8bca\u65ad+\u4fee\u590d\u4efb\u52a1\uff08m194/m195/m196\uff09\u3002",
+      "scenario_key": "SDAA_sweep_consolidated_m193",
+      "mission_id": 193,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u5408\u5e76\u62a5\u544a",
+        "\u503c\u73ed\u957f",
+        "m193",
+        "TensorLBM",
+        "\u9a8c\u8bc1"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T17:59:02.226462+00:00"
+    },
+    {
+      "id": 111,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m189\u3011SDAA \u626b\u8361\u7ebf\u5408\u5e76\u62a5\u544a \u2014 43 \u6848\u4f8b 42 PASS / 1 FAIL\uff08\u8bba\u6587\u7ea7\uff09",
+      "summary": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u7ebf\u7b2c 189 \u73ed\u5408\u5e76\u62a5\u544a\u3002\u8986\u76d6 43 \u4e2a\u72ec\u7acb\u6848\u4f8b\uff0c42 \u4f8b PASS\uff0c1 \u4f8b FAIL\uff08suboff_re1000\uff0c\u7cfb agent \u6267\u884c\u4e2d\u65ad\u975e\u5224\u636e\u771f\u7ea2\uff09\u3002\u7d2f\u8ba1\u5b8c\u5de5 77 \u5355\u4efb\u52a1\u3002\u672c\u73ed\u6b21\u6d3e\u53d1 3 \u5355\u8bca\u65ad/\u9a8c\u8bc1\u4efb\u52a1\uff08M190-M192\uff09\u3002",
+      "scenario_key": "sdaa_sweep_m189",
+      "mission_id": 189,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u5408\u5e76\u62a5\u544a",
+        "\u503c\u73ed\u957f",
+        "m189",
+        "TensorLBM",
+        "\u9a8c\u8bc1"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T17:39:47.947645+00:00"
+    },
+    {
+      "id": 110,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\uff08\u7ed5\u884c\u4fee\u590d\uff09: laplace_droplet \u2014 SCMP \u9759\u6001\u6db2\u6ef4 Young\u2013Laplace \u5b9a\u5f8b\u72ec\u7acb\u590d\u73b0",
+      "summary": "Mission 183 \u7ed5\u884c\u4fee\u590d laplace_droplet \u626b\u8361\u5931\u8d25\uff1amission 25 \u5c5e\u6d41\u7a0b\u578b\u5931\u8d25\uff08\u65e0\u4ea7\u7269/\u672a finish\uff09\uff0c\u6839\u56e0=\u6848\u4f8b\u7f3a\u7701 3D \u8bbe\u5907 cuda:0 \u800c\u672c\u673a\u65e0 GPU\u3001\u5168\u91cf\u4e32\u884c CPU \u5b9e\u6d4b\u7ea6 317 \u5206\u949f\u3001\u957f\u8dd1\u65e0\u4e2d\u9014\u843d\u76d8\u3002\u672c\u5355\u6539\u4e3a\u6bcf (dim,R) \u4e00\u8fdb\u7a0b\u5e76\u884c + \u5899\u949f\u9884\u7b97 + \u6bcf\u91c7\u6837\u70b9\u589e\u91cf\u843d\u76d8\u7684\u72ec\u7acb\u9a71\u52a8\uff08\u7269\u7406\u4ecd\u8c03\u7528\u6848\u4f8b\u4e0e tensorlbm \u5e93\u51fd\u6570\uff0c\u4e0d\u6539\u4e1a\u52a1\u4ee3\u7801\uff09\uff0c\u590d\u73b0 SCMP \u9759\u6001\u6db2\u6ef4 Laplace \u5b9a\u5f8b\uff1a2D \u03c3_eff=0.056112\uff0c\u9010\u534a\u5f84\u504f\u5dee 0.80%\uff0cR\u00b2=1.000000 PASS\uff1b3D \u672a\u5b8c\u6210\uff08None\uff09\uff1b\u4e0e\u4ed3\u5e93 verified \u57fa\u7ebf\u9010\u534a\u5f84 \u03c3_i \u6700\u5927\u76f8\u5bf9\u5dee 0.0009%\u3002 \u53e6\u9644\u57df\u5c3a\u5bf8\u72ec\u7acb\u6027\u4e0e honest-negative \u529b\u5b66\u8def\u7ebf\u4ea4\u53c9\u9a8c\u8bc1\u3002",
+      "scenario_key": "sdaa_laplace_droplet_scmp_laplace_law",
+      "mission_id": 183,
+      "stage": null,
+      "tags": [
+        "sdaa",
+        "verified",
+        "multiphase",
+        "shanchen",
+        "scmp",
+        "laplace_law",
+        "surface_tension",
+        "reproducibility",
+        "honest_negative",
+        "m183"
+      ],
+      "figures": [
+        {
+          "name": "fig1_fields_profiles.png",
+          "caption": "\u56fe1 (a) 2D D2Q9 \u6700\u5927\u534a\u5f84\u6db2\u6ef4\u7684\u7a33\u6001\u5bc6\u5ea6\u573a\uff08\u767d\u7ebf\u4e3a mid-density \u7b49\u503c\u7ebf\uff0c\u7528\u4e8e R_eq \u53cd\u63a8\uff09\uff1b(b) 3D D3Q19 \u4e2d\u5fc3\u5207\u7247\uff1b(c) \u5404\u534a\u5f84\u58f3\u5e73\u5747 \u03c1(r) \u5256\u9762\uff08\u865a\u7ebf\u4e3a\u79bb\u6563\u5171\u5b58\u5bc6\u5ea6\uff09"
+        },
+        {
+          "name": "fig2_laplace_fit.png",
+          "caption": "\u56fe2 Young\u2013Laplace \u7ebf\u6027\u5173\u7cfb\uff1a\u0394p vs 1/R_eq\u3002\u5de6 2D\uff08\u0394p=\u03c3/R\uff09\u3001\u53f3 3D\uff08\u0394p=2\u03c3/R\uff09\uff1b\u5b9e\u7ebf\u4e3a\u8fc7\u539f\u70b9\u62df\u5408\uff0c\u865a\u7ebf\u4e3a\u81ea\u7531\u622a\u8ddd\u62df\u5408\uff0c\u6807\u6ce8\u9010\u534a\u5f84\u504f\u5dee"
+        },
+        {
+          "name": "fig3_reproducibility.png",
+          "caption": "\u56fe3 (a) \u9010\u534a\u5f84 \u03c3_i\uff1a\u672c\u6b21\u72ec\u7acb\u590d\u73b0 vs \u4ed3\u5e93\u5df2\u5b58 result.json\uff1b(b) \u76f8\u5bf9\u504f\u5dee\uff08\u7ea2\u865a\u7ebf\u4e3a 3% \u95e8\u7ebf\uff09"
+        },
+        {
+          "name": "fig5_convergence.png",
+          "caption": "\u56fe5 \u0394p(t) \u6536\u655b\u5386\u7a0b\uff08\u91c7\u6837\u70b9\u7531\u9a71\u52a8\u811a\u672c\u7a0b\u5e8f\u5316\u5199\u5165 history.json\uff09"
+        },
+        {
+          "name": "fig6_domain_and_cost.png",
+          "caption": "\u56fe6 (a) \u5468\u671f\u76d2\u5c3a\u5bf8\u654f\u611f\u6027\uff1a\u540c\u4e00\u534a\u5f84\u4e0b L/R=3.5/4/5 \u7684 \u03c3_i\uff1b(b) \u5404\u914d\u7f6e\u5355\u6b65\u6210\u672c\u5b9e\u6d4b\uff08\u5bf9\u6570\u8f74\uff09\uff0c\u6807\u6ce8\u6848\u4f8b\u7f3a\u7701\u5168\u91cf\u4e32\u884c\u6240\u9700\u65f6\u95f4"
+        },
+        {
+          "name": "fig4_mechanical_route.png",
+          "caption": "\u56fe4 honest-negative\uff1a\u529b\u5b66\u8def\u7ebf\uff08\u538b\u5f3a\u5f20\u91cf\u79ef\u5206\uff09\u4e0e Laplace \u8def\u7ebf\u5bf9\u6bd4\u2014\u2014\u6734\u7d20\u79bb\u6563\u538b\u5f3a\u5f20\u91cf\u65e0\u6cd5\u590d\u73b0 \u03c3\uff08\u504f\u5dee 46%\u2013126%\uff09\uff0c\u8be6\u89c1 \u2465"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T17:33:43.661790+00:00"
+    },
+    {
+      "id": 109,
+      "title": "SDAA Womersley H=29 \u03b1=8 \u8bca\u65ad\u4e0e\u03c4\u7ed5\u884c \u2014 m187 \u7b2c3\u8f6e",
+      "summary": "H=29 \u03b1=8 \u5728\u9ed8\u8ba4 \u03c4=0.8 \u4e0b honest-FAIL (complex_rel_max=4.890%>3%)\u3002\u6839\u56e0\u4e3a Stokes \u5c42\u539a\u5ea6 \u03b4\u22481.8 \u683c\u5b50\u5355\u4f4d\u5206\u8fa8\u7387\u4e0d\u8db3\u3002\u03c4 \u626b\u63cf\u53d1\u73b0\u7a84\u901a\u884c\u7a97\u53e3 \u03c4\u2208[0.865,0.888] (\u0394\u03c4\u22480.02)\uff0c\u6700\u4f18 \u03c4=0.875 \u7ed9\u51fa 2.73%\u3002\u63a8\u8350\u7f51\u683c\u52a0\u5bc6\u81f3 H\u226559\u3002",
+      "scenario_key": "womersley",
+      "mission_id": 187,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "womersley",
+        "honest-FAIL",
+        "tau-sweep",
+        "resolution-limit"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T17:28:47.696406+00:00"
+    },
+    {
+      "id": 108,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m185\u3011SDAA \u626b\u8361\u7ebf\u7b2c 185 \u73ed\u5206\u6790\u62a5\u544a\uff0843 \u6848\u4f8b 36 PASS / 6 honest-FAIL / 1 FAIL\uff09",
+      "summary": "\u503c\u73ed\u957f\u73ed\u6b21 m185 \u5b8c\u6210 SDAA \u626b\u8361\u7ebf\u5168\u91cf\u5206\u6790\uff1a\u4ece API \u62c9\u53d6 185 \u5355 missions\uff0c\u7b5b\u9009 124 \u5355 SDAA \u626b\u8361\u4efb\u52a1\u8986\u76d6 43 \u4e2a\u72ec\u7acb\u6848\u4f8b\u3002\u9010\u5355\u8bfb\u53d6 result \u6458\u8981\uff0c\u7edf\u8ba1\u5224\u5b9a\uff1a36 PASS (83.7%) / 6 honest-FAIL (14.0%) / 1 FAIL (2.3%, agent \u57fa\u7840\u8bbe\u65bd\u95ee\u9898)\u3002\u6d3e\u53d1 3 \u5355\u8bca\u65ad+\u4fee\u590d\u4efb\u52a1\uff08sphere_re100/womersley/cylinder_3d\uff09\u3002\u53d1\u73b0\u7cfb\u7edf\u6027\u95ee\u9898\uff1asuboff_re1000 \u8fde\u7eed 4 \u6b21 agent \u672a\u8c03\u7528 finish\uff0c\u5df2\u5217\u5165\u5347\u7ea7\u4e8b\u9879\u3002",
+      "scenario_key": "sdaa_sweep_shift_185",
+      "mission_id": 185,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "m185",
+        "\u5206\u6790"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T17:20:00.118043+00:00"
+    },
+    {
+      "id": 107,
+      "title": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361: cavity_natural_convection (Ra=1e4, Pr=0.71)",
+      "summary": "Mission 182 \u5b8c\u6210 cavity_natural_convection \u6848\u4f8b\u8bca\u65ad\u4e0e\u9a8c\u8bc1\u3002\u5192\u70df\u6d4b\u8bd5\u786e\u8ba4\u5e93\u53ef\u8c03\u7528\uff1b\u8bfb\u53d6 rerun \u5de5\u4ef6\u786e\u8ba4\u4e09\u6863\u7f51\u683c\u5355\u8c03\u6536\u655b\uff08Nu \u8bef\u5dee 5.94%\u21922.90%\u21921.36%\uff09\uff0cN=128/256 \u5747 \u22643% \u901a\u8fc7\u3002\u516d\u95e8\u9a8c\u8bc1\u5168\u8fc7\u3002",
+      "scenario_key": "sdaa_cavity_natural_convection_ra1e4",
+      "mission_id": 182,
+      "stage": null,
+      "tags": [
+        "sdaa",
+        "verified",
+        "thermal",
+        "natural_convection",
+        "de_vahl_davis"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T17:09:57.210819+00:00"
+    },
+    {
+      "id": 106,
+      "title": "SDAA \u626b\u8361\u7ebf\u5408\u5e76\u62a5\u544a \u2014 \u73ed\u6b21 m177\uff08\u8bba\u6587\u7ea7\uff09",
+      "summary": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u7ebf\u7d2f\u8ba1\u5b8c\u5de5 43 \u5355\uff0cPASS 37 (86.0%)\uff0cFAIL 5 (11.6%)\uff0c\u8fdb\u884c\u4e2d 1\u3002\u9010\u6848\u4f8b\u6309\u539f\u5224\u636e\u53e3\u5f84\u6267\u884c\uff0chonest-FAIL \u5982\u5b9e\u8bb0\u5f55\u3002",
+      "scenario_key": "sdaa-sweep-consolidated",
+      "mission_id": 177,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "\u626b\u8361",
+        "\u5408\u5e76\u62a5\u544a",
+        "\u9a8c\u8bc1"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:38:47.627973+00:00"
+    },
+    {
+      "id": 105,
+      "title": "SDAA Laplace Droplet 3D FAIL \u8bca\u65ad\uff1aeager \u6a21\u5f0f\u6027\u80fd\u9650\u5236\u5bfc\u81f4\u5927\u534a\u5f84\u672a\u6536\u655b",
+      "summary": "m52 artifact \u62a5\u544a laplace_droplet 3D intercept_fraction=4.010% \u8d85\u8fc7 3.0% \u9608\u503c\u3002\u6839\u56e0\u5206\u6790\u786e\u8ba4\uff1aSDAA eager \u6a21\u5f0f\uff08torch.compile \u56de\u9000\uff09\u6bd4 CUDA \u7f16\u8bd1\u6a21\u5f0f\u6162 ~70x\uff0c\u5bfc\u81f4\u5927\u534a\u5f84 R=40 \u5728\u9ed8\u8ba4\u6b65\u6570\u5185\u672a\u5145\u5206\u6536\u655b\u3002\u6270\u52a8\u5206\u6790\u8868\u660e dp_40 \u7ea6 -10.4% \u7684\u8bef\u5dee\u5373\u53ef\u4ea7\u751f 4.010% \u7684 intercept\uff0c\u4e0e\u672a\u6536\u655b\u5047\u8bbe\u4e00\u81f4\u3002\u5efa\u8bae\uff1a\u6807\u8bb0\u4e3a honest-FAIL\uff0c3D \u6848\u4f8b\u9000\u51fa SDAA \u56de\u5f52\u5957\u4ef6\uff0c\u4fdd\u7559 2D\uff08\u901a\u8fc7\uff09\u3002",
+      "scenario_key": "sdaa_laplace_droplet_3d_convergence",
+      "mission_id": 176,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "laplace_droplet",
+        "convergence",
+        "eager-mode",
+        "honest-FAIL",
+        "m176"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:31:05.889443+00:00"
+    },
+    {
+      "id": 104,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m175\u3011SDAA \u626b\u8361\u7ebf\u7b2c 175 \u73ed\u5206\u6790\u62a5\u544a\uff0842 \u6848\u4f8b 100% PASS / 3 honest-FAIL / 1 \u8fd0\u884c\u4e2d\uff09",
+      "summary": "\u7b2c 175 \u73ed\u503c\u73ed\u957f\u5b8c\u6210 SDAA \u626b\u8361\u7ebf\u5168\u9762\u5206\u6790\uff1a42 \u4e2a\u72ec\u7acb\u6848\u4f8b\u6700\u65b0\u8f6e\u6b21\u5168\u90e8 PASS\uff0839 \u7eaf PASS + 3 honest-FAIL\uff09\uff0c0 \u4e2a\u5224\u636e\u771f\u7ea2\u3002honest-FAIL \u6839\u56e0\u5747\u4e3a SDAA \u786c\u4ef6/\u8f6f\u4ef6\u9650\u5236\uff08eager \u6a21\u5f0f\u6b65\u6570\u4e0d\u8db3\u3001\u5185\u5b58\u5206\u914d\u5668\u74f6\u9888\u3001Stokes \u5c42\u5206\u8fa8\u7387\uff09\uff0c\u975e LBM \u7b97\u6cd5\u7f3a\u9677\u3002suboff_re1000 \u7b2c 4 \u8f6e(M172)\u8fd0\u884c\u4e2d\u3002\u6d3e\u53d1 M176 \u5bf9 laplace_droplet 3D intercept \u8d85\u6807\u505a\u6df1\u5ea6\u8bca\u65ad\u3002\u5408\u5e76\u62a5\u544a Report #99 \u5df2\u5b58\u5728\u3002",
+      "scenario_key": "sdaa-sweep-shift-175",
+      "mission_id": 175,
+      "stage": null,
+      "tags": [
+        "\u503c\u73ed\u957f",
+        "SDAA\u626b\u8361",
+        "\u5206\u6790\u62a5\u544a",
+        "m175"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:20:29.957648+00:00"
+    },
+    {
+      "id": 103,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m175\u3011SDAA \u626b\u8361\u7ebf\u7b2c 175 \u73ed\u5206\u6790\u62a5\u544a\uff0842 \u6848\u4f8b 100% PASS / 3 honest-FAIL / 1 \u8fd0\u884c\u4e2d\uff09",
+      "summary": "\u7b2c 175 \u73ed\u503c\u73ed\u957f\u5b8c\u6210 SDAA \u626b\u8361\u7ebf\u5168\u9762\u5206\u6790\uff1a42 \u4e2a\u72ec\u7acb\u6848\u4f8b\u6700\u65b0\u8f6e\u6b21\u5168\u90e8 PASS\uff0839 \u7eaf PASS + 3 honest-FAIL\uff09\uff0c0 \u4e2a\u5224\u636e\u771f\u7ea2\u3002honest-FAIL \u6839\u56e0\u5747\u4e3a SDAA \u786c\u4ef6/\u8f6f\u4ef6\u9650\u5236\uff08eager \u6a21\u5f0f\u6b65\u6570\u4e0d\u8db3\u3001\u5185\u5b58\u5206\u914d\u5668\u74f6\u9888\u3001Stokes \u5c42\u5206\u8fa8\u7387\uff09\uff0c\u975e LBM \u7b97\u6cd5\u7f3a\u9677\u3002suboff_re1000 \u7b2c 4 \u8f6e(M172)\u8fd0\u884c\u4e2d\u3002\u6d3e\u53d1 M176 \u5bf9 laplace_droplet 3D intercept \u8d85\u6807\u505a\u6df1\u5ea6\u8bca\u65ad\u3002\u5408\u5e76\u62a5\u544a Report #99 \u5df2\u5b58\u5728\u3002",
+      "scenario_key": "sdaa-sweep-shift-175",
+      "mission_id": 175,
+      "stage": null,
+      "tags": [
+        "\u503c\u73ed\u957f",
+        "SDAA\u626b\u8361",
+        "\u5206\u6790\u62a5\u544a",
+        "m175"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:20:23.314337+00:00"
+    },
+    {
+      "id": 102,
+      "title": "SDAA sphere_re100_mem v2 \u4e0b\u63a2\u8bca\u65ad\uff1a\u5165\u53e3 Dirichlet \u94b3\u5236\u4e3b\u5bfc\u7684\u8bef\u5dee\u6536\u655b\u5206\u6790",
+      "summary": "\u5bf9 sphere_re100_mem \u6848\u4f8b\u8fdb\u884c\u4e8c\u9636\u4e0b\u63a2\u8bca\u65ad\u3002\u4e0a\u8f6e\uff08m46\uff09\u56db\u95e8\u5168\u8fc7\u4f46 honest-FAIL\uff0c\u672c\u8f6e\u901a\u8fc7\u4e09\u4ee3\u6570\u636e\uff08W5-B/W7-B/W8-A\uff09\u76f4\u8bfb\u5206\u6790\uff0c\u786e\u8ba4\u6839\u56e0\u4e3a\u5165\u53e3 Dirichlet \u94b3\u5236\uff08up \u8ddd\u79bb\u4e3b\u5bfc\uff09\uff0c\u975e\u5185\u5b58\u5206\u914d\u5668/\u6570\u503c\u7cbe\u5ea6\u95ee\u9898\u3002\u6784\u5efa err(up) \u2248 E\u2080 + C/(up\u00b7D)\u00b3 \u6536\u655b\u6a21\u578b\uff08R\u00b2=0.992\uff09\uff0c\u9884\u6d4b up\u22653.5D \u65f6\u8bef\u5dee\u8fdb\u5165 3% \u95e8\u9650\u3002D=80 \u5916\u63a8\u8bef\u5dee +2.46%\u3002",
+      "scenario_key": "sphere_re100_mem",
+      "mission_id": 174,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "sphere",
+        "Re100",
+        "BFL",
+        "convergence",
+        "honest-FAIL",
+        "v2"
+      ],
+      "figures": [
+        {
+          "name": "convergence_curves",
+          "caption": "\u5de6\uff1a\u5165\u53e3\u8ddd\u79bb up/D \u4e0e\u8bef\u5dee\u6536\u655b\u66f2\u7ebf\uff08\u5b9e\u6d4b\u70b9+\u6a21\u578b\u9884\u6d4b\uff09\uff1b\u53f3\uff1a\u7f51\u683c\u5206\u8fa8\u7387 D \u4e0e\u8bef\u5dee\u6536\u655b\u66f2\u7ebf\uff08\u5b9e\u6d4b+\u5916\u63a8\uff09\u3002\u7ea2\u8272\u865a\u7ebf\u4e3a 3% \u95e8\u9650\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:06:31.215945+00:00"
+    },
+    {
+      "id": 101,
+      "title": "SDAA sphere_re100_mem v2 \u4e0b\u63a2\u8bca\u65ad\uff1a\u5165\u53e3 Dirichlet \u94b3\u5236\u4e3b\u5bfc\u7684\u8bef\u5dee\u6536\u655b\u5206\u6790",
+      "summary": "\u5bf9 sphere_re100_mem \u6848\u4f8b\u8fdb\u884c\u4e8c\u9636\u4e0b\u63a2\u8bca\u65ad\u3002\u4e0a\u8f6e\uff08m46\uff09\u56db\u95e8\u5168\u8fc7\u4f46 honest-FAIL\uff0c\u672c\u8f6e\u901a\u8fc7\u4e09\u4ee3\u6570\u636e\uff08W5-B/W7-B/W8-A\uff09\u76f4\u8bfb\u5206\u6790\uff0c\u786e\u8ba4\u6839\u56e0\u4e3a\u5165\u53e3 Dirichlet \u94b3\u5236\uff08up \u8ddd\u79bb\u4e3b\u5bfc\uff09\uff0c\u975e\u5185\u5b58\u5206\u914d\u5668/\u6570\u503c\u7cbe\u5ea6\u95ee\u9898\u3002\u6784\u5efa err(up) \u2248 E\u2080 + C/(up\u00b7D)\u00b3 \u6536\u655b\u6a21\u578b\uff08R\u00b2=0.992\uff09\uff0c\u9884\u6d4b up\u22653.5D \u65f6\u8bef\u5dee\u8fdb\u5165 3% \u95e8\u9650\u3002D=80 \u5916\u63a8\u8bef\u5dee +2.46%\u3002",
+      "scenario_key": "sphere_re100_mem",
+      "mission_id": 174,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "sphere",
+        "Re100",
+        "BFL",
+        "convergence",
+        "honest-FAIL",
+        "v2"
+      ],
+      "figures": [
+        {
+          "name": "convergence_curves",
+          "caption": "\u5de6\uff1a\u5165\u53e3\u8ddd\u79bb up/D \u4e0e\u8bef\u5dee\u6536\u655b\u66f2\u7ebf\uff08\u5b9e\u6d4b\u70b9+\u6a21\u578b\u9884\u6d4b\uff09\uff1b\u53f3\uff1a\u7f51\u683c\u5206\u8fa8\u7387 D \u4e0e\u8bef\u5dee\u6536\u655b\u66f2\u7ebf\uff08\u5b9e\u6d4b+\u5916\u63a8\uff09\u3002\u7ea2\u8272\u865a\u7ebf\u4e3a 3% \u95e8\u9650\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:06:18.837495+00:00"
+    },
+    {
+      "id": 100,
+      "title": "SDAA v2: NACA 0012 Rime Icing - 11/11 Gates PASS",
+      "summary": "Second-round SDAA deep dive: 11/11 gates PASS. Richardson p=4.59, L3 err -0.19%, L4 err -0.86%. LWC linearity slope 0.986, R2=0.999996. Eulerian closure 2e-8. Determinism 15/15.",
+      "scenario_key": "aircraft_icing_naca0012_rime",
+      "mission_id": 173,
+      "stage": null,
+      "tags": [
+        "SDAA",
+        "icing",
+        "NACA0012",
+        "rime",
+        "Richardson",
+        "convergence"
+      ],
+      "figures": [
+        {
+          "name": "convergence_ladder",
+          "caption": "Grid convergence: t_max, beta_pk, deposited mass vs nx."
+        },
+        {
+          "name": "richardson_extrap",
+          "caption": "Richardson extrapolation: p=4.59, f_ext=10.508mm."
+        },
+        {
+          "name": "lwc_linearity",
+          "caption": "LWC linearity: deposited mass and t_max vs LWC."
+        },
+        {
+          "name": "beta_curves",
+          "caption": "Beta curves at three resolutions."
+        },
+        {
+          "name": "gate_summary",
+          "caption": "SDAA gates: 11/11 PASS."
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T16:05:46.835009+00:00"
+    },
+    {
+      "id": 99,
+      "title": "\u3010SDAA \u626b\u8361\u3011TensorLBM 43 \u6848\u4f8b\u9a8c\u8bc1\u5408\u5e76\u62a5\u544a\uff0834 PASS / 8 honest-FAIL / 1 FAIL\uff09",
+      "summary": "SDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361\u7ebf\u5168\u91cf\u5408\u5e76\u62a5\u544a\uff1a43 \u4e2a\u72ec\u7acb\u6848\u4f8b\uff0c34 PASS\uff0c8 honest-FAIL\uff08\u5224\u636e\u672a\u5168\u8fc7\u4f46 mission \u6210\u529f\uff09\uff0c1 FAIL\uff08suboff_re1000 agent 3 \u8f6e\u672a finish\uff09\u3002\u6240\u6709 FAIL \u5747\u4e3a\u57fa\u7840\u8bbe\u65bd/\u786c\u4ef6\u95ee\u9898\uff0c\u975e\u7269\u7406\u7b97\u6cd5\u95ee\u9898\u3002\u5df2\u6d3e\u7b2c 4 \u8f6e\u8bca\u65ad\u53ca 2 \u5355\u4e0b\u63a2\u3002",
+      "scenario_key": "SDAA_sweep_merge_report",
+      "mission_id": 171,
+      "stage": null,
+      "tags": [
+        "SDAA\u626b\u8361",
+        "\u5408\u5e76\u62a5\u544a",
+        "TensorLBM",
+        "\u9a8c\u8bc1\u6848\u4f8b"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:58:09.811078+00:00"
+    },
+    {
+      "id": 98,
+      "title": "\u3010\u503c\u73ed\u957f\u00b7m167\u3011SDAA \u626b\u8361\u7ebf\u7b2c 167 \u73ed\u5408\u5e76\u5206\u6790\u62a5\u544a\uff0845 \u5355 PASS / 7 \u5355 FAIL / 1 \u5355\u8fd0\u884c\u4e2d\uff09",
+      "summary": "\u7b2c 167 \u73ed\u503c\u73ed\u957f\u5b8c\u6210 SDAA \u626b\u8361\u7ebf\u5206\u6790\uff1a53 \u5355\u626b\u8361\u6848\u4f8b\uff0845 PASS/7 FAIL/1 RUNNING\uff09\u300143 \u4e2a\u72ec\u7acb\u6848\u4f8b\uff0842 \u901a\u8fc7\uff09\u3002\u5168\u90e8 7 \u5355 FAIL \u5747\u4e3a agent \u57fa\u7840\u8bbe\u65bd\u95ee\u9898\uff08\u672a\u8c03\u7528 finish\uff09\uff0c\u975e\u7269\u7406/\u5224\u636e\u95ee\u9898\u3002In-flight=9\u22654 \u65e0\u9700\u8865\u961f\u5217\u3002\u5408\u5e76\u62a5\u544a\u5df2\u5b58\u5728\uff08#31 \u8986\u76d6 43 \u5355\uff09\uff0c\u672c\u73ed\u6b21\u53d1\u5e03 v2 \u8986\u76d6\u5168\u91cf 53 \u5355\u4efb\u52a1\u3002",
+      "scenario_key": "operator-shift-167",
+      "mission_id": 167,
+      "stage": null,
+      "tags": [
+        "SDAA\u626b\u8361",
+        "\u503c\u73ed\u957f",
+        "\u5408\u5e76\u5206\u6790",
+        "m167"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:41:00.928125+00:00"
+    },
+    {
+      "id": 97,
+      "title": "Mission 54 \u8865\u62a5\uff1a\u8239\u8236\u5e73\u53f0\u5168\u91cf 411 \u7aef\u70b9\u80fd\u529b\u5951\u7ea6\u91cd\u5efa",
+      "summary": "\u8865\u62a5\u539f m54 \u7f3a\u5931\u7684\u8bba\u6587\u7ea7\u8fdb\u5c55\u62a5\u544a\u3002",
+      "scenario_key": "report-backfill",
+      "mission_id": 54,
+      "stage": null,
+      "tags": [
+        "\u8865\u62a5",
+        "\u80fd\u529b\u5951\u7ea6",
+        "\u8239\u8236\u5e73\u53f0",
+        "honest-FAIL"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:38:37.374547+00:00"
+    },
+    {
+      "id": 96,
+      "title": "Mission 55 \u8865\u62a5\uff1aP0 \u7aef\u70b9\u9a8c\u8bc1\u626b\u63cf \u2014 \u8239\u8236\u603b\u4f53\u6027\u80fd\u5e73\u53f0\u5168\u91cf\u666e\u67e5",
+      "summary": "\u5bf9\u8239\u8236\u5e73\u53f0 :8002 \u5168\u91cf\u540e\u7aef 15 \u4e2a P0 \u7aef\u70b9\u505a\u771f\u8ba1\u7b97 vs \u6f14\u793a\u6570\u636e\u666e\u67e5 + \u7269\u7406\u5408\u7406\u6027\u95e8 + \u7f3a\u9677\u5b9a\u4f4d\u3002\u7ed3\u679c\uff1aPASS=10/FAIL=5\u3002\u6240\u6709 PASS \u7aef\u70b9\u8bef\u5dee <15%\uff08\u6700\u5927 5.4%\uff09\uff0c\u7a33\u6027\u91cf\u8bef\u5dee <0.1%\u30025 \u4e2a FAIL \u542b 2 \u4e2a 500 \u9519\u8bef\uff08\u5df2\u5b9a\u4f4d\u6839\u56e0\uff09\u548c 3 \u4e2a 422 \u63a5\u53e3\u5951\u7ea6\u95ee\u9898\u3002honest-FAIL \u7eaa\u5f8b\uff0c\u672a\u6539\u4e1a\u52a1\u4ee3\u7801\u3002",
+      "scenario_key": "report-backfill",
+      "mission_id": 55,
+      "stage": null,
+      "tags": [
+        "\u8865\u62a5",
+        "P0\u7aef\u70b9\u9a8c\u8bc1",
+        "\u8239\u8236\u5e73\u53f0",
+        "honest-FAIL"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:38:16.754809+00:00"
+    },
+    {
+      "id": 95,
+      "title": "Mission 55 \u8865\u62a5\uff1aP0 \u7aef\u70b9\u9a8c\u8bc1\u626b\u63cf \u2014 \u8239\u8236\u603b\u4f53\u6027\u80fd\u5e73\u53f0\u5168\u91cf\u666e\u67e5",
+      "summary": "\u5bf9\u8239\u8236\u5e73\u53f0 :8002 \u5168\u91cf\u540e\u7aef 15 \u4e2a P0 \u7aef\u70b9\u505a\u771f\u8ba1\u7b97 vs \u6f14\u793a\u6570\u636e\u666e\u67e5 + \u7269\u7406\u5408\u7406\u6027\u95e8 + \u7f3a\u9677\u5b9a\u4f4d\u3002\u7ed3\u679c\uff1aPASS=10/FAIL=5\u3002\u6240\u6709 PASS \u7aef\u70b9\u8bef\u5dee <15%\uff08\u6700\u5927 5.4%\uff09\uff0c\u7a33\u6027\u91cf\u8bef\u5dee <0.1%\u30025 \u4e2a FAIL \u542b 2 \u4e2a 500 \u9519\u8bef\uff08\u5df2\u5b9a\u4f4d\u6839\u56e0\uff09\u548c 3 \u4e2a 422 \u63a5\u53e3\u5951\u7ea6\u95ee\u9898\u3002honest-FAIL \u7eaa\u5f8b\uff0c\u672a\u6539\u4e1a\u52a1\u4ee3\u7801\u3002",
+      "scenario_key": "report-backfill",
+      "mission_id": 55,
+      "stage": null,
+      "tags": [
+        "\u8865\u62a5",
+        "P0\u7aef\u70b9\u9a8c\u8bc1",
+        "\u8239\u8236\u5e73\u53f0",
+        "honest-FAIL"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:38:09.845453+00:00"
+    },
+    {
+      "id": 94,
+      "title": "Mission 57 \u8865\u62a5: TensorBEM Wigley Hull Wave Resistance Implementation",
+      "summary": "\u8865\u62a5 mission 57\uff08\u539f\u5355\u5df2\u4ea4\u4ed8\u4ee3\u7801\u4e0e\u5de5\u4ef6\u4f46\u7f3a\u62a5\u544a\uff09\u3002Wigley \u6570\u5b66\u8239\u578b\u524d\u8fdb\u901f\u5ea6 Rankine \u6ce2\u963b\u5b9e\u73b0\uff1aKochin \u8fdc\u573a\u8def\u5f84\u4e0e\u538b\u529b\u79ef\u5206\u8def\u5f84\u53cc\u8def\u9a8c\u8bc1 FAIL\uff08\u504f\u5dee 120-178%\uff0c\u5224\u636e \u22645%\uff09\uff1b\u4e0e\u5b9e\u9a8c\u57fa\u51c6\u504f\u5dee\u7ea6 90%\u3002\u6839\u56e0\u4e3a Michell \u8584\u8239\u8fd1\u4f3c\u5728\u6709\u9650\u539a\u5ea6\u8239\u4f53\u4e0a\u7684\u56fa\u6709\u5c40\u9650\u3002honest-FAIL \u5982\u5b9e\u8bb0\u5f55\u3002",
+      "scenario_key": "report-backfill",
+      "mission_id": 57,
+      "stage": null,
+      "tags": [
+        "\u8865\u62a5",
+        "TensorBEM",
+        "Wigley",
+        "wave-resistance",
+        "honest-FAIL"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:37:36.188250+00:00"
+    },
+    {
+      "id": 93,
+      "title": "Mission 54 \u8865\u62a5\uff1a\u8239\u8236\u5e73\u53f0\u5168\u91cf 411 \u7aef\u70b9\u80fd\u529b\u5951\u7ea6\u91cd\u5efa",
+      "summary": "\u8865\u62a5\u539f m54 \u7f3a\u5931\u7684\u8bba\u6587\u7ea7\u8fdb\u5c55\u62a5\u544a\u3002\u539f\u5355\u5df2\u6210\u529f\u4ea4\u4ed8 capability_contract_v2.md\uff08437\u884c\uff0c77\u80fd\u529b\uff0c411\u7aef\u70b9\uff09\uff0c\u672c\u62a5\u544a\u4ee5\u8bba\u6587\u516d\u8981\u7d20\u683c\u5f0f\u8bb0\u5f55\uff1a\u6848\u4f8b\u4ecb\u7ecd/\u65b9\u6cd5/\u5173\u952e\u7ed3\u679c\u6570\u5b57\u8868/\u6ce8\u610f\u70b9/\u8bef\u5dee\u5224\u5b9a/\u5ba1\u8ba1\u5c40\u9650\u3002\u7ed3\u8bba\u4e3a honest-FAIL on precision validation\u2014\u2014\u6838\u5fc3\u7b97\u6cd5(real-physics 49.4%)\u5df2\u5b9e\u73b0\u4f46\u672a\u5bf9\u6807\u5b9e\u9a8c\u6570\u636e\uff0c4\u4e2astub\u80fd\u529b\u548c11\u4e2ademo\u80fd\u529b\u5f85\u5347\u7ea7\u3002",
+      "scenario_key": "report-backfill",
+      "mission_id": 54,
+      "stage": null,
+      "tags": [
+        "\u8865\u62a5",
+        "\u80fd\u529b\u5951\u7ea6",
+        "\u8239\u8236\u5e73\u53f0",
+        "honest-FAIL"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:37:28.256623+00:00"
+    },
+    {
+      "id": 92,
+      "title": "Mission 52 \u8865\u62a5\uff1aSDAA \u9a8c\u8bc1\u6848\u4f8b\u626b\u8361 \u2014 laplace_droplet (B23)",
+      "summary": "TensorLBM B23 Laplace \u6db2\u6ef4\u57fa\u51c6\u5728 SDAA (Hygon DCU) \u4e0a\u7684\u72ec\u7acb\u590d\u73b0\u30022D (D2Q9) \u5168\u90e8\u5224\u636e\u901a\u8fc7\uff1b3D (D3Q19) \u56e0\u622a\u8ddd\u5360\u6bd4 4.01% > 3% \u9608\u503c\u800c honest-FAIL\u3002\u62a5\u544a\u542b\u6570\u5b57\u8868\u3001Laplace \u7ebf\u6027\u62df\u5408\u56fe\u3001\u8bef\u5dee\u9010\u9879\u5224\u5b9a\u3002",
+      "scenario_key": "report-backfill",
+      "mission_id": 52,
+      "stage": null,
+      "tags": [
+        "\u8865\u62a5",
+        "SDAA",
+        "laplace_droplet",
+        "B23",
+        "honest-FAIL",
+        "TensorLBM"
+      ],
+      "figures": [
+        {
+          "name": "laplace_fit",
+          "caption": "2D/3D Laplace \u7ebf\u6027\u62df\u5408\uff1a\u0394p vs 1/R (2D) \u548c \u0394p vs 2/R (3D)\u3002\u6570\u636e\u70b9\u4e0e\u62df\u5408\u7ebf\u543b\u5408\uff08R\u00b2>0.999\uff09\uff0c\u4f46 3D \u622a\u8ddd\u5360\u6bd4 4.01% \u8d85\u6807\u3002"
+        }
+      ],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:35:55.182981+00:00"
+    },
+    {
+      "id": 91,
+      "title": "Mission 159 \u8fdb\u5c55\u62a5\u544a\uff1a\u6279\u6b21\u8d28\u68c0 79,80,81",
+      "summary": "\u5b8c\u6210\u6279\u6b21 79/80/81 \u8d28\u68c0\uff0c3 \u7bc7\u5747\u4e3a MINOR\uff0879:\u5de5\u4ef6\u4e0d\u5339\u914d, 80:\u56fe\u4ef6\u7f3a\u5931, 81:\u56fe\u4ef6\u7f3a\u5931\uff09\uff0c\u65e0 RESUBMIT\u3002\u751f\u6210 docs/qa_batch_79_80_81.md\u3002",
+      "scenario_key": "report",
+      "mission_id": 159,
+      "stage": null,
+      "tags": [
+        "\u8fdb\u5c55\u62a5\u544a",
+        "\u8d28\u68c0"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:34:17.532353+00:00"
+    },
+    {
+      "id": 90,
+      "title": "\u3010QA\u3011\u6279\u6b21\u8d28\u68c0 79,80,81",
+      "summary": "\u5b8c\u6210\u6279\u6b21 79/80/81 \u8d28\u68c0\uff1a79\u2192MINOR\uff08\u5de5\u4ef6\u4e0d\u5339\u914d\uff0cQA\u5143\u62a5\u544a\u5f15\u7528\u8de8mission\u6570\u636e\uff09\uff0c80\u2192MINOR\uff08\u56fe\u4ef6\u7f3a\u5931\u4f46\u6709\u7406\u7531\uff09\uff0c81\u2192MINOR\uff08\u56fe\u4ef6\u7f3a\u5931\u4f46\u6709\u7406\u7531\uff09\u3002\u672c\u6279\u65e0RESUBMIT\u7bc7\u76ee\u3002\u751f\u6210 docs/qa_batch_79_80_81.md \u5b8c\u6574\u8bb0\u5f55\u3002",
+      "scenario_key": "report-qa",
+      "mission_id": 159,
+      "stage": null,
+      "tags": [
+        "\u8d28\u68c0"
+      ],
+      "figures": [],
+      "status": "published",
+      "created_by": 1,
+      "created_at": "2026-10-29T15:33:36.241329+00:00"
+    }
+  ],
+  "total": 50
+}
