@@ -1,0 +1,310 @@
+{
+  "train": {
+    "split": "train",
+    "total_cases": 20,
+    "correct": 13,
+    "accuracy": 0.65,
+    "confusion_matrix": {
+      "dispatch": {
+        "dispatch": 5,
+        "reject": 6,
+        "mechanical": 0,
+        "merge": 0
+      },
+      "reject": {
+        "dispatch": 0,
+        "reject": 8,
+        "mechanical": 1,
+        "merge": 0
+      },
+      "mechanical": {
+        "dispatch": 0,
+        "reject": 0,
+        "mechanical": 0,
+        "merge": 0
+      },
+      "merge": {
+        "dispatch": 0,
+        "reject": 0,
+        "mechanical": 0,
+        "merge": 0
+      }
+    },
+    "per_class_metrics": {
+      "dispatch": {
+        "precision": 0.4545,
+        "recall": 1.0,
+        "f1": 0.625,
+        "support": 5
+      },
+      "reject": {
+        "precision": 0.8889,
+        "recall": 0.5714,
+        "f1": 0.6957,
+        "support": 14
+      },
+      "mechanical": {
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0,
+        "support": 1
+      },
+      "merge": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      }
+    },
+    "criteria_reproducibility": 1.0,
+    "cost_calibration": {
+      "avg_confidence": 0.7825,
+      "high_confidence_count": 11,
+      "low_confidence_count": 0,
+      "note": "成本预估校准需实际运行数据回填后计算"
+    },
+    "errors": [
+      {
+        "case_id": "report8-md5-typo",
+        "title": "报告 8 MD5 typo",
+        "source_case": "2026-10-31",
+        "predicted_verdict": "reject",
+        "actual_verdict": "mechanical",
+        "confidence": 0.95,
+        "correct": false,
+        "reasoning": "匹配僵尸单模式: MD5.*typo",
+        "gt_rationale": "MD5 typo，sed 批量替换即可，不值 140 次工具调用",
+        "target_predicted": null,
+        "target_actual": "data-quality"
+      },
+      {
+        "case_id": "hist-fail-03",
+        "title": "耐波性模块频域到时域转换",
+        "source_case": "history_failed",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "算法不稳定，需重新设计",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "hist-fail-02",
+        "title": "推进模块空泡模型集成",
+        "source_case": "history_failed",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "技术风险高，近期失败",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "hist-fail-01",
+        "title": "阻力模块湍流模型切换",
+        "source_case": "history_failed",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "高风险改动，近期失败过",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "zombie-sample-02",
+        "title": "返工：推进效率优化",
+        "source_case": "zombie",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "返工单，目标已被覆盖",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "zombie-sample-04",
+        "title": "返工：操纵性导数修正",
+        "source_case": "zombie",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "返工单，目标已被覆盖",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "zombie-sample-01",
+        "title": "返工：阻力系数计算修正",
+        "source_case": "zombie",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.85,
+        "correct": false,
+        "reasoning": "匹配好单模式: m5[4-5]\\d",
+        "gt_rationale": "返工单，目标已被覆盖",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      }
+    ],
+    "error_count": 7,
+    "error_rate": 0.35
+  },
+  "held_out": {
+    "split": "held_out",
+    "total_cases": 12,
+    "correct": 7,
+    "accuracy": 0.5833,
+    "confusion_matrix": {
+      "dispatch": {
+        "dispatch": 3,
+        "reject": 4,
+        "mechanical": 0,
+        "merge": 0
+      },
+      "reject": {
+        "dispatch": 0,
+        "reject": 4,
+        "mechanical": 1,
+        "merge": 0
+      },
+      "mechanical": {
+        "dispatch": 0,
+        "reject": 0,
+        "mechanical": 0,
+        "merge": 0
+      },
+      "merge": {
+        "dispatch": 0,
+        "reject": 0,
+        "mechanical": 0,
+        "merge": 0
+      }
+    },
+    "per_class_metrics": {
+      "dispatch": {
+        "precision": 0.4286,
+        "recall": 1.0,
+        "f1": 0.6,
+        "support": 3
+      },
+      "reject": {
+        "precision": 0.8,
+        "recall": 0.5,
+        "f1": 0.6154,
+        "support": 8
+      },
+      "mechanical": {
+        "precision": 0,
+        "recall": 0.0,
+        "f1": 0,
+        "support": 1
+      },
+      "merge": {
+        "precision": 0,
+        "recall": 0,
+        "f1": 0,
+        "support": 0
+      }
+    },
+    "criteria_reproducibility": 1.0,
+    "cost_calibration": {
+      "avg_confidence": 0.7458,
+      "high_confidence_count": 5,
+      "low_confidence_count": 0,
+      "note": "成本预估校准需实际运行数据回填后计算"
+    },
+    "errors": [
+      {
+        "case_id": "report-dup-34",
+        "title": "报告 34/35/36 三份全同重复",
+        "source_case": "2026-10-31",
+        "predicted_verdict": "reject",
+        "actual_verdict": "mechanical",
+        "confidence": 0.95,
+        "correct": false,
+        "reasoning": "匹配僵尸单模式: 重复.*报告",
+        "gt_rationale": "三份报告 MD5 相同，脚本去重即可",
+        "target_predicted": null,
+        "target_actual": "data-quality"
+      },
+      {
+        "case_id": "hist-fail-04",
+        "title": "操纵性模块 MMG 模型参数辨识",
+        "source_case": "history_failed",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "参数辨识问题，需更多数据",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "hist-fail-05",
+        "title": "稳性模块大倾角稳性计算",
+        "source_case": "history_failed",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "精度问题，需改进算法",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "zombie-sample-03",
+        "title": "返工：耐波性 RAO 修正",
+        "source_case": "zombie",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "返工单，目标已被覆盖",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      },
+      {
+        "case_id": "zombie-sample-05",
+        "title": "返工：稳性校核流程",
+        "source_case": "zombie",
+        "predicted_verdict": "dispatch",
+        "actual_verdict": "reject",
+        "confidence": 0.6,
+        "correct": false,
+        "reasoning": "中等复杂度，默认派单",
+        "gt_rationale": "返工单，目标已被覆盖",
+        "target_predicted": "general-improvement",
+        "target_actual": null
+      }
+    ],
+    "error_count": 5,
+    "error_rate": 0.4167
+  },
+  "dataset_metadata": {
+    "source_breakdown": {
+      "2026-10-31": 17,
+      "history_succeeded": 5,
+      "history_failed": 5,
+      "zombie": 5
+    },
+    "verdict_breakdown": {
+      "dispatch": 8,
+      "reject": 22,
+      "mechanical": 2,
+      "merge": 0
+    }
+  }
+}
