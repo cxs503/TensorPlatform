@@ -1,0 +1,249 @@
+{
+  "census_date": "2026-10-29",
+  "census_root": "/srv/tensor/workspace",
+  "repos": [
+    {
+      "repo": "TensorBEM",
+      "files": 41,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 41,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 0,
+        "numpy_only": 38,
+        "stdlib_only": 3
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorCAD",
+      "files": 58,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 58,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 5,
+        "numpy_only": 11,
+        "stdlib_only": 42
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorDEM",
+      "files": 21,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 21,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 19,
+        "numpy_only": 0,
+        "stdlib_only": 2
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorDG",
+      "files": 39,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 39,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 26,
+        "numpy_only": 9,
+        "stdlib_only": 4
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorFEM",
+      "files": 181,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 181,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 144,
+        "numpy_only": 0,
+        "stdlib_only": 37
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorFVM",
+      "files": 143,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 143,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 57,
+        "numpy_only": 79,
+        "stdlib_only": 7
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorLBM",
+      "files": 512,
+      "torch_only_pct": 99.02,
+      "triton_hits": 5,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 507,
+        "triton": 5,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 349,
+        "numpy_only": 16,
+        "stdlib_only": 142
+      },
+      "triton_files": [
+        "src/tensorlbm/_voxel_kernels.py",
+        "src/tensorlbm/triton_fused.py",
+        "src/tensorlbm/triton_fused_distributed.py",
+        "src/tensorlbm/triton_fused_obstacle.py",
+        "src/tensorlbm/triton_suboff_step_distributed.py"
+      ],
+      "ext_files": [],
+      "blockers": [
+        "triton: 5 files depend on triton"
+      ]
+    },
+    {
+      "repo": "TensorPhysics",
+      "files": 21,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 21,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 0,
+        "numpy_only": 0,
+        "stdlib_only": 21
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorPlatform",
+      "files": 609,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 609,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 20,
+        "numpy_only": 70,
+        "stdlib_only": 519
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    },
+    {
+      "repo": "TensorSPH",
+      "files": 6,
+      "torch_only_pct": 100.0,
+      "triton_hits": 0,
+      "ext_hits": 0,
+      "category_counts": {
+        "pure_torch": 6,
+        "triton": 0,
+        "cuda_ext": 0,
+        "mpi": 0,
+        "cupy": 0
+      },
+      "pure_torch_breakdown": {
+        "torch_import": 4,
+        "numpy_only": 0,
+        "stdlib_only": 2
+      },
+      "triton_files": [],
+      "ext_files": [],
+      "blockers": []
+    }
+  ],
+  "m11_validation": {
+    "status": "VALID",
+    "tensorlbm_files": 512,
+    "tensorlbm_pure_torch": 507,
+    "expected_files": 512,
+    "expected_pure_torch": 507,
+    "deviation": 0,
+    "non_pure_torch_files": [
+      "src/tensorlbm/_voxel_kernels.py",
+      "src/tensorlbm/triton_fused.py",
+      "src/tensorlbm/triton_fused_distributed.py",
+      "src/tensorlbm/triton_fused_obstacle.py",
+      "src/tensorlbm/triton_suboff_step_distributed.py"
+    ]
+  }
+}
