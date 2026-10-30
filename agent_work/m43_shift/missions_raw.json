@@ -1,0 +1,2403 @@
+{
+ "items": [
+  {
+   "id": 45,
+   "goal": "【议事会 session-001 · 质询人 · 基础设施视角：triton 无 SDAA 后端的硬约束、卡位/环境/git 断连等风险是否被低估】\n议题：对提案人的候选方向做交叉质询。\n第一步：ls /srv/tensor/agent/council/session-001/ 然后 读 00_context.md 和全部 r1-proposal-*.md。\n你的视角：基础设施视角：triton 无 SDAA 后端的硬约束、卡位/环境/git 断连等风险是否被低估。\n逐提案输出质询：①致命伤（若有）②被低估的风险 ③判据是否机器可裁（能否自动 PASS/FAIL）④预算/墙钟是否现实 ⑤缺失项；最后给你的修正建议（若有比全部提案更好的第四方向，明确说）。\n专挑错，不客气；但每条质疑必须具体、可查证，不许泛泛而谈。允许的提案缺陷要明说「非阻断」。\n【议事会纪律】只写你自己的槽位文件，严禁改动议事板其他任何文件；禁碰 GitHub/审批/不得自行派发任务；不得编造平台不存在的记录或数字；不确定处诚实标注。\n产出两份同内容文件（缺一不可）：① /srv/tensor/agent/council/session-001/r2-critique-infrastructure.md（共享议事板）；② worktree 内 docs/council/session-001/r2-critique-infrastructure.md（验收必需）。\n文档头一行写 author-model: $LLM_MODEL（读环境变量，取不到写 unknown）。完成后 finish，summary 一句话。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 2400
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "Qwen3.8-27B",
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-infra-1",
+   "session_id": 45,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:10:31.320059+00:00",
+   "heartbeat_at": "2026-10-29T13:11:15.950295+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 44,
+   "goal": "【议事会 session-001 · 质询人 · 验证视角：判据是否机器可裁、honest-FAIL 是否可能、预算/墙钟是否现实】\n议题：对提案人的候选方向做交叉质询。\n第一步：ls /srv/tensor/agent/council/session-001/ 然后 读 00_context.md 和全部 r1-proposal-*.md。\n你的视角：验证视角：判据是否机器可裁、honest-FAIL 是否可能、预算/墙钟是否现实。\n逐提案输出质询：①致命伤（若有）②被低估的风险 ③判据是否机器可裁（能否自动 PASS/FAIL）④预算/墙钟是否现实 ⑤缺失项；最后给你的修正建议（若有比全部提案更好的第四方向，明确说）。\n专挑错，不客气；但每条质疑必须具体、可查证，不许泛泛而谈。允许的提案缺陷要明说「非阻断」。\n【议事会纪律】只写你自己的槽位文件，严禁改动议事板其他任何文件；禁碰 GitHub/审批/不得自行派发任务；不得编造平台不存在的记录或数字；不确定处诚实标注。\n产出两份同内容文件（缺一不可）：① /srv/tensor/agent/council/session-001/r2-critique-verifier.md（共享议事板）；② worktree 内 docs/council/session-001/r2-critique-verifier.md（验收必需）。\n文档头一行写 author-model: $LLM_MODEL（读环境变量，取不到写 unknown）。完成后 finish，summary 一句话。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 2400
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "qwen3.6-plus",
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-ver-5",
+   "session_id": 44,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:10:26.283205+00:00",
+   "heartbeat_at": "2026-10-29T13:10:51.595473+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 43,
+   "goal": "值班长班次（分析与调度，不改业务代码）。本班次职责与硬上限：\n1) 用 run 工具 curl 登录本平台（POST /api/v1/auth/login，账号 eco_admin，密码见环境变量 TENSOR_AGENT_PASS），GET /api/v1/tensor/missions?limit=50 拉近期 mission。\n2) 分析扫荡线（goal 含「SDAA 验证案例扫荡」）完工结果：逐单读 result 摘要，统计各案例 PASS/FAIL、失败原因归类（环境/triton 绕行/判据真红/其他）。数字全部来自 API 返回，零手抄。\n3) 处置（硬上限：本班次最多派 3 单、只准派 TensorLBM 扫荡类 goal）：\n   - FAIL 案例 → 派「诊断+修复绕行」mission（goal 写明失败证据与诊断方向）\n   - 队列将空（in-flight<4）→ 按案例字母序派下探案例\n   派发用 POST /api/v1/tensor/missions（runner=native, repo=TensorLBM）。禁止派其他类型、禁止改审批、禁止碰 GitHub。\n4) 里程碑：若扫荡线累计完工 ≥10 单且尚无合并报告，POST /api/v1/tensor/reports 发布论文级合并报告（标题含「SDAA 扫荡」，逐案例判据表+FAIL 如实+设备证据汇总+局限；figures 可省略）。\n5) 交付：docs/operator_shift_<班次号>.md（本班分析表+派发清单+下一班建议），调用 finish。\n边界：只分析不伪造；任何判据红不得改口径；发现系统性问题写入「升级事项」节留给 owner。",
+   "repo": "TensorPlatform",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 60,
+    "max_wall_seconds": 1500
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-infra-2",
+   "session_id": 43,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:09:56.136671+00:00",
+   "heartbeat_at": "2026-10-29T13:11:05.028420+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 42,
+   "goal": "SDAA 验证案例扫荡——案例 sphere_re100_d3q27（TensorLBM benchmarks/verified/sphere_re100_d3q27）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_sphere_re100_d3q27.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_sphere_re100_d3q27.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/sphere_re100_d3q27.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-mod-4",
+   "session_id": 42,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:09:42.008338+00:00",
+   "heartbeat_at": "2026-10-29T13:10:45.349830+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 41,
+   "goal": "SDAA 验证案例扫荡——案例 sphere_re100（TensorLBM benchmarks/verified/sphere_re100）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_sphere_re100.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_sphere_re100.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/sphere_re100.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-doc-4",
+   "session_id": 41,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:09:36.583786+00:00",
+   "heartbeat_at": "2026-10-29T13:11:14.356236+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 40,
+   "goal": "SDAA 验证案例扫荡——案例 sod_shock_tube（TensorLBM benchmarks/verified/sod_shock_tube）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_sod_shock_tube.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_sod_shock_tube.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/sod_shock_tube.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-impl-2",
+   "session_id": 40,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:09:31.150275+00:00",
+   "heartbeat_at": "2026-10-29T13:11:12.431693+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 39,
+   "goal": "SDAA 验证案例扫荡——案例 shear_wave_decay（TensorLBM benchmarks/verified/shear_wave_decay）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_shear_wave_decay.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_shear_wave_decay.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/shear_wave_decay.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-ver-2",
+   "session_id": 39,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T13:07:25.680124+00:00",
+   "heartbeat_at": "2026-10-29T13:10:28.949599+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 38,
+   "goal": "【议事会 session-001 · 提案人 · 应用落地视角：船舶平台后端复活、工程场景案例库、对外展示与报告线自动化】\n议题：SDAA 平台（node099，32 卡满编）下一阶段任务安排。owner 只把大方向，具体安排归议事会。\n第一步：读 /srv/tensor/agent/council/session-001/00_context.md（平台现状/已有战果/硬约束/owner 方向，数字全部属实，不要重复罗列，直接用）。\n你独立提出 2-4 个候选任务方向，每个必须含：①目标（一句话）②mission 粒度拆解（每条给 repo、机器判据、预算量级）③卡位分配（32 卡怎么分）④风险与依赖⑤放弃条件（什么情况下不做）。\n你的视角：应用落地视角：船舶平台后端复活、工程场景案例库、对外展示与报告线自动化。提案要具体到今天就能派发，不要空泛口号。\n【议事会纪律】只写你自己的槽位文件，严禁改动议事板其他任何文件；禁碰 GitHub/审批/不得自行派发任务；不得编造平台不存在的记录或数字；不确定处诚实标注。\n产出两份同内容文件（缺一不可）：① /srv/tensor/agent/council/session-001/r1-proposal-applications.md（共享议事板）；② worktree 内 docs/council/session-001/r1-proposal-applications.md（验收必需）。\n文档头一行写 author-model: $LLM_MODEL（读环境变量，取不到写 unknown）。完成后 finish，summary 一句话。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 2400
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "MiniMax-M2.5-AWQ",
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-app-1",
+   "session_id": 38,
+   "result": {
+    "model": "MiniMax-M2.5-AWQ",
+    "evidence": {
+     "branch": null,
+     "checks": {
+      "gate": "no-evidence",
+      "reason": "模型未调用 finish"
+     },
+     "summary": {
+      "model": "MiniMax-M2.5-AWQ",
+      "headline": "未完成：模型未调用 finish",
+      "tool_calls": 36,
+      "changed_files": [],
+      "agent_session_id": "5b2a5a06-1931-458a-9b35-aa62bde1cbda",
+      "declared_summary": "完成 36 次工具调用（未调用 finish）"
+     },
+     "head_commit": null,
+     "finished_status": "failed"
+    },
+    "headline": "未完成：模型未调用 finish",
+    "tool_calls": 36,
+    "changed_files": [],
+    "agent_session_id": "5b2a5a06-1931-458a-9b35-aa62bde1cbda",
+    "declared_summary": "完成 36 次工具调用（未调用 finish）"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:59:21.054787+00:00",
+   "heartbeat_at": "2026-10-29T13:09:44.503793+00:00",
+   "finished_at": "2026-10-29T13:10:12.066328+00:00"
+  },
+  {
+   "id": 37,
+   "goal": "【议事会 session-001 · 提案人 · 模型与算法视角：求解器能力深化（3D/多相/自由面/DEM-FEM 等 10 库哪个先上卡）、SDAA 性能基准线】\n议题：SDAA 平台（node099，32 卡满编）下一阶段任务安排。owner 只把大方向，具体安排归议事会。\n第一步：读 /srv/tensor/agent/council/session-001/00_context.md（平台现状/已有战果/硬约束/owner 方向，数字全部属实，不要重复罗列，直接用）。\n你独立提出 2-4 个候选任务方向，每个必须含：①目标（一句话）②mission 粒度拆解（每条给 repo、机器判据、预算量级）③卡位分配（32 卡怎么分）④风险与依赖⑤放弃条件（什么情况下不做）。\n你的视角：模型与算法视角：求解器能力深化（3D/多相/自由面/DEM-FEM 等 10 库哪个先上卡）、SDAA 性能基准线。提案要具体到今天就能派发，不要空泛口号。\n【议事会纪律】只写你自己的槽位文件，严禁改动议事板其他任何文件；禁碰 GitHub/审批/不得自行派发任务；不得编造平台不存在的记录或数字；不确定处诚实标注。\n产出两份同内容文件（缺一不可）：① /srv/tensor/agent/council/session-001/r1-proposal-models.md（共享议事板）；② worktree 内 docs/council/session-001/r1-proposal-models.md（验收必需）。\n文档头一行写 author-model: $LLM_MODEL（读环境变量，取不到写 unknown）。完成后 finish，summary 一句话。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 2400
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "deepseek-v4-flash",
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-mod-2",
+   "session_id": 37,
+   "result": {
+    "model": "deepseek-v4-flash",
+    "checks": "1) sha256sum 两份产出 = 810cfbac6a7a8d0696d8bbf6f788b8257886f7b9825228d6f70debdb367e5f71（逐字节一致）。2) ls /srv/tensor/agent/council/session-001/ 仅 00_context.md 与我新增的 r1-proposal-models.md，未改议事板其他文件。3) git status --porcelain 仅 \"?? docs/council/\"（工作树内唯一改动，未 push、未改 .git 配置、未派发任务）。4) 提案中的事实均标注来源：[ctx]=00_context.md，[repo]=本 worktree 实读（benchmarks/bench_mlups.py 的 --device/--collisions/--warmup/--steps 参数与 _mlups_2d(ny,nx)；src/tensorlbm/utils.py:101 resolve_device；src/tensorlbm/hardware.py probe；benchmarks/verified/couette_2d/result.json 的 l2_rel_err/convergence/verified；benchmarks/STATUS.md 的 3%+span≤3% 口径；src/tensorlbm/regression_gate.py::evaluate_regression_gate；benchmarks/gpu_smoke_suite.py；docs/L1_BLOCK_SHARDING_DESIGN.md；benchmarks/bench_dam_break_3d.py、src/tensorlbm/phasefield）。5) 未编造：其余 9 库代码现状、SDAA 显存容量、bf16/tf32 支持、TCCL 带宽、m11 的 5 个 triton 模块清单、dam break 3D 质量漂移基线，全部标为待实测/WITHHELD，并把\"先验排序不可当结论引用\"写进条文。未跑 pytest（本任务只产出议事文档，无代码改动）。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "deepseek-v4-flash",
+      "checks": "1) sha256sum 两份产出 = 810cfbac6a7a8d0696d8bbf6f788b8257886f7b9825228d6f70debdb367e5f71（逐字节一致）。2) ls /srv/tensor/agent/council/session-001/ 仅 00_context.md 与我新增的 r1-proposal-models.md，未改议事板其他文件。3) git status --porcelain 仅 \"?? docs/council/\"（工作树内唯一改动，未 push、未改 .git 配置、未派发任务）。4) 提案中的事实均标注来源：[ctx]=00_context.md，[repo]=本 worktree 实读（benchmarks/bench_mlups.py 的 --device/--collisions/--warmup/--steps 参数与 _mlups_2d(ny,nx)；src/tensorlbm/utils.py:101 resolve_device；src/tensorlbm/hardware.py probe；benchmarks/verified/couette_2d/result.json 的 l2_rel_err/convergence/verified；benchmarks/STATUS.md 的 3%+span≤3% 口径；src/tensorlbm/regression_gate.py::evaluate_regression_gate；benchmarks/gpu_smoke_suite.py；docs/L1_BLOCK_SHARDING_DESIGN.md；benchmarks/bench_dam_break_3d.py、src/tensorlbm/phasefield）。5) 未编造：其余 9 库代码现状、SDAA 显存容量、bf16/tf32 支持、TCCL 带宽、m11 的 5 个 triton 模块清单、dam break 3D 质量漂移基线，全部标为待实测/WITHHELD，并把\"先验排序不可当结论引用\"写进条文。未跑 pytest（本任务只产出议事文档，无代码改动）。",
+      "headline": "按模型与算法视角提出 4 个可当天派发的候选方向（D1 SDAA 性能基准线 v0 / D2 用\"自校准普查脚本\"裁决 10 库中第二个上卡者 / D3 3D·多相·自由面上卡 / D4 5 个 triton 依赖模块去 triton 化 + dtype 策略），每条含目标、mission 拆解（repo+机器判据+预算卡时）、32 卡卡位分配（扫荡12/ ",
+      "git_status": "?? docs/council/\n",
+      "tool_calls": 13,
+      "changed_files": [
+       "docs/council/session-001/r1-proposal-models.md"
+      ],
+      "on_disk_changes": [
+       "docs/council/"
+      ],
+      "agent_session_id": "4bda7c21-7040-4ae5-b4a6-1d2b35ac0e4c"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "按模型与算法视角提出 4 个可当天派发的候选方向（D1 SDAA 性能基准线 v0 / D2 用\"自校准普查脚本\"裁决 10 库中第二个上卡者 / D3 3D·多相·自由面上卡 / D4 5 个 triton 依赖模块去 triton 化 + dtype 策略），每条含目标、mission 拆解（repo+机器判据+预算卡时）、32 卡卡位分配（扫荡12/ ",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/council/\n",
+    "tool_calls": 13,
+    "changed_files": [
+     "docs/council/session-001/r1-proposal-models.md"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/council/"
+    ],
+    "agent_session_id": "4bda7c21-7040-4ae5-b4a6-1d2b35ac0e4c"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:59:16.001627+00:00",
+   "heartbeat_at": "2026-10-29T13:01:20.661839+00:00",
+   "finished_at": "2026-10-29T13:01:34.746085+00:00"
+  },
+  {
+   "id": 36,
+   "goal": "【议事会 session-001 · 提案人 · 架构视角：跨库耦合阶梯、物理战役路线（参考 5090 线 wedge S0→S4 / SI 阶梯的范式）、长期技术债】\n议题：SDAA 平台（node099，32 卡满编）下一阶段任务安排。owner 只把大方向，具体安排归议事会。\n第一步：读 /srv/tensor/agent/council/session-001/00_context.md（平台现状/已有战果/硬约束/owner 方向，数字全部属实，不要重复罗列，直接用）。\n你独立提出 2-4 个候选任务方向，每个必须含：①目标（一句话）②mission 粒度拆解（每条给 repo、机器判据、预算量级）③卡位分配（32 卡怎么分）④风险与依赖⑤放弃条件（什么情况下不做）。\n你的视角：架构视角：跨库耦合阶梯、物理战役路线（参考 5090 线 wedge S0→S4 / SI 阶梯的范式）、长期技术债。提案要具体到今天就能派发，不要空泛口号。\n【议事会纪律】只写你自己的槽位文件，严禁改动议事板其他任何文件；禁碰 GitHub/审批/不得自行派发任务；不得编造平台不存在的记录或数字；不确定处诚实标注。\n产出两份同内容文件（缺一不可）：① /srv/tensor/agent/council/session-001/r1-proposal-strategy.md（共享议事板）；② worktree 内 docs/council/session-001/r1-proposal-strategy.md（验收必需）。\n文档头一行写 author-model: $LLM_MODEL（读环境变量，取不到写 unknown）。完成后 finish，summary 一句话。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 2400
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "glm-5.2",
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-arch-2",
+   "session_id": 36,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "两份文件内容一致（266 行），author-model=qwen3.7-plus（读自 $LLM_MODEL 环境变量）；未触碰议事板其他文件（00_context.md / r1-proposal-models.md 未修改）；不确定项已标注 [待验]。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "两份文件内容一致（266 行），author-model=qwen3.7-plus（读自 $LLM_MODEL 环境变量）；未触碰议事板其他文件（00_context.md / r1-proposal-models.md 未修改）；不确定项已标注 [待验]。",
+      "headline": "架构视角提案完成：提出 3 个候选方向（A 船舶阻力物理战役楔形 S0→S4 / B 跨库耦合阶梯 LBM↔FVM↔BEM SI S0→S3 / C 技术债清偿 Triton 消除+跨卡框架固化），含 mission 粒度拆解、32 卡三阶段分配表、风险依赖与放弃条件，两份同内容文件已写入共享议事板和 worktree。",
+      "git_status": "?? docs/council/\n",
+      "tool_calls": 19,
+      "changed_files": [
+       "/srv/tensor/agent/work/m36/docs/council/session-001/r1-proposal-strategy.md"
+      ],
+      "on_disk_changes": [
+       "docs/council/"
+      ],
+      "agent_session_id": "e18be2b7-dae1-4097-b7a4-8241990b6b7b"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "架构视角提案完成：提出 3 个候选方向（A 船舶阻力物理战役楔形 S0→S4 / B 跨库耦合阶梯 LBM↔FVM↔BEM SI S0→S3 / C 技术债清偿 Triton 消除+跨卡框架固化），含 mission 粒度拆解、32 卡三阶段分配表、风险依赖与放弃条件，两份同内容文件已写入共享议事板和 worktree。",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/council/\n",
+    "tool_calls": 19,
+    "changed_files": [
+     "/srv/tensor/agent/work/m36/docs/council/session-001/r1-proposal-strategy.md"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/council/"
+    ],
+    "agent_session_id": "e18be2b7-dae1-4097-b7a4-8241990b6b7b"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:59:10.942299+00:00",
+   "heartbeat_at": "2026-10-29T13:01:37.424750+00:00",
+   "finished_at": "2026-10-29T13:01:50.322935+00:00"
+  },
+  {
+   "id": 35,
+   "goal": "SDAA 验证案例扫荡——案例 poiseuille_two_phase_cg（TensorLBM benchmarks/verified/poiseuille_two_phase_cg）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_poiseuille_two_phase_cg.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_poiseuille_two_phase_cg.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/poiseuille_two_phase_cg.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-impl-1",
+   "session_id": 35,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T12:57:20.087265+00:00",
+   "heartbeat_at": "2026-10-29T13:11:06.977830+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 34,
+   "goal": "SDAA 验证案例扫荡——案例 poiseuille_3d_pipe（TensorLBM benchmarks/verified/poiseuille_3d_pipe）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_poiseuille_3d_pipe.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_poiseuille_3d_pipe.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/poiseuille_3d_pipe.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-doc-3",
+   "session_id": 34,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T12:56:14.589347+00:00",
+   "heartbeat_at": "2026-10-29T13:11:17.254138+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 33,
+   "goal": "SDAA 验证案例扫荡——案例 poiseuille_3d_duct（TensorLBM benchmarks/verified/poiseuille_3d_duct）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_poiseuille_3d_duct.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_poiseuille_3d_duct.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/poiseuille_3d_duct.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-ver-8",
+   "session_id": 33,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T12:56:09.112356+00:00",
+   "heartbeat_at": "2026-10-29T13:11:13.940216+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 32,
+   "goal": "SDAA 验证案例扫荡——案例 poiseuille_3d_annulus（TensorLBM benchmarks/verified/poiseuille_3d_annulus）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_poiseuille_3d_annulus.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_poiseuille_3d_annulus.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/poiseuille_3d_annulus.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-ver-4",
+   "session_id": 32,
+   "result": {
+    "model": "qwen3.6-plus",
+    "checks": "artifacts/sdaa_poiseuille_3d_annulus.json 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard11'）；判据数值全部脚本算出零手抄；direct_observable 判据 honest-FAIL（3.237% > 3%，未达稳态）",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.6-plus",
+      "checks": "artifacts/sdaa_poiseuille_3d_annulus.json 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard11'）；判据数值全部脚本算出零手抄；direct_observable 判据 honest-FAIL（3.237% > 3%，未达稳态）",
+      "headline": "## SDAA 验证扫荡：poiseuille_3d_annulus 完成\n\n### 做了什么\n1. **读取案例文档**：阅读了 `benchmarks/verified/poiseuille_3d_annulus/README.md`、`run.py`、`gates.json`、`result.json`，理解了案例的物理问题（3D 环隙 Poiseui",
+      "git_status": "?? artifacts/sdaa_poiseuille_3d_annulus.json\n?? benchmarks/verified/poiseuille_3d_annulus/case_Ro20_sdaa.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_poiseuille_3d_annulus.py\n",
+      "tool_calls": 45,
+      "changed_files": [
+       "scripts/sdaa_sweep_poiseuille_3d_annulus.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_poiseuille_3d_annulus.json",
+       "benchmarks/verified/poiseuille_3d_annulus/case_Ro20_sdaa.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_poiseuille_3d_annulus.py"
+      ],
+      "agent_session_id": "e3b32fb0-714e-4a10-bfe4-1ae26d02d5ed"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 验证扫荡：poiseuille_3d_annulus 完成\n\n### 做了什么\n1. **读取案例文档**：阅读了 `benchmarks/verified/poiseuille_3d_annulus/README.md`、`run.py`、`gates.json`、`result.json`，理解了案例的物理问题（3D 环隙 Poiseui",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_poiseuille_3d_annulus.json\n?? benchmarks/verified/poiseuille_3d_annulus/case_Ro20_sdaa.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_poiseuille_3d_annulus.py\n",
+    "tool_calls": 45,
+    "changed_files": [
+     "scripts/sdaa_sweep_poiseuille_3d_annulus.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_poiseuille_3d_annulus.json",
+     "benchmarks/verified/poiseuille_3d_annulus/case_Ro20_sdaa.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_poiseuille_3d_annulus.py"
+    ],
+    "agent_session_id": "e3b32fb0-714e-4a10-bfe4-1ae26d02d5ed"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:53:03.615385+00:00",
+   "heartbeat_at": "2026-10-29T13:10:11.420554+00:00",
+   "finished_at": "2026-10-29T13:10:38.990178+00:00"
+  },
+  {
+   "id": 31,
+   "goal": "SDAA 验证案例扫荡——案例 poiseuille_2d（TensorLBM benchmarks/verified/poiseuille_2d）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_poiseuille_2d.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_poiseuille_2d.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/poiseuille_2d.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-mod-3",
+   "session_id": 31,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T12:51:58.165237+00:00",
+   "heartbeat_at": "2026-10-29T13:11:01.009700+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 30,
+   "goal": "值班长班次（分析与调度，不改业务代码）。本班次职责与硬上限：\n1) 用 run 工具 curl 登录本平台（POST /api/v1/auth/login，账号 eco_admin，密码见环境变量 TENSOR_AGENT_PASS），GET /api/v1/tensor/missions?limit=50 拉近期 mission。\n2) 分析扫荡线（goal 含「SDAA 验证案例扫荡」）完工结果：逐单读 result 摘要，统计各案例 PASS/FAIL、失败原因归类（环境/triton 绕行/判据真红/其他）。数字全部来自 API 返回，零手抄。\n3) 处置（硬上限：本班次最多派 3 单、只准派 TensorLBM 扫荡类 goal）：\n   - FAIL 案例 → 派「诊断+修复绕行」mission（goal 写明失败证据与诊断方向）\n   - 队列将空（in-flight<4）→ 按案例字母序派下探案例\n   派发用 POST /api/v1/tensor/missions（runner=native, repo=TensorLBM）。禁止派其他类型、禁止改审批、禁止碰 GitHub。\n4) 里程碑：若扫荡线累计完工 ≥10 单且尚无合并报告，POST /api/v1/tensor/reports 发布论文级合并报告（标题含「SDAA 扫荡」，逐案例判据表+FAIL 如实+设备证据汇总+局限；figures 可省略）。\n5) 交付：docs/operator_shift_<班次号>.md（本班分析表+派发清单+下一班建议），调用 finish。\n边界：只分析不伪造；任何判据红不得改口径；发现系统性问题写入「升级事项」节留给 owner。",
+   "repo": "TensorPlatform",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 1500000,
+    "max_tool_calls": 60,
+    "max_wall_seconds": 1500
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-impl-1",
+   "session_id": 30,
+   "result": {
+    "model": "qwen3.7-plus",
+    "evidence": {
+     "branch": null,
+     "checks": {
+      "gate": "no-evidence",
+      "reason": "模型未调用 finish"
+     },
+     "summary": {
+      "model": "qwen3.7-plus",
+      "headline": "未完成：模型未调用 finish",
+      "tool_calls": 60,
+      "changed_files": [],
+      "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf",
+      "declared_summary": "完成 60 次工具调用（未调用 finish）"
+     },
+     "head_commit": null,
+     "finished_status": "failed"
+    },
+    "headline": "未完成：模型未调用 finish",
+    "tool_calls": 60,
+    "changed_files": [],
+    "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf",
+    "declared_summary": "完成 60 次工具调用（未调用 finish）"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:49:55.707262+00:00",
+   "heartbeat_at": "2026-10-29T12:52:37.393307+00:00",
+   "finished_at": "2026-10-29T12:52:52.359026+00:00"
+  },
+  {
+   "id": 29,
+   "goal": "SDAA 验证案例扫荡——案例 permeability3d（TensorLBM benchmarks/verified/permeability3d）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_permeability3d.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_permeability3d.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/permeability3d.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-ver-1",
+   "session_id": 29,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T12:49:52.692572+00:00",
+   "heartbeat_at": "2026-10-29T13:10:55.788941+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 28,
+   "goal": "SDAA 验证案例扫荡——案例 permeability（TensorLBM benchmarks/verified/permeability）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_permeability.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_permeability.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/permeability.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-impl-7",
+   "session_id": 28,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "artifacts/sdaa_permeability.json 存在且含设备证据行（device_name: /dev/tcaicard6）；判据数值全部脚本算出（SDAA vs CUDA 偏差 0.0884% 和 0.0446%）；逐条与门比对全部 PASS；墙钟 91s ≤ 20min；无 triton 依赖无需绕行；eager 模式因 SDAA teco_inductor 限制。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "artifacts/sdaa_permeability.json 存在且含设备证据行（device_name: /dev/tcaicard6）；判据数值全部脚本算出（SDAA vs CUDA 偏差 0.0884% 和 0.0446%）；逐条与门比对全部 PASS；墙钟 91s ≤ 20min；无 triton 依赖无需绕行；eager 模式因 SDAA teco_inductor 限制。",
+      "headline": "## SDAA 验证案例扫荡——Permeability 完成\n\n### 完成的工作\n\n1. **案例理解**: 读取了 `benchmarks/verified/permeability/README.md` 和 `run.py`，理解了 Sangani-Acrivos 1982 渗透率验证案例的物理和判据。\n\n2. **脚本开发**: 创建了 `scri",
+      "git_status": "?? artifacts/sdaa_permeability.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_permeability.py\n",
+      "tool_calls": 38,
+      "changed_files": [
+       "docs/sdaa_sweep/permeability.md",
+       "scripts/sdaa_sweep_permeability.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_permeability.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_permeability.py"
+      ],
+      "agent_session_id": "61afc5c9-9176-491f-b3b5-3fe0bfdbd23e"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 验证案例扫荡——Permeability 完成\n\n### 完成的工作\n\n1. **案例理解**: 读取了 `benchmarks/verified/permeability/README.md` 和 `run.py`，理解了 Sangani-Acrivos 1982 渗透率验证案例的物理和判据。\n\n2. **脚本开发**: 创建了 `scri",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_permeability.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_permeability.py\n",
+    "tool_calls": 38,
+    "changed_files": [
+     "docs/sdaa_sweep/permeability.md",
+     "scripts/sdaa_sweep_permeability.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_permeability.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_permeability.py"
+    ],
+    "agent_session_id": "61afc5c9-9176-491f-b3b5-3fe0bfdbd23e"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:48:47.212690+00:00",
+   "heartbeat_at": "2026-10-29T13:09:00.202492+00:00",
+   "finished_at": "2026-10-29T13:09:26.392868+00:00"
+  },
+  {
+   "id": 27,
+   "goal": "SDAA 验证案例扫荡——案例 maneuvering_steady_turn（TensorLBM benchmarks/verified/maneuvering_steady_turn）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_maneuvering_steady_turn.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_maneuvering_steady_turn.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/maneuvering_steady_turn.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-arch-2",
+   "session_id": 27,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "Ran `python scripts/sdaa_sweep_maneuvering_steady_turn.py` — exit code 0, all 8 criteria PASS, wall clock 59.89 s. Verified JSON contains device_evidence with torch.sdaa.get_device_name(0) output, all criteria values computed (not hardcoded), 6 cases with full numeric results.",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "Ran `python scripts/sdaa_sweep_maneuvering_steady_turn.py` — exit code 0, all 8 criteria PASS, wall clock 59.89 s. Verified JSON contains device_evidence with torch.sdaa.get_device_name(0) output, all criteria values computed (not hardcoded), 6 cases with full numeric results.",
+      "headline": "## SDAA Sweep — maneuvering_steady_turn: COMPLETE (8/8 PASS)\n\n### What was done\n\n1. **Read the case**: Examined `benchmarks/verified/maneuvering_steady_turn/` — README.md, run.py, ",
+      "git_status": "?? artifacts/sdaa_maneuvering_steady_turn.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_maneuvering_steady_turn.py\n",
+      "tool_calls": 25,
+      "changed_files": [
+       "/srv/tensor/agent/work/m27/docs/sdaa_sweep/maneuvering_steady_turn.md",
+       "/srv/tensor/agent/work/m27/scripts/sdaa_sweep_maneuvering_steady_turn.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_maneuvering_steady_turn.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_maneuvering_steady_turn.py"
+      ],
+      "agent_session_id": "e18be2b7-dae1-4097-b7a4-8241990b6b7b"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA Sweep — maneuvering_steady_turn: COMPLETE (8/8 PASS)\n\n### What was done\n\n1. **Read the case**: Examined `benchmarks/verified/maneuvering_steady_turn/` — README.md, run.py, ",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_maneuvering_steady_turn.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_maneuvering_steady_turn.py\n",
+    "tool_calls": 25,
+    "changed_files": [
+     "/srv/tensor/agent/work/m27/docs/sdaa_sweep/maneuvering_steady_turn.md",
+     "/srv/tensor/agent/work/m27/scripts/sdaa_sweep_maneuvering_steady_turn.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_maneuvering_steady_turn.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_maneuvering_steady_turn.py"
+    ],
+    "agent_session_id": "e18be2b7-dae1-4097-b7a4-8241990b6b7b"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:39:41.606437+00:00",
+   "heartbeat_at": "2026-10-29T12:47:44.164037+00:00",
+   "finished_at": "2026-10-29T12:47:58.809280+00:00"
+  },
+  {
+   "id": 26,
+   "goal": "SDAA 验证案例扫荡——案例 laplace_pr_eos（TensorLBM benchmarks/verified/laplace_pr_eos）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_laplace_pr_eos.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_laplace_pr_eos.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/laplace_pr_eos.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-doc-4",
+   "session_id": 26,
+   "result": {
+    "model": "glm-5.1",
+    "checks": "- artifacts/sdaa_laplace_pr_eos.json exists and contains device_evidence with device_name \"/dev/tcaicard23\"\n- All criterion values computed by script (zero hand-copy)\n- All 6 gates PASS: clause_i, clause_ii, stability, mass_cons, psi_domain, sim_ratio\n- No CPU results masquerading as SDAA — all computation on torch.device(\"sdaa\")\n- TRITON_INTERPRET=1 bypass documented; verified no triton kernels in hot path",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.1",
+      "checks": "- artifacts/sdaa_laplace_pr_eos.json exists and contains device_evidence with device_name \"/dev/tcaicard23\"\n- All criterion values computed by script (zero hand-copy)\n- All 6 gates PASS: clause_i, clause_ii, stability, mass_cons, psi_domain, sim_ratio\n- No CPU results masquerading as SDAA — all computation on torch.device(\"sdaa\")\n- TRITON_INTERPRET=1 bypass documented; verified no triton kernels in hot path",
+      "headline": "SDAA sweep for laplace_pr_eos benchmark completed successfully.\n\n**What was done:**\n1. Read the benchmark case (README, run.py, result.json) to understand the frozen criteria from ",
+      "git_status": "?? artifacts/sdaa_laplace_pr_eos.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_laplace_pr_eos.py\n",
+      "tool_calls": 45,
+      "changed_files": [
+       "docs/sdaa_sweep/laplace_pr_eos.md",
+       "scripts/sdaa_sweep_laplace_pr_eos.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_laplace_pr_eos.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_laplace_pr_eos.py"
+      ],
+      "agent_session_id": "bebf477b-25fd-4b2d-8877-99cc9191fe09"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "SDAA sweep for laplace_pr_eos benchmark completed successfully.\n\n**What was done:**\n1. Read the benchmark case (README, run.py, result.json) to understand the frozen criteria from ",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_laplace_pr_eos.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_laplace_pr_eos.py\n",
+    "tool_calls": 45,
+    "changed_files": [
+     "docs/sdaa_sweep/laplace_pr_eos.md",
+     "scripts/sdaa_sweep_laplace_pr_eos.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_laplace_pr_eos.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_laplace_pr_eos.py"
+    ],
+    "agent_session_id": "bebf477b-25fd-4b2d-8877-99cc9191fe09"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:37:36.121745+00:00",
+   "heartbeat_at": "2026-10-29T13:08:17.326359+00:00",
+   "finished_at": "2026-10-29T13:08:34.560974+00:00"
+  },
+  {
+   "id": 25,
+   "goal": "SDAA 验证案例扫荡——案例 laplace_droplet（TensorLBM benchmarks/verified/laplace_droplet）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_laplace_droplet.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_laplace_droplet.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/laplace_droplet.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-infra-2",
+   "session_id": 25,
+   "result": {
+    "model": "Qwen3.8-27B",
+    "evidence": {
+     "branch": null,
+     "checks": {
+      "gate": "no-evidence",
+      "reason": "模型未调用 finish"
+     },
+     "summary": {
+      "model": "Qwen3.8-27B",
+      "headline": "未完成：模型未调用 finish",
+      "tool_calls": 13,
+      "changed_files": [],
+      "agent_session_id": "011ee596-d84b-4bec-a0f8-56b7c47de4c2",
+      "declared_summary": "完成 13 次工具调用（未调用 finish）"
+     },
+     "head_commit": null,
+     "finished_status": "failed"
+    },
+    "headline": "未完成：模型未调用 finish",
+    "tool_calls": 13,
+    "changed_files": [],
+    "agent_session_id": "011ee596-d84b-4bec-a0f8-56b7c47de4c2",
+    "declared_summary": "完成 13 次工具调用（未调用 finish）"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:37:30.659933+00:00",
+   "heartbeat_at": "2026-10-29T12:49:33.792545+00:00",
+   "finished_at": "2026-10-29T12:49:36.906408+00:00"
+  },
+  {
+   "id": 24,
+   "goal": "SDAA 验证案例扫荡——案例 laplace_cac_phasefield（TensorLBM benchmarks/verified/laplace_cac_phasefield）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_laplace_cac_phasefield.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_laplace_cac_phasefield.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/laplace_cac_phasefield.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-mod-4",
+   "session_id": 24,
+   "result": {
+    "model": "deepseek-v4-flash",
+    "checks": "正式 SDAA 扫荡 1085 s（<20 min）: per-arm err 0.0567% PASS / u_max 6.787e-05 PASS / drift@10k 8.61e-13 PASS / NaN-free PASS / B1 spread NOT_EVALUATED / 臂覆盖 FAIL → overall FAIL(诚实)；ruff check PASS；32^3 smoke 与 --recompute-only 复跑正常；业务代码零改动",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "deepseek-v4-flash",
+      "checks": "正式 SDAA 扫荡 1085 s（<20 min）: per-arm err 0.0567% PASS / u_max 6.787e-05 PASS / drift@10k 8.61e-13 PASS / NaN-free PASS / B1 spread NOT_EVALUATED / 臂覆盖 FAIL → overall FAIL(诚实)；ruff check PASS；32^3 smoke 与 --recompute-only 复跑正常；业务代码零改动",
+      "headline": "## 做了什么\n\n为 TensorLBM 的 `benchmarks/verified/laplace_cac_phasefield`（CAC/HCH 相场两相 LBM 静态液滴 Young–Laplace）写了独立 SDAA 扫荡脚本并跑通，产出机器 JSON 与文档。**未改任何业务代码**（git status 仅 3 个新增文件：脚本 / artif",
+      "git_status": "?? artifacts/sdaa_laplace_cac_phasefield.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_laplace_cac_phasefield.py\n",
+      "tool_calls": 38,
+      "changed_files": [
+       "docs/sdaa_sweep/laplace_cac_phasefield.md",
+       "scripts/sdaa_sweep_laplace_cac_phasefield.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_laplace_cac_phasefield.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_laplace_cac_phasefield.py"
+      ],
+      "agent_session_id": "0a7870f8-b156-496e-b411-4ba3e78544fc"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## 做了什么\n\n为 TensorLBM 的 `benchmarks/verified/laplace_cac_phasefield`（CAC/HCH 相场两相 LBM 静态液滴 Young–Laplace）写了独立 SDAA 扫荡脚本并跑通，产出机器 JSON 与文档。**未改任何业务代码**（git status 仅 3 个新增文件：脚本 / artif",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_laplace_cac_phasefield.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_laplace_cac_phasefield.py\n",
+    "tool_calls": 38,
+    "changed_files": [
+     "docs/sdaa_sweep/laplace_cac_phasefield.md",
+     "scripts/sdaa_sweep_laplace_cac_phasefield.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_laplace_cac_phasefield.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_laplace_cac_phasefield.py"
+    ],
+    "agent_session_id": "0a7870f8-b156-496e-b411-4ba3e78544fc"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:33:25.135958+00:00",
+   "heartbeat_at": "2026-10-29T13:03:02.329769+00:00",
+   "finished_at": "2026-10-29T13:03:18.507609+00:00"
+  },
+  {
+   "id": 23,
+   "goal": "SDAA 验证案例扫荡——案例 kovasznay_2d（TensorLBM benchmarks/verified/kovasznay_2d）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_kovasznay_2d.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_kovasznay_2d.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/kovasznay_2d.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-ver-2",
+   "session_id": 23,
+   "result": {
+    "model": "qwen3.6-plus",
+    "checks": "artifacts JSON 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard9'）；判据数值全部脚本算出零手抄；7 项判据全部 PASS；verdict=PASS",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.6-plus",
+      "checks": "artifacts JSON 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard9'）；判据数值全部脚本算出零手抄；7 项判据全部 PASS；verdict=PASS",
+      "headline": "## SDAA 验证案例扫荡 — Kovasznay 2D (B18) 完成\n\n### 做了什么\n1. **阅读案例文档**：读取 `benchmarks/verified/kovasznay_2d/README.md`、`run.py`、`result.json`，理解判据口径（max error ≤3%，64→128 单调收敛，finite，min_st",
+      "git_status": "?? artifacts/sdaa_kovasznay_2d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_kovasznay_2d.py\n",
+      "tool_calls": 46,
+      "changed_files": [
+       "artifacts/sdaa_kovasznay_2d.json",
+       "docs/sdaa_sweep/kovasznay_2d.md",
+       "scripts/sdaa_sweep_kovasznay_2d.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_kovasznay_2d.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_kovasznay_2d.py"
+      ],
+      "agent_session_id": "d459ac1f-d754-469a-a5e0-72dd2fb3a870"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 验证案例扫荡 — Kovasznay 2D (B18) 完成\n\n### 做了什么\n1. **阅读案例文档**：读取 `benchmarks/verified/kovasznay_2d/README.md`、`run.py`、`result.json`，理解判据口径（max error ≤3%，64→128 单调收敛，finite，min_st",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_kovasznay_2d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_kovasznay_2d.py\n",
+    "tool_calls": 46,
+    "changed_files": [
+     "artifacts/sdaa_kovasznay_2d.json",
+     "docs/sdaa_sweep/kovasznay_2d.md",
+     "scripts/sdaa_sweep_kovasznay_2d.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_kovasznay_2d.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_kovasznay_2d.py"
+    ],
+    "agent_session_id": "d459ac1f-d754-469a-a5e0-72dd2fb3a870"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:29:19.622119+00:00",
+   "heartbeat_at": "2026-10-29T12:55:23.088346+00:00",
+   "finished_at": "2026-10-29T12:55:29.631794+00:00"
+  },
+  {
+   "id": 22,
+   "goal": "SDAA 验证案例扫荡——案例 floating_body_free_decay（TensorLBM benchmarks/verified/floating_body_free_decay）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_floating_body_free_decay.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_floating_body_free_decay.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/floating_body_free_decay.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-impl-1",
+   "session_id": 22,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "artifacts/sdaa_floating_body_free_decay.json 存在且含设备证据行(device_name=/dev/tcaicard0)；判据数值全部脚本算出零手抄（本案例因业务代码 bug 未能产出数值，如实记 FAIL）；脚本可重复运行",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "artifacts/sdaa_floating_body_free_decay.json 存在且含设备证据行(device_name=/dev/tcaicard0)；判据数值全部脚本算出零手抄（本案例因业务代码 bug 未能产出数值，如实记 FAIL）；脚本可重复运行",
+      "headline": "## SDAA Sweep: floating_body_free_decay — 完成\n\n### 产物\n1. **`scripts/sdaa_sweep_floating_body_free_decay.py`** — 独立运行脚本，不改业务代码\n2. **`artifacts/sdaa_floating_body_free_decay.json`** —",
+      "git_status": "?? artifacts/sdaa_floating_body_free_decay.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_floating_body_free_decay.py\n",
+      "tool_calls": 38,
+      "changed_files": [
+       "/srv/tensor/agent/work/m22/docs/sdaa_sweep/floating_body_free_decay.md",
+       "/srv/tensor/agent/work/m22/scripts/sdaa_sweep_floating_body_free_decay.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_floating_body_free_decay.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_floating_body_free_decay.py"
+      ],
+      "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA Sweep: floating_body_free_decay — 完成\n\n### 产物\n1. **`scripts/sdaa_sweep_floating_body_free_decay.py`** — 独立运行脚本，不改业务代码\n2. **`artifacts/sdaa_floating_body_free_decay.json`** —",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_floating_body_free_decay.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_floating_body_free_decay.py\n",
+    "tool_calls": 38,
+    "changed_files": [
+     "/srv/tensor/agent/work/m22/docs/sdaa_sweep/floating_body_free_decay.md",
+     "/srv/tensor/agent/work/m22/scripts/sdaa_sweep_floating_body_free_decay.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_floating_body_free_decay.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_floating_body_free_decay.py"
+    ],
+    "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:29:14.186414+00:00",
+   "heartbeat_at": "2026-10-29T12:39:20.637185+00:00",
+   "finished_at": "2026-10-29T12:39:38.931952+00:00"
+  },
+  {
+   "id": 21,
+   "goal": "SDAA 验证案例扫荡——案例 droplet_oscillation（TensorLBM benchmarks/verified/droplet_oscillation）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_droplet_oscillation.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_droplet_oscillation.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/droplet_oscillation.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-impl-2",
+   "session_id": 21,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "PASS: Device evidence captured (torch.sdaa.get_device_name(0) = '/dev/tcaicard1')\nPASS: Script created and executes on SDAA device\nPASS: Artifact JSON created with device evidence\nPASS: Documentation created in docs/sdaa_sweep/droplet_oscillation.md\nPASS: No business code modifications\nPASS: No Triton dependency (no TRITON_INTERPRET needed)\nNOTE: Simulation in progress - full results pending completion",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "PASS: Device evidence captured (torch.sdaa.get_device_name(0) = '/dev/tcaicard1')\nPASS: Script created and executes on SDAA device\nPASS: Artifact JSON created with device evidence\nPASS: Documentation created in docs/sdaa_sweep/droplet_oscillation.md\nPASS: No business code modifications\nPASS: No Triton dependency (no TRITON_INTERPRET needed)\nNOTE: Simulation in progress - full results pending completion",
+      "headline": "## SDAA Sweep: droplet_oscillation - Task Summary\n\n### Completed Deliverables\n\n1. **scripts/sdaa_sweep_droplet_oscillation.py** (9.3 KB)\n   - Full SDAA sweep script with radii [64,",
+      "git_status": "?? artifacts/sdaa_droplet_oscillation.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_droplet_oscillation.py\n?? scripts/sdaa_sweep_droplet_oscillation_minimal.py\n",
+      "tool_calls": 56,
+      "changed_files": [
+       "artifacts/sdaa_droplet_oscillation.json",
+       "docs/sdaa_sweep/droplet_oscillation.md",
+       "scripts/sdaa_sweep_droplet_oscillation.py",
+       "scripts/sdaa_sweep_droplet_oscillation_minimal.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_droplet_oscillation.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_droplet_oscillation.py",
+       "scripts/sdaa_sweep_droplet_oscillation_minimal.py"
+      ],
+      "agent_session_id": "00596735-8fec-4956-99bb-80bcf8d06863"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA Sweep: droplet_oscillation - Task Summary\n\n### Completed Deliverables\n\n1. **scripts/sdaa_sweep_droplet_oscillation.py** (9.3 KB)\n   - Full SDAA sweep script with radii [64,",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_droplet_oscillation.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_droplet_oscillation.py\n?? scripts/sdaa_sweep_droplet_oscillation_minimal.py\n",
+    "tool_calls": 56,
+    "changed_files": [
+     "artifacts/sdaa_droplet_oscillation.json",
+     "docs/sdaa_sweep/droplet_oscillation.md",
+     "scripts/sdaa_sweep_droplet_oscillation.py",
+     "scripts/sdaa_sweep_droplet_oscillation_minimal.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_droplet_oscillation.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_droplet_oscillation.py",
+     "scripts/sdaa_sweep_droplet_oscillation_minimal.py"
+    ],
+    "agent_session_id": "00596735-8fec-4956-99bb-80bcf8d06863"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:29:08.763258+00:00",
+   "heartbeat_at": "2026-10-29T12:51:12.111254+00:00",
+   "finished_at": "2026-10-29T12:51:31.428116+00:00"
+  },
+  {
+   "id": 20,
+   "goal": "SDAA 验证案例扫荡——案例 cylinder_3d（TensorLBM benchmarks/verified/cylinder_3d）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_cylinder_3d.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_cylinder_3d.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/cylinder_3d.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-arch-3",
+   "session_id": 20,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "- Artifact JSON valid and contains device evidence (torch.sdaa.get_device_name(0) = /dev/tcaicard0)\n- All Cd values computed by script (zero hand-copy)\n- 3 gates evaluated: G1 FAIL (+6.62%), G2 FAIL (+16.25%), G3 FAIL (9.62% span)\n- No business code modified (git status confirms only 3 new files)\n- Triton not required (eager PyTorch ops only), TRITON_INTERPRET not set\n- Wall clock: 1220s (20.3 min)\n- Mass conservation: <0.04% drift (solver stable on SDAA)",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "- Artifact JSON valid and contains device evidence (torch.sdaa.get_device_name(0) = /dev/tcaicard0)\n- All Cd values computed by script (zero hand-copy)\n- 3 gates evaluated: G1 FAIL (+6.62%), G2 FAIL (+16.25%), G3 FAIL (9.62% span)\n- No business code modified (git status confirms only 3 new files)\n- Triton not required (eager PyTorch ops only), TRITON_INTERPRET not set\n- Wall clock: 1220s (20.3 min)\n- Mass conservation: <0.04% drift (solver stable on SDAA)",
+      "headline": "## SDAA Sweep — cylinder_3d (3D Extruded Circular Cylinder, Re=40)\n\n### What was done\n\n1. **Read the case**: Studied `benchmarks/verified/cylinder_3d/README.md` and `run.py` (519 l",
+      "git_status": "?? artifacts/sdaa_cylinder_3d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_cylinder_3d.py\n",
+      "tool_calls": 57,
+      "changed_files": [
+       "docs/sdaa_sweep/cylinder_3d.md",
+       "scripts/sdaa_sweep_cylinder_3d.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_cylinder_3d.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_cylinder_3d.py"
+      ],
+      "agent_session_id": "b7ff3a78-6dfb-4bb7-82e9-cd50c850e3e7"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA Sweep — cylinder_3d (3D Extruded Circular Cylinder, Re=40)\n\n### What was done\n\n1. **Read the case**: Studied `benchmarks/verified/cylinder_3d/README.md` and `run.py` (519 l",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_cylinder_3d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_cylinder_3d.py\n",
+    "tool_calls": 57,
+    "changed_files": [
+     "docs/sdaa_sweep/cylinder_3d.md",
+     "scripts/sdaa_sweep_cylinder_3d.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_cylinder_3d.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_cylinder_3d.py"
+    ],
+    "agent_session_id": "b7ff3a78-6dfb-4bb7-82e9-cd50c850e3e7"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:29:03.353443+00:00",
+   "heartbeat_at": "2026-10-29T13:08:35.311457+00:00",
+   "finished_at": "2026-10-29T13:08:55.329720+00:00"
+  },
+  {
+   "id": 19,
+   "goal": "SDAA 验证案例扫荡——案例 cylinder（TensorLBM benchmarks/verified/cylinder）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_cylinder.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_cylinder.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/cylinder.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-doc-1",
+   "session_id": 19,
+   "result": {
+    "model": "glm-5.1",
+    "checks": "- artifacts/sdaa_cylinder.json exists and contains device_name=\"/dev/tcaicard20\" (torch.sdaa.get_device_name(0) output)\n- All 5 criteria have script-computed numeric values (zero hand-copying)\n- All results are from sdaa:0 device (not CPU); verified via finite=True and elapsed_s for each sub-case\n- No business code modified (git diff shows only 3 new untracked files)\n- Honest FAIL recorded for all 5 criteria; no criteria lowered, no CPU results substituted",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.1",
+      "checks": "- artifacts/sdaa_cylinder.json exists and contains device_name=\"/dev/tcaicard20\" (torch.sdaa.get_device_name(0) output)\n- All 5 criteria have script-computed numeric values (zero hand-copying)\n- All results are from sdaa:0 device (not CPU); verified via finite=True and elapsed_s for each sub-case\n- No business code modified (git diff shows only 3 new untracked files)\n- Honest FAIL recorded for all 5 criteria; no criteria lowered, no CPU results substituted",
+      "headline": "SDAA sweep for cylinder benchmark family (re20_st, re100, re200) completed.\n\n## Deliverables\n\n1. **scripts/sdaa_sweep_cylinder.py** — Independent run script (no business code modif",
+      "git_status": "?? artifacts/sdaa_cylinder.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_cylinder.py\n",
+      "tool_calls": 61,
+      "changed_files": [
+       "docs/sdaa_sweep/cylinder.md",
+       "scripts/sdaa_sweep_cylinder.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_cylinder.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_cylinder.py"
+      ],
+      "agent_session_id": "bcb0e2ea-ab5f-4ea6-9816-20c6759d4960"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "SDAA sweep for cylinder benchmark family (re20_st, re100, re200) completed.\n\n## Deliverables\n\n1. **scripts/sdaa_sweep_cylinder.py** — Independent run script (no business code modif",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_cylinder.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_cylinder.py\n",
+    "tool_calls": 61,
+    "changed_files": [
+     "docs/sdaa_sweep/cylinder.md",
+     "scripts/sdaa_sweep_cylinder.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_cylinder.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_cylinder.py"
+    ],
+    "agent_session_id": "bcb0e2ea-ab5f-4ea6-9816-20c6759d4960"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:57.940354+00:00",
+   "heartbeat_at": "2026-10-29T12:55:09.111942+00:00",
+   "finished_at": "2026-10-29T12:55:34.847689+00:00"
+  },
+  {
+   "id": 18,
+   "goal": "SDAA 验证案例扫荡——案例 couette_3d（TensorLBM benchmarks/verified/couette_3d）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_couette_3d.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_couette_3d.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/couette_3d.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-impl-3",
+   "session_id": 18,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "artifacts/sdaa_couette_3d.json 存在且含设备证据行；判据数值全部脚本算出零手抄；all_pass=true",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "artifacts/sdaa_couette_3d.json 存在且含设备证据行；判据数值全部脚本算出零手抄；all_pass=true",
+      "headline": "## SDAA Sweep — couette_3d 完成\n\n### 产物清单\n1. **scripts/sdaa_sweep_couette_3d.py** — 独立运行脚本，所有张量置于 `sdaa` 设备\n2. **artifacts/sdaa_couette_3d.json** — 机器输出，含设备证据行、判据数值、逐条 PASS/FAIL\n3. *",
+      "git_status": "?? artifacts/sdaa_couette_3d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_couette_3d.py\n",
+      "tool_calls": 27,
+      "changed_files": [
+       "docs/sdaa_sweep/couette_3d.md",
+       "scripts/sdaa_sweep_couette_3d.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_couette_3d.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_couette_3d.py"
+      ],
+      "agent_session_id": "b78c4099-c676-417e-a8a9-5495a1b078e5"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA Sweep — couette_3d 完成\n\n### 产物清单\n1. **scripts/sdaa_sweep_couette_3d.py** — 独立运行脚本，所有张量置于 `sdaa` 设备\n2. **artifacts/sdaa_couette_3d.json** — 机器输出，含设备证据行、判据数值、逐条 PASS/FAIL\n3. *",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_couette_3d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_couette_3d.py\n",
+    "tool_calls": 27,
+    "changed_files": [
+     "docs/sdaa_sweep/couette_3d.md",
+     "scripts/sdaa_sweep_couette_3d.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_couette_3d.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_couette_3d.py"
+    ],
+    "agent_session_id": "b78c4099-c676-417e-a8a9-5495a1b078e5"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:52.522260+00:00",
+   "heartbeat_at": "2026-10-29T12:36:55.019382+00:00",
+   "finished_at": "2026-10-29T12:37:02.765738+00:00"
+  },
+  {
+   "id": 17,
+   "goal": "SDAA 验证案例扫荡——案例 couette_2d（TensorLBM benchmarks/verified/couette_2d）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_couette_2d.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_couette_2d.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/couette_2d.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-ver-3",
+   "session_id": 17,
+   "result": {
+    "model": "qwen3.6-plus",
+    "checks": "artifact JSON 存在且含设备证据行（sdaa_device_name: /dev/tcaicard10）；判据数值全部脚本算出零手抄；收敛性 honest-FAIL 如实记录",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.6-plus",
+      "checks": "artifact JSON 存在且含设备证据行（sdaa_device_name: /dev/tcaicard10）；判据数值全部脚本算出零手抄；收敛性 honest-FAIL 如实记录",
+      "headline": "## SDAA 验证案例扫荡 — couette_2d 完成\n\n### 做了什么\n1. **阅读案例文档**：读取 `benchmarks/verified/couette_2d/README.md`、`run.py`、`result.json`，弄清判据口径（max_rel ≤ 3%、两档网格收敛、稳态达到）。\n2. **编写独立运行脚本** `scrip",
+      "git_status": "?? artifacts/sdaa_couette_2d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_couette_2d.py\n",
+      "tool_calls": 39,
+      "changed_files": [
+       "docs/sdaa_sweep/couette_2d.md",
+       "scripts/sdaa_sweep_couette_2d.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_couette_2d.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_couette_2d.py"
+      ],
+      "agent_session_id": "6ca8a3d4-3f3b-4c29-912e-dfe1abd10781"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 验证案例扫荡 — couette_2d 完成\n\n### 做了什么\n1. **阅读案例文档**：读取 `benchmarks/verified/couette_2d/README.md`、`run.py`、`result.json`，弄清判据口径（max_rel ≤ 3%、两档网格收敛、稳态达到）。\n2. **编写独立运行脚本** `scrip",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_couette_2d.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_couette_2d.py\n",
+    "tool_calls": 39,
+    "changed_files": [
+     "docs/sdaa_sweep/couette_2d.md",
+     "scripts/sdaa_sweep_couette_2d.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_couette_2d.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_couette_2d.py"
+    ],
+    "agent_session_id": "6ca8a3d4-3f3b-4c29-912e-dfe1abd10781"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:47.093465+00:00",
+   "heartbeat_at": "2026-10-29T12:37:06.821401+00:00",
+   "finished_at": "2026-10-29T12:37:33.913393+00:00"
+  },
+  {
+   "id": 16,
+   "goal": "SDAA 验证案例扫荡——案例 cavity_natural_convection（TensorLBM benchmarks/verified/cavity_natural_convection）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_cavity_natural_convection.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_cavity_natural_convection.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/cavity_natural_convection.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-app-2",
+   "session_id": 16,
+   "result": {
+    "model": "MiniMax-M2.5-AWQ",
+    "evidence": {
+     "branch": null,
+     "checks": {
+      "gate": "no-evidence",
+      "reason": "模型未调用 finish"
+     },
+     "summary": {
+      "model": "MiniMax-M2.5-AWQ",
+      "headline": "未完成：模型未调用 finish",
+      "tool_calls": 80,
+      "changed_files": [
+       "/srv/tensor/agent/work/m16/scripts/sdaa_sweep_cavity_natural_convection.py"
+      ],
+      "agent_session_id": "12fc949c-319b-48be-b093-39e841b79c92",
+      "declared_summary": "完成 80 次工具调用（未调用 finish）"
+     },
+     "head_commit": null,
+     "finished_status": "failed"
+    },
+    "headline": "未完成：模型未调用 finish",
+    "tool_calls": 80,
+    "changed_files": [
+     "/srv/tensor/agent/work/m16/scripts/sdaa_sweep_cavity_natural_convection.py"
+    ],
+    "agent_session_id": "12fc949c-319b-48be-b093-39e841b79c92",
+    "declared_summary": "完成 80 次工具调用（未调用 finish）"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:41.668541+00:00",
+   "heartbeat_at": "2026-10-29T13:06:48.059752+00:00",
+   "finished_at": "2026-10-29T13:06:48.325069+00:00"
+  },
+  {
+   "id": 15,
+   "goal": "SDAA 验证案例扫荡——案例 cavity_3d_full（TensorLBM benchmarks/verified/cavity_3d_full）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_cavity_3d_full.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_cavity_3d_full.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/cavity_3d_full.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "running",
+   "claimed_by": "tp-impl-6",
+   "session_id": 15,
+   "result": {},
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:36.234958+00:00",
+   "heartbeat_at": "2026-10-29T13:11:22.095730+00:00",
+   "finished_at": null
+  },
+  {
+   "id": 14,
+   "goal": "SDAA 验证案例扫荡——案例 cavity（TensorLBM benchmarks/verified/cavity）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_cavity.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_cavity.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/cavity.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-ver-4",
+   "session_id": 14,
+   "result": {
+    "model": "qwen3.6-plus",
+    "checks": "artifact 存在且含设备证据行；判据数值全部脚本算出零手抄；三判据均 PASS；墙钟 103.7s ≤ 20 分钟",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.6-plus",
+      "checks": "artifact 存在且含设备证据行；判据数值全部脚本算出零手抄；三判据均 PASS；墙钟 103.7s ≤ 20 分钟",
+      "headline": "## SDAA 验证扫荡：cavity 案例完成\n\n### 做了什么\n1. **读取案例文档**：`benchmarks/verified/cavity/README.md` 和 `re100/README.md`、`re100/run.py`，弄清判据口径（max_abs_dev_pct ≤ 3% + 单调收敛）\n2. **编写独立运行脚本**：`scri",
+      "git_status": "?? artifacts/sdaa_cavity.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_cavity.py\n",
+      "tool_calls": 43,
+      "changed_files": [
+       "docs/sdaa_sweep/cavity.md",
+       "scripts/sdaa_sweep_cavity.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_cavity.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_cavity.py"
+      ],
+      "agent_session_id": "e3b32fb0-714e-4a10-bfe4-1ae26d02d5ed"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 验证扫荡：cavity 案例完成\n\n### 做了什么\n1. **读取案例文档**：`benchmarks/verified/cavity/README.md` 和 `re100/README.md`、`re100/run.py`，弄清判据口径（max_abs_dev_pct ≤ 3% + 单调收敛）\n2. **编写独立运行脚本**：`scri",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_cavity.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_cavity.py\n",
+    "tool_calls": 43,
+    "changed_files": [
+     "docs/sdaa_sweep/cavity.md",
+     "scripts/sdaa_sweep_cavity.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_cavity.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_cavity.py"
+    ],
+    "agent_session_id": "e3b32fb0-714e-4a10-bfe4-1ae26d02d5ed"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:30.817688+00:00",
+   "heartbeat_at": "2026-10-29T12:51:34.044645+00:00",
+   "finished_at": "2026-10-29T12:51:36.631115+00:00"
+  },
+  {
+   "id": 13,
+   "goal": "SDAA 验证案例扫荡——案例 aircraft_icing_naca0012_rime（TensorLBM benchmarks/verified/aircraft_icing_naca0012_rime）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_aircraft_icing_naca0012_rime.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/aircraft_icing_naca0012_rime.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-mod-1",
+   "session_id": 13,
+   "result": {
+    "model": "deepseek-v4-flash",
+    "checks": "1) 运行 TRITON_INTERPRET=1 python scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py --budget-s 1150 → 实际扫荡 1047.7 s，输出 artifacts JSON（gates 6/11 PASS，verdict=FAIL，skipped_runs 记录 det_pair 与 ladder 的跳过原因与 spent/est）。2) python -m py_compile 脚本通过。3) 独立复核脚本：从 JSON 中 3 案存储值重算 G9a/G9b/G9c 与 G1/G2，与 JSON 记录值逐位相等（差 0），证明判据数值零手抄。4) 断言 device_evidence_line 含 /dev/tcaicard24、gates 数=11、n_pass==Σpass。5) 用 NVIDIA 先验冰厚代入自研三点 Richardson 反解，复现 prior p=4.593597963850595、f_ext=10.50799579713059 mm（相对误差 0），确认门算术与案例口径一致。6) git status 仅 4 项新增，无业务代码/配置改动。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "deepseek-v4-flash",
+      "checks": "1) 运行 TRITON_INTERPRET=1 python scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py --budget-s 1150 → 实际扫荡 1047.7 s，输出 artifacts JSON（gates 6/11 PASS，verdict=FAIL，skipped_runs 记录 det_pair 与 ladder 的跳过原因与 spent/est）。2) python -m py_compile 脚本通过。3) 独立复核脚本：从 JSON 中 3 案存储值重算 G9a/G9b/G9c 与 G1/G2，与 JSON 记录值逐位相等（差 0），证明判据数值零手抄。4) 断言 device_evidence_line 含 /dev/tcaicard24、gates 数=11、n_pass==Σpass。5) 用 NVIDIA 先验冰厚代入自研三点 Richardson 反解，复现 prior p=4.593597963850595、f_ext=10.50799579713059 mm（相对误差 0），确认门算术与案例口径一致。6) git status 仅 4 项新增，无业务代码/配置改动。",
+      "headline": "SDAA 扫荡完成（honest-FAIL，6/11 判据 PASS）。案例 aircraft_icing_naca0012_rime 的判据族是内部一致性（G1 Lagrangian 闭合、G2 Eulerian 闭合、G7 IC-A 逐位确定性、G9a–d LWC 线性、G10a–d 网格阶梯+Richardson 对 IC-A 先验），口径与原 REA",
+      "git_status": "?? artifacts/sdaa_aircraft_icing_naca0012_rime.json\n?? artifacts/sdaa_runs/\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py\n",
+      "tool_calls": 54,
+      "changed_files": [
+       "/srv/tensor/agent/work/m13/docs/sdaa_sweep/aircraft_icing_naca0012_rime.md",
+       "/srv/tensor/agent/work/m13/scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_aircraft_icing_naca0012_rime.json",
+       "artifacts/sdaa_runs/",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py"
+      ],
+      "agent_session_id": "9c97692f-5881-4b0c-b828-95074ea393a9"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "SDAA 扫荡完成（honest-FAIL，6/11 判据 PASS）。案例 aircraft_icing_naca0012_rime 的判据族是内部一致性（G1 Lagrangian 闭合、G2 Eulerian 闭合、G7 IC-A 逐位确定性、G9a–d LWC 线性、G10a–d 网格阶梯+Richardson 对 IC-A 先验），口径与原 REA",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_aircraft_icing_naca0012_rime.json\n?? artifacts/sdaa_runs/\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py\n",
+    "tool_calls": 54,
+    "changed_files": [
+     "/srv/tensor/agent/work/m13/docs/sdaa_sweep/aircraft_icing_naca0012_rime.md",
+     "/srv/tensor/agent/work/m13/scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_aircraft_icing_naca0012_rime.json",
+     "artifacts/sdaa_runs/",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py"
+    ],
+    "agent_session_id": "9c97692f-5881-4b0c-b828-95074ea393a9"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:25.383172+00:00",
+   "heartbeat_at": "2026-10-29T12:56:41.678261+00:00",
+   "finished_at": "2026-10-29T12:57:23.927362+00:00"
+  },
+  {
+   "id": 12,
+   "goal": "SDAA 验证案例扫荡——案例 acoustics（TensorLBM benchmarks/verified/acoustics）。步骤：\n1) 读该案例目录的 README/运行入口，弄清其既有判据口径（这些案例在 NVIDIA 侧已有成熟判据，按原口径）。\n2) 写独立运行脚本 scripts/sdaa_sweep_acoustics.py（不改业务代码）：计算张量放 'sdaa' 设备；若入口依赖 triton，用 TRITON_INTERPRET=1 并如实记录绕行。网格/步数按案例文档推荐值或可行较小档，墙钟 ≤20 分钟。\n3) 运行并把机器输出存 artifacts/sdaa_acoustics.json：设备证据行（torch.sdaa.get_device_name(0) 输出）、判据数值、逐条与门的比对 PASS/FAIL。\n4) 交付 docs/sdaa_sweep/acoustics.md：案例/配置/结果表/判据逐条 PASS/FAIL/墙钟/绕行记录。\n判据：artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄。\nhonest-FAIL：任何判据不过或跑不通，如实记 FAIL 与原因；禁止降判据、禁止用 CPU 结果冒充 sdaa。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-ver-5",
+   "session_id": 12,
+   "result": {
+    "model": "qwen3.6-plus",
+    "checks": "artifact JSON 存在且含设备证据行（torch.sdaa.get_device_name(0) → /dev/tcaicard12）；判据数值全部脚本算出零手抄；判据 A PASS（0.2190% ≤ 3%，单调）；判据 B PASS（1.3145% ≤ 3%，单调）；墙钟 15.3s ≤ 20min；TRITON_INTERPRET=1 绕行已记录。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.6-plus",
+      "checks": "artifact JSON 存在且含设备证据行（torch.sdaa.get_device_name(0) → /dev/tcaicard12）；判据数值全部脚本算出零手抄；判据 A PASS（0.2190% ≤ 3%，单调）；判据 B PASS（1.3145% ≤ 3%，单调）；墙钟 15.3s ≤ 20min；TRITON_INTERPRET=1 绕行已记录。",
+      "headline": "## SDAA 验证案例扫荡 — acoustics 完成\n\n### 做了什么\n1. **读取案例文档**：`benchmarks/verified/acoustics/README.md` 和 `run.py`，弄清判据口径：\n   - 判据 A：|c_meas/c_s − 1| ≤ 3% 且随 N 单调下降\n   - 判据 B：|δ_meas/(νk²)",
+      "git_status": "?? artifacts/sdaa_acoustics.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_acoustics.py\n",
+      "tool_calls": 37,
+      "changed_files": [
+       "docs/sdaa_sweep/acoustics.md",
+       "scripts/sdaa_sweep_acoustics.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_acoustics.json",
+       "docs/sdaa_sweep/",
+       "scripts/sdaa_sweep_acoustics.py"
+      ],
+      "agent_session_id": "7a00ad48-a2c7-4407-85d0-ecd809a2ecaa"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 验证案例扫荡 — acoustics 完成\n\n### 做了什么\n1. **读取案例文档**：`benchmarks/verified/acoustics/README.md` 和 `run.py`，弄清判据口径：\n   - 判据 A：|c_meas/c_s − 1| ≤ 3% 且随 N 单调下降\n   - 判据 B：|δ_meas/(νk²)",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_acoustics.json\n?? docs/sdaa_sweep/\n?? scripts/sdaa_sweep_acoustics.py\n",
+    "tool_calls": 37,
+    "changed_files": [
+     "docs/sdaa_sweep/acoustics.md",
+     "scripts/sdaa_sweep_acoustics.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_acoustics.json",
+     "docs/sdaa_sweep/",
+     "scripts/sdaa_sweep_acoustics.py"
+    ],
+    "agent_session_id": "7a00ad48-a2c7-4407-85d0-ecd809a2ecaa"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:28:19.936301+00:00",
+   "heartbeat_at": "2026-10-29T12:32:22.785919+00:00",
+   "finished_at": "2026-10-29T12:32:43.231349+00:00"
+  },
+  {
+   "id": 11,
+   "goal": "SDAA 适配性普查，产出 docs/sdaa_adaptability.md（唯一交付物，不改业务代码）。背景：本机 LoongArch + Tecorigin SDAA 卡（torch 2.7.1 + torch_sdaa，设备名 'sdaa'，本进程环境已配好可直接 import torch_sdaa）；triton 3.4 无 SDAA 后端（0 active drivers），TRITON_INTERPRET=1 可 CPU 解释执行 triton 内核。\n步骤：\n1) 机器枚举 src/tensorlbm 全部 .py 模块并统计总数。\n2) 逐模块判定 triton 依赖（grep import triton / @triton.jit / tl.），分类：A=纯 torch（预期可上 sdaa）、B=triton 依赖（仅解释模式）、C=混合。\n3) A 类抽 ≥10 个做真机验证：python3 导入 + 张量 .to('sdaa') 小运算，成功记 PASS，报错记 FAIL 并贴错误首行。\n4) B 类抽 3 个用 TRITON_INTERPRET=1 验证导入与最小内核执行。\n判据（报告末尾「机器判据」节逐条回填）：①模块总数 ②A/B/C 计数加和=总数 ③抽样验证表（模块/判定/证据）④全量分类清单。所有数字出自脚本输出，零手抄。\n诚实条款：任何验证失败如实记 FAIL 不得省略；结论只写证据支持的。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-ver-6",
+   "session_id": 11,
+   "result": {
+    "model": "qwen3.6-plus",
+    "checks": "模块总数512 ✓ | A+B+C=512 ✓ | A抽样15/15 PASS ✓ | B验证5/5 PASS ✓ | 全量分类清单512条 ✓",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.6-plus",
+      "checks": "模块总数512 ✓ | A+B+C=512 ✓ | A抽样15/15 PASS ✓ | B验证5/5 PASS ✓ | 全量分类清单512条 ✓",
+      "headline": "## SDAA 适配性普查完成\n\n### 交付物\n- `docs/sdaa_adaptability.md`（671 行，30KB）\n\n### 执行步骤\n1. **模块枚举**：`find src/tensorlbm -name '*.py' | wc -l` → **512** 个 .py 模块\n2. **分类**：逐模块 grep `import tri",
+      "git_status": "?? docs/sdaa_adaptability.md\n",
+      "tool_calls": 41,
+      "changed_files": [],
+      "on_disk_changes": [
+       "docs/sdaa_adaptability.md"
+      ],
+      "agent_session_id": "8297c661-5bee-4d2f-9cee-f41deb22a0d8"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## SDAA 适配性普查完成\n\n### 交付物\n- `docs/sdaa_adaptability.md`（671 行，30KB）\n\n### 执行步骤\n1. **模块枚举**：`find src/tensorlbm -name '*.py' | wc -l` → **512** 个 .py 模块\n2. **分类**：逐模块 grep `import tri",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/sdaa_adaptability.md\n",
+    "tool_calls": 41,
+    "changed_files": [],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/sdaa_adaptability.md"
+    ],
+    "agent_session_id": "8297c661-5bee-4d2f-9cee-f41deb22a0d8"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T12:11:55.996539+00:00",
+   "heartbeat_at": "2026-10-29T12:17:57.777676+00:00",
+   "finished_at": "2026-10-29T12:18:17.939862+00:00"
+  },
+  {
+   "id": 10,
+   "goal": "目标：在 SDAA 卡上跑通第一个有解析对照的 LBM 小案例（ TensorLBM 本库）。允许新增独立运行脚本（如 scripts/sdaa_first_case.py），不修改已有业务代码；若库 API 不支持设备参数，如实报告阻断点。\n步骤：\n1) 在 verified/ 或 examples/ 找纯 torch 路径可运行的小案例（优先 couette / poiseuille / cavity 类 2D），读案例 README 确认判据口径。\n2) 若入口有 triton 依赖，可用 TRITON_INTERPRET=1 或库内 backend/device 开关绕行，绕行方式必须如实记录。\n3) 计算放 'sdaa' 设备跑（小网格 64x64 或 128x64、几百步内、墙钟 ≤10 分钟）。\n4) 产出 docs/sdaa_first_physics.md：案例名、网格、步数、设备证据行（torch.sdaa.get_device_name(0) 输出）、物理量 vs 解析解相对误差（机器算出，注明输出文件路径）、墙钟。\n判据：报告含解析对照误差数字且可溯源到运行输出工件；首行含 sdaa 设备名证据。\nhonest-FAIL：跑不通如实报失败原因与阻断点；严禁用 CPU 结果冒充 sdaa（无设备证据行即判不合规）。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-arch-1",
+   "session_id": 10,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "PYTHONPATH=src python scripts/sdaa_first_case.py --H 62 --tau 0.8 --u0 0.05 --steps 500 --avg 200 --out artifacts/sdaa_couette_result.json — 运行成功，设备 /dev/tcaicard5，L2 误差 0.018%，墙钟 3.08s",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "PYTHONPATH=src python scripts/sdaa_first_case.py --H 62 --tau 0.8 --u0 0.05 --steps 500 --avg 200 --out artifacts/sdaa_couette_result.json — 运行成功，设备 /dev/tcaicard5，L2 误差 0.018%，墙钟 3.08s",
+      "headline": "## 任务完成：SDAA 首个物理验证案例\n\n### 做了什么\n1. **找到案例**：在 `benchmarks/verified/couette_2d/` 找到纯 torch 路径可运行的 2D Couette 流案例，解析解为线性剖面 u(y)=U₀·y/H_eff（对任意 Re 精确成立）。\n2. **确认库 API 设备支持**：`tensorlb",
+      "git_status": "?? artifacts/sdaa_couette_result.json\n?? docs/sdaa_first_physics.md\n?? scripts/sdaa_first_case.py\n",
+      "tool_calls": 22,
+      "changed_files": [
+       "docs/sdaa_first_physics.md",
+       "scripts/sdaa_first_case.py"
+      ],
+      "on_disk_changes": [
+       "artifacts/sdaa_couette_result.json",
+       "docs/sdaa_first_physics.md",
+       "scripts/sdaa_first_case.py"
+      ],
+      "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## 任务完成：SDAA 首个物理验证案例\n\n### 做了什么\n1. **找到案例**：在 `benchmarks/verified/couette_2d/` 找到纯 torch 路径可运行的 2D Couette 流案例，解析解为线性剖面 u(y)=U₀·y/H_eff（对任意 Re 精确成立）。\n2. **确认库 API 设备支持**：`tensorlb",
+    "decided_by": "eco_web",
+    "git_status": "?? artifacts/sdaa_couette_result.json\n?? docs/sdaa_first_physics.md\n?? scripts/sdaa_first_case.py\n",
+    "tool_calls": 22,
+    "changed_files": [
+     "docs/sdaa_first_physics.md",
+     "scripts/sdaa_first_case.py"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "artifacts/sdaa_couette_result.json",
+     "docs/sdaa_first_physics.md",
+     "scripts/sdaa_first_case.py"
+    ],
+    "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T11:55:04.689171+00:00",
+   "heartbeat_at": "2026-10-29T11:56:56.566620+00:00",
+   "finished_at": "2026-10-29T11:57:11.857572+00:00"
+  },
+  {
+   "id": 9,
+   "goal": "SDAA 适配性普查，产出 docs/sdaa_adaptability.md（唯一交付物，不改业务代码）。背景：本机 LoongArch + Tecorigin SDAA 卡（torch 2.7.1 + torch_sdaa，设备名 'sdaa'，本进程环境已配好可直接 import torch_sdaa）；triton 3.4 无 SDAA 后端（0 active drivers），TRITON_INTERPRET=1 可 CPU 解释执行 triton 内核。\n步骤：\n1) 机器枚举 src/tensorlbm 全部 .py 模块并统计总数。\n2) 逐模块判定 triton 依赖（grep import triton / @triton.jit / tl.），分类：A=纯 torch（预期可上 sdaa）、B=triton 依赖（仅解释模式）、C=混合。\n3) A 类抽 ≥10 个做真机验证：python3 导入 + 张量 .to('sdaa') 小运算，成功记 PASS，报错记 FAIL 并贴错误首行。\n4) B 类抽 3 个用 TRITON_INTERPRET=1 验证导入与最小内核执行。\n判据（报告末尾「机器判据」节逐条回填）：①模块总数 ②A/B/C 计数加和=总数 ③抽样验证表（模块/判定/证据）④全量分类清单。所有数字出自脚本输出，零手抄。\n诚实条款：任何验证失败如实记 FAIL 不得省略；结论只写证据支持的。",
+   "repo": "TensorLBM",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-infra-1",
+   "session_id": 9,
+   "result": {
+    "stop_condition": "agent_lost"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T11:55:04.638399+00:00",
+   "heartbeat_at": "2026-10-29T12:01:35.746902+00:00",
+   "finished_at": "2026-10-29T12:05:35.825936+00:00"
+  },
+  {
+   "id": 8,
+   "goal": "SDAA 加速卡点亮 e2e 验证（不改业务代码，唯一交付物一个文件）。严格步骤：\n1) 在工作区根目录运行：python3 -c \"import torch_sdaa, torch, time; print('card', torch.sdaa.device_count(), torch.sdaa.get_device_name(0)); x = torch.randn(1000,1000).to('sdaa'); t=time.time(); y = x @ x.T; torch.sdaa.synchronize(); print('matmul_ms', round((time.time()-t)*1000,1))\" > sdaa_probe.txt 2>&1\n2) cat sdaa_probe.txt，确认含 card 与 matmul_ms 两行。\n3) 把 sdaa_probe.txt 全文贴进完成摘要。\n判据：sdaa_probe.txt 存在且首行为 card 1 <设备名>。若 torch_sdaa 导入失败或任何报错，把报错全文如实写入 sdaa_probe.txt 并在摘要说明，禁止伪造成功。",
+   "repo": "TensorPhysics",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 7200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": null,
+   "agent_session_id": null,
+   "worker_role": null,
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-arch-1",
+   "session_id": 8,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "命令退出码 0；sdaa_probe.txt 含 card 1 /dev/tcaicard5 与 matmul_ms 12.9 两行；torch_sdaa 导入成功无报错。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "命令退出码 0；sdaa_probe.txt 含 card 1 /dev/tcaicard5 与 matmul_ms 12.9 两行；torch_sdaa 导入成功无报错。",
+      "headline": "SDAA 加速卡 e2e 验证完成。\n\n执行命令（工作区根目录 /srv/tensor/agent/work/m8）：\npython3 -c \"import torch_sdaa, torch, time; print('card', torch.sdaa.device_count(), torch.sdaa.get_device_name(0)); x = to",
+      "git_status": "?? docs/adapter-inventory.md\n?? sdaa_probe.txt\n",
+      "tool_calls": 3,
+      "changed_files": [],
+      "on_disk_changes": [
+       "docs/adapter-inventory.md",
+       "sdaa_probe.txt"
+      ],
+      "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "SDAA 加速卡 e2e 验证完成。\n\n执行命令（工作区根目录 /srv/tensor/agent/work/m8）：\npython3 -c \"import torch_sdaa, torch, time; print('card', torch.sdaa.device_count(), torch.sdaa.get_device_name(0)); x = to",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/adapter-inventory.md\n?? sdaa_probe.txt\n",
+    "tool_calls": 3,
+    "changed_files": [],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/adapter-inventory.md",
+     "sdaa_probe.txt"
+    ],
+    "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T11:10:28.270446+00:00",
+   "heartbeat_at": "2026-10-29T11:10:40.537140+00:00",
+   "finished_at": "2026-10-29T11:11:00.380048+00:00"
+  },
+  {
+   "id": 7,
+   "goal": "审计船舶总体性能平台，产出 docs/platform_audit.md。严格按以下顺序执行：\n步骤1: 调用 audit_capabilities() —— 获取 21 个能力的证据等级\n步骤2: 调用 call_ship_api 测试 6 个端点（path 不含 /api/v1/）：\n  GET calculations/resistance | GET calculations/stability | GET calculations/seakeeping\n  GET standard-models/platforms | GET geometry/list-models | GET tensorlbm/benchmarks\n步骤3: 只读 3 个关键文件（不要多读）：\n  backend/api/calculations.py 的前 80 行\n  backend/platform_harness/capabilities.json\n  backend/platform_harness/guard.py 的前 40 行\n步骤4: ★立刻写报告 docs/platform_audit.md，内容包含：\n  一、能力矩阵表（学科 × 证据等级 × 状态）\n  二、缺陷清单（每个 MOCK/STUB/NOT_SUPPORTED 一行，含修复方向）\n  三、改进优先级（P0/P1/P2）\n步骤5: 调用 finish，summary 写关键发现，checks 写报告路径\n★重要：步骤1-3 总共不超过 12 次调用，然后立刻进入步骤4写报告。不要读太多代码。",
+   "repo": "ship-platform",
+   "base_ref": "HEAD",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 300000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 900
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "glm-5.2",
+   "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5",
+   "worker_role": "strategy",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-arch-1",
+   "session_id": 7,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "报告路径: docs/platform_audit.md（180 行，7099 字节）。验证步骤：1) audit_capabilities() 获取 21 项能力证据等级；2) 6 个 API 端点 GET 探测（2×200, 3×405, 1×404）；3) 源码文件定位（3 个预期路径均不存在）；4) 报告包含能力矩阵表、缺陷清单（14 项）、改进优先级（P0/P1/P2 分级）。",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "报告路径: docs/platform_audit.md（180 行，7099 字节）。验证步骤：1) audit_capabilities() 获取 21 项能力证据等级；2) 6 个 API 端点 GET 探测（2×200, 3×405, 1×404）；3) 源码文件定位（3 个预期路径均不存在）；4) 报告包含能力矩阵表、缺陷清单（14 项）、改进优先级（P0/P1/P2 分级）。",
+      "headline": "## 审计完成：船舶总体性能平台\n\n### 关键发现\n\n**能力总览（21 项）：**\n- REAL: 18 项（85.7%）— 阻力、稳性、推进、几何、标模、开发工具等均为真实实现\n- NOT_SUPPORTED: 2 项 — `ai.predict`、`methods.computation`\n- STUB: 1 项 — `misc.stubs`\n- M",
+      "git_status": "?? docs/platform_audit.md\n",
+      "tool_calls": 18,
+      "changed_files": [
+       "docs/platform_audit.md"
+      ],
+      "on_disk_changes": [
+       "docs/platform_audit.md"
+      ],
+      "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "## 审计完成：船舶总体性能平台\n\n### 关键发现\n\n**能力总览（21 项）：**\n- REAL: 18 项（85.7%）— 阻力、稳性、推进、几何、标模、开发工具等均为真实实现\n- NOT_SUPPORTED: 2 项 — `ai.predict`、`methods.computation`\n- STUB: 1 项 — `misc.stubs`\n- M",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/platform_audit.md\n",
+    "tool_calls": 18,
+    "changed_files": [
+     "docs/platform_audit.md"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/platform_audit.md"
+    ],
+    "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5"
+   },
+   "created_by": 2,
+   "created_at": "2026-10-29T06:33:03.706515+00:00",
+   "heartbeat_at": "2026-10-29T06:34:13.588619+00:00",
+   "finished_at": "2026-10-29T06:34:23.692893+00:00"
+  },
+  {
+   "id": 6,
+   "goal": "审计船舶总体性能平台的当前能力状态，产出 docs/platform_audit.md 报告。具体步骤：\n1. 调用 audit_capabilities() 获取 21 个能力的证据等级\n2. 调用 call_ship_api 测试以下端点（GET）并记录响应：\n   - calculations/resistance（阻力计算）\n   - calculations/stability（稳性计算）\n   - calculations/seakeeping（耐波计算）\n   - standard-models/platforms（标模列表）\n   - geometry/list-models（几何模型列表）\n   - tensorlbm/benchmarks（LBM benchmark 列表）\n3. 阅读工作树中 backend/api/ 下的关键计算模块，判断哪些是真实算法、哪些是 MOCK/STUB\n4. 按船舶性能学科（阻力/推进/耐波/操纵/稳性/结构）分组，列出：\n   - 已具备（REAL）的能力\n   - 缺陷（MOCK/STUB/NOT_SUPPORTED）\n   - 每个缺陷的具体修复方向（改哪个文件、加什么逻辑）\n5. 给出改进优先级排序（按学科重要性和缺陷严重程度）\n报告写进 docs/platform_audit.md，调用 finish 时在 checks 里写明报告路径和关键发现数。",
+   "repo": "ship-platform",
+   "base_ref": "HEAD",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 500000,
+    "max_tool_calls": 80,
+    "max_wall_seconds": 1800
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "glm-5.2",
+   "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5",
+   "worker_role": "strategy",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-arch-1",
+   "session_id": 6,
+   "result": {
+    "model": "glm-5.2",
+    "evidence": {
+     "branch": null,
+     "checks": {
+      "gate": "no-evidence",
+      "reason": "模型未调用 finish"
+     },
+     "summary": {
+      "model": "glm-5.2",
+      "headline": "未完成：模型未调用 finish",
+      "tool_calls": 26,
+      "changed_files": [],
+      "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5",
+      "declared_summary": "完成 26 次工具调用（未调用 finish）"
+     },
+     "head_commit": null,
+     "finished_status": "failed"
+    },
+    "headline": "未完成：模型未调用 finish",
+    "tool_calls": 26,
+    "changed_files": [],
+    "agent_session_id": "a8e12b86-59a4-4fa7-825e-9d3571c958d5",
+    "declared_summary": "完成 26 次工具调用（未调用 finish）"
+   },
+   "created_by": 2,
+   "created_at": "2026-10-29T06:28:47.374825+00:00",
+   "heartbeat_at": "2026-10-29T06:29:27.516230+00:00",
+   "finished_at": "2026-10-29T06:31:40.036781+00:00"
+  },
+  {
+   "id": 5,
+   "goal": "在 docs/ 新建 _ui_probe.md（仅此文件），写两行：1) 由前端表单派发；2) 时间戳。",
+   "repo": "TensorPhysics",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 3000000,
+    "max_tool_calls": 20,
+    "max_wall_seconds": 900
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "qwen3.7-plus",
+   "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf",
+   "worker_role": "platform",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-impl-1",
+   "session_id": 5,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "文件已创建并验证，包含要求的两行内容",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "文件已创建并验证，包含要求的两行内容",
+      "headline": "已在 docs/ 目录下创建 _ui_probe.md 文件，包含两行内容：\n1. 由前端表单派发\n2. 时间戳：2026-10-29T05:51:20Z\n\n文件已验证，内容正确。",
+      "git_status": "?? docs/_ui_probe.md\n",
+      "tool_calls": 8,
+      "changed_files": [
+       "docs/_ui_probe.md"
+      ],
+      "on_disk_changes": [
+       "docs/_ui_probe.md"
+      ],
+      "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "已在 docs/ 目录下创建 _ui_probe.md 文件，包含两行内容：\n1. 由前端表单派发\n2. 时间戳：2026-10-29T05:51:20Z\n\n文件已验证，内容正确。",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/_ui_probe.md\n",
+    "tool_calls": 8,
+    "changed_files": [
+     "docs/_ui_probe.md"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/_ui_probe.md"
+    ],
+    "agent_session_id": "9d955b35-4d36-447c-b371-80634b9e0fdf"
+   },
+   "created_by": 2,
+   "created_at": "2026-10-29T05:50:53.540201+00:00",
+   "heartbeat_at": "2026-10-29T05:51:14.334898+00:00",
+   "finished_at": "2026-10-29T05:51:33.251825+00:00"
+  },
+  {
+   "id": 4,
+   "goal": "自动审批验证任务：在 docs/ 新建 _autoapprove_probe.md（只建这一个文件，不改源码），写三行：1) 这是 TensorPlatform 自动审批链路的探针；2) 时间戳；3) 说明它由 agent 自动生成。",
+   "repo": "TensorPhysics",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 150000,
+    "max_tool_calls": 20,
+    "max_wall_seconds": 600
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "qwen3.7-plus",
+   "agent_session_id": null,
+   "worker_role": "verifier",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-native-1",
+   "session_id": 4,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "文件已创建并验证内容正确；git status 确认仅新增一个文件，无源码改动",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "文件已创建并验证内容正确；git status 确认仅新增一个文件，无源码改动",
+      "headline": "已完成自动审批验证任务。在 docs/ 目录下创建了 _autoapprove_probe.md 文件，包含三行内容：1) 说明这是 TensorPlatform 自动审批链路的探针；2) 时间戳 2026-10-29T04:32:37Z；3) 说明由 agent 自动生成。验证了文件内容正确，且 git status 显示只有这一个新文件，未修改任何源码。",
+      "git_status": "?? docs/_autoapprove_probe.md\n",
+      "tool_calls": 6,
+      "changed_files": [
+       "docs/_autoapprove_probe.md"
+      ],
+      "on_disk_changes": [
+       "docs/_autoapprove_probe.md"
+      ],
+      "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "已完成自动审批验证任务。在 docs/ 目录下创建了 _autoapprove_probe.md 文件，包含三行内容：1) 说明这是 TensorPlatform 自动审批链路的探针；2) 时间戳 2026-10-29T04:32:37Z；3) 说明由 agent 自动生成。验证了文件内容正确，且 git status 显示只有这一个新文件，未修改任何源码。",
+    "decided_by": "eco_web",
+    "git_status": "?? docs/_autoapprove_probe.md\n",
+    "tool_calls": 6,
+    "changed_files": [
+     "docs/_autoapprove_probe.md"
+    ],
+    "decision_note": "[auto-approve] TP_AUTO_APPROVE_ALL: 全自动通过（无人工审批）",
+    "on_disk_changes": [
+     "docs/_autoapprove_probe.md"
+    ],
+    "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895"
+   },
+   "created_by": 2,
+   "created_at": "2026-10-29T04:23:07.074480+00:00",
+   "heartbeat_at": "2026-10-29T04:32:37.458961+00:00",
+   "finished_at": "2026-10-29T04:32:50.904525+00:00"
+  },
+  {
+   "id": 3,
+   "goal": "新增文件 tests/test_adapter_inventory_meta.py（仅这 1 个文件，不改源码），一组最简 pytest：\n① 断言 src/tensorphysics/protocols.py 的 Solver Protocol 具备 name/initialize/advance/finalize/snapshot 五个成员；② 断言 protocols.py 没有 restore 方法（该生态明确 checkpoint≠restart）；\n③ 用 inspect 确认 adapters/tensordem.py 可 import。\n写完后运行 python -m pytest tests/test_adapter_inventory_meta.py -q，把输出写进 finish 的 checks。",
+   "repo": "TensorPhysics",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 300000,
+    "max_tool_calls": 40,
+    "max_wall_seconds": 1200
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "qwen3.7-plus",
+   "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895",
+   "worker_role": "verifier",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-native-1",
+   "session_id": 3,
+   "result": {
+    "model": "qwen3.7-plus",
+    "checks": "python -m pytest tests/test_adapter_inventory_meta.py -q → 3 passed in 0.05s",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "qwen3.7-plus",
+      "checks": "python -m pytest tests/test_adapter_inventory_meta.py -q → 3 passed in 0.05s",
+      "headline": "新增文件 tests/test_adapter_inventory_meta.py，包含 3 个最简 pytest 用例：\n\n1. **test_solver_protocol_has_five_members** — 断言 `Solver` Protocol 具备 `name`/`initialize`/`advance`/`finalize`/`snap",
+      "git_status": "?? tests/test_adapter_inventory_meta.py\n",
+      "tool_calls": 8,
+      "changed_files": [
+       "tests/test_adapter_inventory_meta.py"
+      ],
+      "on_disk_changes": [
+       "tests/test_adapter_inventory_meta.py"
+      ],
+      "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "新增文件 tests/test_adapter_inventory_meta.py，包含 3 个最简 pytest 用例：\n\n1. **test_solver_protocol_has_five_members** — 断言 `Solver` Protocol 具备 `name`/`initialize`/`advance`/`finalize`/`snap",
+    "decided_by": "eco_admin",
+    "git_status": "?? tests/test_adapter_inventory_meta.py\n",
+    "tool_calls": 8,
+    "changed_files": [
+     "tests/test_adapter_inventory_meta.py"
+    ],
+    "decision_note": "独立复跑 pytest 3 passed，产物真实",
+    "on_disk_changes": [
+     "tests/test_adapter_inventory_meta.py"
+    ],
+    "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T01:06:17.980336+00:00",
+   "heartbeat_at": "2026-10-29T01:06:59.952175+00:00",
+   "finished_at": "2026-10-29T01:09:28.110461+00:00"
+  },
+  {
+   "id": 2,
+   "goal": "为 src/tensorphysics/adapters/tensordem.py 补一组单元测试，新建 tests/test_tensordem_adapter_extra.py，至少覆盖：①时钟/时间步不匹配应报错 ②整数比子循环比例正确 ③载荷(force)形状与单位校验。只新增这一个测试文件、不改源码；最后必须实际跑 pytest 证明用例通过（不能跑就说明原因），把命令与结果写进 finish 的 checks。",
+   "repo": "TensorPhysics",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 400000,
+    "max_tool_calls": 60,
+    "max_wall_seconds": 1800
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "glm-5.2",
+   "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895",
+   "worker_role": "verifier",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "failed",
+   "claimed_by": "tp-native-1",
+   "session_id": 2,
+   "result": {
+    "model": "glm-5.2",
+    "checks": "",
+    "accepted": false,
+    "evidence": {
+     "branch": null,
+     "checks": {},
+     "summary": {
+      "model": "glm-5.2",
+      "checks": "",
+      "headline": "完成 15 次工具调用",
+      "git_status": "",
+      "tool_calls": 15,
+      "changed_files": [],
+      "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "完成 15 次工具调用",
+    "decided_by": "eco_admin",
+    "git_status": "",
+    "tool_calls": 15,
+    "changed_files": [],
+    "decision_note": "工作树无任何改动，未产生交付物",
+    "agent_session_id": "cb4ef27b-f6c0-4980-9729-395306c90895"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T01:01:41.153275+00:00",
+   "heartbeat_at": "2026-10-29T01:02:46.364664+00:00",
+   "finished_at": "2026-10-29T01:06:01.085508+00:00"
+  },
+  {
+   "id": 1,
+   "goal": "PG 闭环验证：claim→start→heartbeat→complete→accept",
+   "repo": "TensorPlatform",
+   "base_ref": "main",
+   "co_repos": null,
+   "parent_mission_id": null,
+   "budget": {
+    "max_tokens": 10000,
+    "max_tool_calls": 5,
+    "max_wall_seconds": 120
+   },
+   "runner": "native",
+   "origin": "owner",
+   "model": "glm-5.2",
+   "agent_session_id": "97cc8c26-cfc7-4b3b-b510-a2ee922079c6",
+   "worker_role": "verifier",
+   "campaign_id": null,
+   "campaign_phase": null,
+   "status": "succeeded",
+   "claimed_by": "tp-verifier-1575a",
+   "session_id": 1,
+   "result": {
+    "model": "glm-5.2",
+    "scope": "connectivity-only",
+    "accepted": true,
+    "evidence": {
+     "branch": null,
+     "checks": {
+      "gate": "passed"
+     },
+     "summary": {
+      "model": "glm-5.2",
+      "scope": "connectivity-only",
+      "headline": "PG 闭环验证通过",
+      "agent_session_id": "97cc8c26-cfc7-4b3b-b510-a2ee922079c6"
+     },
+     "head_commit": null,
+     "finished_status": "succeeded"
+    },
+    "headline": "PG 闭环验证通过",
+    "decided_by": "eco_admin",
+    "decision_note": "E2E 验证通过",
+    "agent_session_id": "97cc8c26-cfc7-4b3b-b510-a2ee922079c6"
+   },
+   "created_by": 1,
+   "created_at": "2026-10-29T01:01:03.319587+00:00",
+   "heartbeat_at": "2026-10-29T01:01:03.446323+00:00",
+   "finished_at": "2026-10-29T01:01:03.500153+00:00"
+  }
+ ],
+ "total": 45
+}
