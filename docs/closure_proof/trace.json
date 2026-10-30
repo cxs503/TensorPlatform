@@ -1,0 +1,132 @@
+{
+  "mission_id": 514,
+  "session_id": 514,
+  "run_id": "m505-holtrop-kvlcc2-45d4a65a59c8",
+  "trace": [
+    {
+      "step_id": "S1_AUTH",
+      "step_name": "Login",
+      "timestamp": "2026-10-30T18:29:09.687870+00:00",
+      "data": {
+        "status": "success",
+        "user": "eco_admin"
+      }
+    },
+    {
+      "step_id": "S2_CREATE",
+      "step_name": "Mission Created",
+      "timestamp": "2026-10-30T18:29:09.735456+00:00",
+      "data": {
+        "mission_id": 514,
+        "session_id": 514,
+        "status": "queued"
+      }
+    },
+    {
+      "step_id": "S3_CLAIM",
+      "step_name": "Mission Claimed",
+      "timestamp": "2026-10-30T18:29:09.774189+00:00",
+      "data": {
+        "mission_id": 514,
+        "claimed": true,
+        "claim_token": "189691af-891b-4d..."
+      }
+    },
+    {
+      "step_id": "S4_START",
+      "step_name": "Mission Started",
+      "timestamp": "2026-10-30T18:29:09.802236+00:00",
+      "data": {
+        "mission_id": 514,
+        "status": "running"
+      }
+    },
+    {
+      "step_id": "S5_SOLVE",
+      "step_name": "Holtrop Calculation",
+      "timestamp": "2026-10-30T18:29:09.808303+00:00",
+      "data": {
+        "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力",
+        "speed_kn": 14.5,
+        "rt_total_kN": 2946.86,
+        "reynolds_number": 1642189579.8319325,
+        "froude_number": 0.14712409784702452,
+        "cf": 0.001441,
+        "ct": 0.006318
+      }
+    },
+    {
+      "step_id": "S6_ARTIFACT",
+      "step_name": "Artifacts Generated",
+      "timestamp": "2026-10-30T18:29:09.808505+00:00",
+      "data": {
+        "run_id": "m505-holtrop-kvlcc2-45d4a65a59c8",
+        "artifact_count": 1,
+        "validation_passed": {
+          "fr_range_valid": true,
+          "rt_positive": true,
+          "reynolds_turbulent": true
+        }
+      }
+    },
+    {
+      "step_id": "S7_REGISTER",
+      "step_name": "Run Registered",
+      "timestamp": "2026-10-30T18:29:09.856039+00:00",
+      "data": {
+        "run_id": "m505-holtrop-kvlcc2-45d4a65a59c8",
+        "organization_id": 1,
+        "created": true,
+        "manifest_sha256": "7d075ef9004f8a22..."
+      }
+    },
+    {
+      "step_id": "S8_HEARTBEAT",
+      "step_name": "Heartbeat Sent",
+      "timestamp": "2026-10-30T18:29:09.916818+00:00",
+      "data": {
+        "mission_id": 514,
+        "progress": {
+          "percent": 90
+        }
+      }
+    },
+    {
+      "step_id": "S9_COMPLETE",
+      "step_name": "Mission Completed",
+      "timestamp": "2026-10-30T18:29:09.985809+00:00",
+      "data": {
+        "mission_id": 514,
+        "status": "awaiting_acceptance",
+        "run_id": "m505-holtrop-kvlcc2-45d4a65a59c8"
+      }
+    },
+    {
+      "step_id": "S10_VERIFY",
+      "step_name": "Readback Verification",
+      "timestamp": "2026-10-30T18:29:10.029903+00:00",
+      "data": {
+        "checks": {
+          "run_id_match": true,
+          "status_match": true,
+          "validation_match": true,
+          "manifest_rt_match": true,
+          "manifest_fr_match": true,
+          "manifest_sha256_present": true,
+          "timestamps_present": true
+        },
+        "all_passed": true
+      }
+    }
+  ],
+  "verification": {
+    "run_id_match": true,
+    "status_match": true,
+    "validation_match": true,
+    "manifest_rt_match": true,
+    "manifest_fr_match": true,
+    "manifest_sha256_present": true,
+    "timestamps_present": true
+  },
+  "completed_at": "2026-10-30T18:29:10.030202+00:00"
+}
