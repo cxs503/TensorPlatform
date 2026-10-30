@@ -98,6 +98,7 @@ async def lifespan(app: FastAPI):
     try:
         from database.config import engine, Base
         from models import core as _core_models
+        from models import ship_sample as _ship_sample_model
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables verified")
         from migrations.run_migration import run_pending_migrations
@@ -274,6 +275,10 @@ app.include_router(misc.router, prefix="/api/v1")
 
 # ── 科研运行台（HPC + AI agent 操作面）──
 app.include_router(tensor.router, prefix="/api/v1")
+
+# ── 船舶计算代理（Ship API Proxy Orchestration）──
+from api.domain import ship_samples  # noqa: E402
+app.include_router(ship_samples.router, prefix="/api/v1")
 
 # ── 公共实况展示面（免登录只读，owner 2026-10-22）──
 from api import public  # noqa: E402
