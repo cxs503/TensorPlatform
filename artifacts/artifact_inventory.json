@@ -1,0 +1,787 @@
+{
+  "generated_at": "2026-10-30T08:07:49.801620Z",
+  "mission_id": 396,
+  "total_files_scanned": 92,
+  "summary": {
+    "total": 92,
+    "has_judgment": 60,
+    "no_judgment": 32,
+    "auto_inferred": 7,
+    "cannot_infer": 25,
+    "parse_errors": 1,
+    "auto_infer_rate_of_no_judgment": 21.9,
+    "cannot_infer_rate_of_total": 27.2,
+    "honest_fail_note": "Cannot-infer rate 25/92 = 27.2% exceeds 20% threshold. Reason: 25 files are config/schema/infrastructure JSON with no computation/validation semantics (package.json, tsconfig, schema.json, roles.json, etc.). These are not computation artifacts and do not admit pass/fail judgment."
+  },
+  "threshold_pct": 5.0,
+  "records": [
+    {
+      "file": ".devcontainer/devcontainer.json",
+      "sha256": "11517a218c39a915ceb25a64400e34eb39db95beac7c73fa5eb13725f7079dac",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "agent_work/rmg/proposals/20261025-tau-factor-design.json",
+      "sha256": "d26a940b026e7d1578eddffb0bc698264520b26edc0ef96516fe81b70060f02f",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "agent_work/rmg/proposals/20261025-tau-matched-re-control.json",
+      "sha256": "4e296b538d9d3fe0cd920c8fd598ce797bd0dbcd9dc50ef1f7928b3366dc9444",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "agent_work/rmg/proposals/20261025-tau-uniform-replication.json",
+      "sha256": "2f19d97e94544b8d5fc7b6dc5b7e514ef464ee9f492be2965e9a2977af884c14",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "agent_work/rmg/run_log.json",
+      "sha256": "98e11b96d950391af47a6b208a671b890e22a92c341dca4644b656dbeddc2c3f",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_.gaps_found",
+      "judgment_value": false,
+      "auto_inferred": true,
+      "auto_basis": ".gaps_found=10 => err~100.0% vs threshold 5.0%"
+    },
+    {
+      "file": "ail_stage12_validation.json",
+      "sha256": "e74c8edc75df8cfc17b73eb62017127c63ce0f309b29f6e48d7f193b0bce5ee7",
+      "has_bool_judgment": true,
+      "judgment_field_name": ".checks_passed==checks_total",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "artifacts/ail_benchmark.json",
+      "sha256": "ef6e939f002dba62b5115ee2e11c69a47ee396bfb45942f09a57d4d7ee1bca96",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_corpora.tensorplatform.coverage.coverage",
+      "judgment_value": true,
+      "auto_inferred": true,
+      "auto_basis": "corpora.tensorplatform.coverage.coverage=1.0 => err~0.0% vs threshold 5.0%"
+    },
+    {
+      "file": "artifacts/ail_bundles/tensordem.jsonl",
+      "sha256": "1410bc9761b9eeca1692732c5a642cae721049304a25d9833f629038a690fae5",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "artifacts/ail_bundles/tensorphysics.jsonl",
+      "sha256": "78001488dac711bb846b29156660474890a0f2ea777ab628c9b981e5071c8d4c",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "artifacts/ail_bundles/tensorplatform.jsonl",
+      "sha256": "437626de6cbee33718aac5f1e73a7d145f406b9f76b01d612a608cb88e5f1fbc",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "artifacts/artifact_inventory.json",
+      "sha256": "23402e4df7bfd9319c19dcac80731c1262292ed7c4bcb09903839d5b7f79b5b2",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_summary.parse_errors",
+      "judgment_value": false,
+      "auto_inferred": true,
+      "auto_basis": "summary.parse_errors=1.0 => err~100.0% vs threshold 5.0%"
+    },
+    {
+      "file": "backend/docker-daemon-logging.json",
+      "sha256": "9c7a9171b276d050def4cb556b6fe0a0dafa3a258796f8598c6bb40b87701755",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "parse_error": true
+    },
+    {
+      "file": "backend/notebooks/index.json",
+      "sha256": "c9bddf3129482b5915f8dd072b20f2586969e488a0fcee3be851adba0fd7b320",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "backend/package.json",
+      "sha256": "7c572a507e9499e4d034102e2f5fda138dd16ece04ae8e53949a25978863e1e0",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "config/factory.example.json",
+      "sha256": "e210662a73c86941316d77b09819d267ee29237c30ec31c83b5fa330b498ee86",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "contracts/tensorphysics-run-manifest-v1.schema.json",
+      "sha256": "8d5c0bd7890710d19857f9abcd0847946e2f749e9e74dad7e12cf2354106eb96",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "examples/research-loop/manifest.fixture.json",
+      "sha256": "7e55b026ba6082b349a5f2873c6f388ffa0750a1086972ee422a3f9e4e3d8c7f",
+      "has_bool_judgment": true,
+      "judgment_field_name": "validation_status",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "frontend-console/package.json",
+      "sha256": "ea2500cb976058c861feb07fc55ed3897a9b381f70f601b10b764b037f6720d1",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "frontend-factory/package.json",
+      "sha256": "53c08b685feb4690827c93dc4ff721578d6a2e669367f01b36c76b35d6fb7e0e",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "frontend-vue/package.json",
+      "sha256": "d26096898b5c533b8004d2f73284819c19268990c2442a1e301f674d184c5133",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "grafana/provisioning/dashboards/foundation-overview.json",
+      "sha256": "b9eb55aa0876474917414b496db2e3cbf20db49a961fddf53ab3512d86524e39",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "issue27_validation_report.json",
+      "sha256": "d7f7f66712bc0667be0a2fb6e6f3a68e1ff157a566b0f836715fbca67c11ea86",
+      "has_bool_judgment": true,
+      "judgment_field_name": "test_results.test_1_password_missing_special_char.status",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-21.readings.json",
+      "sha256": "836d69a64a18bbd0f626241e5fffebe9d21ff2abd002c0ceb6e389ea35cc699f",
+      "has_bool_judgment": true,
+      "judgment_field_name": "items[0].exit_code",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-21.validation_report.json",
+      "sha256": "e03f72d7ddc33ad5cbc44a32eb7ed2d75855bce89a877e31397f8a92d03aaea3",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-22.m173.readings.json",
+      "sha256": "856b8debe186ba71dd5c72ea5d7cbe6e9a7a548a311295a98fc670862d60c85d",
+      "has_bool_judgment": true,
+      "judgment_field_name": "items[0].exit_code",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-22.m173.validation_report.json",
+      "sha256": "5aa9ee5b25c086e819bdb28ffdeda75d24a5d80f8056092941fe00b8c3f2864a",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-23.m192.readings.json",
+      "sha256": "616f98f12665f178c98f7392aaf1422e6534dc3e1b1d9339c717d27dea4ef09c",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_3_relay.http_code",
+      "judgment_value": true,
+      "auto_inferred": true,
+      "auto_basis": "3_relay.http_code=200 => err~0.0% vs threshold 5.0%"
+    },
+    {
+      "file": "operator_log/2026-10-23.m192.validation_report.json",
+      "sha256": "e47ac063be7456d64a73fe48665041756ed9cda7fdd4bdefc773c0d4f95db394",
+      "has_bool_judgment": true,
+      "judgment_field_name": "checks[0].passed",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-23.readings.json",
+      "sha256": "d9c715a34c31fe0d3add4835dc2a471028bdd1b2ed3c2a37b207badc6ace8935",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step5_terminal.failed_missions[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-23.validation_report.json",
+      "sha256": "f33889c87dbccf15053b25ca05c4ebdc72824e6d4f17624fb1ff558f8629c1ad",
+      "has_bool_judgment": true,
+      "judgment_field_name": ".checks_passed==checks_total",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m228.validation_report.json",
+      "sha256": "c87ffa03958f554cf6580d2f255f296e48909b86820f5703ed6d0a9c7f42c963",
+      "has_bool_judgment": true,
+      "judgment_field_name": ".checks_passed==checks_total",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m234.validation_report.json",
+      "sha256": "08f79588ec71d8b4f745fdb2540658dbf27c3f4a62b6b4ec98e7d7cd5401f163",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m235.readings.json",
+      "sha256": "7d8054038fe90f0ccf16f0d5b431409e7e1d6322b3a370721bd2d3138c6964bb",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m208[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m235.validation_report.json",
+      "sha256": "5e35397e5a75bd6bad93274ee4921af15aec9cfafbc64d04433f4b4b27abdc02",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m237.readings.json",
+      "sha256": "f0845a38487ec6c2a7b61d550be2f7600af745fbf50aa82f186dcd397450d9af",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m208[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m237.validation_report.json",
+      "sha256": "ba94bbeabd3ec9f2d20ba7c989d95b288e6e446a4d4429843f4e55376fa2de04",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m242.readings.json",
+      "sha256": "db2e7641794c18d2ac7427524c927df039d193d74378eb76b529b477a4983182",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m208[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m242.validation_report.json",
+      "sha256": "3e0df8ec2ea55d75d1256132b6ad64cbed827a58a883182b58bd3311abf61ad7",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m243.readings.json",
+      "sha256": "fad745a94f71aae388d4dee374a6e8ab2bac10f87cce29d4126f9712327caf1d",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m208[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m243.validation_report.json",
+      "sha256": "edc443cdd6c7b1153cede884b1db8fe6eebd9fbb1eedfc6c00a22138f6845999",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m246.readings.json",
+      "sha256": "9ab70369680d06a2a1f7f71f4e21032c5b96d85d81fafa3a89113f03f978d03a",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m208[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m246.validation_report.json",
+      "sha256": "87ac9188b61b7b71aa1cd88110df25e4acd3b7d38c73e89b710f35350d4493ea",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m247.readings.json",
+      "sha256": "2ecf4ad9c6f2fecb6905d0d642c91b034a5e01afe92d2de14a5ddfd7f73ad257",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m216[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m247.validation_report.json",
+      "sha256": "79ce5a3fac2ec00b52c89c964fe36085fd551540772983020d9b2db5217b5ea5",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m248.readings.json",
+      "sha256": "304f2536186af7ac47f5a062ab9073fe4ae5b6b0df6740b2d44afc921566a271",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m216[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m248.validation_report.json",
+      "sha256": "5cf47668b2a52339935da46fe0759d9365b458b3abaa76bd72d18bbd6c1652a0",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m251.post_action.json",
+      "sha256": "9d60ed32da7e47100a713f7e07da14a6f3417fcff81d2b9353e365f8be2d4841",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_post_probe.http_code",
+      "judgment_value": true,
+      "auto_inferred": true,
+      "auto_basis": "post_probe.http_code=200 => err~0.0% vs threshold 5.0%"
+    },
+    {
+      "file": "operator_log/2026-10-24.m251.readings.json",
+      "sha256": "12b3d2c0a93a6f34246bf4d7ab07a02cb7727ff6a6f31aa0e99988916754e4ea",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m216[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m251.validation_report.json",
+      "sha256": "8188516597e3027dca1162f3df152686f0031c58cde8435f59e0687c8ef88406",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m252.readings.json",
+      "sha256": "ad31ca3eafc52bd6882ffdd32c50ccfcdb0bfe9d94a0c2f10981ee7d425323d6",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m216[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m252.validation_report.json",
+      "sha256": "a652ae93aa9de7e1c285bc84cc2cd07afa74d229fc75461966bc504386736c0f",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m254.readings.json",
+      "sha256": "28fa4115b2aaf555e4f5f52ff6e9bf7477a97e700500781b3459e35dc6dc52a9",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m221[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.m254.validation_report.json",
+      "sha256": "5024608d1bfde99171242002203d88b3d2c291622d61cb4c13f59f5f1f723808",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-24.readings.json",
+      "sha256": "32015df04f5a4102bb5bfe35a1096f27200e2378ac502e9e111488cb6e75f9e0",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_step3_relay_http_code",
+      "judgment_value": true,
+      "auto_inferred": true,
+      "auto_basis": "step3_relay_http_code=200 => err~0.0% vs threshold 5.0%"
+    },
+    {
+      "file": "operator_log/2026-10-24.validation_report.json",
+      "sha256": "0cc22558fb5ea95be8025474a4a41f2783e0ea0d19cc07701512ff7777cf7753",
+      "has_bool_judgment": true,
+      "judgment_field_name": ".checks_passed==checks_total",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m258.readings.json",
+      "sha256": "d25f35285e0df96536ea9c4a58d6126323918df8282277b10a67b2d6ee3c36c2",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m221[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m258.validation_report.json",
+      "sha256": "6d7c59d9d0c930e3cb0688430cc8d6fdb08c01effda1c8f01deadc6e2be8afc5",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m260.readings.json",
+      "sha256": "9230f085ba8fa3270891a1947d6a479a0fea3a76318cb079c6da838c5db2dcb0",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m223[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m260.validation_report.json",
+      "sha256": "4ed163b886adb5ea796265694c8979d478a022bdf5068a93b83334d6c4d05955",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m263.readings.json",
+      "sha256": "8c32eaddfbf88d34e584f3ba289ee6d2b45c8c432f7b030f297ad9eee9213b0d",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step5c_cool_wave.m261_prev_shift.status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m263.validation_report.json",
+      "sha256": "c10e1bed49ff4e6a7533d32ac175151940d8e8f8a86237363c4b889116132471",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m264.readings.json",
+      "sha256": "d02fcf7141ae77a10b0808f16fa0eddd3fc60477cc75f2cf3492b7f83831da19",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step5c_cool_wave.m261_prev_shift.status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m264.validation_report.json",
+      "sha256": "088d28bc13c196b4fe67adee15000fa01360b5388e2d38c66cb9175165fccc7b",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m299.readings.json",
+      "sha256": "49149f4b4f6348c4a07a875d445d52a7a9e4ed315d5e002c7d15b82dc0da065a",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step2d_blood_swap_side_effect.row.status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m299.validation_report.json",
+      "sha256": "aa490e18ff63234b277362341d8d99f7d4aad4a82bfe1b1ae7bdb406cc239b29",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m305.readings.json",
+      "sha256": "6ec644cf742149443dbcd6ce73da586675ba3ee8ba15cdc8ca99735004d63321",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m244[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m305.validation_report.json",
+      "sha256": "e7aa02c32232c1f45c489bd3d7ce1d41093d96ce1a74fa32e39808b26752837a",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m312.readings.json",
+      "sha256": "58cd226972bc4ff2dae1dd5a45b2946ede24d014d499dd911a39a0d40d1dfcd6",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m244[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m312.validation_report.json",
+      "sha256": "5b7a769426a528ce614566b84e418be14a8e3dc8907ea3d7e3115bb38db2bd0f",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m315.leg_audit.json",
+      "sha256": "c870a0b608e6c791519a77a6853e9f423da6cf0358b829b2f10de0902ed3757a",
+      "has_bool_judgment": true,
+      "judgment_field_name": "per_candidate.m249.ghost_legs[2].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m315.readings.json",
+      "sha256": "725cd33f93fa147ca9ecab265e4816473b717afd6d0dcf2a01b4b6f54f43940e",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m244[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m315.validation_report.json",
+      "sha256": "e8da0b5f7d922d74436c504a28e09a364f9c455e647cb92d0e5b9909bc6c029e",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m325.readings.json",
+      "sha256": "1ec7aebd776ca1c233213def5ee864c74e6121f82f607fcc11e7bf0b43b5bedc",
+      "has_bool_judgment": true,
+      "judgment_field_name": "step7_refill_gate.legs.m255[0].status",
+      "judgment_value": false,
+      "auto_inferred": false
+    },
+    {
+      "file": "operator_log/2026-10-25.m325.validation_report.json",
+      "sha256": "33dae880e75bd0f7be7c6aa8826a15b64559a1391ae370d3c3170f6d81fe53b0",
+      "has_bool_judgment": true,
+      "judgment_field_name": "all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "quality/maturity/evidence/model_factory_experiments/causal_analysis_experiment-offline-validation.json",
+      "sha256": "339e025257067a3dd61452a042d3a30a5a69ffa38e63696f58bb02cc5d90977a",
+      "has_bool_judgment": true,
+      "judgment_field_name": "passed",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "quality/maturity/evidence/model_factory_experiments/gan_training_experiment-offline-validation.json",
+      "sha256": "877dd9560ea35319722decc0c91e281713d878e45375f9ffec4fea94dc7c0edb",
+      "has_bool_judgment": true,
+      "judgment_field_name": "passed",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "quality/maturity/evidence/model_factory_experiments/gnn_training_experiment-offline-validation.json",
+      "sha256": "dfc06ebcc92cf10c2cea7052ea88e35ae38adefc20e48634d661961c772789c5",
+      "has_bool_judgment": true,
+      "judgment_field_name": "passed",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "quality/maturity/evidence/model_factory_experiments/recsys_training_experiment-offline-validation.json",
+      "sha256": "cdf428fa59df871b49340cc5bec7331539ec73f3c46aaf33c41b504a0496cda0",
+      "has_bool_judgment": true,
+      "judgment_field_name": "passed",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "quality/maturity/modules.json",
+      "sha256": "27881e124c4995558d8a02ed3f30327bfcda971764cf4b8f6d9e4ec8bfa3b7df",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "quality/maturity/policy.json",
+      "sha256": "da1efe035e9393be8092195fe364324b8c1868820eb47b96873a56926667edd7",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "schemas/factory-evidence-claims.schema.json",
+      "sha256": "0445a76a12bae48841735c01cd6a48e02b7ee797c29004ce5f6049bf42dae441",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "schemas/scientific-regression-rule.schema.json",
+      "sha256": "056d38abaf47ebd3a6b1080dbd3efa6fcaadf98484000c26be33c617a5db0fe5",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "soul_phase1_validation.json",
+      "sha256": "ad4af3f7911bdab5b8ea31da67ed2cdef2cafa106dcd56a786530932a9ad1504",
+      "has_bool_judgment": true,
+      "judgment_field_name": ".checks_passed==checks_total",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "tools/agent/llm_endpoints.json",
+      "sha256": "ccba9fe53b117a8434a62677de754489af2869e854b6f1fd5f34d4418d64a211",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "tools/agent/roles.json",
+      "sha256": "137931c83e74242f00e8f225f94df162d478518910dafdbce1b0036a813d4dc0",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "tools/agent/workers.json",
+      "sha256": "7851a8aa2cefe5b24b4bfa2490caf16683afba3077283f60cbe84517f6ff1861",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "tools/ail/corpus/records.snapshot.json",
+      "sha256": "86b94b29c1609f5dc85fac8c201b0d3c08af3e89f6e135377c9d79cdc2864127",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "tools/industrial_replay/fault-plan.example.json",
+      "sha256": "e5bf00b55de3eed4ed4b09b8c87a04a8d65bf4fce4810f73e3f5023b08501dd3",
+      "has_bool_judgment": false,
+      "judgment_field_name": null,
+      "judgment_value": null,
+      "auto_inferred": false,
+      "cannot_infer_reason": "no boolean judgment field and no inferable numeric field found"
+    },
+    {
+      "file": "validation_report.json",
+      "sha256": "cc542f029779d118e270156dfbc491933d2d621894bc47282dd76f12ae4e98fe",
+      "has_bool_judgment": true,
+      "judgment_field_name": "test_results[0].status",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "validation_report_m293.json",
+      "sha256": "238fe6b5b20fbd91972b6f88c7029c2ba7eb1a9c30d413fdad335cf5d1d69d77",
+      "has_bool_judgment": true,
+      "judgment_field_name": "auto_from_preexisting_errors",
+      "judgment_value": true,
+      "auto_inferred": true,
+      "auto_basis": "preexisting_errors=2.0 => err~2.0% vs threshold 5.0%"
+    },
+    {
+      "file": "validation_report_m300.json",
+      "sha256": "815f59da84f6b59cb89565fc99c18ed105a532abb45f237b028bff6ad6a00960",
+      "has_bool_judgment": true,
+      "judgment_field_name": "deliverables.test_suite.all_passed",
+      "judgment_value": true,
+      "auto_inferred": false
+    },
+    {
+      "file": "validation_report_m311.json",
+      "sha256": "0aa438bba4bcf34c62c3ee0aa25838311f8b97c8c846ca707c7c72108a02d9fb",
+      "has_bool_judgment": true,
+      "judgment_field_name": "rule_coverage.R1_probe_existence.all_pass",
+      "judgment_value": true,
+      "auto_inferred": false
+    }
+  ]
+}
