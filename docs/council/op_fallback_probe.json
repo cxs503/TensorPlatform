@@ -1,0 +1,437 @@
+{
+  "mission": "M-C2-P1",
+  "target_device": "SDAA Card 12 (/dev/tcaicard2, 15296MiB)",
+  "torch_version": "2.7.1",
+  "torch_sdaa_version": "3.1.1a3+gite3971b9",
+  "probe_date": "2026-10-30T02:03:51.236851",
+  "static_analysis": {
+    "libraries_scanned": 8,
+    "cpu_hardcoded_libraries": 3,
+    "cuda_only_libraries": 1,
+    "sdaa_ready_libraries": 0,
+    "total_fallback_sites": 24,
+    "total_hot_ops": 6
+  },
+  "runtime_probe": {
+    "tests_run": 3,
+    "successful_no_fallback": 1,
+    "fallback_detected": 0,
+    "errors": 1
+  },
+  "fallback_ops": [
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.zeros(device='cpu')",
+      "line": 249,
+      "function": "_normalised_adjacency",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 306,
+      "function": "run_gnn",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 307,
+      "function": "run_gnn",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 308,
+      "function": "run_gnn",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 309,
+      "function": "run_gnn",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 310,
+      "function": "run_gnn",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".to('cpu')",
+      "line": 314,
+      "function": "run_gnn",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".cpu()",
+      "line": 364,
+      "function": "run_gnn",
+      "severity": "MEDIUM"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".cpu()",
+      "line": 365,
+      "function": "run_gnn",
+      "severity": "MEDIUM"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 421,
+      "function": "predict_gnn_from_artifact",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 422,
+      "function": "predict_gnn_from_artifact",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".to('cpu')",
+      "line": 448,
+      "function": "predict_gnn_from_artifact",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".to('cpu')",
+      "line": 521,
+      "function": "_build_gan",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".to('cpu')",
+      "line": 521,
+      "function": "_build_gan",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.as_tensor(device='cpu')",
+      "line": 539,
+      "function": "run_gan",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.randn(device='cpu')",
+      "line": 567,
+      "function": "run_gan",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.randn(device='cpu')",
+      "line": 577,
+      "function": "run_gan",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.randn(device='cpu')",
+      "line": 604,
+      "function": "run_gan",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "torch.randn(device='cpu')",
+      "line": 693,
+      "function": "generate_gan_from_artifact",
+      "severity": "HIGH"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": ".cpu()",
+      "line": 694,
+      "function": "generate_gan_from_artifact",
+      "severity": "MEDIUM"
+    },
+    {
+      "library": "real_training_service",
+      "op": ".cpu()",
+      "line": 265,
+      "function": "__init__",
+      "severity": "MEDIUM"
+    },
+    {
+      "library": "real_training_service",
+      "op": ".cpu()",
+      "line": 289,
+      "function": "predict",
+      "severity": "MEDIUM"
+    },
+    {
+      "library": "real_training_service",
+      "op": ".cpu()",
+      "line": 494,
+      "function": "train",
+      "severity": "MEDIUM"
+    },
+    {
+      "library": "cv_training",
+      "op": ".cpu()",
+      "line": 338,
+      "function": "segment_image",
+      "severity": "MEDIUM"
+    }
+  ],
+  "hot_ops": [
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "relu",
+      "line": 267,
+      "function": "forward"
+    },
+    {
+      "library": "experiment_algorithms_gnn_gan",
+      "op": "softmax",
+      "line": 456,
+      "function": "predict_gnn_from_artifact"
+    },
+    {
+      "library": "cv_training",
+      "op": "softmax",
+      "line": 242,
+      "function": "predict_image"
+    },
+    {
+      "library": "model_training_service",
+      "op": "relu",
+      "line": 115,
+      "function": "forward"
+    },
+    {
+      "library": "model_training_service",
+      "op": "relu",
+      "line": 116,
+      "function": "forward"
+    },
+    {
+      "library": "model_training_service",
+      "op": "softmax",
+      "line": 337,
+      "function": "predict"
+    }
+  ],
+  "libraries": {
+    "experiment_algorithms_gnn_gan": {
+      "file": "backend/services/experiment_algorithms_gnn_gan.py",
+      "fallback_status": "CPU_HARDCODED",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 20,
+      "device_aware_count": 0,
+      "hot_op_count": 2,
+      "runtime_tested": true,
+      "runtime_result": "SUCCESS_ON_SDAA_WHEN_ADAPTED"
+    },
+    "real_training_service": {
+      "file": "backend/services/real_training_service.py",
+      "fallback_status": "CPU_HARDCODED",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 3,
+      "device_aware_count": 0,
+      "hot_op_count": 0,
+      "runtime_tested": false,
+      "runtime_result": null
+    },
+    "compression_service": {
+      "file": "backend/services/compression_service.py",
+      "fallback_status": "UNKNOWN",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 0,
+      "device_aware_count": 0,
+      "hot_op_count": 0,
+      "runtime_tested": false,
+      "runtime_result": null
+    },
+    "cv_training": {
+      "file": "backend/api/cv_training.py",
+      "fallback_status": "CPU_HARDCODED",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 1,
+      "device_aware_count": 1,
+      "hot_op_count": 1,
+      "runtime_tested": true,
+      "runtime_result": "SUCCESS_ON_SDAA_WHEN_ADAPTED"
+    },
+    "audio_training": {
+      "file": "backend/api/audio_training.py",
+      "fallback_status": "CUDA_ONLY",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 0,
+      "device_aware_count": 1,
+      "hot_op_count": 0,
+      "runtime_tested": false,
+      "runtime_result": null
+    },
+    "gan_training": {
+      "file": "backend/api/gan_training.py",
+      "fallback_status": "UNKNOWN",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 0,
+      "device_aware_count": 0,
+      "hot_op_count": 0,
+      "runtime_tested": false,
+      "runtime_result": null
+    },
+    "gnn_training": {
+      "file": "backend/api/gnn_training.py",
+      "fallback_status": "UNKNOWN",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 0,
+      "device_aware_count": 0,
+      "hot_op_count": 0,
+      "runtime_tested": false,
+      "runtime_result": null
+    },
+    "model_training_service": {
+      "file": "backend/services/model_training_service.py",
+      "fallback_status": "UNKNOWN",
+      "sdaa_aware": false,
+      "cpu_hardcoded_count": 0,
+      "device_aware_count": 0,
+      "hot_op_count": 3,
+      "runtime_tested": false,
+      "runtime_result": null
+    }
+  },
+  "runtime_tests": {
+    "basic_ops": {
+      "device": "sdaa:0",
+      "device_name": "/dev/tcaicard2",
+      "ops_tested": [
+        {
+          "op": "matmul",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "linear",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "conv2d",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "relu",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "softmax",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "batch_norm",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        }
+      ],
+      "fallback_detected": false,
+      "warnings": []
+    },
+    "gnn_training": {
+      "test": "GNN_GCN_Forward",
+      "device": "sdaa:0",
+      "status": "SUCCESS_NO_FALLBACK",
+      "fallback_detected": false,
+      "iterations_completed": 3
+    },
+    "cv_training": {
+      "test": "CV_Training_Step",
+      "device": "sdaa:0",
+      "status": "ERROR",
+      "fallback_detected": false,
+      "iterations_completed": 0,
+      "error": "view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.",
+      "traceback": "Traceback (most recent call last):\n  File \"/srv/tensor/agent/work/m303/scripts/mc2_runtime_probe.py\", line 242, in test_cv_training_step_on_sdaa\n    outputs = model(images)\n              ^^^^^^^^^^^^^\n  File \"/usr/lib64/python3.11/site-packages/torch/nn/modules/module.py\", line 1751, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib64/python3.11/site-packages/torch/nn/modules/module.py\", line 1762, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/srv/tensor/agent/work/m303/scripts/mc2_runtime_probe.py\", line 226, in forward\n    x = x.view(-1, 32 * 8 * 8)\n        ^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.\n"
+    }
+  },
+  "op_compatibility": [
+    {
+      "op": "matmul",
+      "status": "SUCCESS",
+      "result_device": "sdaa:0",
+      "on_sdaa": true,
+      "warnings": []
+    },
+    {
+      "op": "linear",
+      "status": "SUCCESS",
+      "result_device": "sdaa:0",
+      "on_sdaa": true,
+      "warnings": []
+    },
+    {
+      "op": "conv2d",
+      "status": "SUCCESS",
+      "result_device": "sdaa:0",
+      "on_sdaa": true,
+      "warnings": []
+    },
+    {
+      "op": "relu",
+      "status": "SUCCESS",
+      "result_device": "sdaa:0",
+      "on_sdaa": true,
+      "warnings": []
+    },
+    {
+      "op": "softmax",
+      "status": "SUCCESS",
+      "result_device": "sdaa:0",
+      "on_sdaa": true,
+      "warnings": []
+    },
+    {
+      "op": "batch_norm",
+      "status": "SUCCESS",
+      "result_device": "sdaa:0",
+      "on_sdaa": true,
+      "warnings": []
+    }
+  ],
+  "conclusion": {
+    "sdaa_card_functional": true,
+    "at_least_one_library_no_fallback": true,
+    "blocking_issues": [
+      "experiment_algorithms_gnn_gan.py: 20 hardcoded device='cpu' sites prevent SDAA execution",
+      "real_training_service.py: PyTorchPredictor forces .cpu() for inference",
+      "No library has SDAA-aware device selection (torch.sdaa)"
+    ],
+    "recommended_fixes": [
+      "Replace device='cpu' with configurable device parameter in experiment_algorithms_gnn_gan.py",
+      "Add SDAA backend to device selection: torch.device('sdaa' if torch.sdaa.is_available() else 'cpu')",
+      "PyTorchPredictor.predict(): keep .cpu() only for final numpy conversion, not model placement"
+    ]
+  }
+}

@@ -1,0 +1,79 @@
+{
+  "mission": "M-C2-P1",
+  "target": "SDAA Card 12 (/dev/tcaicard2)",
+  "probe_type": "runtime",
+  "tests": {
+    "basic_ops": {
+      "device": "sdaa:0",
+      "device_name": "/dev/tcaicard2",
+      "ops_tested": [
+        {
+          "op": "matmul",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "linear",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "conv2d",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "relu",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "softmax",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        },
+        {
+          "op": "batch_norm",
+          "status": "SUCCESS",
+          "result_device": "sdaa:0",
+          "on_sdaa": true,
+          "warnings": []
+        }
+      ],
+      "fallback_detected": false,
+      "warnings": []
+    },
+    "gnn_training": {
+      "test": "GNN_GCN_Forward",
+      "device": "sdaa:0",
+      "status": "SUCCESS_NO_FALLBACK",
+      "fallback_detected": false,
+      "iterations_completed": 3
+    },
+    "cv_training": {
+      "test": "CV_Training_Step",
+      "device": "sdaa:0",
+      "status": "ERROR",
+      "fallback_detected": false,
+      "iterations_completed": 0,
+      "error": "view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.",
+      "traceback": "Traceback (most recent call last):\n  File \"/srv/tensor/agent/work/m303/scripts/mc2_runtime_probe.py\", line 242, in test_cv_training_step_on_sdaa\n    outputs = model(images)\n              ^^^^^^^^^^^^^\n  File \"/usr/lib64/python3.11/site-packages/torch/nn/modules/module.py\", line 1751, in _wrapped_call_impl\n    return self._call_impl(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/usr/lib64/python3.11/site-packages/torch/nn/modules/module.py\", line 1762, in _call_impl\n    return forward_call(*args, **kwargs)\n           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^\n  File \"/srv/tensor/agent/work/m303/scripts/mc2_runtime_probe.py\", line 226, in forward\n    x = x.view(-1, 32 * 8 * 8)\n        ^^^^^^^^^^^^^^^^^^^^^^\nRuntimeError: view size is not compatible with input tensor's size and stride (at least one dimension spans across two contiguous subspaces). Use .reshape(...) instead.\n"
+    }
+  },
+  "summary": {
+    "total_tests": 3,
+    "successful_tests": 1,
+    "fallback_tests": 0,
+    "error_tests": 1
+  }
+}
