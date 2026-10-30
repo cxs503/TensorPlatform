@@ -1,0 +1,81 @@
+{
+  "mission": "M10 · Ship API代理编排层",
+  "description": "封装对 port 8002 船舶计算服务的 HTTP 调用，含重试/超时/错误处理、批量扫描、基准验证、样本存储、计时基线",
+  "endpoints": [
+    {
+      "method": "POST",
+      "path": "/api/v1/ship/batch_sweep",
+      "description": "参数矩阵批量扫描，串行/并发调用代理，返回结果数组"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ship/benchmark_validate",
+      "description": "调用代理获取计算值，与内置参考数据比较，返回error_pct+pass"
+    },
+    {
+      "method": "POST",
+      "path": "/api/v1/ship/samples/bulk",
+      "description": "批量存储样本到数据库"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ship/samples",
+      "description": "分页查询样本"
+    },
+    {
+      "method": "GET",
+      "path": "/api/v1/ship/timing_baseline",
+      "description": "返回代理层调用的 p50/p90/p99 延迟统计"
+    }
+  ],
+  "proxy_features": {
+    "retry": "自动重试（默认3次，指数退避）",
+    "timeout": "可配置超时（默认30秒）",
+    "error_handling": "ShipProxyError 异常封装，含状态码与详情",
+    "timing": "timed_call 装饰器注入，记录每次调用耗时"
+  },
+  "honest_failures": {
+    "suboff_accuracy": "Holtrop 方法对 SUBOFF 潜艇外形误差 >300%，代理层如实报告，不粉饰",
+    "ice_region": "port 8002 无冰区计算能力，冰区 ≤10% 精度不覆盖",
+    "propeller": "propeller/open_water 返回 404，推进类不纳入代理层"
+  },
+  "demo_batch_sweep": {
+    "request": {
+      "param_matrix": {
+        "length": [100, 150, 200],
+        "beam": [15, 20, 25],
+        "draft": [5, 7, 9],
+        "cb": [0.55, 0.65, 0.75],
+        "displacement": [5000, 10000, 15000],
+        "speed": [10, 12, 14]
+      },
+      "calc_type": "resistance",
+      "concurrent": true,
+      "save_samples": false
+    },
+    "note": "3^6 = 729 工况组合，并发调用返回结果数组"
+  },
+  "demo_benchmark_validate": {
+    "resistance_kvlcc2": {
+      "calc_type": "resistance",
+      "case_name": "kvlcc2_full",
+      "expected": "返回 computed_value, reference_value, error_pct, pass"
+    },
+    "resistance_suboff": {
+      "calc_type": "resistance",
+      "case_name": "suboff_model",
+      "expected": "honest-FAIL: error_pct >300%, pass=false, note 说明原因"
+    }
+  },
+  "files_created": [
+    "backend/services/ship_proxy.py",
+    "backend/models/ship_sample.py",
+    "backend/api/domain/ship_samples.py",
+    "backend/migrations/095_ship_samples.sql",
+    "artifacts/ship_proxy_demo.json"
+  ],
+  "files_modified": [
+    "backend/main.py (添加 ship_samples 路由注册 + 模型导入)",
+    "backend/api/domain/__init__.py (添加 ship_samples_router)"
+  ]
+}
