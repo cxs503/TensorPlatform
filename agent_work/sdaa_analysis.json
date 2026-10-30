@@ -1,0 +1,1433 @@
+{
+  "total_missions": 436,
+  "sdaa_sweep_count": 218,
+  "case_results": {
+    "acoustics": [
+      {
+        "mid": 12,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact JSON 存在且含设备证据行（torch.sdaa.get_device_name(0) → /dev/tcaicard12）；判据数值全部脚本算出零手抄；判据 A PASS（0.2190% ≤ 3%，单调）；判据 B PASS（1.3145% ≤ 3%，单调）；墙钟 15.3s ≤ 20min；TRITO"
+      },
+      {
+        "mid": 85,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"1. 读取 /srv/tensor/agent/work/m12/docs/sdaa_sweep/acoustics.md 与 artifacts/sdaa_acoustics.json 确认原 mission 12 交付内容；2. 从 JSON 工件程序化提取全部数字生成论文级 Markdown 报告 docs/report_m"
+      },
+      {
+        "mid": 213,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"SDAA 复跑验证：python3 benchmarks/verified/acoustics/run_sdaa_v2.py — 两门 PASS（c_err max 0.2190%, delta_err max 1.3145%, 均 ≤ 3% 且单调）。产物完整性检查：artifacts/sdaa_acoustics_v2.json "
+      },
+      {
+        "mid": 343,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"验证通过：波速误差 max 0.2190% ≤ 3%，衰减率误差 max 1.3145% ≤ 3%，单调收敛 O(N⁻²)，报告 ID 255 已发布\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qw"
+      }
+    ],
+    "aircraft_icing_naca0012_rime": [
+      {
+        "mid": 13,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"1) 运行 TRITON_INTERPRET=1 python scripts/sdaa_sweep_aircraft_icing_naca0012_rime.py --budget-s 1150 → 实际扫荡 1047.7 s，输出 artifacts JSON（gates 6/11 PASS，verdict=F"
+      },
+      {
+        "mid": 86,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 1"
+      },
+      {
+        "mid": 91,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"从 artifacts/sdaa_aircraft_icing_naca0012_rime.json 程序化提取全部数字（零手抄），写入 docs/report_m13.md（论文级五节：目的/方法/关键结果表/审计/局限），POST 至 /tensor/reports 返回 report_id=10, status=pub"
+      },
+      {
+        "mid": 173,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"python scripts/sdaa_sweep_aircraft_icing_naca0012_rime_v2.py → 11/11 gates PASS; artifacts/ 下5个JSON+5张PNG已生成; 报告已发布(report ID:100)\", \"accepted\": true, \"evidence\": "
+      }
+    ],
+    "cavity": [
+      {
+        "mid": 14,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact 存在且含设备证据行；判据数值全部脚本算出零手抄；三判据均 PASS；墙钟 103.7s ≤ 20 分钟\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\", \"c"
+      },
+      {
+        "mid": 101,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"从 artifacts/sdaa_cavity.json 程序化提取所有数字（零手抄）；报告含五节（目的/方法/关键结果表/审计与局限/结论）；POST 返回 id=22，status=published\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {"
+      },
+      {
+        "mid": 214,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 6"
+      },
+      {
+        "mid": 219,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 60, \"change"
+      },
+      {
+        "mid": 237,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.1\", \"checks\": \"1. 代码稳定性: 96² RLBM Re=1000 5k步 STABLE=True, 无NaN ✅\\n2. Ghia基准对比: 192² max_abs_dev=1.14% < 3% ✅\\n3. Ghia基准对比: 256² max_abs_dev=1.05% < 3% ✅\\n4. 网格收敛: 1.14% → 1.05% 单调下降 "
+      }
+    ],
+    "cavity_3d_full": [
+      {
+        "mid": 15,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄；honest-FAIL 如实记录\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.7-plus\", \"checks"
+      },
+      {
+        "mid": 105,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 6 个工件 JSON（sdaa_cavity_3d_full.json, kbc_diagnostic_16cube_20steps.json, suboff_bench1/2/3, suboff_best_rans_summary.json）和关键文档（LBM_VERIFICATION_TEACHING.md, P"
+      },
+      {
+        "mid": 216,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA 执行验证通过（32³/3000步 finite=True）；六门判据全过（gates_verified.json all_pass=true）；误差 <3%（64³=1.338%, 96³=0.259%）；单调收敛确认（1.338%→0.259%）；报告已发布（ID=131）\", \"accepted\": true,"
+      }
+    ],
+    "cavity_natural_convection": [
+      {
+        "mid": 16,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\", \"headline\": \"未完成：模型未调用 finish\", \"tool_c"
+      },
+      {
+        "mid": 51,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_cavity_natural_convection.json exists with device evidence and gate judgments; docs/sdaa_sweep/cavity_natural_convection.md exists with complete doc"
+      },
+      {
+        "mid": 164,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Read artifact JSONs (sdaa_cavity_natural_convection.json, result_rerun.json, gates.json, figures.json) programmatically; wrote paper-level report with 6 sections ("
+      },
+      {
+        "mid": 182,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"smoke_test N=64/10000步: Nu=2.1658 (err=-3.44%), T=[0,1] OK; rerun三档单调收敛 5.94%→2.90%→1.36%; 六门验证全过; 报告已发布(id=107)\", \"accepted\": true, \"evidence\": {\"branch\": null, \""
+      },
+      {
+        "mid": 192,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 1"
+      },
+      {
+        "mid": 195,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 204,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 208,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"verify_m208.py exit=0, 6 gates all PASS, report submitted status=200\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.7-p"
+      }
+    ],
+    "couette_2d": [
+      {
+        "mid": 17,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact JSON 存在且含设备证据行（sdaa_device_name: /dev/tcaicard10）；判据数值全部脚本算出零手抄；收敛性 honest-FAIL 如实记录\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summa"
+      },
+      {
+        "mid": 106,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"1. 读取 artifacts/sdaa_couette_2d.json（SDAA 扫荡结果）与 benchmarks/verified/couette_2d/result.json（CPU 基线）程序化提取数字；2. 撰写论文级五节报告 docs/report_m17.md（目的/方法/关键结果表/审计/局限）；3. PO"
+      },
+      {
+        "mid": 220,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"pytest: N/A (benchmark run via run.py scan); 13/13 gates PASS; report id=132 published\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\""
+      }
+    ],
+    "couette_3d": [
+      {
+        "mid": 18,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_couette_3d.json 存在且含设备证据行；判据数值全部脚本算出零手抄；all_pass=true\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.7-p"
+      },
+      {
+        "mid": 107,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 268,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"SDAA fp64 四档全部运行完成，12 项关键量判据（l2_rel_err / u_top_row_err_pct / |tau_err_pct| × H16/32/64/128）均 < 3%。报告已发布至 API（id=199）。\", \"accepted\": true, \"evidence\": {\"branch\": null, "
+      }
+    ],
+    "cylinder": [
+      {
+        "mid": 19,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.1\", \"checks\": \"- artifacts/sdaa_cylinder.json exists and contains device_name=\\\"/dev/tcaicard20\\\" (torch.sdaa.get_device_name(0) output)\\n- All 5 criteria have script-computed numeric"
+      },
+      {
+        "mid": 112,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"程序化读取 artifacts/sdaa_cylinder.json 提取全部数值（零手抄）；报告含五节（目的/方法/关键结果表/审计/局限）；honest-FAIL 如实保留；POST 返回 id=32 确认发布成功\", \"accepted\": true, \"evidence\": {\"branch\": null, \"che"
+      },
+      {
+        "mid": 226,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"re20_st D=10: UNSTABLE (NaN after ~1500 steps); re20_st D=20: Cd=6.555 (+17.49%); re20_st D=40: Cd=5.548 (-0.56% PASS); re20_st D=80: Cd=5.419 (-2.87% PASS); re100"
+      },
+      {
+        "mid": 269,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"SDAA smoke test: code path executable on sdaa:0 (27.5ms/step); All 10 key quantities (Cd/St) verified <3% error; JSON valid; Report published (ID:205)\", \"accepted\""
+      }
+    ],
+    "cylinder_3d": [
+      {
+        "mid": 20,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"- Artifact JSON valid and contains device evidence (torch.sdaa.get_device_name(0) = /dev/tcaicard0)\\n- All Cd values computed by script (zero hand-copy)\\n- 3 gates eval"
+      },
+      {
+        "mid": 53,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"JSON valid, Python syntax OK, SDAA device test passed (mass drift 0.0228%, finite=True)\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {"
+      },
+      {
+        "mid": 113,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Read artifacts from /srv/tensor/agent/work/m20 (sdaa_cylinder_3d.json, suboff benchmarks, sweep report). Wrote paper-level report docs/report_m20.md with 5 sections ("
+      },
+      {
+        "mid": 166,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"程序化读取 m53 artifacts 6 个 JSON（sdaa_cylinder_3d_diag.json, kbc_diagnostic_16cube_20steps.json, suboff_bench1/2/3, suboff_best_rans_summary.json），所有数字从 json.load 提取零手"
+      },
+      {
+        "mid": 188,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：模型未调用 finish\", \"tool"
+      },
+      {
+        "mid": 196,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \""
+      },
+      {
+        "mid": 200,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"✅ 诊断 cylinder_3d 案例在 SDAA 设备上的实际运行能力\\n✅ 检查 agent 流程问题 vs 算法问题（确认为流程问题）\\n✅ 采用独立驱动脚本+中途落盘策略绕行\\n✅ 交付 scripts/sdaa_sweep_cylinder_3d_v3.py\\n✅ 交付 artifacts/ 结果 JSON\\n✅ "
+      }
+    ],
+    "droplet_oscillation": [
+      {
+        "mid": 21,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"PASS: Device evidence captured (torch.sdaa.get_device_name(0) = '/dev/tcaicard1')\\nPASS: Script created and executes on SDAA device\\nPASS: Artifact JSON created wi"
+      },
+      {
+        "mid": 114,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Read artifacts/sdaa_droplet_oscillation.json, benchmarks/verified/droplet_oscillation/result.json, docs/sdaa_sweep/droplet_oscillation.md, suboff JSON artifacts, C"
+      },
+      {
+        "mid": 227,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 238,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"CPU smoke test passed (R=16, 200 steps, mass drift 1.91e-06); result.json validation: R128 err=-2.649% PASS, R160 err=-2.404% PASS, R224 err=-2.005% PASS, monotone"
+      }
+    ],
+    "floating_body_free_decay": [
+      {
+        "mid": 22,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_floating_body_free_decay.json 存在且含设备证据行(device_name=/dev/tcaicard0)；判据数值全部脚本算出零手抄（本案例因业务代码 bug 未能产出数值，如实记 FAIL）；脚本可重复运行\", \"accepted\": true, \"evidenc"
+      },
+      {
+        "mid": 116,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Read artifact JSONs (sdaa_floating_body_free_decay.json, suboff_bench1/2/3, suboff_best_rans_summary.json, kbc_diagnostic) and docs/sdaa_sweep/floating_body_free_d"
+      },
+      {
+        "mid": 228,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \""
+      },
+      {
+        "mid": 239,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"1. Benchmark run: PYTHONPATH=src python benchmarks/verified/floating_body_free_decay/run.py --skip-damped → verdict.pass=True, all 4 cases < 3%\\n2. pytest: PYTHONPATH=s"
+      }
+    ],
+    "kovasznay_2d": [
+      {
+        "mid": 23,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifacts JSON 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard9'）；判据数值全部脚本算出零手抄；7 项判据全部 PASS；verdict=PASS\", \"accepted\": true, \"evidence\": {\"branch\": null, \""
+      },
+      {
+        "mid": 118,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"从 /srv/tensor/agent/work/m23/artifacts/sdaa_kovasznay_2d.json 程序化提取所有数字（零手抄），生成论文级六要素报告（案例介绍/方法/关键结果表/结果图说明/注意点/误差判定+审计局限），POST 到 /tensor/reports 成功返回 id=41。\", \"accep"
+      },
+      {
+        "mid": 217,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA 设备复跑 kovasznay_2d 三档网格（ny=32/64/128），每档 20000 步，总墙钟 ~405s。11 项判据全部 PASS，最大误差 2.711% < 3%。产物：artifacts/sdaa_kovasznay_2d_v2.json + 4 张 PNG 图 + /tmp/report.json"
+      }
+    ],
+    "laplace_cac_phasefield": [
+      {
+        "mid": 24,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"正式 SDAA 扫荡 1085 s（<20 min）: per-arm err 0.0567% PASS / u_max 6.787e-05 PASS / drift@10k 8.61e-13 PASS / NaN-free PASS / B1 spread NOT_EVALUATED / 臂覆盖 FAIL → o"
+      },
+      {
+        "mid": 119,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 m24 工件目录的 sdaa_laplace_cac_phasefield.json、benchmarks/verified/laplace_cac_phasefield/README.md 和 result.json，程序化提取所有数字（零手抄）；撰写论文级六要素报告 docs/report_m24.md；POST"
+      },
+      {
+        "mid": 251,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"Qwen3.8-27B\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"Qwen3.8-27B\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 77,"
+      },
+      {
+        "mid": 293,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact_json_valid=True, report_posted=True, per_arm_table_5_entries=True, device_evidence_present=True, verdict_HONEST_FAIL=True\", \"accepted\": true, \"evidence\": "
+      },
+      {
+        "mid": 333,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\", \"headline\": \"未完成：模型未调用 finish\", \"tool_c"
+      },
+      {
+        "mid": 345,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"result.json 5/5 臂 PASS; run.py 语法 OK; 网格收敛功能验证通过; 报告已提交 (ID:265)\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\""
+      }
+    ],
+    "laplace_droplet": [
+      {
+        "mid": 25,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"Qwen3.8-27B\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"Qwen3.8-27B\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 13,"
+      },
+      {
+        "mid": 52,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"- artifacts/sdaa_laplace_droplet.json 存在且含设备证据行（device_name=/dev/accelerator-node-a, device_ok=true）\\n- 全部判据数值由脚本计算（fit_laplace 函数），零手抄\\n- 2D: 3/3 判据 PASS（σ_eff=0.056118, R²=0."
+      },
+      {
+        "mid": 165,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 176,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"性能测量（2D/3D SDAA eager 步进速率）、扰动分析（dp_40 误差 vs intercept_fraction）、逆问题求解（产生 4.010% intercept 的 dp_40 误差）、CUDA 参考数据验证、报告发布（ID=105）\", \"accepted\": true, \"evidence\": {\"b"
+      },
+      {
+        "mid": 178,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.2\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.2\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 35, \"change"
+      },
+      {
+        "mid": 183,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"pytest tests/test_m183_laplace_droplet_sweep.py -q => 3 passed (11s); 7 个真实 LBM run 全部收敛落盘（2D R=15/25/40: 6000/9000/17000 步; 3D R=12/15/18: 6000 步各）; analyze_"
+      },
+      {
+        "mid": 432,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA device verified: torch.sdaa.is_available()=True, 1x /dev/tcaicard15 (15296MiB). 2D Laplace droplet (D2Q9, R=15/25/40) run on SDAA: all 3 radii converged, σ_ef"
+      }
+    ],
+    "laplace_pr_eos": [
+      {
+        "mid": 26,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.1\", \"checks\": \"- artifacts/sdaa_laplace_pr_eos.json exists and contains device_evidence with device_name \\\"/dev/tcaicard23\\\"\\n- All criterion values computed by script (zero hand-copy"
+      },
+      {
+        "mid": 130,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"报告已发布（POST /tensor/reports 返回 id=26）；六要素完整（案例介绍/方法/结果数字表/结果图/注意点/误差判定）；关键量误差显式回答均 <3%；honest-FAIL 如实保留（L=256 未收敛但 σ 偏差仍 <3%）；零业务代码修改。\", \"accepted\": true, \"evidence"
+      },
+      {
+        "mid": 270,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"SDAA device verified (sdaa:0, /dev/tcaicard12); 4 runs completed on L=128 tier; σ error 0.213% < 3%; all ΔP errors < 0.3%; clause_i resid gate PASS; report publish"
+      }
+    ],
+    "maneuvering_steady_turn": [
+      {
+        "mid": 27,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"Ran `python scripts/sdaa_sweep_maneuvering_steady_turn.py` — exit code 0, all 8 criteria PASS, wall clock 59.89 s. Verified JSON contains device_evidence with torch.sda"
+      },
+      {
+        "mid": 131,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"报告已发布至平台 API（id=54），内容包含 maneuvering_steady_turn 完整验证结果：6 工况 × 8 判据全部 PASS，回转半径误差 ≤0.67%，漂角误差 ≤0.81%，均 <3% 阈值。工件来源：/srv/tensor/agent/work/m27/artifacts/sdaa_maneuveri"
+      },
+      {
+        "mid": 314,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"run.py exit 0, verdict pass=True, all errors <3%, report published to Tensor API\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\""
+      }
+    ],
+    "permeability": [
+      {
+        "mid": 28,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_permeability.json 存在且含设备证据行（device_name: /dev/tcaicard6）；判据数值全部脚本算出（SDAA vs CUDA 偏差 0.0884% 和 0.0446%）；逐条与门比对全部 PASS；墙钟 91s ≤ 20min；无 triton 依赖无需绕行；"
+      },
+      {
+        "mid": 132,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 artifacts/sdaa_permeability.json、docs/sdaa_sweep/permeability.md、scripts/sdaa_sweep_permeability.py、benchmarks/verified/permeability/README.md；程序化提取所有数字零手抄；报告含"
+      },
+      {
+        "mid": 315,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"scan_summary.json生成（8案例）、report.json发布（ID=233）、2张诊断图生成、误差判定PASS（φ=0.3: 1.38%, φ=0.5: 0.048%）\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summar"
+      }
+    ],
+    "permeability3d": [
+      {
+        "mid": 29,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact JSON 存在且含设备证据行 (/dev/tcaicard8)；判据数值全部脚本算出零手抄；N=64 结果与原始 CUDA 结果对比差异 <0.004%；honest-FAIL 如实记录\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {"
+      },
+      {
+        "mid": 133,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 artifacts/sdaa_permeability3d.json、benchmarks/verified/permeability3d/README.md、result.json、figures.json、gates.json、scripts/sdaa_sweep_permeability3d.py；程序化提取所"
+      },
+      {
+        "mid": 316,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 323,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 327,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"python3 scripts/sdaa_sweep_permeability3d.py (plumbing OK, archived extraction OK); curl POST /tensor/reports (ID 243 published)\", \"accepted\": true, \"evidence\": {\""
+      }
+    ],
+    "poiseuille_2d": [
+      {
+        "mid": 31,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：模型未调用 finish\", \"tool"
+      },
+      {
+        "mid": 73,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_poiseuille_2d.json 存在且含设备证据行；判据数值全部脚本算出零手抄；verdict=FAIL（honest-FAIL，误差 1.2% 略超 1% 阈值）\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {},"
+      },
+      {
+        "mid": 184,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"运行了独立验证脚本 run_poiseuille2d.py，产出 artifacts/poiseuille_2d_results.json、poiseuille_2d_report.json、poiseuille_2d_profile.png。H=60 验证通过（L2=0.19%, u_max=0.18% < 1%）。\", "
+      },
+      {
+        "mid": 279,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"登录成功；读取 sdaa_poiseuille_2d.json 工件（零手抄）；matplotlib 生成速度剖面对比图（含 base64 内嵌）；POST /tensor/reports 返回 id=189；本地保存 docs/report_m73.md 和 docs/report_m73.json\", \"accepted"
+      },
+      {
+        "mid": 285,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 artifacts/poiseuille_2d_report.json、artifacts/poiseuille_2d_results.json、benchmarks/verified/poiseuille_2d/result.json 和 README.md，程序化提取所有数字（零手抄）。用 matplotlib "
+      }
+    ],
+    "poiseuille_3d_annulus": [
+      {
+        "mid": 32,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifacts/sdaa_poiseuille_3d_annulus.json 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard11'）；判据数值全部脚本算出零手抄；direct_observable 判据 honest-FAIL（3.237% > 3%，未达稳"
+      },
+      {
+        "mid": 134,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"POST /tensor/reports 返回 id=60, status=published；markdown 2169 chars < 200000 limit；2 figures 内嵌 png_base64\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks"
+      },
+      {
+        "mid": 224,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Verified: (1) Step convergence study shows 3.24%→1.16%→1.16% (3k→49.4k→90k steps), steady state by ~50k steps; (2) Mesh convergence shows 1.16%→0.13%→0.05% (R_o=20"
+      }
+    ],
+    "poiseuille_3d_duct": [
+      {
+        "mid": 33,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact JSON 存在且含设备证据行（/dev/tcaicard15）；所有判据数值由脚本计算（零手抄）；逐条 PASS/FAIL 记录完整；墙钟 95.2s ≤ 20min；未修改业务代码；honest-FAIL 如实记录原因\", \"accepted\": true, \"evidence\": {\"branch\": "
+      },
+      {
+        "mid": 135,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 295,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"checks\": \"已创建 artifacts JSON 文件，包含逐条判据 PASS/FAIL 记录和设备证据行\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\", \"checks"
+      }
+    ],
+    "poiseuille_3d_pipe": [
+      {
+        "mid": 34,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 80, \"change"
+      },
+      {
+        "mid": 74,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"python scripts/sdaa_sweep_poiseuille_3d_pipe.py --R 20 --min-steps 20000 --max-steps 20000 --compile-mode eager  (后台 nohup，exit=0，墙钟 501.8s)\\npython scripts/s"
+      },
+      {
+        "mid": 280,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 300,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 60, \"change"
+      },
+      {
+        "mid": 311,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\", \"headline\": \"未完成：模型未调用 finish\", \"tool_c"
+      },
+      {
+        "mid": 321,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"CPU single-step OK (R=8, 500 steps, finite=True); existing result.json verified (R20: 2.15%, R40: 1.45%, both <3%, monotone convergence); report published (id:236)"
+      }
+    ],
+    "poiseuille_two_phase_cg": [
+      {
+        "mid": 35,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"运行了 scripts/sdaa_sweep_poiseuille_two_phase_cg.py，分别对 eq_ny64 和 g10_ny64 两臂各 5000 步，验证了 SDAA 设备上的可运行性、质量守恒、数值稳定性。判据数值由脚本自动计算并写入 artifacts JSON。\", \"accepted\": true,"
+      },
+      {
+        "mid": 136,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取工件 JSON (sdaa_poiseuille_two_phase_cg.json) 和文档 (docs/sdaa_sweep/poiseuille_two_phase_cg.md)，程序化提取所有数字零手抄；写入 docs/report_m35.md 论文级六要素报告；POST 至 /tensor/reports 成"
+      },
+      {
+        "mid": 252,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"VERDICT: PASS (max relL2=1.092%, all arms ≤ 3%) | SDAA device: /dev/tcaicard14 | 4/4 arms PASS | Report posted (id=163)\", \"accepted\": true, \"evidence\": {\"branch\": "
+      }
+    ],
+    "shear_wave_decay": [
+      {
+        "mid": 39,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifacts JSON 存在且含设备证据行；7 条判据全部脚本算出零手抄；墙钟 40.4s ≤ 20 分钟；零业务代码修改\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\""
+      },
+      {
+        "mid": 138,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"1) 读取 benchmarks/verified/shear_wave_decay/README.md、result.json、scan_summary.json、run.py 及教程文档，程序化提取所有判据数字；2) 用 matplotlib 从 energy_history_H64.csv/H128.csv 生成 3 "
+      }
+    ],
+    "sod_shock_tube": [
+      {
+        "mid": 40,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"运行了 scripts/sdaa_sweep_sod_shock_tube.py，验证了 artifacts/sdaa_sod_shock_tube.json 包含设备证据行和所有判据数值，10 条判据全部 PASS，墙钟 8.66s。\", \"accepted\": true, \"evidence\": {\"branch\": n"
+      },
+      {
+        "mid": 142,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"POST /tensor/reports 返回 id=66, status=published；报告含论文级六要素（案例介绍/方法/关键结果数字表/3张图/注意点/误差判定），数字全部从 artifacts/sdaa_sod_shock_tube.json 程序化提取\", \"accepted\": true, \"evidenc"
+      },
+      {
+        "mid": 433,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"checks\": \"- SDAA 设备验证通过 (torch.sdaa.is_available() = True)\\\\n- 网格收敛测试通过 (nx2000 → nx4000 误差单调下降)\\\\n- 所有判据 < 3% 通过\\\\n- 数值结果与 CPU 参考完全一致（误差在机器精度范围内）\", \"accepted\": true, \"e"
+      }
+    ],
+    "sphere_re100": [
+      {
+        "mid": 41,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 80, \"change"
+      },
+      {
+        "mid": 75,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_sphere_re100.json 存在且含设备证据行；判据数值全部脚本算出零手抄；honest-FAIL 如实记录 OOM 与 timeout 证据\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\""
+      },
+      {
+        "mid": 179,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 3"
+      },
+      {
+        "mid": 186,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"Qwen3.8-27B\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"Qwen3.8-27B\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 52,"
+      },
+      {
+        "mid": 191,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 26, \"change"
+      },
+      {
+        "mid": 198,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"脚本端到端测试：D=10, 20/80/200步均成功完成；JSON输出格式验证通过；Checkpoint机制工作正常；与CUDA参考对比确认路径正确\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qw"
+      },
+      {
+        "mid": 205,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.2\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.2\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 40, \"change"
+      },
+      {
+        "mid": 209,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"verify_m209.py复算判据PASS；SDAA冒烟测试D=16/200步完成；报告ID=124已发布\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.7-plus\", \"checks\""
+      },
+      {
+        "mid": 281,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 301,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 310,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 320,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 329,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"verify.py PASS; smoke_cpu.py bit-identical (sparse≡dense); report POSTed (ID=246)\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model"
+      }
+    ],
+    "sphere_re100_d3q27": [
+      {
+        "mid": 42,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"pytest tests/test_sdaa_sweep_sphere_re100_d3q27.py -q -> 6 passed；python scripts/sdaa_sweep_sphere_re100_d3q27.py --probe 12:300,16:300 -> 325/459 ms/step；pyt"
+      },
+      {
+        "mid": 232,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"verify.py 复现 PASS；sha256 3/3 档案匹配；Cd T1=1.122209 (+2.79%), T2=1.119780 (+2.57%)，均 < 3%；报告 id=144 已发布\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {},"
+      }
+    ],
+    "sphere_re100_mem": [
+      {
+        "mid": 46,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"artifacts/sdaa_sphere_re100_mem.json 存在且含设备证据行；判据数值全部脚本算出零手抄；honest-FAIL 如实记录\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \""
+      },
+      {
+        "mid": 149,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"从工件 /srv/tensor/agent/work/m46/artifacts/sdaa_sphere_re100_mem.json 程序化提取所有数字（cd_ref=1.0917310910948732, T1 err=+2.7708%, T2 err=+2.5401%, SDAA OOM 错误信息），零手抄。报告写入 doc"
+      },
+      {
+        "mid": 174,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"脚本运行成功 | 判据 JSON 格式正确 | 收敛曲线图生成 | 报告 API 发布成功 (ID:102)\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\", \"checks\""
+      },
+      {
+        "mid": 202,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"checks\": \"- 收敛性分析：D40→D60 误差从 2.77% 降至 2.54%，单调下降\\\\n- 收敛阶计算：p≈0.21（基于 D40→D60）\\\\n- 误差预测：D=80 预测 1.43%，D=160 预测 0.36%\\\\n- 报告发布：成功 POST /tensor/reports，报告 ID=119\\\\n- 诊断结论："
+      },
+      {
+        "mid": 243,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"python analyze_convergence.py 成功执行，输出 D=40 (err=2.78%) 和 D=60 (err=2.54%) 均 <3%，单调收敛，生成 3 张图表\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summa"
+      },
+      {
+        "mid": 290,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"pytest benchmarks/verified/sphere_re100_mem/test_verdict_m288.py -q -> 10 passed; build_verdict_m288.py -> VERDICT: PASS (T1 +2.771% n=48, T2 +2.540% n=96, mo"
+      }
+    ],
+    "sphere_re200": [
+      {
+        "mid": 47,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄；honest-FAIL 如实记录\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\", \"checks"
+      },
+      {
+        "mid": 150,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Read artifacts/sdaa_sphere_re200.json, docs/sdaa_sweep/sphere_re200.md, benchmarks/verified/sphere_re200/README.md, scripts/sdaa_sweep_sphere_re200.py, CHANGELOG.m"
+      },
+      {
+        "mid": 223,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Convergence analysis: PASS (all grids <3% at 12k steps). Checkpoint infrastructure: PASS (resume script + analysis tool). Artifact: PASS (sdaa_sphere_re200_v3.json"
+      }
+    ],
+    "square_cylinder": [
+      {
+        "mid": 48,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"- artifacts/sdaa_square_cylinder.json 存在且含设备证据行（torch_sdaa_get_device_name_0 = /dev/tcaicard18）\\n- 判据数值全部由脚本算出（Cd=1.5221, St=0.1478, err_pct 由脚本计算）\\n- G1 PASS（Cd +2.84%"
+      },
+      {
+        "mid": 156,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"从 /srv/tensor/agent/work/m48/artifacts/sdaa_square_cylinder.json 程序化提取所有数字（Cd=1.5221, St=0.1478, 误差等），零手抄；报告含论文级六要素（案例介绍/方法/关键结果表/结果图说明/注意点/误差判定）；POST 返回 id=80，status"
+      }
+    ],
+    "startup_poiseuille": [
+      {
+        "mid": 49,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifacts/sdaa_startup_poiseuille.json 存在且含设备证据行；判据数值全部脚本算出零手抄；四项判据全部 PASS；墙钟 4.7s ≤ 20 min\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary"
+      },
+      {
+        "mid": 157,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 353,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"SDAA 实机双网格扫荡 `python run.py scan sdaa_out --device sdaa`（H=59: 52,235 步 / H=119: 212,435 步）；判据复算 `python collect_evidence.py sdaa_out --baseline scan_out` → e"
+      },
+      {
+        "mid": 373,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 80, \"change"
+      },
+      {
+        "mid": 409,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA 主流程跑通（H=29 + H=59 完整跑）| 14 条判据全通过（中心线/剖面 L2/剖面逐点/网格收敛/质量守恒/数值稳定性）| 最差误差 0.429% < 3% | 报告 ID=329 已发布（六要素 + 4 图）| 历史红点澄清（单调收敛=网格方向，非时间方向）\", \"accepted\": true, \"e"
+      }
+    ],
+    "stokes_first_problem": [
+      {
+        "mid": 50,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"运行 `python scripts/sdaa_sweep_stokes_first_problem.py --out artifacts/sdaa_stokes_first_problem.json --probe-compile-default`（两次独立运行，间隔重跑）：[gates] 14/14 PASS "
+      },
+      {
+        "mid": 158,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"从 artifacts/sdaa_stokes_first_problem.json 程序化提取全部 14 条判据数据（零手抄），写入论文级六要素报告 docs/report_m50.md，POST 至 /tensor/reports 成功。\", \"accepted\": true, \"evidence\": {\"branch\""
+      }
+    ],
+    "stokes_second_problem": [
+      {
+        "mid": 60,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact JSON exists with device evidence; all criteria values script-computed; verdict PASS\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summar"
+      },
+      {
+        "mid": 233,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 255,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 302,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"验证：scan_out/result.json 显示 status=VERIFIED, passed=True, 全部 6 配置误差 <3%，两条 kH 线单调收敛。CPU 诊断重跑 H=50/kH=6 结果一致。报告已发布（ID: 217）。STATUS.md 重复条目已清理。\", \"accepted\": true, \"e"
+      },
+      {
+        "mid": 324,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"✅ 读取 README.md 和 result.json 确认判据\\n✅ 写独立脚本 scripts/sdaa_sweep_stokes_second_problem.py\\n✅ TRITON_INTERPRET=1 绕行（无 SDAA 设备）\\n✅ 程序化提取结果（零手抄）\\n✅ 与解析解比较，PASS 判定\\n✅ 写 d"
+      }
+    ],
+    "stokes_sphere_dg": [
+      {
+        "mid": 61,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"python scripts/sdaa_sweep_stokes_sphere_dg.py --tiers 0.02:8 --budget-min 19 (full 15973-step SDAA run, wall 892.3 s); python -m pytest tests/test_sdaa_sweep_"
+      },
+      {
+        "mid": 234,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"verify.py re-judgment: 12/12 PASS | MD5 integrity: 2/2 match | Code path: functional (10-step CPU rerun) | Report published: id=146\", \"accepted\": true, \"evidence\":"
+      },
+      {
+        "mid": 258,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"POST /tensor/reports 返回 status=published, id=166; Python requests GET 确认 mission_id=61 报告存在\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary"
+      }
+    ],
+    "suboff_re1000": [
+      {
+        "mid": 62,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\", \"headline\": \"未完成：模型未调用 finish\", \"tool_c"
+      },
+      {
+        "mid": 108,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：模型未调用 finish\", \"tool"
+      },
+      {
+        "mid": 145,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 35, \"change"
+      },
+      {
+        "mid": 172,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：模型未调用 finish\", \"tool"
+      },
+      {
+        "mid": 190,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 20, \"change"
+      },
+      {
+        "mid": 194,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"验证脚本执行成功；artifacts 落盘完整；报告已发布（ID=113）；Cd_tot 误差 -1.15% < 3% 达标\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\", "
+      },
+      {
+        "mid": 206,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 4"
+      },
+      {
+        "mid": 212,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"1. 证据文件第一分钟落盘: artifacts/sdaa_suboff_re1000_evidence.json (3675 bytes, 含设备行+判据+阈值+PASS/FAIL)\\n2. 新鲜SDAA运行: L=48 MRT mix50 3000步, 674.3s, 224.8ms/step, 10个checkpoint, fi"
+      },
+      {
+        "mid": 319,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"实跑（非 mock）：\\n1) `PYTHONPATH=src python benchmarks/verified/suboff_re1000/run.py --resolution 48 --steps 600 --device sdaa:0 --friction mix50` → 完成 172 s / 287"
+      },
+      {
+        "mid": 330,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 337,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"1) `python -m pytest tests/test_suboff_re1000_acceptance_gate.py -q` → 10 passed（覆盖 PASS / FAIL_ACCURACY / COARSE_GRID / SHORT_RUN / NOT_CONVERGED、窗口漂移公式、误差符号"
+      },
+      {
+        "mid": 372,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"pytest: N/A (diagnostic run, not a code fix); Report submitted: id=308 status=200; Artifacts: 3 files (2 PNG + 1 JSON); Cd(L) sweep: L=16/24/32/48 diagnostic runs "
+      }
+    ],
+    "suboff_sail_resistance": [
+      {
+        "mid": 63,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"checks\": \"1) 实跑 `python scripts/sdaa_sweep_suboff_sail_resistance.py --budget 300 --tier-timeout 200`（约 8.1 min，产物写 artifacts/），8 次 sdaa 运行全量日志留档。2) `ruff check` 干净 + `"
+      },
+      {
+        "mid": 109,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA memory probe at L∈{48,56,64,72,80,90,100,110}: all setup OK (0.38-4.47 GiB peak). Run attempts at L=64/90/100/110: all OOM on first collide step. Root cause: "
+      },
+      {
+        "mid": 244,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 80, \"change"
+      },
+      {
+        "mid": 289,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"- SDAA diagnostic scripts executed for L∈{16,24,32,48,56,64,66,68,72,80}\\n- L=16-64: COMPLETED (peak memory measured via torch.sdaa.max_memory_allocated)\\n- L=66-80: OO"
+      }
+    ],
+    "taylor_couette": [
+      {
+        "mid": 64,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"运行了 scripts/sdaa_sweep_taylor_couette.py，成功在 SDAA 设备上执行 taylor_couette 案例，墙钟 15.2 秒，结果保存至 artifacts/sdaa_taylor_couette.json，文档保存至 docs/sdaa_sweep/taylor_couette.m"
+      }
+    ],
+    "taylor_green_2d": [
+      {
+        "mid": 65,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifacts JSON 存在且含设备证据行；判据数值全部脚本算出零手抄；三条判据全部 PASS；墙钟 ~20 秒 ≤ 20 分钟；未修改业务代码\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qw"
+      },
+      {
+        "mid": 265,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 artifacts/sdaa_taylor_green_2d.json、benchmarks/verified/taylor_green_2d/README.md、result.json、energy_history.csv、scan_summary.json 等工件；用 matplotlib 生成了 2 张对比图（"
+      }
+    ],
+    "taylor_green_3d": [
+      {
+        "mid": 67,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"pytest assertions on artifacts JSON: device_evidence present, all 3 criteria PASS, monotone convergence verified\", \"accepted\": true, \"evidence\": {\"branch\": null, \""
+      },
+      {
+        "mid": 266,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 312,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"✓ 诊断triton问题（无CUDA，teco_inductor后端不完整）\\n✓ 实现CPU fallback验证路径（validate_cpu.py）\\n✓ 实际运行benchmark（N=64, 200步, CPU eager模式）\\n✓ 验证通过（err_E=+1.128% < 3%, R²=0.999998）\\n✓"
+      }
+    ],
+    "thermal_cavity": [
+      {
+        "mid": 68,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"运行了 scripts/sdaa_sweep_thermal_cavity.py，生成 artifacts/sdaa_thermal_cavity.json（含设备证据和 6 案例判据），创建 docs/sdaa_sweep/thermal_cavity.md。总墙钟 105.4s，0/6 PASS（步数不足未达稳态，诚实报"
+      },
+      {
+        "mid": 245,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"Qwen3.8-27B\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"Qwen3.8-27B\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 1, "
+      },
+      {
+        "mid": 250,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"glm-5.1\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"glm-5.1\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 80, \"change"
+      },
+      {
+        "mid": 267,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"登录成功 | 读取工件 JSON 和案例文档 | 写论文级报告(六要素完整) | POST 成功 id=172 | 报告已保存至 worktree\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen"
+      },
+      {
+        "mid": 325,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"✅ 读取 README.md 和 result.json 确认判据口径\\n✅ 编写扫荡脚本（每工况一进程 + 墙钟预算 + 增量落盘）\\n✅ 程序化提取结果数字（零手抄）\\n✅ 与基准比较，给出 PASS/FAIL 判定\\n✅ 写论文级六要素报告 docs/report_m325.md\\n✅ POST 到 /tensor/r"
+      }
+    ],
+    "thermal_cavity_3d": [
+      {
+        "mid": 69,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"artifact JSON 存在且含设备证据行（torch.sdaa.get_device_name(0)='/dev/tcaicard12'）；判据数值全部脚本算出零手抄；honest-FAIL 如实记录窗漂移 FAIL 和单调性 NOT_RUN 原因\", \"accepted\": true, \"evidence\": {\"b"
+      },
+      {
+        "mid": 273,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 artifacts/sdaa_thermal_cavity_3d.json、kbc_diagnostic_16cube_20steps.json、suboff_bench1/2/3 JSON、suboff_best_rans_summary.json、KBC_CD_ROOT_CAUSE_ANALYSIS.md、CHA"
+      },
+      {
+        "mid": 294,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA smoke test PASS (err -1.30% < 3%); device evidence captured; full ladder running in background; artifacts saved\", \"accepted\": true, \"evidence\": {\"branch\": nul"
+      },
+      {
+        "mid": 334,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 338,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 341,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"Python语法检查通过；配置文件JSON验证通过；稳态检测函数单元测试通过；11案结果程序化提取；报告已发布(id:256)\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"qwen3.6-plus\","
+      }
+    ],
+    "wigley_hydrostatics": [
+      {
+        "mid": 70,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Ran scripts/sdaa_sweep_wigley_hydrostatics.py on SDAA device; all 7 gate criteria PASS (max |err|=2.246%, max span=1.022%, wall clock=3.3s)\", \"accepted\": true, \"ev"
+      },
+      {
+        "mid": 274,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"1) 读取 artifacts/sdaa_wigley_hydrostatics.json 程序化提取全部数值（零手抄）；2) 读取 benchmarks/verified/wigley_hydrostatics/README.md 和 result.json 确认验证口径；3) 读取 wigley_hydro_full.p"
+      }
+    ],
+    "womersley": [
+      {
+        "mid": 71,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.1\", \"checks\": \"- artifacts/sdaa_womersley.json exists and contains device_name=\\\"/dev/tcaicard23\\\"\\n- All 4 per-grid verdicts present with computed values (no hand-copy)\\n- H=29 α=8 C"
+      },
+      {
+        "mid": 110,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"glm-5.1\", \"checks\": \"1. H=29 α=8 τ=0.8 reproduced: complex_rel_max=4.890% (matches m71 report) — confirmed FAIL\\n2. τ sweep (12 values, 0.80–1.20): found narrow pass window τ∈[0.87,0.88] (c"
+      },
+      {
+        "mid": 180,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：模型未调用 finish\", \"tool_calls\": 3"
+      },
+      {
+        "mid": 187,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 199,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"deepseek-v4-flash\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"deepseek-v4-flash\", \"headline\": \"未完成：模型未调用 finish\", \"tool"
+      },
+      {
+        "mid": 210,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"pytest: N/A (LBM simulation benchmark, not unit-testable in isolation); 验证: 脚本运行成功, 输出与 scan_out 数据交叉一致, 报告已发布 (id=126)\", \"accepted\": true, \"evidence\": {\"branch\": "
+      },
+      {
+        "mid": 222,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"- H=29 baseline complex_rel_max=4.89% matches API mission data (zero hand-copy)\\n- H=58 std BB=2.90% matches README H=59 result (2.90%)\\n- Convergence monotone: 4.89%→2"
+      },
+      {
+        "mid": 275,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"报告已 POST（id=183, status=published）；docs/report_m71.md 已写入工作树；2 张 png 图内嵌 base64；honest-FAIL 结论如实保留未粉饰\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}"
+      },
+      {
+        "mid": 291,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"H=29 complex=4.890% FAIL ✓ | H=58 complex=2.905% PASS ✓ | H=116 complex=0.479% PASS ✓ | 收敛单调 ✓ | 报告 POST ID 209 ✓\", \"accepted\": true, \"evidence\": {\"branch\": null, "
+      },
+      {
+        "mid": 331,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Diagnosed Womersley benchmark H=29 failure as coarse grid discretization error (Stokes layer under-resolution). Generated 4 publication-quality figures and compreh"
+      },
+      {
+        "mid": 335,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 342,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 346,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"- H=29,α=8 complex_rel=4.890% > 3% → HONEST_FAIL 确认\\n- H=29,α=4 complex_rel=2.934% ≈ 3% → 临界通过\\n- H=59,119 全部 <3% → VERIFIED\\n- 单调收敛确认（err_decreased=True）\\n- 报告已发布"
+      }
+    ],
+    "R": [
+      {
+        "mid": 143,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 artifacts/sdaa_sphere_re100_d3q27.json、benchmarks/verified/sphere_re100_d3q27/result.json、README.md、docs/sdaa_sweep/sphere_re100_d3q27.md、tier JSONs；所有数字从 JSON"
+      }
+    ],
+    "`benchmarks/verified/suboff_sail_resi": [
+      {
+        "mid": 259,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"读取了 m63 工件目录下 6 个 JSON  artifact + 1 个 Markdown 扫荡报告，程序化提取全部数字（零手抄）；写论文级六要素报告 docs/report_m63.md；POST 至 /tensor/reports 成功\", \"accepted\": true, \"evidence\": {\"branch"
+      }
+    ],
+    "###": [
+      {
+        "mid": 260,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Read artifacts/sdaa_taylor_couette.json, docs/sdaa_sweep/taylor_couette.md, docs/benchmarks/tutorials/taylor_couette.md, scripts/sdaa_sweep_taylor_couette.py; wrot"
+      }
+    ],
+    "执行标准扫荡流程：": [
+      {
+        "mid": 339,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.6-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 347,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"1. 读取result.json + 9案evidence JSON，程序化提取所有门判据数字（零手抄）；2. 生成4张matplotlib图(beta曲线/网格收敛/LWC线性/确定性)；3. POST /api/v1/tensor/reports 发布论文级报告(ID=264)，含4张内嵌png_base64图+六要素m"
+      },
+      {
+        "mid": 349,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"验证了cavity家族4个子案例（Re=100/400/1000/3D），全部对标Ghia 1982基准，最大偏差<3%，网格收敛性良好。报告已提交API（ID=268），工作树包含5个新文件。\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"s"
+      },
+      {
+        "mid": 350,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"运行了 64²/50k 和 128²/15k 步 TensorLBM D2Q9 MRT 模拟，对比 Ghia (1982) 参考值，max_abs_dev 分别为 1.39% 和 1.09%，均 <3%。基线 128²/100k=0.75%，192²/100k=0.73%。报告已发布（ID 270）。\", \"accepted"
+      },
+      {
+        "mid": 351,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"cavity_re100: nx=32 max_abs_dev=2.25%<3% PASS; nx=48 max_abs_dev=1.90%<3% PASS; 收敛序列 2.25%→1.90%→0.75%→0.73% 单调下降; 报告 ID 272 已提交\", \"accepted\": true, \"evidence\": {\""
+      },
+      {
+        "mid": 354,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 355,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA device portability verified: acoustics benchmark (D2Q9 plane wave) — 3 grid sizes, bitwise identical CPU vs SDAA (max|Δ|=0), report published id=271\", \"accept"
+      }
+    ],
+    "aircraft_icing_rg15_ipw2": [
+      {
+        "mid": 357,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA device validation: torch.sdaa.is_available()=True, device=/dev/tcaicard14, torch_sdaa=3.1.1a3+gite3971b9. Run completed: case 3.3 rime, steps=200, warmup=500,"
+      },
+      {
+        "mid": 374,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"checks\": \"Diagnostic analysis completed. Report submitted via API.\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\""
+      }
+    ],
+    "backward_step": [
+      {
+        "mid": 385,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"glm-5.1\", \"checks\": \"1. SDAA device evidence captured: torch_sdaa 3.1.1a3, /dev/tcaicard20, 16GB — verified functional\\n2. run.py code executed on SDAA: 3 short validation runs (m=8/12/16, "
+      },
+      {
+        "mid": 425,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      }
+    ],
+    "blasius_flat_plate": [
+      {
+        "mid": 386,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA设备验证: torch.sdaa.is_available()=True, /dev/tcaicard6, torch 2.7.1, 5000步D2Q9 LBM执行成功(85.3s); verify.py V1-V4全部PASS; 报告已POST (id=312)\", \"accepted\": true, \"evide"
+      },
+      {
+        "mid": 410,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"Cf误差+27.34%>3% → HONEST_FAIL; u_edge/U=1.0797>1.02 → FAIL; 报告已发布(id=338); 证据文件已生成\", \"accepted\": true, \"evidence\": {\"branch\": null, \"checks\": {}, \"summary\": {\"model"
+      }
+    ],
+    "bstep_3d": [
+      {
+        "mid": 387,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA device verified (torch.sdaa.is_available=true, /dev/tcaicard5); bstep_3d simulation ran 3000 steps on SDAA with Xr/h convergence from 1.054→2.885; evidence.js"
+      },
+      {
+        "mid": 411,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"Ran SDAA resolution ladder (H=10,16,24) with 3000 steps each on /dev/tcaicard4. Measured X_r/h via wall u_x zero-crossing. Verified ER discretization error. Genera"
+      }
+    ],
+    "capillary_invasion_washburn": [
+      {
+        "mid": 413,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"checks\": \"SDAA verification script executed successfully on /dev/tcaicard27; W32 rung completed 5000 steps; artifact JSON generated with device evidence; 3 figures generated"
+      }
+    ],
+    "channel_turb_3d": [
+      {
+        "mid": 414,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"glm-5.2\", \"checks\": \"验证脚本 `scripts/sdaa_sweep_channel_turb_3d.py` 在 SDAA 设备上运行成功（exit code 1 = honest-FAIL，符合预期）。输出数值与 README 记录完全一致：L1 RMS=20.4343%, L2 RMS=11.6651%, L3 RMS=5.3310%。设备证据 to"
+      }
+    ],
+    "collision_kernels_3d_tg": [
+      {
+        "mid": 415,
+        "status": "succeeded",
+        "verdict": "FAIL(HONEST)",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"SDAA设备验证通过(torch.sdaa.get_device_name(0)=/dev/tcaicard22); 7核可用性验证通过; artifact JSON含设备证据行; 报告已发布(id=337); 判定数值全部脚本算出零手抄; honest-FAIL如实记录\", \"accepted\": true, \"evide"
+      }
+    ],
+    "lid_driven_cavity_3d": [
+      {
+        "mid": 426,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"MiniMax-M2.5-AWQ\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"模型未调用 finish\"}, \"summary\": {\"model\": \"MiniMax-M2.5-AWQ\", \"headline\": \"未完成：模型未调用 finish\", \"tool_c"
+      },
+      {
+        "mid": 429,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"model\": \"qwen3.7-plus\", \"evidence\": {\"branch\": null, \"checks\": {\"gate\": \"no-evidence\", \"reason\": \"工作树无任何改动，不能报成功\"}, \"summary\": {\"model\": \"qwen3.7-plus\", \"headline\": \"未完成：工作树无任何改动，不能报成功\", \"tool_calls"
+      },
+      {
+        "mid": 431,
+        "status": "failed",
+        "verdict": "FAIL(worker)",
+        "snippet": "{\"stop_condition\": \"agent_lost\"}"
+      }
+    ],
+    "taylor_green_3d_decay": [
+      {
+        "mid": 427,
+        "status": "succeeded",
+        "verdict": "PASS",
+        "snippet": "{\"model\": \"qwen3.6-plus\", \"checks\": \"pytest: N/A (benchmark run, not unit test); 三档网格 err_E 均 <3%（+1.26%/+0.58%/+0.58%）；单调收敛确认；R²≥0.999995；报告已提交 API ID:349\", \"accepted\": true, \"evidence\": {\"branch\": n"
+      }
+    ]
+  },
+  "in_flight": [
+    {
+      "id": 436,
+      "status": "running",
+      "goal": "值班长班次（分析与调度，不改业务代码）。本班次职责与硬上限：\n1) 用 run 工具 curl 登录本平台（POST /api/v1/auth/login，账号 eco_admin，密码见环境变量 TENSOR_AGENT_PASS），GET /api/v1/tensor/missions?limit=50 拉近期 mission。\n2) 分析扫荡线（goal 含「SDAA 验证案例扫荡」）完工结"
+    }
+  ]
+}
