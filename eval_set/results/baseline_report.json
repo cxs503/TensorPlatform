@@ -1,0 +1,213 @@
+{
+  "title": "SWE-bench Style Fleet Capability Baseline (m538)",
+  "summary": "Evaluation set of 20 tasks extracted from historical missions m186-m325, covering 5 repos (TensorPlatform, TensorLBM, TensorPhysics, TensorDEM, TensorBEM). Baseline constructed from historical outcomes with Wilson score confidence intervals.",
+  "scenario_key": "eval_bench_fleet_baseline",
+  "mission_id": 538,
+  "tags": [
+    "evaluation",
+    "baseline",
+    "SWE-bench",
+    "fleet",
+    "capability"
+  ],
+  "generated_at": "2026-10-30T19:43:24.562507+00:00",
+  "eval_set": {
+    "total_tasks": 20,
+    "succeeded_source": 10,
+    "failed_source": 10,
+    "repos": [
+      "TensorPlatform",
+      "TensorLBM",
+      "TensorPhysics",
+      "TensorDEM",
+      "TensorBEM",
+      "TensorCAD",
+      "TensorSPH"
+    ],
+    "difficulty_distribution": {
+      "easy": 5,
+      "medium": 9,
+      "hard": 6
+    }
+  },
+  "baseline": {
+    "qwen3.7-plus": {
+      "total_tasks": 6,
+      "passed": 2,
+      "pass_rate": 0.333,
+      "wall_seconds_total": 27000,
+      "wall_hours_total": 7.5,
+      "ci_95": [
+        0.097,
+        0.7
+      ],
+      "by_difficulty": {
+        "easy": {
+          "total": 1,
+          "passed": 1,
+          "pass_rate": 1.0,
+          "wall_seconds": 3600
+        },
+        "medium": {
+          "total": 4,
+          "passed": 1,
+          "pass_rate": 0.25,
+          "wall_seconds": 21000
+        },
+        "hard": {
+          "total": 1,
+          "passed": 0,
+          "pass_rate": 0.0,
+          "wall_seconds": 2400
+        }
+      }
+    },
+    "glm-5.2": {
+      "total_tasks": 7,
+      "passed": 3,
+      "pass_rate": 0.429,
+      "wall_seconds_total": 34132,
+      "wall_hours_total": 9.5,
+      "ci_95": [
+        0.158,
+        0.75
+      ],
+      "by_difficulty": {
+        "easy": {
+          "total": 3,
+          "passed": 1,
+          "pass_rate": 0.333,
+          "wall_seconds": 7200
+        },
+        "medium": {
+          "total": 1,
+          "passed": 1,
+          "pass_rate": 1.0,
+          "wall_seconds": 5332
+        },
+        "hard": {
+          "total": 3,
+          "passed": 1,
+          "pass_rate": 0.333,
+          "wall_seconds": 21600
+        }
+      }
+    },
+    "deepseek-v4-flash": {
+      "total_tasks": 11,
+      "passed": 5,
+      "pass_rate": 0.455,
+      "wall_seconds_total": 41844,
+      "wall_hours_total": 11.6,
+      "ci_95": [
+        0.213,
+        0.72
+      ],
+      "by_difficulty": {
+        "easy": {
+          "total": 3,
+          "passed": 1,
+          "pass_rate": 0.333,
+          "wall_seconds": 5844
+        },
+        "medium": {
+          "total": 3,
+          "passed": 2,
+          "pass_rate": 0.667,
+          "wall_seconds": 15000
+        },
+        "hard": {
+          "total": 5,
+          "passed": 2,
+          "pass_rate": 0.4,
+          "wall_seconds": 21000
+        }
+      }
+    },
+    "qwen3.6-plus": {
+      "total_tasks": 7,
+      "passed": 3,
+      "pass_rate": 0.429,
+      "wall_seconds_total": 27600,
+      "wall_hours_total": 7.7,
+      "ci_95": [
+        0.158,
+        0.75
+      ],
+      "by_difficulty": {
+        "easy": {
+          "total": 3,
+          "passed": 1,
+          "pass_rate": 0.333,
+          "wall_seconds": 7200
+        },
+        "medium": {
+          "total": 1,
+          "passed": 1,
+          "pass_rate": 1.0,
+          "wall_seconds": 4800
+        },
+        "hard": {
+          "total": 3,
+          "passed": 1,
+          "pass_rate": 0.333,
+          "wall_seconds": 15600
+        }
+      }
+    },
+    "glm-5.1": {
+      "total_tasks": 7,
+      "passed": 3,
+      "pass_rate": 0.429,
+      "wall_seconds_total": 38400,
+      "wall_hours_total": 10.7,
+      "ci_95": [
+        0.158,
+        0.75
+      ],
+      "by_difficulty": {
+        "easy": {
+          "total": 1,
+          "passed": 0,
+          "pass_rate": 0.0,
+          "wall_seconds": 2400
+        },
+        "medium": {
+          "total": 3,
+          "passed": 2,
+          "pass_rate": 0.667,
+          "wall_seconds": 14400
+        },
+        "hard": {
+          "total": 3,
+          "passed": 1,
+          "pass_rate": 0.333,
+          "wall_seconds": 21600
+        }
+      }
+    }
+  },
+  "fleet_rates": {
+    "easy": 0.4,
+    "medium": 0.5555555555555556,
+    "hard": 0.3333333333333333
+  },
+  "confidence_intervals": {},
+  "methodology": {
+    "task_extraction": "20 tasks from historical missions m186-m325, balanced succeeded/failed",
+    "acceptance_criteria": "Independent verification (V1-V8), not reusing original author self-tests",
+    "baseline_construction": "Historical outcomes mapped to eval tasks; Wilson score CI for small samples",
+    "limitations": [
+      "Baseline uses historical outcomes, not fresh model runs",
+      "Many historical failures were infra-class (gateway_unavailable, agent_lost)",
+      "Models with sparse data have estimated rates from fleet-wide averages",
+      "Small sample sizes (n≤20 per model) yield wide confidence intervals"
+    ]
+  },
+  "guide_tracker_recommendations": [
+    "Add eval_bench campaign type to dispatch_helper.py",
+    "Track eval task results in tensor_mission_events with kind='eval_bench'",
+    "Add eval-specific acceptance verifier to quality gates",
+    "Integrate baseline comparison into mission completion workflow"
+  ]
+}

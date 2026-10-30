@@ -1,0 +1,5849 @@
+{
+  "meta": {
+    "verified_at": "2026-10-30T19:45:01.529835+00:00",
+    "results_file": "eval_set/results/eval_results_20261030T194201Z.json",
+    "total_tasks": 100,
+    "total_passed": 0,
+    "pass_rate": 0.0,
+    "avg_weighted_score": 0.25
+  },
+  "model_summary": {
+    "qwen3.7-plus": {
+      "total": 20,
+      "passed": 0,
+      "scores": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "avg_score": 0.25
+    },
+    "glm-5.2": {
+      "total": 20,
+      "passed": 0,
+      "scores": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "avg_score": 0.25
+    },
+    "deepseek-v4-flash": {
+      "total": 20,
+      "passed": 0,
+      "scores": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "avg_score": 0.25
+    },
+    "qwen3.6-plus": {
+      "total": 20,
+      "passed": 0,
+      "scores": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "avg_score": 0.25
+    },
+    "glm-5.1": {
+      "total": 20,
+      "passed": 0,
+      "scores": [
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25,
+        0.25
+      ],
+      "avg_score": 0.25
+    }
+  },
+  "verifications": [
+    {
+      "task_id": "EVAL-001",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m226, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527774+00:00"
+    },
+    {
+      "task_id": "EVAL-002",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m236, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527818+00:00"
+    },
+    {
+      "task_id": "EVAL-003",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m232, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527838+00:00"
+    },
+    {
+      "task_id": "EVAL-004",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m244, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527856+00:00"
+    },
+    {
+      "task_id": "EVAL-005",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorBEM, actual=TensorBEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m238, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527875+00:00"
+    },
+    {
+      "task_id": "EVAL-006",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m297, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527893+00:00"
+    },
+    {
+      "task_id": "EVAL-007",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPhysics, actual=TensorPhysics",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m322, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527912+00:00"
+    },
+    {
+      "task_id": "EVAL-008",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorDEM, actual=TensorDEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m323, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527951+00:00"
+    },
+    {
+      "task_id": "EVAL-009",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m219, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527971+00:00"
+    },
+    {
+      "task_id": "EVAL-010",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m233, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.527988+00:00"
+    },
+    {
+      "task_id": "EVAL-011",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m208, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528006+00:00"
+    },
+    {
+      "task_id": "EVAL-012",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorCAD, actual=TensorCAD",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m241, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528028+00:00"
+    },
+    {
+      "task_id": "EVAL-013",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m301, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528047+00:00"
+    },
+    {
+      "task_id": "EVAL-014",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorSPH, actual=TensorSPH",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m239, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528066+00:00"
+    },
+    {
+      "task_id": "EVAL-015",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m287, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528086+00:00"
+    },
+    {
+      "task_id": "EVAL-016",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m250, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528102+00:00"
+    },
+    {
+      "task_id": "EVAL-017",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m211, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528118+00:00"
+    },
+    {
+      "task_id": "EVAL-018",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m318, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528135+00:00"
+    },
+    {
+      "task_id": "EVAL-019",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m223, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528151+00:00"
+    },
+    {
+      "task_id": "EVAL-020",
+      "model": "qwen3.7-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m294, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528168+00:00"
+    },
+    {
+      "task_id": "EVAL-001",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m226, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528185+00:00"
+    },
+    {
+      "task_id": "EVAL-002",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m236, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528201+00:00"
+    },
+    {
+      "task_id": "EVAL-003",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m232, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528225+00:00"
+    },
+    {
+      "task_id": "EVAL-004",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m244, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528243+00:00"
+    },
+    {
+      "task_id": "EVAL-005",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorBEM, actual=TensorBEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m238, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528259+00:00"
+    },
+    {
+      "task_id": "EVAL-006",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m297, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528278+00:00"
+    },
+    {
+      "task_id": "EVAL-007",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPhysics, actual=TensorPhysics",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m322, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528294+00:00"
+    },
+    {
+      "task_id": "EVAL-008",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorDEM, actual=TensorDEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m323, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528311+00:00"
+    },
+    {
+      "task_id": "EVAL-009",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m219, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528327+00:00"
+    },
+    {
+      "task_id": "EVAL-010",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m233, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528348+00:00"
+    },
+    {
+      "task_id": "EVAL-011",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m208, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528371+00:00"
+    },
+    {
+      "task_id": "EVAL-012",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorCAD, actual=TensorCAD",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m241, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528387+00:00"
+    },
+    {
+      "task_id": "EVAL-013",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m301, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528403+00:00"
+    },
+    {
+      "task_id": "EVAL-014",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorSPH, actual=TensorSPH",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m239, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528429+00:00"
+    },
+    {
+      "task_id": "EVAL-015",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m287, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528454+00:00"
+    },
+    {
+      "task_id": "EVAL-016",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m250, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528477+00:00"
+    },
+    {
+      "task_id": "EVAL-017",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m211, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528501+00:00"
+    },
+    {
+      "task_id": "EVAL-018",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m318, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528524+00:00"
+    },
+    {
+      "task_id": "EVAL-019",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m223, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528548+00:00"
+    },
+    {
+      "task_id": "EVAL-020",
+      "model": "glm-5.2",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m294, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528571+00:00"
+    },
+    {
+      "task_id": "EVAL-001",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m226, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528619+00:00"
+    },
+    {
+      "task_id": "EVAL-002",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m236, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528642+00:00"
+    },
+    {
+      "task_id": "EVAL-003",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m232, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528672+00:00"
+    },
+    {
+      "task_id": "EVAL-004",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m244, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528695+00:00"
+    },
+    {
+      "task_id": "EVAL-005",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorBEM, actual=TensorBEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m238, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528717+00:00"
+    },
+    {
+      "task_id": "EVAL-006",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m297, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528739+00:00"
+    },
+    {
+      "task_id": "EVAL-007",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPhysics, actual=TensorPhysics",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m322, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528760+00:00"
+    },
+    {
+      "task_id": "EVAL-008",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorDEM, actual=TensorDEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m323, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528780+00:00"
+    },
+    {
+      "task_id": "EVAL-009",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m219, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528796+00:00"
+    },
+    {
+      "task_id": "EVAL-010",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m233, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528812+00:00"
+    },
+    {
+      "task_id": "EVAL-011",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m208, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528828+00:00"
+    },
+    {
+      "task_id": "EVAL-012",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorCAD, actual=TensorCAD",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m241, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528844+00:00"
+    },
+    {
+      "task_id": "EVAL-013",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m301, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528860+00:00"
+    },
+    {
+      "task_id": "EVAL-014",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorSPH, actual=TensorSPH",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m239, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528880+00:00"
+    },
+    {
+      "task_id": "EVAL-015",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m287, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528896+00:00"
+    },
+    {
+      "task_id": "EVAL-016",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m250, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528912+00:00"
+    },
+    {
+      "task_id": "EVAL-017",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m211, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528928+00:00"
+    },
+    {
+      "task_id": "EVAL-018",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m318, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528944+00:00"
+    },
+    {
+      "task_id": "EVAL-019",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m223, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528960+00:00"
+    },
+    {
+      "task_id": "EVAL-020",
+      "model": "deepseek-v4-flash",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m294, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.528978+00:00"
+    },
+    {
+      "task_id": "EVAL-001",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m226, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529001+00:00"
+    },
+    {
+      "task_id": "EVAL-002",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m236, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529029+00:00"
+    },
+    {
+      "task_id": "EVAL-003",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m232, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529076+00:00"
+    },
+    {
+      "task_id": "EVAL-004",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m244, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529100+00:00"
+    },
+    {
+      "task_id": "EVAL-005",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorBEM, actual=TensorBEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m238, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529123+00:00"
+    },
+    {
+      "task_id": "EVAL-006",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m297, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529151+00:00"
+    },
+    {
+      "task_id": "EVAL-007",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPhysics, actual=TensorPhysics",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m322, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529174+00:00"
+    },
+    {
+      "task_id": "EVAL-008",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorDEM, actual=TensorDEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m323, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529202+00:00"
+    },
+    {
+      "task_id": "EVAL-009",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m219, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529225+00:00"
+    },
+    {
+      "task_id": "EVAL-010",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m233, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529247+00:00"
+    },
+    {
+      "task_id": "EVAL-011",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m208, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529269+00:00"
+    },
+    {
+      "task_id": "EVAL-012",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorCAD, actual=TensorCAD",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m241, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529290+00:00"
+    },
+    {
+      "task_id": "EVAL-013",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m301, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529306+00:00"
+    },
+    {
+      "task_id": "EVAL-014",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorSPH, actual=TensorSPH",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m239, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529321+00:00"
+    },
+    {
+      "task_id": "EVAL-015",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m287, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529337+00:00"
+    },
+    {
+      "task_id": "EVAL-016",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m250, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529353+00:00"
+    },
+    {
+      "task_id": "EVAL-017",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m211, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529368+00:00"
+    },
+    {
+      "task_id": "EVAL-018",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m318, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529391+00:00"
+    },
+    {
+      "task_id": "EVAL-019",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m223, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529408+00:00"
+    },
+    {
+      "task_id": "EVAL-020",
+      "model": "qwen3.6-plus",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m294, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529424+00:00"
+    },
+    {
+      "task_id": "EVAL-001",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m226, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529440+00:00"
+    },
+    {
+      "task_id": "EVAL-002",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m236, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529455+00:00"
+    },
+    {
+      "task_id": "EVAL-003",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m232, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529471+00:00"
+    },
+    {
+      "task_id": "EVAL-004",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m244, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529490+00:00"
+    },
+    {
+      "task_id": "EVAL-005",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorBEM, actual=TensorBEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m238, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529509+00:00"
+    },
+    {
+      "task_id": "EVAL-006",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m297, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529525+00:00"
+    },
+    {
+      "task_id": "EVAL-007",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPhysics, actual=TensorPhysics",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m322, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529541+00:00"
+    },
+    {
+      "task_id": "EVAL-008",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorDEM, actual=TensorDEM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m323, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529556+00:00"
+    },
+    {
+      "task_id": "EVAL-009",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m219, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529572+00:00"
+    },
+    {
+      "task_id": "EVAL-010",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m233, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529597+00:00"
+    },
+    {
+      "task_id": "EVAL-011",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m208, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529614+00:00"
+    },
+    {
+      "task_id": "EVAL-012",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorCAD, actual=TensorCAD",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m241, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529630+00:00"
+    },
+    {
+      "task_id": "EVAL-013",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m301, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529646+00:00"
+    },
+    {
+      "task_id": "EVAL-014",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorSPH, actual=TensorSPH",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m239, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529669+00:00"
+    },
+    {
+      "task_id": "EVAL-015",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m287, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529686+00:00"
+    },
+    {
+      "task_id": "EVAL-016",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m250, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529702+00:00"
+    },
+    {
+      "task_id": "EVAL-017",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=3",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=10800s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m211, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529718+00:00"
+    },
+    {
+      "task_id": "EVAL-018",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=1",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=3600s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m318, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529734+00:00"
+    },
+    {
+      "task_id": "EVAL-019",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorLBM, actual=TensorLBM",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m223, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529751+00:00"
+    },
+    {
+      "task_id": "EVAL-020",
+      "model": "glm-5.1",
+      "pass": false,
+      "weighted_score": 0.25,
+      "checks": [
+        {
+          "name": "V1-terminal-success",
+          "pass": false,
+          "detail": "status=dry_run",
+          "weight": 1.0
+        },
+        {
+          "name": "V2-has-evidence",
+          "pass": false,
+          "detail": "evidence_keys=none",
+          "weight": 0.5
+        },
+        {
+          "name": "V3-criteria-coverage",
+          "pass": false,
+          "detail": "checks=0, criteria=5, coverage=0%",
+          "weight": 1.0
+        },
+        {
+          "name": "V4-check-pass-rate",
+          "pass": false,
+          "detail": "pass_rate=0.0% (0/0)",
+          "weight": 1.5
+        },
+        {
+          "name": "V5-files-changed",
+          "pass": false,
+          "detail": "files=0, min=2",
+          "weight": 0.5
+        },
+        {
+          "name": "V6-repo-match",
+          "pass": true,
+          "detail": "expected=TensorPlatform, actual=TensorPlatform",
+          "weight": 0.5
+        },
+        {
+          "name": "V7-within-budget",
+          "pass": true,
+          "detail": "wall=0s, limit=7200s",
+          "weight": 0.5
+        },
+        {
+          "name": "V8-independent-verification",
+          "pass": true,
+          "detail": "source_mission=m294, verifier=eval_bench_v1",
+          "weight": 0.5
+        }
+      ],
+      "verified_at": "2026-10-30T19:45:01.529772+00:00"
+    }
+  ]
+}
