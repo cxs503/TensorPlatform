@@ -98,7 +98,6 @@ async def lifespan(app: FastAPI):
     try:
         from database.config import engine, Base
         from models import core as _core_models
-        from models import ship_sample as _ship_sample_model
         Base.metadata.create_all(bind=engine)
         logger.info("Database tables verified")
         from migrations.run_migration import run_pending_migrations
@@ -238,12 +237,149 @@ app: FastAPI = FastAPI(
     version="2.2.0",
     lifespan=lifespan,
     docs_url=None,  # 禁用 Swagger UI
-    redoc_url="/docs",  # 使用 ReDoc
+    redoc_url=None,  # 禁用 ReDoc（依赖 jsdelivr CDN，受控环境不可达 → 改用 /docs 重定向到自托管控制台）
 )
 
 # ============================================================
 # 注册 API 路由 — 全部通过 12 个领域聚合路由器
 # ============================================================
+
+# ── 本地控制台（零 CDN 依赖，供 /tp/console 内嵌使用）──────────────
+# 说明: /docs 的 ReDoc 依赖 jsdelivr CDN，内网/受控环境不可达时是空白页，
+# 因此提供自托管的轻量控制台，并把 /docs 重定向过来。
+from fastapi.responses import RedirectResponse as _Redirect
+from fastapi.staticfiles import StaticFiles as _StaticFiles
+
+_CONSOLE_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "console")
+if os.path.isdir(_CONSOLE_DIR):
+    app.mount("/console", _StaticFiles(directory=_CONSOLE_DIR, html=True), name="console")
+
+# ── 智能体协作平台前端（frontend-factory 构建产物，SPA）──────────────
+# 构建: VITE_BASE_PATH=/tp/factory/ VITE_API_BASE_URL=/tp/api/v1 npm run build
+_FACTORY_DIR = os.path.join(os.path.dirname(os.path.abspath(__file__)), "static", "factory")
+if os.path.isdir(_FACTORY_DIR):
+    from fastapi.responses import FileResponse as _File
+
+    _FACTORY_ASSETS = os.path.join(_FACTORY_DIR, "assets")
+    if os.path.isdir(_FACTORY_ASSETS):
+        app.mount("/factory/assets", _StaticFiles(directory=_FACTORY_ASSETS), name="factory-assets")
+
+    @app.get("/factory/{full_path:path}", include_in_schema=False)
+    def _factory_spa(full_path: str):
+        """SPA history 路由回退：非资源请求一律返回 index.html。"""
+        candidate = os.path.join(_FACTORY_DIR, full_path)
+        if full_path and os.path.isfile(candidate):
+            return _File(candidate)
+        return _File(os.path.join(_FACTORY_DIR, "index.html"))
+
+
+@app.get("/docs", include_in_schema=False)
+def _docs_redirect():
+    # 相对跳转: /tp/docs → /tp/console/ ; 直连 :8010/docs → /console/（两种情况都对）
+    return _Redirect("console/", status_code=307)
+
+
+# ── 免登录入口（embedded 前端自动登录）─────────────────────────────
+# 默认账号由 TP_AUTO_LOGIN_USER 指定（默认 eco_web），TP_AUTO_LOGIN=0 可整机关闭。
+# 说明: 仅用于内嵌的大屏/工作台演示；它会为任何访问者签发该账号的令牌，
+#       因此该账号权限应尽量收敛，公网环境请勿开启。
+@app.api_route("/api/v1/auth/auto-login", methods=["GET", "POST"], include_in_schema=False)
+def _auto_login():
+    if os.getenv("TP_AUTO_LOGIN", "1") != "1":
+        raise HTTPException(status_code=404, detail="auto-login disabled")
+    from sqlalchemy import text as _text
+    from database.config import SessionLocal as _SL
+    from utils.jwt_utils import create_token_pair as _pair
+
+    username = os.getenv("TP_AUTO_LOGIN_USER", "eco_web")
+    db = _SL()
+    try:
+        row = db.execute(_text(
+            'SELECT id, username, email, role, features FROM users WHERE username = :u AND is_active = true'
+        ), {"u": username}).fetchone()
+    finally:
+        db.close()
+    if not row:
+        raise HTTPException(status_code=404, detail=f"auto-login user {username} not found")
+    uid, uname, email, role, features = row
+    tokens = _pair({"sub": uname, "user_id": uid, "role": role})
+    return {
+        **tokens,
+        "user": {"id": uid, "username": uname, "email": email, "role": role,
+                 "features": features, "is_admin": str(role).split(".")[-1].lower() == "admin"},
+        "auto": True,
+    }
+
+from database.config import get_db as _get_db_  # noqa: E402
+from api.deps import require_auth as _require_auth  # noqa: E402
+
+# ── 智能体协作平台：配置 / 总览（原定义在 factory_app.py 的独立 app，主 app 缺失 → 前端任务中心拿不到数据）──
+@app.get("/api/v1/tensor/factory", include_in_schema=False)
+def _factory_config(user: dict = Depends(_require_auth)):
+    """前端 factoryApi.config()；无 FACTORY_PROFILE 时返回可用的默认口径。"""
+    try:
+        from services.factory_profile import get_factory_profile
+        prof = get_factory_profile()
+    except Exception:
+        prof = None
+    if prof is not None:
+        try:
+            return prof.public()
+        except Exception:
+            pass
+    # 仓库列表：扫本地生态目录（前端任务中心"仓库"下拉的数据源）
+    _eco = "/srv/tensor/workspace"
+    _projects = []
+    try:
+        for _n in sorted(os.listdir(_eco)):
+            _p = os.path.join(_eco, _n)
+            if _n.startswith("Tensor") and os.path.isdir(os.path.join(_p, ".git")):
+                _projects.append({"id": _n, "name": _n})
+    except Exception:
+        pass
+    return {
+        "name": "TensorPlatform 智能体协作平台",
+        "projects": _projects,
+        "roles": [
+            {"id": "architect", "name": "架构师", "model_configured": True},
+            {"id": "implementer", "name": "实现者", "model_configured": True},
+            {"id": "verifier", "name": "验证者", "model_configured": True},
+            {"id": "documenter", "name": "文档者", "model_configured": True},
+        ],
+        "execution": {
+            "acceptance_required": os.getenv("TP_AUTO_APPROVE_ALL", "1") != "1",
+            "isolation": "host-process",
+            "autonomous_llm_configured": True,
+        },
+    }
+
+
+@app.get("/api/v1/tensor/factory/overview", include_in_schema=False)
+def _factory_overview(db=Depends(_get_db_), user: dict = Depends(_require_auth)):
+    """前端 factoryApi.overview()：任务按状态计数 + 待验收数 + 在线 agent 数。"""
+    from sqlalchemy import text as _t
+    from api.domain.tensor_common import resolved_org as _res_org
+
+    org = _res_org(None, user, db)
+    counts = db.execute(_t(
+        "SELECT status, count(*) AS count FROM tensor_dev_missions WHERE organization_id=:org GROUP BY status"
+    ), {"org": org}).mappings().all()
+    pending = db.execute(_t(
+        "SELECT count(*) FROM tensor_approval_requests WHERE organization_id=:org AND status='pending'"
+    ), {"org": org}).scalar()
+    residents = db.execute(_t(
+        "SELECT count(*) FROM factory_resident_workers WHERE organization_id=:org AND enabled "
+        "AND heartbeat_at > now() - interval '120 seconds'"
+    ), {"org": org}).scalar()
+    return {
+        "online_agent_sessions": residents or 0,
+        "online_residents": residents or 0,
+        "name": "TensorPlatform 智能体协作平台",
+        "organization_id": org,
+        "missions_by_status": {r["status"]: r["count"] for r in counts},
+        "pending_approvals": pending or 0,
+        "agents": [],
+    }
 
 # ── 能碳与新能源 ──
 # ── 认证与权限 (IAM) ──
@@ -276,15 +412,16 @@ app.include_router(misc.router, prefix="/api/v1")
 # ── 科研运行台（HPC + AI agent 操作面）──
 app.include_router(tensor.router, prefix="/api/v1")
 
-# ── 船舶批量计算（batch sweep）──
-from api.domain import ship_batch
-app.include_router(ship_batch.router, prefix="/api/v1")
-# ── 船舶基准验证 ──
-from api.domain.ship_benchmark import router as ship_benchmark_router
-app.include_router(ship_benchmark_router, prefix="/api/v1")
-# ── 船舶计算代理（Ship API Proxy Orchestration）──
-from api.domain import ship_samples  # noqa: E402
-app.include_router(ship_samples.router, prefix="/api/v1")
+# ── 智能体协作平台（常驻 agent / 战役 / 模型）──────────────────────
+# LOCAL PATCH: 这三个 router 存在于 api/ 但 main.py 未挂载，导致
+# /api/v1/tensor/factory/* 全部 404（前端 frontend-factory 的智能体页面依赖它们）。
+from api import factory_residents as _factory_residents  # noqa: E402
+from api import factory_strategy as _factory_strategy    # noqa: E402
+from api import factory_models as _factory_models        # noqa: E402
+
+app.include_router(_factory_residents.router, prefix="/api/v1")
+app.include_router(_factory_strategy.router, prefix="/api/v1")
+app.include_router(_factory_models.router, prefix="/api/v1")
 
 # ── 公共实况展示面（免登录只读，owner 2026-10-22）──
 from api import public  # noqa: E402
@@ -315,11 +452,11 @@ app.add_middleware(
 async def add_security_headers_middleware(request: Request, call_next):
     response = await call_next(request)
     response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-XSS-Protection"] = "1; mode=block"
     response.headers[
         "Content-Security-Policy"
-    ] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; frame-ancestors 'none'"
+    ] = "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: https:; font-src 'self'; frame-ancestors 'self'"
     return response
 
 

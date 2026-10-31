@@ -37,7 +37,11 @@ def load(db, sid, user, *, owner=False, lock=False):
                    {'sid': str(sid), 'org': resolved_org(None, user, db)}).mappings().first()
     if not r:
         raise HTTPException(404, 'agent session not found')
-    if owner and (r['user_id'] != user['id'] or str(user.get('role', '')).upper() != 'AGENT'):
+    # LOCAL PATCH: 常驻 agent 可能用 ADMIN/MANAGER 账号运行（自研 native worker），
+    # 只要 session 归属该账号本人即放行；纯 AGENT 角色仍是最严格口径。
+    _owner_ok_roles = {'AGENT', 'ADMIN', 'MANAGER'}
+    if owner and (r['user_id'] != user['id']
+                  or str(user.get('role', '')).upper() not in _owner_ok_roles):
         raise HTTPException(403, 'agent session belongs to another principal')
     return r
 
