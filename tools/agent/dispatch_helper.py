@@ -34,6 +34,12 @@ MEMORY_TAIL = 5              # jsonl 只注入最近 5 条，更早的 agent 自
 # 14KB 撞穿 goal≤12000 限 → 班次线 422 全卡死；保头尾裁中段）
 MEMORY_MAX_CHARS = int(os.environ.get("MEMORY_MAX_CHARS", "8500"))
 
+# 报告门禁 FOOTER（owner 2026-10-31 指令）：所有 mission 完结前必须提交论文级进展报告
+# 注入到 goal 尾部，平台派单侧统一，不依赖派单人自觉
+REPORT_GATE_FOOTER = """
+
+★报告纪律（owner 常设指令，每单必报）：finish 前必须发布论文级进展报告——用 run 工具: curl -s -X POST $TENSOR_API_BASE/tensor/reports -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d @/tmp/report.json（先 curl 登录 $TENSOR_AGENT_USER/$TENSOR_AGENT_PASS 拿 token；/tmp/report.json 内容: title/summary/scenario_key/mission_id:577/tags/markdown/figures）。报告要求（可发表论文质量，owner 2026-10-29 升级）：六要素=①案例介绍（物理背景/几何/参数表）；②怎么做的（方法/流程/关键设置/工具链）；③计算结果（数字表，程序化注入零手抄）；④结果图=场量云图+与解析解/文献/基线的比较曲线（matplotlib 生成 png 后 figures:[{name,caption,png_base64}] 内嵌；纯文档/后端任务无图必须写明理由）；⑤注意点（踩过的坑/局限/适用范围）；⑥误差判定：关键量 vs 基准误差逐项列出并显式回答「是否<3%」（无基准须声明原因，不许含糊）；honest-FAIL 如实写不得粉饰。报告未发=本单未完成（守望线会自动派补报单并记欠账）。"""
+
 
 def api(method: str, path: str, body: dict | None = None, tok: str | None = None):
     headers = {"Content-Type": "application/json"}
@@ -172,6 +178,9 @@ def main() -> int:
         memory = build_memory_block(tok, args.repo)   # 无常驻记忆：API 往次块兜底
     if memory:
         goal += memory
+    
+    # 报告门禁 FOOTER 注入（owner 2026-10-31）
+    goal += REPORT_GATE_FOOTER
 
     tc, ws, tk = (int(x) for x in args.budget.split(","))
     body: dict = {"goal": goal, "repo": args.repo,
