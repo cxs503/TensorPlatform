@@ -35,5 +35,9 @@ router.include_router(tensor_missions_router)
 router.include_router(tensor_mission_lifecycle_router)
 router.include_router(tensor_reports_router)
 router.include_router(campaign_plans_router)
+
+# ── m613: Truth Gates — Independence-Convergence Verdict Mechanism ──
+from api.truth_gates import router as truth_gates_router              # prefix="/truth-gates"
+router.include_router(truth_gates_router)
 router.include_router(tensor_repro_router)
 router.include_router(execution_lineage_router)
