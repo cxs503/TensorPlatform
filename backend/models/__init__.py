@@ -45,3 +45,12 @@ try:
     )
 except ImportError:
     pass
+
+# ── m613: Truth Gates models ──
+try:
+    from models.truth_gates import (
+        ReproVerdictVote, SplitVerdictEvent, MeteredUsage,
+        IntegrityEvent, SidecarCheckResult,
+    )
+except ImportError:
+    pass
