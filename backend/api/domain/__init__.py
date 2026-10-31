@@ -13,6 +13,7 @@ __all__ = [
     "tools_router",
     "misc_router",
     "tensor_router",
+    "ship_batch_router",
     "ship_samples_router",
 ]
 
