@@ -1,7 +1,7 @@
 """
 Tensor domain — the research console operation plane.
 
-Aggregates scenario / execution / approval / session / system routers.
+Aggregates scenario / execution / approval / session / system / campaign routers.
 Sub-modules keep their own prefixes under /api/v1/tensor/*.
 """
 from fastapi import APIRouter
@@ -19,6 +19,7 @@ from api.tensor_llm import router as tensor_llm_router                     # pre
 from api.tensor_missions import router as tensor_missions_router           # prefix="/tensor/missions"
 from api.tensor_mission_lifecycle import router as tensor_mission_lifecycle_router  # prefix="/tensor/missions" (lifecycle)
 from api.tensor_reports import router as tensor_reports_router             # prefix="/tensor/reports"
+from api.campaign_plans import router as campaign_plans_router             # prefix="/tensor/campaigns"
 from api.tensor_repro import router as tensor_repro_router                 # prefix="/tensor/repro"
 from api.execution_lineage import router as execution_lineage_router       # prefix="/lineage"
 
@@ -33,5 +34,6 @@ router.include_router(tensor_llm_router)
 router.include_router(tensor_missions_router)
 router.include_router(tensor_mission_lifecycle_router)
 router.include_router(tensor_reports_router)
+router.include_router(campaign_plans_router)
 router.include_router(tensor_repro_router)
 router.include_router(execution_lineage_router)

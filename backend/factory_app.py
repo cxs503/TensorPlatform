@@ -24,6 +24,7 @@ from api.factory_models import router as models
 from api.factory_residents import router as residents
 from api.factory_strategy import router as strategy
 from api.soul_runtime import router as soul
+from api.campaign_plans import router as campaign_plans
 from database.config import get_db
 from services.factory_profile import get_factory_profile
 
@@ -36,7 +37,7 @@ app = FastAPI(title=profile.name, version="0.1.0")
 auth = APIRouter()
 auth.routes.extend(route for route in upstream_auth.routes if route.path in ("/login", "/refresh"))
 app.include_router(auth, prefix="/api/v1/auth")
-for router in (missions, sessions, approvals, models, residents, strategy, soul):
+for router in (missions, sessions, approvals, models, residents, strategy, soul, campaign_plans):
     app.include_router(router, prefix="/api/v1")
 
 
