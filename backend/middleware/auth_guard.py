@@ -4,6 +4,7 @@
 对所有受保护的API路由强制执行JWT认证。
 """
 import logging
+import re
 from typing import Set
 
 from dotenv import load_dotenv
@@ -32,6 +33,7 @@ JWT_ALGORITHM = "HS256"
 # 跳过认证的路径（精确前缀匹配）
 SKIP_AUTH_PATHS: Set[str] = {
     "/api/v1/health",
+    "/api/v1/auth/auto-login",  # 内嵌工作台免登录（TP_AUTO_LOGIN 控制）
     "/api/v1/auth/login",
     "/api/v1/auth/register",
     "/api/v1/auth/refresh",
@@ -58,6 +60,10 @@ SKIP_AUTH_PREFIXES: Set[str] = {
     "/api/v1/auth/register",
     # 公共实况展示面（owner 2026-10-22）：只读端点，GET/HEAD 放行，写仍需认证
     "/api/v1/public",
+    # 平台自托管控制台（静态页，只读放行；写操作仍走 API 认证）
+    "/console",
+    # 智能体协作平台前端静态资源（页面本身只读放行；数据接口仍要认证）
+    "/factory",
 }
 
 
@@ -79,6 +85,11 @@ def _is_prefix_skip(path: str) -> bool:
 # 安全只读方法——前缀白名单对这些 method 放行;写方法仍需认证。
 _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
+# 报告配图免登录只读（owner 2026-10-31 选 A）：<img> 无法携带 Bearer。
+# 仅 GET/HEAD 放行单文件；路由层另有文件名白名单正则 + 路径围栏兜底。
+# （#227 曾漏交本件——重部署后 401 复发实证，本次随 #232 集结入库）
+_FIGURES_PATH_RE = re.compile(r"^/api/v1/tensor/reports/\d+/figures/[A-Za-z0-9_.-]+$")
+
 
 def _should_skip_auth(path: str, method: str) -> bool:
     """判断该请求是否需要跳过认证。
@@ -89,6 +100,10 @@ def _should_skip_auth(path: str, method: str) -> bool:
     """
     # 1. 精确匹配白名单 — 不分 method 放行
     if _is_exact_skip(path):
+        return True
+
+    # 1.5 报告配图免登录只读（仅安全方法 + 单文件正则）
+    if method.upper() in _SAFE_METHODS and _FIGURES_PATH_RE.match(path):
         return True
 
     # 2. 前缀白名单 — 仅读方法放行,写方法需认证
@@ -173,7 +188,13 @@ async def auth_guard_middleware(request: Request, call_next):
     - 未认证返回 401 JSON 错误
     """
     # ===== JWT 认证守卫 =====
+    # LOCAL PATCH: 反向代理带路径前缀部署时（uvicorn --root-path /tp），Starlette 的
+    # request.url.path 会拼上 root_path（/tp/health），导致白名单全部失配 → 一律 401。
+    # 这里先剥掉 root_path 还原成应用内部路径再判定。
     path = request.url.path
+    _root_path = (request.scope.get("root_path") or "").rstrip("/")
+    if _root_path and path.startswith(_root_path):
+        path = path[len(_root_path):] or "/"
 
     # OPTIONS 预检请求 — 始终放行
     if request.method == "OPTIONS":
