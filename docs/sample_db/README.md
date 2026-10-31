@@ -118,3 +118,26 @@ python3 tools/sample_db/backfill.py  # 修改 demo_files=None
 3. [ ] 解析 validation_report*.json（策略 3）
 4. [ ] 设计结构/多体样本 schema 扩展（策略 5）
 5. [ ] 建立样本质量监控 dashboard
+
+---
+
+## 入库准入（强制，2026-10-31 起）
+
+样本库是优化库 / 代理模型的直接训练数据源，因此入库前必须过**三门**（全过才准入，任一不过 →
+结构化错误 + JSONL 审计留痕）：
+
+1. **RunManifest 有效** —— `run_manifest.json`（或产物内嵌 `manifest` 键）+ 契约
+   `contracts/tensorphysics-run-manifest-v1.schema.json` 通过 + `validation_status='passed'`；
+2. **来源 mission 终态 succeeded** —— 平台档案（`GET /tensor/missions/{id}`）；解析不出即拒（fail-closed）；
+3. **关键文件 sha256 复算通过** —— `manifest.outputs[]` 的 `checksum_sha256` 命中 + `size_bytes` 一致
+   + `uri` 不越出 run 目录。
+
+```bash
+python3 -m src.sample_db.ingest <artifact.json> --db /tmp/samples.sqlite --api \
+    --audit outputs/sample_db_admission_audit.jsonl     # 0=准入 3=拒绝
+python3 -m src.sample_db.inspect <artifact.json> --run-dir <dir> --mission-id 811 --api  # 只体检
+```
+
+细节、拒绝码表、m811 正例体检与残留缺口：[`docs/e2e1_b1/README.md`](../e2e1_b1/README.md)。
+**批量回填请走 `src.sample_db.ingest`，不要直接调 `tools/sample_db/backfill.py`**（裸入口尚未接线，
+由 strict xfail 用例看守）。
