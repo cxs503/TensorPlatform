@@ -1,0 +1,2318 @@
+metadata:
+  name: PC-1 千工况批量执行器 - 冒烟测试集
+  version: '1.0'
+  description: 130 cases covering resistance, stability, propeller, and geometry calculations
+  total_cases: 130
+  generated_at: '2026-10-31'
+  owner: agent/m642
+execution_config:
+  max_concurrent: 10
+  timeout_per_case_s: 30
+  retry_on_failure: false
+  continue_on_failure: true
+cases:
+- case_id: propeller_024
+  category: propeller
+  description: Propeller open water case 24
+  parameters:
+    diameter_m: 7.75
+    pitch_ratio: 0.67
+    blade_area_ratio: 0.42
+    blade_count: 7
+    rpm: 115.0
+    advance_speed_kn: 15.9
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_008
+  category: stability
+  description: Stability calculation case 8
+  parameters:
+    ship_type: tanker
+    length_m: 212.2
+    beam_m: 18.9
+    draft_m: 14.45
+    kg_m: 7.0
+    heel_angle_deg: 8.2
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: propeller_001
+  category: propeller
+  description: Propeller open water case 1
+  parameters:
+    diameter_m: 3.26
+    pitch_ratio: 1.36
+    blade_area_ratio: 0.41
+    blade_count: 4
+    rpm: 130.0
+    advance_speed_kn: 14.5
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: propeller_009
+  category: propeller
+  description: Propeller open water case 9
+  parameters:
+    diameter_m: 7.8
+    pitch_ratio: 1.11
+    blade_area_ratio: 0.71
+    blade_count: 5
+    rpm: 99.0
+    advance_speed_kn: 15.3
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_017
+  category: stability
+  description: Stability calculation case 17
+  parameters:
+    ship_type: container
+    length_m: 169.1
+    beam_m: 42.5
+    draft_m: 9.36
+    kg_m: 11.86
+    heel_angle_deg: 5.8
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_012
+  category: resistance
+  description: Resistance calculation case 12
+  parameters:
+    ship_type: tanker
+    length_m: 180.2
+    beam_m: 17.3
+    draft_m: 14.13
+    speed_kn: 15.9
+    block_coefficient: 0.765
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_016
+  category: resistance
+  description: Resistance calculation case 16
+  parameters:
+    ship_type: frigate
+    length_m: 130.6
+    beam_m: 20.6
+    draft_m: 11.8
+    speed_kn: 16.3
+    block_coefficient: 0.665
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_022
+  category: propeller
+  description: Propeller open water case 22
+  parameters:
+    diameter_m: 4.42
+    pitch_ratio: 0.98
+    blade_area_ratio: 0.47
+    blade_count: 4
+    rpm: 83.0
+    advance_speed_kn: 16.6
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: propeller_020
+  category: propeller
+  description: Propeller open water case 20
+  parameters:
+    diameter_m: 4.48
+    pitch_ratio: 0.89
+    blade_area_ratio: 0.45
+    blade_count: 5
+    rpm: 85.0
+    advance_speed_kn: 17.7
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_011
+  category: resistance
+  description: Resistance calculation case 11
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 236.9
+    beam_m: 44.5
+    draft_m: 12.76
+    speed_kn: 11.2
+    block_coefficient: 0.56
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_026
+  category: propeller
+  description: Propeller open water case 26
+  parameters:
+    diameter_m: 5.14
+    pitch_ratio: 1.05
+    blade_area_ratio: 0.33
+    blade_count: 4
+    rpm: 145.0
+    advance_speed_kn: 10.1
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_032
+  category: stability
+  description: Stability calculation case 32
+  parameters:
+    ship_type: container
+    length_m: 188.0
+    beam_m: 40.0
+    draft_m: 7.34
+    kg_m: 6.02
+    heel_angle_deg: 2.1
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: failure_002
+  category: resistance
+  description: Intentional failure case 2 - invalid parameters
+  parameters:
+    ship_type: invalid_type
+    length_m: -100
+    beam_m: 0
+    draft_m: -5
+    speed_kn: -10
+  expected_status: failure
+  criteria:
+    should_fail: true
+- case_id: resistance_013
+  category: resistance
+  description: Resistance calculation case 13
+  parameters:
+    ship_type: tanker
+    length_m: 231.1
+    beam_m: 28.8
+    draft_m: 14.15
+    speed_kn: 14.4
+    block_coefficient: 0.629
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_030
+  category: propeller
+  description: Propeller open water case 30
+  parameters:
+    diameter_m: 6.31
+    pitch_ratio: 1.35
+    blade_area_ratio: 0.51
+    blade_count: 5
+    rpm: 118.0
+    advance_speed_kn: 17.1
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_002
+  category: resistance
+  description: Resistance calculation case 2
+  parameters:
+    ship_type: tanker
+    length_m: 218.1
+    beam_m: 16.1
+    draft_m: 5.94
+    speed_kn: 11.3
+    block_coefficient: 0.731
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_011
+  category: stability
+  description: Stability calculation case 11
+  parameters:
+    ship_type: tanker
+    length_m: 130.9
+    beam_m: 47.5
+    draft_m: 13.65
+    kg_m: 11.79
+    heel_angle_deg: 13.2
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_028
+  category: resistance
+  description: Resistance calculation case 28
+  parameters:
+    ship_type: frigate
+    length_m: 114.2
+    beam_m: 23.3
+    draft_m: 11.69
+    speed_kn: 11.0
+    block_coefficient: 0.59
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_014
+  category: propeller
+  description: Propeller open water case 14
+  parameters:
+    diameter_m: 7.4
+    pitch_ratio: 1.04
+    blade_area_ratio: 0.56
+    blade_count: 5
+    rpm: 68.0
+    advance_speed_kn: 15.2
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_015
+  category: resistance
+  description: Resistance calculation case 15
+  parameters:
+    ship_type: container
+    length_m: 143.9
+    beam_m: 49.9
+    draft_m: 10.1
+    speed_kn: 9.3
+    block_coefficient: 0.564
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_023
+  category: resistance
+  description: Resistance calculation case 23
+  parameters:
+    ship_type: tanker
+    length_m: 295.6
+    beam_m: 33.6
+    draft_m: 6.26
+    speed_kn: 17.2
+    block_coefficient: 0.834
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_012
+  category: stability
+  description: Stability calculation case 12
+  parameters:
+    ship_type: tanker
+    length_m: 135.9
+    beam_m: 47.4
+    draft_m: 12.82
+    kg_m: 6.71
+    heel_angle_deg: 4.0
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_004
+  category: resistance
+  description: Resistance calculation case 4
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 251.8
+    beam_m: 20.6
+    draft_m: 9.23
+    speed_kn: 11.9
+    block_coefficient: 0.615
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_014
+  category: resistance
+  description: Resistance calculation case 14
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 249.0
+    beam_m: 33.9
+    draft_m: 12.47
+    speed_kn: 14.0
+    block_coefficient: 0.725
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_010
+  category: propeller
+  description: Propeller open water case 10
+  parameters:
+    diameter_m: 7.83
+    pitch_ratio: 0.82
+    blade_area_ratio: 0.7
+    blade_count: 7
+    rpm: 102.0
+    advance_speed_kn: 16.3
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_024
+  category: resistance
+  description: Resistance calculation case 24
+  parameters:
+    ship_type: tanker
+    length_m: 153.0
+    beam_m: 45.5
+    draft_m: 9.23
+    speed_kn: 11.0
+    block_coefficient: 0.712
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_021
+  category: propeller
+  description: Propeller open water case 21
+  parameters:
+    diameter_m: 5.77
+    pitch_ratio: 1.16
+    blade_area_ratio: 0.36
+    blade_count: 7
+    rpm: 69.0
+    advance_speed_kn: 8.1
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_006
+  category: stability
+  description: Stability calculation case 6
+  parameters:
+    ship_type: frigate
+    length_m: 201.1
+    beam_m: 23.8
+    draft_m: 14.08
+    kg_m: 3.35
+    heel_angle_deg: 12.4
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: propeller_006
+  category: propeller
+  description: Propeller open water case 6
+  parameters:
+    diameter_m: 3.38
+    pitch_ratio: 1.15
+    blade_area_ratio: 0.61
+    blade_count: 4
+    rpm: 123.0
+    advance_speed_kn: 11.0
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: propeller_015
+  category: propeller
+  description: Propeller open water case 15
+  parameters:
+    diameter_m: 5.44
+    pitch_ratio: 1.21
+    blade_area_ratio: 0.65
+    blade_count: 7
+    rpm: 100.0
+    advance_speed_kn: 8.2
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_008
+  category: resistance
+  description: Resistance calculation case 8
+  parameters:
+    ship_type: tanker
+    length_m: 271.1
+    beam_m: 45.3
+    draft_m: 8.8
+    speed_kn: 14.3
+    block_coefficient: 0.8
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_004
+  category: propeller
+  description: Propeller open water case 4
+  parameters:
+    diameter_m: 3.84
+    pitch_ratio: 1.09
+    blade_area_ratio: 0.67
+    blade_count: 4
+    rpm: 130.0
+    advance_speed_kn: 9.6
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_003
+  category: resistance
+  description: Resistance calculation case 3
+  parameters:
+    ship_type: container
+    length_m: 243.2
+    beam_m: 39.5
+    draft_m: 9.2
+    speed_kn: 14.3
+    block_coefficient: 0.633
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_003
+  category: geometry
+  description: Geometry verification case 3
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 200.1
+    beam_m: 32.3
+    draft_m: 5.8
+    block_coefficient: 0.562
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: resistance_021
+  category: resistance
+  description: Resistance calculation case 21
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 219.8
+    beam_m: 32.1
+    draft_m: 6.12
+    speed_kn: 13.1
+    block_coefficient: 0.846
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_006
+  category: geometry
+  description: Geometry verification case 6
+  parameters:
+    ship_type: tanker
+    length_m: 194.1
+    beam_m: 37.8
+    draft_m: 14.16
+    block_coefficient: 0.604
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: propeller_017
+  category: propeller
+  description: Propeller open water case 17
+  parameters:
+    diameter_m: 5.13
+    pitch_ratio: 1.2
+    blade_area_ratio: 0.47
+    blade_count: 7
+    rpm: 84.0
+    advance_speed_kn: 10.5
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_027
+  category: stability
+  description: Stability calculation case 27
+  parameters:
+    ship_type: tanker
+    length_m: 278.5
+    beam_m: 45.1
+    draft_m: 13.85
+    kg_m: 10.01
+    heel_angle_deg: 2.6
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: propeller_002
+  category: propeller
+  description: Propeller open water case 2
+  parameters:
+    diameter_m: 6.77
+    pitch_ratio: 1.36
+    blade_area_ratio: 0.4
+    blade_count: 4
+    rpm: 116.0
+    advance_speed_kn: 10.4
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_026
+  category: resistance
+  description: Resistance calculation case 26
+  parameters:
+    ship_type: tanker
+    length_m: 124.2
+    beam_m: 22.9
+    draft_m: 8.38
+    speed_kn: 16.2
+    block_coefficient: 0.619
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_040
+  category: resistance
+  description: Resistance calculation case 40
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 286.9
+    beam_m: 22.1
+    draft_m: 12.16
+    speed_kn: 11.3
+    block_coefficient: 0.669
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_020
+  category: stability
+  description: Stability calculation case 20
+  parameters:
+    ship_type: tanker
+    length_m: 201.4
+    beam_m: 38.3
+    draft_m: 8.26
+    kg_m: 9.27
+    heel_angle_deg: 2.9
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_017
+  category: resistance
+  description: Resistance calculation case 17
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 205.8
+    beam_m: 49.0
+    draft_m: 13.61
+    speed_kn: 8.2
+    block_coefficient: 0.766
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_012
+  category: geometry
+  description: Geometry verification case 12
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 224.5
+    beam_m: 32.4
+    draft_m: 9.42
+    block_coefficient: 0.565
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: propeller_018
+  category: propeller
+  description: Propeller open water case 18
+  parameters:
+    diameter_m: 3.6
+    pitch_ratio: 0.75
+    blade_area_ratio: 0.36
+    blade_count: 5
+    rpm: 77.0
+    advance_speed_kn: 15.4
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_028
+  category: stability
+  description: Stability calculation case 28
+  parameters:
+    ship_type: frigate
+    length_m: 203.6
+    beam_m: 16.8
+    draft_m: 7.49
+    kg_m: 5.87
+    heel_angle_deg: 2.0
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_038
+  category: stability
+  description: Stability calculation case 38
+  parameters:
+    ship_type: container
+    length_m: 206.8
+    beam_m: 46.7
+    draft_m: 10.92
+    kg_m: 8.97
+    heel_angle_deg: 9.6
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_027
+  category: resistance
+  description: Resistance calculation case 27
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 101.4
+    beam_m: 39.8
+    draft_m: 5.59
+    speed_kn: 8.9
+    block_coefficient: 0.559
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_010
+  category: resistance
+  description: Resistance calculation case 10
+  parameters:
+    ship_type: tanker
+    length_m: 206.8
+    beam_m: 23.6
+    draft_m: 9.62
+    speed_kn: 11.8
+    block_coefficient: 0.828
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_007
+  category: stability
+  description: Stability calculation case 7
+  parameters:
+    ship_type: frigate
+    length_m: 100.7
+    beam_m: 42.0
+    draft_m: 11.37
+    kg_m: 5.36
+    heel_angle_deg: 8.3
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: propeller_025
+  category: propeller
+  description: Propeller open water case 25
+  parameters:
+    diameter_m: 4.13
+    pitch_ratio: 1.02
+    blade_area_ratio: 0.53
+    blade_count: 7
+    rpm: 87.0
+    advance_speed_kn: 13.9
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_033
+  category: stability
+  description: Stability calculation case 33
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 176.6
+    beam_m: 20.3
+    draft_m: 7.14
+    kg_m: 5.02
+    heel_angle_deg: 8.1
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_034
+  category: resistance
+  description: Resistance calculation case 34
+  parameters:
+    ship_type: frigate
+    length_m: 133.3
+    beam_m: 32.0
+    draft_m: 7.14
+    speed_kn: 13.6
+    block_coefficient: 0.568
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_007
+  category: propeller
+  description: Propeller open water case 7
+  parameters:
+    diameter_m: 6.42
+    pitch_ratio: 1.24
+    blade_area_ratio: 0.7
+    blade_count: 4
+    rpm: 91.0
+    advance_speed_kn: 12.3
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_029
+  category: resistance
+  description: Resistance calculation case 29
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 148.6
+    beam_m: 31.6
+    draft_m: 9.07
+    speed_kn: 9.3
+    block_coefficient: 0.748
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_015
+  category: stability
+  description: Stability calculation case 15
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 170.2
+    beam_m: 32.8
+    draft_m: 11.8
+    kg_m: 10.59
+    heel_angle_deg: 14.1
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_039
+  category: stability
+  description: Stability calculation case 39
+  parameters:
+    ship_type: frigate
+    length_m: 273.4
+    beam_m: 21.4
+    draft_m: 7.6
+    kg_m: 4.74
+    heel_angle_deg: 4.9
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_007
+  category: resistance
+  description: Resistance calculation case 7
+  parameters:
+    ship_type: container
+    length_m: 215.5
+    beam_m: 39.7
+    draft_m: 5.46
+    speed_kn: 11.2
+    block_coefficient: 0.637
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_016
+  category: stability
+  description: Stability calculation case 16
+  parameters:
+    ship_type: container
+    length_m: 275.4
+    beam_m: 24.1
+    draft_m: 10.81
+    kg_m: 9.28
+    heel_angle_deg: 1.6
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_022
+  category: resistance
+  description: Resistance calculation case 22
+  parameters:
+    ship_type: container
+    length_m: 147.9
+    beam_m: 23.4
+    draft_m: 10.67
+    speed_kn: 9.1
+    block_coefficient: 0.77
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_011
+  category: geometry
+  description: Geometry verification case 11
+  parameters:
+    ship_type: container
+    length_m: 231.5
+    beam_m: 34.0
+    draft_m: 9.13
+    block_coefficient: 0.606
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: resistance_033
+  category: resistance
+  description: Resistance calculation case 33
+  parameters:
+    ship_type: tanker
+    length_m: 110.1
+    beam_m: 50.0
+    draft_m: 13.36
+    speed_kn: 21.6
+    block_coefficient: 0.828
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_023
+  category: propeller
+  description: Propeller open water case 23
+  parameters:
+    diameter_m: 3.57
+    pitch_ratio: 0.65
+    blade_area_ratio: 0.55
+    blade_count: 4
+    rpm: 74.0
+    advance_speed_kn: 16.1
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_005
+  category: resistance
+  description: Resistance calculation case 5
+  parameters:
+    ship_type: container
+    length_m: 120.4
+    beam_m: 28.3
+    draft_m: 8.59
+    speed_kn: 12.8
+    block_coefficient: 0.629
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_014
+  category: geometry
+  description: Geometry verification case 14
+  parameters:
+    ship_type: container
+    length_m: 105.8
+    beam_m: 37.1
+    draft_m: 12.99
+    block_coefficient: 0.763
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: propeller_008
+  category: propeller
+  description: Propeller open water case 8
+  parameters:
+    diameter_m: 4.85
+    pitch_ratio: 1.0
+    blade_area_ratio: 0.47
+    blade_count: 7
+    rpm: 134.0
+    advance_speed_kn: 9.1
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: failure_004
+  category: resistance
+  description: Intentional failure case 4 - invalid parameters
+  parameters:
+    ship_type: invalid_type
+    length_m: -100
+    beam_m: 0
+    draft_m: -5
+    speed_kn: -10
+  expected_status: failure
+  criteria:
+    should_fail: true
+- case_id: stability_040
+  category: stability
+  description: Stability calculation case 40
+  parameters:
+    ship_type: frigate
+    length_m: 155.7
+    beam_m: 48.3
+    draft_m: 9.22
+    kg_m: 10.51
+    heel_angle_deg: 0.3
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: geometry_004
+  category: geometry
+  description: Geometry verification case 4
+  parameters:
+    ship_type: frigate
+    length_m: 246.9
+    beam_m: 36.1
+    draft_m: 5.26
+    block_coefficient: 0.619
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_001
+  category: stability
+  description: Stability calculation case 1
+  parameters:
+    ship_type: container
+    length_m: 191.4
+    beam_m: 47.5
+    draft_m: 14.36
+    kg_m: 3.08
+    heel_angle_deg: 1.1
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_006
+  category: resistance
+  description: Resistance calculation case 6
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 245.9
+    beam_m: 33.8
+    draft_m: 14.73
+    speed_kn: 13.3
+    block_coefficient: 0.716
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_013
+  category: stability
+  description: Stability calculation case 13
+  parameters:
+    ship_type: frigate
+    length_m: 121.6
+    beam_m: 45.5
+    draft_m: 13.59
+    kg_m: 5.0
+    heel_angle_deg: 5.2
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: failure_005
+  category: resistance
+  description: Intentional failure case 5 - invalid parameters
+  parameters:
+    ship_type: invalid_type
+    length_m: -100
+    beam_m: 0
+    draft_m: -5
+    speed_kn: -10
+  expected_status: failure
+  criteria:
+    should_fail: true
+- case_id: propeller_029
+  category: propeller
+  description: Propeller open water case 29
+  parameters:
+    diameter_m: 6.51
+    pitch_ratio: 0.96
+    blade_area_ratio: 0.64
+    blade_count: 6
+    rpm: 131.0
+    advance_speed_kn: 14.3
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_034
+  category: stability
+  description: Stability calculation case 34
+  parameters:
+    ship_type: container
+    length_m: 112.5
+    beam_m: 44.2
+    draft_m: 8.89
+    kg_m: 9.93
+    heel_angle_deg: 12.9
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: failure_003
+  category: resistance
+  description: Intentional failure case 3 - invalid parameters
+  parameters:
+    ship_type: invalid_type
+    length_m: -100
+    beam_m: 0
+    draft_m: -5
+    speed_kn: -10
+  expected_status: failure
+  criteria:
+    should_fail: true
+- case_id: propeller_028
+  category: propeller
+  description: Propeller open water case 28
+  parameters:
+    diameter_m: 5.04
+    pitch_ratio: 1.15
+    blade_area_ratio: 0.53
+    blade_count: 4
+    rpm: 81.0
+    advance_speed_kn: 15.1
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_002
+  category: stability
+  description: Stability calculation case 2
+  parameters:
+    ship_type: tanker
+    length_m: 201.2
+    beam_m: 19.6
+    draft_m: 8.49
+    kg_m: 3.31
+    heel_angle_deg: 5.5
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: geometry_002
+  category: geometry
+  description: Geometry verification case 2
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 187.8
+    beam_m: 31.4
+    draft_m: 8.04
+    block_coefficient: 0.671
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_009
+  category: stability
+  description: Stability calculation case 9
+  parameters:
+    ship_type: container
+    length_m: 216.5
+    beam_m: 20.2
+    draft_m: 6.27
+    kg_m: 4.56
+    heel_angle_deg: 13.5
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_030
+  category: stability
+  description: Stability calculation case 30
+  parameters:
+    ship_type: tanker
+    length_m: 278.4
+    beam_m: 29.9
+    draft_m: 14.07
+    kg_m: 6.94
+    heel_angle_deg: 11.2
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: geometry_001
+  category: geometry
+  description: Geometry verification case 1
+  parameters:
+    ship_type: tanker
+    length_m: 114.3
+    beam_m: 20.8
+    draft_m: 8.08
+    block_coefficient: 0.775
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_003
+  category: stability
+  description: Stability calculation case 3
+  parameters:
+    ship_type: container
+    length_m: 187.6
+    beam_m: 34.0
+    draft_m: 8.03
+    kg_m: 11.85
+    heel_angle_deg: 10.0
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_005
+  category: stability
+  description: Stability calculation case 5
+  parameters:
+    ship_type: tanker
+    length_m: 210.6
+    beam_m: 24.5
+    draft_m: 11.05
+    kg_m: 7.7
+    heel_angle_deg: 10.3
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: geometry_005
+  category: geometry
+  description: Geometry verification case 5
+  parameters:
+    ship_type: container
+    length_m: 299.9
+    beam_m: 38.5
+    draft_m: 7.7
+    block_coefficient: 0.562
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_029
+  category: stability
+  description: Stability calculation case 29
+  parameters:
+    ship_type: frigate
+    length_m: 233.5
+    beam_m: 49.6
+    draft_m: 10.95
+    kg_m: 11.55
+    heel_angle_deg: 9.2
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_018
+  category: stability
+  description: Stability calculation case 18
+  parameters:
+    ship_type: tanker
+    length_m: 138.0
+    beam_m: 16.6
+    draft_m: 9.36
+    kg_m: 4.89
+    heel_angle_deg: 5.5
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: geometry_015
+  category: geometry
+  description: Geometry verification case 15
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 210.2
+    beam_m: 34.3
+    draft_m: 5.93
+    block_coefficient: 0.848
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_023
+  category: stability
+  description: Stability calculation case 23
+  parameters:
+    ship_type: tanker
+    length_m: 235.1
+    beam_m: 32.9
+    draft_m: 12.94
+    kg_m: 11.64
+    heel_angle_deg: 9.9
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: propeller_005
+  category: propeller
+  description: Propeller open water case 5
+  parameters:
+    diameter_m: 4.56
+    pitch_ratio: 1.06
+    blade_area_ratio: 0.76
+    blade_count: 7
+    rpm: 96.0
+    advance_speed_kn: 15.2
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_035
+  category: stability
+  description: Stability calculation case 35
+  parameters:
+    ship_type: frigate
+    length_m: 176.1
+    beam_m: 15.2
+    draft_m: 8.52
+    kg_m: 5.28
+    heel_angle_deg: 8.1
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_036
+  category: stability
+  description: Stability calculation case 36
+  parameters:
+    ship_type: frigate
+    length_m: 209.2
+    beam_m: 36.1
+    draft_m: 7.21
+    kg_m: 4.97
+    heel_angle_deg: 7.3
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_039
+  category: resistance
+  description: Resistance calculation case 39
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 215.8
+    beam_m: 16.4
+    draft_m: 5.82
+    speed_kn: 17.2
+    block_coefficient: 0.72
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_013
+  category: propeller
+  description: Propeller open water case 13
+  parameters:
+    diameter_m: 3.91
+    pitch_ratio: 0.77
+    blade_area_ratio: 0.7
+    blade_count: 6
+    rpm: 85.0
+    advance_speed_kn: 14.0
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_037
+  category: resistance
+  description: Resistance calculation case 37
+  parameters:
+    ship_type: container
+    length_m: 111.4
+    beam_m: 35.4
+    draft_m: 10.03
+    speed_kn: 19.9
+    block_coefficient: 0.597
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_001
+  category: resistance
+  description: Resistance calculation case 1
+  parameters:
+    ship_type: container
+    length_m: 227.9
+    beam_m: 15.9
+    draft_m: 7.75
+    speed_kn: 11.1
+    block_coefficient: 0.771
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_008
+  category: geometry
+  description: Geometry verification case 8
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 164.2
+    beam_m: 18.7
+    draft_m: 6.61
+    block_coefficient: 0.673
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_025
+  category: stability
+  description: Stability calculation case 25
+  parameters:
+    ship_type: container
+    length_m: 261.3
+    beam_m: 20.2
+    draft_m: 5.46
+    kg_m: 8.37
+    heel_angle_deg: 6.8
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_004
+  category: stability
+  description: Stability calculation case 4
+  parameters:
+    ship_type: container
+    length_m: 159.9
+    beam_m: 38.2
+    draft_m: 14.39
+    kg_m: 4.21
+    heel_angle_deg: 13.3
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: geometry_007
+  category: geometry
+  description: Geometry verification case 7
+  parameters:
+    ship_type: frigate
+    length_m: 227.0
+    beam_m: 32.2
+    draft_m: 5.91
+    block_coefficient: 0.654
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: propeller_019
+  category: propeller
+  description: Propeller open water case 19
+  parameters:
+    diameter_m: 4.38
+    pitch_ratio: 1.07
+    blade_area_ratio: 0.68
+    blade_count: 6
+    rpm: 148.0
+    advance_speed_kn: 16.3
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_036
+  category: resistance
+  description: Resistance calculation case 36
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 131.0
+    beam_m: 25.4
+    draft_m: 14.69
+    speed_kn: 16.1
+    block_coefficient: 0.713
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_009
+  category: resistance
+  description: Resistance calculation case 9
+  parameters:
+    ship_type: tanker
+    length_m: 174.0
+    beam_m: 22.3
+    draft_m: 7.67
+    speed_kn: 21.1
+    block_coefficient: 0.744
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: resistance_018
+  category: resistance
+  description: Resistance calculation case 18
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 253.7
+    beam_m: 26.9
+    draft_m: 7.94
+    speed_kn: 10.2
+    block_coefficient: 0.551
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_016
+  category: propeller
+  description: Propeller open water case 16
+  parameters:
+    diameter_m: 4.47
+    pitch_ratio: 0.92
+    blade_area_ratio: 0.42
+    blade_count: 6
+    rpm: 103.0
+    advance_speed_kn: 13.3
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: geometry_013
+  category: geometry
+  description: Geometry verification case 13
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 209.8
+    beam_m: 47.5
+    draft_m: 9.38
+    block_coefficient: 0.759
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_037
+  category: stability
+  description: Stability calculation case 37
+  parameters:
+    ship_type: frigate
+    length_m: 167.2
+    beam_m: 38.8
+    draft_m: 9.04
+    kg_m: 4.49
+    heel_angle_deg: 13.8
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_025
+  category: resistance
+  description: Resistance calculation case 25
+  parameters:
+    ship_type: frigate
+    length_m: 242.6
+    beam_m: 29.0
+    draft_m: 11.72
+    speed_kn: 13.2
+    block_coefficient: 0.82
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_010
+  category: stability
+  description: Stability calculation case 10
+  parameters:
+    ship_type: frigate
+    length_m: 236.4
+    beam_m: 38.3
+    draft_m: 8.54
+    kg_m: 8.04
+    heel_angle_deg: 14.6
+    loading_condition: partial
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_019
+  category: resistance
+  description: Resistance calculation case 19
+  parameters:
+    ship_type: tanker
+    length_m: 294.4
+    beam_m: 41.7
+    draft_m: 10.08
+    speed_kn: 9.5
+    block_coefficient: 0.738
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_031
+  category: stability
+  description: Stability calculation case 31
+  parameters:
+    ship_type: frigate
+    length_m: 190.0
+    beam_m: 41.3
+    draft_m: 13.4
+    kg_m: 5.5
+    heel_angle_deg: 9.4
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_019
+  category: stability
+  description: Stability calculation case 19
+  parameters:
+    ship_type: container
+    length_m: 289.8
+    beam_m: 47.2
+    draft_m: 11.23
+    kg_m: 8.97
+    heel_angle_deg: 10.8
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_032
+  category: resistance
+  description: Resistance calculation case 32
+  parameters:
+    ship_type: container
+    length_m: 128.0
+    beam_m: 21.4
+    draft_m: 9.63
+    speed_kn: 20.2
+    block_coefficient: 0.573
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: stability_021
+  category: stability
+  description: Stability calculation case 21
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 288.1
+    beam_m: 38.7
+    draft_m: 14.03
+    kg_m: 8.54
+    heel_angle_deg: 6.1
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: stability_022
+  category: stability
+  description: Stability calculation case 22
+  parameters:
+    ship_type: bulk_carrier
+    length_m: 160.8
+    beam_m: 22.4
+    draft_m: 12.86
+    kg_m: 6.75
+    heel_angle_deg: 7.0
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: failure_001
+  category: resistance
+  description: Intentional failure case 1 - invalid parameters
+  parameters:
+    ship_type: invalid_type
+    length_m: -100
+    beam_m: 0
+    draft_m: -5
+    speed_kn: -10
+  expected_status: failure
+  criteria:
+    should_fail: true
+- case_id: stability_014
+  category: stability
+  description: Stability calculation case 14
+  parameters:
+    ship_type: container
+    length_m: 144.6
+    beam_m: 38.1
+    draft_m: 8.98
+    kg_m: 5.51
+    heel_angle_deg: 14.5
+    loading_condition: ballast
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_035
+  category: resistance
+  description: Resistance calculation case 35
+  parameters:
+    ship_type: frigate
+    length_m: 100.4
+    beam_m: 28.7
+    draft_m: 14.27
+    speed_kn: 19.0
+    block_coefficient: 0.636
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_011
+  category: propeller
+  description: Propeller open water case 11
+  parameters:
+    diameter_m: 5.96
+    pitch_ratio: 0.86
+    blade_area_ratio: 0.42
+    blade_count: 4
+    rpm: 85.0
+    advance_speed_kn: 12.5
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: stability_026
+  category: stability
+  description: Stability calculation case 26
+  parameters:
+    ship_type: tanker
+    length_m: 215.1
+    beam_m: 40.1
+    draft_m: 8.84
+    kg_m: 6.6
+    heel_angle_deg: 9.8
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_038
+  category: resistance
+  description: Resistance calculation case 38
+  parameters:
+    ship_type: tanker
+    length_m: 270.3
+    beam_m: 17.4
+    draft_m: 5.68
+    speed_kn: 20.1
+    block_coefficient: 0.671
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_012
+  category: propeller
+  description: Propeller open water case 12
+  parameters:
+    diameter_m: 6.75
+    pitch_ratio: 1.06
+    blade_area_ratio: 0.63
+    blade_count: 6
+    rpm: 63.0
+    advance_speed_kn: 16.5
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: geometry_010
+  category: geometry
+  description: Geometry verification case 10
+  parameters:
+    ship_type: frigate
+    length_m: 117.6
+    beam_m: 23.8
+    draft_m: 6.16
+    block_coefficient: 0.782
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: stability_024
+  category: stability
+  description: Stability calculation case 24
+  parameters:
+    ship_type: tanker
+    length_m: 203.1
+    beam_m: 37.2
+    draft_m: 8.35
+    kg_m: 10.37
+    heel_angle_deg: 10.1
+    loading_condition: full_load
+  expected_status: success
+  criteria:
+    gm_m:
+      min: -5.0
+      max: 20.0
+    displacement_t:
+      min: 500
+      max: 500000
+- case_id: resistance_020
+  category: resistance
+  description: Resistance calculation case 20
+  parameters:
+    ship_type: container
+    length_m: 130.6
+    beam_m: 41.7
+    draft_m: 10.39
+    speed_kn: 18.9
+    block_coefficient: 0.709
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: propeller_027
+  category: propeller
+  description: Propeller open water case 27
+  parameters:
+    diameter_m: 4.06
+    pitch_ratio: 1.13
+    blade_area_ratio: 0.38
+    blade_count: 5
+    rpm: 110.0
+    advance_speed_kn: 9.6
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: propeller_003
+  category: propeller
+  description: Propeller open water case 3
+  parameters:
+    diameter_m: 5.37
+    pitch_ratio: 0.69
+    blade_area_ratio: 0.77
+    blade_count: 7
+    rpm: 123.0
+    advance_speed_kn: 15.7
+  expected_status: success
+  criteria:
+    thrust_coefficient:
+      min: 0.0
+      max: 1.0
+    torque_coefficient:
+      min: 0.0
+      max: 0.5
+    efficiency:
+      min: 0.0
+      max: 1.0
+- case_id: resistance_031
+  category: resistance
+  description: Resistance calculation case 31
+  parameters:
+    ship_type: frigate
+    length_m: 112.1
+    beam_m: 40.5
+    draft_m: 13.01
+    speed_kn: 9.5
+    block_coefficient: 0.607
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
+- case_id: geometry_009
+  category: geometry
+  description: Geometry verification case 9
+  parameters:
+    ship_type: frigate
+    length_m: 157.6
+    beam_m: 48.1
+    draft_m: 13.14
+    block_coefficient: 0.715
+  expected_status: success
+  criteria:
+    volume_displacement_m3:
+      min: 100
+      max: 500000
+    wetted_surface_m2:
+      min: 500
+      max: 100000
+- case_id: resistance_030
+  category: resistance
+  description: Resistance calculation case 30
+  parameters:
+    ship_type: container
+    length_m: 184.7
+    beam_m: 31.3
+    draft_m: 12.29
+    speed_kn: 17.4
+    block_coefficient: 0.845
+  expected_status: success
+  criteria:
+    resistance_kn:
+      min: 1
+      max: 50000
