@@ -16,6 +16,7 @@ __all__ = [
     "ship_batch_router",
     "ship_samples_router",
     "coupling_clock_sync_router",
+    "ice_uq_router",
 ]
 
 
