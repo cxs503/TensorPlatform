@@ -18,7 +18,7 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException
-ConfigDict, BaseModel, Field
+from pydantic import ConfigDict, BaseModel, Field
 
 logger = logging.getLogger(__name__)
 

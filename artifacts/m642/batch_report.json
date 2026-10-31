@@ -1,0 +1,4363 @@
+{
+  "batch_id": "batch-20261031T011542Z",
+  "started_at": "2026-10-31T01:15:42.587451+00:00",
+  "finished_at": "2026-10-31T01:15:42.612123+00:00",
+  "total_cases": 130,
+  "success_count": 125,
+  "failed_count": 5,
+  "skipped_count": 0,
+  "timeout_count": 0,
+  "total_duration_s": 0.02,
+  "avg_duration_s": 0.0001,
+  "max_duration_s": 0.0003,
+  "min_duration_s": 0.0,
+  "cases": [
+    {
+      "case_id": "stability_038",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6031551,
+      "finished_at": 1793409342.6031992,
+      "duration_s": 4.410743713378906e-05,
+      "result": {
+        "gm_m": 13.133,
+        "displacement_t": 75667.9,
+        "righting_moment_knm": 1633.39,
+        "kb_m": 5.46,
+        "bm_m": 16.64
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 13.133,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 75667.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_024",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.600514,
+      "finished_at": 1793409342.6005576,
+      "duration_s": 4.363059997558594e-05,
+      "result": {
+        "resistance_kn": 9925.82,
+        "wetted_surface_m2": 5947.9,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 9925.82,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_017",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.602512,
+      "finished_at": 1793409342.602553,
+      "duration_s": 4.100799560546875e-05,
+      "result": {
+        "resistance_kn": 8767.15,
+        "wetted_surface_m2": 9269.4,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 8767.15,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_022",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5937824,
+      "finished_at": 1793409342.593864,
+      "duration_s": 8.153915405273438e-05,
+      "result": {
+        "advance_coefficient": 1.3966,
+        "thrust_coefficient": 0.081,
+        "torque_coefficient": 0.0779,
+        "efficiency": 0.3,
+        "thrust_kn": 60.66
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.081,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0779,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_011",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.5981154,
+      "finished_at": 1793409342.5981803,
+      "duration_s": 6.4849853515625e-05,
+      "result": {
+        "gm_m": 8.809,
+        "displacement_t": 60895.9,
+        "righting_moment_knm": 1212.43,
+        "kb_m": 6.83,
+        "bm_m": 13.77
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 8.809,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 60895.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_012",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5920932,
+      "finished_at": 1793409342.5921528,
+      "duration_s": 5.9604644775390625e-05,
+      "result": {
+        "resistance_kn": 10173.26,
+        "wetted_surface_m2": 2861.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 10173.26,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_002",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.602256,
+      "finished_at": 1793409342.6022975,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "advance_coefficient": 0.4087,
+        "thrust_coefficient": 0.3774,
+        "torque_coefficient": 0.0582,
+        "efficiency": 0.422,
+        "thrust_kn": 3037.19
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3774,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0582,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.422,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_020",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.593921,
+      "finished_at": 1793409342.5939863,
+      "duration_s": 6.532669067382812e-05,
+      "result": {
+        "advance_coefficient": 1.4346,
+        "thrust_coefficient": 0.0696,
+        "torque_coefficient": 0.0787,
+        "efficiency": 0.3,
+        "thrust_kn": 57.69
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.0696,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0787,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_024",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5909781,
+      "finished_at": 1793409342.59126,
+      "duration_s": 0.0002818107604980469,
+      "result": {
+        "advance_coefficient": 0.5506,
+        "thrust_coefficient": 0.3348,
+        "torque_coefficient": 0.061,
+        "efficiency": 0.4809,
+        "thrust_kn": 4548.08
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3348,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.061,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4809,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_020",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6024437,
+      "finished_at": 1793409342.6024904,
+      "duration_s": 4.673004150390625e-05,
+      "result": {
+        "gm_m": 9.659,
+        "displacement_t": 45715.2,
+        "righting_moment_knm": 219.25,
+        "kb_m": 4.13,
+        "bm_m": 14.8
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 9.659,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 45715.2,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_008",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.601331,
+      "finished_at": 1793409342.6013732,
+      "duration_s": 4.220008850097656e-05,
+      "result": {
+        "resistance_kn": 34328.6,
+        "wetted_surface_m2": 11789.6,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 34328.6,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_028",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5982347,
+      "finished_at": 1793409342.5982988,
+      "duration_s": 6.413459777832031e-05,
+      "result": {
+        "resistance_kn": 3002.39,
+        "wetted_surface_m2": 1883.9,
+        "friction_coefficient": 0.075,
+        "ship_type": "frigate"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 3002.39,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_030",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5968843,
+      "finished_at": 1793409342.5969348,
+      "duration_s": 5.054473876953125e-05,
+      "result": {
+        "advance_coefficient": 0.7088,
+        "thrust_coefficient": 0.2874,
+        "torque_coefficient": 0.0642,
+        "efficiency": 0.5051,
+        "thrust_kn": 1806.01
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2874,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0642,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5051,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_009",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5919337,
+      "finished_at": 1793409342.5919907,
+      "duration_s": 5.698204040527344e-05,
+      "result": {
+        "advance_coefficient": 0.6115,
+        "thrust_coefficient": 0.3165,
+        "torque_coefficient": 0.0622,
+        "efficiency": 0.4951,
+        "thrust_kn": 3269.66
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3165,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0622,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4951,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_034",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6035516,
+      "finished_at": 1793409342.603594,
+      "duration_s": 4.2438507080078125e-05,
+      "result": {
+        "resistance_kn": 7022.79,
+        "wetted_surface_m2": 2907.4,
+        "friction_coefficient": 0.075,
+        "ship_type": "frigate"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 7022.79,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_029",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6036773,
+      "finished_at": 1793409342.6037161,
+      "duration_s": 3.886222839355469e-05,
+      "result": {
+        "resistance_kn": 5094.46,
+        "wetted_surface_m2": 4214.9,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 5094.46,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_001",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5916054,
+      "finished_at": 1793409342.5916555,
+      "duration_s": 5.0067901611328125e-05,
+      "result": {
+        "advance_coefficient": 1.056,
+        "thrust_coefficient": 0.1832,
+        "torque_coefficient": 0.0711,
+        "efficiency": 0.4329,
+        "thrust_kn": 99.57
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.1832,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0711,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4329,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_003",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.60153,
+      "finished_at": 1793409342.6015794,
+      "duration_s": 4.935264587402344e-05,
+      "result": {
+        "volume_displacement_m3": 21067.5,
+        "wetted_surface_m2": 5626.4,
+        "prismatic_coefficient": 0.5735,
+        "waterplane_area_m2": 5493.7,
+        "length_beam_ratio": 6.2
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 21067.5,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 5626.4,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_027",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6021876,
+      "finished_at": 1793409342.6022344,
+      "duration_s": 4.673004150390625e-05,
+      "result": {
+        "gm_m": 9.153,
+        "displacement_t": 124816.9,
+        "righting_moment_knm": 508.59,
+        "kb_m": 6.92,
+        "bm_m": 12.24
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 9.153,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 124816.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_002",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5978909,
+      "finished_at": 1793409342.598038,
+      "duration_s": 0.00014710426330566406,
+      "result": {
+        "resistance_kn": 5462.43,
+        "wetted_surface_m2": 3080.2,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 5462.43,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_011",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5940316,
+      "finished_at": 1793409342.5940866,
+      "duration_s": 5.507469177246094e-05,
+      "result": {
+        "resistance_kn": 11569.04,
+        "wetted_surface_m2": 7084.3,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 11569.04,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_007",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6033473,
+      "finished_at": 1793409342.6033947,
+      "duration_s": 4.744529724121094e-05,
+      "result": {
+        "gm_m": 13.254,
+        "displacement_t": 34503.3,
+        "righting_moment_knm": 649.87,
+        "kb_m": 5.68,
+        "bm_m": 12.93
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 13.254,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 34503.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_006",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6006708,
+      "finished_at": 1793409342.6007156,
+      "duration_s": 4.482269287109375e-05,
+      "result": {
+        "gm_m": 7.043,
+        "displacement_t": 48351.9,
+        "righting_moment_knm": 722.95,
+        "kb_m": 7.04,
+        "bm_m": 3.35
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 7.043,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 48351.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_021",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6016083,
+      "finished_at": 1793409342.6016588,
+      "duration_s": 5.054473876953125e-05,
+      "result": {
+        "resistance_kn": 17790.53,
+        "wetted_surface_m2": 7162.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 17790.53,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_015",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.598449,
+      "finished_at": 1793409342.5985143,
+      "duration_s": 6.532669067382812e-05,
+      "result": {
+        "resistance_kn": 5480.66,
+        "wetted_surface_m2": 4859.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 5480.66,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_014",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.600362,
+      "finished_at": 1793409342.6004066,
+      "duration_s": 4.458427429199219e-05,
+      "result": {
+        "resistance_kn": 19946.56,
+        "wetted_surface_m2": 7343.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 19946.56,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_012",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6025724,
+      "finished_at": 1793409342.6026118,
+      "duration_s": 3.933906555175781e-05,
+      "result": {
+        "volume_displacement_m3": 38713.3,
+        "wetted_surface_m2": 7376.5,
+        "prismatic_coefficient": 0.5765,
+        "waterplane_area_m2": 6182.7,
+        "length_beam_ratio": 6.93
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 38713.3,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 7376.5,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_014",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5983403,
+      "finished_at": 1793409342.5984004,
+      "duration_s": 6.008148193359375e-05,
+      "result": {
+        "advance_coefficient": 0.9323,
+        "thrust_coefficient": 0.2203,
+        "torque_coefficient": 0.0686,
+        "efficiency": 0.4762,
+        "thrust_kn": 869.76
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2203,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0686,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4762,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_016",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5935473,
+      "finished_at": 1793409342.5936842,
+      "duration_s": 0.00013685226440429688,
+      "result": {
+        "resistance_kn": 7730.59,
+        "wetted_surface_m2": 2146.9,
+        "friction_coefficient": 0.075,
+        "ship_type": "frigate"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 7730.59,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_006",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6011577,
+      "finished_at": 1793409342.6012278,
+      "duration_s": 7.009506225585938e-05,
+      "result": {
+        "advance_coefficient": 0.8166,
+        "thrust_coefficient": 0.255,
+        "torque_coefficient": 0.0663,
+        "efficiency": 0.4997,
+        "thrust_kn": 143.37
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.255,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0663,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4997,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_004",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6002836,
+      "finished_at": 1793409342.6003375,
+      "duration_s": 5.3882598876953125e-05,
+      "result": {
+        "resistance_kn": 7208.95,
+        "wetted_surface_m2": 3828.1,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 7208.95,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_015",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.601256,
+      "finished_at": 1793409342.6013045,
+      "duration_s": 4.863739013671875e-05,
+      "result": {
+        "advance_coefficient": 0.4652,
+        "thrust_coefficient": 0.3604,
+        "torque_coefficient": 0.0593,
+        "efficiency": 0.45,
+        "thrust_kn": 898.75
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3604,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0593,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.45,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_023",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5985506,
+      "finished_at": 1793409342.5986125,
+      "duration_s": 6.198883056640625e-05,
+      "result": {
+        "resistance_kn": 42381.35,
+        "wetted_surface_m2": 9940.1,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 42381.35,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_017",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.5920212,
+      "finished_at": 1793409342.5920691,
+      "duration_s": 4.792213439941406e-05,
+      "result": {
+        "gm_m": 8.901,
+        "displacement_t": 48264.8,
+        "righting_moment_knm": 426.64,
+        "kb_m": 4.68,
+        "bm_m": 16.08
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 8.901,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 48264.8,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_027",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6032214,
+      "finished_at": 1793409342.6032608,
+      "duration_s": 3.933906555175781e-05,
+      "result": {
+        "resistance_kn": 2790.56,
+        "wetted_surface_m2": 2707.2,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 2790.56,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_010",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6032794,
+      "finished_at": 1793409342.6033263,
+      "duration_s": 4.696846008300781e-05,
+      "result": {
+        "resistance_kn": 9710.57,
+        "wetted_surface_m2": 4849.2,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 9710.57,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_013",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.5967813,
+      "finished_at": 1793409342.5968444,
+      "duration_s": 6.318092346191406e-05,
+      "result": {
+        "resistance_kn": 13927.3,
+        "wetted_surface_m2": 5023.7,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 13927.3,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_026",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6023226,
+      "finished_at": 1793409342.6023629,
+      "duration_s": 4.029273986816406e-05,
+      "result": {
+        "resistance_kn": 7384.51,
+        "wetted_surface_m2": 2112.7,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 7384.51,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_040",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6023827,
+      "finished_at": 1793409342.602424,
+      "duration_s": 4.124641418457031e-05,
+      "result": {
+        "resistance_kn": 8821.91,
+        "wetted_surface_m2": 5090.1,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 8821.91,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_003",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.60147,
+      "finished_at": 1793409342.601511,
+      "duration_s": 4.100799560546875e-05,
+      "result": {
+        "resistance_kn": 19980.01,
+        "wetted_surface_m2": 7297.0,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 19980.01,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_032",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.5966327,
+      "finished_at": 1793409342.596697,
+      "duration_s": 6.437301635742188e-05,
+      "result": {
+        "gm_m": 15.815,
+        "displacement_t": 39603.7,
+        "righting_moment_knm": 225.21,
+        "kb_m": 3.67,
+        "bm_m": 18.17
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 15.815,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 39603.7,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_018",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6026344,
+      "finished_at": 1793409342.6026783,
+      "duration_s": 4.38690185546875e-05,
+      "result": {
+        "advance_coefficient": 1.7147,
+        "thrust_coefficient": 0.05,
+        "torque_coefficient": 0.0843,
+        "efficiency": 0.3,
+        "thrust_kn": 14.18
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.05,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0843,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_006",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6016815,
+      "finished_at": 1793409342.601723,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "volume_displacement_m3": 62750.5,
+        "wetted_surface_m2": 8354.9,
+        "prismatic_coefficient": 0.6163,
+        "waterplane_area_m2": 6236.4,
+        "length_beam_ratio": 5.13
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 62750.5,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 8354.9,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_033",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.603484,
+      "finished_at": 1793409342.6035302,
+      "duration_s": 4.6253204345703125e-05,
+      "result": {
+        "gm_m": 3.36,
+        "displacement_t": 18365.7,
+        "righting_moment_knm": 85.57,
+        "kb_m": 3.57,
+        "bm_m": 4.81
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 3.36,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 18365.7,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_021",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6005955,
+      "finished_at": 1793409342.6006422,
+      "duration_s": 4.673004150390625e-05,
+      "result": {
+        "advance_coefficient": 0.6279,
+        "thrust_coefficient": 0.3116,
+        "torque_coefficient": 0.0626,
+        "efficiency": 0.4978,
+        "thrust_kn": 468.22
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3116,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0626,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4978,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_012",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6000903,
+      "finished_at": 1793409342.6002421,
+      "duration_s": 0.0001518726348876953,
+      "result": {
+        "gm_m": 14.305,
+        "displacement_t": 59252.6,
+        "righting_moment_knm": 580.48,
+        "kb_m": 6.41,
+        "bm_m": 14.6
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 14.305,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 59252.6,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_008",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.5914965,
+      "finished_at": 1793409342.5915692,
+      "duration_s": 7.271766662597656e-05,
+      "result": {
+        "gm_m": 2.285,
+        "displacement_t": 41581.2,
+        "righting_moment_knm": 133.4,
+        "kb_m": 7.22,
+        "bm_m": 2.06
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 2.285,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 41581.2,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_017",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6020977,
+      "finished_at": 1793409342.6021621,
+      "duration_s": 6.437301635742188e-05,
+      "result": {
+        "advance_coefficient": 0.752,
+        "thrust_coefficient": 0.2744,
+        "torque_coefficient": 0.065,
+        "efficiency": 0.5049,
+        "thrust_kn": 381.78
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2744,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.065,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5049,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_007",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6036134,
+      "finished_at": 1793409342.603654,
+      "duration_s": 4.0531158447265625e-05,
+      "result": {
+        "advance_coefficient": 0.6498,
+        "thrust_coefficient": 0.3051,
+        "torque_coefficient": 0.063,
+        "efficiency": 0.5008,
+        "thrust_kn": 1221.88
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3051,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.063,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5008,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_026",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.5964134,
+      "finished_at": 1793409342.596546,
+      "duration_s": 0.00013256072998046875,
+      "result": {
+        "advance_coefficient": 0.4183,
+        "thrust_coefficient": 0.3745,
+        "torque_coefficient": 0.0584,
+        "efficiency": 0.4272,
+        "thrust_kn": 1564.91
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3745,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0584,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4272,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_025",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6034172,
+      "finished_at": 1793409342.6034586,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "advance_coefficient": 1.194,
+        "thrust_coefficient": 0.1418,
+        "torque_coefficient": 0.0739,
+        "efficiency": 0.3647,
+        "thrust_kn": 88.91
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.1418,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0739,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3647,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_028",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6030648,
+      "finished_at": 1793409342.603129,
+      "duration_s": 6.413459777832031e-05,
+      "result": {
+        "gm_m": 1.015,
+        "displacement_t": 18381.9,
+        "righting_moment_knm": 6.39,
+        "kb_m": 3.75,
+        "bm_m": 3.14
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 1.015,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 18381.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_010",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6004298,
+      "finished_at": 1793409342.6004868,
+      "duration_s": 5.698204040527344e-05,
+      "result": {
+        "advance_coefficient": 0.6299,
+        "thrust_coefficient": 0.311,
+        "torque_coefficient": 0.0626,
+        "efficiency": 0.4981,
+        "thrust_kn": 3463.12
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.311,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0626,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4981,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "failure_002",
+      "category": "resistance",
+      "status": "failed",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": 0.0,
+      "result": {},
+      "error": "Intentional failure case (invalid parameters)",
+      "criteria_passed": true,
+      "criteria_detail": {}
+    },
+    {
+      "case_id": "propeller_004",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6013954,
+      "finished_at": 1793409342.6014454,
+      "duration_s": 5.0067901611328125e-05,
+      "result": {
+        "advance_coefficient": 0.5935,
+        "thrust_coefficient": 0.3219,
+        "torque_coefficient": 0.0619,
+        "efficiency": 0.4915,
+        "thrust_kn": 336.83
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3219,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0619,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4915,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_015",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.605824,
+      "finished_at": 1793409342.605896,
+      "duration_s": 7.200241088867188e-05,
+      "result": {
+        "gm_m": 2.908,
+        "displacement_t": 47264.7,
+        "righting_moment_knm": 331.79,
+        "kb_m": 5.9,
+        "bm_m": 7.6
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 2.908,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 47264.7,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_039",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6059399,
+      "finished_at": 1793409342.6059859,
+      "duration_s": 4.601478576660156e-05,
+      "result": {
+        "gm_m": 4.081,
+        "displacement_t": 31904.2,
+        "righting_moment_knm": 109.25,
+        "kb_m": 3.8,
+        "bm_m": 5.02
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 4.081,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 31904.2,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_007",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.606018,
+      "finished_at": 1793409342.6060607,
+      "duration_s": 4.267692565917969e-05,
+      "result": {
+        "resistance_kn": 11000.99,
+        "wetted_surface_m2": 6539.7,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 11000.99,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_016",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6060853,
+      "finished_at": 1793409342.6061285,
+      "duration_s": 4.315376281738281e-05,
+      "result": {
+        "gm_m": 0.602,
+        "displacement_t": 51478.8,
+        "righting_moment_knm": 8.5,
+        "kb_m": 5.41,
+        "bm_m": 4.48
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 0.602,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 51478.8,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_022",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6061566,
+      "finished_at": 1793409342.6061954,
+      "duration_s": 3.886222839355469e-05,
+      "result": {
+        "resistance_kn": 3730.32,
+        "wetted_surface_m2": 3197.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 3730.32,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_011",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6062176,
+      "finished_at": 1793409342.6062589,
+      "duration_s": 4.124641418457031e-05,
+      "result": {
+        "volume_displacement_m3": 43548.5,
+        "wetted_surface_m2": 7882.0,
+        "prismatic_coefficient": 0.6184,
+        "waterplane_area_m2": 6690.3,
+        "length_beam_ratio": 6.81
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 43548.5,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 7882.0,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_033",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6062856,
+      "finished_at": 1793409342.6063273,
+      "duration_s": 4.172325134277344e-05,
+      "result": {
+        "resistance_kn": 36701.42,
+        "wetted_surface_m2": 5469.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 36701.42,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_023",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6063504,
+      "finished_at": 1793409342.606393,
+      "duration_s": 4.267692565917969e-05,
+      "result": {
+        "advance_coefficient": 1.881,
+        "thrust_coefficient": 0.05,
+        "torque_coefficient": 0.0876,
+        "efficiency": 0.3,
+        "thrust_kn": 12.66
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.05,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0876,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_005",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6064222,
+      "finished_at": 1793409342.6064625,
+      "duration_s": 4.029273986816406e-05,
+      "result": {
+        "resistance_kn": 5633.55,
+        "wetted_surface_m2": 2571.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 5633.55,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_014",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.606485,
+      "finished_at": 1793409342.6065242,
+      "duration_s": 3.933906555175781e-05,
+      "result": {
+        "volume_displacement_m3": 38903.9,
+        "wetted_surface_m2": 4610.0,
+        "prismatic_coefficient": 0.7786,
+        "waterplane_area_m2": 3336.4,
+        "length_beam_ratio": 2.85
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 38903.9,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 4610.0,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_008",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6065483,
+      "finished_at": 1793409342.6065898,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "advance_coefficient": 0.4322,
+        "thrust_coefficient": 0.3704,
+        "torque_coefficient": 0.0586,
+        "efficiency": 0.4344,
+        "thrust_kn": 1047.64
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3704,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0586,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4344,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "failure_004",
+      "category": "resistance",
+      "status": "failed",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": 0.0,
+      "result": {},
+      "error": "Intentional failure case (invalid parameters)",
+      "criteria_passed": true,
+      "criteria_detail": {}
+    },
+    {
+      "case_id": "stability_040",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6066458,
+      "finished_at": 1793409342.6066906,
+      "duration_s": 4.482269287109375e-05,
+      "result": {
+        "gm_m": 15.185,
+        "displacement_t": 49749.5,
+        "righting_moment_knm": 38.8,
+        "kb_m": 4.61,
+        "bm_m": 21.09
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 15.185,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 49749.5,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_004",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.606715,
+      "finished_at": 1793409342.6067517,
+      "duration_s": 3.6716461181640625e-05,
+      "result": {
+        "volume_displacement_m3": 29020.5,
+        "wetted_surface_m2": 7536.5,
+        "prismatic_coefficient": 0.6316,
+        "waterplane_area_m2": 7576.1,
+        "length_beam_ratio": 6.84
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 29020.5,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 7536.5,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_001",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6067743,
+      "finished_at": 1793409342.6068137,
+      "duration_s": 3.933906555175781e-05,
+      "result": {
+        "gm_m": 17.193,
+        "displacement_t": 93672.5,
+        "righting_moment_knm": 303.33,
+        "kb_m": 7.18,
+        "bm_m": 13.09
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 17.193,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 93672.5,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_006",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6068382,
+      "finished_at": 1793409342.6068838,
+      "duration_s": 4.553794860839844e-05,
+      "result": {
+        "resistance_kn": 17447.36,
+        "wetted_surface_m2": 7141.2,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 17447.36,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_013",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6069062,
+      "finished_at": 1793409342.6069486,
+      "duration_s": 4.2438507080078125e-05,
+      "result": {
+        "gm_m": 14.49,
+        "displacement_t": 53949.4,
+        "righting_moment_knm": 695.98,
+        "kb_m": 6.79,
+        "bm_m": 12.69
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 14.49,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 53949.4,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "failure_005",
+      "category": "resistance",
+      "status": "failed",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": 0.0,
+      "result": {},
+      "error": "Intentional failure case (invalid parameters)",
+      "criteria_passed": true,
+      "criteria_detail": {}
+    },
+    {
+      "case_id": "propeller_029",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6069875,
+      "finished_at": 1793409342.607029,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "advance_coefficient": 0.5175,
+        "thrust_coefficient": 0.3447,
+        "torque_coefficient": 0.0604,
+        "efficiency": 0.4705,
+        "thrust_kn": 3025.39
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.3447,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0604,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4705,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_034",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6070576,
+      "finished_at": 1793409342.6071074,
+      "duration_s": 4.982948303222656e-05,
+      "result": {
+        "gm_m": 12.828,
+        "displacement_t": 31717.5,
+        "righting_moment_knm": 898.66,
+        "kb_m": 4.45,
+        "bm_m": 18.31
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 12.828,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 31717.5,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "failure_003",
+      "category": "resistance",
+      "status": "failed",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": 0.0,
+      "result": {},
+      "error": "Intentional failure case (invalid parameters)",
+      "criteria_passed": true,
+      "criteria_detail": {}
+    },
+    {
+      "case_id": "propeller_028",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.607148,
+      "finished_at": 1793409342.6071956,
+      "duration_s": 4.76837158203125e-05,
+      "result": {
+        "advance_coefficient": 1.1416,
+        "thrust_coefficient": 0.1575,
+        "torque_coefficient": 0.0728,
+        "efficiency": 0.393,
+        "thrust_kn": 189.87
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.1575,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0728,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.393,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_002",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6072245,
+      "finished_at": 1793409342.607267,
+      "duration_s": 4.2438507080078125e-05,
+      "result": {
+        "gm_m": 4.706,
+        "displacement_t": 24022.2,
+        "righting_moment_knm": 106.45,
+        "kb_m": 4.25,
+        "bm_m": 3.77
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 4.706,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 24022.2,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_002",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6072993,
+      "finished_at": 1793409342.6073394,
+      "duration_s": 4.00543212890625e-05,
+      "result": {
+        "volume_displacement_m3": 31812.9,
+        "wetted_surface_m2": 5954.2,
+        "prismatic_coefficient": 0.6847,
+        "waterplane_area_m2": 5012.4,
+        "length_beam_ratio": 5.98
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 31812.9,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 5954.2,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_009",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6073623,
+      "finished_at": 1793409342.6074078,
+      "duration_s": 4.553794860839844e-05,
+      "result": {
+        "gm_m": 3.998,
+        "displacement_t": 19674.3,
+        "righting_moment_knm": 181.82,
+        "kb_m": 3.13,
+        "bm_m": 5.42
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 3.998,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 19674.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_030",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6074352,
+      "finished_at": 1793409342.6074843,
+      "duration_s": 4.9114227294921875e-05,
+      "result": {
+        "gm_m": 5.39,
+        "displacement_t": 84034.3,
+        "righting_moment_knm": 868.58,
+        "kb_m": 7.04,
+        "bm_m": 5.3
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 5.39,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 84034.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_001",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6075141,
+      "finished_at": 1793409342.6075628,
+      "duration_s": 4.863739013671875e-05,
+      "result": {
+        "volume_displacement_m3": 14887.5,
+        "wetted_surface_m2": 2930.8,
+        "prismatic_coefficient": 0.7908,
+        "waterplane_area_m2": 2020.8,
+        "length_beam_ratio": 5.5
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 14887.5,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 2930.8,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_003",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.607594,
+      "finished_at": 1793409342.607644,
+      "duration_s": 5.0067901611328125e-05,
+      "result": {
+        "gm_m": 4.162,
+        "displacement_t": 36749.3,
+        "righting_moment_knm": 261.86,
+        "kb_m": 4.01,
+        "bm_m": 12.0
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 4.162,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 36749.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_005",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.607674,
+      "finished_at": 1793409342.6077156,
+      "duration_s": 4.172325134277344e-05,
+      "result": {
+        "gm_m": 2.352,
+        "displacement_t": 40908.0,
+        "righting_moment_knm": 169.66,
+        "kb_m": 5.53,
+        "bm_m": 4.53
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 2.352,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 40908.0,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_005",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6077359,
+      "finished_at": 1793409342.6077726,
+      "duration_s": 3.6716461181640625e-05,
+      "result": {
+        "volume_displacement_m3": 49964.8,
+        "wetted_surface_m2": 10353.4,
+        "prismatic_coefficient": 0.5735,
+        "waterplane_area_m2": 9814.2,
+        "length_beam_ratio": 7.79
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 49964.8,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 10353.4,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_029",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6077945,
+      "finished_at": 1793409342.607835,
+      "duration_s": 4.0531158447265625e-05,
+      "result": {
+        "gm_m": 12.648,
+        "displacement_t": 90992.3,
+        "righting_moment_knm": 1812.8,
+        "kb_m": 5.47,
+        "bm_m": 18.72
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 12.648,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 90992.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_018",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.607859,
+      "finished_at": 1793409342.6078978,
+      "duration_s": 3.886222839355469e-05,
+      "result": {
+        "gm_m": 2.243,
+        "displacement_t": 15384.6,
+        "righting_moment_knm": 32.5,
+        "kb_m": 4.68,
+        "bm_m": 2.45
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 2.243,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 15384.6,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_015",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6079216,
+      "finished_at": 1793409342.6079588,
+      "duration_s": 3.719329833984375e-05,
+      "result": {
+        "volume_displacement_m3": 36255.8,
+        "wetted_surface_m2": 6908.4,
+        "prismatic_coefficient": 0.8653,
+        "waterplane_area_m2": 6128.4,
+        "length_beam_ratio": 6.13
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 36255.8,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 6908.4,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_023",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.607983,
+      "finished_at": 1793409342.6080303,
+      "duration_s": 4.7206878662109375e-05,
+      "result": {
+        "gm_m": 1.801,
+        "displacement_t": 71813.3,
+        "righting_moment_knm": 219.19,
+        "kb_m": 6.47,
+        "bm_m": 6.97
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 1.801,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 71813.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_005",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6080623,
+      "finished_at": 1793409342.6081126,
+      "duration_s": 5.030632019042969e-05,
+      "result": {
+        "advance_coefficient": 1.0717,
+        "thrust_coefficient": 0.1785,
+        "torque_coefficient": 0.0714,
+        "efficiency": 0.4262,
+        "thrust_kn": 202.52
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.1785,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0714,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4262,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_035",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6081488,
+      "finished_at": 1793409342.6081984,
+      "duration_s": 4.9591064453125e-05,
+      "result": {
+        "gm_m": 1.24,
+        "displacement_t": 16363.1,
+        "righting_moment_knm": 28.13,
+        "kb_m": 4.26,
+        "bm_m": 2.26
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 1.24,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 16363.1,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_036",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6082258,
+      "finished_at": 1793409342.6082742,
+      "duration_s": 4.839897155761719e-05,
+      "result": {
+        "gm_m": 13.698,
+        "displacement_t": 39068.4,
+        "righting_moment_knm": 668.86,
+        "kb_m": 3.6,
+        "bm_m": 15.06
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 13.698,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 39068.4,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_039",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.608297,
+      "finished_at": 1793409342.608337,
+      "duration_s": 3.981590270996094e-05,
+      "result": {
+        "resistance_kn": 12513.01,
+        "wetted_surface_m2": 3057.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 12513.01,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_013",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6083577,
+      "finished_at": 1793409342.6083987,
+      "duration_s": 4.100799560546875e-05,
+      "result": {
+        "advance_coefficient": 1.3001,
+        "thrust_coefficient": 0.11,
+        "torque_coefficient": 0.076,
+        "efficiency": 0.3,
+        "thrust_kn": 52.87
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.11,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.076,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_037",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6084256,
+      "finished_at": 1793409342.608465,
+      "duration_s": 3.933906555175781e-05,
+      "result": {
+        "resistance_kn": 14775.74,
+        "wetted_surface_m2": 2825.2,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 14775.74,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_001",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.608486,
+      "finished_at": 1793409342.608523,
+      "duration_s": 3.695487976074219e-05,
+      "result": {
+        "resistance_kn": 5820.85,
+        "wetted_surface_m2": 3352.6,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 5820.85,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_008",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6085427,
+      "finished_at": 1793409342.6085951,
+      "duration_s": 5.245208740234375e-05,
+      "result": {
+        "volume_displacement_m3": 13659.4,
+        "wetted_surface_m2": 3502.5,
+        "prismatic_coefficient": 0.6867,
+        "waterplane_area_m2": 2610.0,
+        "length_beam_ratio": 8.78
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 13659.4,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 3502.5,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_025",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6086268,
+      "finished_at": 1793409342.6086783,
+      "duration_s": 5.14984130859375e-05,
+      "result": {
+        "gm_m": 0.588,
+        "displacement_t": 20677.8,
+        "righting_moment_knm": 14.15,
+        "kb_m": 2.73,
+        "bm_m": 6.23
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 0.588,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 20677.8,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_004",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6087074,
+      "finished_at": 1793409342.608749,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "gm_m": 11.436,
+        "displacement_t": 63065.9,
+        "righting_moment_knm": 1642.29,
+        "kb_m": 7.2,
+        "bm_m": 8.45
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 11.436,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 63065.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_007",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.608774,
+      "finished_at": 1793409342.6088166,
+      "duration_s": 4.267692565917969e-05,
+      "result": {
+        "volume_displacement_m3": 28251.9,
+        "wetted_surface_m2": 6630.1,
+        "prismatic_coefficient": 0.6673,
+        "waterplane_area_m2": 6213.0,
+        "length_beam_ratio": 7.05
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 28251.9,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 6630.1,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_019",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6088405,
+      "finished_at": 1793409342.6088843,
+      "duration_s": 4.38690185546875e-05,
+      "result": {
+        "advance_coefficient": 0.7761,
+        "thrust_coefficient": 0.2672,
+        "torque_coefficient": 0.0655,
+        "efficiency": 0.5037,
+        "thrust_kn": 613.25
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2672,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0655,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5037,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_036",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6089115,
+      "finished_at": 1793409342.6089504,
+      "duration_s": 3.886222839355469e-05,
+      "result": {
+        "resistance_kn": 10181.33,
+        "wetted_surface_m2": 2846.9,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 10181.33,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_009",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6089716,
+      "finished_at": 1793409342.60901,
+      "duration_s": 3.838539123535156e-05,
+      "result": {
+        "resistance_kn": 21522.09,
+        "wetted_surface_m2": 3464.2,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 21522.09,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_018",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.609033,
+      "finished_at": 1793409342.6090777,
+      "duration_s": 4.458427429199219e-05,
+      "result": {
+        "resistance_kn": 6090.37,
+        "wetted_surface_m2": 4512.4,
+        "friction_coefficient": 0.075,
+        "ship_type": "bulk_carrier"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 6090.37,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_016",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.6091013,
+      "finished_at": 1793409342.6091456,
+      "duration_s": 4.4345855712890625e-05,
+      "result": {
+        "advance_coefficient": 0.8916,
+        "thrust_coefficient": 0.2325,
+        "torque_coefficient": 0.0678,
+        "efficiency": 0.4864,
+        "thrust_kn": 280.41
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2325,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0678,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.4864,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_013",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.609171,
+      "finished_at": 1793409342.6092072,
+      "duration_s": 3.62396240234375e-05,
+      "result": {
+        "volume_displacement_m3": 70948.6,
+        "wetted_surface_m2": 9588.5,
+        "prismatic_coefficient": 0.7745,
+        "waterplane_area_m2": 8470.7,
+        "length_beam_ratio": 4.42
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 70948.6,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 9588.5,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_037",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6092308,
+      "finished_at": 1793409342.6092715,
+      "duration_s": 4.076957702636719e-05,
+      "result": {
+        "gm_m": 13.908,
+        "displacement_t": 42078.3,
+        "righting_moment_knm": 1382.72,
+        "kb_m": 4.52,
+        "bm_m": 13.88
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 13.908,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 42078.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_025",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6092982,
+      "finished_at": 1793409342.6093373,
+      "duration_s": 3.910064697265625e-05,
+      "result": {
+        "resistance_kn": 17298.48,
+        "wetted_surface_m2": 6922.8,
+        "friction_coefficient": 0.075,
+        "ship_type": "frigate"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 17298.48,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_010",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6093605,
+      "finished_at": 1793409342.6094027,
+      "duration_s": 4.220008850097656e-05,
+      "result": {
+        "gm_m": 10.544,
+        "displacement_t": 55478.7,
+        "righting_moment_knm": 1462.27,
+        "kb_m": 4.27,
+        "bm_m": 14.31
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 10.544,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 55478.7,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_019",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6094263,
+      "finished_at": 1793409342.6094635,
+      "duration_s": 3.719329833984375e-05,
+      "result": {
+        "resistance_kn": 13662.15,
+        "wetted_surface_m2": 10872.1,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 13662.15,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_031",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6094856,
+      "finished_at": 1793409342.609528,
+      "duration_s": 4.2438507080078125e-05,
+      "result": {
+        "gm_m": 11.808,
+        "displacement_t": 75445.0,
+        "righting_moment_knm": 1433.72,
+        "kb_m": 6.7,
+        "bm_m": 10.61
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 11.808,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 75445.0,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_019",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6095514,
+      "finished_at": 1793409342.6095924,
+      "duration_s": 4.100799560546875e-05,
+      "result": {
+        "gm_m": 13.177,
+        "displacement_t": 110215.3,
+        "righting_moment_knm": 2685.5,
+        "kb_m": 5.62,
+        "bm_m": 16.53
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 13.177,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 110215.3,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_032",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6096225,
+      "finished_at": 1793409342.609663,
+      "duration_s": 4.0531158447265625e-05,
+      "result": {
+        "resistance_kn": 10056.09,
+        "wetted_surface_m2": 1883.5,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 10056.09,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_021",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.609685,
+      "finished_at": 1793409342.6097329,
+      "duration_s": 4.792213439941406e-05,
+      "result": {
+        "gm_m": 7.371,
+        "displacement_t": 112236.4,
+        "righting_moment_knm": 864.02,
+        "kb_m": 7.01,
+        "bm_m": 8.9
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 7.371,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 112236.4,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_022",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6097615,
+      "finished_at": 1793409342.6098096,
+      "duration_s": 4.8160552978515625e-05,
+      "result": {
+        "gm_m": 2.931,
+        "displacement_t": 33235.1,
+        "righting_moment_knm": 116.77,
+        "kb_m": 6.43,
+        "bm_m": 3.25
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 2.931,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 33235.1,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "failure_001",
+      "category": "resistance",
+      "status": "failed",
+      "started_at": null,
+      "finished_at": null,
+      "duration_s": 0.0,
+      "result": {},
+      "error": "Intentional failure case (invalid parameters)",
+      "criteria_passed": true,
+      "criteria_detail": {}
+    },
+    {
+      "case_id": "stability_014",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6098578,
+      "finished_at": 1793409342.6099064,
+      "duration_s": 4.863739013671875e-05,
+      "result": {
+        "gm_m": 12.451,
+        "displacement_t": 35497.0,
+        "righting_moment_knm": 1097.24,
+        "kb_m": 4.49,
+        "bm_m": 13.47
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 12.451,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 35497.0,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_035",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6099358,
+      "finished_at": 1793409342.609982,
+      "duration_s": 4.6253204345703125e-05,
+      "result": {
+        "resistance_kn": 10642.25,
+        "wetted_surface_m2": 2199.1,
+        "friction_coefficient": 0.075,
+        "ship_type": "frigate"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 10642.25,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_011",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.610003,
+      "finished_at": 1793409342.6100445,
+      "duration_s": 4.1484832763671875e-05,
+      "result": {
+        "advance_coefficient": 0.7615,
+        "thrust_coefficient": 0.2715,
+        "torque_coefficient": 0.0652,
+        "efficiency": 0.5045,
+        "thrust_kn": 704.81
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2715,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0652,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5045,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_026",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.610068,
+      "finished_at": 1793409342.610107,
+      "duration_s": 3.886222839355469e-05,
+      "result": {
+        "gm_m": 12.978,
+        "displacement_t": 54709.0,
+        "righting_moment_knm": 1191.39,
+        "kb_m": 4.42,
+        "bm_m": 15.16
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 12.978,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 54709.0,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_038",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.610131,
+      "finished_at": 1793409342.6101677,
+      "duration_s": 3.6716461181640625e-05,
+      "result": {
+        "resistance_kn": 20782.23,
+        "wetted_surface_m2": 3787.0,
+        "friction_coefficient": 0.075,
+        "ship_type": "tanker"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 20782.23,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_012",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.610189,
+      "finished_at": 1793409342.6102288,
+      "duration_s": 3.981590270996094e-05,
+      "result": {
+        "advance_coefficient": 1.1975,
+        "thrust_coefficient": 0.1407,
+        "torque_coefficient": 0.074,
+        "efficiency": 0.3627,
+        "thrust_kn": 330.16
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.1407,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.074,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.3627,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_010",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6102521,
+      "finished_at": 1793409342.6102893,
+      "duration_s": 3.719329833984375e-05,
+      "result": {
+        "volume_displacement_m3": 13482.5,
+        "wetted_surface_m2": 2954.3,
+        "prismatic_coefficient": 0.798,
+        "waterplane_area_m2": 2379.0,
+        "length_beam_ratio": 4.94
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 13482.5,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 2954.3,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "stability_024",
+      "category": "stability",
+      "status": "success",
+      "started_at": 1793409342.6103127,
+      "finished_at": 1793409342.6103537,
+      "duration_s": 4.100799560546875e-05,
+      "result": {
+        "gm_m": 7.616,
+        "displacement_t": 45264.9,
+        "righting_moment_knm": 596.13,
+        "kb_m": 4.17,
+        "bm_m": 13.81
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "gm_m": {
+          "value": 7.616,
+          "bounds": {
+            "min": -5.0,
+            "max": 20.0
+          },
+          "passed": true
+        },
+        "displacement_t": {
+          "value": 45264.9,
+          "bounds": {
+            "min": 500,
+            "max": 500000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_020",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6103756,
+      "finished_at": 1793409342.6104124,
+      "duration_s": 3.6716461181640625e-05,
+      "result": {
+        "resistance_kn": 22801.66,
+        "wetted_surface_m2": 4633.5,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 22801.66,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_027",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.610433,
+      "finished_at": 1793409342.6104724,
+      "duration_s": 3.933906555175781e-05,
+      "result": {
+        "advance_coefficient": 0.6634,
+        "thrust_coefficient": 0.301,
+        "torque_coefficient": 0.0633,
+        "efficiency": 0.5023,
+        "thrust_kn": 281.73
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.301,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0633,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5023,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "propeller_003",
+      "category": "propeller",
+      "status": "success",
+      "started_at": 1793409342.610497,
+      "finished_at": 1793409342.6105356,
+      "duration_s": 3.8623809814453125e-05,
+      "result": {
+        "advance_coefficient": 0.7336,
+        "thrust_coefficient": 0.2799,
+        "torque_coefficient": 0.0647,
+        "efficiency": 0.5054,
+        "thrust_kn": 1002.66
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "thrust_coefficient": {
+          "value": 0.2799,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        },
+        "torque_coefficient": {
+          "value": 0.0647,
+          "bounds": {
+            "min": 0.0,
+            "max": 0.5
+          },
+          "passed": true
+        },
+        "efficiency": {
+          "value": 0.5054,
+          "bounds": {
+            "min": 0.0,
+            "max": 1.0
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_031",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.6105623,
+      "finished_at": 1793409342.6106005,
+      "duration_s": 3.814697265625e-05,
+      "result": {
+        "resistance_kn": 3956.82,
+        "wetted_surface_m2": 3307.0,
+        "friction_coefficient": 0.075,
+        "ship_type": "frigate"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 3956.82,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "geometry_009",
+      "category": "geometry",
+      "status": "success",
+      "started_at": 1793409342.6106212,
+      "finished_at": 1793409342.6106575,
+      "duration_s": 3.62396240234375e-05,
+      "result": {
+        "volume_displacement_m3": 71220.1,
+        "wetted_surface_m2": 7956.5,
+        "prismatic_coefficient": 0.7296,
+        "waterplane_area_m2": 6443.5,
+        "length_beam_ratio": 3.28
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "volume_displacement_m3": {
+          "value": 71220.1,
+          "bounds": {
+            "min": 100,
+            "max": 500000
+          },
+          "passed": true
+        },
+        "wetted_surface_m2": {
+          "value": 7956.5,
+          "bounds": {
+            "min": 500,
+            "max": 100000
+          },
+          "passed": true
+        }
+      }
+    },
+    {
+      "case_id": "resistance_030",
+      "category": "resistance",
+      "status": "success",
+      "started_at": 1793409342.610681,
+      "finished_at": 1793409342.61072,
+      "duration_s": 3.886222839355469e-05,
+      "result": {
+        "resistance_kn": 25677.75,
+        "wetted_surface_m2": 5862.0,
+        "friction_coefficient": 0.075,
+        "ship_type": "container"
+      },
+      "error": null,
+      "criteria_passed": true,
+      "criteria_detail": {
+        "resistance_kn": {
+          "value": 25677.75,
+          "bounds": {
+            "min": 1,
+            "max": 50000
+          },
+          "passed": true
+        }
+      }
+    }
+  ],
+  "summary_by_category": {
+    "stability": {
+      "success": 40,
+      "failed": 0,
+      "timeout": 0,
+      "skipped": 0
+    },
+    "resistance": {
+      "success": 40,
+      "failed": 5,
+      "timeout": 0,
+      "skipped": 0
+    },
+    "propeller": {
+      "success": 30,
+      "failed": 0,
+      "timeout": 0,
+      "skipped": 0
+    },
+    "geometry": {
+      "success": 15,
+      "failed": 0,
+      "timeout": 0,
+      "skipped": 0
+    }
+  },
+  "config": {
+    "max_concurrent": 10,
+    "timeout_per_case_s": 30,
+    "retry_on_failure": false,
+    "continue_on_failure": true
+  }
+}
