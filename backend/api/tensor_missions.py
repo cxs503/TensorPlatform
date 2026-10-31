@@ -992,6 +992,195 @@ def refill_mission(
             "model": updated["model"], "budget": updated["budget"]}
 
 
+# ───────────────────────── provenance chain ─────────────────────────
+
+@router.get("/{mission_id}/provenance", dependencies=[Depends(require_auth)])
+def get_provenance(
+    mission_id: int,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Return the full provenance chain for a mission:
+    dispatch → worktree → branch → PR → report → reproduction.
+    Each node has {present: bool, data: {...}} so the UI can render breaks.
+    """
+    row = _load_mission(db, mission_id, user)
+    org_id = resolved_org(None, user, db)
+    from api.tenant_access import is_admin
+    if int(row["organization_id"]) != int(org_id) and not is_admin(user):
+        raise HTTPException(status_code=404, detail="mission not found")
+
+    result = row["result"] or {}
+    evidence = result.get("evidence", {})
+    branch_name = evidence.get("branch") or f"agent/m{mission_id}"
+    head_commit = evidence.get("head_commit")
+
+    # 1. Dispatch node
+    dispatch = {
+        "present": True,
+        "data": {
+            "mission_id": row["id"],
+            "goal": row["goal"],
+            "repo": row["repo"],
+            "base_ref": row["base_ref"],
+            "co_repos": list(row["co_repos"] or []),
+            "runner": row["runner"],
+            "origin": row["origin"],
+            "model": row.get("model"),
+            "worker_role": row.get("worker_role"),
+            "parent_mission_id": row.get("parent_mission_id"),
+            "status": row["status"],
+            "created_at": _iso(row["created_at"]),
+            "created_by": row["created_by"],
+        }
+    }
+
+    # 2. Worktree node (from session / result)
+    worktree_path = result.get("worktree") or result.get("work_dir")
+    session_id = row["session_id"]
+    worktree = {
+        "present": bool(worktree_path or session_id),
+        "data": {
+            "path": worktree_path,
+            "session_id": session_id,
+        }
+    }
+
+    # 3. Branch node
+    branch = {
+        "present": True,  # branch always derivable
+        "data": {
+            "name": branch_name,
+            "head_commit": head_commit,
+            "base_ref": row["base_ref"],
+            "repo": row["repo"],
+        }
+    }
+
+    # 4. PR node (from result or checks)
+    pr_url = result.get("pr_url") or result.get("pull_request_url")
+    pr_number = result.get("pr_number") or result.get("pull_request_number")
+    checks = evidence.get("checks", {})
+    pr = {
+        "present": bool(pr_url or pr_number),
+        "data": {
+            "url": pr_url,
+            "number": pr_number,
+            "checks": checks,
+        }
+    }
+
+    # 5. Report node (linked by mission_id)
+    report_rows = db.execute(
+        text("""
+            SELECT id, title, summary, scenario_key, stage, status, created_at
+            FROM tensor_reports
+            WHERE mission_id = :mid AND organization_id = :org
+            ORDER BY created_at DESC
+        """),
+        {"mid": mission_id, "org": org_id},
+    ).mappings().all()
+    reports = {
+        "present": len(report_rows) > 0,
+        "data": [{
+            "id": r["id"],
+            "title": r["title"],
+            "summary": r["summary"],
+            "scenario_key": r["scenario_key"],
+            "stage": r["stage"],
+            "status": r["status"],
+            "created_at": r["created_at"].isoformat() if r.get("created_at") else None,
+        } for r in report_rows]
+    }
+
+    # 6. Reproduction node (runs registered via executions)
+    # Look for runs linked through executions that share the scenario
+    # or through result.registered_run_ids
+    run_ids = result.get("registered_run_ids", [])
+    if not run_ids and session_id:
+        # Check if any execution session registered runs
+        exec_runs = db.execute(
+            text("""
+                SELECT registered_run_ids FROM tensor_executions
+                WHERE organization_id = :org
+                  AND registered_run_ids IS NOT NULL
+                  AND jsonb_array_length(registered_run_ids) > 0
+                ORDER BY id DESC LIMIT 5
+            """),
+            {"org": org_id},
+        ).mappings().all()
+        for er in exec_runs:
+            run_ids.extend(er["registered_run_ids"] or [])
+
+    runs = {
+        "present": len(run_ids) > 0,
+        "data": [{"run_id": rid} for rid in run_ids]
+    }
+
+    # Approval node
+    approval_row = db.execute(
+        text("""
+            SELECT id, kind, status, reason, decided_by, decided_at, decision_note, created_at
+            FROM tensor_approval_requests WHERE mission_id = :mid
+            ORDER BY id DESC LIMIT 1
+        """),
+        {"mid": mission_id},
+    ).mappings().first()
+    approval = {
+        "present": approval_row is not None,
+        "data": {
+            "id": approval_row["id"],
+            "kind": approval_row["kind"],
+            "status": approval_row["status"],
+            "reason": approval_row["reason"],
+            "decided_by": approval_row["decided_by"],
+            "decided_at": _iso(approval_row["decided_at"]) if approval_row else None,
+            "decision_note": approval_row["decision_note"] if approval_row else None,
+            "created_at": approval_row["created_at"].isoformat() if approval_row and approval_row.get("created_at") else None,
+        } if approval_row else None
+    }
+
+    # Children (sub-missions)
+    child_rows = db.execute(
+        text("""
+            SELECT id, goal, repo, status, model, created_at, finished_at
+            FROM tensor_dev_missions WHERE parent_mission_id = :mid ORDER BY id
+        """),
+        {"mid": mission_id},
+    ).mappings().all()
+    children = {
+        "present": len(child_rows) > 0,
+        "data": [{
+            "id": c["id"],
+            "goal": c["goal"],
+            "repo": c["repo"],
+            "status": c["status"],
+            "model": c["model"],
+            "created_at": _iso(c["created_at"]),
+            "finished_at": _iso(c["finished_at"]),
+        } for c in child_rows]
+    }
+
+    # Chain completeness: count how many of the 6 core nodes are present
+    core_nodes = [dispatch, worktree, branch, pr, reports, runs]
+    chain_score = sum(1 for n in core_nodes if n["present"])
+
+    return {
+        "mission_id": mission_id,
+        "chain_score": chain_score,
+        "chain_max": 6,
+        "nodes": {
+            "dispatch": dispatch,
+            "worktree": worktree,
+            "branch": branch,
+            "pr": pr,
+            "reports": reports,
+            "runs": runs,
+            "approval": approval,
+            "children": children,
+        }
+    }
+
 # ───────────────────────── report owed queue ─────────────────────────
 # Missions that completed with status='succeeded' but no report_id are
 # marked report_owed=true. This queue surfaces them for the report_watch

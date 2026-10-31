@@ -4,7 +4,6 @@
 对所有受保护的API路由强制执行JWT认证。
 """
 import logging
-import re
 from typing import Set
 
 from dotenv import load_dotenv
@@ -85,11 +84,6 @@ def _is_prefix_skip(path: str) -> bool:
 # 安全只读方法——前缀白名单对这些 method 放行;写方法仍需认证。
 _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 
-# 报告配图免登录只读（owner 2026-10-31 选 A）：<img> 无法携带 Bearer。
-# 仅 GET/HEAD 放行单文件；路由层另有文件名白名单正则 + 路径围栏兜底。
-# （#227 曾漏交本件——重部署后 401 复发实证，本次随 #232 集结入库）
-_FIGURES_PATH_RE = re.compile(r"^/api/v1/tensor/reports/\d+/figures/[A-Za-z0-9_.-]+$")
-
 
 def _should_skip_auth(path: str, method: str) -> bool:
     """判断该请求是否需要跳过认证。
@@ -100,10 +94,6 @@ def _should_skip_auth(path: str, method: str) -> bool:
     """
     # 1. 精确匹配白名单 — 不分 method 放行
     if _is_exact_skip(path):
-        return True
-
-    # 1.5 报告配图免登录只读（仅安全方法 + 单文件正则）
-    if method.upper() in _SAFE_METHODS and _FIGURES_PATH_RE.match(path):
         return True
 
     # 2. 前缀白名单 — 仅读方法放行,写方法需认证
