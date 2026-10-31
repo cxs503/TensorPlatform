@@ -159,7 +159,9 @@ def get_report(report_id: int, db: Session = Depends(get_db), user: dict = Depen
     return _row(r)
 
 
-@router.get("/{report_id}/figures/{name}", dependencies=[Depends(require_auth)])
+# 免登录只读：owner 2026-10-31 选 A。报告页 <img> 无法携带 Bearer → 原 401 导致图片全裂。
+# 保持只读 GET + 文件名白名单正则 + 路径围栏（下行实现），写操作仍需鉴权。
+@router.get("/{report_id}/figures/{name}")
 def get_figure(report_id: int, name: str):
     # name is a bare filename; reject anything path-like before it touches disk.
     if not re.fullmatch(r"[A-Za-z0-9_.-]+", name):
