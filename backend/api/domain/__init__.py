@@ -15,6 +15,7 @@ __all__ = [
     "tensor_router",
     "ship_batch_router",
     "ship_samples_router",
+    "coupling_clock_sync_router",
 ]
 
 
