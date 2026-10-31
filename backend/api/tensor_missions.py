@@ -32,7 +32,6 @@ router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
 DEFAULT_BUDGET = {"max_tool_calls": 80, "max_wall_seconds": 7200, "max_tokens": 3_000_000}
 MISSION_STATUSES = (
-    # lifecycle statuses (095): suspended, orphan, revoked
     "queued", "claimed", "running", "awaiting_acceptance",
     "succeeded", "failed", "stopped", "revoked", "suspended", "orphan",
 )
@@ -71,13 +70,6 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "created_at": _iso(r["created_at"]) if r.get("created_at") else None,
         "heartbeat_at": _iso(r["heartbeat_at"]) if r.get("heartbeat_at") else None,
         "finished_at": _iso(r["finished_at"]) if r.get("finished_at") else None,
-        "fail_stage": r.get("fail_stage"),
-        "report_owed": r.get("report_owed", False),
-        "worktree_recyclable": r.get("worktree_recyclable", False),
-        "write_off_at": _iso(r.get("write_off_at")) if r.get("write_off_at") else None,
-        "suspended_at": _iso(r.get("suspended_at")) if r.get("suspended_at") else None,
-        "suspend_reason": r.get("suspend_reason"),
-        "budget_used": r.get("budget_used") or {},
     }
 
 
@@ -87,9 +79,7 @@ def _load_mission(db: Session, mission_id: int, user: dict | None = None, *, loc
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
                    model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
-                   created_by, created_at, heartbeat_at, finished_at,
-                   fail_stage, report_owed, worktree_recyclable, write_off_at,
-                   suspended_at, suspend_reason, budget_used
+                   created_by, created_at, heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE id = :mid
         """ + (" FOR UPDATE" if lock else "")),
         {"mid": mission_id},
@@ -114,11 +104,13 @@ class MissionCreate(BaseModel):
     # cross-project composition: extra repos the mission's worktree set covers
     co_repos: list[str] | None = None
     budget: dict[str, Any] = Field(default_factory=dict)
-    runner: str = Field(default="openhands", pattern="^(openhands|native|repro)$")
+    runner: str = Field(default="openhands", pattern="^(openhands|native)$")
     origin: str = Field(default="owner", pattern="^(owner|agent)$")
     model: str | None = Field(default=None, min_length=2, max_length=64)
     organization_id: int | None = Field(default=None, ge=1)
     worker_role: str | None = Field(default=None, pattern="^(platform|data|models|applications|infrastructure|verifier|strategy)$")
+    # LOCAL PATCH: 允许常驻 agent 领取"未指派"的任务（网页/接口直接建的 mission 没带 session）
+    claim_unassigned: bool = False
     agent_session_id: uuid.UUID | None = None
     task_key: str | None = Field(default=None, min_length=2, max_length=120, pattern="^[a-zA-Z0-9_.:-]+$")
 
@@ -397,9 +389,7 @@ def list_missions(
             SELECT id, goal, repo, base_ref, co_repos, parent_mission_id, budget,
                    runner, origin, model, agent_session_id, worker_role, campaign_id, campaign_phase, status,
                    claimed_by, session_id, result, created_by, created_at,
-                   heartbeat_at, finished_at,
-                   fail_stage, report_owed, worktree_recyclable, write_off_at,
-                   suspended_at, suspend_reason, budget_used
+                   heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE {filters}
             ORDER BY id DESC LIMIT :limit OFFSET :offset
         """),
@@ -461,7 +451,7 @@ class MissionClaim(BaseModel):
     agent_id: str = Field(min_length=1, max_length=120)
     hostname: str | None = Field(default=None, max_length=200)
     version: str | None = Field(default=None, max_length=40)
-    runner: str | None = Field(default=None, pattern="^(openhands|native|repro)$")
+    runner: str | None = Field(default=None, pattern="^(openhands|native)$")
     # model-pinned daemons claim only their own missions; the designated
     # default daemon additionally picks up legacy NULL-model missions
     model: str | None = Field(default=None, min_length=2, max_length=64)
@@ -469,6 +459,8 @@ class MissionClaim(BaseModel):
     mission_id: int | None = Field(default=None, ge=1)
     agent_session_id: uuid.UUID | None = None
     worker_role: str | None = Field(default=None, pattern="^(platform|data|models|applications|infrastructure|verifier|strategy)$")
+    # LOCAL PATCH: 允许常驻 agent 领取"未指派"(agent_session_id IS NULL) 的任务
+    claim_unassigned: bool = False
 
 
 @router.post("/claim", dependencies=[Depends(require_auth)])
@@ -522,7 +514,10 @@ def claim_mission(
     # model pinning routes each queued mission to its per-model daemon
     runner_filter = "AND runner = :runner" if body.runner else ""
     mission_filter = "AND id = :claim_mission_id" if body.mission_id else ""
-    session_filter = "AND agent_session_id = :agent_session_id" if body.agent_session_id else "AND agent_session_id IS NULL"
+    if body.agent_session_id and body.claim_unassigned:
+        session_filter = "AND (agent_session_id = :agent_session_id OR agent_session_id IS NULL)"
+    else:
+        session_filter = "AND agent_session_id = :agent_session_id" if body.agent_session_id else "AND agent_session_id IS NULL"
     role_filter = "AND worker_role = :worker_role" if body.worker_role else "AND worker_role IS NULL"
     if body.model and body.claim_null_model:
         model_filter = "AND (model = :claim_model OR model IS NULL)"
@@ -640,9 +635,6 @@ def start_mission(
 class HeartbeatRequest(BaseModel):
     claim_token: str = Field(min_length=8)
     progress: dict[str, Any] = Field(default_factory=dict)
-    # Budget usage tracking (reported by worker each heartbeat)
-    tool_calls_used: int | None = Field(default=None, ge=0)
-    tokens_used: int | None = Field(default=None, ge=0)
 
 
 @router.post("/{mission_id}/heartbeat", dependencies=[Depends(require_auth)])
@@ -653,15 +645,6 @@ def heartbeat_mission(
     user: dict = Depends(require_auth),
 ):
     row = _authorize_agent(db, mission_id, body.claim_token, user)
-    # Build budget_used patch from heartbeat report
-    budget_patch = {}
-    if body.tool_calls_used is not None:
-        budget_patch["tool_calls_used"] = body.tool_calls_used
-    if body.tokens_used is not None:
-        budget_patch["tokens_used"] = body.tokens_used
-    # Wall seconds: computed from heartbeat interval (approximate)
-    budget_patch["wall_seconds_used"] = body.progress.get("wall_seconds", 0) if body.progress else 0
-
     db.execute(
         text("""
             UPDATE tensor_dev_missions
@@ -669,12 +652,10 @@ def heartbeat_mission(
                 result = CASE
                     WHEN CAST(:prog AS jsonb) = 'null'::jsonb THEN result
                     ELSE jsonb_set(result, '{progress}', CAST(:prog AS jsonb))
-                END,
-                budget_used = budget_used || CAST(:bpatch AS jsonb)
+                END
             WHERE id = :mid
         """),
-        {"mid": mission_id, "prog": _dumps(body.progress or None),
-         "bpatch": _dumps(budget_patch)},
+        {"mid": mission_id, "prog": _dumps(body.progress or None)},
     )
     db.commit()
     return {"id": mission_id, "status": row["status"],
@@ -736,16 +717,23 @@ def complete_mission(
             {"mid": mission_id},
         ).scalar()
         if not existing:
+            # LOCAL SQLITE COMPAT: upstream PG migration 086 drops NOT NULL on
+            # scenario_id, but SQLite cannot ALTER a column constraint. Use a 0
+            # sentinel there so the dev_acceptance row can be inserted without a
+            # scenario; PostgreSQL keeps NULL (true upstream semantics).
+            _sqlite = getattr(getattr(db, "bind", None), "dialect", None)
+            _sqlite = bool(_sqlite is not None and _sqlite.name == "sqlite")
             approval_id = db.execute(
                 text("""
                     INSERT INTO tensor_approval_requests
-                        (organization_id, mission_id, kind, reason, evidence,
+                        (organization_id, mission_id, scenario_id, kind, reason, evidence,
                          status, requested_by)
-                    VALUES (:org, :mid, 'dev_acceptance', :reason,
+                    VALUES (:org, :mid, :scenario, 'dev_acceptance', :reason,
                             CAST(:evidence AS jsonb), 'pending', :reqby)
                     RETURNING id
                 """),
                 {"org": mission["organization_id"], "mid": mission_id,
+                 "scenario": 0 if _sqlite else None,
                  "reason": (body.summary.get("headline") or mission["goal"])[:2000],
                  "evidence": _dumps(evidence), "reqby": row["claimed_by"] or user.get("username")},
             ).scalar()
@@ -920,9 +908,7 @@ def refill_mission(
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
                    model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
-                   created_by, created_at, heartbeat_at, finished_at,
-                   fail_stage, report_owed, worktree_recyclable, write_off_at,
-                   suspended_at, suspend_reason, budget_used
+                   created_by, created_at, heartbeat_at, finished_at
             FROM tensor_dev_missions WHERE id = :mid
             FOR UPDATE
         """),
