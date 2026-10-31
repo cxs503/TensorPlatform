@@ -1,0 +1,232 @@
+{
+ "n_solutions": 40,
+ "n_rows_csv": 40,
+ "n_distinct_vectors": 39,
+ "n_duplicate_rows": 1,
+ "domination_pairs": [],
+ "domination_pairs_merged": [
+  [
+   41,
+   33
+  ]
+ ],
+ "domination_pairs_printed": [
+  [
+   41,
+   33
+  ]
+ ],
+ "domination_detail": [
+  {
+   "dominated_row": 41,
+   "dominator_row": 33,
+   "dR_ice_pct": 0.6178217821782187,
+   "dR_ow_pct": 2.676871827411179,
+   "dGM": 0.0,
+   "L_pair": [
+    148.51,
+    144.06
+   ]
+  }
+ ],
+ "is_non_dominated": true,
+ "csv_json": {
+  "n_rows": 40,
+  "n_matched": 40,
+  "max_dv_err": 0.004966307157786787
+ },
+ "R_ice_lo": 36.94,
+ "R_ice_hi": 266.01,
+ "R_ow_lo": 88.9,
+ "R_ow_hi": 671.08,
+ "GM_lo": 1.2679,
+ "GM_hi": 8.6316,
+ "R_ice_mean": 128.18824999999998,
+ "R_ow_mean": 353.07325000000003,
+ "GM_mean": 5.500315,
+ "R_ice_pstdev": 69.97363224413536,
+ "R_ow_pstdev": 186.17892665910796,
+ "GM_pstdev": 2.2869153203114014,
+ "ice_design": {
+  "L": 80.0,
+  "B": 15.0,
+  "T": 5.0,
+  "Cb": 0.5061,
+  "alpha_bow": 21.68,
+  "alpha_stem": 10.0,
+  "R_ice": 36.94,
+  "R_ow": 92.11,
+  "GM": 1.2839,
+  "feasible": true,
+  "_row": 5,
+  "_n_ties": 1,
+  "_tie_rows": [
+   5
+  ]
+ },
+ "ow_design": {
+  "L": 80.0,
+  "B": 15.0,
+  "T": 5.0,
+  "Cb": 0.5,
+  "alpha_bow": 29.63,
+  "alpha_stem": 10.0,
+  "R_ice": 48.75,
+  "R_ow": 88.9,
+  "GM": 1.2898,
+  "feasible": true,
+  "_row": 2,
+  "_n_ties": 1,
+  "_tie_rows": [
+   2
+  ]
+ },
+ "gm_design": {
+  "L": 156.5,
+  "B": 35.0,
+  "T": 8.9,
+  "Cb": 0.85,
+  "alpha_bow": 15.74,
+  "alpha_stem": 25.15,
+  "R_ice": 146.22,
+  "R_ow": 671.08,
+  "GM": 8.6316,
+  "feasible": true,
+  "_row": 3,
+  "_n_ties": 2,
+  "_tie_rows": [
+   3,
+   7
+  ]
+ },
+ "tradeoff_ratio": 0.31970763400108293,
+ "ow_span_ratio": 0.03484963630441856,
+ "gm_ice_penalty": 2.9583107742284787,
+ "constraints": {
+  "feasible_ratio": 1.0,
+  "L_B_min": 4.008658008658009,
+  "L_B_max": 5.697288323187604,
+  "B_T_min": 3.0,
+  "B_T_max": 4.0,
+  "disp_min_t": 3074.9999999999995,
+  "GM_min": 1.2679,
+  "Cb_min": 0.5,
+  "Cb_max": 0.85,
+  "abow_min": 15.0,
+  "abow_max": 34.79,
+  "checks": [
+   [
+    "Cb in [0.5, 0.85]",
+    true
+   ],
+   [
+    "L/B in [4, 7]",
+    true
+   ],
+   [
+    "B/T in [2.5, 4]",
+    true
+   ],
+   [
+    "alpha_bow in [15, 35]",
+    true
+   ],
+   [
+    "GM >= 0.15",
+    true
+   ],
+   [
+    "displacement >= 500 t",
+    true
+   ]
+  ],
+  "all_pass": true
+ },
+ "meta": {
+  "task": "Ice-Class Hull Form Multi-Objective Optimization",
+  "algorithm": "NSGA-II",
+  "pop_size": 40,
+  "n_generations": 50,
+  "seed": 42,
+  "use_surrogate": true,
+  "wall_time_s": 1.133631706237793,
+  "total_evaluations": 2040
+ },
+ "convergence": {
+  "converged": "True",
+  "max_hv_change_rate_last_5": 0.0005340833111417829,
+  "final_hv": 195098217.01282635,
+  "hv_changes_last_5": [
+   0.0005340833111417829,
+   0.00014130942034743668,
+   0.00021354874742278933,
+   0.0005041310008509567
+  ]
+ },
+ "hv_first": 152746985.59300563,
+ "hv_last": 195098217.01282635,
+ "hv_growth": 0.2772639424300365,
+ "hv_n_points": 50,
+ "hv_rate_recomputed": 0.0005340833111417829,
+ "reference_point": [
+  3000.0,
+  8000.0,
+  0.0
+ ],
+ "n_evaluations": 2040,
+ "wall_time": 1.133631706237793,
+ "use_surrogate": true,
+ "seed": 42,
+ "pop_size": 40,
+ "n_generations": 50,
+ "bounds": {
+  "L": [
+   80.0,
+   200.0
+  ],
+  "B": [
+   15.0,
+   35.0
+  ],
+  "T": [
+   5.0,
+   12.0
+  ],
+  "Cb": [
+   0.5,
+   0.85
+  ],
+  "alpha_bow": [
+   15.0,
+   35.0
+  ],
+  "alpha_stem": [
+   10.0,
+   40.0
+  ]
+ },
+ "self_consistency": {
+  "full": {
+   "R_ice": 0.0,
+   "R_ow": 0.0,
+   "GM": 0.0
+  },
+  "printed": {
+   "R_ice": 0.0009200575088346737,
+   "R_ow": 0.0003814667501438091,
+   "GM": 0.0010180072228240325
+  },
+  "dv_match_err": 0.004966307157786787,
+  "module": "/srv/tensor/agent/work/m767/optimizer/ice_class/objectives.py"
+ },
+ "md5": {
+  "pareto_front.csv": "17cdca10f98973381d4df1fc83a06a48",
+  "optimization_result.json": "45ce291dfe584552ba5e83c21d2b090d",
+  "convergence_history.json": "f2f8f9c9deadc89a8bcf8330d9ec3f0a"
+ },
+ "python": "3.11.6",
+ "tradeoff_ratio_pct": 31.970763400108293,
+ "ow_span_ratio_pct": 3.4849636304418565,
+ "gm_ice_penalty_pct": 295.83107742284784,
+ "hv_growth_pct": 27.72639424300365
+}
