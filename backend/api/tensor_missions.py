@@ -32,10 +32,9 @@ router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
 DEFAULT_BUDGET = {"max_tool_calls": 80, "max_wall_seconds": 7200, "max_tokens": 3_000_000}
 MISSION_STATUSES = (
-    # lifecycle statuses (095): suspended, orphan, revoked
+    # lifecycle statuses: 095(m597) suspended/orphan + revoked
     "queued", "claimed", "running", "awaiting_acceptance",
-    "succeeded", "failed", "stopped", "revoked",
-    "suspended", "orphan",
+    "succeeded", "failed", "stopped", "revoked", "suspended", "orphan",
 )
 TERMINAL = ("succeeded", "failed", "stopped", "revoked", "orphan")
 
@@ -115,7 +114,7 @@ class MissionCreate(BaseModel):
     # cross-project composition: extra repos the mission's worktree set covers
     co_repos: list[str] | None = None
     budget: dict[str, Any] = Field(default_factory=dict)
-    runner: str = Field(default="openhands", pattern="^(openhands|native)$")
+    runner: str = Field(default="openhands", pattern="^(openhands|native|repro)$")
     origin: str = Field(default="owner", pattern="^(owner|agent)$")
     model: str | None = Field(default=None, min_length=2, max_length=64)
     organization_id: int | None = Field(default=None, ge=1)
@@ -462,7 +461,7 @@ class MissionClaim(BaseModel):
     agent_id: str = Field(min_length=1, max_length=120)
     hostname: str | None = Field(default=None, max_length=200)
     version: str | None = Field(default=None, max_length=40)
-    runner: str | None = Field(default=None, pattern="^(openhands|native)$")
+    runner: str | None = Field(default=None, pattern="^(openhands|native|repro)$")
     # model-pinned daemons claim only their own missions; the designated
     # default daemon additionally picks up legacy NULL-model missions
     model: str | None = Field(default=None, min_length=2, max_length=64)
