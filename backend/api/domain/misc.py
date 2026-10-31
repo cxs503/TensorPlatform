@@ -17,6 +17,10 @@ router.include_router(research_factory_router)
 from api.calculations import router as calculations_router         # prefix="/calculations"
 router.include_router(calculations_router)
 
+# ── Ice Resistance UQ (PCE + Smolyak + Sobol) ──
+from api.domain.ice_uq import router as ice_uq_router             # prefix="/ice-uq"
+router.include_router(ice_uq_router)
+
 # ── JupyterLab ──
 from api.jupyter import router as jupyter_router                  # prefix="/jupyter"
 
