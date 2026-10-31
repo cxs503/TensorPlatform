@@ -1,0 +1,137 @@
+{
+  "mission": "M398",
+  "description": "Benchmark validation results",
+  "total_cases": 12,
+  "results": [
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "speed_ms": 3.0,
+      "calc_ct": 0.006418,
+      "ref_ct": 0.0038,
+      "error_pct": 68.89,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "speed_ms": 4.0,
+      "calc_ct": 0.006724,
+      "ref_ct": 0.004,
+      "error_pct": 68.1,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "speed_ms": 5.0,
+      "calc_ct": 0.00703,
+      "ref_ct": 0.0042,
+      "error_pct": 67.38,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "speed_ms": 6.0,
+      "calc_ct": 0.007336,
+      "ref_ct": 0.0044,
+      "error_pct": 66.72,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 2.572,
+      "calc_ct": 0.004343,
+      "ref_ct": 0.0045,
+      "error_pct": 3.48,
+      "pass": true,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 5.144,
+      "calc_ct": 0.004687,
+      "ref_ct": 0.0038,
+      "error_pct": 23.33,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 10.289,
+      "calc_ct": 0.005374,
+      "ref_ct": 0.0035,
+      "error_pct": 53.53,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 15.433,
+      "calc_ct": 0.00606,
+      "ref_ct": 0.0038,
+      "error_pct": 59.48,
+      "pass": false,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.202,
+      "calc_ct": 0.002886,
+      "ref_ct": 0.0028,
+      "error_pct": 3.06,
+      "pass": true,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.717,
+      "calc_ct": 0.002913,
+      "ref_ct": 0.003,
+      "error_pct": 2.89,
+      "pass": true,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.974,
+      "calc_ct": 0.002927,
+      "ref_ct": 0.0031,
+      "error_pct": 5.58,
+      "pass": true,
+      "method": "ITTC-57 + Holtrop"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "speed_ms": 8.231,
+      "calc_ct": 0.002941,
+      "ref_ct": 0.0032,
+      "error_pct": 8.1,
+      "pass": true,
+      "method": "ITTC-57 + Holtrop"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 7,
+    "honest_fail_ships": [
+      "SUBOFF"
+    ],
+    "algorithm_upgrade_recommended_for": [
+      "SUBOFF"
+    ]
+  }
+}
