@@ -276,6 +276,9 @@ app.include_router(misc.router, prefix="/api/v1")
 # ── 科研运行台（HPC + AI agent 操作面）──
 app.include_router(tensor.router, prefix="/api/v1")
 
+# ── 船舶批量计算（batch sweep）──
+from api.domain import ship_batch
+app.include_router(ship_batch.router, prefix="/api/v1")
 # ── 船舶基准验证 ──
 from api.domain.ship_benchmark import router as ship_benchmark_router
 app.include_router(ship_benchmark_router, prefix="/api/v1")
