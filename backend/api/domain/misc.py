@@ -17,6 +17,10 @@ router.include_router(research_factory_router)
 from api.calculations import router as calculations_router         # prefix="/calculations"
 router.include_router(calculations_router)
 
+# ── Ice-class hull form multi-objective optimization ──
+from api.ice_optimization import router as ice_optimization_router  # prefix="/ice_optimization"
+router.include_router(ice_optimization_router)
+
 # ── JupyterLab ──
 from api.jupyter import router as jupyter_router                  # prefix="/jupyter"
 
