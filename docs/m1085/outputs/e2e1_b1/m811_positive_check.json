@@ -1,0 +1,106 @@
+{
+  "admitted": false,
+  "artifact": "/srv/tensor/agent/work/m811/outputs/lid_driven_cavity/summary.json",
+  "artifact_arg": "/srv/tensor/agent/work/m811/outputs/lid_driven_cavity/summary.json",
+  "artifact_sha256": "9dce9b038370c0de22cf986745dc82ced947aafe698d2990a7d4c007ebb7fa53",
+  "code": "E_MANIFEST_MISSING",
+  "conclusion": "三门中 1 门通过（mission）；未通过/不可评估：manifest, checksum → 不可准入",
+  "gate_probe": {
+    "checksum": {
+      "code": null,
+      "details": {},
+      "gate": "checksum",
+      "message": "no manifest ⇒ 没有任何声明哈希可用作复算基准（不是「哈希对得上」）",
+      "status": "not_evaluable"
+    },
+    "mission": {
+      "code": null,
+      "details": {
+        "mission_id": 811,
+        "state": {
+          "approval_status": "approved",
+          "finished_status": "succeeded",
+          "mission_id": 811,
+          "source": "api",
+          "status": "succeeded"
+        }
+      },
+      "gate": "mission",
+      "message": "mission 811 terminal state succeeded (api)",
+      "status": "pass"
+    }
+  },
+  "gate_view": {
+    "checksum": "not_evaluable",
+    "manifest": "fail",
+    "mission": "pass"
+  },
+  "gates": [
+    {
+      "code": "E_MANIFEST_MISSING",
+      "details": {
+        "embedded_keys": [
+          "run_manifest",
+          "manifest",
+          "RunManifest"
+        ],
+        "searched": [
+          "run_manifest.json",
+          "manifest.json",
+          "RunManifest.json"
+        ]
+      },
+      "gate": "manifest",
+      "message": "no RunManifest found (looked for run_manifest.json/manifest.json in the run directory and an embedded 'manifest' key); unverified products must not enter the sample library",
+      "status": "fail"
+    },
+    {
+      "code": null,
+      "details": {
+        "mission_id": 811
+      },
+      "gate": "mission",
+      "message": "not evaluated: gate 1 (RunManifest) failed",
+      "status": "skipped"
+    },
+    {
+      "code": null,
+      "details": {},
+      "gate": "checksum",
+      "message": "not evaluated: no valid manifest to take declared hashes from",
+      "status": "skipped"
+    }
+  ],
+  "inspection_mode": "read_only_no_audit",
+  "manifest_sha256": null,
+  "manifest_source": null,
+  "message": "no RunManifest found (looked for run_manifest.json/manifest.json in the run directory and an embedded 'manifest' key); unverified products must not enter the sample library",
+  "missing": [
+    "门1 RunManifest 缺失：run 目录下无 run_manifest.json / manifest.json / RunManifest.json，产物内也无 run_manifest / manifest / RunManifest 键",
+    "门3 关键文件哈希无法复算：manifest 缺失 → 没有声明哈希可作复算基准"
+  ],
+  "mission_id": 811,
+  "remediations": [
+    "补写 RunManifest（contracts/tensorphysics-run-manifest-v1.schema.json）：run 目录下 run_manifest.json 或产物内嵌 manifest 键，至少含 schema_version/run_id/status/validation_status/outputs[]（每个 output 需 uri + media_type + checksum_sha256(64hex) + size_bytes）"
+  ],
+  "run_dir": "/srv/tensor/agent/work/m811/outputs/lid_driven_cavity",
+  "run_dir_inventory": [
+    {
+      "name": "RESULTS.md",
+      "sha256": "af28e39b6b55fe1ab3bdd74d0544a188ea7ee3c1b5bf06623e0a982a5c35e578",
+      "size_bytes": 9087
+    },
+    {
+      "name": "profiles.csv",
+      "sha256": "de430af3886fea48ab266c7d26bc0e3996ecbbabce1924fd47534d8b10920c64",
+      "size_bytes": 73625
+    },
+    {
+      "name": "summary.json",
+      "sha256": "9dce9b038370c0de22cf986745dc82ced947aafe698d2990a7d4c007ebb7fa53",
+      "size_bytes": 44721
+    }
+  ],
+  "verdict": "NOT_ADMISSIBLE",
+  "verified_outputs": []
+}

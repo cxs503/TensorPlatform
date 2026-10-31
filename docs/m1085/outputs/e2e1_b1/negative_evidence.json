@@ -1,0 +1,704 @@
+{
+  "audit_log": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/admission_audit.jsonl",
+  "audit_records": [
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/C0_control_valid/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": null,
+      "decision": "admitted",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "pass",
+        "manifest": "pass",
+        "mission": "pass"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/C0_control_valid/run_manifest.json",
+      "message": "all three gates passed",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.4620988,
+      "verified_outputs": [
+        {
+          "role": "primary",
+          "sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+          "size_bytes": 357,
+          "uri": "report.json"
+        }
+      ]
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B1_repro_m810_unverified_ingest/unverified_report.json",
+      "artifact_sha256": "037de9bfcff81c46e53be98c7454383ea5f55b2d37a2fa737d79907fb9c1d426",
+      "code": "E_MANIFEST_MISSING",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "skipped",
+        "manifest": "fail",
+        "mission": "skipped"
+      },
+      "manifest_source": null,
+      "message": "no RunManifest found (looked for run_manifest.json/manifest.json in the run directory and an embedded 'manifest' key); unverified products must not enter the sample library",
+      "mission_id": 1085,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.4983714,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B2_manifest_not_object/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_MANIFEST_NOT_OBJECT",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "skipped",
+        "manifest": "fail",
+        "mission": "skipped"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B2_manifest_not_object/run_manifest.json",
+      "message": "manifest must be a JSON object, got list",
+      "mission_id": 1085,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.5297909,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B3_contract_missing_checksum/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_CONTRACT",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "skipped",
+        "manifest": "fail",
+        "mission": "skipped"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B3_contract_missing_checksum/run_manifest.json",
+      "message": "manifest violates tensorphysics-run-manifest-v1: outputs.0.checksum_sha256: required property missing",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.5635855,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B4_checksum_mismatch/report.json",
+      "artifact_sha256": "f49bf96ecde1eb242d82f19f62aef55d8a8a3b6763f14f610dd60f3a2ccc650b",
+      "code": "E_CHECKSUM_MISMATCH",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "fail",
+        "manifest": "pass",
+        "mission": "pass"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B4_checksum_mismatch/run_manifest.json",
+      "message": "outputs.0 (report.json) declared=781d0c52d488... actual=f49bf96ecde1... ; the product was tampered with or is stale",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.5957463,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B5_unverified_manifest/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_UNVERIFIED",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "skipped",
+        "manifest": "fail",
+        "mission": "skipped"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B5_unverified_manifest/run_manifest.json",
+      "message": "validation_status='not_run' != 'passed'; unverified run products must not enter the sample library",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.6323583,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B6_mission_failed/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_MISSION_STATE",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "pass",
+        "manifest": "pass",
+        "mission": "fail"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B6_mission_failed/run_manifest.json",
+      "message": "mission 811 terminal state status='failed' != 'succeeded'; products of failed/running missions must not enter the sample library",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.6671982,
+      "verified_outputs": [
+        {
+          "role": "primary",
+          "sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+          "size_bytes": 357,
+          "uri": "report.json"
+        }
+      ]
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B7_mission_unknown/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_MISSION_UNRESOLVED",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "pass",
+        "manifest": "pass",
+        "mission": "fail"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B7_mission_unknown/run_manifest.json",
+      "message": "mission 811 state unresolved: mission 811 not present in static resolver",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.7049117,
+      "verified_outputs": [
+        {
+          "role": "primary",
+          "sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+          "size_bytes": 357,
+          "uri": "report.json"
+        }
+      ]
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B8_artifact_escape/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_ARTIFACT_ESCAPE",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "fail",
+        "manifest": "pass",
+        "mission": "pass"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B8_artifact_escape/run_manifest.json",
+      "message": "outputs.0.uri='../outside_secret.json' escapes the run directory /srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B8_artifact_escape",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.7394798,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B9_size_mismatch/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_SIZE_MISMATCH",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "fail",
+        "manifest": "pass",
+        "mission": "pass"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B9_size_mismatch/run_manifest.json",
+      "message": "outputs.0 (report.json) declared size_bytes=364 but the file is 357 bytes",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.7709858,
+      "verified_outputs": []
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B10_artifact_missing_file/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_ARTIFACT_MISSING",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "fail",
+        "manifest": "pass",
+        "mission": "pass"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B10_artifact_missing_file/run_manifest.json",
+      "message": "outputs.1.uri='field_dump.npz' does not exist under /srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B10_artifact_missing_file",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.8056438,
+      "verified_outputs": [
+        {
+          "role": "primary",
+          "sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+          "size_bytes": 357,
+          "uri": "report.json"
+        }
+      ]
+    },
+    {
+      "actor": "sample_db_ingest",
+      "artifact": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B11_no_outputs/report.json",
+      "artifact_sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+      "code": "E_NO_OUTPUTS",
+      "decision": "rejected",
+      "event": "sample_db_admission",
+      "gates": {
+        "checksum": "skipped",
+        "manifest": "fail",
+        "mission": "skipped"
+      },
+      "manifest_source": "/srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B11_no_outputs/run_manifest.json",
+      "message": "manifest.outputs is empty; there is nothing to hash-verify",
+      "mission_id": 811,
+      "ts": "2026-10-31T22:39:38+0000",
+      "ts_epoch": 1793486378.8412633,
+      "verified_outputs": []
+    }
+  ],
+  "defect": "B1 / m810-D3 样本库入库无 RunManifest / 哈希 / mission 终态门",
+  "gates": [
+    "manifest",
+    "mission",
+    "checksum"
+  ],
+  "mission_id": 1085,
+  "results": [
+    {
+      "attack": "合法 run 产物（有效 manifest + mission 811 succeeded + sha256 命中）",
+      "expect": "ADMITTED",
+      "expect_code": null,
+      "gate": "三门",
+      "gated": {
+        "code": null,
+        "gates": {
+          "checksum": "pass",
+          "manifest": "pass",
+          "mission": "pass"
+        },
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED",
+        "verified_outputs": [
+          {
+            "role": "primary",
+            "sha256": "781d0c52d4887b369e0a982865cb162cb7923459d5a2cdc4466befe0d320efcb",
+            "size_bytes": 357,
+            "uri": "report.json"
+          }
+        ]
+      },
+      "guard_triggered": false,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "C0_control_valid"
+    },
+    {
+      "attack": "m810 实测载荷原文：伪造 verdict=PASS、τ=0.4(ν<0)、无 RunManifest、无哈希",
+      "expect": "REJECTED",
+      "expect_code": "E_MANIFEST_MISSING",
+      "gate": "manifest",
+      "gated": {
+        "audit_written": true,
+        "code": "E_MANIFEST_MISSING",
+        "gates": {
+          "checksum": "skipped",
+          "manifest": "fail",
+          "mission": "skipped"
+        },
+        "message": "no RunManifest found (looked for run_manifest.json/manifest.json in the run directory and an embedded 'manifest' key); unverified products must not enter the sample library",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "suboff_re5e4_unverified",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B1_repro_m810_unverified_ingest"
+    },
+    {
+      "attack": "run_manifest.json 是数组而非对象",
+      "expect": "REJECTED",
+      "expect_code": "E_MANIFEST_NOT_OBJECT",
+      "gate": "manifest",
+      "gated": {
+        "audit_written": true,
+        "code": "E_MANIFEST_NOT_OBJECT",
+        "gates": {
+          "checksum": "skipped",
+          "manifest": "fail",
+          "mission": "skipped"
+        },
+        "message": "manifest must be a JSON object, got list",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B2_manifest_not_object"
+    },
+    {
+      "attack": "manifest.outputs[0] 缺 checksum_sha256（契约硬约束）",
+      "expect": "REJECTED",
+      "expect_code": "E_CONTRACT",
+      "gate": "manifest",
+      "gated": {
+        "audit_written": true,
+        "code": "E_CONTRACT",
+        "gates": {
+          "checksum": "skipped",
+          "manifest": "fail",
+          "mission": "skipped"
+        },
+        "message": "manifest violates tensorphysics-run-manifest-v1: outputs.0.checksum_sha256: required property missing",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B3_contract_missing_checksum"
+    },
+    {
+      "attack": "manifest 声明哈希后等长篡改产物（St 0.1642→0.1900，字节数不变）",
+      "expect": "REJECTED",
+      "expect_code": "E_CHECKSUM_MISMATCH",
+      "gate": "checksum",
+      "gated": {
+        "audit_written": true,
+        "code": "E_CHECKSUM_MISMATCH",
+        "gates": {
+          "checksum": "fail",
+          "manifest": "pass",
+          "mission": "pass"
+        },
+        "message": "outputs.0 (report.json) declared=781d0c52d488... actual=f49bf96ecde1... ; the product was tampered with or is stale",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B4_checksum_mismatch"
+    },
+    {
+      "attack": "manifest 合法但 validation_status='not_run'（未验证 run）",
+      "expect": "REJECTED",
+      "expect_code": "E_UNVERIFIED",
+      "gate": "manifest",
+      "gated": {
+        "audit_written": true,
+        "code": "E_UNVERIFIED",
+        "gates": {
+          "checksum": "skipped",
+          "manifest": "fail",
+          "mission": "skipped"
+        },
+        "message": "validation_status='not_run' != 'passed'; unverified run products must not enter the sample library",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B5_unverified_manifest"
+    },
+    {
+      "attack": "三门前两门合法，但来源 mission 811 终态 failed",
+      "expect": "REJECTED",
+      "expect_code": "E_MISSION_STATE",
+      "gate": "mission",
+      "gated": {
+        "audit_written": true,
+        "code": "E_MISSION_STATE",
+        "gates": {
+          "checksum": "pass",
+          "manifest": "pass",
+          "mission": "fail"
+        },
+        "message": "mission 811 terminal state status='failed' != 'succeeded'; products of failed/running missions must not enter the sample library",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B6_mission_failed"
+    },
+    {
+      "attack": "来源 mission 不在状态源中（无法确认 succeeded → fail-closed）",
+      "expect": "REJECTED",
+      "expect_code": "E_MISSION_UNRESOLVED",
+      "gate": "mission",
+      "gated": {
+        "audit_written": true,
+        "code": "E_MISSION_UNRESOLVED",
+        "gates": {
+          "checksum": "pass",
+          "manifest": "pass",
+          "mission": "fail"
+        },
+        "message": "mission 811 state unresolved: mission 811 not present in static resolver",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B7_mission_unknown"
+    },
+    {
+      "attack": "manifest uri 用 ../ 指向 run 目录外文件（哈希/尺寸都对得上）",
+      "expect": "REJECTED",
+      "expect_code": "E_ARTIFACT_ESCAPE",
+      "gate": "checksum",
+      "gated": {
+        "audit_written": true,
+        "code": "E_ARTIFACT_ESCAPE",
+        "gates": {
+          "checksum": "fail",
+          "manifest": "pass",
+          "mission": "pass"
+        },
+        "message": "outputs.0.uri='../outside_secret.json' escapes the run directory /srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B8_artifact_escape",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B8_artifact_escape"
+    },
+    {
+      "attack": "sha256 命中但 size_bytes 声明 +7（被截断/拼接过的产物）",
+      "expect": "REJECTED",
+      "expect_code": "E_SIZE_MISMATCH",
+      "gate": "checksum",
+      "gated": {
+        "audit_written": true,
+        "code": "E_SIZE_MISMATCH",
+        "gates": {
+          "checksum": "fail",
+          "manifest": "pass",
+          "mission": "pass"
+        },
+        "message": "outputs.0 (report.json) declared size_bytes=364 but the file is 357 bytes",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B9_size_mismatch"
+    },
+    {
+      "attack": "manifest 声明了未落盘的场量文件 field_dump.npz",
+      "expect": "REJECTED",
+      "expect_code": "E_ARTIFACT_MISSING",
+      "gate": "checksum",
+      "gated": {
+        "audit_written": true,
+        "code": "E_ARTIFACT_MISSING",
+        "gates": {
+          "checksum": "fail",
+          "manifest": "pass",
+          "mission": "pass"
+        },
+        "message": "outputs.1.uri='field_dump.npz' does not exist under /srv/tensor/agent/work/m1085/outputs/e2e1_b1/cases/B10_artifact_missing_file",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B10_artifact_missing_file"
+    },
+    {
+      "attack": "manifest.outputs=[]（无可复算的产物 → 哈希门形同虚设）",
+      "expect": "REJECTED",
+      "expect_code": "E_NO_OUTPUTS",
+      "gate": "manifest",
+      "gated": {
+        "audit_written": true,
+        "code": "E_NO_OUTPUTS",
+        "gates": {
+          "checksum": "skipped",
+          "manifest": "fail",
+          "mission": "skipped"
+        },
+        "message": "manifest.outputs is empty; there is nothing to hash-verify",
+        "path": "gated:src/sample_db/ingest.py::ingest_artifact",
+        "rows_inserted": 0,
+        "verdict": "REJECTED"
+      },
+      "guard_triggered": true,
+      "judgement": "PASS",
+      "legacy": {
+        "inserted": [
+          {
+            "case": "cylinder_re1000_st_gate",
+            "sample_id": 1,
+            "source": "base"
+          }
+        ],
+        "path": "legacy:tools/sample_db/backfill.py::backfill_file",
+        "rows_inserted": 1,
+        "verdict": "ADMITTED"
+      },
+      "name": "B11_no_outputs"
+    }
+  ],
+  "summary": {
+    "admitted_actual": 1,
+    "admitted_expected": 1,
+    "audit_records": 12,
+    "audit_records_expected": 12,
+    "cases": 12,
+    "failures": [],
+    "gate_defect_live_before_fix": true,
+    "legacy_admitted_bad_products": 11,
+    "rejected_actual": 11,
+    "rejected_expected": 11,
+    "verdict": "PASS"
+  }
+}
