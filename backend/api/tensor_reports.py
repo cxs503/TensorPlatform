@@ -172,3 +172,161 @@ def get_figure(report_id: int, name: str):
     if not path.is_file():
         raise HTTPException(status_code=404, detail="figure not found")
     return FileResponse(path, media_type="image/png")
+
+
+# ───────────────────────── report QA (paper-quality gate) ─────────────────────────
+# Minimum fields for paper-quality reports:
+# 1. Physical statement (物理表述): clear problem description with physics context
+# 2. Traceable criteria (判据可溯源): method/validation with references
+# 3. Figures (图): at least one figure or explicit justification for none
+# 4. Limitations (局限): known limitations and scope of applicability
+
+REQUIRED_SECTIONS = {
+    "physics_statement": [
+        r"(?i)(物理|背景|problem|background|物理背景|案例介绍)",
+        r"(?i)(几何|参数|geometry|parameter|参数表)",
+    ],
+    "traceable_criteria": [
+        r"(?i)(方法|method|流程|procedure|工具链|toolchain)",
+        r"(?i)(验证|validation|对标|benchmark|参考|reference|文献|误差|error)",
+    ],
+    "figures": [
+        r"(?i)(图|figure|云图|contour|曲线|curve|比较|comparison)",
+    ],
+    "limitations": [
+        r"(?i)(局限|limitation|注意|note|适用|scope|范围|展望|outlook|future)",
+    ],
+}
+
+
+def _check_report_quality(markdown: str, figures: list) -> dict:
+    """Check if report meets paper-quality minimum requirements."""
+    issues = []
+    
+    # Check physics statement
+    physics_found = any(
+        re.search(pattern, markdown)
+        for patterns in REQUIRED_SECTIONS["physics_statement"]
+        for pattern in [patterns]
+    )
+    if not physics_found:
+        issues.append("missing_physics_statement: 缺少物理背景/案例介绍（需包含物理问题描述、几何参数）")
+    
+    # Check traceable criteria
+    method_found = any(
+        re.search(pattern, markdown)
+        for pattern in REQUIRED_SECTIONS["traceable_criteria"][:1]
+    )
+    validation_found = any(
+        re.search(pattern, markdown)
+        for pattern in REQUIRED_SECTIONS["traceable_criteria"][1:]
+    )
+    if not method_found:
+        issues.append("missing_method: 缺少方法/流程描述（需包含计算方法、关键设置、工具链）")
+    if not validation_found:
+        issues.append("missing_validation: 缺少验证/对标（需包含与基准/文献/解析解的比较，或声明无基准原因）")
+    
+    # Check figures
+    has_figure_section = any(
+        re.search(pattern, markdown)
+        for pattern in REQUIRED_SECTIONS["figures"]
+    )
+    has_figures = len(figures) > 0
+    if not has_figure_section and not has_figures:
+        issues.append("missing_figures: 缺少图表（需包含场量云图/比较曲线，或纯文档任务需写明无图理由）")
+    
+    # Check limitations
+    limitations_found = any(
+        re.search(pattern, markdown)
+        for pattern in REQUIRED_SECTIONS["limitations"]
+    )
+    if not limitations_found:
+        issues.append("missing_limitations: 缺少局限与展望（需包含踩过的坑、适用范围、后续改进方向）")
+    
+    return {
+        "passed": len(issues) == 0,
+        "issues": issues,
+        "checks": {
+            "physics_statement": physics_found,
+            "method": method_found,
+            "validation": validation_found,
+            "figures": has_figure_section or has_figures,
+            "limitations": limitations_found,
+        }
+    }
+
+
+class ReportQACheck(BaseModel):
+    report_id: int = Field(ge=1)
+
+
+@router.post("/qa/check", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
+def qa_check_report(
+    body: ReportQACheck,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Run paper-quality QA check on a report. Returns pass/fail with issues."""
+    org_id = resolved_org(None, user, db)
+    report = db.execute(
+        text(f"{_SELECT.replace('FROM tensor_reports', 'FROM tensor_reports r')} WHERE r.id = :rid AND r.organization_id = :org"),
+        {"rid": body.report_id, "org": org_id},
+    ).mappings().first()
+    if not report:
+        raise HTTPException(status_code=404, detail="report not found")
+    
+    result = _check_report_quality(report["markdown"], report["figures"] or [])
+    
+    # Update QA status
+    qa_status = "passed" if result["passed"] else "rejected"
+    rejection_reason = "; ".join(result["issues"]) if result["issues"] else None
+    db.execute(
+        text("""
+            UPDATE tensor_reports
+            SET qa_status = :status, qa_rejection_reason = :reason, qa_checked_at = now()
+            WHERE id = :rid
+        """),
+        {"rid": body.report_id, "status": qa_status, "reason": rejection_reason},
+    )
+    db.commit()
+    
+    return {
+        "report_id": body.report_id,
+        "qa_status": qa_status,
+        "passed": result["passed"],
+        "issues": result["issues"],
+        "checks": result["checks"],
+    }
+
+
+@router.get("/qa/pending", dependencies=[Depends(require_auth)])
+def qa_pending_reports(
+    limit: int = 50,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """List reports pending QA check."""
+    org_id = resolved_org(None, user, db)
+    rows = db.execute(
+        text("""
+            SELECT id, title, mission_id, scenario_key, created_at, created_by
+            FROM tensor_reports
+            WHERE organization_id = :org AND qa_status = 'pending'
+            ORDER BY created_at ASC
+            LIMIT :limit
+        """),
+        {"org": org_id, "limit": min(max(limit, 1), 200)},
+    ).mappings().all()
+    return {
+        "items": [
+            {
+                "report_id": r["id"],
+                "title": r["title"],
+                "mission_id": r["mission_id"],
+                "scenario_key": r["scenario_key"],
+                "created_at": r["created_at"].isoformat() if r["created_at"] else None,
+            }
+            for r in rows
+        ],
+        "total": len(rows),
+    }
