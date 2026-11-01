@@ -83,7 +83,13 @@ class Surrogate:
         self.latency.add(ms)
 
     def safe_predict(self, inputs: Mapping[str, float]) -> Dict[str, Any]:
-        """Never raises: returns ``{outputs, degraded, error, latency_ms}``."""
+        """Never raises on *execution* failure: returns
+
+        ``{outputs, degraded, error, latency_ms}`` after falling back to the
+        reference model.  Invalid/out-of-domain input is still rejected with
+        :class:`InputValidationError` (fail-closed: no silent extrapolation) and
+        is deliberately *not* turned into a degraded answer.
+        """
         t0 = time.perf_counter()
         try:
             values = inputs.validate(inputs) if isinstance(inputs, Schema) else dict(inputs)
@@ -242,7 +248,7 @@ class PCESurrogate(Surrogate):
 # the five reference wrappers
 # ---------------------------------------------------------------------------
 
-def _make_resistance(hull: HullForm, kg: float, n_samples: int = 256) -> PCESurrogate:
+def _make_resistance(hull: HullForm, kg: float, n_samples: int = 512) -> PCESurrogate:
     fields = [
         Field("V", "m/s", 1.0, 9.5, "ship speed through water"),
         Field("ice_concentration", "-", 0.0, 1.0, "ice concentration"),
@@ -270,12 +276,12 @@ def _make_resistance(hull: HullForm, kg: float, n_samples: int = 256) -> PCESurr
         description="Calm-water (Holtrop-Mennen) + level-ice (Lindqvist) resistance and delivered power",
         reference_model="holtrop_mennen_1982 + lindqvist_1989",
         hull=hull, input_fields=fields, output_names=names,
-        reference_fn=ref, reference_scalar=scalar, degree=3, n_samples=n_samples,
+        reference_fn=ref, reference_scalar=scalar, degree=5, n_samples=n_samples,
         output_units={"R_calm_kN": "kN", "R_ice_kN": "kN", "R_total_kN": "kN", "P_D_kW": "kW"},
     )
 
 
-def _make_seakeeping(hull: HullForm, kg: float, n_samples: int = 192) -> PCESurrogate:
+def _make_seakeeping(hull: HullForm, kg: float, n_samples: int = 320) -> PCESurrogate:
     fields = [
         Field("Hs", "m", 0.2, 8.0, "significant wave height"),
         Field("Tp", "s", 3.0, 14.0, "peak period"),
@@ -302,7 +308,7 @@ def _make_seakeeping(hull: HullForm, kg: float, n_samples: int = 192) -> PCESurr
         description="Heave/pitch RMS and added resistance in a JONSWAP sea state",
         reference_model="2dof_modal_strip + gerritsma_added_resistance",
         hull=hull, input_fields=fields, output_names=names,
-        reference_fn=ref, reference_scalar=scalar, degree=3, n_samples=n_samples,
+        reference_fn=ref, reference_scalar=scalar, degree=4, n_samples=n_samples,
         output_units={"heave_rms_m": "m", "pitch_rms_deg": "deg", "R_aw_kN": "kN"},
     )
 
@@ -424,9 +430,16 @@ BUILDERS = {
     "fatigue": _make_fatigue,
 }
 
+# Design of experiments audited by tools/verify_digital_twin_surrogates.py on an
+# independent hold-out (docs/verification/digital_twin_surrogate_accuracy.md):
+# ``resistance`` needed degree 5 / 512 samples to bring R_calm, R_ice and P_D inside
+# the 15 % bar (degree 3 / 256 gave p95 = 254 % on R_calm: the Holtrop curve is not
+# a cubic in V); ``seakeeping`` degree 4 / 320.  The other three keep their design
+# because the audit could not buy accuracy inside the reference-model cost budget.
+
 # training-sample caps: the MMG reference simulation is ~200x more expensive per
 # sample than the closed-form models, so its design space is sampled coarser
-SAMPLE_CAP = {"resistance": 256, "seakeeping": 192, "manoeuvring": 48,
+SAMPLE_CAP = {"resistance": 512, "seakeeping": 320, "manoeuvring": 48,
               "stability": 64, "fatigue": 160}
 
 
