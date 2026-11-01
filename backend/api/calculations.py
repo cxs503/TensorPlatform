@@ -38,6 +38,12 @@ from services.stability_reference import (
     wall_sided_gz,
 )
 from services.ship_resistance import ct_from_rt
+from services.full_scale_extrapolation import (
+    DEFAULT_KS_M as FSE_DEFAULT_KS_M,
+    Extrapolation as _FseResult,
+    decompose as fse_decompose,
+    extrapolate as fse_extrapolate,
+)
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -685,6 +691,126 @@ async def calc_hydrostatics(req: HydrostaticsRequest):
 # ---------------------------------------------------------------------------
 # Timing baseline endpoint
 # ---------------------------------------------------------------------------
+
+# ---------------------------------------------------------------------------
+# Model -> full-scale extrapolation (ITTC-1978 performance prediction method)
+# ---------------------------------------------------------------------------
+
+class FullScaleRequest(BaseModel):
+    """Model->ship resistance extrapolation request (ITTC-1978 7.5-02-03-01.4).
+
+    The model datum is given either as a measured/CFD total resistance
+    (``model_resistance_n``) or as a total coefficient
+    (``model_total_coefficient``); exactly one of the two must be supplied.
+    """
+    model_length_m: float = Field(gt=0, description="Model waterline length (m)")
+    model_speed_ms: float = Field(gt=0, description="Model speed (m/s)")
+    model_wetted_surface_m2: float = Field(gt=0, description="Model wetted surface (m^2)")
+    model_resistance_n: Optional[float] = Field(
+        default=None, gt=0, description="Model total resistance (N); xor model_total_coefficient",
+    )
+    model_total_coefficient: Optional[float] = Field(
+        default=None, gt=0, description="Model total resistance coefficient C_Tm; xor model_resistance_n",
+    )
+    ship_length_m: float = Field(gt=0, description="Full-scale waterline length (m)")
+    ship_wetted_surface_m2: Optional[float] = Field(
+        default=None, gt=0,
+        description="Full-scale wetted surface (m^2); default = S_m * lambda^2 (Froude scaling)",
+    )
+    ship_speed_ms: Optional[float] = Field(
+        default=None, gt=0,
+        description="Full-scale speed (m/s); default = Froude-similar speed V_m*sqrt(lambda)",
+    )
+    form_factor: float = Field(
+        default=1.0, ge=1.0, le=1.5,
+        description="(1+k); ITTC-1978 applies the same form factor at both scales",
+    )
+    ks_m: Optional[float] = Field(
+        default=FSE_DEFAULT_KS_M, gt=0,
+        description="Surface roughness (m) for dC_F; 150 um is the ITTC-1978 standard. "
+                    "Omit the field entirely (null) to disable dC_F.",
+    )
+    rho_model: float = Field(default=998.2, gt=0)
+    nu_model: float = Field(default=1.004e-6, gt=0)
+    rho_ship: float = Field(default=1025.0, gt=0)
+    nu_ship: float = Field(default=1.188e-6, gt=0)
+
+
+class FullScaleResponse(BaseModel):
+    """ITTC-1978 extrapolation result plus the two-term correction breakdown."""
+    scale_ratio: float
+    froude_number_model: float
+    froude_number_ship: float
+    speed_model_ms: float
+    speed_ship_ms: float
+    length_model_m: float
+    length_ship_m: float
+    wetted_surface_model_m2: float
+    wetted_surface_ship_m2: float
+    wetted_surface_source: str
+    reynolds_model: float
+    reynolds_ship: float
+    cf_model: float
+    cf_ship: float
+    form_factor: float
+    ct_model: float
+    cw: float
+    delta_cf: float
+    delta_cf_source: str
+    ct_ship: float
+    delta_ct_total: float
+    delta_ct_viscous: float
+    delta_ct_correlation: float
+    delta_ct_closure_residual: float
+    rt_model_n: float
+    rt_ship_n: float
+    effective_power_kw: float
+    method: str = ""
+    warnings: List[str] = Field(default_factory=list)
+    computation_time_ms: float = 0.0
+
+
+@router.post("/full_scale", response_model=FullScaleResponse)
+async def calc_full_scale(req: FullScaleRequest):
+    """Extrapolate a model-scale resistance to full scale by the 1978 ITTC method.
+
+    ``Cw = C_Tm - (1+k)C_Fm``; ``C_Ts = Cw + (1+k)C_Fs + dC_F``;
+    ``dC_F = [105 (ks/Lwl)^(1/3) - 0.64] * 1e-3`` (ks = 150 um by default).
+    The response carries ``delta_ct_viscous`` and ``delta_ct_correlation`` separately
+    so the correction is auditable, and the closure residual of the decomposition
+    (identically zero) is returned rather than assumed.
+    """
+    t0 = time.perf_counter()
+    try:
+        res: _FseResult = fse_extrapolate(
+            model_length_m=req.model_length_m,
+            model_speed_ms=req.model_speed_ms,
+            model_wetted_surface_m2=req.model_wetted_surface_m2,
+            model_resistance_n=req.model_resistance_n,
+            model_total_coefficient=req.model_total_coefficient,
+            ship_length_m=req.ship_length_m,
+            ship_wetted_surface_m2=req.ship_wetted_surface_m2,
+            ship_speed_ms=req.ship_speed_ms,
+            form_factor=req.form_factor,
+            ks=req.ks_m,
+            rho_model=req.rho_model,
+            nu_model=req.nu_model,
+            rho_ship=req.rho_ship,
+            nu_ship=req.nu_ship,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    split = fse_decompose(res)
+    payload = res.as_dict()
+    payload.update(
+        delta_ct_viscous=split["delta_ct_viscous"],
+        delta_ct_correlation=split["delta_ct_correlation"],
+        delta_ct_closure_residual=split["closure_residual"],
+        computation_time_ms=(time.perf_counter() - t0) * 1e3,
+    )
+    return FullScaleResponse(**payload)
+
 
 @router.get("/timing_baseline")
 async def get_timing_baseline():
