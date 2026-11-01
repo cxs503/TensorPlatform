@@ -277,3 +277,259 @@ def relative_error_pct(calc: float, ref: float) -> float:
     if ref == 0.0:
         return float("nan") if calc == 0.0 else float("inf")
     return (calc - ref) / abs(ref) * 100.0
+
+# ---------------------------------------------------------------------------
+# Realistic hull family: sloped bilge + vertical topsides (Cb <= 1)
+# ---------------------------------------------------------------------------
+#
+# Why a second hull family
+# ------------------------
+# The box barge (Cb = 1) can only judge platform stability code on a hull shape
+# no ship has.  Real hulls carry Cb ~ 0.55-0.85 and the whole point of ``KB``
+# is that it depends on how the sectional area is distributed in depth, so a
+# box-only reference leaves every real-hull verdict WITHHELD.
+#
+# Section geometry (transverse, symmetric, prismatic along the length):
+#
+#     keel half width b0 at z = 0, growing linearly to B/2 at z = h_k
+#     ("bilge rise"), then *vertical* sides up to the deck at z = D.
+#
+# With k = h_k/T and r = b0/(B/2) the sectional area gives
+#
+#     Cb = k (1 + r)/2 + (1 - k)      ->      r = 2 (Cb - 1 + k)/k - 1,
+#
+# so the family is parametrised by (Cb, k) for any feasible pair (0 <= r <= 1).
+# Two special cases make it the right adjudicator:
+#
+#   * ``k = 1`` (sloped sides all the way to the waterline) reduces the exact
+#     KB below to ``T (1 + 1/(2 Cb))/3`` -- i.e. exactly the corrected kernel
+#     shipped in ``src/ship_perf/hydrostatics.py`` (m1473), so this family is
+#     an *independent* check of that fix;
+#   * ``k <= ~0.5`` keeps the waterplane full-breadth over a wide heel range,
+#     so the wall-sided closed form stays an identity there and the numerical
+#     GZ solver can be cross-checked on a non-box hull.
+#
+# The platform's own approximation ``KB = T (1 - 0.5 (1 - Cb))`` is wrong on
+# every member of this family (it returns T for Cb = 1 and 0.9 T for Cb = 0.8,
+# against the exact 0.5 T and 0.5625 T).
+
+
+def section_polygon(beam: float, draft: float, depth: float, cb: float,
+                    bilge_rise_frac: float = 1.0) -> List[Tuple[float, float]]:
+    """Closed transverse section (sloped bilge, vertical topsides)."""
+    if not (0.5 <= cb <= 1.0):
+        raise ValueError("cb must lie in [0.5, 1.0] for this section family")
+    if not (0.0 < bilge_rise_frac <= 1.0):
+        raise ValueError("bilge_rise_frac must lie in (0, 1]")
+    if not (depth > draft > 0.0 and beam > 0.0):
+        raise ValueError("require depth > draft > 0 and beam > 0")
+    hw = beam / 2.0
+    k = bilge_rise_frac
+    r = 2.0 * (cb - 1.0 + k) / k - 1.0
+    if not (-1e-12 <= r <= 1.0 + 1e-12):
+        raise ValueError(
+            f"infeasible section: cb={cb}, bilge_rise_frac={k} gives "
+            f"keel half width ratio r={r:.3f} outside [0, 1]; "
+            f"need cb >= 1 - k/2")
+    b0 = max(0.0, min(1.0, r)) * hw
+    hk = k * draft
+    return [(-b0, 0.0), (b0, 0.0), (hw, hk), (hw, depth), (-hw, depth), (-hw, hk)]
+
+
+def section_kb(draft: float, beam: float, cb: float,
+               bilge_rise_frac: float = 1.0) -> float:
+    """Exact KB of the sloped-bilge section (first moment / area).
+
+    ``KB = [h_k^2 (b0 + 2 (B/2 - b0)/3) + (B/2) (T^2 - h_k^2)] / (Cb B T)``,
+    which reduces to ``T (1 + 1/(2 Cb))/3`` for ``h_k = T``.
+    """
+    hw = beam / 2.0
+    k = bilge_rise_frac
+    r = 2.0 * (cb - 1.0 + k) / k - 1.0
+    b0 = max(0.0, min(1.0, r)) * hw
+    hk = k * draft
+    area = cb * beam * draft
+    m1 = hk * hk * (b0 + 2.0 * (hw - b0) / 3.0) + hw * (draft * draft - hk * hk)
+    return m1 / area
+
+
+@dataclass(frozen=True)
+class SlopedBilgeHull:
+    """Prismatic hull: sloped bilge of rise ``k*T`` then vertical topsides."""
+
+    length: float
+    beam: float
+    draft: float
+    depth: float
+    kg: float
+    cb: float = 0.7
+    bilge_rise_frac: float = 1.0
+    name: str = "sloped"
+
+    # -- geometry ----------------------------------------------------------
+    @property
+    def half_beam(self) -> float:
+        return self.beam / 2.0
+
+    @property
+    def bilge_rise(self) -> float:
+        return self.bilge_rise_frac * self.draft
+
+    @property
+    def bottom_half_width(self) -> float:
+        hw, k = self.half_beam, self.bilge_rise_frac
+        r = 2.0 * (self.cb - 1.0 + k) / k - 1.0
+        return max(0.0, min(1.0, r)) * hw
+
+    def section(self) -> List[Tuple[float, float]]:
+        return section_polygon(self.beam, self.draft, self.depth, self.cb,
+                               self.bilge_rise_frac)
+
+    @property
+    def volume(self) -> float:
+        return self.cb * self.length * self.beam * self.draft
+
+    @property
+    def displacement_t(self) -> float:
+        return RHO_STD * self.volume / 1000.0
+
+    @property
+    def waterplane_area(self) -> float:
+        return self.length * self.beam
+
+    # -- upright hydrostatics ---------------------------------------------
+    @property
+    def kb(self) -> float:
+        return section_kb(self.draft, self.beam, self.cb, self.bilge_rise_frac)
+
+    def kb_numeric(self) -> float:
+        """Independent KB: z-centroid of the *immersed* upright section."""
+        return self.buoyancy_centre_numeric(0.0)[1]
+
+    @property
+    def bm(self) -> float:
+        """Full-breadth rectangular waterplane: BM = I/nabla = B^2 / (12 Cb T).
+
+        The Cb factor is *not* optional here: the waterplane is the same
+        rectangle for every member of the family, but the displaced volume
+        shrinks with Cb, so a Cb-less BM inflates the righting lever (it made
+        dGZ/dphi disagree with GM by +18 % in the first cut of this module).
+        """
+        return self.beam**2 / (12.0 * self.cb * self.draft)
+
+    @property
+    def km(self) -> float:
+        return self.kb + self.bm
+
+    @property
+    def gm(self) -> float:
+        return self.km - self.kg
+
+    # -- heeled hydrostatics ----------------------------------------------
+    def waterline_offset(self, phi_deg: float) -> float:
+        """Waterline offset ``c`` for constant displacement at heel ``phi_deg``."""
+        phi = math.radians(phi_deg)
+        s, co = math.sin(phi), math.cos(phi)
+        poly = self.section()
+        target = self.cb * self.beam * self.draft
+        proj = [q[0] * (-s) + q[1] * co for q in poly]
+        lo, hi = min(proj) - 1.0, max(proj) + 1.0
+        for _ in range(200):
+            mid = 0.5 * (lo + hi)
+            if _polygon_area(_clip_halfplane(poly, -s, co, mid)) < target:
+                lo = mid
+            else:
+                hi = mid
+            if hi - lo < 1e-13 * max(1.0, abs(hi)):
+                break
+        return 0.5 * (lo + hi)
+
+    def buoyancy_centre_numeric(self, phi_deg: float) -> Tuple[float, float]:
+        phi = math.radians(phi_deg)
+        s, co = math.sin(phi), math.cos(phi)
+        c = self.waterline_offset(phi_deg)
+        return _polygon_centroid(_clip_halfplane(self.section(), -s, co, c))
+
+    def gz_numeric(self, phi_deg: float) -> float:
+        x_b, z_b = self.buoyancy_centre_numeric(phi_deg)
+        phi = math.radians(phi_deg)
+        return x_b * math.cos(phi) + (z_b - self.kg) * math.sin(phi)
+
+    def gz_wall_sided(self, phi_deg: float) -> float:
+        phi = math.radians(phi_deg)
+        t = math.tan(phi)
+        return math.sin(phi) * (self.gm + 0.5 * self.bm * t * t)
+
+    def waterplane_span(self, phi_deg: float) -> float:
+        """Width of the heeled waterplane chord (== B while wall-sided)."""
+        phi = math.radians(phi_deg)
+        s, co = math.sin(phi), math.cos(phi)
+        c = self.waterline_offset(phi_deg)
+        clipped = _clip_halfplane(self.section(), -s, co, c)
+        xs = [q[0] for q in clipped if abs(-q[0] * s + q[1] * co - c) < 1e-7]
+        if len(xs) < 2:
+            return 0.0
+        return max(xs) - min(xs)
+
+    def deck_immersed(self, phi_deg: float) -> bool:
+        phi = math.radians(phi_deg)
+        s, co = math.sin(phi), math.cos(phi)
+        c = self.waterline_offset(phi_deg)
+        return min(-x * s + self.depth * co
+                   for x in (self.half_beam, -self.half_beam)) < c - 1e-12
+
+    def wall_sided_exact(self, phi_deg: float) -> bool:
+        """True while the closed form is an identity (full waterplane, deck dry)."""
+        if self.deck_immersed(phi_deg):
+            return False
+        return self.waterplane_span(phi_deg) >= self.beam - 1e-7
+
+    @property
+    def phi_deck_deg(self) -> float:
+        return math.degrees(math.atan2(2.0 * (self.depth - self.draft), self.beam))
+
+    @property
+    def phi_bilge_deg(self) -> float:
+        """Low-side waterline reaches the bilge knuckle (top of the slant).
+
+        For ``Cb = 1`` the section is a rectangle whatever ``k`` is, so the
+        knuckle does not exist and the classical ``atan(2T/B)`` applies.
+        """
+        if self.bottom_half_width >= self.half_beam - 1e-12:
+            return math.degrees(math.atan2(2.0 * self.draft, self.beam))
+        return math.degrees(math.atan2(2.0 * (self.draft - self.bilge_rise), self.beam))
+
+    @property
+    def wall_sided_limit_deg(self) -> float:
+        """First heel where the closed form stops being an identity (numeric)."""
+        if not self.wall_sided_exact(0.0):
+            raise ValueError("closed form invalid even upright")
+        lo, hi = 0.0, 89.9
+        if self.wall_sided_exact(hi):
+            return hi
+        for _ in range(60):
+            mid = 0.5 * (lo + hi)
+            if self.wall_sided_exact(mid):
+                lo = mid
+            else:
+                hi = mid
+        return lo
+
+
+def gz_error_envelope_section(hull: SlopedBilgeHull,
+                              heel_deg_seq: Sequence[float]) -> List[Dict[str, float]]:
+    """Closed form vs independent numerical GZ over heel angle for a section hull."""
+    rows: List[Dict[str, float]] = []
+    limit = hull.wall_sided_limit_deg
+    for hd in heel_deg_seq:
+        exact = hull.gz_numeric(hd)
+        wall = hull.gz_wall_sided(hd)
+        rows.append({
+            "heel_deg": hd,
+            "gz_numeric_m": exact,
+            "gz_wall_sided_m": wall,
+            "abs_err_m": wall - exact,
+            "rel_err_pct": ((wall - exact) / abs(exact) * 100.0) if abs(exact) > 1e-9 else float("nan"),
+            "wall_sided_exact": hd <= limit + 1e-9,
+        })
+    return rows
