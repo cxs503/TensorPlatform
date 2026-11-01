@@ -31,12 +31,14 @@ Wave resistance::
     lambda = 1.446 CP - 0.03 L/B   (L/B < 12),  1.446 CP - 0.36  (L/B >= 12)
     m1 = 0.0140407 L/T - 1.75254 nabla^(1/3)/L - 4.79323 B/L - c16
     m2 = c15 CP^2 exp(-0.1 Fn^-2)
-    c15 = -1.69385 + (L/nabla^(1/3) - 8)/2.36 (L/nabla^(1/3) < 12) else -1.69385
+    c15 = -1.69385                  (L^3/nabla < 512)
+        = -1.69385 + (L/nabla^(1/3) - 8)/2.36   (512 <= L^3/nabla <= 1727)
+        = 0                         (L^3/nabla > 1727)
     c16 = 8.07981 CP - 13.8673 CP^2 + 6.984388 CP^3 (CP < 0.8)
         = 1.73014 - 0.7067 CP                       (CP >= 0.8)
     c7  = 0.229577 (B/L)^(1/3)  (B/L < 0.11)
-        = 0.5 - 0.0625 L/B      (0.11 <= B/L <= 0.25)
-        = B/L                   (B/L > 0.25)
+        = B/L                   (0.11 <= B/L < 0.25)
+        = 0.5 - 0.0625 L/B      (B/L >= 0.25)
     iE  = 1 + 89 exp{-(L/B)^0.80856 (1-CWP)^0.30484 (1-CP-0.0225 lcb)^0.6367
                      (LR/B)^0.34574 (100 nabla/L^3)^0.16302}   [deg]
 
@@ -98,24 +100,49 @@ def wetted_surface(length: float, beam: float, draft: float, cb: float, cm: floa
 
 
 def c7_coefficient(bl_ratio: float) -> float:
-    """Holtrop-Mennen 1982 c7.
+    """Holtrop-Mennen 1982 c7 (m1674 ADJUDICATED).
 
-    Note: the published piecewise form is *not* continuous at B/L = 0.11 (the
-    linear branch returns 0.5 - 0.0625 L/B, i.e. -0.068 at B/L = 0.11).  Because
-    c1 ~ c7^3.78613 a non-positive c7 is meaningless, so values <= 0 are clipped
-    to 1e-3 and flagged by :func:`c7_flagged`.  Ships with B/L >= 0.11 that the
-    caller uses here should be checked against the source table.
+    The two slender/full branches were swapped before m1674 (the middle branch
+    returned ``0.5 - 0.0625 L/B``, the B/L >= 0.25 branch returned ``B/L``).
+    That assignment is inconsistent with the method it claims to implement on
+    three independent counts, all reproduced by
+    ``backend/tests/test_m1674_resistance_conformance.py``:
+
+    1. **Continuity.**  With the published assignment both breaks are
+       continuous to float precision: at B/L = 0.11 the lower branch gives
+       0.229577*0.11^(1/3) = 0.11000 and the middle branch gives 0.11; at
+       B/L = 0.25 the middle branch gives 0.25 and the upper branch gives
+       0.5 - 0.0625*4 = 0.25.  The swapped assignment jumps by 99 % at
+       B/L = 0.11 (and needs the clip below to stay usable).
+    2. **Own validity domain.**  This module declares 3.9 <= L/B <= 9.5 as
+       valid.  The swapped middle branch is <= 0 for L/B >= 8 - i.e. it
+       returns a non-physical coefficient inside the domain the module itself
+       advertises.
+    3. **Magnitude.**  Because RW ~ c1 ~ c7^3.78613, the swap suppressed the
+       wave resistance of a 7.1-L/B container ship by 38x.
+
+    The clip is kept as a defensive guard only; with the published assignment
+    ``c7 > 0`` for every B/L in (0, 1).
     """
     if bl_ratio < 0.11:
         return 0.229577 * bl_ratio ** (1.0 / 3.0)
-    if bl_ratio <= 0.25:
-        return max(0.5 - 0.0625 / bl_ratio, 1e-3)
-    return bl_ratio
+    if bl_ratio < 0.25:
+        return bl_ratio
+    return max(0.5 - 0.0625 / bl_ratio, 1e-3)
 
 
 def c7_flagged(bl_ratio: float) -> bool:
-    """True when the linear c7 branch is non-positive (out of regression sense)."""
-    return 0.11 <= bl_ratio <= 0.25 and 0.5 - 0.0625 / bl_ratio <= 0.0
+    """True when c7 came out non-positive (defensive; unreachable for B/L in (0,1)).
+
+    Kept for API compatibility with the pre-m1674 audit tooling.  With the
+    published branch assignment the coefficient is positive for every
+    physically meaningful B/L, so this now always returns False.
+    """
+    if bl_ratio < 0.11:
+        return 0.229577 * bl_ratio ** (1.0 / 3.0) <= 0.0
+    if bl_ratio < 0.25:
+        return bl_ratio <= 0.0
+    return 0.5 - 0.0625 / bl_ratio <= 0.0
 
 
 def c16_coefficient(cp: float) -> float:
@@ -125,9 +152,20 @@ def c16_coefficient(cp: float) -> float:
 
 
 def c15_coefficient(l_over_nabla13: float) -> float:
-    if l_over_nabla13 < 12.0:
-        return -1.69385 + (l_over_nabla13 - 8.0) / 2.36
-    return -1.69385
+    """Holtrop-Mennen 1982 c15, three bands on L^3/nabla (m1674 ADJUDICATED).
+
+    Pre-m1674 the lower band was missing: the linear interpolation was applied
+    down to L/nabla^(1/3) -> 0 and the upper band returned -1.69385 where the
+    published table has 0.  Both ends are asymmetric in this shape coefficient
+    (m2/m4 enter as c15*Cp^2 / 0.4*c15), so the missing band biased R_W for
+    slender hulls (L^3/nabla < 512, i.e. container ships and ferries).
+    """
+    l3_over_nabla = l_over_nabla13 ** 3
+    if l3_over_nabla < 512.0:
+        return -1.69385
+    if l3_over_nabla > 1727.0:
+        return 0.0
+    return -1.69385 + (l_over_nabla13 - 8.0) / 2.36
 
 
 def half_entrance_angle(length: float, beam: float, cwp: float, cp: float,
@@ -264,8 +302,8 @@ def holtrop_resistance(
     _check(0.0 < ie < 90.0, f"iE out of range: {ie}")
     if c7_flagged(beam / length):
         warnings.append(
-            "c7 linear branch non-positive for L/B >= 8 (published regression "
-            "discontinuity); c7 clipped and RW unreliable")
+            "c7 came out non-positive (B/L outside the regression sense); "
+            "c7 clipped to 1e-3 and RW unreliable")
     c1 = (2223105.0 * c7_coefficient(beam / length) ** 3.78613
           * (draft / beam) ** 1.07961 * (90.0 - ie) ** (-1.37565))
     if abt > 0.0:

@@ -150,8 +150,17 @@ def _holtrop_wave_resistance(ship: ShipGeometry, fn: float) -> float:
     c16 = 8.07981 * cp - 13.8673 * cp ** 2 + 6.984388 * cp ** 3
     m1 = 0.0140407 * (l / t) - 1.75254 * nabla ** (1.0 / 3.0) / l - 4.79323 * (b / l) - c16
 
+    # m1674 ADJUDICATED: published c15 is three-band on L^3/nabla (constant
+    # -1.69385 below 512, linear in between, 0 above 1727); the single-branch
+    # form applied the interpolation down to L/nabla^(1/3) -> 0.
     l_over_nabla13 = l / nabla ** (1.0 / 3.0)
-    c15 = -1.69385 + (l_over_nabla13 - 8.0) / 2.36 if l_over_nabla13 < 12.0 else 0.0
+    l3_over_nabla = l_over_nabla13 ** 3
+    if l3_over_nabla < 512.0:
+        c15 = -1.69385
+    elif l3_over_nabla > 1727.0:
+        c15 = 0.0
+    else:
+        c15 = -1.69385 + (l_over_nabla13 - 8.0) / 2.36
     m4 = c15 * 0.4 * math.exp(-0.034 * fn ** -3.29)
 
     lam = 1.446 * cp - 0.03 * (l / b) if (l / b) < 12.0 else 1.446 * cp - 0.36
@@ -164,11 +173,16 @@ def _holtrop_wave_resistance(ship: ShipGeometry, fn: float) -> float:
     else:
         c7 = 0.5 - 0.0625 * (l / b)
 
+    # m1674 ADJUDICATED: fifth factor of the iE exponent is (LR/B), not (L/T).
+    # LR = L(1 - Cp + 0.06 Cp lcb/(4 Cp - 1)) with the documented lcb = 0.02 L.
+    # Using L/T inflated iE (~2x), suppressing c1 ~ (90 - iE)^-1.37565 and R_W
+    # by 20-25 %.
+    lr = l * (1.0 - cp + 0.06 * cp * lcb / (4.0 * cp - 1.0))
     i_e = 1.0 + 89.0 * math.exp(
         -(l / b) ** 0.80856
         * (1.0 - cwp) ** 0.30484
         * (1.0 - cp - 0.0225 * lcb) ** 0.6367
-        * (l / t) ** 0.34574
+        * (lr / b) ** 0.34574
         * (100.0 * nabla / l ** 3) ** 0.16302
     )
     c1 = 2223105.0 * c7 ** 3.78613 * (t / b) ** 1.07961 * (90.0 - i_e) ** (-1.37565)

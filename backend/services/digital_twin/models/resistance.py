@@ -66,7 +66,10 @@ def holtrop_resistance(
     lcb = 0.0  # design assumption: LCB at midship (fraction of L)
 
     # wetted surface (Holtrop, no bulb)
-    S = L * (2.0 * T + B) * math.sqrt(Cb) * (
+    # m1674 ADJUDICATED: the published wetted-surface regression multiplies
+    # by sqrt(CM), not sqrt(Cb).  For Cb = 0.83 (Cm = 0.966) the swap
+    # under-predicted S by 3.5 %, i.e. R_F and R_A came out low.
+    S = L * (2.0 * T + B) * math.sqrt(Cm) * (
         0.453 + 0.4425 * Cb - 0.2862 * Cm - 0.003467 * B / T + 0.3696 * Cwp
     )
 
