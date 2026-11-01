@@ -43,6 +43,9 @@ class ResistanceResponse(BaseModel):
     residual_resistance_n: float
     reynolds_number: float
     froude_number: float
+    wetted_surface_m2: float = 0.0
+    cf: float = 0.0
+    cr: float = 0.0
     computation_time_ms: float
 
 
@@ -128,6 +131,9 @@ async def calc_resistance(req: ResistanceRequest):
         residual_resistance_n=round(Rr, 4),
         reynolds_number=round(Re, 2),
         froude_number=round(Fn, 6),
+        wetted_surface_m2=round(S, 6),
+        cf=round(Cf, 8),
+        cr=round(Cr, 8),
         computation_time_ms=round(elapsed_ms, 3),
     )
 
