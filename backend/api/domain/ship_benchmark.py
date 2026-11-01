@@ -135,6 +135,11 @@ class BenchmarkResult(BaseModel):
     dataset_status: str = ""
     withheld: bool = False
     dataset_checks_failed: List[str] = Field(default_factory=list)
+    # m1704: Ct 级判据门（正交于 Rt 级 dataset_status/withheld）
+    ct_admissible: bool = False
+    ct_evidence_level: str = ""
+    ct_gate_blockers: List[str] = Field(default_factory=list)
+    ct_level_pass: bool = False
 
 
 class BenchmarkValidateResponse(BaseModel):
@@ -318,6 +323,13 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
         # m1388: a pass needs physical numerics AND a usable reference row.
         passed = (error_pct <= 15.0) and not withheld
 
+        # m1704: Ct 级判据门。Ct 无量纲，湿面积在模型/参考两侧同时约去，所以
+        # "缺 S" 只封锁 Rt 级声明；Ct 级结论另立一门（见 benchmark_integrity）。
+        ct_admissible = bool(row.get("ct_admissible", False))
+        ct_level = row.get("ct_level", "NONE")
+        ct_gate_blockers = list(row.get("ct_gate_blockers", []))
+        ct_level_pass = bool(ct_admissible and error_pct <= 15.0)
+
         notes: List[str] = []
         if withheld:
             withheld_cases.append(case_id)
@@ -351,6 +363,10 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
             dataset_status=status,
             withheld=withheld,
             dataset_checks_failed=checks_failed,
+            ct_admissible=ct_admissible,
+            ct_evidence_level=ct_level,
+            ct_gate_blockers=ct_gate_blockers,
+            ct_level_pass=ct_level_pass,
         ))
 
     # Summary
@@ -359,6 +375,9 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
     verified_total = sum(1 for r in results if not r.withheld)
     verified_passed = sum(1 for r in results if not r.withheld and r.pass_)
     all_verified_failed = verified_total > 0 and verified_passed == 0
+
+    ct_total = sum(1 for r in results if r.ct_admissible)
+    ct_passed = sum(1 for r in results if r.ct_level_pass and r.ct_admissible)
 
     summary: Dict[str, Any] = {
         "total_cases": total,
@@ -374,7 +393,22 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
         "transport": transport or "unavailable",
         "model": MODEL_NAME,
         "algorithm_upgrade_recommended": all_verified_failed,
+        # m1704 —— Ct 级（无量纲）精度口径，独立于 Rt 级数据集闸门。
+        # 参与本口径的行必须通过 Fr/摩擦下限/形体带三项闸门（见 ct_gate_blockers）。
+        "ct_admissible_cases": ct_total,
+        "ct_admissible_passed": ct_passed,
+        "pass_rate_ct": round(ct_passed / ct_total * 100.0, 1) if ct_total else None,
+        "rt_claimable_cases": sum(1 for r in results if r.ct_evidence_level == "CT+RT"),
+        "ct_level_claim_note": (
+            "Ct 级结论只覆盖无量纲阻力系数；Rt（牛顿）级结论仍受 dataset_status/withheld "
+            "约束，缺湿面积的参考行不得用于 Rt/KPI 声明。"
+        ),
     }
+    if ct_total and not ct_passed:
+        summary["ct_level_recommendation"] = (
+            f"{ct_total} 条通过 Ct 闸门的参考行全部超出 15%：{MODEL_NAME} 的无量纲 Ct "
+            "在这些船型上不成立，下一步应替换为船型适配方法（Holtrop-Mennen 波形/形状因子）。"
+        )
     if total > 0 and verified_total == 0:
         summary["recommendation"] = (
             "NO VERIFIED REFERENCE ROWS for this ship type: the reference dataset fails the "
@@ -409,6 +443,13 @@ def list_benchmark_cases(ship_type: Optional[str] = None) -> Dict[str, Any]:
         "cases": cases,
         "source": data.get("description", ""),
         "dataset_status": {c["case_id"]: audit.get(c["case_id"], {}).get("status", "UNKNOWN") for c in cases},
+        # m1704: 正交的 Ct 级判据门（CT+RT / CT / NONE）。dataset_status=PARTIAL 但
+        # ct_level=CT 的行：Rt 列不可用，无量纲 Ct 列可作精度标尺。
+        "ct_evidence_level": {c["case_id"]: audit.get(c["case_id"], {}).get("ct_level", "NONE") for c in cases},
+        "ct_evidence_note": (
+            "ct_level=CT 表示该行缺湿面积 S，仅 Rt（牛顿）级声明被封锁；"
+            "Ct = Rt/(0.5 rho V^2 S) 中 S 在对比时两侧约去，故 Ct 级对标仍有效。"
+        ),
     }
 
 

@@ -42,6 +42,7 @@ from services.benchmark_integrity import (
     WARN,
     WITHHELD,
     audit_case as _integrity_audit_case,
+    ct_admissibility,
 )
 from services.ship_resistance import DEFAULT_KINEMATIC_VISCOSITY, DEFAULT_WATER_DENSITY
 
@@ -107,6 +108,9 @@ def assess_case(case: Dict[str, Any], nu: Optional[float] = None,
         "warned_checks": warned,
         "checks": checks,
         "source_citation": row.get("source_citation", ""),
+        # m1704: Ct 级判据门 —— 三值 status 口径不变（API 契约），
+        # 另给出"无量纲 Ct 列能否作精度标尺"的正交结论。
+        **ct_admissibility(audit),
     }
 
 

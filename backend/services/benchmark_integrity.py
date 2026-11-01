@@ -247,6 +247,61 @@ def _worst(statuses: Iterable[str]) -> str:
     return worst
 
 
+# ---------------------------------------------------------------------------
+# Ct 级判据门（m1704）
+# ---------------------------------------------------------------------------
+#: 只有当这几项检查全部 PASS（或对本行不适用、直接缺项）时，参考行的
+#: **无量纲** Ct 列才可作精度标尺 —— 即使 Rt 列因缺湿面积无法闭合。
+CT_GATE_CHECKS: Tuple[str, ...] = ("froude_closure", "friction_floor", "form_bands")
+
+CT_LEVEL_BOTH = "CT+RT"   # Ct 与 Rt 两列都可作判据
+CT_LEVEL_CT = "CT"        # 只有无量纲 Ct 列可作判据
+CT_LEVEL_NONE = "NONE"    # 两列都不可用
+
+
+def ct_admissibility(audited: Dict[str, Any]) -> Dict[str, Any]:
+    """判定单条参考行的 Ct 列能否独立作精度标尺（m1704）。
+
+    物理依据：``Ct = Rt / (1/2 * rho * V^2 * S)`` 是无量纲量。把模型 Ct 与参考
+    Ct 对比时湿面积 S 在两边**同时约去**，因此 C3（Rt 闭合）缺 S 只封锁 Rt 级
+    声明（牛顿值），不封锁 Ct 级结论（阻力系数）。
+
+    闸门不空转的对称条件：Fr 闭合（航速-船长配对）、摩擦下限（Ct/Cf >= 1）、
+    形体带（Cb / L/B / B/T 与船型相符）三项必须为 PASS。任一项 WARN/FAIL/
+    WITHHELD，说明该行的 Ct 究竟属于哪个航速/哪条摩擦线/哪种船型不可信，
+    Ct 列一并封锁，不做"只要 Ct 在就放行"的宽松放水。
+
+    返回值::
+
+        {ct_admissible, ct_level: CT+RT | CT | NONE, ct_gate_blockers,
+         rt_closure_status, ct_gate_checks}
+    """
+    statuses = {c.get("check"): c.get("status") for c in audited.get("checks", [])}
+    blockers = []
+    for name in CT_GATE_CHECKS:
+        st = statuses.get(name)
+        if st is None:            # 该检查对本行不适用（回转体无排水量闭合等）：不参与裁决
+            continue
+        if st != PASS:
+            blockers.append(f"{name}:{st}")
+    rt_status = statuses.get("resistance_closure")
+    if blockers:
+        level = CT_LEVEL_NONE
+    elif rt_status == PASS:
+        level = CT_LEVEL_BOTH
+    elif rt_status == WITHHELD:
+        level = CT_LEVEL_CT
+    else:
+        level = CT_LEVEL_NONE
+    return {
+        "ct_admissible": level != CT_LEVEL_NONE,
+        "ct_level": level,
+        "ct_gate_blockers": blockers,
+        "rt_closure_status": rt_status,
+        "ct_gate_checks": list(CT_GATE_CHECKS),
+    }
+
+
 def fluid_of(case: Dict[str, Any], rho: Optional[float] = None,
              nu: Optional[float] = None) -> Tuple[float, float]:
     """m1561：流体物性溯源。
