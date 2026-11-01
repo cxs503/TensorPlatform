@@ -315,7 +315,8 @@ BENCHMARK_REFERENCE = {
         "kvlcc2_full": {
             "params": {
                 "length": 320.0, "beam": 58.0, "draft": 20.8,
-                "cb": 0.8098, "displacement": 310000, "speed": 15.0
+                "cb": 0.8098, "displacement": 320437, "speed": 15.0,
+                "displacement_basis": "derived: Cb·L·B·T·ρ(1025)（v1 写 310000 t，闭合误差 3.4%）",
             },
             "reference_rt": 2500.0,  # kN（参考值，允许 ±15%）
             "tolerance_pct": 15.0,
@@ -324,9 +325,11 @@ BENCHMARK_REFERENCE = {
         "suboff_model": {
             "params": {
                 "length": 4.356, "beam": 0.508, "draft": 0.508,
-                "cb": 0.5, "displacement": 500, "speed": 3.0
+                "cb": 0.5, "displacement": 562, "speed": 3.0,
+                "displacement_basis": "derived: Cb·L·B·T·ρ(1000)（单位 kg；v1 写 500，单位不明）",
             },
-            "reference_rt": 15.0,  # N（实验参考值）
+            "reference_rt": 95.0,  # N，derived: Ct·½ρV²S（Ct=0.0038, S=5.42 m², ρ=1025, V=3.0 m/s）
+            "legacy_reference_rt": 15.0,  # v1 值，与 Ct·½ρV²S 相差 6.3 倍，见 services/benchmark_integrity.py
             "tolerance_pct": 300.0,  # Holtrop 对 SUBOFF 误差可达 300%+
             "note": "honest-FAIL: Holtrop 方法不适用于潜艇外形，误差 >300%",
         },
@@ -335,9 +338,12 @@ BENCHMARK_REFERENCE = {
         "generic_barge": {
             "params": {
                 "length": 80.0, "beam": 20.0, "draft": 4.0,
-                "cb": 0.85, "displacement": 10000, "kg": 5.0
+                "cb": 0.85, "displacement": 5576, "kg": 5.0,
+                "displacement_basis": "derived: Cb·L·B·T·ρ(1025)（v1 写 10000 t，闭合误差 44%）",
             },
             "reference_gm": 3.5,
+            "reference_gm_status": "WITHHELD：与矩形等价体 GM=KM-KG=10.33-5.0=5.33 m 偏离 34%，"
+                                   "记录未给 Cwp/KG 出处，无法复核；矩形浮箱 KM=T/2+B²/(12T) 为精确解",
             "tolerance_pct": 15.0,
         },
     },
