@@ -1,0 +1,849 @@
+{
+  "generated_at": "2026-10-08T16:00:40+0800",
+  "platform": {
+    "ship_api": "http://127.0.0.1:8001",
+    "nginx": "http://127.0.0.1:8000",
+    "external": "http://198.51.100.10",
+    "backend_dir": "/srv/tensor/ship-workspace/ship-performance-platform/backend"
+  },
+  "capabilities": {
+    "geometry.generate": {
+      "id": "geometry.generate",
+      "title": "几何生成(网格)",
+      "kind": "app",
+      "module": "backend/api/geometry_router.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/geometry/generate",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": true,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 POST /api/v1/geometry/generate → 200 application/json (47ms)",
+        "实测 经nginx(:8000) POST /api/v1/geometry/generate → 200 application/json (45ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 47
+      }
+    },
+    "geometry.list_models": {
+      "id": "geometry.list_models",
+      "title": "几何模型列表(类别/型线库)",
+      "kind": "app",
+      "module": "backend/api/geometry_router.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/geometry/categories",
+          "method": "GET"
+        },
+        {
+          "path": "/api/v1/geometry/models/{category}",
+          "method": "GET"
+        }
+      ],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/geometry/categories → 404 application/json (2ms)",
+        "实测 经nginx(:8000) GET /api/v1/geometry/categories → 404 application/json (2ms)",
+        "实测 直连8001 /api/v1/geometry/models/monohull → 404 application/json; 经nginx → 404 application/json"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "BLOCKED",
+      "admission_reason": "/api/v1/geometry/{vessel_name} 路由 (geometry_router.py:108) 注册在 /categories (475) 与 /models/{category} (547) 之前 → 被影子捕获; 实测 GET /api/v1/geometry/categories = 404 JSON(细节: 船舶 'categories' 不存在), GET /api/v1/geometry/models/monohull = 404 JSON(类别 'monohull' 不存在)",
+      "probed": {
+        "status": 404,
+        "content_type": "application/json",
+        "elapsed_ms": 2
+      }
+    },
+    "geometry.verify_official": {
+      "id": "geometry.verify_official",
+      "title": "官方点云几何验收(DTMB 5415)",
+      "kind": "app",
+      "module": "backend/api/zenodo_5415.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/geometry/generate",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": true,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 POST /api/v1/geometry/generate → 200 application/json (23123ms)",
+        "实测 经nginx(:8000) POST /api/v1/geometry/generate → 200 application/json (48ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 23123
+      }
+    },
+    "geometry.hydro_curves": {
+      "id": "geometry.hydro_curves",
+      "title": "静水力曲线族",
+      "kind": "app",
+      "module": "backend/api/geometry_router.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/geometry/hydro-curves/{ship_name}",
+          "method": "GET"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": true,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/geometry/hydro-curves/KCS?n_drafts=5 → 200 application/json (89ms)",
+        "实测 经nginx(:8000) GET /api/v1/geometry/hydro-curves/KCS?n_drafts=5 → 200 application/json (88ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 89
+      }
+    },
+    "calc.resistance": {
+      "id": "calc.resistance",
+      "title": "阻力计算 (ITTC-57 + Holtrop)",
+      "kind": "app",
+      "module": "backend/api/calculations.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/calculations/resistance",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 POST /api/v1/calculations/resistance → 422 application/json (1ms)",
+        "实测 直连8001(修正字段) POST /api/v1/calculations/resistance → 200 application/json (0ms)",
+        "实测 经nginx(:8000) POST /api/v1/calculations/resistance → 405 application/json (2ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL; 经 nginx 非 JSON(前缀漏配 → SPA 假 200 / 落到错误后端)",
+      "probed": {
+        "status": 422,
+        "content_type": "application/json",
+        "elapsed_ms": 1
+      }
+    },
+    "calc.stability": {
+      "id": "calc.stability",
+      "title": "稳性计算 (KB/BM/GM/GZ)",
+      "kind": "app",
+      "module": "backend/api/calculations.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/calculations/stability",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 POST /api/v1/calculations/stability → 422 application/json (0ms)",
+        "实测 直连8001(修正字段) POST /api/v1/calculations/stability → 200 application/json (0ms)",
+        "实测 经nginx(:8000) POST /api/v1/calculations/stability → 405 application/json (1ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL; 经 nginx 非 JSON(前缀漏配 → SPA 假 200 / 落到错误后端)",
+      "probed": {
+        "status": 422,
+        "content_type": "application/json",
+        "elapsed_ms": 0
+      }
+    },
+    "shiphull.generate": {
+      "id": "shiphull.generate",
+      "title": "船体生成 (超椭圆截面 + 静水力)",
+      "kind": "app",
+      "module": "backend/api/ship_hull.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/ship-hull/generate",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": true,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 POST /api/v1/ship-hull/generate → 200 application/json (19ms)",
+        "实测 经nginx(:8000) POST /api/v1/ship-hull/generate → 200 application/json (19ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 19
+      }
+    },
+    "propeller.open_water": {
+      "id": "propeller.open_water",
+      "title": "螺旋桨开水性能 (Wageningen B)",
+      "kind": "app",
+      "module": "backend/api/open_water.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/propeller/open-water",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": true,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 POST /api/v1/propeller/open-water → 200 application/json (2ms)",
+        "实测 经nginx(:8000) POST /api/v1/propeller/open-water → 200 application/json (2ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 2
+      }
+    },
+    "stdmodels.lookup": {
+      "id": "stdmodels.lookup",
+      "title": "标准船型库查询",
+      "kind": "app",
+      "module": "backend/api/standard_models_api.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/standard-models/ships",
+          "method": "GET"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": true,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/standard-models/ships → 200 application/json (5ms)",
+        "实测 经nginx(:8000) GET /api/v1/standard-models/ships → 200 application/json (4ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 5
+      }
+    },
+    "knowledge.docs": {
+      "id": "knowledge.docs",
+      "title": "知识库(文档/书籍)",
+      "kind": "app",
+      "module": "backend/api/knowledge.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/knowledge/docs",
+          "method": "GET"
+        },
+        {
+          "path": "/api/v1/knowledge/books",
+          "method": "GET"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/knowledge/docs → 200 application/json (0ms)",
+        "实测 经nginx(:8000) GET /api/v1/knowledge/docs → 200 text/html; charset=utf-8 (3ms)",
+        "实测 直连8001 /api/v1/knowledge/books → 200 application/json; 经nginx → 200 text/html; charset=utf-8"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL; 经 nginx 非 JSON(前缀漏配 → SPA 假 200 / 落到错误后端)",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 0
+      }
+    },
+    "gov.stats": {
+      "id": "gov.stats",
+      "title": "数据治理统计",
+      "kind": "app",
+      "module": "backend/api/data_governance.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/data-governance/stats",
+          "method": "GET"
+        }
+      ],
+      "reachable_direct": true,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/data-governance/stats → 200 application/json (5011ms)",
+        "实测 经nginx(:8000) GET /api/v1/data-governance/stats → 200 text/html; charset=utf-8 (4ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 返回 200 JSON, 证据 REAL; 经 nginx 非 JSON(前缀漏配 → SPA 假 200 / 落到错误后端)",
+      "probed": {
+        "status": 200,
+        "content_type": "application/json",
+        "elapsed_ms": 5011
+      }
+    },
+    "ai.predict": {
+      "id": "ai.predict",
+      "title": "AI 预测 (演示群)",
+      "kind": "app",
+      "module": "backend/api/advanced_ai.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/advanced-ai/predict",
+          "method": "POST"
+        },
+        {
+          "path": "/api/v1/pinn/predict",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "NOT_SUPPORTED",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/ai-models → 404 application/json (1ms)",
+        "backend/api/advanced_ai.py:11 random.gauss 噪声 :: layer_outputs 全用 random.gauss 拼",
+        "backend/api/advanced_ai.py:45 random 模块 :: import random",
+        "backend/api/advanced_ai.py:221 random.gauss 噪声 :: [random.gauss(0.5, 0.1) for _ in range(8)] for _ in range(4)",
+        "backend/api/advanced_ai.py:229 random.gauss 噪声 :: \"conv1\": [random.gauss(0, 0.1) for _ in range(16)],",
+        "backend/api/advanced_ai.py:230 random.gauss 噪声 :: \"conv2\": [random.gauss(0, 0.1) for _ in range(32)],",
+        "backend/api/advanced_ai.py:231 random.gauss 噪声 :: \"fc\": [random.gauss(0, 0.1) for _ in range(64)]",
+        "backend/api/advanced_ai.py:235 random.gauss 噪声 :: \"prediction\": round(base * (1 + 0.02 * random.gauss(0, 1)), 2),",
+        "backend/api/advanced_ai.py:243 random.* 随机数 :: \"accuracy\": 0.94 + 0.02 * random.random()",
+        "backend/api/advanced_ai.py:259 random.* 随机数 :: head_attn = [random.random() for _ in range(seq_len)]",
+        "backend/api/advanced_ai.py:271 random.gauss 噪声 :: encoder_out = [[random.gauss(0, 0.1) for _ in range(10)] for _ in range(seq_len)]",
+        "backend/api/advanced_ai.py:278 random.* 随机数 :: prediction = 1500 + 200 * random.random()",
+        "backend/api/advanced_ai.py:290 random.* 随机数 :: \"accuracy\": 0.92 + 0.03 * random.random()",
+        "backend/api/advanced_ai.py:310 random.* 随机数 :: base_prediction = 1500 + 500 * random.random()",
+        "backend/api/advanced_ai.py:339 random.gauss 噪声 :: pred = base * (1 + 0.03 * random.gauss(0, 1))",
+        "backend/api/advanced_ai.py:346 random.* 随机数 :: w = 0.2 + 0.15 * random.random()",
+        "backend/api/advanced_ai.py:377 random.* 随机数 :: \"ensemble_accuracy\": 0.95 + 0.02 * random.random()",
+        "backend/api/advanced_ai.py:391 random.* 随机数 :: physics_loss = 0.01 + 0.02 * random.random()",
+        "backend/api/advanced_ai.py:392 random.* 随机数 :: data_loss = 0.005 + 0.01 * random.random()",
+        "backend/api/advanced_ai.py:399 random.* 随机数 :: \"x\": round(random.random() * L, 2),",
+        "backend/api/advanced_ai.py:400 random.* 随机数 :: \"y\": round(random.random() * B, 2),",
+        "backend/api/advanced_ai.py:401 random.gauss 噪声 :: \"residual\": round(random.gauss(0, 0.01), 6)",
+        "backend/api/advanced_ai.py:405 random.gauss 噪声 :: \"prediction\": round(base * (1 + 0.01 * random.gauss(0, 1)), 2),",
+        "backend/api/advanced_ai.py:415 random.* 随机数 :: \"accuracy\": 0.96 + 0.02 * random.random()",
+        "backend/api/advanced_ai.py:425 random.gauss 噪声 :: latent = [random.gauss(0, 0.5) for _ in range(encoding_dim)]",
+        "backend/api/advanced_ai.py:428 random.gauss 噪声 :: reconstructed = [v + random.gauss(0, 0.05) for v in input_features]",
+        "backend/api/advanced_ai.py:460 random.* 随机数 :: \"length\": round(150 + 150 * random.random(), 1),",
+        "backend/api/advanced_ai.py:461 random.* 随机数 :: \"beam\": round(20 + 30 * random.random(), 1),",
+        "backend/api/advanced_ai.py:462 random.* 随机数 :: \"draft\": round(8 + 12 * random.random(), 1),",
+        "backend/api/advanced_ai.py:463 random.* 随机数 :: \"cb\": round(0.6 + 0.25 * random.random(), 3)",
+        "backend/api/advanced_ai.py:467 random.* 随机数 :: \"x\": round(random.random(), 4),",
+        "backend/api/advanced_ai.py:468 random.* 随机数 :: \"y\": round(random.random(), 4),",
+        "backend/api/advanced_ai.py:469 random.* 随机数 :: \"value\": round(random.random(), 4)",
+        "backend/api/advanced_ai.py:472 random.* 随机数 :: scores.append(round(0.7 + 0.3 * random.random(), 4))",
+        "backend/api/advanced_ai.py:475 random.* 随机数 :: diversity = 0.8 + 0.15 * random.random()",
+        "backend/api/advanced_ai.py:478 random.* 随机数 :: quality = 0.75 + 0.2 * random.random()",
+        "backend/api/advanced_ai.py:500 random.* 随机数 :: \"rudder_angle\": round(-35 + 70 * random.random(), 2),",
+        "backend/api/advanced_ai.py:501 random.* 随机数 :: \"engine_power\": round(50 + 50 * random.random(), 1)",
+        "backend/api/advanced_ai.py:505 random.* 随机数 :: \"heading_change\": round(-30 + 60 * random.random(), 2),",
+        "backend/api/advanced_ai.py:506 random.* 随机数 :: \"speed_adjustment\": round(-5 + 10 * random.random(), 2)",
+        "backend/api/advanced_ai.py:510 random.* 随机数 :: \"action_1\": round(random.random(), 4),",
+        "backend/api/extended_ai.py:9 random.gauss 噪声 :: cargo/fault) 当前都是 **基础公式 + random.gauss 随机扰动**,",
+        "backend/api/extended_ai.py:40 random 模块 :: import random",
+        "backend/api/extended_ai.py:206 random.gauss 噪声 :: prediction = base_prediction * (1 + 0.02 * random.gauss(0, 1))",
+        "backend/api/extended_ai.py:259 random.gauss 噪声 :: tree_predictions = [base * (1 + 0.03 * random.gauss(0, 1)) for _ in range(data.n_estimators)]",
+        "backend/api/extended_ai.py:269 random.* 随机数 :: \"length\": 0.16 + 0.02 * random.random(),",
+        "backend/api/extended_ai.py:270 random.* 随机数 :: \"beam\": 0.11 + 0.02 * random.random(),",
+        "backend/api/extended_ai.py:271 random.* 随机数 :: \"draft\": 0.13 + 0.02 * random.random(),",
+        "backend/api/extended_ai.py:272 random.* 随机数 :: \"displacement\": 0.19 + 0.02 * random.random(),",
+        "backend/api/extended_ai.py:273 random.* 随机数 :: \"speed\": 0.27 + 0.02 * random.random(),",
+        "backend/api/extended_ai.py:274 random.* 随机数 :: \"cb\": 0.14 + 0.02 * random.random()",
+        "backend/api/extended_ai.py:293 random.* 随机数 :: \"oob_score\": round(0.92 + 0.02 * random.random(), 4)",
+        "backend/api/extended_ai.py:316 random.* 随机数 :: n_sv = int(50 + 20 * random.random())",
+        "backend/api/extended_ai.py:319 random.* 随机数 :: margin = 0.1 + 0.05 * random.random()",
+        "backend/api/extended_ai.py:325 random.* 随机数 :: \"confidence\": round(0.85 + 0.1 * random.random(), 4),",
+        "backend/api/extended_ai.py:340 random.gauss 噪声 :: prediction = base * (1 + 0.01 * random.gauss(0, 1))",
+        "backend/api/extended_ai.py:341 random.* 随机数 :: variance = base**2 * 0.001 * (1 + 0.5 * random.random())",
+        "backend/api/extended_ai.py:345 random.* 随机数 :: theta = [0.1 + 0.05 * random.random() for _ in range(6)]",
+        "backend/api/extended_ai.py:367 均匀采样 :: particle = [random.uniform(bounds[i][0], bounds[i][1]) for i in range(n)]",
+        "backend/api/extended_ai.py:374 random.* 随机数 :: return sum(xi**2 for xi in x) + 0.1 * random.random()"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "BLOCKED",
+      "admission_reason": "8001 openapi 无任何 /api/v1/ai* 前缀(实扫=0); 直连 GET /api/v1/ai-models = 404 JSON; 经 nginx = 200 text/html(SPA 假 200); 源码虽为 MOCK(random.gauss/random.random, 见 evidence_reasons), 但平台上根本不可达 → NOT_SUPPORTED",
+      "probed": {
+        "status": 404,
+        "content_type": "application/json",
+        "elapsed_ms": 1
+      }
+    },
+    "methods.computation": {
+      "id": "methods.computation",
+      "title": "计算方法库 (computation)",
+      "kind": "app",
+      "module": "backend/api/",
+      "endpoints": [
+        {
+          "path": "/api/v1/computation/methods",
+          "method": "GET"
+        }
+      ],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "NOT_SUPPORTED",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/computation/methods → 404 application/json (0ms)",
+        "实测 经nginx(:8000) GET /api/v1/computation/methods → 200 text/html; charset=utf-8 (2ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "BLOCKED",
+      "admission_reason": "/api/v1/computation/* 无后端: 8001 openapi 无此前缀, 直连=404 JSON; 经 nginx(未配该前缀)=200 text/html(SPA 假 200) → NOT_SUPPORTED",
+      "probed": {
+        "status": 404,
+        "content_type": "application/json",
+        "elapsed_ms": 0
+      }
+    },
+    "misc.stubs": {
+      "id": "misc.stubs",
+      "title": "空壳能力群 (优化/绿色航运/冰区/振动)",
+      "kind": "app",
+      "module": "backend/api/optimization.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/optimization/mdo",
+          "method": "POST"
+        },
+        {
+          "path": "/api/v1/green-shipping/efficiency",
+          "method": "POST"
+        },
+        {
+          "path": "/api/v1/ice-navigation/route",
+          "method": "POST"
+        },
+        {
+          "path": "/api/v1/vibration/predict",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "STUB",
+      "evidence_reasons": [
+        "实测 直连8001 GET /api/v1/optimization/methods → 404 application/json (0ms)",
+        "backend/api/optimization.py:7 直接 return 写死常量 dict :: return {\"pareto_solutions\": 50, \"best_solution\": {\"resistance\": 1050, \"weight\": 6800}}",
+        "backend/api/green_shipping.py:7 直接 return 写死常量 dict :: return {\"optimal_speed\": 18.5, \"fuel_saving\": 12.0, \"cii_rating\": \"B\"}",
+        "backend/api/vibration.py:7 直接 return 写死常量 dict :: return {\"acceleration\": 0.15, \"noise_level\": 65.0, \"status\": \"合格\"}",
+        "实测 经nginx(:8000) GET /api/v1/optimization/methods → 200 text/html; charset=utf-8 (1ms)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "BLOCKED",
+      "admission_reason": "四个模块均为 7 行空壳(直接 return 常量 dict, 见 evidence_reasons 行号); 且 tensorlbm_app.py 未挂载它们 → 直连 8001=404 JSON, 经 nginx=200 text/html → BLOCKED",
+      "probed": {
+        "status": 404,
+        "content_type": "application/json",
+        "elapsed_ms": 0
+      }
+    },
+    "dev.gate_5415": {
+      "id": "dev.gate_5415",
+      "title": "5415 验收门禁(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [
+        {
+          "path": "/api/v1/geometry/generate",
+          "method": "POST"
+        }
+      ],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 5415 官方点云验收可达(直连 200 JSON, match_pct 见 geometry.verify_official)",
+        "依赖事实: 依赖 geometry.generate/verify_official 的真实 5415 官方点云验收(本次实测 match_pct)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    },
+    "dev.services": {
+      "id": "dev.services",
+      "title": "服务/端口巡检(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 /proc/net/tcp 监听: [8000, 8001, 8004, 8008] (8000=nginx, 8001=tensorlbm_app, 8004=TensorLBM_dev)",
+        "依赖事实: 以 /proc/net/tcp 监听状态判活: :8000(nginx) :8001(tensorlbm_app) :8004(TensorLBM_dev)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    },
+    "dev.restart": {
+      "id": "dev.restart",
+      "title": "受控重启(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测脚本存在: /root/.hermes/scripts/ship-platform-watchdog.sh (2372 bytes); :8001 恢复命令见 :33, :8004 见 :42",
+        "依赖事实: 目标脚本 = /root/.hermes/scripts/ship-platform-watchdog.sh (第33行: setsid uvicorn tensorlbm_app:app --port 8001; 第42行: :8004 backend.main:app)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    },
+    "dev.logs": {
+      "id": "dev.logs",
+      "title": "日志查看(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测日志文件: /tmp/ship8001.log=56792B, /tmp/tlbm8004.log=1427B",
+        "依赖事实: 服务日志落点 = /tmp/ship8001.log (8001) 与 /tmp/tlbm8004.log (8004)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    },
+    "dev.git": {
+      "id": "dev.git",
+      "title": "git 巡检(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 git 仓库 /srv/tensor/ship-workspace/ship-performance-platform; HEAD=a4bc7a2",
+        "依赖事实: 仓库 = /srv/tensor/ship-workspace/ship-performance-platform (.git; 本次 HEAD 见 evidence_reasons)"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    },
+    "dev.nginx_audit": {
+      "id": "dev.nginx_audit",
+      "title": "nginx 前缀审计(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "实测 nginx location 前缀 ['geometry', 'performance', 'propeller', 'ship-hull', 'standard-models', 'tensorlbm']; openapi 前缀 ['agent', 'cad', 'calculations', 'data-governance', 'geometry', 'knowledge', 'nl', 'performance', 'propeller', 'ship-hull', 'standard-models', 'tensorlbm']; 漏配(openapi有-nginx无) = ['agent', 'cad', 'calculations', 'data-governance', 'knowledge', 'nl']",
+        "依赖事实: 判据 = 对比 nginx conf 的 location 前缀集合 vs 8001 openapi 的前缀集合"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    },
+    "dev.probe": {
+      "id": "dev.probe",
+      "title": "证据引擎自省(dev)",
+      "kind": "dev",
+      "module": "backend/platform_harness/probe.py",
+      "endpoints": [],
+      "reachable_direct": false,
+      "reachable_via_nginx": false,
+      "evidence": "REAL",
+      "evidence_reasons": [
+        "本证据引擎产出的 capabilities.json 即其输出",
+        "backend/platform_harness/probe.py:209 random.* 随机数 :: \"源码虽为 MOCK(random.gauss/random.random, 见 evidence_reasons), 但平台上根本不可达 → NOT_SUPPORTED\",",
+        "backend/platform_harness/probe.py:304 random 模块 :: (r\"import random\\b\", \"random 模块\"),",
+        "backend/platform_harness/probe.py:306 random.gauss 噪声 :: (r\"\\brandom\\.gauss\\b\", \"random.gauss 噪声\"),",
+        "backend/platform_harness/probe.py:308 numpy.random.* :: (r\"\\bnumpy\\.random\\b\", \"numpy.random.*\"),",
+        "backend/platform_harness/probe.py:209 random.* 随机数 :: \"源码虽为 MOCK(random.gauss/random.random, 见 evidence_reasons), 但平台上根本不可达 → NOT_SUPPORTED\",",
+        "backend/platform_harness/probe.py:304 random 模块 :: (r\"import random\\b\", \"random 模块\"),",
+        "backend/platform_harness/probe.py:306 random.gauss 噪声 :: (r\"\\brandom\\.gauss\\b\", \"random.gauss 噪声\"),",
+        "backend/platform_harness/probe.py:308 numpy.random.* :: (r\"\\bnumpy\\.random\\b\", \"numpy.random.*\"),",
+        "依赖事实: 即本证据引擎: 真 curl 直连/nginx + 源码扫描 → capabilities.json"
+      ],
+      "precision_verified": false,
+      "precision_note": "无与实测/基准的定量对比",
+      "admission": "OK",
+      "admission_reason": "直连 8001 不可达(非 200 JSON)",
+      "probed": null
+    }
+  },
+  "models": {
+    "declared": [
+      "KCS",
+      "KVLCC2",
+      "DTMB 5415",
+      "Series 60 Cb=0.60",
+      "Series 60 Cb=0.70",
+      "Wigley",
+      "NPL High Speed",
+      "S175",
+      "Mariner",
+      "Esso Osaka",
+      "Hamburg Testgeoschiff",
+      "SR108",
+      "DTC",
+      "JBC",
+      "ONRT",
+      "Typical Bulk Carrier",
+      "Typical Tanker",
+      "Typical LNG",
+      "Typical Ferry",
+      "Typical Fishing Vessel",
+      "Series 60 Cb=0.80",
+      "KRISO 3600 TEU",
+      "DTMB 5512",
+      "DDG-1000 Zumwalt",
+      "Fridtjof Nansen",
+      "Sea Fighter (FSF-1)",
+      "Independence LCS",
+      "Wave Piercer",
+      "Westpac Express",
+      "HSV-2 Swift",
+      "Benchijigua Express",
+      "DTMB 411",
+      "DTMB 431",
+      "DTMB 461",
+      "长江标准货船",
+      "长江标准集装箱船",
+      "Aurora Australis",
+      "Polarstern",
+      "Oasis of the Seas",
+      "MV Blue Marlin",
+      "SWATH",
+      "KVLCC1",
+      "Series 64",
+      "ITTC 1978 Standard",
+      "Tokyo 2015 KCS",
+      "Gothenburg 2010 KVLCC2",
+      "DARPA SUBOFF (bare hull)",
+      "DARPA SUBOFF (with sail)",
+      "DARPA SUBOFF (with appendages)",
+      "Joubert BB2",
+      "DREA Submarine",
+      "Type 209",
+      "Virginia Class",
+      "DTMB 4119",
+      "DTMB 4381",
+      "DTMB 4382",
+      "DTMB 4383",
+      "KP505",
+      "E779A",
+      "INSEAN E1619",
+      "PPTC (Potsdam)",
+      "Wageningen B4-40",
+      "Wageningen B4-55",
+      "Wageningen B5-75",
+      "SVA VP1304",
+      "Typical FPSO",
+      "Cylindrical FPSO",
+      "Semi-submersible Platform",
+      "Spar Platform",
+      "TLP",
+      "Jack-up Platform",
+      "Drill Ship",
+      "Pipe Laying Vessel",
+      "Crane Vessel",
+      "TSHD Dredger",
+      "PSV",
+      "AHTS",
+      "FLNG",
+      "Wind Turbine Installation Vessel",
+      "Cable Laying Vessel",
+      "Hovercraft",
+      "Hydrofoil",
+      "WIG Craft",
+      "Harbour Tug",
+      "Patrol Boat",
+      "Pilot Boat"
+    ],
+    "generatable": [
+      "DARPA SUBOFF (bare hull)",
+      "DARPA SUBOFF (with appendages)",
+      "DARPA SUBOFF (with sail)",
+      "DDG-1000 Zumwalt",
+      "DTC",
+      "DTMB 4119",
+      "DTMB 5415",
+      "DTMB 5512",
+      "Drill Ship",
+      "E779A",
+      "Esso Osaka",
+      "Harbour Tug",
+      "Hovercraft",
+      "Hydrofoil",
+      "JBC",
+      "KCS",
+      "KP505",
+      "KRISO 3600 TEU",
+      "KVLCC1",
+      "KVLCC2",
+      "Mariner",
+      "ONRT",
+      "Oasis of the Seas",
+      "Patrol Boat",
+      "Pilot Boat",
+      "S175",
+      "SWATH",
+      "Semi-submersible Platform",
+      "Series 60 Cb=0.60",
+      "Spar Platform",
+      "Type 209",
+      "Typical Bulk Carrier",
+      "Typical LNG",
+      "Typical Tanker",
+      "Wageningen B4-40",
+      "Wave Piercer",
+      "Wigley"
+    ],
+    "not_generatable": [
+      {
+        "name": "Boeing Jetfoil",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'Boeing Jetfoil' 不存在\"}"
+      },
+      {
+        "name": "KM (Caspian Sea Monster)",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'KM (Caspian Sea Monster)' 不存在\"}"
+      },
+      {
+        "name": "LCAC",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'LCAC' 不存在\"}"
+      },
+      {
+        "name": "Lun-class Ekranoplan",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'Lun-class Ekranoplan' 不存在\"}"
+      },
+      {
+        "name": "MV Blue Marlin",
+        "status": 400,
+        "detail": "{\"detail\":\"Unknown generator type: semi_submersible\"}"
+      },
+      {
+        "name": "Orlyonok",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'Orlyonok' 不存在\"}"
+      },
+      {
+        "name": "Pegasus-class Hydrofoil",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'Pegasus-class Hydrofoil' 不存在\"}"
+      },
+      {
+        "name": "SES-100",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'SES-100' 不存在\"}"
+      },
+      {
+        "name": "Zubr-class LCAC",
+        "status": 404,
+        "detail": "{\"detail\":\"标模 'Zubr-class LCAC' 不存在\"}"
+      }
+    ]
+  },
+  "tiers": {
+    "component": "组件能力层: app 能力 14 个, 直连 8001 可达(200 JSON) 10/14; 经 nginx:8000 可达 6/14。证据分布 {'REAL': 11, 'NOT_SUPPORTED': 2, 'STUB': 1}。8001 openapi 仅登记 13 个前缀 ['agent', 'cad', 'calculations', 'data-governance', 'geometry', 'knowledge', 'nl', 'performance', 'propeller', 'ship-hull', 'standard-models', 'tensorlbm'](无任何 ai*/computation*)。",
+    "admission": "组合准入层: admission OK 10/14, BLOCKED 4。BLOCKED 原因: (a) /{vessel_name} 影子捕获 geometry.list_models; (b) nginx 漏配 6 个前缀 ['agent', 'cad', 'calculations', 'data-governance', 'knowledge', 'nl'] → 经 :8000 落到 8004/SPA 返回 text/html 或 405, 非真实后端; (c) 无后端(ai.*/computation.*)→NOT_SUPPORTED; (d) 空壳模块 optimization/green-shipping/ice-navigation/vibration → STUB。",
+    "consistency": "数值一致性层: 发现 1 处量纲错误 — ship-hull/generate 的 hydrostatics.BM (backend/api/ship_hull.py:469 = B*B*T/(12*V)) 本次实测输出 BM=0.018 m, 而正确量纲 BM≈B²/(12·T·Cb)≈12.29 m (相差约 683 倍)。对照: calculations/stability 的 BM 量纲正确 (实测 L=150,B=22,T=8,Cb=0.65 → BM=6.458 m, 与 CWP²B³/12/(B·T·Cb) 一致)。→ 数值一致性层: 未通过(ship-hull 静水力不可采信)。",
+    "precision": "物理精度验证层: WITHHELD。虽有 DTMB 5415 官方点云验收 match_pct=100.0, 但那是【点云保留率/几何自洽】而非与试验/基准的物理量对比; 阻力/稳性/开水等均无与水池试验或公开基准的定量对比。故精度层结论 = WITHHELD(不给出任何精度声明)。",
+    "recommendation": "最佳组合推荐层: WITHHELD。第3层数值一致性未通过、第4层物理精度无实测/基准对比, 按分层准入规则不得给出『最佳组合/推荐』结论。可用的仅是组件存在性事实。"
+  },
+  "audit": {
+    "probe_mode": "live",
+    "ship_api_openapi_paths": 84,
+    "ship_api_prefix_counts": {
+      "tensorlbm": 12,
+      "performance": 3,
+      "standard-models": 7,
+      "ship-hull": 5,
+      "geometry": 15,
+      "cad": 13,
+      "agent": 5,
+      "nl": 3,
+      "calculations": 5,
+      "knowledge": 9,
+      "data-governance": 5,
+      "propeller": 1,
+      "/": 1
+    },
+    "nginx_location_prefixes": [
+      "/api/v1/tensorlbm/",
+      "/api/v1/performance/",
+      "/api/v1/standard-models/",
+      "/api/v1/ship-hull/",
+      "/api/v1/geometry/",
+      "/api/v1/propeller/",
+      "/api/"
+    ]
+  }
+}
