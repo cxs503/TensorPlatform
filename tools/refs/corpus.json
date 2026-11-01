@@ -1,0 +1,395 @@
+{
+  "entries": [
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "ittc57_cf_re1e06",
+      "notes": "ITTC-1957 平板摩擦阻力线；与平台 calc_resistance 的 Cf 分支同源。",
+      "quantity": "friction_coefficient_cf",
+      "sha256": "81ab00aad1c6a504b0c1f7104734531d30ace2714a42cd99d57fb0a0efed5da9",
+      "source": {
+        "formula": "0.075/(log10(Re)-2)**2",
+        "params": {
+          "Re": 1000000.0
+        },
+        "standard": "ITTC Recommended Procedures 7.5-02-03-01.4 (2017) '1978 ITTC Performance Prediction Method'",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.0046875
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "ittc57_cf_re1e08",
+      "notes": "ITTC-1957 平板摩擦阻力线；与平台 calc_resistance 的 Cf 分支同源。",
+      "quantity": "friction_coefficient_cf",
+      "sha256": "53f7e3ccec82f4c44b420f434e05e9d7e85ce800e675387b05ddfa2efb339d8c",
+      "source": {
+        "formula": "0.075/(log10(Re)-2)**2",
+        "params": {
+          "Re": 100000000.0
+        },
+        "standard": "ITTC Recommended Procedures 7.5-02-03-01.4 (2017) '1978 ITTC Performance Prediction Method'",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.0020833333333333333
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "ittc57_cf_re1e09",
+      "notes": "ITTC-1957 平板摩擦阻力线；与平台 calc_resistance 的 Cf 分支同源。",
+      "quantity": "friction_coefficient_cf",
+      "sha256": "022a0efe4d5dc83fa044d01f3b497c9a3983bec2f95f1cf832f8c56b4501a8d9",
+      "source": {
+        "formula": "0.075/(log10(Re)-2)**2",
+        "params": {
+          "Re": 1000000000.0
+        },
+        "standard": "ITTC Recommended Procedures 7.5-02-03-01.4 (2017) '1978 ITTC Performance Prediction Method'",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.001530612244897959
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "blasius_cf_re1e5",
+      "notes": "层流平板，Re=1e5；用于确认湍流线 ITTC-57 在低 Re 处不应被误用。",
+      "quantity": "friction_coefficient_cf",
+      "sha256": "684fc2b1cb6e6ce565ea5a42f6b81bd8812eaf767bb58208ea2ce8f5941bcbdb",
+      "source": {
+        "formula": "0.664/sqrt(Re)",
+        "params": {
+          "Re": 100000.0
+        },
+        "standard": "Schlichting, Boundary-Layer Theory, laminar flat plate",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.002099752366351804
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "box_barge_bm_b10_t4",
+      "notes": "",
+      "quantity": "transverse_metacentric_radius_bm",
+      "sha256": "a9d17582e9a1bb93b8a7661cffaf65b6a26fdadacf68eb40bb9593404dcf0dd3",
+      "source": {
+        "formula": "B**2/(12*T)",
+        "params": {
+          "B": 10.0,
+          "T": 4.0
+        },
+        "standard": "基本静水力学（箱形水线 I/∇）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m",
+      "value": 2.0833333333333335
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "box_barge_gm_b10_t4_kg3",
+      "notes": "",
+      "quantity": "metacentric_height_gm",
+      "sha256": "1467697643abe3787461a4c2f69a8b5e9d1d4d1a7bf829d9a95e259d1c28bed7",
+      "source": {
+        "formula": "T/2 + B**2/(12*T) - KG",
+        "params": {
+          "B": 10.0,
+          "KG": 3.0,
+          "T": 4.0
+        },
+        "standard": "基本静水力学（KB+BM-KG）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m",
+      "value": 1.083333333333334
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "wall_sided_gz_phi10",
+      "notes": "",
+      "quantity": "righting_arm_gz",
+      "sha256": "0a410c645b82e7867428d584c5135453d49c880243ec5042e481e20011b7d748",
+      "source": {
+        "formula": "GM*sin(phi) + 0.5*BM*tan(phi)**2*sin(phi)",
+        "params": {
+          "BM": 4.0,
+          "GM": 1.0,
+          "phi_deg": 10.0
+        },
+        "standard": "wall-sided 公式（初稳性 + 舷侧直壁二阶项）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m",
+      "value": 0.18444603954274905
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "wall_sided_gz_phi20",
+      "notes": "",
+      "quantity": "righting_arm_gz",
+      "sha256": "2c95faefdaf5de408ca49612089d07e7becd9e8b9eb55b2f243eb546d8d59544",
+      "source": {
+        "formula": "GM*sin(phi) + 0.5*BM*tan(phi)**2*sin(phi)",
+        "params": {
+          "BM": 4.0,
+          "GM": 1.0,
+          "phi_deg": 20.0
+        },
+        "standard": "wall-sided 公式（初稳性 + 舷侧直壁二阶项）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m",
+      "value": 0.4326379229722175
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "wall_sided_gz_phi30",
+      "notes": "",
+      "quantity": "righting_arm_gz",
+      "sha256": "dc9df7d64288df36c0968854584e795092df105564793cf2a18d601262bb3056",
+      "source": {
+        "formula": "GM*sin(phi) + 0.5*BM*tan(phi)**2*sin(phi)",
+        "params": {
+          "BM": 4.0,
+          "GM": 1.0,
+          "phi_deg": 30.0
+        },
+        "standard": "wall-sided 公式（初稳性 + 舷侧直壁二阶项）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m",
+      "value": 0.8333333333333333
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "added_mass_2d_circle",
+      "notes": "",
+      "quantity": "added_mass_coefficient_ca",
+      "sha256": "b7092f03247e4617ca8688e7fdc8a154693e5654407cc08864882c4f1eefec15",
+      "source": {
+        "formula": "1.0 (2D circular cylinder, potential flow)",
+        "params": {
+          "shape": "2D circle"
+        },
+        "standard": "势流理论精确解（Landweber/Lamb）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 1.0
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "added_mass_3d_sphere",
+      "notes": "",
+      "quantity": "added_mass_coefficient_ca",
+      "sha256": "a50538851e4b1e571c5a310da91a766d55dd0f1e0b04ad0961bdc34ecd167592",
+      "source": {
+        "formula": "0.5 (3D sphere, potential flow)",
+        "params": {
+          "shape": "3D sphere"
+        },
+        "standard": "势流理论精确解（half displaced volume）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.5
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "added_mass_2d_ellipse_ba0p5",
+      "notes": "",
+      "quantity": "added_mass_coefficient_ca",
+      "sha256": "b5d537febfd06ca5f3c278b3c5c54110d9d54f21f98a2cadc2e21f6b1e206242",
+      "source": {
+        "formula": "b/a (2D ellipse, motion along major axis)",
+        "params": {
+          "b_over_a": 0.5
+        },
+        "standard": "势流理论精确解（椭圆族 C_A=b/a，b/a->1 退化为圆 C_A=1）",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.5
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "deep_water_celerity_lambda100",
+      "notes": "",
+      "quantity": "wave_celerity",
+      "sha256": "b694c8216c8c345b56bd52049368dc2fd0b7a283d42914abc3b05780c90dfb27",
+      "source": {
+        "formula": "sqrt(g*lambda/(2*pi))",
+        "params": {
+          "g": 9.80665,
+          "lambda_m": 100.0
+        },
+        "standard": "线性波理论深水色散关系 ω^2=gk",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m/s",
+      "value": 12.493105389262253
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "kelvin_wave_angle",
+      "notes": "",
+      "quantity": "kelvin_half_angle",
+      "sha256": "307752991e7cf8f33a0aec2d5cd77eede1303b15ca6122d7d1314a52df14baa4",
+      "source": {
+        "formula": "degrees(asin(alpha))",
+        "params": {
+          "alpha": 0.3333333333333333
+        },
+        "standard": "Kelvin (1887) 深水移动压力点波系半角 19.47°",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "deg",
+      "value": 19.47122063449069
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "displacement_definition_box",
+      "notes": "",
+      "quantity": "displaced_volume",
+      "sha256": "302c74c83d94fa880f4926f5a1a5325e1d00453ce89d4a69b3b579642d879b82",
+      "source": {
+        "formula": "Cb*L*B*T",
+        "params": {
+          "B": 0.508,
+          "Cb": 0.61,
+          "L": 4.356,
+          "T": 0.508
+        },
+        "standard": "体积系数定义式 ∇=Cb·L·B·T",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "m^3",
+      "value": 0.6857173382399999
+    },
+    {
+      "coverage_k": 0.0,
+      "grade": "REAL",
+      "id": "froude_number_suboff_l4p356_v3",
+      "notes": "",
+      "quantity": "froude_number",
+      "sha256": "d9c42e22026fadc32f2af2439cd8030aa622187b7eb3f397ab5f4f4e76a115e8",
+      "source": {
+        "formula": "V/sqrt(g*L)",
+        "params": {
+          "L": 4.356,
+          "V": 3.0,
+          "g": 9.80665
+        },
+        "standard": "Froude 数定义式 Fr=V/√(gL)",
+        "type": "analytic"
+      },
+      "tolerance": {
+        "abs": 1e-12,
+        "rel": 0.0
+      },
+      "unit": "-",
+      "value": 0.45900454025058
+    },
+    {
+      "coverage_k": 2.0,
+      "grade": "WITHHELD",
+      "id": "dataset_benchmark_suboff_wetted_surface",
+      "notes": "站内数据集给出的 SUBOFF 湿表面积；锚在其来源记录上（记录一变即失配）。仅供内部一致性比对，未经原始文献复核故 grade=WITHHELD。",
+      "quantity": "wetted_surface_area",
+      "sha256": "9fd219655e863f6424e62d0e72174afc9e719442e94786e13433e81a9e3cf4de",
+      "source": {
+        "field": "cases[0].geometry.wetted_surface_m2",
+        "path": "backend/data/benchmark_reference.json",
+        "reference": "Roddy (1990) DTRC-90/012 as cited in-file",
+        "sha256_of_record": "44972c3353285b2fc11f659840aa6173abf12f44c4922d380bdeea0035ffcf1a",
+        "type": "dataset"
+      },
+      "tolerance": {
+        "abs": 0.0,
+        "rel": 0.0
+      },
+      "unit": "m^2",
+      "value": 5.42
+    }
+  ],
+  "generated_by": "tools/refs/build.py",
+  "policy": "数字零手抄：value 全部由闭式表达式现场计算，sha256 锚定条目内容；手改数字而不重建语料会被 schema.validate_corpus 判为 mismatched。",
+  "schema_version": "1.0"
+}
