@@ -1,0 +1,90 @@
+{
+  "mission": "m1764",
+  "title": "SUBOFF Resistance Verification against Experimental Data",
+  "benchmark_version": "3.0",
+  "fluid": {
+    "rho": 998.2,
+    "nu": 1.004e-06,
+    "source": "fresh_water_20c"
+  },
+  "geometry": {
+    "L": 4.356,
+    "D": 0.508,
+    "S_validated": 5.42
+  },
+  "method": "ITTC-1957 friction + empirical residual (Cr = 0.002*(1+2*Cb)*Fn^2.5)",
+  "results": [
+    {
+      "case_id": "SUBOFF-01",
+      "speed_ms": 3.0,
+      "Fn": 0.4589261612237747,
+      "Ct_exp": 0.0038,
+      "Ct_calc": 0.003461889103158906,
+      "Ct_calc_empirical_S": 0.0034618891031589064,
+      "error_Ct_pct": 8.9,
+      "error_Ct_empirical_S_pct": 8.9,
+      "Rt_exp": 92.52,
+      "Rt_calc": 84.28349137063884,
+      "error_Rt_pct": 8.9,
+      "S_validated": 5.42,
+      "S_empirical": 4.417911491407555,
+      "pass_15pct": true
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "speed_ms": 4.0,
+      "Fn": 0.6119015482983663,
+      "Ct_exp": 0.004,
+      "Ct_calc": 0.003952858714874508,
+      "Ct_calc_empirical_S": 0.003952858714874508,
+      "error_Ct_pct": 1.18,
+      "error_Ct_empirical_S_pct": 1.18,
+      "Rt_exp": 173.13,
+      "Rt_calc": 171.08744115998013,
+      "error_Rt_pct": 1.18,
+      "S_validated": 5.42,
+      "S_empirical": 4.417911491407555,
+      "pass_15pct": true
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "speed_ms": 5.0,
+      "Fn": 0.7648769353729579,
+      "Ct_exp": 0.0042,
+      "Ct_calc": 0.004766350334762858,
+      "Ct_calc_empirical_S": 0.004766350334762859,
+      "error_Ct_pct": 13.48,
+      "error_Ct_empirical_S_pct": 13.48,
+      "Rt_exp": 284.04,
+      "Rt_calc": 322.3389787568593,
+      "error_Rt_pct": 13.48,
+      "S_validated": 5.42,
+      "S_empirical": 4.417911491407555,
+      "pass_15pct": true
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "speed_ms": 6.0,
+      "Fn": 0.9178523224475494,
+      "Ct_exp": 0.0044,
+      "Ct_calc": 0.0059213384586930306,
+      "Ct_calc_empirical_S": 0.00592133845869303,
+      "error_Ct_pct": 34.58,
+      "error_Ct_empirical_S_pct": 34.58,
+      "Rt_exp": 428.49,
+      "Rt_calc": 576.6459456260379,
+      "error_Rt_pct": 34.58,
+      "S_validated": 5.42,
+      "S_empirical": 4.417911491407555,
+      "pass_15pct": false
+    }
+  ],
+  "summary": {
+    "n_cases": 4,
+    "n_pass": 3,
+    "n_fail": 1,
+    "pass_rate": 75.0,
+    "avg_error_pct": 14.54,
+    "max_error_pct": 34.58
+  }
+}
