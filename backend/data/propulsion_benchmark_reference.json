@@ -1,0 +1,197 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Machine-readable propulsion benchmark anchors. Before this file existed, backend/data held 12 benchmark cases and all of them were resistance cases (SUBOFF / DTMB5415 / KVLCC2), so every 'propeller.open_water' claim had zero machine-loadable reference data behind it (see docs/audit/m1413_propulsion_verification_debt.md section 6 item 5).",
+  "maintained_by": "mission m1678 (verification-debt closure, light-work seat)",
+  "consumed_by": [
+    "tools/verify/propeller_open_water/bem_benchmark.py",
+    "tests/verify/test_propeller_bem_benchmark.py"
+  ],
+  "cases": [
+    {
+      "id": "KP505_EXPERIMENT",
+      "kind": "experiment",
+      "independent": true,
+      "source": "Iftikhar & Takinaci (2023), Table 2 - KP505 model propeller open-water test",
+      "transcribed_once_in": "tools/verify/propeller_open_water/audit_open_water.py::KP505_EXPERIMENT",
+      "geometry": {
+        "P_D": 0.95,
+        "Ae_Ao": 0.8,
+        "Z": 5
+      },
+      "geometry_note": "KP505 is a model propeller of a container-ship design; it is NOT a standard Wageningen B-series propeller. Its section is cambered (NACA a=0.8 type) and its chord/pitch distributions depart from the B-series family, so a comparison against the B-series regression carries an intrinsic model-form offset (quantified in the m1678 report as err(B-series vs experiment)).",
+      "units": {
+        "KT": "-",
+        "KQ": "-",
+        "J": "-"
+      },
+      "points": [
+        {
+          "J": 0.1,
+          "KT": 0.494,
+          "KQ": 0.0683
+        },
+        {
+          "J": 0.2,
+          "KT": 0.447,
+          "KQ": 0.0636
+        },
+        {
+          "J": 0.3,
+          "KT": 0.392,
+          "KQ": 0.0585
+        },
+        {
+          "J": 0.4,
+          "KT": 0.343,
+          "KQ": 0.053
+        },
+        {
+          "J": 0.5,
+          "KT": 0.29,
+          "KQ": 0.0471
+        },
+        {
+          "J": 0.6,
+          "KT": 0.241,
+          "KQ": 0.0409
+        },
+        {
+          "J": 0.7,
+          "KT": 0.193,
+          "KQ": 0.0342
+        },
+        {
+          "J": 0.8,
+          "KT": 0.141,
+          "KQ": 0.027
+        },
+        {
+          "J": 0.9,
+          "KT": 0.087,
+          "KQ": 0.0192
+        },
+        {
+          "J": 1.0,
+          "KT": 0.029,
+          "KQ": 0.0108
+        }
+      ]
+    },
+    {
+      "id": "WAGENINGEN_B_SERIES",
+      "kind": "regression",
+      "independent": true,
+      "source": "Oosterveld & van Oossanen (1975), 39-term KT and 47-term KQ polynomials, as reproduced in Bernitsas, Ray & Kinley (1981), Report No. 237, University of Michigan",
+      "implemented_in": "tools/verify/propeller_open_water/reference_bseries.py",
+      "validity_box": {
+        "Z": [
+          2,
+          7
+        ],
+        "P_D": [
+          0.5,
+          1.4
+        ],
+        "Ae_Ao": [
+          0.2,
+          1.05
+        ],
+        "J": [
+          0,
+          1.5
+        ]
+      },
+      "pinned_points": {
+        "role": "DRIFT GUARD ONLY - these values are evaluated from reference_bseries.py at the stated geometry, so they are NOT an independent anchor. They exist so that an accidental edit to the coefficient table breaks a test instead of silently moving every reported error.",
+        "evaluated_from": "tools/verify/propeller_open_water/reference_bseries.py",
+        "points": [
+          {
+            "P_D": 0.7,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.0,
+            "KT": 0.293034,
+            "KQ": 0.031492
+          },
+          {
+            "P_D": 0.7,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.4,
+            "KT": 0.163956,
+            "KQ": 0.02025
+          },
+          {
+            "P_D": 0.7,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.8,
+            "KT": -0.011655,
+            "KQ": 0.0032
+          },
+          {
+            "P_D": 1.0,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.0,
+            "KT": 0.424253,
+            "KQ": 0.061276
+          },
+          {
+            "P_D": 1.0,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.4,
+            "KT": 0.303803,
+            "KQ": 0.046538
+          },
+          {
+            "P_D": 1.0,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.8,
+            "KT": 0.135553,
+            "KQ": 0.024758
+          },
+          {
+            "P_D": 1.3,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.0,
+            "KT": 0.531042,
+            "KQ": 0.099149
+          },
+          {
+            "P_D": 1.3,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.4,
+            "KT": 0.4287,
+            "KQ": 0.081739
+          },
+          {
+            "P_D": 1.3,
+            "Ae_Ao": 0.55,
+            "Z": 4,
+            "J": 0.8,
+            "KT": 0.275665,
+            "KQ": 0.056708
+          },
+          {
+            "P_D": 0.95,
+            "Ae_Ao": 0.8,
+            "Z": 5,
+            "J": 0.4,
+            "KT": 0.30612,
+            "KQ": 0.04593
+          }
+        ]
+      }
+    }
+  ],
+  "acceptance": {
+    "platform_standard_percent": 15.0,
+    "paper_grade_percent": 3.0,
+    "note": "Owner standard: an error above 15 percent against an experimental/reference value is not acceptable; 3 percent is the paper-grade bar. Both gates are applied to every compared quantity in tools/verify/propeller_open_water/bem_benchmark.py."
+  }
+}
