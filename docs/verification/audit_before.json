@@ -1,0 +1,577 @@
+{
+  "dataset_version": "1.0",
+  "n_cases": 12,
+  "n_judgements": 84,
+  "n_failures": 58,
+  "n_failed_cases": 12,
+  "failed_cases": [
+    "DTMB5415-01",
+    "DTMB5415-02",
+    "DTMB5415-03",
+    "DTMB5415-04",
+    "KVLCC2-01",
+    "KVLCC2-02",
+    "KVLCC2-03",
+    "KVLCC2-04",
+    "SUBOFF-01",
+    "SUBOFF-02",
+    "SUBOFF-03",
+    "SUBOFF-04"
+  ],
+  "judge_counts": {
+    "J1_FROUDE_CONSISTENT": {
+      "pass": 8,
+      "fail": 4
+    },
+    "J2_VOLUME_CONSISTENT": {
+      "pass": 0,
+      "fail": 12
+    },
+    "J3_RT_CT_CONSISTENT": {
+      "pass": 0,
+      "fail": 12
+    },
+    "J4_FRICTION_FLOOR": {
+      "pass": 12,
+      "fail": 0
+    },
+    "J5_FR_BAND": {
+      "pass": 6,
+      "fail": 6
+    },
+    "J6_PROVENANCE": {
+      "pass": 0,
+      "fail": 12
+    },
+    "J7_SCALE_DECLARED": {
+      "pass": 0,
+      "fail": 12
+    }
+  },
+  "failures": [
+    {
+      "case_id": "SUBOFF-01",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": null,
+      "expected": null,
+      "detail": "缺少排水量或 Cb/主尺度，无法闭合"
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 12.5,
+      "expected": 92.5,
+      "detail": "Rt_decl=12.50 N vs 0.5ρS·Ct·V²=92.50 N, rel=86.5%"
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 4.356,
+      "detail": "scale=None, L_ref=4.356"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": null,
+      "expected": null,
+      "detail": "缺少排水量或 Cb/主尺度，无法闭合"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 21.0,
+      "expected": 173.09,
+      "detail": "Rt_decl=21.00 N vs 0.5ρS·Ct·V²=173.09 N, rel=87.9%"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "judge": "J5_FR_BAND",
+      "ok": false,
+      "measured": 0.6119,
+      "expected": 0.6,
+      "detail": "Fr(L_ref=4.356m)=0.612 (排水型阻力基准上限 0.6)"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 4.356,
+      "detail": "scale=None, L_ref=4.356"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": null,
+      "expected": null,
+      "detail": "缺少排水量或 Cb/主尺度，无法闭合"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 31.5,
+      "expected": 283.98,
+      "detail": "Rt_decl=31.50 N vs 0.5ρS·Ct·V²=283.98 N, rel=88.9%"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "judge": "J5_FR_BAND",
+      "ok": false,
+      "measured": 0.7649,
+      "expected": 0.6,
+      "detail": "Fr(L_ref=4.356m)=0.765 (排水型阻力基准上限 0.6)"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 4.356,
+      "detail": "scale=None, L_ref=4.356"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": null,
+      "expected": null,
+      "detail": "缺少排水量或 Cb/主尺度，无法闭合"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 45.0,
+      "expected": 428.41,
+      "detail": "Rt_decl=45.00 N vs 0.5ρS·Ct·V²=428.41 N, rel=89.5%"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "judge": "J5_FR_BAND",
+      "ok": false,
+      "measured": 0.9179,
+      "expected": 0.6,
+      "detail": "Fr(L_ref=4.356m)=0.918 (排水型阻力基准上限 0.6)"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 4.356,
+      "detail": "scale=None, L_ref=4.356"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "judge": "J1_FROUDE_CONSISTENT",
+      "ok": false,
+      "measured": 0.061,
+      "expected": 0.3434,
+      "detail": "Fr_decl=0.0610 vs Fr(L_ref=5.72m)=0.3434, rel=82.23%; 若用实船长度 142 m 算得 Fr=0.0689 → 声明值疑似混用尺度"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 0.4672,
+      "expected": 0.5425,
+      "detail": "∇=0.4672 m³ vs Cb·L·B·T=0.5425 m³, rel=13.88%"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 8.2,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 5.72,
+      "detail": "scale=None, L_ref=5.72"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "judge": "J1_FROUDE_CONSISTENT",
+      "ok": false,
+      "measured": 0.122,
+      "expected": 0.6867,
+      "detail": "Fr_decl=0.1220 vs Fr(L_ref=5.72m)=0.6867, rel=82.23%; 若用实船长度 142 m 算得 Fr=0.1378 → 声明值疑似混用尺度"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 0.4672,
+      "expected": 0.5425,
+      "detail": "∇=0.4672 m³ vs Cb·L·B·T=0.5425 m³, rel=13.88%"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 28.5,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "judge": "J5_FR_BAND",
+      "ok": false,
+      "measured": 0.6867,
+      "expected": 0.6,
+      "detail": "Fr(L_ref=5.72m)=0.687 (排水型阻力基准上限 0.6)"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 5.72,
+      "detail": "scale=None, L_ref=5.72"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "judge": "J1_FROUDE_CONSISTENT",
+      "ok": false,
+      "measured": 0.244,
+      "expected": 1.3735,
+      "detail": "Fr_decl=0.2440 vs Fr(L_ref=5.72m)=1.3735, rel=82.24%; 若用实船长度 142 m 算得 Fr=0.2757 → 声明值疑似混用尺度"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 0.4672,
+      "expected": 0.5425,
+      "detail": "∇=0.4672 m³ vs Cb·L·B·T=0.5425 m³, rel=13.88%"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 95.0,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "judge": "J5_FR_BAND",
+      "ok": false,
+      "measured": 1.3735,
+      "expected": 0.6,
+      "detail": "Fr(L_ref=5.72m)=1.374 (排水型阻力基准上限 0.6)"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 5.72,
+      "detail": "scale=None, L_ref=5.72"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "judge": "J1_FROUDE_CONSISTENT",
+      "ok": false,
+      "measured": 0.366,
+      "expected": 2.0602,
+      "detail": "Fr_decl=0.3660 vs Fr(L_ref=5.72m)=2.0602, rel=82.24%; 若用实船长度 142 m 算得 Fr=0.4135 → 声明值疑似混用尺度"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 0.4672,
+      "expected": 0.5425,
+      "detail": "∇=0.4672 m³ vs Cb·L·B·T=0.5425 m³, rel=13.88%"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 210.0,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "judge": "J5_FR_BAND",
+      "ok": false,
+      "measured": 2.0602,
+      "expected": 0.6,
+      "detail": "Fr(L_ref=5.72m)=2.060 (排水型阻力基准上限 0.6)"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 5.72,
+      "detail": "scale=None, L_ref=5.72"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 307615.2305,
+      "expected": 312621.6704,
+      "detail": "∇=307615.2305 m³ vs Cb·L·B·T=312621.6704 m³, rel=1.60%"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 550000.0,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 320.0,
+      "detail": "scale=None, L_ref=320.0"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 307615.2305,
+      "expected": 312621.6704,
+      "detail": "∇=307615.2305 m³ vs Cb·L·B·T=312621.6704 m³, rel=1.60%"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 650000.0,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 320.0,
+      "detail": "scale=None, L_ref=320.0"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 307615.2305,
+      "expected": 312621.6704,
+      "detail": "∇=307615.2305 m³ vs Cb·L·B·T=312621.6704 m³, rel=1.60%"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 700000.0,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 320.0,
+      "detail": "scale=None, L_ref=320.0"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "judge": "J2_VOLUME_CONSISTENT",
+      "ok": false,
+      "measured": 307615.2305,
+      "expected": 312621.6704,
+      "detail": "∇=307615.2305 m³ vs Cb·L·B·T=312621.6704 m³, rel=1.60%"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "judge": "J3_RT_CT_CONSISTENT",
+      "ok": false,
+      "measured": 760000.0,
+      "expected": null,
+      "detail": "缺少 Ct/Rt/wetted_surface/speed 之一，无法互校"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "judge": "J6_PROVENANCE",
+      "ok": false,
+      "measured": {
+        "citation": true,
+        "type": false,
+        "locator": false,
+        "verified": null
+      },
+      "expected": null,
+      "detail": "citation=True, provenance.type=False, provenance.locator=False, reference_verified=None"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "judge": "J7_SCALE_DECLARED",
+      "ok": false,
+      "measured": null,
+      "expected": 320.0,
+      "detail": "scale=None, L_ref=320.0"
+    }
+  ]
+}
