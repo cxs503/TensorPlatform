@@ -42,10 +42,10 @@
       <div class="tf-md" v-html="rendered"></div>
       <div class="rep-figs">
         <figure v-for="f in detail.figures || []" :key="f.name">
-          <a :href="figUrls[f.name]" target="_blank" rel="noopener">
-            <img v-if="figUrls[f.name]" :src="figUrls[f.name]" :alt="f.caption || f.name" loading="lazy" />
+          <a :href="figUrl(f.name)" target="_blank" rel="noopener">
+            <img v-if="!figErrors[f.name]" :src="figUrl(f.name)" :alt="f.caption || f.name" loading="lazy" @error="onFigError(f.name)" />
           </a>
-          <figcaption>{{ f.caption || f.name }}</figcaption>
+          <figcaption :class="{ 'fig-err': figErrors[f.name] }">{{ figErrors[f.name] ? `图片加载失败 ${figUrl(f.name)}` : (f.caption || f.name) }}</figcaption>
         </figure>
       </div>
     </div>
@@ -56,7 +56,6 @@
 import { ref, computed, onMounted } from 'vue'
 import { ElMessage } from 'element-plus'
 import { reportApi } from '@/api'
-import http from '@/api/request'
 import HeroPanel from '@/components/HeroPanel.vue'
 import { renderMarkdown } from '@/utils/markdown'
 
@@ -64,7 +63,8 @@ const items = ref<any[]>([])
 const scenarioKeys = ref<string[]>([])
 const scenarioFilter = ref('')
 const detail = ref<any>(null)
-const figUrls = ref<Record<string, string>>({})
+const figErrors = ref<Record<string, boolean>>({})
+const curId = ref<number | null>(null)
 const rendered = computed(() => (detail.value ? renderMarkdown(detail.value.markdown) : ''))
 
 async function load() {
@@ -81,17 +81,18 @@ async function load() {
   }
 }
 
-// Figures need the auth header, so fetch them as blobs and hand the <img> an
-// object URL instead of a raw src (which could not authenticate).
+// 图床端点已免鉴权（owner 批·方案A）：直接 <img src>，不经 JS 取 blob。
+// （blob: object URL 在部分受控浏览器不可用；直链 + @error 可见兜底，失败可诊断）
+const API_BASE: string = (import.meta as any).env?.VITE_API_BASE_URL || '/tp/api/v1'
+function figUrl(name: string) {
+  return `${API_BASE}/tensor/reports/${curId.value}/figures/${encodeURIComponent(name)}`
+}
+function onFigError(name: string) { figErrors.value[name] = true }
 async function open(row: any) {
   try {
     detail.value = await reportApi.get(row.id)
-    Object.values(figUrls.value).forEach((u) => URL.revokeObjectURL(u))
-    figUrls.value = {}
-    for (const f of detail.value.figures || []) {
-      const blob: Blob = await http.getBlob(`/tensor/reports/${row.id}/figures/${f.name}`)
-      figUrls.value[f.name] = URL.createObjectURL(blob)
-    }
+    curId.value = row.id
+    figErrors.value = {}
   } catch {
     ElMessage.error('报告加载失败')
   }
@@ -99,8 +100,8 @@ async function open(row: any) {
 
 function closeDetail() {
   detail.value = null
-  Object.values(figUrls.value).forEach((u) => URL.revokeObjectURL(u))
-  figUrls.value = {}
+  curId.value = null
+  figErrors.value = {}
 }
 
 onMounted(load)
@@ -126,4 +127,5 @@ onMounted(load)
 .rep-figs figure { margin: 0; }
 .rep-figs img { width: 100%; border: 1px solid #e4e7ed; border-radius: 6px; }
 .rep-figs figcaption { font-size: 12px; color: #909399; margin-top: 4px; }
+.rep-figs .fig-err { color: #f56c6c; word-break: break-all; }
 </style>
