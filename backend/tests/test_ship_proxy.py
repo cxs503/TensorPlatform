@@ -5,6 +5,7 @@ import asyncio
 import pytest
 from unittest.mock import AsyncMock, patch, MagicMock
 
+from services.ship_api_endpoint import ship_api_base
 from services.ship_proxy import (
     ShipProxy,
     ShipProxyError,
@@ -21,7 +22,10 @@ class TestShipProxy:
 
     def test_proxy_init(self):
         proxy = ShipProxy()
-        assert proxy.base_url == "http://localhost:8002/api/v1"
+        # 端点由 services.ship_api_endpoint 统一解析，默认 :8001（事故修复：原写死 :8002）
+        assert proxy.base_url == ship_api_base()
+        assert proxy.base_url.endswith("/api/v1")
+        assert ":8002" not in proxy.base_url
         assert proxy.timeout == 30.0
         assert proxy.max_retries == 3
 

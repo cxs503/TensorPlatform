@@ -2,7 +2,7 @@
 """
 toy_optimize.py — 端到端 toy 优化
 
-目标: 最小化 KVLCC2 阻力 (通过船舶平台 :8002 Holtrop API)
+目标: 最小化 KVLCC2 阻力 (通过船舶平台 :8001 Holtrop API)
 设计变量:
   - x1 = L/B (长宽比), 范围 [5.0, 7.5]
   - x2 = B/T (宽吃水比), 范围 [2.5, 4.5]
@@ -36,7 +36,7 @@ from tools.optimizer import OptimizerTool, DesignVariable, LatinHypercubeDOE, Ba
 import urllib.request
 import urllib.error
 
-SHIP_API_BASE = "http://localhost:8002/api/v1"
+SHIP_API_BASE = os.environ.get("SHIP_API_BASE", "http://127.0.0.1:8001/api/v1")
 
 def call_holtrop(speed: float, length: float, beam: float, draft: float,
                  displacement: float, cb: float) -> dict:
