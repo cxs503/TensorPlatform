@@ -38,6 +38,11 @@ from services.stability_reference import (
     wall_sided_gz,
 )
 from services.ship_resistance import ct_from_rt
+from services.shaft_torsion import (
+    ChainError,
+    TorsionalChain,
+    evaluate_chain,
+)
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -710,3 +715,65 @@ async def get_timing_baseline():
         "baseline": baseline,
         "total_records": len(records),
     }
+
+# ---------------------------------------------------------------------------
+# 振动噪声 / torsional vibration (mission m1694)
+# ---------------------------------------------------------------------------
+
+class ShaftTorsionRequest(BaseModel):
+    """Lumped torsional chain of a propulsion shafting.
+
+    ``inertias_kg_m2`` are polar mass moments of inertia per station (propeller
+    first by convention), ``stiffnesses_Nm_rad`` the segment torsional
+    stiffnesses -- ``len(stiffnesses) == len(inertias) - 1``.
+    """
+
+    inertias_kg_m2: List[float] = Field(min_length=2, max_length=400)
+    stiffnesses_Nm_rad: List[float] = Field(min_length=1, max_length=399)
+    labels: Optional[List[str]] = Field(default=None, max_length=400)
+    damping_ratio: float = Field(default=0.02, ge=0.0, lt=1.0)
+    excitation_orders: List[float] = Field(default_factory=list, max_length=20)
+    rpm_range: List[float] = Field(default_factory=lambda: [0.0, 300.0], min_length=2, max_length=2)
+    service_rpm: Optional[float] = Field(default=None, gt=0.0)
+    service_order: Optional[float] = Field(default=None, gt=0.0)
+    detuning_threshold: float = Field(default=0.10, gt=0.0, lt=1.0)
+
+
+@router.post("/vibration/shaft_torsion")
+@timed_calc("shaft_torsion")
+async def calc_shaft_torsion(req: ShaftTorsionRequest):
+    """Torsional natural frequencies, Campbell crossings and 1-node detuning.
+
+    Evidence grade: REAL (first-principles). Two independent solution methods run
+    in the same response -- a symmetrised generalised eigenvalue solve and the
+    classical Holzer tabulation -- and their agreement is reported in
+    ``cross_check.max_relative_difference``. Analytic benchmarks and their measured
+    errors are documented in
+    ``docs/verification/vibration_shaft_torsion_verification.md``.
+
+    Limitations: 1-D lumped chain (no gyroscopics, no whirl, no gear-mesh
+    stiffness variation), constant modal damping, and excitation amplitudes are
+    caller-supplied (this endpoint does **not** synthesise engine/propeller
+    harmonic torque coefficients).
+    """
+    try:
+        chain = TorsionalChain(
+            inertias=tuple(req.inertias_kg_m2),
+            stiffnesses=tuple(req.stiffnesses_Nm_rad),
+            labels=tuple(req.labels) if req.labels else (),
+            damping_ratio=req.damping_ratio,
+        )
+        payload = evaluate_chain(
+            chain,
+            rpm_range=(req.rpm_range[0], req.rpm_range[1]),
+            orders=tuple(req.excitation_orders),
+            service_rpm=req.service_rpm,
+            service_order=req.service_order,
+            detuning_threshold=req.detuning_threshold,
+        )
+    except ChainError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    payload["evidence_grade"] = "REAL"
+    payload["model"] = "1-D lumped torsional chain, free-free"
+    return payload
