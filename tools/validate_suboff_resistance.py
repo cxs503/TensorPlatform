@@ -30,16 +30,40 @@ import numpy as np
 OUTPUT_DIR = Path(__file__).resolve().parent.parent / "outputs" / "suboff_validation"
 OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
-SUBOFF_CASES = [
-    {"case_id": "SUBOFF-01", "speed_ms": 3.0, "fn": 0.236, "ct_exp": 0.00380, "rt_exp_n": 12.50},
-    {"case_id": "SUBOFF-02", "speed_ms": 4.0, "fn": 0.315, "ct_exp": 0.00400, "rt_exp_n": 21.00},
-    {"case_id": "SUBOFF-03", "speed_ms": 5.0, "fn": 0.393, "ct_exp": 0.00420, "rt_exp_n": 31.50},
-    {"case_id": "SUBOFF-04", "speed_ms": 6.0, "fn": 0.472, "ct_exp": 0.00440, "rt_exp_n": 45.00},
-]
+# m1709 修复：参考侧改为正典 v3.0 单一真源（原字面量表用了正典已作废的 legacy Rt
+# 12.50/21.00/31.50/45.00 N 与错误 Froude 数列 0.236/0.315/0.393/0.472，
+# 且 displacement 误抄 beam=0.508；详见 tools/validate_suboff_resistance_canon.py 与
+# docs/m1709/suboff_reference_provenance.md）。
+_CANON_PATH = Path(__file__).resolve().parent.parent / "backend" / "data" / "benchmark_reference.json"
+_CANON = json.loads(_CANON_PATH.read_text(encoding="utf-8"))
 
+
+def _canon_suboff_cases() -> list:
+    out = []
+    for case in _CANON["cases"]:
+        if case["ship_type"] != "SUBOFF":
+            continue
+        geom = case["geometry"]
+        out.append({
+            "case_id": case["case_id"],
+            "speed_ms": case["speed_ms"],
+            "fn": case["froude_number"],
+            "ct_exp": case["experimental_ct"],
+            "rt_exp_n": case["experimental_rt_n"],
+            "s_wet_m2": geom["wetted_surface_m2"],
+        })
+    return sorted(out, key=lambda c: c["speed_ms"])
+
+
+SUBOFF_CASES = _canon_suboff_cases()
+
+_first_geom = min(_CANON["cases"], key=lambda c: 0 if c["ship_type"] == "SUBOFF" else 1)["geometry"]
 SUBOFF_GEOM = {
-    "length": 4.356, "beam": 0.508, "draft": 0.476,
-    "cb": 0.542, "displacement": 0.508,
+    "length": _first_geom["length_m"],
+    "beam": _first_geom["diameter_m"],
+    "draft": _first_geom["diameter_m"],
+    "cb": 0.542,
+    "displacement": 0.542 * _first_geom["length_m"] * _first_geom["diameter_m"] ** 2,
 }
 
 # ---------------------------------------------------------------------------

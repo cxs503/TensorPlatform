@@ -1,0 +1,201 @@
+{
+  "mission": 1709,
+  "canon_version": "3.0",
+  "canon_description": "船舶阻力基准参考数据集（唯一正典 v3.0）。来源：Roddy 1990 DTRC-90/012（SUBOFF）、ITTC V&V Workshop 2010（DTMB-5415）、SIMMAN 2008（KVLCC2）。每个量由 backend/services/benchmark_canon.py 的解析恒等式复算，含密度/黏度溯源。",
+  "reference_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
+  "rows": [
+    {
+      "case_id": "SUBOFF-01",
+      "speed_ms": 3.0,
+      "fr_canon": 0.4589,
+      "ct_ref": 0.0038,
+      "rt_ref_n": 92.52,
+      "legacy_rt_n": 12.5,
+      "reference_closure": {
+        "rt_from_identity_n": 92.51517240000001,
+        "rt_ref_n": 92.52,
+        "closure_rel_err": 5.2178988326680716e-05,
+        "fr_derived": 0.4589261612237747,
+        "fr_canon": 0.4589,
+        "fr_rel_err": 5.700855039168774e-05
+      },
+      "engine_s_canon": {
+        "re": 13015936.254980078,
+        "fr": 0.4589261612237747,
+        "cf": 0.0028672071638755144,
+        "cr": 0.0005946819392833916,
+        "s_wet_m2": 5.42,
+        "s_source": "canon_geometry",
+        "rt_n": 84.28349137063884,
+        "ct": 0.003461889103158906,
+        "ct_err_pct": -8.897655180028789,
+        "rt_err_pct": -8.902408808215688
+      },
+      "engine_s_empirical": {
+        "re": 13015936.254980078,
+        "fr": 0.4589261612237747,
+        "cf": 0.0028672071638755144,
+        "cr": 0.0005946819392833916,
+        "s_wet_m2": 4.417911491407555,
+        "s_source": "engine_empirical",
+        "rt_n": 68.70055443953778,
+        "ct": 0.0034618891031589056,
+        "ct_err_pct": -8.8976551800288,
+        "rt_err_pct": -25.74518543067684
+      }
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "speed_ms": 4.0,
+      "fr_canon": 0.6119,
+      "ct_ref": 0.004,
+      "rt_ref_n": 173.13,
+      "legacy_rt_n": 21.0,
+      "reference_closure": {
+        "rt_from_identity_n": 173.12780800000002,
+        "rt_ref_n": 173.13,
+        "closure_rel_err": 1.2661006180208766e-05,
+        "fr_derived": 0.6119015482983663,
+        "fr_canon": 0.6119,
+        "fr_rel_err": 2.5303127411243644e-06
+      },
+      "engine_s_canon": {
+        "re": 17354581.67330677,
+        "fr": 0.6119015482983663,
+        "cf": 0.0027320950607323748,
+        "cr": 0.0012207636541421327,
+        "s_wet_m2": 5.42,
+        "s_source": "canon_geometry",
+        "rt_n": 171.08744115998016,
+        "ct": 0.003952858714874508,
+        "ct_err_pct": -1.1785321281373085,
+        "rt_err_pct": -1.1797833073527617
+      },
+      "engine_s_empirical": {
+        "re": 17354581.67330677,
+        "fr": 0.6119015482983663,
+        "cf": 0.0027320950607323748,
+        "cr": 0.0012207636541421327,
+        "s_wet_m2": 4.417911491407555,
+        "s_source": "engine_empirical",
+        "rt_n": 139.4555668516956,
+        "ct": 0.003952858714874508,
+        "ct_err_pct": -1.1785321281373085,
+        "rt_err_pct": -19.45037437087991
+      }
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "speed_ms": 5.0,
+      "fr_canon": 0.7649,
+      "ct_ref": 0.0042,
+      "rt_ref_n": 284.04,
+      "legacy_rt_n": 31.5,
+      "reference_closure": {
+        "rt_from_identity_n": 284.03781,
+        "rt_ref_n": 284.04,
+        "closure_rel_err": 7.71018166470017e-06,
+        "fr_derived": 0.7648769353729579,
+        "fr_canon": 0.7649,
+        "fr_rel_err": 3.015378094150543e-05
+      },
+      "engine_s_canon": {
+        "re": 21693227.091633465,
+        "fr": 0.7648769353729579,
+        "cf": 0.00263376399482313,
+        "cr": 0.002132586339939728,
+        "s_wet_m2": 5.42,
+        "s_source": "canon_geometry",
+        "rt_n": 322.3389787568593,
+        "ct": 0.004766350334762858,
+        "ct_err_pct": 13.484531780068055,
+        "rt_err_pct": 13.483656793711905
+      },
+      "engine_s_empirical": {
+        "re": 21693227.091633465,
+        "fr": 0.7648769353729579,
+        "cf": 0.00263376399482313,
+        "cr": 0.002132586339939728,
+        "s_wet_m2": 4.417911491407555,
+        "s_source": "engine_empirical",
+        "rt_n": 262.74263438717793,
+        "ct": 0.004766350334762857,
+        "ct_err_pct": 13.484531780068032,
+        "rt_err_pct": -7.498016340241547
+      }
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "speed_ms": 6.0,
+      "fr_canon": 0.9179,
+      "ct_ref": 0.0044,
+      "rt_ref_n": 428.49,
+      "legacy_rt_n": 45.0,
+      "reference_closure": {
+        "rt_from_identity_n": 428.49132480000003,
+        "rt_ref_n": 428.49,
+        "closure_rel_err": 3.0917874396609767e-06,
+        "fr_derived": 0.9178523224475494,
+        "fr_canon": 0.9179,
+        "fr_rel_err": 5.1941989814368675e-05
+      },
+      "engine_s_canon": {
+        "re": 26031872.509960156,
+        "fr": 0.9178523224475494,
+        "cf": 0.0025573094033614066,
+        "cr": 0.0033640290553316235,
+        "s_wet_m2": 5.42,
+        "s_source": "canon_geometry",
+        "rt_n": 576.6459456260378,
+        "ct": 0.00592133845869303,
+        "ct_err_pct": 34.57587406120521,
+        "rt_err_pct": 34.576290141202314
+      },
+      "engine_s_empirical": {
+        "re": 26031872.509960156,
+        "fr": 0.9178523224475494,
+        "cf": 0.0025573094033614066,
+        "cr": 0.0033640290553316235,
+        "s_wet_m2": 4.417911491407555,
+        "s_source": "engine_empirical",
+        "rt_n": 470.03150362635586,
+        "ct": 0.00592133845869303,
+        "ct_err_pct": 34.57587406120521,
+        "rt_err_pct": 9.694859536128227
+      }
+    }
+  ],
+  "summary_s_canon": {
+    "rt_abs_err_pct_max": 34.576290141202314,
+    "rt_abs_err_pct_mean": 14.535534762620667,
+    "ct_abs_err_pct_max": 34.57587406120521,
+    "ct_abs_err_pct_mean": 14.53414828735984,
+    "all_rt_within_3pct": false,
+    "all_rt_within_15pct": false,
+    "all_ct_within_3pct": false,
+    "all_ct_within_15pct": false
+  },
+  "summary_s_empirical": {
+    "rt_abs_err_pct_max": 25.74518543067684,
+    "rt_abs_err_pct_mean": 15.597108919481633,
+    "ct_abs_err_pct_max": 34.57587406120521,
+    "ct_abs_err_pct_mean": 14.534148287359837,
+    "all_rt_within_3pct": false,
+    "all_rt_within_15pct": false,
+    "all_ct_within_3pct": false,
+    "all_ct_within_15pct": false
+  },
+  "defect_found": {
+    "superseded_reference_rt_n": [
+      12.5,
+      21.0,
+      31.5,
+      45.0
+    ],
+    "note": "m1444 工具把正典 v3.0 已作废的 legacy Rt 当作实验值，且 Ct 用有效值，参考侧自相矛盾"
+  },
+  "figures": [
+    "outputs/suboff_canon_validation/fig1_ct_fn.png",
+    "outputs/suboff_canon_validation/fig2_error.png"
+  ]
+}
