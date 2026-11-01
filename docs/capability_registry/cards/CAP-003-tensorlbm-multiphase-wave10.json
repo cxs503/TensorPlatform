@@ -1,0 +1,151 @@
+{
+  "card_id": "CAP-003",
+  "name": "TensorLBM Multiphase Wave-10",
+  "version": "1.0.0",
+  "repo": "TensorLBM",
+  "discipline": "seakeeping",
+  "interface": {
+    "input": {
+      "phase_count": {
+        "type": "integer",
+        "description": "Number of fluid phases",
+        "unit": "count",
+        "range": {
+          "min": 2,
+          "max": 3
+        }
+      },
+      "surface_tension": {
+        "type": "number",
+        "description": "Surface tension coefficient",
+        "unit": "N/m"
+      },
+      "density_ratio": {
+        "type": "number",
+        "description": "Density ratio between phases",
+        "unit": "dimensionless"
+      },
+      "viscosity_ratio": {
+        "type": "number",
+        "description": "Viscosity ratio between phases",
+        "unit": "dimensionless"
+      },
+      "wave_amplitude": {
+        "type": "number",
+        "description": "Wave amplitude",
+        "unit": "m"
+      },
+      "wave_length": {
+        "type": "number",
+        "description": "Wave length",
+        "unit": "m"
+      }
+    },
+    "output": {
+      "interface_position": {
+        "type": "string",
+        "description": "Phase interface tracking data",
+        "unit": "VTK"
+      },
+      "wave_elevation": {
+        "type": "array",
+        "description": "Free surface elevation time series",
+        "unit": "m"
+      },
+      "pressure_field": {
+        "type": "string",
+        "description": "Pressure field",
+        "unit": "VTK"
+      },
+      "velocity_field": {
+        "type": "string",
+        "description": "Velocity field",
+        "unit": "VTK"
+      }
+    },
+    "format": "JSON"
+  },
+  "applicability": {
+    "parameter_domain": {
+      "density_ratio": {
+        "min": 1,
+        "max": 1000,
+        "unit": "dimensionless"
+      },
+      "Re": {
+        "min": 100,
+        "max": 10000,
+        "unit": "dimensionless"
+      },
+      "We": {
+        "min": 10,
+        "max": 1000,
+        "unit": "dimensionless"
+      }
+    },
+    "regime": "free-surface flow, wave-structure interaction",
+    "geometry_type": "free surface, wave generation",
+    "dimensionality": "3D"
+  },
+  "dependencies": {
+    "code_version": "TensorLBM @ main (multiphase module)",
+    "environment": {
+      "python": ">=3.10",
+      "cuda": ">=11.8",
+      "gpu_memory_gb": 24
+    },
+    "external_libraries": [
+      "numpy",
+      "taichi"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": true,
+    "min_gpu_memory_gb": 24,
+    "min_cpu_cores": 8,
+    "min_ram_gb": 32,
+    "estimated_runtime_hours": 24.0,
+    "storage_gb": 50
+  },
+  "validation_evidence": {
+    "report_id": "wave10_multiphase",
+    "report_md5": "ae7f4d0d182eea126b180a0686e061bd",
+    "prereg_md5": null,
+    "verification_status": "HONEST_FAIL",
+    "reference_values": {},
+    "relative_error_pct": null,
+    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+  },
+  "failure_modes": [
+    {
+      "mode": "droplet_water_entry_not_verified",
+      "symptom": "Droplet water entry case fails acceptance\u9636\u68af",
+      "mitigation": "HONEST FAIL: droplet water entry has NOT passed acceptance ladder; do NOT claim capability for this sub-case",
+      "severity": "critical"
+    },
+    {
+      "mode": "high_density_ratio_instability",
+      "symptom": "Numerical instability at density ratio > 500",
+      "mitigation": "Limit density ratio to < 500 or use stabilized CSF formulation",
+      "severity": "major"
+    },
+    {
+      "mode": "spurious_currents",
+      "symptom": "Non-physical velocities near interface at rest",
+      "mitigation": "Use balanced-force CSF; verify with hydrostatic test",
+      "severity": "major"
+    }
+  ],
+  "created_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-01T00:00:00Z",
+  "status": "active",
+  "tags": [
+    "multiphase",
+    "free_surface",
+    "wave",
+    "Wave-10",
+    "CSF",
+    "HONEST_FAIL"
+  ],
+  "notes": "HONEST FAIL: droplet water entry has NOT passed acceptance ladder. Wave-10 capability exists for free-surface flows but with known limitations. Do NOT overclaim."
+}

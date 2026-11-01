@@ -1,0 +1,186 @@
+{
+  "card_id": "CAP-005",
+  "name": "TensorPlatform Report Generation (Three-Tier System)",
+  "version": "1.0.0",
+  "repo": "TensorPlatform",
+  "discipline": "reporting",
+  "interface": {
+    "input": {
+      "title": {
+        "type": "string",
+        "description": "Report title",
+        "unit": "text",
+        "range": {
+          "min": 4,
+          "max": 200
+        }
+      },
+      "summary": {
+        "type": "string",
+        "description": "Report summary",
+        "unit": "text",
+        "range": {
+          "min": 0,
+          "max": 500
+        }
+      },
+      "scenario_key": {
+        "type": "string",
+        "description": "Scenario identifier",
+        "unit": "text",
+        "range": {
+          "min": 0,
+          "max": 120
+        }
+      },
+      "mission_id": {
+        "type": "integer",
+        "description": "Associated mission ID",
+        "unit": "count",
+        "range": {
+          "min": 1
+        }
+      },
+      "stage": {
+        "type": "string",
+        "description": "Mission stage (S0-S4)",
+        "unit": "text",
+        "range": {
+          "min": 2,
+          "max": 2
+        }
+      },
+      "tags": {
+        "type": "array",
+        "description": "Report tags",
+        "unit": "text"
+      },
+      "markdown": {
+        "type": "string",
+        "description": "Full markdown report body",
+        "unit": "text",
+        "range": {
+          "min": 10,
+          "max": 200000
+        }
+      },
+      "figures": {
+        "type": "array",
+        "description": "Figure metadata with base64 PNG",
+        "unit": "JSON"
+      }
+    },
+    "output": {
+      "report_id": {
+        "type": "integer",
+        "description": "Generated report ID",
+        "unit": "count"
+      },
+      "status": {
+        "type": "string",
+        "description": "Report status",
+        "unit": "text"
+      },
+      "created_at": {
+        "type": "string",
+        "description": "Creation timestamp",
+        "unit": "ISO8601"
+      },
+      "figure_paths": {
+        "type": "array",
+        "description": "Paths to saved figure PNGs",
+        "unit": "filesystem"
+      }
+    },
+    "format": "JSON"
+  },
+  "applicability": {
+    "parameter_domain": {
+      "markdown_length": {
+        "min": 10,
+        "max": 200000,
+        "unit": "characters"
+      },
+      "figure_count": {
+        "min": 0,
+        "max": 12,
+        "unit": "count"
+      },
+      "figure_size": {
+        "min": 0,
+        "max": 8000000,
+        "unit": "bytes"
+      }
+    },
+    "regime": "research progress reporting",
+    "geometry_type": "N/A",
+    "dimensionality": "N/A"
+  },
+  "dependencies": {
+    "code_version": "TensorPlatform @ main (report gate integration)",
+    "environment": {
+      "python": ">=3.10",
+      "postgresql": ">=14"
+    },
+    "external_libraries": [
+      "fastapi",
+      "sqlalchemy",
+      "pydantic"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": false,
+    "min_gpu_memory_gb": null,
+    "min_cpu_cores": 2,
+    "min_ram_gb": 4,
+    "estimated_runtime_hours": 0.01,
+    "storage_gb": 1
+  },
+  "validation_evidence": {
+    "report_id": "report_gate_v1",
+    "report_md5": "f68d161c22f91dbfadaba3a7478b212e",
+    "prereg_md5": null,
+    "verification_status": "PASS",
+    "reference_values": {},
+    "relative_error_pct": null,
+    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+  },
+  "failure_modes": [
+    {
+      "mode": "markdown_too_long",
+      "symptom": "422 validation error: markdown exceeds 200,000 chars",
+      "mitigation": "Split report into multiple stages or trim content",
+      "severity": "minor"
+    },
+    {
+      "mode": "figure_too_large",
+      "symptom": "422 validation error: png_base64 exceeds 8MB",
+      "mitigation": "Compress figure PNG; reduce resolution or use JPEG",
+      "severity": "minor"
+    },
+    {
+      "mode": "missing_required_role",
+      "symptom": "403 forbidden: user lacks ADMIN/MANAGER/ENGINEER role",
+      "mitigation": "Request role elevation from platform admin",
+      "severity": "major"
+    },
+    {
+      "mode": "figure_dir_unavailable",
+      "symptom": "Figure save fails: TENSOR_REPORT_FIGURE_DIR not writable",
+      "mitigation": "Check NFS mount and directory permissions",
+      "severity": "major"
+    }
+  ],
+  "created_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-01T00:00:00Z",
+  "status": "active",
+  "tags": [
+    "reporting",
+    "three_tier",
+    "report_gate",
+    "RPT-GATE",
+    "markdown",
+    "figures"
+  ],
+  "notes": "Three-tier report system: (1) list endpoint omits markdown body for performance; (2) full report retrieval includes markdown; (3) figures stored on disk under TENSOR_REPORT_FIGURE_DIR/<report_id>/<name>.png with metadata in JSONB. Requires ADMIN/MANAGER/ENGINEER role for creation."
+}
