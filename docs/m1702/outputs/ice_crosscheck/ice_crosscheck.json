@@ -1,0 +1,509 @@
+{
+  "hull": {
+    "L": 150.0,
+    "B": 23.0,
+    "T": 8.5,
+    "Cb": 0.7,
+    "alpha_deg": 30.0
+  },
+  "reference_conditions": {
+    "h": 0.8,
+    "sigma_MPa": 1.5,
+    "mu": 0.1,
+    "V": 2.0
+  },
+  "aggregate_criteria": [
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K1 total h-exponent in [1.00, 2.00]",
+      "measured": 1.2946,
+      "target": "[1,2]",
+      "pass": true,
+      "note": "mixture of h^2, h^1.25, h^1 terms"
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K3 submersion h-exponent",
+      "measured": 1.0,
+      "target": "1.00+/-0.02",
+      "pass": true,
+      "note": "isolated by sigma_c->0, V->0"
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K3 submersion dR/dT",
+      "measured": "0 N/m",
+      "target": "> 0",
+      "pass": false,
+      "note": "draft must raise the submerged bow area"
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K4 dR/dsigma_c",
+      "measured": "0.5524 N/Pa",
+      "target": "> 0",
+      "pass": true,
+      "note": "ice strength must be an input"
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K5 dR/dmu",
+      "measured": "3.383e+06 N/-",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K6 dR/dV",
+      "measured": "3772 N/(m/s)",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K7 dR/dB",
+      "measured": "5.267e+04 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K8 submersion speed response V:2->3 m/s",
+      "measured": 0.0046,
+      "target": "0.06 .. 0.20 (analytic 0.132)",
+      "pass": false,
+      "note": "added-mass term (1 + C_v V/sqrt(g h)), C_v = 0.5"
+    },
+    {
+      "impl": "A_ice_resistance_uq_raw",
+      "criterion": "K9 total / reference at audit point",
+      "measured": 1.4307,
+      "target": "[0.33, 3.0]",
+      "pass": true,
+      "note": "order-of-magnitude sanity band"
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K1 total h-exponent in [1.00, 2.00]",
+      "measured": 1.0013,
+      "target": "[1,2]",
+      "pass": true,
+      "note": "mixture of h^2, h^1.25, h^1 terms"
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K3 submersion h-exponent",
+      "measured": 1.0015,
+      "target": "1.00+/-0.02",
+      "pass": true,
+      "note": "isolated by sigma_c->0, V->0"
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K3 submersion dR/dT",
+      "measured": "9860 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": "draft must raise the submerged bow area"
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K4 dR/dsigma_c",
+      "measured": "0 N/Pa",
+      "target": "> 0",
+      "pass": false,
+      "note": "ice strength must be an input"
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K5 dR/dmu",
+      "measured": "0 N/-",
+      "target": "> 0",
+      "pass": false,
+      "note": ""
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K6 dR/dV",
+      "measured": "1.25e+04 N/(m/s)",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K7 dR/dB",
+      "measured": "4926 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K8 submersion speed response V:2->3 m/s",
+      "measured": 0.1101,
+      "target": "0.06 .. 0.20 (analytic 0.132)",
+      "pass": true,
+      "note": "added-mass term (1 + C_v V/sqrt(g h)), C_v = 0.5"
+    },
+    {
+      "impl": "B_optimizer_objectives",
+      "criterion": "K9 total / reference at audit point",
+      "measured": 0.0872,
+      "target": "[0.33, 3.0]",
+      "pass": false,
+      "note": "order-of-magnitude sanity band"
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K1 total h-exponent in [1.00, 2.00]",
+      "measured": 1.5387,
+      "target": "[1,2]",
+      "pass": true,
+      "note": "mixture of h^2, h^1.25, h^1 terms"
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K3 submersion h-exponent",
+      "measured": 1.0,
+      "target": "1.00+/-0.02",
+      "pass": true,
+      "note": "isolated by sigma_c->0, V->0"
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K3 submersion dR/dT",
+      "measured": "4419 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": "draft must raise the submerged bow area"
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K4 dR/dsigma_c",
+      "measured": "0.7725 N/Pa",
+      "target": "> 0",
+      "pass": true,
+      "note": "ice strength must be an input"
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K5 dR/dmu",
+      "measured": "9.888e+05 N/-",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K6 dR/dV",
+      "measured": "4402 N/(m/s)",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K7 dR/dB",
+      "measured": "2.735e+04 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K8 submersion speed response V:2->3 m/s",
+      "measured": 0.1315,
+      "target": "0.06 .. 0.20 (analytic 0.132)",
+      "pass": true,
+      "note": "added-mass term (1 + C_v V/sqrt(g h)), C_v = 0.5"
+    },
+    {
+      "impl": "C_polar_production",
+      "criterion": "K9 total / reference at audit point",
+      "measured": 0.9162,
+      "target": "[0.33, 3.0]",
+      "pass": true,
+      "note": "order-of-magnitude sanity band"
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K1 total h-exponent in [1.00, 2.00]",
+      "measured": 1.513,
+      "target": "[1,2]",
+      "pass": true,
+      "note": "mixture of h^2, h^1.25, h^1 terms"
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K3 submersion h-exponent",
+      "measured": 1.0,
+      "target": "1.00+/-0.02",
+      "pass": true,
+      "note": "isolated by sigma_c->0, V->0"
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K3 submersion dR/dT",
+      "measured": "4419 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": "draft must raise the submerged bow area"
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K4 dR/dsigma_c",
+      "measured": "0.8452 N/Pa",
+      "target": "> 0",
+      "pass": true,
+      "note": "ice strength must be an input"
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K5 dR/dmu",
+      "measured": "9.888e+05 N/-",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K6 dR/dV",
+      "measured": "4402 N/(m/s)",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K7 dR/dB",
+      "measured": "3.209e+04 N/m",
+      "target": "> 0",
+      "pass": true,
+      "note": ""
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K8 submersion speed response V:2->3 m/s",
+      "measured": 0.1315,
+      "target": "0.06 .. 0.20 (analytic 0.132)",
+      "pass": true,
+      "note": "added-mass term (1 + C_v V/sqrt(g h)), C_v = 0.5"
+    },
+    {
+      "impl": "R_reference_canon",
+      "criterion": "K9 total / reference at audit point",
+      "measured": 1.0,
+      "target": "[0.33, 3.0]",
+      "pass": true,
+      "note": "order-of-magnitude sanity band"
+    }
+  ],
+  "term_criteria": [
+    {
+      "impl": "C_polar_production",
+      "term": "crushing",
+      "knob": "h",
+      "measured": 2.0,
+      "analytic": 2.0,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "C_polar_production",
+      "term": "breaking",
+      "knob": "h",
+      "measured": 1.25,
+      "analytic": 1.25,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "C_polar_production",
+      "term": "submersion",
+      "knob": "h",
+      "measured": 1.0,
+      "analytic": 1.0,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "C_polar_production",
+      "term": "breaking",
+      "knob": "B",
+      "measured": 1.0,
+      "analytic": 1.0,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "R_reference_canon",
+      "term": "crushing",
+      "knob": "h",
+      "measured": 2.0,
+      "analytic": 2.0,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "R_reference_canon",
+      "term": "breaking",
+      "knob": "h",
+      "measured": 1.25,
+      "analytic": 1.25,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "R_reference_canon",
+      "term": "submersion",
+      "knob": "h",
+      "measured": 1.0,
+      "analytic": 1.0,
+      "rel_err": 0.0,
+      "pass": true
+    },
+    {
+      "impl": "R_reference_canon",
+      "term": "breaking",
+      "knob": "B",
+      "measured": 1.0,
+      "analytic": 1.0,
+      "rel_err": 0.0,
+      "pass": true
+    }
+  ],
+  "absolute": {
+    "MV_Arctic": {
+      "h_m": 1.0,
+      "sigma_mpa": 1.5,
+      "mu": 0.15,
+      "v_ms": 3.0,
+      "trial_mean_kN": 4800.0,
+      "A_calibration_factor": 1.0972,
+      "A_raw_kN": 4374.8,
+      "A_calibrated_kN": 4800.0,
+      "B_optimizer_kN": 362.0,
+      "C_polar_kN": 2198.1,
+      "R_canon_kN": 2399.7,
+      "C_vs_trial_rel": -0.5421,
+      "R_vs_trial_rel": -0.5001,
+      "B_over_C": 0.1647,
+      "A_raw_over_C": 1.9903
+    },
+    "Polarstern": {
+      "h_m": 0.8,
+      "sigma_mpa": 1.2,
+      "mu": 0.12,
+      "v_ms": 2.5,
+      "trial_mean_kN": 1800.0,
+      "A_calibration_factor": 1.0677,
+      "A_raw_kN": 1685.8,
+      "A_calibrated_kN": 1800.0,
+      "B_optimizer_kN": 166.0,
+      "C_polar_kN": 1098.5,
+      "R_canon_kN": 1193.3,
+      "C_vs_trial_rel": -0.3897,
+      "R_vs_trial_rel": -0.3371,
+      "B_over_C": 0.1511,
+      "A_raw_over_C": 1.5346
+    },
+    "Terry_Fox": {
+      "h_m": 0.6,
+      "sigma_mpa": 1.0,
+      "mu": 0.1,
+      "v_ms": 2.0,
+      "trial_mean_kN": 850.0,
+      "A_calibration_factor": 1.4098,
+      "A_raw_kN": 602.9,
+      "A_calibrated_kN": 850.0,
+      "B_optimizer_kN": 48.2,
+      "C_polar_kN": 439.2,
+      "R_canon_kN": 478.9,
+      "C_vs_trial_rel": -0.4833,
+      "R_vs_trial_rel": -0.4366,
+      "B_over_C": 0.1098,
+      "A_raw_over_C": 1.3727
+    }
+  },
+  "calibration": {
+    "MV_Arctic": {
+      "nominal_residual_rel": 0.0,
+      "calibration_factor": 1.0972,
+      "calibration_is_rigid_scale": true,
+      "off_nominal": {
+        "h=0.5h_nom": {
+          "A_kN": 2086.5,
+          "ratio_to_nominal": 0.4347
+        },
+        "h=1.5h_nom": {
+          "A_kN": 8126.4,
+          "ratio_to_nominal": 1.693
+        },
+        "V=0.5V_nom": {
+          "A_kN": 4787.8,
+          "ratio_to_nominal": 0.9975
+        },
+        "V=1.5V_nom": {
+          "A_kN": 4820.4,
+          "ratio_to_nominal": 1.0042
+        }
+      }
+    },
+    "Polarstern": {
+      "nominal_residual_rel": 0.0,
+      "calibration_factor": 1.0677,
+      "calibration_is_rigid_scale": true,
+      "off_nominal": {
+        "h=0.5h_nom": {
+          "A_kN": 725.3,
+          "ratio_to_nominal": 0.403
+        },
+        "h=1.5h_nom": {
+          "A_kN": 3217.5,
+          "ratio_to_nominal": 1.7875
+        },
+        "V=0.5V_nom": {
+          "A_kN": 1794.9,
+          "ratio_to_nominal": 0.9971
+        },
+        "V=1.5V_nom": {
+          "A_kN": 1808.6,
+          "ratio_to_nominal": 1.0048
+        }
+      }
+    },
+    "Terry_Fox": {
+      "nominal_residual_rel": 0.0,
+      "calibration_factor": 1.4098,
+      "calibration_is_rigid_scale": true,
+      "off_nominal": {
+        "h=0.5h_nom": {
+          "A_kN": 341.2,
+          "ratio_to_nominal": 0.4015
+        },
+        "h=1.5h_nom": {
+          "A_kN": 1522.7,
+          "ratio_to_nominal": 1.7914
+        },
+        "V=0.5V_nom": {
+          "A_kN": 847.7,
+          "ratio_to_nominal": 0.9972
+        },
+        "V=1.5V_nom": {
+          "A_kN": 853.9,
+          "ratio_to_nominal": 1.0046
+        }
+      }
+    }
+  },
+  "figures": [
+    "fig1_total_vs_h.png",
+    "fig2_exponents.png",
+    "fig3_components.png",
+    "fig4_absolute.png"
+  ]
+}
