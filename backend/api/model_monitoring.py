@@ -11,6 +11,8 @@ from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel
 from sqlalchemy import text
 from database.config import get_db
+from services.drift_metrics import ks_statistic as _ks_statistic
+from services.drift_metrics import psi as _psi_metric
 
 router = APIRouter(prefix="/monitoring", tags=["模型监控"])
 
@@ -176,33 +178,10 @@ def get_alerts(limit: int = 20, db=Depends(get_db)):
 # ═══════════════ 漂移检测算法 ═══════════════
 
 def _compute_ks_drift(ref: List[float], cur: List[float]) -> float:
-    """KS 检验：两个分布的最大差异"""
-    try:
-        from scipy.stats import ks_2samp
-        stat, _ = ks_2samp(ref, cur)
-        return float(stat)
-    except ImportError:
-        ref_sorted = np.sort(ref)
-        cur_sorted = np.sort(cur)
-        all_vals = np.sort(np.concatenate([ref_sorted, cur_sorted]))
-        cdf1 = np.searchsorted(ref_sorted, all_vals, side='right') / len(ref_sorted)
-        cdf2 = np.searchsorted(cur_sorted, all_vals, side='right') / len(cur_sorted)
-        return float(np.max(np.abs(cdf1 - cdf2)))
+    """KS 统计量 —— 统一委托 services.drift_metrics（与 scipy 逐位一致）。"""
+    return _ks_statistic(ref, cur)
 
 
 def _compute_psi(ref: List[float], cur: List[float], bins: int = 10) -> float:
-    """PSI (Population Stability Index)：分布偏移度量"""
-    ref_arr = np.array(ref)
-    cur_arr = np.array(cur)
-    min_val = min(ref_arr.min(), cur_arr.min())
-    max_val = max(ref_arr.max(), cur_arr.max())
-    bin_edges = np.linspace(min_val, max_val, bins + 1)
-
-    ref_hist, _ = np.histogram(ref_arr, bins=bin_edges)
-    cur_hist, _ = np.histogram(cur_arr, bins=bin_edges)
-
-    ref_dist = ref_hist / len(ref_arr) + 1e-10
-    cur_dist = cur_hist / len(cur_arr) + 1e-10
-
-    psi = np.sum((cur_dist - ref_dist) * np.log(cur_dist / ref_dist))
-    return float(max(0, psi))
+    """PSI —— 统一委托 services.drift_metrics.psi（基准分位数分箱，见模块 docstring）。"""
+    return _psi_metric(ref, cur, bins=bins)
