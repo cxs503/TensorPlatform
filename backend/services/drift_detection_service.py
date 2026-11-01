@@ -8,6 +8,8 @@ from typing import Any, Dict, List, Optional, Tuple
 
 import numpy as np
 
+from services.drift_metrics import psi as _psi_metric
+
 try:
     from scipy import stats
 
@@ -99,33 +101,18 @@ class DriftDetector:
         })
 
     def _psi_test(self, data: List[float], bins: int = 10) -> Dict[str, Any]:
-        """Population Stability Index"""
-        # 创建分段
-        all_data = self.reference_data + data
-        min_val, max_val = min(all_data), max(all_data)
-        bin_edges = np.linspace(min_val, max_val, bins + 1)
+        """Population Stability Index —— 统一委托 services.drift_metrics.psi。
 
-        # 计算基准分布
-        ref_hist, _ = np.histogram(self.reference_data, bins=bin_edges)
-        curr_hist, _ = np.histogram(data, bins=bin_edges)
-
-        # 转换为比例
-        ref_prop = ref_hist / len(self.reference_data)
-        curr_prop = curr_hist / len(data)
-
-        # 避免除零
-        ref_prop = np.where(ref_prop == 0, 0.0001, ref_prop)
-        curr_prop = np.where(curr_prop == 0, 0.0001, curr_prop)
-
-        # 计算PSI
-        psi = np.sum((curr_prop - ref_prop) * np.log(curr_prop / ref_prop))
-
+        分箱边界由基准样本(reference_data)单次确定并复用，保证跨窗口可比；
+        旧的"联合 min/max 等宽箱 + 1e-4 兜底"会随当前窗口自我重塑分箱，
+        与标准定义偏差最高 +2792%（见 docs/reports/DRIFT_METRICS_AUDIT.md）。
+        """
+        psi = float(_psi_metric(self.reference_data, data, bins=bins))
         drift_detected = bool(psi > self.threshold)
-
         return _to_native({
             "drift_detected": drift_detected,
             "method": "PSI",
-            "psi": float(psi),
+            "psi": psi,
             "threshold": self.threshold,
             "interpretation": "Significant drift"
             if drift_detected

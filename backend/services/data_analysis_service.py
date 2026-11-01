@@ -5,6 +5,8 @@ import math
 from typing import Any
 
 import numpy as np
+
+from services import drift_metrics
 import pandas as pd
 from scipy import signal, stats
 from scipy.linalg import toeplitz
@@ -387,16 +389,13 @@ def _mutual_information(
 
 
 def _psi(reference: pd.Series, current: pd.Series, bins: int) -> float:
-    quantiles = np.linspace(0, 1, bins + 1)
-    edges = np.unique(reference.quantile(quantiles).to_numpy(dtype=float))
-    if len(edges) < 3:
-        return 0.0
-    edges[0], edges[-1] = -np.inf, np.inf
-    reference_counts = np.histogram(reference, bins=edges)[0].astype(float)
-    current_counts = np.histogram(current, bins=edges)[0].astype(float)
-    reference_ratio = np.clip(reference_counts / max(reference_counts.sum(), 1), 1e-6, None)
-    current_ratio = np.clip(current_counts / max(current_counts.sum(), 1), 1e-6, None)
-    return float(np.sum((current_ratio - reference_ratio) * np.log(current_ratio / reference_ratio)))
+    """PSI —— 统一委托 services.drift_metrics.psi。
+
+    原实现在基准分位数去重后不足 3 个边界时直接返回 0.0（离散数据"完全分离"
+    被判成"无漂移"）；共享实现改为按去重取值的中点分箱，两箱闭式解可复算。
+    """
+    return drift_metrics.psi(reference.to_numpy(dtype=float),
+                            current.to_numpy(dtype=float), bins=bins)
 
 
 def _time_drift(
