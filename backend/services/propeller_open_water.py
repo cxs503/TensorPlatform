@@ -153,7 +153,7 @@ class PropellerGeometry:
 # ---------------------------------------------------------------------------
 def blade_element_section(alpha_rad: float) -> Tuple[float, float]:
     """Section lift/drag: ``Cl = 2 pi sin(alpha)`` capped at ``CL_MAX``,
-    ``Cd = 0.008 + 0.9 alpha^2`` clamped to ``[0.006, 0.08]``.
+    ``Cd = CD0 + alpha^2`` clamped to ``[0.008, 0.10]`` with ``CD0 = 0.012``.
 
     Documented simplification (no section database); the cap is what keeps root
     sections at high advance ratio physical. ``CD0 = 0.012`` is a model-scale
@@ -248,7 +248,16 @@ def open_water_point(
                 return dT_be - dT_mo, dQ_be, phi_l
 
         if axial_induction:
-            lo, hi = 1e-6 * omega * r, 3.0 * omega * r
+            # Momentum theory stays valid for a > -1, i.e. Va + u > 0.  The lower
+            # bound must therefore be allowed to go *negative*: beyond the
+            # zero-thrust advance ratio ``J0`` the annulus extracts energy from the
+            # flow (a < 0, windmill/brake state), and a one-sided band
+            # ``u >= 0`` silently degrades this branch into uncoupled
+            # blade-element theory, which over-predicts the braking thrust by up
+            # to 8.7x against the Wageningen B-series regression (measured in
+            # docs/audit/m1637_bem_vs_bseries_verification.md).
+            lo = max(-0.999 * Va, -0.9 * omega * r)
+            hi = 3.0 * omega * r
             res_lo = strip(lo)[0]
             res_hi = strip(hi)[0]
             if res_lo * res_hi > 0.0:
