@@ -81,6 +81,15 @@ class ResistanceRequest(BaseModel):
         gt=0,
         description="Geometry-validated wetted surface area (m²). Overrides the empirical estimate.",
     )
+    meridian_profile: Optional[List[List[float]]] = Field(
+        default=None,
+        description=(
+            "Body-of-revolution meridian [[x, r], ...] with strictly increasing x (m) and "
+            "r >= 0 (m). When given, the wetted surface is integrated exactly from the "
+            "revolved polyline (frustum sum) and the Cb integrated from the geometry is "
+            "gated against `cb` (m1683)."
+        ),
+    )
     form_factor: float = Field(
         default=1.0,
         ge=1.0,
@@ -102,6 +111,7 @@ class ResistanceResponse(BaseModel):
     froude_number: float
     wetted_surface_m2: float = 0.0
     wetted_surface_source: str = "empirical_formula"
+    wetted_surface_method: str = ""
     form_factor: float = 1.0
     # m1388 收编：下游对标链按 C_T = R_T/(0.5 rho S V^2) 复核，端点直接给出
     # 系数与模型来源，避免消费侧自己猜字段/自己反推。
@@ -273,8 +283,22 @@ async def calc_resistance(req: ResistanceRequest):
     if L <= 0 or B <= 0 or T <= 0:
         raise HTTPException(status_code=400, detail="Dimensions must be positive")
 
-    # Wetted surface area: geometry-validated input wins over the empirical fit
-    if req.wetted_surface_m2 is not None:
+    # Wetted surface area: supplied geometry > geometry-validated input > empirical fit.
+    # m1683: the empirical fit carries -18.5 % bias on the only data-anchored case
+    # (SUBOFF, m1666); a meridian table lets the endpoint integrate S instead of
+    # regressing it, and gates the geometry against the declared Cb first.
+    S_method = ""
+    if req.meridian_profile:
+        from services.wetted_surface import GeometryError, revolution_wetted_surface
+
+        try:
+            geo = revolution_wetted_surface(req.meridian_profile, cb_reference=Cb)
+        except GeometryError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        S = geo.wetted_surface_m2
+        S_source = "geometry_integrated"
+        S_method = geo.method
+    elif req.wetted_surface_m2 is not None:
         S = float(req.wetted_surface_m2)
         S_source = "input_validated"
     else:
@@ -319,6 +343,7 @@ async def calc_resistance(req: ResistanceRequest):
         froude_number=round(Fn, 6),
         wetted_surface_m2=round(S, 6),
         wetted_surface_source=S_source,
+        wetted_surface_method=S_method,
         form_factor=req.form_factor,
         total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V), 8),
         method=RESISTANCE_METHOD,
