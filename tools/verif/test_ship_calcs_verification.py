@@ -82,14 +82,32 @@ class TestWettedSurface:
         assert resp.wetted_surface_m2 == pytest.approx(5.42)
         assert resp.wetted_surface_source == "input_validated"
 
-    def test_default_path_is_backward_compatible(self):
+    def test_default_path_uses_the_repaired_estimator(self):
+        """m1637: the default no longer falls back to the biased legacy fit."""
         req = calc.ResistanceRequest(speed_ms=3.0)
         resp = _run(calc.calc_resistance(req))
+        assert resp.wetted_surface_source == "capped_cylinder_equivalent"
+        # volume-equivalent closed body of revolution, L=4.356, B=0.508, Cb=0.542
+        assert resp.wetted_surface_m2 == pytest.approx(5.4938, abs=1e-3)
+        assert resp.total_resistance_n == pytest.approx(85.4137, abs=1e-3)
+        assert resp.form_resistance_n == 0.0
+
+    def test_legacy_model_is_still_bit_exact(self):
+        """Pre-m1637 numbers stay reproducible through wetted_surface_model."""
+        req = calc.ResistanceRequest(speed_ms=3.0, wetted_surface_model="legacy")
+        resp = _run(calc.calc_resistance(req))
         assert resp.wetted_surface_source == "empirical_formula"
-        # value produced by the pre-m1384 implementation, kept stable
         assert resp.wetted_surface_m2 == pytest.approx(4.4180, abs=1e-3)
         assert resp.total_resistance_n == pytest.approx(68.6868, abs=1e-3)
-        assert resp.form_resistance_n == 0.0
+
+    def test_ship_geometry_routes_to_denny_mumford(self):
+        req = calc.ResistanceRequest(
+            ship_type="KVLCC2", speed_ms=7.974, length=320.0, beam=58.0,
+            draft=20.8, cb=0.8098, water_density=1025.0, kinematic_viscosity=1.188e-6,
+        )
+        resp = _run(calc.calc_resistance(req))
+        assert resp.wetted_surface_source == "denny_mumford"
+        assert resp.wetted_surface_m2 == pytest.approx(27003.7, rel=1e-4)
 
 
 class TestIttc1957:

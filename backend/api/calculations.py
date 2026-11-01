@@ -6,12 +6,16 @@ plus a timing baseline endpoint for latency statistics.
 
 Verification status (m1384, see docs/reports/m1384_resistance_stability_verification.md):
   * Friction line Cf is the exact ITTC-1957 closed form (verified analytically).
-  * The legacy wetted-surface estimate ``S = pi*B*L*(0.5+0.25*Cb)`` carries a
-    documented shape-dependent bias (measured -30.4% on a closed-form cylinder,
-    -8.7% on a prolate spheroid).  Callers that *know* the geometry (preferred,
-    per the platform rule "geometry must be validated first") should pass
-    ``wetted_surface_m2``; the response records which source was used in
-    ``wetted_surface_source``.
+  * Wetted surface (m1637): the default path uses ``services.wetted_surface``,
+    which picks Denny-Mumford ``S=1.025*L*(1.7*T+Cb*B)`` for ship forms and a
+    capped-cylinder body-of-revolution model otherwise.  Against closed-form and
+    literature references this brings the in-domain worst case from -34%/+83%
+    (legacy ``pi*B*L*(0.5+0.25*Cb)``) down to <=12% (<=4% for ship forms with
+    Cb<=0.90).  The legacy formula is still reachable bit-exactly through
+    ``wetted_surface_model="legacy"``, and callers that *know* the geometry
+    (preferred, per the platform rule "geometry must be validated first")
+    should keep passing ``wetted_surface_m2``.  The response records which
+    model produced the number in ``wetted_surface_source``.
   * The residual-resistance coefficient ``Cr`` is an empirical curve fit without
     a published provenance; it is exposed as-is but must not be quoted as a
     literature-validated model.
@@ -38,6 +42,7 @@ from services.stability_reference import (
     wall_sided_gz,
 )
 from services.ship_resistance import ct_from_rt
+from services.wetted_surface import WettedSurfaceError, estimate_wetted_surface
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -79,7 +84,15 @@ class ResistanceRequest(BaseModel):
     wetted_surface_m2: Optional[float] = Field(
         default=None,
         gt=0,
-        description="Geometry-validated wetted surface area (m²). Overrides the empirical estimate.",
+        description="Geometry-validated wetted surface area (m²). Overrides every estimate.",
+    )
+    wetted_surface_model: str = Field(
+        default="auto",
+        description=(
+            'Wetted-surface model when wetted_surface_m2 is not supplied: "auto" (ship/bare-body '
+            'branch picked from B/T, L/B, Cb), "denny_mumford", "capped_cylinder_equivalent", '
+            '"spheroid_equivalent" or "legacy" (pre-m1637 formula, reproducible only).'
+        ),
     )
     form_factor: float = Field(
         default=1.0,
@@ -239,7 +252,9 @@ class HydrostaticsResponse(BaseModel):
 def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
     """Legacy wetted-surface estimate for an axisymmetric body.
 
-    Kept for backward compatibility. Measured bias against closed-form shapes
+    Kept for backward compatibility and bit-exact reproduction of pre-m1637
+    results (``wetted_surface_model="legacy"``); the endpoint default now uses
+    ``services.wetted_surface``.  Measured bias against closed-form shapes
     (``tools/verif/verify_ship_calcs.py``):
         cylinder (Cb = pi/4)        : -30.4 %
         prolate spheroid (b/a=0.25) : -8.7 %
@@ -273,13 +288,19 @@ async def calc_resistance(req: ResistanceRequest):
     if L <= 0 or B <= 0 or T <= 0:
         raise HTTPException(status_code=400, detail="Dimensions must be positive")
 
-    # Wetted surface area: geometry-validated input wins over the empirical fit
+    # Wetted surface area: geometry-validated input wins over every estimate
     if req.wetted_surface_m2 is not None:
         S = float(req.wetted_surface_m2)
         S_source = "input_validated"
     else:
-        S = _empirical_wetted_surface(L, B, Cb)
-        S_source = "empirical_formula"
+        try:
+            estimate = estimate_wetted_surface(
+                L, B, T, Cb, model=req.wetted_surface_model
+            )
+        except WettedSurfaceError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        S = estimate.area_m2
+        S_source = estimate.model
 
     # Reynolds number
     Re = V * L / nu
