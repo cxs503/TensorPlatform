@@ -28,11 +28,12 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { useRouter, useRoute } from 'vue-router'
 import { ElMessage } from 'element-plus'
 import { User, Lock } from '@element-plus/icons-vue'
 import { useAuthStore } from '@/stores/auth'
+import { ensureToken } from '@/api/request'
 
 const username = ref('')
 const password = ref('')
@@ -40,6 +41,13 @@ const loading = ref(false)
 const auth = useAuthStore()
 const router = useRouter()
 const route = useRoute()
+
+onMounted(async () => {
+  // 免登录（owner 2026-11-01）：auto-login 可用则直接进入；表单保留作回落
+  if (await ensureToken()) {
+    router.push((route.query.redirect as string) || '/')
+  }
+})
 
 async function submit() {
   if (!username.value || !password.value) {

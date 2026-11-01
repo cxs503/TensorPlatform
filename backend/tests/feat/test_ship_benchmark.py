@@ -278,16 +278,25 @@ class TestBenchmarkValidateEndpoint:
             benchmark_validate(req)
         assert exc_info.value.status_code == 404
 
-    def test_all_fail_triggers_upgrade_recommendation(self, mock_resistance_api):
-        """When all cases fail, algorithm_upgrade_recommended should be True."""
+    def test_honest_fail_requires_verified_reference_rows(self, mock_resistance_api):
+        """m1388: an "upgrade the algorithm" verdict needs usable reference data.
+
+        The previous version of this test asserted ``algorithm_upgrade_recommended
+        is True`` for SUBOFF.  That verdict was an artefact: every case had already
+        degraded to ``calc_ct = 0`` because the remote hop was broken, and the
+        SUBOFF reference rows themselves fail the Ct-Rt identity audit.  The
+        endpoint must therefore withhold the verdict instead of recommending CFD.
+        """
         with patch("api.domain.ship_benchmark._call_resistance_api", side_effect=mock_resistance_api):
             req = BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="all")
             resp = benchmark_validate(req)
 
-            all_fail = all(not r.pass_ for r in resp.results)
-            if all_fail:
-                assert resp.summary.get("algorithm_upgrade_recommended") is True
-                assert "recommendation" in resp.summary
+            assert resp.summary["verified_cases"] == 0
+            assert resp.summary["withheld_count"] == len(resp.results)
+            assert resp.summary.get("algorithm_upgrade_recommended") is False
+            assert "recommendation" in resp.summary
+            assert "NO VERIFIED REFERENCE ROWS" in resp.summary["recommendation"]
+
 
 
 # ---------------------------------------------------------------------------
