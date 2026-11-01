@@ -434,12 +434,139 @@ def jonswap_shape(omega: Sequence[float], Tp: float, gamma: float = 3.3) -> List
     return out
 
 
-def _scale_to_hs(shape: Sequence[float], omega: Sequence[float], Hs: float) -> Tuple[List[float], float]:
+def _lower_incomplete_gamma(a: float, x: float) -> float:
+    """lower incomplete gamma gamma(a, x) = int_0^x t^(a-1) e^(-t) dt.
+
+    Convergent series gamma(a, x) = x^a e^(-x) sum_{n>=0} x^n / Gamma(a + n + 1);
+    the term ratio is x/(a+n), so the truncation cost grows like sqrt(x) terms. The
+    series form is used for every x because the exp(-x) prefactor removes the
+    catastrophic cancellation of the Gamma(a) - Gamma(a, x) route.
+    """
+    if x < 0.0:
+        raise ValueError("x must be non-negative")
+    if x == 0.0:
+        return 0.0
+    a = float(a)
+    if x > 60.0:
+        # asymptotic complement: gamma(a, x) = Gamma(a) - Gamma(a, x) with
+        # Gamma(a, x) ~ x^(a-1) e^-x [1 + (a-1)/x + (a-1)(a-2)/x^2 + ...];
+        # the direct series needs O(x) terms and overflows for x >> 100.
+        series = 1.0
+        term = 1.0
+        k = 0
+        while k < 200:
+            k += 1
+            term *= (a - k) / x
+            series += term
+            if abs(term) < 1e-17 * abs(series):
+                break
+        return math.gamma(a) - x ** (a - 1.0) * math.exp(-x) * series
+    term = 1.0 / math.gamma(a + 1.0)
+    total = term
+    n = 0
+    while True:
+        n += 1
+        term *= x / (a + n)
+        total += term
+        if term < 1e-17 * total or n > 100000:
+            break
+    return x ** a * math.exp(-x) * math.gamma(a) * total
+
+
+def exp_skeleton_moments(A: float, B: float) -> Tuple[float, float, float]:
+    """Moments of S = A*omega^-5*exp(-B*omega^-4) over (0, inf), closed form.
+
+    m0 = A/(4B),  m1 = A/4 * B^(-3/4) * Gamma(3/4),
+    m2 = A/4 * B^(-1/2) * sqrt(pi)   (the same identity as :func:`ittc_m2_closed`).
+    """
+    m0 = A / (4.0 * B)
+    m1 = 0.25 * A * B ** -0.75 * math.gamma(0.75)
+    m2 = 0.25 * A * B ** -0.5 * math.sqrt(math.pi)
+    return m0, m1, m2
+
+
+def exp_skeleton_upper_moments(A: float, B: float, w: float) -> Tuple[float, float, float]:
+    """Moments of the same skeleton truncated to (w, inf)."""
+    if w <= 0.0:
+        return exp_skeleton_moments(A, B)
+    x = B / w ** 4
+    m0 = A / (4.0 * B) * (-math.expm1(-x))  # 1 - exp(-x), accurate for small x
+    m1 = 0.25 * A * B ** -0.75 * _lower_incomplete_gamma(0.75, x)
+    m2 = 0.25 * A * B ** -0.5 * math.sqrt(math.pi) * math.erf(math.sqrt(x))
+    return m0, m1, m2
+
+
+def skeleton_tail_moments(
+    A: float,
+    B: float,
+    w_lo: float,
+    w_hi: float,
+    *,
+    peak_enhanced: bool = False,
+    wp: Optional[float] = None,
+) -> Tuple[Dict[str, float], bool, str]:
+    """Moments carried by (0, w_lo] and [w_hi, inf) for the exponential skeleton.
+
+    These are exactly the contributions a finite frequency grid drops, and they are
+    the reason m2 (hence Tz = 2*pi*sqrt(m0/m2)) used to drift by a few per cent with
+    the grid window. The correction is applied only where the skeleton is the true
+    tail of the selected spectrum: a JONSWAP peak-enhancement factor gamma^r differs
+    from 1 only inside ~2 peak widths, i.e. it is inert for w <= wp/2 and w >= 2*wp.
+    """
+    if A <= 0.0 or B <= 0.0 or w_hi <= w_lo or w_lo < 0.0:
+        return {"m0": 0.0, "m1": 0.0, "m2": 0.0}, False, "degenerate grid window"
+    if peak_enhanced:
+        if wp is None:
+            return {"m0": 0.0, "m1": 0.0, "m2": 0.0}, False, "JONSWAP tail needs omega_p"
+        if w_hi < 2.0 * wp or (w_lo > 0.5 * wp):
+            return ({"m0": 0.0, "m1": 0.0, "m2": 0.0}, False,
+                    "grid window does not clear the JONSWAP peak (needs w_lo <= wp/2, "
+                    "w_hi >= 2*wp); moments are truncation-biased")
+    total = exp_skeleton_moments(A, B)
+    above_lo = exp_skeleton_upper_moments(A, B, w_lo)
+    above_hi = exp_skeleton_upper_moments(A, B, w_hi)
+    tail = tuple(total[i] - above_lo[i] + above_hi[i] for i in range(3))
+    return {"m0": tail[0], "m1": tail[1], "m2": tail[2]}, True, "analytic tail applied"
+
+
+def _scale_to_hs(
+    shape: Sequence[float],
+    omega: Sequence[float],
+    Hs: float,
+    *,
+    A: Optional[float] = None,
+    B: Optional[float] = None,
+    peak_enhanced: bool = False,
+    wp: Optional[float] = None,
+) -> Tuple[List[float], float, Dict[str, object]]:
+    """Scale a shape to 4*sqrt(m0) = Hs *including* the analytic tails.
+
+    Scaling on the in-range quadrature alone made the recovered Hs exactly right for a
+    truncated spectrum but biased every *derived* moment (Tz, Tm01) toward the grid.
+    Scaling on (in-range + tail) keeps Hs exact and makes m0 equal the analytic
+    variance of the selected spectrum, independent of the grid window.
+    """
     m0_shape = _integrate(shape, omega)
     if m0_shape <= 0.0:
         raise ValueError("degenerate spectral shape over the requested grid")
-    alpha = (Hs * Hs / 16.0) / m0_shape
-    return [alpha * s for s in shape], alpha
+    tail: Dict[str, float] = {"m0": 0.0, "m1": 0.0, "m2": 0.0}
+    applied = False
+    note = "tail correction not requested"
+    if A is not None and B is not None and len(omega) >= 2:
+        tail, applied, note = skeleton_tail_moments(
+            A, B, float(omega[0]), float(omega[-1]), peak_enhanced=peak_enhanced, wp=wp)
+    denom = m0_shape + (tail["m0"] if applied else 0.0)
+    alpha = (Hs * Hs / 16.0) / denom
+    info = {
+        "applied": applied,
+        "note": note,
+        "m0": tail["m0"] * alpha,
+        "m1": tail["m1"] * alpha,
+        "m2": tail["m2"] * alpha,
+        "omega_lo": float(omega[0]),
+        "omega_hi": float(omega[-1]),
+    }
+    return [alpha * s for s in shape], alpha, info
 
 
 def spectrum(
@@ -449,23 +576,38 @@ def spectrum(
     omega: Sequence[float],
     gamma: float = 3.3,
 ) -> Dict[str, object]:
-    """Spectral density scaled so that 4*sqrt(m0) == Hs (machine-exact up to quadrature)."""
+    """Spectral density scaled so that 4*sqrt(m0) == Hs (machine-exact up to quadrature).
+
+    ``m0``/``m1``/``m2`` include the analytic tail moments outside ``[omega[0],
+    omega[-1]]`` (``tail_correction`` in the payload reports what was added), so
+    ``Tz_s``/``Tm01_s`` no longer depend on the frequency window. ``S`` itself stays
+    the sampled in-range density: integration of ``RAO^2 * S`` over ``omega`` is what
+    :func:`response_statistics` does and it does not see the tail.
+    """
     if Hs <= 0 or Tp <= 0:
         raise ValueError("Hs and Tp must be positive")
     kind = kind.lower()
+    wp = 2.0 * math.pi / Tp
     if kind in ("pm", "pierson-moskowitz"):
         shape = pm_shape(omega, Tp)
+        skel_A, skel_B, enhanced = G ** 2, 1.25 * wp ** 4, False
     elif kind in ("jonswap", "jswp"):
         shape = jonswap_shape(omega, Tp, gamma)
+        skel_A, skel_B, enhanced = G ** 2, 1.25 * wp ** 4, abs(gamma - 1.0) > 1e-12
     elif kind in ("ittc", "issc"):
         shape = ittc_shape(omega, Tp)
+        skel_A, skel_B, enhanced = 173.0 / Tp ** 4, 691.0 / Tp ** 4, False
     else:
         raise ValueError(f"unknown spectrum kind {kind!r} (pm | jonswap | ittc)")
 
-    S, alpha = _scale_to_hs(shape, omega, Hs)
-    m0 = _integrate(S, omega)
-    m2 = _integrate([s * w * w for s, w in zip(S, omega)], omega)
-    m1 = _integrate([s * w for s, w in zip(S, omega)], omega)
+    S, alpha, tail_info = _scale_to_hs(
+        shape, omega, Hs, A=skel_A, B=skel_B, peak_enhanced=enhanced, wp=wp)
+    m0_in = _integrate(S, omega)
+    m1_in = _integrate([s * w for s, w in zip(S, omega)], omega)
+    m2_in = _integrate([s * w * w for s, w in zip(S, omega)], omega)
+    m0 = m0_in + tail_info["m0"]
+    m1 = m1_in + tail_info["m1"]
+    m2 = m2_in + tail_info["m2"]
     return {
         "kind": kind,
         "omega": list(omega),
@@ -474,6 +616,10 @@ def spectrum(
         "m0": m0,
         "m1": m1,
         "m2": m2,
+        "m0_in_range": m0_in,
+        "m1_in_range": m1_in,
+        "m2_in_range": m2_in,
+        "tail_correction": tail_info,
         "Hs_recovered": 4.0 * math.sqrt(m0),
         "Hs_target": Hs,
         "Tz_s": 2.0 * math.pi * math.sqrt(m0 / m2) if m2 > 0 else float("nan"),
