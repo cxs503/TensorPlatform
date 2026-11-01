@@ -58,17 +58,30 @@ request.interceptors.response.use(
       const refreshToken = localStorage.getItem(REFRESH_KEY)
       if (refreshToken) {
         try {
-          const res = await axios.post('/api/v1/auth/refresh', { refresh_token: refreshToken })
-          saveTokens(res.data.access_token, res.data.refresh_token)
+          // 走实例（继承 baseURL）——裸 axios 硬编码 /api/v1 在 /tp 子路径部署下 404
+          const res: any = await request.post('/auth/refresh', { refresh_token: refreshToken })
+          saveTokens(res.access_token, res.refresh_token)
           if (originalRequest.headers) {
-            originalRequest.headers.Authorization = `Bearer ${res.data.access_token}`
+            originalRequest.headers.Authorization = `Bearer ${res.access_token}`
           }
           return request(originalRequest)
-        } catch (refreshError) {
-          clearAuth()
-          redirectToLogin()
-          return Promise.reject(refreshError)
+        } catch {
+          // refresh 失效 → 落到免登录通道
         }
+      }
+      // 免登录通道（owner 2026-11-01「先开免密」）：auto-login 签发后重试原请求
+      try {
+        const al: any = await request.post('/auth/auto-login')
+        if (al?.access_token) {
+          saveTokens(al.access_token, al.refresh_token)
+          if (al.user) localStorage.setItem(USER_KEY, JSON.stringify(al.user))
+          if (originalRequest.headers) {
+            originalRequest.headers.Authorization = `Bearer ${al.access_token}`
+          }
+          return request(originalRequest)
+        }
+      } catch {
+        // auto-login 关闭（TP_AUTO_LOGIN=0）→ 回落显式登录
       }
       clearAuth()
       redirectToLogin()
@@ -111,6 +124,20 @@ export async function authDownload(url: string, filename: string): Promise<void>
   a.click()
   a.remove()
   window.URL.revokeObjectURL(blobUrl)
+}
+
+// 免登录引导：无 token 时尝试 auto-login（关闭时返回 false，由调用方回落登录页）
+export async function ensureToken(): Promise<boolean> {
+  if (getToken()) return true
+  try {
+    const al: any = await request.post('/auth/auto-login')
+    if (al?.access_token) {
+      saveTokens(al.access_token, al.refresh_token)
+      if (al.user) localStorage.setItem(USER_KEY, JSON.stringify(al.user))
+      return true
+    }
+  } catch { /* auto-login disabled */ }
+  return false
 }
 
 export default http

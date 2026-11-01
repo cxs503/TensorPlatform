@@ -1,0 +1,219 @@
+# 阻力基准门审计与精度复核（m1395）
+
+**任务**：验证欠账清偿 —— 对已合并的「阻力精度验收门」（`POST /api/v1/calculations/benchmark_validate`）
+及其参考数据集做独立复核，判定平台自报的精度结论是否可信。
+**日期**：2026-11-01  **仓**：TensorPlatform  **分支**：agent/m1395
+**工件**：`artifacts/benchmark_audit/{audit.json, audit.md, verification.json, ct_vs_fn.png,
+error_by_case.png, ct_over_cf_vs_fn.png}`（本报告全部数字由脚本从这些工件读取注入）
+
+---
+
+## 1 案例介绍（物理背景 / 几何 / 参数）
+
+阻力是船舶总体性能的第一性指标。平台用「ITTC-1957 摩擦线 + 简化剩余阻力拟合」的解析核计算
+总阻力，并用一个三船族参考数据集做精度验收（通过判据：总阻力系数误差 ≤ 15%）。
+
+三个船族与参考值（数据集 `backend/data/benchmark_reference.json`，12 个工况）：
+
+| 船族 | 物理背景 | 参考来源 | 工况数 |
+|---|---|---|---|
+| SUBOFF | DARPA 轴对称艇体（水下，无兴波） | Roddy 1990, DTRC-90/012 | 4 |
+| DTMB-5415 | 驱逐舰船型，模型尺度 L=5.72 m（ITTC 2010 V&V 会议标模） | ITTC V&V Workshop 2010 | 4 |
+| KVLCC2 | 肥大型油轮，实船尺度 L=320 m（SIMMAN 2008 标模） | SIMMAN 2008 | 4 |
+
+几何与工况参数（全部读自数据集，Cb 为数据集声明值）：
+
+| case | 船族 | L (m) | B (m) | T (m) | Cb | V (m/s) | Fn (算) | Ct 参考 |
+|---|---|---|---|---|---|---|---|---|
+| SUBOFF-01 | SUBOFF | 4.356 | 0.508 | 0.508 | 0.5080 | 3.0000 | 0.459 | 0.004 |
+| SUBOFF-02 | SUBOFF | 4.356 | 0.508 | 0.508 | 0.5080 | 4.0000 | 0.612 | 0.004 |
+| SUBOFF-03 | SUBOFF | 4.356 | 0.508 | 0.508 | 0.5080 | 5.0000 | 0.765 | 0.004 |
+| SUBOFF-04 | SUBOFF | 4.356 | 0.508 | 0.508 | 0.5080 | 6.0000 | 0.918 | 0.004 |
+| DTMB5415-01 | DTMB-5415 | 5.720 | 0.759 | 0.246 | 0.5080 | 2.5720 | 0.343 | 0.004 |
+| DTMB5415-02 | DTMB-5415 | 5.720 | 0.759 | 0.246 | 0.5080 | 5.1440 | 0.687 | 0.004 |
+| DTMB5415-03 | DTMB-5415 | 5.720 | 0.759 | 0.246 | 0.5080 | 10.2890 | 1.374 | 0.004 |
+| DTMB5415-04 | DTMB-5415 | 5.720 | 0.759 | 0.246 | 0.5080 | 15.4330 | 2.060 | 0.004 |
+| KVLCC2-01 | KVLCC2 | 320.000 | 58.000 | 20.800 | 0.8098 | 7.2020 | 0.129 | 0.003 |
+| KVLCC2-02 | KVLCC2 | 320.000 | 58.000 | 20.800 | 0.8098 | 7.7170 | 0.138 | 0.003 |
+| KVLCC2-03 | KVLCC2 | 320.000 | 58.000 | 20.800 | 0.8098 | 7.9740 | 0.142 | 0.003 |
+| KVLCC2-04 | KVLCC2 | 320.000 | 58.000 | 20.800 | 0.8098 | 8.2310 | 0.147 | 0.003 |
+
+模型核心（`backend/services/ship_resistance_core.py:compute_resistance_core`）：
+
+* 湿表面积 S = π·B·L·(0.5 + 0.25·Cb)（轴对称体拟合式）
+* 摩擦线 Cf = 0.075 / (log10(Re) − 2)²（ITTC-1957）
+* 剩余阻力 Cr = 0.002·(1 + 2·Cb)·Fn^2.5（对高 Fn 细长体拟合）
+* Ct = Rt / (0.5·ρ·S·V²)，ρ=998 kg/m³, ν=1.004e-6 m²/s（淡水 20 ℃ 模型试验参考态）
+
+## 2 怎么做的（方法 / 流程 / 工具链）
+
+**Step 1 —— 先定判据（判据先于动手）**。三条不依赖文献的恒等式/不等式：
+(i) Fn ≡ V/√(gL)；(ii) Ct ≥ Cf(Re)（Rt ≥ Rf 严格成立，摩擦线是地板）；
+(iii) Rt ≡ Ct·0.5·ρ·S·V²（有参考湿面积时），以及 Rt 反推的湿面积必须大于
+等周不等式下界 S ≥ (36π)^(1/3)·∇^(2/3) − A_wp（无参考湿面积时的严格判据）。
+
+**Step 2 —— 审计参考数据集**（`tools/audit_benchmark_reference.py`，literature-free）。
+12 个工况逐条过 6 项检查：froude_identity / friction_floor / rt_identity /
+rt_feasibility / geometry_cb / speed_envelope。
+
+**Step 3 —— 修结构而非修数字**。审计暴露的问题不是「数值偏差」而是**契约漂移**：
+`benchmark_validate` 以 `{"speed": ...}` POST 到阻力端点（该字段名不存在，pydantic 静默忽略，
+所有工况在 1.0 m/s 默认速下算），再读回 `response["ct"]`（该键从未返回）→ `calc_ct` 恒为 0.0，
+**每个工况都报 100% 误差**、汇总恒为「算法需升级」。修法：把阻力核抽成无依赖模块
+`services/ship_resistance_core.py`，端点与验收门**同源调用**（消灭 payload 键），响应显式返回
+`total_resistance_coeff` 与 `wetted_surface_m2`。
+
+**Step 4 —— 数据只做定义性修复**（`--apply`）：Fn 由 V、L 重算；有参考湿面积的工况由 Ct 反算 Rt；
+违反严格物理界限的 Rt 置空并标 `withheld`（不发明数据）；Fn>1 的模型尺度不可能工况标 `excluded`
+并附原因。实验 Ct 一律不动（审计不得制造自洽）。
+
+**Step 5 —— 端到端复核**：`tools/verify_resistance_accuracy.py` 驱动**真实**验收门
+（`api/domain/ship_benchmark.benchmark_validate`，非复写）跑 12 工况，输出误差表与三张图。
+
+## 3 计算结果
+
+### 3.1 参考数据集审计（修复前 → 修复后）
+
+**修复前（仓库 HEAD 版本数据集）**：`cases=12 ok=0
+warn=0 error=12` —— **12/12 工况都含物理上不可能的取值**，
+共 23 条发现（`artifacts/benchmark_audit/audit_before_fix.md` 全量）。
+**修复后**：`cases=12 ok=8 warn=2
+error=0 excluded=2`（`audit.md`），`--check` 退出码 0。
+
+修复前逐检查项分布（每条含代表证据）：
+
+| 级别 | 检查 | 条数 | 涉及工况 | 代表证据 |
+|---|---|---|---|---|
+| ERROR | froude_identity | 4 | DTMB5415-01, DTMB5415-02, DTMB5415-03, DTMB5415-04 | Fn stated 0.0610 but V/sqrt(gL) = 0.3434 (rel 82.2%; implied length 181.2 m vs 5.720 m) |
+| ERROR | geometry | 4 | SUBOFF-01, SUBOFF-02, SUBOFF-03, SUBOFF-04 | case lacks speed_ms or usable geometry block |
+| WARN | geometry_displacement | 4 | DTMB5415-01, DTMB5415-02, DTMB5415-03, DTMB5415-04 | displacement 466.3 kg (=0.467 m3 at rho=998.2) vs Cb*L*B*T = 0.543 m3 (rel 13.9%) |
+| ERROR | rt_feasibility | 4 | KVLCC2-01, KVLCC2-02, KVLCC2-03, KVLCC2-04 | R_T=550000 N with Ct=0.00280 implies S=7588 m2, below the geometric lower bound 9284 m2 for a wetted surface enclosing 312622 m3: impossible |
+| WARN | rt_vs_model_surface | 4 | DTMB5415-01, DTMB5415-02, DTMB5415-03, DTMB5415-04 | implied S=0.552 m2 vs kernel estimate 8.552 m2 (rel -94%); R_T cannot be tied to Ct without a reference wetted surface |
+| ERROR | speed_envelope | 2 | DTMB5415-03, DTMB5415-04 | Fn=1.374 > 1.0: no towed displacement hull operates here; the case speed does not belong to the stated model geometry |
+| WARN | speed_envelope | 1 | DTMB5415-02 | Fn=0.687: beyond the tow-tank range of a 5.72 m model; the case is scored but its reference Ct should be re-derived from the workshop condition |
+
+补充发现（在补声明 Cb 基准后由 `rt_identity` 检查捕获）：SUBOFF 四例的 `experimental_rt_n`
+(12.5/21/31.5/45 N) 与自身 `experimental_ct`(0.0038–0.0044) 及参考湿面积 5.42 m² 矛盾 ——
+反推湿面积仅 0.57–0.73 m²，比 5.42 m² 小 86–89%，也远小于该类艇体任何可能的表面积。
+
+### 3.2 定义性修复清单（18 条）
+
+| 修复 |
+|---|
+| SUBOFF-01: experimental_rt_n 12.5 -> 92.52 N (derived from Ct with supplied S=5.42 m2) |
+| SUBOFF-02: experimental_rt_n 21 -> 173.13 N (derived from Ct with supplied S=5.42 m2) |
+| SUBOFF-03: experimental_rt_n 31.5 -> 284.04 N (derived from Ct with supplied S=5.42 m2) |
+| SUBOFF-04: experimental_rt_n 45 -> 428.49 N (derived from Ct with supplied S=5.42 m2) |
+| DTMB5415-01: froude_number 0.0610 -> 0.3434 |
+| DTMB5415-01: experimental_rt_n 8.2 -> null (implied S=0.55 m2 vs kernel estimate 8.55 m2) |
+| DTMB5415-02: froude_number 0.1220 -> 0.6867 |
+| DTMB5415-02: experimental_rt_n 28.5 -> null (implied S=0.57 m2 vs kernel estimate 8.55 m2) |
+| DTMB5415-03: froude_number 0.2440 -> 1.3735 |
+| DTMB5415-03: experimental_rt_n 95 -> null (implied S=0.51 m2 vs kernel estimate 8.55 m2) |
+| DTMB5415-03: excluded=true (Fn=1.374 > 1.0) |
+| DTMB5415-04: froude_number 0.3660 -> 2.0602 |
+| DTMB5415-04: experimental_rt_n 210 -> null (implied S=0.46 m2 vs kernel estimate 8.55 m2) |
+| DTMB5415-04: excluded=true (Fn=2.060 > 1.0) |
+| KVLCC2-01: experimental_rt_n 550000 -> null (implied S=7588 m2 < geometric lower bound 9284 m2) |
+| KVLCC2-02: experimental_rt_n 650000 -> null (implied S=7290 m2 < geometric lower bound 9284 m2) |
+| KVLCC2-03: experimental_rt_n 700000 -> null (implied S=7115 m2 < geometric lower bound 9284 m2) |
+| KVLCC2-04: experimental_rt_n 760000 -> null (implied S=7024 m2 < geometric lower bound 9284 m2) |
+
+### 3.3 修复后的端到端精度复核（真实验收门输出）
+
+| case | Fn | Ct 计算 | Ct 参考 | 误差 % | Ct/Cf 计算 | Ct/Cf 参考 | 判定 |
+|---|---|---|---|---|---|---|---|
+| SUBOFF-01 | 0.459 | 0.0034 | 0.0038 | 9.41 | 1.20 | 1.325 | PASS |
+| SUBOFF-02 | 0.612 | 0.0039 | 0.0040 | 2.17 | 1.43 | 1.464 | PASS |
+| SUBOFF-03 | 0.765 | 0.0047 | 0.0042 | 11.83 | 1.78 | 1.595 | PASS |
+| SUBOFF-04 | 0.918 | 0.0058 | 0.0044 | 32.08 | 2.27 | 1.721 | FAIL |
+| DTMB5415-01 | 0.343 | 0.0031 | 0.0045 | 31.36 | 1.10 | 1.601 | FAIL |
+| DTMB5415-02 | 0.687 | 0.0041 | 0.0038 | 7.50 | 1.63 | 1.515 | PASS |
+| KVLCC2-01 | 0.129 | 0.0014 | 0.0028 | 49.46 | 1.02 | 2.023 | FAIL |
+| KVLCC2-02 | 0.138 | 0.0014 | 0.0030 | 53.00 | 1.03 | 2.185 | FAIL |
+| KVLCC2-03 | 0.142 | 0.0014 | 0.0031 | 54.59 | 1.03 | 2.266 | FAIL |
+| KVLCC2-04 | 0.147 | 0.0014 | 0.0032 | 56.06 | 1.03 | 2.348 | FAIL |
+
+分船族汇总：
+
+| 船族 | 计分工况 | 通过 | 通过率 % | 平均误差 % | 最大误差 % | 排除 |
+|---|---|---|---|---|---|---|
+| SUBOFF | 4 | 3 | 75.0 | 13.87 | 32.08 | 0 |
+| DTMB-5415 | 2 | 1 | 50.0 | 19.43 | 31.36 | 2 |
+| KVLCC2 | 4 | 0 | 0.0 | 53.28 | 56.06 | 0 |
+
+总计：计分 10 例，通过 4 例，
+平均误差 30.75%（**修复前该门对每一例都报 100% 误差、通过 0 例**）。
+
+### 3.4 结果图
+
+* `artifacts/benchmark_audit/ct_vs_fn.png` —— Ct(Fn)：解析核（虚线）vs 实验参考（空心点）
+  vs ITTC-57 摩擦地板（点线）。
+* `artifacts/benchmark_audit/error_by_case.png` —— 逐工况相对误差与 15% 验收带（程序注入数值标签）。
+* `artifacts/benchmark_audit/ct_over_cf_vs_fn.png` —— Ct/Cf 随 Fn 的双边对比，直接暴露失配机理。
+
+## 4 机理解读（为什么 KVLCC2 全军覆没）
+
+Ct/Cf 表给出干净归因：Fn≈0.13 时参考值要求 **Ct/Cf = 2.02–2.35**（摩擦之外还有 1.0–1.35 倍 Cf 的
+形状+兴波阻力），而核只给出 **1.02–1.03** —— 即把肥大型船在设计航速下 97–98% 的阻力归为摩擦，
+剩余阻力项 Cr=0.002·(1+2Cb)·Fn^2.5 在 Fn=0.13 处只有 ~3×10⁻⁵。该 Cr 拟合式只在高 Fn 细长体上成立
+（SUBOFF Fn 0.46–0.92 区间 Ct/Cf 1.20–2.27 vs 参考 1.33–1.72），低 Fn 全形体必然崩。
+结论：**不是「参数没调好」，而是模型族缺 (1+k) 形状因子项与低 Fn 兴波项**，属结构性缺陷，应标
+`NOT_SUPPORTED`（对 Cb>0.8 的全形体）而不是继续用 15% 门碰运气。
+
+附带：核的湿面积式 S=πBL(0.5+0.25Cb) 对 KVLCC2 给出 40 905 m²，比箱体基线 L(2T+B)=31 872 m² 高 28%
+（潜艇拟合式用于全形体）；**但该项不影响 Ct 基准比对**（S 在 Ct=Rt/(0.5ρSV²) 中约掉），只影响量纲 Rt。
+
+## 5 注意点（坑 / 局限 / 适用范围）
+
+1. **静默契约漂移最致命**：`{"speed"}` 被 pydantic 忽略、`["ct"]` 键不存在 —— 两侧各自单测都绿，
+   合起来精度门恒 FAIL。已用「共享核 + 禁止 payload 键」结构性消除，并用回归测试锁死（`tests/test_resistance_benchmark_gate.py`，28 项）。
+2. **参考数据集本身是赝数据来源**：12/12 工况的 `experimental_rt_n` 与自身 Ct 矛盾（SUBOFF 差 7.4×，
+   KVLCC2 反推湿面积 7 025–7 588 m² 低于等周下界 9 284 m² 即几何上不可能）；DTMB-5415 的
+   `froude_number` 列按 181.2 m 船长算（与声明 5.72 m 差 5.6×）。故修复采用「Rt 置空 + withheld」。
+3. **DTMB-5415 工况速度与模型尺度不自洽**：5/10/15/20 kn 配 5.72 m 模型 → Fn 到 2.06，超出任何拖曳
+   水池范围；Fn>1 的两例已 `excluded`（不参与评分，但记录保留可追溯）。
+4. **模型尺度 vs 实船尺度 Ct 不可混比**：KVLCC2 用 L=320 m 实船几何 + Ct=0.0028，摩擦地板按实船 Re
+   计算（Cf=0.00138）成立；若按模型尺度 Re 比，参考 Ct 会落到地板以下。后续重建 KVLCC2 工况需
+   显式标注尺度。
+5. **DTMB-5415 位移量 466.3 kg 与 Cb·L·B·T=0.543 m³ 差 13.9%**（WARN，未改：密度基准不在记录内，
+   不发明）。`SHIP_GEOMETRY` 里原先硬编码的位移量已改为由 Cb·L·B·T 派生，杜绝自相矛盾。
+6. **两套并存参考集**：`backend/services/ship_proxy.py:BENCHMARK_REFERENCE` 另有一套值
+   （SUBOFF 参考 15 N / 容差 300%，KVLCC2 参考 2500 kN），与本数据集（SUBOFF 12.5 N→修正 92.52 N）不一致。
+   本次未合并（超出单干范围），建议派单统一基准源。
+7. 环境：`backend/tests/` 全量需 psycopg2/cryptography/pgserver，本机缺失；新增测试文件刻意做成**零后端依赖**
+   （只导入 `services.ship_resistance_core` + 以文件路径加载验收门模块），故可在裸环境跑绿。
+   `tests/ail/*` 的 31 项失败为环境/数据既有问题，与本改动无交集（已核：无任何 AIL 测试引用本次改动的模块）。
+
+## 6 误差判定（逐项，显式回答「是否 <3%」）
+
+关键量 = 总阻力系数 Ct（验收门的判据量），基准 = 数据集实验 Ct。
+
+| case | 误差 % | <3%? | <15%? |
+|---|---|---|---|
+| SUBOFF-01 | 9.41 | NO | YES |
+| SUBOFF-02 | 2.17 | YES | YES |
+| SUBOFF-03 | 11.83 | NO | YES |
+| SUBOFF-04 | 32.08 | NO | NO |
+| DTMB5415-01 | 31.36 | NO | NO |
+| DTMB5415-02 | 7.50 | NO | YES |
+| KVLCC2-01 | 49.46 | NO | NO |
+| KVLCC2-02 | 53.00 | NO | NO |
+| KVLCC2-03 | 54.59 | NO | NO |
+| KVLCC2-04 | 56.06 | NO | NO |
+
+**显式回答**：**否，绝大多数工况不小于 3%**。仅 SUBOFF-02（Fn=0.612）达 2.2%；全 10 例中位误差远高于 3%，
+平均 30.75%。按 15% 平台标准：SUBOFF 3/4 通过、DTMB-5415 1/2、KVLCC2 0/4。
+**honest-FAIL**：解析核对肥大型全形体（KVLCC2，Cb=0.81）欠估 49–56%，不可用于该船型；本报告不粉饰，
+并在端点 summary 中给出 `algorithm_upgrade_recommended=true`。
+
+**本次交付的价值不在「让误差变小」，而在「让误差第一次真实」**：修复前该门对 12 个工况一律报 100%
+误差（结构性 0 值），任何基于它的精度结论（无论好坏）都是假的。
+
+## 7 复现
+
+```bash
+python3 tools/audit_benchmark_reference.py --check          # 参考数据集自洽门（0 ERROR 才放行）
+python3 tools/verify_resistance_accuracy.py                 # 端到端精度复核 + 3 张图
+python3 -m pytest tests/test_resistance_benchmark_gate.py -q # 28 项回归测试
+```
