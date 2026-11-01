@@ -15,6 +15,8 @@ import pytest
 from services.seakeeping import (
     G,
     SeakeepingModel,
+    _integrate,
+    response_statistics,
     beam_factor,
     deep_water_wavelength,
     encounter_frequency,
@@ -337,3 +339,88 @@ def test_endpoints_contract():
     resp = client.post("/api/v1/calculations/seakeeping_response", json={"Hs": 3.0, "Tp": 8.0})
     assert resp.status_code == 200
     assert resp.json()["statistics"]["significant_heave"] > 0.0
+
+# ---------------------------------------------------------------------------
+# 10. Spectral response statistics: dimension-carrying anchors
+#
+# response_statistics() must take the spectral moments over the response *per unit
+# wave amplitude* (m/m, deg/m). The slope-normalised *_rad_per_rad RAOs are
+# dimensionless: multiplying them by S(omega) [m^2 s] returns sigma_zeta re-labelled
+# as an angle, i.e. the pitch / roll spread is inflated by 1/k (~500x at lambda~200 m).
+# ---------------------------------------------------------------------------
+
+
+def _band_limited_long_wave_spectrum(omega_min=0.05, omega_max=0.12, hs=2.0, tp=25.0, n=400):
+    """Spectrum confined to long waves (lambda = 2 pi g / w^2 = 680..3900 m >> L)."""
+    omegas = uniform_grid(omega_min, omega_max, n)
+    base = spectrum("pm", Hs=hs, Tp=tp, omega=omegas)
+    S = [s if omega_min <= w <= omega_max else 0.0 for s, w in zip(base["S"], omegas)]
+    spec = dict(base)
+    spec["S"] = S
+    return spec
+
+
+def test_sdof_white_noise_integral_matches_closed_form():
+    """int_0^inf |H(r)|^2 dr = pi/(4 zeta): exact anchor for the quadrature itself."""
+    r = uniform_grid(1e-4, 400.0, 200001)
+    for zeta in (0.05, 0.1, 0.2, 0.45):
+        val = _integrate([transfer(x, zeta) ** 2 for x in r], r)
+        assert val == pytest.approx(math.pi / (4.0 * zeta), rel=5e-4)
+
+
+def test_long_wave_heave_sigma_follows_the_free_surface():
+    """omega -> 0 means heave RAO -> 1, so sigma_heave -> sigma_zeta = Hs_band/4."""
+    m = model()
+    spec = _band_limited_long_wave_spectrum()
+    stats = response_statistics(m, spec, heading_deg=180.0, speed=0.0)
+    sigma_zeta = math.sqrt(_integrate(spec["S"], spec["omega"]))
+    assert stats["sigma_heave"] == pytest.approx(sigma_zeta, rel=1e-2)
+    # significant amplitude = 2 sigma (mean of the highest third), not Hs = 4 sigma
+    assert stats["significant_heave"] == pytest.approx(2.0 * sigma_zeta, rel=1e-2)
+
+
+def test_long_wave_pitch_sigma_follows_the_wave_slope():
+    """omega -> 0 means pitch -> wave slope, i.e. sigma_pitch[deg] -> deg(sqrt(int k^2 S))."""
+    m = model()
+    spec = _band_limited_long_wave_spectrum()
+    stats = response_statistics(m, spec, heading_deg=180.0, speed=0.0)
+    slope_var = _integrate(
+        [(wave_number(w) ** 2) * s for s, w in zip(spec["S"], spec["omega"])], spec["omega"]
+    )
+    assert stats["sigma_pitch"] == pytest.approx(math.degrees(math.sqrt(slope_var)), rel=2e-2)
+
+
+def test_angle_statistics_are_per_amplitude_not_slope_normalised():
+    """Regression guard for the slope-normalised-RAO defect (factor 1/k inflation)."""
+    m = model()
+    spec = _band_limited_long_wave_spectrum()
+    stats = response_statistics(m, spec, heading_deg=180.0, speed=0.0)
+    curve = m.rao_curve(spec["omega"], heading_deg=180.0, speed=0.0)
+    expected = math.sqrt(
+        _integrate([r * r * s for r, s in zip(curve["pitch_rao_deg_per_m"], spec["S"])], spec["omega"])
+    )
+    assert stats["sigma_pitch"] == pytest.approx(expected, rel=1e-12)
+    # the old (dimensionally invalid) value was sigma_zeta in radians converted to deg,
+    # i.e. ~0.5 rad -> ~28.6 deg for this sea state: at least two orders of magnitude off.
+    sigma_zeta = math.sqrt(_integrate(spec["S"], spec["omega"]))
+    buggy = math.degrees(sigma_zeta)
+    assert buggy / stats["sigma_pitch"] > 100.0
+
+
+def test_response_statistics_scale_linearly_with_hs():
+    """Linear theory: sigma scales with Hs (quadrature-error bounded)."""
+    m = model()
+    omegas = uniform_grid(0.02, 6.0, 1201)
+    a = response_statistics(m, spectrum("jonswap", Hs=2.0, Tp=8.0, omega=omegas))
+    b = response_statistics(m, spectrum("jonswap", Hs=4.0, Tp=8.0, omega=omegas))
+    for key in ("sigma_heave", "sigma_pitch", "sigma_roll", "sigma_vertical_acc_m_s2"):
+        assert b[key] == pytest.approx(2.0 * a[key], rel=2e-3), key
+
+
+def test_angle_statistics_stay_sub_degree_for_a_benign_sea():
+    """Hs=3 m / Tp=8 s head seas: pitch and roll spread must be O(0.1 deg), not O(10 deg)."""
+    m = model()
+    stats = response_statistics(m, spectrum("jonswap", Hs=3.0, Tp=8.0, omega=uniform_grid(0.02, 6.0, 1201)))
+    assert 0.01 < stats["sigma_pitch"] < 2.0
+    assert 0.01 < stats["sigma_roll"] < 2.0
+    assert stats["significant_pitch"] == pytest.approx(2.0 * stats["sigma_pitch"], rel=1e-12)

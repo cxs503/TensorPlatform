@@ -492,23 +492,34 @@ def response_statistics(
     heading_deg: float = 180.0,
     speed: float = 0.0,
 ) -> Dict[str, float]:
-    """Spectral moments of the response: sigma = sqrt(int RAO^2 S dw), significant = 2 sigma."""
+    """Spectral moments of the response: sigma = sqrt(int RAO^2 S dw), significant = 2 sigma.
+
+    ``RAO`` here is always the response *per unit wave amplitude* (m/m, deg/m), never the
+    slope-normalised ratio, and the returned units follow the endpoint contract
+    (m for heave, deg for pitch / roll, m/s^2 for the vertical acceleration).
+    """
     omegas = spec["omega"]
     S = spec["S"]
     curve = model.rao_curve(omegas, heading_deg=heading_deg, speed=speed)
     out: Dict[str, float] = {}
-    for key, name, scale in (
-        ("heave_rao_m_per_m", "heave", 1.0),
-        ("pitch_rao_rad_per_rad", "pitch", 180.0 / math.pi),
-        ("roll_rao_rad_per_rad", "roll", 180.0 / math.pi),
+    # The spectral moments must be taken over the *physical* response per unit wave
+    # amplitude (m per m for heave, deg per m for the angles). The slope-normalised
+    # ``*_rad_per_rad`` RAOs are dimensionless and cannot be multiplied by an amplitude
+    # spectrum S(omega) [m^2 s]: doing so returns sigma_zeta itself re-labelled as an
+    # angle and inflates the pitch / roll spread by 1/k (a factor ~500 at lambda ~ 200 m).
+    # Long-wave anchor: sigma_pitch -> sqrt(int k^2 S dw) = sigma of the wave slope [deg].
+    for key, name in (
+        ("heave_rao_m_per_m", "heave"),
+        ("pitch_rao_deg_per_m", "pitch"),
+        ("roll_rao_deg_per_m", "roll"),
     ):
         dens = [r * r * s for r, s in zip(curve[key], S)]
         m0 = _integrate(dens, omegas)
         m2 = _integrate([d * w * w for d, w in zip(dens, omegas)], omegas)
         sigma = math.sqrt(max(m0, 0.0))
-        out[f"sigma_{name}"] = sigma * scale
-        out[f"significant_{name}"] = 2.0 * sigma * scale          # 2 sigma = mean of highest 1/3
-        out[f"Tz_{name}_s"] = 2.0 * math.pi * math.sqrt(m0 / m2) * 1.0 if m2 > 0 else float("nan")
+        out[f"sigma_{name}"] = sigma
+        out[f"significant_{name}"] = 2.0 * sigma          # 2 sigma = mean of highest 1/3
+        out[f"Tz_{name}_s"] = 2.0 * math.pi * math.sqrt(m0 / m2) if m2 > 0 else float("nan")
     # vertical acceleration at the centre of gravity (linear, small-angle)
     dens_acc = [
         (w_e ** 4) * (r * r) * s
