@@ -379,5 +379,8 @@ class TestJSONSerialization:
             assert output_path.exists()
             with open(output_path) as f:
                 loaded = json.load(f)
-            assert loaded["total_cases"] >= 10
+            # 12 reference rows, of which the 4 DTMB5415 rows are excluded by the
+            # integrity audit (Froude number inconsistent with V/sqrt(gL)), so the
+            # evaluated tally is 8 - see tests/feat/test_benchmark_integrity_audit.py
+            assert loaded["total_cases"] >= 8
             assert loaded["summary"]["failed"] > 0  # SUBOFF should fail

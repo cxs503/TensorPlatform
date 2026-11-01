@@ -1,0 +1,567 @@
+{
+  "title": "Ship resistance benchmark chain: integrity audit + in-process validation",
+  "dataset": "/srv/tensor/agent/work/m1530/backend/data/benchmark_reference.json",
+  "audit": {
+    "case_count": 12,
+    "status_counts": {
+      "REFERENCE_WARNING": 8,
+      "INCONSISTENT": 4
+    },
+    "rows": [
+      {
+        "case_id": "SUBOFF-01",
+        "ship_type": "SUBOFF",
+        "speed_ms": 3.0,
+        "froude_number_recomputed": 0.4589,
+        "froude_number_stated": 0.459,
+        "froude_error_pct": 0.02,
+        "ct_stated": 0.0038,
+        "rt_stated_n": 12.5,
+        "rt_from_ct_n": 92.5,
+        "ct_rt_error_pct": 639.97,
+        "wetted_surface_m2": 5.42,
+        "wetted_surface_source": "reference",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=92.5 N but dataset states Rt=12.5 N (640% off)"
+        ],
+        "model_flags": [
+          "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=0.46 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "SUBOFF-02",
+        "ship_type": "SUBOFF",
+        "speed_ms": 4.0,
+        "froude_number_recomputed": 0.6119,
+        "froude_number_stated": 0.612,
+        "froude_error_pct": 0.02,
+        "ct_stated": 0.004,
+        "rt_stated_n": 21.0,
+        "rt_from_ct_n": 173.09,
+        "ct_rt_error_pct": 724.25,
+        "wetted_surface_m2": 5.42,
+        "wetted_surface_source": "reference",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=173.1 N but dataset states Rt=21 N (724% off)"
+        ],
+        "model_flags": [
+          "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=0.61 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "SUBOFF-03",
+        "ship_type": "SUBOFF",
+        "speed_ms": 5.0,
+        "froude_number_recomputed": 0.7649,
+        "froude_number_stated": 0.765,
+        "froude_error_pct": 0.02,
+        "ct_stated": 0.0042,
+        "rt_stated_n": 31.5,
+        "rt_from_ct_n": 283.98,
+        "ct_rt_error_pct": 801.53,
+        "wetted_surface_m2": 5.42,
+        "wetted_surface_source": "reference",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=284 N but dataset states Rt=31.5 N (802% off)"
+        ],
+        "model_flags": [
+          "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=0.76 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "SUBOFF-04",
+        "ship_type": "SUBOFF",
+        "speed_ms": 6.0,
+        "froude_number_recomputed": 0.9179,
+        "froude_number_stated": 0.918,
+        "froude_error_pct": 0.02,
+        "ct_stated": 0.0044,
+        "rt_stated_n": 45.0,
+        "rt_from_ct_n": 428.41,
+        "ct_rt_error_pct": 852.01,
+        "wetted_surface_m2": 5.42,
+        "wetted_surface_source": "reference",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=428.4 N but dataset states Rt=45 N (852% off)"
+        ],
+        "model_flags": [
+          "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=0.92 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "DTMB5415-01",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 2.572,
+        "froude_number_recomputed": 0.3434,
+        "froude_number_stated": 0.061,
+        "froude_error_pct": 462.87,
+        "ct_stated": 0.0045,
+        "rt_stated_n": 8.2,
+        "rt_from_ct_n": 69.82,
+        "ct_rt_error_pct": 751.41,
+        "wetted_surface_m2": 4.7,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "FROUDE_INCONSISTENT: stated Fn=0.061 but V/sqrt(gL)=0.3434 (463% off)",
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=69.82 N but dataset states Rt=8.2 N (751% off)"
+        ],
+        "model_flags": [
+          "Cb=0.508 < 0.60: residual-resistance fit is submarine-calibrated"
+        ],
+        "in_envelope": false,
+        "status": "INCONSISTENT"
+      },
+      {
+        "case_id": "DTMB5415-02",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 5.144,
+        "froude_number_recomputed": 0.6867,
+        "froude_number_stated": 0.122,
+        "froude_error_pct": 462.87,
+        "ct_stated": 0.0038,
+        "rt_stated_n": 28.5,
+        "rt_from_ct_n": 235.82,
+        "ct_rt_error_pct": 727.44,
+        "wetted_surface_m2": 4.7,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "FROUDE_INCONSISTENT: stated Fn=0.122 but V/sqrt(gL)=0.6867 (463% off)",
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=235.8 N but dataset states Rt=28.5 N (727% off)"
+        ],
+        "model_flags": [
+          "Cb=0.508 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=0.69 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "INCONSISTENT"
+      },
+      {
+        "case_id": "DTMB5415-03",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 10.289,
+        "froude_number_recomputed": 1.3735,
+        "froude_number_stated": 0.244,
+        "froude_error_pct": 462.93,
+        "ct_stated": 0.0035,
+        "rt_stated_n": 95.0,
+        "rt_from_ct_n": 868.99,
+        "ct_rt_error_pct": 814.72,
+        "wetted_surface_m2": 4.7,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "FROUDE_INCONSISTENT: stated Fn=0.244 but V/sqrt(gL)=1.3735 (463% off)",
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=869 N but dataset states Rt=95 N (815% off)"
+        ],
+        "model_flags": [
+          "Cb=0.508 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=1.37 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "INCONSISTENT"
+      },
+      {
+        "case_id": "DTMB5415-04",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 15.433,
+        "froude_number_recomputed": 2.0602,
+        "froude_number_stated": 0.366,
+        "froude_error_pct": 462.91,
+        "ct_stated": 0.0038,
+        "rt_stated_n": 210.0,
+        "rt_from_ct_n": 2122.67,
+        "ct_rt_error_pct": 910.8,
+        "wetted_surface_m2": 4.7,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "FROUDE_INCONSISTENT: stated Fn=0.366 but V/sqrt(gL)=2.0602 (463% off)",
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=2123 N but dataset states Rt=210 N (911% off)"
+        ],
+        "model_flags": [
+          "Cb=0.508 < 0.60: residual-resistance fit is submarine-calibrated",
+          "Fn=2.06 > 0.40: outside residual-resistance calibration"
+        ],
+        "in_envelope": false,
+        "status": "INCONSISTENT"
+      },
+      {
+        "case_id": "KVLCC2-01",
+        "ship_type": "KVLCC2",
+        "speed_ms": 7.202,
+        "froude_number_recomputed": 0.1285,
+        "froude_number_stated": 0.129,
+        "froude_error_pct": 0.36,
+        "ct_stated": 0.0028,
+        "rt_stated_n": 550000.0,
+        "rt_from_ct_n": 1956719.51,
+        "ct_rt_error_pct": 255.77,
+        "wetted_surface_m2": 27000.0,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=1.957e+06 N but dataset states Rt=5.5e+05 N (256% off)"
+        ],
+        "model_flags": [
+          "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "KVLCC2-02",
+        "ship_type": "KVLCC2",
+        "speed_ms": 7.717,
+        "froude_number_recomputed": 0.1377,
+        "froude_number_stated": 0.138,
+        "froude_error_pct": 0.19,
+        "ct_stated": 0.003,
+        "rt_stated_n": 650000.0,
+        "rt_from_ct_n": 2407035.89,
+        "ct_rt_error_pct": 270.31,
+        "wetted_surface_m2": 27000.0,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=2.407e+06 N but dataset states Rt=6.5e+05 N (270% off)"
+        ],
+        "model_flags": [
+          "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "KVLCC2-03",
+        "ship_type": "KVLCC2",
+        "speed_ms": 7.974,
+        "froude_number_recomputed": 0.1423,
+        "froude_number_stated": 0.143,
+        "froude_error_pct": 0.48,
+        "ct_stated": 0.0031,
+        "rt_stated_n": 700000.0,
+        "rt_from_ct_n": 2655696.65,
+        "ct_rt_error_pct": 279.39,
+        "wetted_surface_m2": 27000.0,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=2.656e+06 N but dataset states Rt=7e+05 N (279% off)"
+        ],
+        "model_flags": [
+          "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      },
+      {
+        "case_id": "KVLCC2-04",
+        "ship_type": "KVLCC2",
+        "speed_ms": 8.231,
+        "froude_number_recomputed": 0.1469,
+        "froude_number_stated": 0.147,
+        "froude_error_pct": 0.06,
+        "ct_stated": 0.0032,
+        "rt_stated_n": 760000.0,
+        "rt_from_ct_n": 2920918.85,
+        "ct_rt_error_pct": 284.33,
+        "wetted_surface_m2": 27000.0,
+        "wetted_surface_source": "preset",
+        "integrity_flags": [
+          "CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=2.921e+06 N but dataset states Rt=7.6e+05 N (284% off)"
+        ],
+        "model_flags": [
+          "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+        ],
+        "in_envelope": false,
+        "status": "REFERENCE_WARNING"
+      }
+    ],
+    "trend": {
+      "DTMB-5415": {
+        "ct_vs_speed": [
+          0.0045,
+          0.0038,
+          0.0035,
+          0.0038
+        ],
+        "speeds": [
+          2.572,
+          5.144,
+          10.289,
+          15.433
+        ],
+        "monotonic_increasing": false,
+        "physically_suspect": false
+      },
+      "KVLCC2": {
+        "ct_vs_speed": [
+          0.0028,
+          0.003,
+          0.0031,
+          0.0032
+        ],
+        "speeds": [
+          7.202,
+          7.717,
+          7.974,
+          8.231
+        ],
+        "monotonic_increasing": true,
+        "physically_suspect": false
+      },
+      "SUBOFF": {
+        "ct_vs_speed": [
+          0.0038,
+          0.004,
+          0.0042,
+          0.0044
+        ],
+        "speeds": [
+          3.0,
+          4.0,
+          5.0,
+          6.0
+        ],
+        "monotonic_increasing": true,
+        "physically_suspect": true
+      }
+    },
+    "verdict": "REFERENCE_DATASET_UNUSABLE"
+  },
+  "validation": {
+    "SUBOFF": {
+      "summary": {
+        "total_cases": 4,
+        "passed": 3,
+        "failed": 1,
+        "pass_rate": 75.0,
+        "verified_passes_in_envelope": 0,
+        "mean_error_pct": 14.54,
+        "excluded_cases": [],
+        "excluded_detail": [],
+        "tolerance_pct": 15.0,
+        "honest_fail": true,
+        "honest_fail_cases": [
+          "SUBOFF-04"
+        ],
+        "algorithm_upgrade_recommended": true,
+        "recommendation": "4 of 4 evaluated SUBOFF cases give no in-envelope validation evidence. Recommend: (a) supply verified wetted-surface/Cb geometry instead of the axisymmetric estimate (services/resistance_core.axisym_wetted_surface), (b) add a form factor (1+k) and a wave-resistance term before claiming merchant-hull accuracy, (c) repair the reference dataset (see audit endpoint)."
+      },
+      "results": [
+        {
+          "case_id": "SUBOFF-01",
+          "ship_type": "SUBOFF",
+          "speed_ms": 3.0,
+          "calc_ct": 0.003462,
+          "ref_ct": 0.0038,
+          "error_pct": 8.9,
+          "pass": true,
+          "froude_number": 0.4589,
+          "wetted_surface_m2": 5.42,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "HONEST-FAIL: model calibrated for Cb>0.55 merchant ships / Fn<0.4; SUBOFF at Fr>0.4 is outside the validity range. | OUT_OF_ENVELOPE: Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated; Fn=0.46 > 0.40: outside residual-resistance calibration | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 640% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+            "Fn=0.46 > 0.40: outside residual-resistance calibration"
+          ]
+        },
+        {
+          "case_id": "SUBOFF-02",
+          "ship_type": "SUBOFF",
+          "speed_ms": 4.0,
+          "calc_ct": 0.003953,
+          "ref_ct": 0.004,
+          "error_pct": 1.18,
+          "pass": true,
+          "froude_number": 0.6119,
+          "wetted_surface_m2": 5.42,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "HONEST-FAIL: model calibrated for Cb>0.55 merchant ships / Fn<0.4; SUBOFF at Fr>0.4 is outside the validity range. | OUT_OF_ENVELOPE: Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated; Fn=0.61 > 0.40: outside residual-resistance calibration | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 724% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+            "Fn=0.61 > 0.40: outside residual-resistance calibration"
+          ]
+        },
+        {
+          "case_id": "SUBOFF-03",
+          "ship_type": "SUBOFF",
+          "speed_ms": 5.0,
+          "calc_ct": 0.004766,
+          "ref_ct": 0.0042,
+          "error_pct": 13.48,
+          "pass": true,
+          "froude_number": 0.7649,
+          "wetted_surface_m2": 5.42,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "HONEST-FAIL: model calibrated for Cb>0.55 merchant ships / Fn<0.4; SUBOFF at Fr>0.4 is outside the validity range. | OUT_OF_ENVELOPE: Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated; Fn=0.76 > 0.40: outside residual-resistance calibration | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 802% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+            "Fn=0.76 > 0.40: outside residual-resistance calibration"
+          ]
+        },
+        {
+          "case_id": "SUBOFF-04",
+          "ship_type": "SUBOFF",
+          "speed_ms": 6.0,
+          "calc_ct": 0.005921,
+          "ref_ct": 0.0044,
+          "error_pct": 34.58,
+          "pass": false,
+          "froude_number": 0.9179,
+          "wetted_surface_m2": 5.42,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "HONEST-FAIL: model calibrated for Cb>0.55 merchant ships / Fn<0.4; SUBOFF at Fr>0.4 is outside the validity range. | OUT_OF_ENVELOPE: Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated; Fn=0.92 > 0.40: outside residual-resistance calibration | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 852% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.542 < 0.60: residual-resistance fit is submarine-calibrated",
+            "Fn=0.92 > 0.40: outside residual-resistance calibration"
+          ]
+        }
+      ]
+    },
+    "DTMB-5415": {
+      "summary": {
+        "total_cases": 0,
+        "passed": 0,
+        "failed": 0,
+        "pass_rate": 0,
+        "verified_passes_in_envelope": 0,
+        "mean_error_pct": 0.0,
+        "excluded_cases": [
+          "DTMB5415-01",
+          "DTMB5415-02",
+          "DTMB5415-03",
+          "DTMB5415-04"
+        ],
+        "excluded_detail": [
+          {
+            "case_id": "DTMB5415-01",
+            "ship_type": "DTMB-5415",
+            "reason": "FROUDE_INCONSISTENT: stated Fn=0.061 but V/sqrt(gL)=0.3434 (463% off); CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=69.82 N but dataset states Rt=8.2 N (751% off)"
+          },
+          {
+            "case_id": "DTMB5415-02",
+            "ship_type": "DTMB-5415",
+            "reason": "FROUDE_INCONSISTENT: stated Fn=0.122 but V/sqrt(gL)=0.6867 (463% off); CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=235.8 N but dataset states Rt=28.5 N (727% off)"
+          },
+          {
+            "case_id": "DTMB5415-03",
+            "ship_type": "DTMB-5415",
+            "reason": "FROUDE_INCONSISTENT: stated Fn=0.244 but V/sqrt(gL)=1.3735 (463% off); CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=869 N but dataset states Rt=95 N (815% off)"
+          },
+          {
+            "case_id": "DTMB5415-04",
+            "ship_type": "DTMB-5415",
+            "reason": "FROUDE_INCONSISTENT: stated Fn=0.366 but V/sqrt(gL)=2.0602 (463% off); CT_RT_INCONSISTENT: Ct*sqrt-term gives Rt=2123 N but dataset states Rt=210 N (911% off)"
+          }
+        ],
+        "tolerance_pct": 15.0,
+        "honest_fail": false,
+        "honest_fail_cases": [],
+        "algorithm_upgrade_recommended": true,
+        "recommendation": "0 of 0 evaluated DTMB-5415 cases give no in-envelope validation evidence. Recommend: (a) supply verified wetted-surface/Cb geometry instead of the axisymmetric estimate (services/resistance_core.axisym_wetted_surface), (b) add a form factor (1+k) and a wave-resistance term before claiming merchant-hull accuracy, (c) repair the reference dataset (see audit endpoint)."
+      },
+      "results": []
+    },
+    "KVLCC2": {
+      "summary": {
+        "total_cases": 4,
+        "passed": 0,
+        "failed": 4,
+        "pass_rate": 0.0,
+        "verified_passes_in_envelope": 0,
+        "mean_error_pct": 53.28,
+        "excluded_cases": [],
+        "excluded_detail": [],
+        "tolerance_pct": 15.0,
+        "honest_fail": true,
+        "honest_fail_cases": [
+          "KVLCC2-01",
+          "KVLCC2-02",
+          "KVLCC2-03",
+          "KVLCC2-04"
+        ],
+        "algorithm_upgrade_recommended": true,
+        "recommendation": "4 of 4 evaluated KVLCC2 cases give no in-envelope validation evidence. Recommend: (a) supply verified wetted-surface/Cb geometry instead of the axisymmetric estimate (services/resistance_core.axisym_wetted_surface), (b) add a form factor (1+k) and a wave-resistance term before claiming merchant-hull accuracy, (c) repair the reference dataset (see audit endpoint)."
+      },
+      "results": [
+        {
+          "case_id": "KVLCC2-01",
+          "ship_type": "KVLCC2",
+          "speed_ms": 7.202,
+          "calc_ct": 0.001415,
+          "ref_ct": 0.0028,
+          "error_pct": 49.46,
+          "pass": false,
+          "froude_number": 0.1285,
+          "wetted_surface_m2": 27000.0,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "OUT_OF_ENVELOPE: Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 256% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+          ]
+        },
+        {
+          "case_id": "KVLCC2-02",
+          "ship_type": "KVLCC2",
+          "speed_ms": 7.717,
+          "calc_ct": 0.00141,
+          "ref_ct": 0.003,
+          "error_pct": 53.0,
+          "pass": false,
+          "froude_number": 0.1377,
+          "wetted_surface_m2": 27000.0,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "OUT_OF_ENVELOPE: Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 270% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+          ]
+        },
+        {
+          "case_id": "KVLCC2-03",
+          "ship_type": "KVLCC2",
+          "speed_ms": 7.974,
+          "calc_ct": 0.001408,
+          "ref_ct": 0.0031,
+          "error_pct": 54.59,
+          "pass": false,
+          "froude_number": 0.1423,
+          "wetted_surface_m2": 27000.0,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "OUT_OF_ENVELOPE: Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 279% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+          ]
+        },
+        {
+          "case_id": "KVLCC2-04",
+          "ship_type": "KVLCC2",
+          "speed_ms": 8.231,
+          "calc_ct": 0.001406,
+          "ref_ct": 0.0032,
+          "error_pct": 56.06,
+          "pass": false,
+          "froude_number": 0.1469,
+          "wetted_surface_m2": 27000.0,
+          "method": "ITTC-1957 friction + platform residual-resistance fit (in-process)",
+          "note": "OUT_OF_ENVELOPE: Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term | REFERENCE_WARNING: stated Rt disagrees with stated Ct by 284% (dimensional column discarded, Ct used as reference)",
+          "envelope_flags": [
+            "Cb=0.810 > 0.65: full-form hull, but the model has no form factor (1+k) and no wave-resistance term"
+          ]
+        }
+      ]
+    }
+  },
+  "notes": [
+    "Ct is independent of the wetted-surface estimate (Ct = Cf + Cr); the area only scales the dimensional resistance.",
+    "Excluded rows: stated Froude number disagrees with V/sqrt(gL) by >5%.",
+    "verified_passes_in_envelope = passes whose model validity flags are empty."
+  ]
+}
