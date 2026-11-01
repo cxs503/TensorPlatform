@@ -14,6 +14,7 @@ const routes: RouteRecordRaw[] = [
       { path: 'missions/:id', name: 'mission-detail', component: () => import('@/views/MissionDetailView.vue'), meta: { title: '任务详情' } },
       { path: 'sessions', name: 'sessions', component: () => import('@/views/SessionTimelineView.vue'), meta: { title: '执行追踪' } },
       { path: 'sessions/:id', name: 'session-detail', component: () => import('@/views/SessionTimelineView.vue'), meta: { title: '会话详情' } },
+      { path: 'reports', name: 'reports', component: () => import('@/views/ReportsView.vue'), meta: { title: '研究报告' } },
       { path: 'approvals', name: 'approvals', component: () => import('@/views/ApprovalsView.vue'), meta: { title: '交付验收' } },
       { path: 'system', name: 'system', component: () => import('@/views/FactorySettingsView.vue'), meta: { title: '运行配置' } },
     ],

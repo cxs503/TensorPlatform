@@ -1,0 +1,514 @@
+{
+ "generated_at": "2026-11-01T01:59:11+0000",
+ "python": "3.11.6",
+ "elapsed_seconds": 5.95,
+ "verdict": "PASS",
+ "scenario_pass": 6,
+ "scenario_total": 6,
+ "gate_red_capable": true,
+ "scenarios": [
+  {
+   "scenario": "A_crash_resume",
+   "checks": {
+    "kill9_fired": true,
+    "killed_at_ge_one_third": true,
+    "supervisor_relaunched": true,
+    "resumed_at_least_one_step": true,
+    "all_steps_done": true,
+    "journal_clean": true,
+    "resume_brief_injected": true
+   },
+   "pass": true,
+   "observed": {
+    "kills": 1,
+    "attempts": 2,
+    "killed_at_progress": [
+     0.5
+    ],
+    "resumed": [
+     "s1",
+     "s2",
+     "s3"
+    ],
+    "resumed_step_count": 3,
+    "done": 6,
+    "status": "steps_done",
+    "journal_valid_records": 9,
+    "calls_used": 6
+   },
+   "summary": {
+    "mission_id": 101,
+    "journal_on": true,
+    "attempts": 2,
+    "kills": 1,
+    "max_attempts": 3,
+    "final_rc": 0,
+    "status": "steps_done",
+    "resumed_steps": [
+     "s1",
+     "s2",
+     "s3"
+    ],
+    "resumed_step_count": 3,
+    "steps_total": 6,
+    "done_steps": [
+     "s1",
+     "s2",
+     "s3",
+     "s4",
+     "s5",
+     "s6"
+    ],
+    "done_step_count": 6,
+    "calls_used": 6,
+    "budget_calls": 100,
+    "journal_valid_records": 9,
+    "journal_corrupt_records": 0,
+    "journal_degraded": false,
+    "journal_reason": "",
+    "events": [
+     {
+      "attempt": 1,
+      "pid": 3287535,
+      "resume": false,
+      "killed_at_progress": 0.5,
+      "rc": -9,
+      "killed": true,
+      "stdout_tail": "",
+      "journal": {
+       "valid_records": 4,
+       "corrupt_records": 0,
+       "degraded": false,
+       "reason": "",
+       "progress": 0.5,
+       "status": "running",
+       "calls_used": 3
+      }
+     },
+     {
+      "attempt": 2,
+      "pid": 3287924,
+      "resume": true,
+      "rc": 0,
+      "killed": false,
+      "stdout_tail": "json（证据: /tmp/hv3_gate/A_crash_resume/work/evidence/s2.json）\n  - s3: mission#101 第 3/6 步：产出证据 evidence/s3.json（证据: /tmp/hv3_gate/A_crash_resume/work/evidence/s3.json）\n[已验证事实 · 可直接采用]\n  - s1 证据文件已落盘 s1.json\n  - s2 证据文件已落盘 s2.json\n  - s3 证据文件已落盘 s3.json\n[未验证假设 · 用前先验]\n  - 未跑集成测试前，步骤正确性只由证据文件存在性证明\n[下一步意图] 下一步 s4\n★纪律：以上是 append-only 日志事实，不是猜测；与工作树冲突时以工作树为准并记录偏差。不要从零重读整个仓库，先按「已完成/下一步意图」推进。已用预算不因续跑恢复。\n\n",
+      "journal": {
+       "valid_records": 9,
+       "corrupt_records": 0,
+       "degraded": false,
+       "reason": "",
+       "progress": 1.0,
+       "status": "steps_done",
+       "calls_used": 6
+      }
+     }
+    ],
+    "resume_probe": false,
+    "force_resume": false,
+    "_gate_cmd_rc": 0
+   }
+  },
+  {
+   "scenario": "B_control_no_journal",
+   "checks": {
+    "kill9_fired": true,
+    "no_resume_possible": true,
+    "restarted_from_zero": true,
+    "rebuilt_all_evidence": true
+   },
+   "pass": true,
+   "observed": {
+    "kills": 1,
+    "attempts": 2,
+    "resumed_step_count": 0,
+    "calls_used": 6,
+    "done": 6,
+    "status": "steps_done"
+   },
+   "summary": {
+    "mission_id": 102,
+    "journal_on": false,
+    "attempts": 2,
+    "kills": 1,
+    "max_attempts": 3,
+    "final_rc": 0,
+    "status": "steps_done",
+    "resumed_steps": [],
+    "resumed_step_count": 0,
+    "steps_total": 6,
+    "done_steps": [
+     "s1",
+     "s2",
+     "s3",
+     "s4",
+     "s5",
+     "s6"
+    ],
+    "done_step_count": 6,
+    "calls_used": 6,
+    "budget_calls": 100,
+    "journal_valid_records": 0,
+    "journal_corrupt_records": 0,
+    "journal_degraded": true,
+    "journal_reason": "journal_missing",
+    "events": [
+     {
+      "attempt": 1,
+      "pid": 3288418,
+      "resume": false,
+      "killed_after_seconds": 0.25,
+      "rc": -9,
+      "killed": true,
+      "stdout_tail": "",
+      "journal": {
+       "valid_records": 0,
+       "corrupt_records": 0,
+       "degraded": true,
+       "reason": "journal_disabled",
+       "progress": 0.0,
+       "status": "",
+       "calls_used": 0
+      }
+     },
+     {
+      "attempt": 2,
+      "pid": 3288708,
+      "resume": true,
+      "rc": 0,
+      "killed": false,
+      "stdout_tail": "",
+      "journal": {
+       "valid_records": 0,
+       "corrupt_records": 0,
+       "degraded": true,
+       "reason": "journal_disabled",
+       "progress": 0.0,
+       "status": "",
+       "calls_used": 0
+      }
+     }
+    ],
+    "resume_probe": false,
+    "force_resume": false,
+    "_gate_cmd_rc": 0
+   }
+  },
+  {
+   "scenario": "C1_corrupt_total",
+   "checks": {
+    "degraded_flagged": true,
+    "no_fabricated_resume": true,
+    "degradation_recorded_in_brief": true,
+    "work_still_completed": true
+   },
+   "pass": true,
+   "observed": {
+    "degraded": true,
+    "reason": "journal_corrupt",
+    "resumed_step_count": 0,
+    "corrupt_records": 18,
+    "done": 6
+   },
+   "summary": {
+    "mission_id": 103,
+    "journal_on": true,
+    "attempts": 1,
+    "kills": 0,
+    "max_attempts": 1,
+    "final_rc": 4,
+    "status": "steps_done",
+    "resumed_steps": [],
+    "resumed_step_count": 0,
+    "steps_total": 6,
+    "done_steps": [
+     "s1",
+     "s2",
+     "s3",
+     "s4",
+     "s5",
+     "s6"
+    ],
+    "done_step_count": 6,
+    "calls_used": 6,
+    "budget_calls": 100,
+    "journal_valid_records": 7,
+    "journal_corrupt_records": 18,
+    "journal_degraded": true,
+    "journal_reason": "journal_corrupt",
+    "events": [
+     {
+      "attempt": 1,
+      "pid": 3290033,
+      "resume": true,
+      "rc": 4,
+      "killed": false,
+      "stdout_tail": "【无可用工作日志 · 从零开始】 mission#103：journal 不可用（journal_corrupt，路径 /tmp/hv3_gate/C1_corrupt_total/journal/missions/m103/journal.jsonl）。\n→ 从零开始，且**不要声称续跑**；若你发现此前的成果痕迹（工作树/artifacts），以磁盘为准并显式记录「历史无日志、按磁盘复核」这一事实。\n\n",
+      "journal": {
+       "valid_records": 7,
+       "corrupt_records": 18,
+       "degraded": true,
+       "reason": "journal_corrupt",
+       "progress": 1.0,
+       "status": "steps_done",
+       "calls_used": 6
+      }
+     }
+    ],
+    "resume_probe": false,
+    "force_resume": true,
+    "_gate_cmd_rc": 0
+   }
+  },
+  {
+   "scenario": "C2_corrupt_partial",
+   "checks": {
+    "corruption_detected": true,
+    "valid_prefix_survives": true,
+    "degraded_flagged": true,
+    "resume_uses_only_verified": true,
+    "work_still_completed": true,
+    "degradation_in_brief": true
+   },
+   "pass": true,
+   "observed": {
+    "corrupt_before": 2,
+    "valid_before": 4,
+    "resumed": [
+     "s1",
+     "s2",
+     "s3"
+    ],
+    "degraded": true,
+    "corrupt_after": 2,
+    "done": 6
+   },
+   "summary": {
+    "mission_id": 104,
+    "journal_on": true,
+    "attempts": 1,
+    "kills": 0,
+    "max_attempts": 1,
+    "final_rc": 4,
+    "status": "steps_done",
+    "resumed_steps": [
+     "s1",
+     "s2",
+     "s3"
+    ],
+    "resumed_step_count": 3,
+    "steps_total": 6,
+    "done_steps": [
+     "s1",
+     "s2",
+     "s3",
+     "s4",
+     "s5",
+     "s6"
+    ],
+    "done_step_count": 6,
+    "calls_used": 6,
+    "budget_calls": 100,
+    "journal_valid_records": 9,
+    "journal_corrupt_records": 2,
+    "journal_degraded": true,
+    "journal_reason": "journal_corrupt",
+    "events": [
+     {
+      "attempt": 1,
+      "pid": 3290972,
+      "resume": true,
+      "rc": 4,
+      "killed": false,
+      "stdout_tail": " /tmp/hv3_gate/C2_corrupt_partial/work/evidence/s2.json）\n  - s3: mission#104 第 3/6 步：产出证据 evidence/s3.json（证据: /tmp/hv3_gate/C2_corrupt_partial/work/evidence/s3.json）\n[已验证事实 · 可直接采用]\n  - s1 证据文件已落盘 s1.json\n  - s2 证据文件已落盘 s2.json\n  - s3 证据文件已落盘 s3.json\n[未验证假设 · 用前先验]\n  - 未跑集成测试前，步骤正确性只由证据文件存在性证明\n[下一步意图] 下一步 s4\n★纪律：以上是 append-only 日志事实，不是猜测；与工作树冲突时以工作树为准并记录偏差。不要从零重读整个仓库，先按「已完成/下一步意图」推进。已用预算不因续跑恢复。\n\n",
+      "journal": {
+       "valid_records": 9,
+       "corrupt_records": 2,
+       "degraded": true,
+       "reason": "journal_corrupt",
+       "progress": 1.0,
+       "status": "steps_done",
+       "calls_used": 6
+      }
+     }
+    ],
+    "resume_probe": false,
+    "force_resume": true,
+    "_gate_cmd_rc": 0
+   }
+  },
+  {
+   "scenario": "D_budget_cap",
+   "checks": {
+    "killed_and_resumed": true,
+    "never_exceeds_cap": true,
+    "stopped_honestly": true,
+    "no_budget_extension": true,
+    "no_third_attempt_after_cap": true
+   },
+   "pass": true,
+   "observed": {
+    "kills": 1,
+    "attempts": 2,
+    "resumed_step_count": 3,
+    "calls_used": 4,
+    "budget": 4,
+    "status": "budget_exhausted",
+    "done": 4
+   },
+   "summary": {
+    "mission_id": 105,
+    "journal_on": true,
+    "attempts": 2,
+    "kills": 1,
+    "max_attempts": 3,
+    "final_rc": 3,
+    "status": "budget_exhausted",
+    "resumed_steps": [
+     "s1",
+     "s2",
+     "s3"
+    ],
+    "resumed_step_count": 3,
+    "steps_total": 6,
+    "done_steps": [
+     "s1",
+     "s2",
+     "s3",
+     "s4"
+    ],
+    "done_step_count": 4,
+    "calls_used": 4,
+    "budget_calls": 4,
+    "journal_valid_records": 7,
+    "journal_corrupt_records": 0,
+    "journal_degraded": false,
+    "journal_reason": "",
+    "events": [
+     {
+      "attempt": 1,
+      "pid": 3291460,
+      "resume": false,
+      "killed_at_progress": 0.5,
+      "rc": -9,
+      "killed": true,
+      "stdout_tail": "",
+      "journal": {
+       "valid_records": 4,
+       "corrupt_records": 0,
+       "degraded": false,
+       "reason": "",
+       "progress": 0.5,
+       "status": "running",
+       "calls_used": 3
+      }
+     },
+     {
+      "attempt": 2,
+      "pid": 3291756,
+      "resume": true,
+      "rc": 3,
+      "killed": false,
+      "stdout_tail": "/s2.json（证据: /tmp/hv3_gate/D_budget_cap/work/evidence/s2.json）\n  - s3: mission#105 第 3/6 步：产出证据 evidence/s3.json（证据: /tmp/hv3_gate/D_budget_cap/work/evidence/s3.json）\n[已验证事实 · 可直接采用]\n  - s1 证据文件已落盘 s1.json\n  - s2 证据文件已落盘 s2.json\n  - s3 证据文件已落盘 s3.json\n[未验证假设 · 用前先验]\n  - 未跑集成测试前，步骤正确性只由证据文件存在性证明\n[下一步意图] 下一步 s4\n★纪律：以上是 append-only 日志事实，不是猜测；与工作树冲突时以工作树为准并记录偏差。不要从零重读整个仓库，先按「已完成/下一步意图」推进。已用预算不因续跑恢复。\n\n",
+      "journal": {
+       "valid_records": 7,
+       "corrupt_records": 0,
+       "degraded": false,
+       "reason": "",
+       "progress": 0.6667,
+       "status": "budget_exhausted",
+       "calls_used": 4
+      }
+     }
+    ],
+    "resume_probe": false,
+    "force_resume": false,
+    "_gate_cmd_rc": 2
+   }
+  },
+  {
+   "scenario": "E_red_capability",
+   "checks": {
+    "gate_turns_red_without_journal": true
+   },
+   "pass": true,
+   "observed": {
+    "resumed_step_count": 0,
+    "gate_verdict_if_evaluated": "RED",
+    "journal_on": false
+   },
+   "summary": {
+    "mission_id": 106,
+    "journal_on": false,
+    "attempts": 2,
+    "kills": 1,
+    "max_attempts": 2,
+    "final_rc": 0,
+    "status": "steps_done",
+    "resumed_steps": [],
+    "resumed_step_count": 0,
+    "steps_total": 6,
+    "done_steps": [
+     "s1",
+     "s2",
+     "s3",
+     "s4",
+     "s5",
+     "s6"
+    ],
+    "done_step_count": 6,
+    "calls_used": 6,
+    "budget_calls": 100,
+    "journal_valid_records": 0,
+    "journal_corrupt_records": 0,
+    "journal_degraded": true,
+    "journal_reason": "journal_missing",
+    "events": [
+     {
+      "attempt": 1,
+      "pid": 3292055,
+      "resume": false,
+      "killed_after_seconds": 0.2,
+      "rc": -9,
+      "killed": true,
+      "stdout_tail": "",
+      "journal": {
+       "valid_records": 0,
+       "corrupt_records": 0,
+       "degraded": true,
+       "reason": "journal_disabled",
+       "progress": 0.0,
+       "status": "",
+       "calls_used": 0
+      }
+     },
+     {
+      "attempt": 2,
+      "pid": 3292335,
+      "resume": true,
+      "rc": 0,
+      "killed": false,
+      "stdout_tail": "",
+      "journal": {
+       "valid_records": 0,
+       "corrupt_records": 0,
+       "degraded": true,
+       "reason": "journal_disabled",
+       "progress": 0.0,
+       "status": "",
+       "calls_used": 0
+      }
+     }
+    ],
+    "resume_probe": true,
+    "force_resume": false,
+    "_gate_cmd_rc": 0
+   }
+  }
+ ],
+ "criteria": {
+  "C1": "kill -9 进度 >=1/3 后续跑 >=1 步（对照无日志=0）",
+  "C2": "journal 损坏/缺失 -> degraded 记录，不伪造续跑",
+  "C3": "预算帽跨续跑累计，永不超过下发额度",
+  "C4": "门禁本身可红（去掉 journal 判据必须变红）"
+ }
+}
