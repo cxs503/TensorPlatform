@@ -249,16 +249,40 @@ def test_turning_circle_matches_independent_equilibrium_solve():
     rel = abs(td.metrics["tactical_diameter"]
               - ss["steady_turning_diameter"]) / ss["steady_turning_diameter"]
     assert rel < 0.10
-    assert abs(ss["residual_N"]) < 1.0        # equilibrium actually converged
+    # The equilibrium must be a genuine fixed point of the *integrated* ODE, so
+    # the residuals are checked against their own physical scales (m1691: the
+    # surge balance has to carry the centripetal term (m+m_y) v r, exactly as
+    # mmg._rhs does; an absolute 1 N threshold on the yaw moment was not a
+    # meaningful criterion either way).
+    m_y = M.KVLCC2_REFERENCE.m_y * 0.5 * D.RHO_WATER * VESSEL.L ** 2 * VESSEL.T
+    moment_scale = 0.5 * D.RHO_WATER * VESSEL.L ** 2 * VESSEL.T * SPEED ** 2
+    force_scale = 0.5 * D.RHO_WATER * VESSEL.L * VESSEL.T * SPEED ** 2
+    assert abs(ss["residual_N"]) / moment_scale < 1e-6
+    # residual_X is the *complete* surge residual f.X + (m+m_y) v r, so it must
+    # be negligible against the force scale - and the centripetal term itself is
+    # ~1 % of that scale, i.e. omitting it (pre-m1691) could not be benign.
+    centripetal = (VESSEL.mass + m_y) * ss["v"] * ss["r"]
+    assert abs(ss["residual_X"]) / force_scale < 1e-6
+    assert abs(centripetal) / force_scale > 5e-3
 
 
-def test_ice_increases_resistance_and_slows_the_turn():
+def test_ice_widens_the_turn_and_reduces_the_drift_angle():
+    """Ice widens the steady turn and reduces the drift angle.
+
+    The earlier form of this test asserted ``ice speed_ratio < calm speed_ratio``
+    as well.  That inequality was an artefact of the pre-m1691 surge balance
+    (which omitted the centripetal term and therefore returned a non-equilibrium
+    speed): with the corrected balance the two speeds differ by only 0.5 %
+    (0.3607 vs 0.3591) and the sign is not a physical law, so it is no longer
+    asserted - the turning diameter and the drift angle carry the trend.
+    """
     calm = M.steady_turning_solution(VESSEL, speed=SPEED, env=M.Environment())
     ice = M.steady_turning_solution(
         VESSEL, speed=SPEED, env=M.Environment(ice_thickness=1.0))
-    assert ice["speed_ratio"] < calm["speed_ratio"]
     assert ice["steady_turning_diameter_over_L"] > \
         calm["steady_turning_diameter_over_L"]
+    assert abs(ice["drift_angle_deg"]) < abs(calm["drift_angle_deg"])
+    assert abs(ice["speed_ratio"] - calm["speed_ratio"]) < 0.02
 
 
 def test_current_is_advected_in_the_water_frame():

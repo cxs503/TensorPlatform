@@ -428,14 +428,21 @@ def simulate_turning_circle(
         hist["v"].append(state[4])
         hist["r"].append(state[5])
         hist["delta"].append(rudder_deg)
-        if advance is None and heading_deg >= 90.0:
-            advance = state[0] - cur_x * t
-            transfer = state[1] - cur_y * t
-        if tactical is None and heading_deg >= 180.0:
-            tactical = state[1] - cur_y * t
+        # Manoeuvring metrics are defined on the *magnitude* of the heading
+        # change: a port (negative-rudder) trial mirrors a starboard one, so the
+        # crossings must be detected on |psi| and the lateral distances taken as
+        # magnitudes.  Using the signed heading silently returned NaN metrics
+        # (and never terminated the 360 deg loop) for port turns - see the
+        # m1691 verification report.
+        heading_abs = abs(heading_deg)
+        if advance is None and heading_abs >= 90.0:
+            advance = abs(state[0] - cur_x * t)
+            transfer = abs(state[1] - cur_y * t)
+        if tactical is None and heading_abs >= 180.0:
+            tactical = abs(state[1] - cur_y * t)
         if steering_f is None and abs(f.Y) > 0:
             steering_f = f
-        if heading_deg >= 360.0:
+        if heading_abs >= 360.0:
             break
 
     r_steady = hist["r"][-1]
@@ -563,15 +570,23 @@ def steady_turning_solution(
 ) -> Dict[str, float]:
     """Steady circular-motion equilibrium solved independently of the time integration.
 
-    Solves the three residual equations of a steady turn
+    Solves the three residual equations of a steady turn, i.e. the fixed point of
+    the same surge / sway / yaw equations that :func:`_rhs` integrates
 
-    * ``X(u,v,r) = 0``
+    * ``X(u,v,r) + (m+m_y) v r = 0``
     * ``Y(u,v,r) - (m+m_x) u r = 0``
     * ``N(u,v,r) = 0``
 
     by a damped Newton iteration with a numerical Jacobian.  This gives an
     analytical reference for the converged steady turning diameter of the
     time-domain simulation (:func:`simulate_turning_circle`).
+
+    The ``(m+m_y) v r`` term in the surge balance is the centripetal reaction of
+    the sway equation and is *not* negligible: at 35 deg rudder it is ~2.1 MN
+    against a propeller thrust of ~2.6 MN, so omitting it (as an earlier version
+    of this function did) shifts the solution along the equilibrium ray to a
+    speed ~1.94x too high while leaving the turning diameter unchanged - see the
+    m1691 verification report.
     """
     env = env or Environment()
     n_rps = required_rpm(vessel, coef, speed)
@@ -579,11 +594,15 @@ def steady_turning_solution(
     m = vessel.mass
     m_x = coef.m_x * 0.5 * D.RHO_WATER * vessel.L ** 2 * vessel.T
 
+    m_y = coef.m_y * 0.5 * D.RHO_WATER * vessel.L ** 2 * vessel.T
+
     def residual(vec):
         u, v, r = vec
         f = manoeuvring_forces((0.0, 0.0, 0.0, u, v, r), delta, n_rps,
                                vessel, coef, env)
-        return (f.X, f.Y - (m + m_x) * u * r, f.N)
+        # Surge balance must carry the centripetal term, exactly as _rhs does:
+        # du/dt = (X + (m+m_y) v r) / (m+m_x).
+        return (f.X + (m + m_y) * v * r, f.Y - (m + m_x) * u * r, f.N)
 
     x = [max(speed, 1.0), -0.5, 0.005]
     scale = [1.0e7, 1.0e7, 1.0e9]        # residual scaling for the Jacobian
