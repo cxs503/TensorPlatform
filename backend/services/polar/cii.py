@@ -32,6 +32,7 @@ from .constants import (
     CII_RATING_BOUNDARIES,
     CII_REDUCTION_FACTOR,
     CII_REFERENCE_LINES,
+    CII_REFERENCE_LINES_NOT_SUPPORTED,
     EEDI_PHASE_REDUCTION,
     EEDI_REFERENCE_LINES,
     NM_M,
@@ -56,6 +57,13 @@ def co2_from_fuel(fuel_t: float, fuel_type: str) -> float:
 
 def cii_reference_value(category: str, capacity: float) -> float:
     """CII reference line value [g CO2 / (capacity * nm)]."""
+    if category in CII_REFERENCE_LINES_NOT_SUPPORTED:
+        raise NotImplementedError(
+            f"CII ship-type category '{category}' exists in MEPC.353(78) G1 but is "
+            "NOT_SUPPORTED by this package: its (a, c) coefficients are not bundled "
+            "offline and are deliberately not guessed. Use a supported category: "
+            f"{sorted(CII_REFERENCE_LINES)}"
+        )
     if category not in CII_REFERENCE_LINES:
         raise ValueError(
             f"no CII reference line for category '{category}'; "
@@ -337,4 +345,88 @@ def verify_cii_ship_types(ship_keys: List[str], year: int = 2026) -> Dict[str, A
         "pass": max_path_diff < 5.0 and max_anchor_err < 5.0,
         "limitation": "absolute CII of a real ship cannot be validated offline "
         "(no fleet/trial dataset); WITHHELD for absolute validation.",
+    }
+
+
+#: Physical band of a G1 reference line [g CO2 / (capacity * nm)].  Published
+#: attained-CII values of the ships covered by G1 sit roughly in 2..60, so a
+#: reference line outside 1..100 cannot be the guideline's, whatever the document copy.
+CII_REF_BAND = (1.0, 100.0)
+
+#: Capacity ranges over which each G1 line is applied by
+#: :func:`cii_reference_line_invariants` [DWT].  ``gas_carrier_large`` is the
+#: >=65000 DWT branch of G1 (``gas_carrier_small`` is the <65000 branch), so it must
+#: not be probed at small deadweight where the guideline does not use it.
+_CII_VALID_DWT = {
+    "bulk_carrier": (5000.0, 20000.0, 50000.0, 100000.0, 200000.0),
+    "tanker": (5000.0, 20000.0, 50000.0, 100000.0, 200000.0),
+    "container_ship": (5000.0, 20000.0, 50000.0, 100000.0, 200000.0),
+    "general_cargo": (5000.0, 20000.0, 50000.0),
+    "refrigerated_cargo": (5000.0, 20000.0, 50000.0),
+    "combination_carrier": (5000.0, 20000.0, 50000.0, 100000.0, 200000.0),
+    "gas_carrier_small": (5000.0, 20000.0, 40000.0, 60000.0),
+    "gas_carrier_large": (70000.0, 100000.0, 150000.0, 200000.0),
+}
+
+#: At equal capacity a general cargo ship / refrigerated cargo carrier is less
+#: efficient (higher CII_ref) than a bulk carrier.  The ordering is empirical and
+#: needs no document, so it is a valid guard on the coefficient table itself.
+_CII_ORDERING_HIGHER = ("general_cargo", "refrigerated_cargo")
+_CII_ORDERING_REF = "bulk_carrier"
+
+
+def cii_reference_line_invariants() -> Dict[str, Any]:
+    """Coefficient-free sanity guards on ``CII_REFERENCE_LINES`` (mission m1643).
+
+    The pre-existing CII harness compared the mass path with the energy path and
+    re-checked hand-copied schedule/boundary values, i.e. it was self-consistent and
+    structurally blind to a wrong ``(a, c)`` row.  These invariants need no external
+    table:
+
+    (i)   magnitude band     ``1 <= CII_ref <= 100`` over representative capacities;
+    (ii)  monotone decrease  ``CII_ref`` strictly decreasing in capacity (c < 0);
+    (iii) cross-type order   general cargo / reefer above bulk carrier at equal DWT.
+
+    The pre-fix row ``general_cargo c = -1.430`` violated (i) and (iii): it gave
+    0.0225 instead of 12.57 g/(dwt nm) at 20 000 DWT.
+    """
+    checks: List[Dict[str, Any]] = []
+    lo, hi = CII_REF_BAND
+    for category in CII_REFERENCE_LINES:
+        vals = [cii_reference_value(category, d) for d in _CII_VALID_DWT[category]]
+        checks.append(
+            {
+                "check": f"band[{category}]",
+                "value": [round(v, 6) for v in vals],
+                "criterion": f"all {lo} <= CII_ref <= {hi}",
+                "pass": all(lo <= v <= hi for v in vals),
+            }
+        )
+        checks.append(
+            {
+                "check": f"monotone[{category}]",
+                "criterion": "strictly decreasing in capacity",
+                "pass": all(x > y for x, y in zip(vals, vals[1:])),
+            }
+        )
+    for category in _CII_ORDERING_HIGHER:
+        for dwt in (20000.0, 50000.0):
+            hi_val = cii_reference_value(category, dwt)
+            ref_val = cii_reference_value(_CII_ORDERING_REF, dwt)
+            checks.append(
+                {
+                    "check": f"order[{category}>{_CII_ORDERING_REF}@{dwt:g}]",
+                    "value": {"category": round(hi_val, 6), "bulk": round(ref_val, 6)},
+                    "criterion": "CII_ref(general/reefer) > CII_ref(bulk) at equal DWT",
+                    "pass": hi_val > ref_val,
+                }
+            )
+    failed = [c for c in checks if not c["pass"]]
+    return {
+        "n_checks": len(checks),
+        "n_failed": len(failed),
+        "checks": checks,
+        "failed": failed,
+        "pass": not failed,
+        "not_supported_categories": list(CII_REFERENCE_LINES_NOT_SUPPORTED),
     }

@@ -32,16 +32,40 @@ NM_M = 1852.0             # 1 nautical mile in m
 # --- CII (MEPC.353(78) G1 / MEPC.354(78) G4) --------------------------------
 #: Reference-line coefficients: CII_ref = a * capacity^c   [g CO2 / (capacity nm)]
 #: capacity = deadweight (DWT) for bulk/tanker/container/general cargo.
+#:
+#: ``c`` is stored with the sign of the exponent in ``a * capacity**c``, i.e. it is
+#: the negative of the guideline's printed ``c`` in ``CII_ref = a * capacity^(-c)``.
+#: Every row below was re-derived from MEPC.353(78) G1 Annex Table 1 by
+#: ``tools/verify_cii_reference_lines_m1643.py``; the same script holds three
+#: coefficient-free invariants (magnitude band, monotone decrease in capacity,
+#: cross-type ordering) that rejected the *previous* ``general_cargo`` exponent
+#: ``-1.430`` (defect fixed in mission m1643: it under-stated CII_ref by a factor
+#: ~470 at 20 000 DWT and rated every general cargo ship E).  Do not "tidy" the
+#: odd-looking ``14405e7`` of ``gas_carrier_large``: the guideline prints
+#: ``14405E7``, and that pair with ``c = 2.071`` is what reproduces the published
+#: ~6 g/(dwt nm) at 100 000 DWT.
 CII_REFERENCE_LINES = {
     "bulk_carrier": {"a": 4745.0, "c": -0.622},
     "tanker": {"a": 5247.0, "c": -0.610},
     "container_ship": {"a": 1984.0, "c": -0.489},
-    "general_cargo": {"a": 31948.0, "c": -1.430},
+    "general_cargo": {"a": 31948.0, "c": -0.792},
     "refrigerated_cargo": {"a": 4600.0, "c": -0.557},
     "combination_carrier": {"a": 5119.0, "c": -0.622},
     "gas_carrier_large": {"a": 14405e7, "c": -2.071},
     "gas_carrier_small": {"a": 8104.0, "c": -0.639},
 }
+
+#: MEPC.353(78) G1 ship types that this package does NOT implement.  They are
+#: listed so that callers get an explicit NOT_SUPPORTED error instead of a silent
+#: wrong number: the coefficients are intentionally not guessed here because no
+#: offline copy of the guideline annex is bundled with the repository.
+CII_REFERENCE_LINES_NOT_SUPPORTED = (
+    "lng_carrier",
+    "ro_ro_cargo_vehicle_carrier",
+    "ro_ro_cargo",
+    "ro_ro_passenger",
+    "cruise_passenger",
+)
 
 #: Annual CII reduction factor Z [%] relative to the 2019 reference line.
 CII_REDUCTION_FACTOR = {2023: 5.0, 2024: 7.0, 2025: 9.0, 2026: 11.0, 2030: 11.0}
