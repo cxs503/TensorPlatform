@@ -171,6 +171,48 @@ def wave_resistance_hull(L: float, B: float, T: float, Tf: float, Cp: float,
 
 
 # ---------------------------------------------------------------------------
+# 适用域（Holtrop-Mennen 1982/1984 回归样本范围）
+# ---------------------------------------------------------------------------
+
+#: Holtrop-Mennen 系列回归的公布适用区间。超出即属外推，必须显式拒绝/降级，
+#: 而不是静默返数（平台"几何/方法先验证"规则）。
+HOLTROP_DOMAIN = {
+    "cb": (0.55, 0.87),        # 方形系数
+    "l_over_b": (3.9, 14.9),   # 长宽比
+    "b_over_t": (2.1, 4.0),    # 宽吃水比
+    "fn_max": 0.40,            # 兴波回归外推上限
+    "l_min_m": 20.0,           # 回归样本最小船长（m）
+}
+
+
+def applicability_violations(length: float, beam: float, draft: float,
+                             cb: float, speed_ms: float) -> List[str]:
+    """返回超出 Holtrop 适用域的逐项理由；空列表 = 域内可算。
+
+    判据全部取自公布区间的**保守端**：一次误放行比一次误拒绝代价大得多，
+    因为越域外推不会报错，只会静默给出无依据的数字。
+    """
+    why: List[str] = []
+    l_b = length / beam
+    b_t = beam / draft
+    cb_lo, cb_hi = HOLTROP_DOMAIN["cb"]
+    lb_lo, lb_hi = HOLTROP_DOMAIN["l_over_b"]
+    bt_lo, bt_hi = HOLTROP_DOMAIN["b_over_t"]
+    if not (cb_lo <= cb <= cb_hi):
+        why.append(f"Cb={cb:.3f} 超出 [{cb_lo}, {cb_hi}]")
+    if not (lb_lo <= l_b <= lb_hi):
+        why.append(f"L/B={l_b:.2f} 超出 [{lb_lo}, {lb_hi}]")
+    if not (bt_lo <= b_t <= bt_hi):
+        why.append(f"B/T={b_t:.2f} 超出 [{bt_lo}, {bt_hi}]（回转体/特殊艇型）")
+    if length < HOLTROP_DOMAIN["l_min_m"]:
+        why.append(f"L={length:.1f} m < {HOLTROP_DOMAIN['l_min_m']} m 回归样本下限")
+    fn = froude_number(speed_ms, length) if length > 0 else 0.0
+    if fn > HOLTROP_DOMAIN["fn_max"]:
+        why.append(f"Fn={fn:.3f} > {HOLTROP_DOMAIN['fn_max']} 兴波回归外推")
+    return why
+
+
+# ---------------------------------------------------------------------------
 # 主求解器
 # ---------------------------------------------------------------------------
 
@@ -195,6 +237,7 @@ class ResistanceInput:
     a_tr: float = 0.0                        # 方尾浸没面积（m²）
     ks: float = DEFAULT_ROUGHNESS_KS          # 粗糙度（m）
     tf: Optional[float] = None               # 艏吃水（m），缺省 = T
+    s_wet_override: Optional[float] = None    # 几何验证过的湿面积（m²），优于此式回归
 
 
 def compute_resistance(inp: ResistanceInput) -> Dict[str, object]:
@@ -234,7 +277,13 @@ def compute_resistance(inp: ResistanceInput) -> Dict[str, object]:
                 f"{vol_geom:.0f} m³ mismatch >5%; Cb/L/B/T should be re-verified")
     Tf = inp.tf if inp.tf else T
 
-    S = wetted_surface_holtrop(L, B, T, Cb, Cm, Cwp, inp.a_bt)
+    if inp.s_wet_override is not None:
+        S = float(inp.s_wet_override)
+        if S <= 0.0:
+            raise ValueError(f"s_wet_override must be > 0, got {S}")
+        assumptions.append("S_wet = geometry-validated input (overrides Holtrop regression)")
+    else:
+        S = wetted_surface_holtrop(L, B, T, Cb, Cm, Cwp, inp.a_bt)
     Re = reynolds_number(V, L, inp.nu)
     Fn = froude_number(V, L)
     Cf = ittc57_cf(Re)

@@ -37,6 +37,11 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
+from services.resistance_holtrop import (
+    ResistanceInput as HoltropInput,
+    applicability_violations,
+    compute_resistance as holtrop_resistance,
+)
 from services.ship_resistance import ct_from_rt
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
@@ -50,6 +55,8 @@ router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
 
 #: 阻力模型的来源标签，随响应下发，便于对标链记录"哪个模型给的数"。
 RESISTANCE_METHOD = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
+#: Holtrop-Mennen 全量路线的来源标签（域内水面船默认走此路）。
+HOLTROP_METHOD = "Holtrop-Mennen 1982/1984: Rf(1+k1)+Rw+Ra, ITTC-57/78 lines"
 
 # Conservative upper heel limit of the wall-sided identity when neither the hull
 # geometry (beam/draft/depth) nor an explicit caller limit is supplied.
@@ -87,6 +94,15 @@ class ResistanceRequest(BaseModel):
         le=1.5,
         description="(1+k) viscous form factor from ITTC-1957; 1.0 = bare flat-plate friction only.",
     )
+    resistance_method: str = Field(
+        default="auto",
+        description=(
+            "阻力模型路线：'auto' = 船型落在 Holtrop-Mennen 公布适用域内则用全量 "
+            "Holtrop（Rf(1+k1)+Rw+Ra），否则退回轴对称体经验式；'holtrop' = 强制 "
+            "Holtrop（越域直接 400）；'legacy' = 强制旧轴对称体经验式（SUBOFF 标定，"
+            "对标链复现用）。"
+        ),
+    )
 
 
 class ResistanceResponse(BaseModel):
@@ -107,6 +123,10 @@ class ResistanceResponse(BaseModel):
     # 系数与模型来源，避免消费侧自己猜字段/自己反推。
     total_resistance_coefficient: float = 0.0
     method: str = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
+    # m1757: 端点新增 Holtrop 全量路线后，显式下发"走了哪条路"与越域理由，
+    # 避免消费侧把外推值当域内真值引用。
+    resistance_route: str = "legacy"
+    method_notes: List[str] = Field(default_factory=list)
     computation_time_ms: float
 
 
@@ -251,11 +271,19 @@ def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
 async def calc_resistance(req: ResistanceRequest):
-    """
-    Compute total resistance for a given hull at specified speed.
+    """Compute total resistance for a given hull at specified speed.
 
-    Uses a simplified Holtrop-Mennen formulation calibrated for the
-    SUBOFF axisymmetric body (DARPA SUBOFF model).
+    两条路线，由 ``resistance_method`` 选择：
+
+    * ``holtrop`` — Holtrop-Mennen 1982/1984 全量分解
+      ``R_T = R_F(1+k1) + R_W + R_A``（``services.resistance_holtrop``）；
+      ``auto`` 在船型落入公布适用域时走此路。
+    * ``legacy`` — 已发布的轴对称体经验式（SUBOFF 标定）：
+      ``S = pi*B*L*(0.5+0.25*Cb)``、``C_r = 0.002(1+2Cb)Fn^2.5``。
+
+    ``auto`` 过去对所有船型都走 legacy；对民用运输船它把 R_T 高估 +23%…+61%
+    （对标仓内 Holtrop 实现，见 docs/m1757_resistance_holtrop_routing.md），
+    远超平台 15% 可接受带，故默认改为"域内走 Holtrop、越域才退回 legacy"。
     """
     t0 = time.perf_counter()
 
@@ -273,55 +301,101 @@ async def calc_resistance(req: ResistanceRequest):
     if L <= 0 or B <= 0 or T <= 0:
         raise HTTPException(status_code=400, detail="Dimensions must be positive")
 
-    # Wetted surface area: geometry-validated input wins over the empirical fit
-    if req.wetted_surface_m2 is not None:
-        S = float(req.wetted_surface_m2)
-        S_source = "input_validated"
+    # ---- 路线选择：域内 Holtrop，越域退回轴对称体经验式 -------------------
+    route = (req.resistance_method or "auto").strip().lower()
+    if route not in ("auto", "holtrop", "legacy"):
+        raise HTTPException(
+            status_code=400,
+            detail=f"resistance_method={req.resistance_method!r} 不支持；"
+                   "可选 auto / holtrop / legacy")
+    violations = applicability_violations(L, B, T, Cb, V)
+    if route == "auto":
+        route = "legacy" if violations else "holtrop"
+    elif route == "holtrop" and violations:
+        raise HTTPException(
+            status_code=400,
+            detail="Holtrop 适用域检查失败: " + "; ".join(violations))
+
+    if route == "holtrop":
+        holt = holtrop_resistance(HoltropInput(
+            length=L, beam=B, draft=T, cb=Cb, speed_ms=V, rho=rho, nu=nu,
+            s_wet_override=req.wetted_surface_m2,
+        ))
+        S = float(holt["wetted_surface"])
+        Rf_total = float(holt["rf"])            # R_F(1+k1)
+        one_k1 = float(holt["one_plus_k1"])
+        Rf_bare = Rf_total / one_k1
+        Rform = Rf_total - Rf_bare
+        Rt = float(holt["rt"])
+        Rresid = Rt - Rf_total                  # R_W + R_A + R_B + R_TR + R_APP
+        Re = float(holt["reynolds_number"])
+        Fn = float(holt["froude_number"])
+        Cf = float(holt["cf"])
+        S_source = ("input_validated" if req.wetted_surface_m2 is not None
+                    else "holtrop_regression")
+        method = HOLTROP_METHOD
+        form_factor = one_k1
+        notes = list(holt["assumptions"])
     else:
-        S = _empirical_wetted_surface(L, B, Cb)
-        S_source = "empirical_formula"
+        # Wetted surface area: geometry-validated input wins over the empirical fit
+        if req.wetted_surface_m2 is not None:
+            S = float(req.wetted_surface_m2)
+            S_source = "input_validated"
+        else:
+            S = _empirical_wetted_surface(L, B, Cb)
+            S_source = "empirical_formula"
 
-    # Reynolds number
-    Re = V * L / nu
+        # Reynolds number
+        Re = V * L / nu
 
-    # ITTC-1957 friction line
-    Cf = 0.075 / (math.log10(Re) - 2.0) ** 2
+        # ITTC-1957 friction line
+        Cf = 0.075 / (math.log10(Re) - 2.0) ** 2
 
-    # Frictional resistance (bare flat plate, ITTC-1957)
-    Rf = 0.5 * rho * S * Cf * V ** 2
+        # Frictional resistance (bare flat plate, ITTC-1957)
+        Rf_bare = 0.5 * rho * S * Cf * V ** 2
 
-    # Viscous form resistance from the (1+k) form factor
-    k = req.form_factor - 1.0
-    Rform = k * Rf
+        # Viscous form resistance from the (1+k) form factor
+        k = req.form_factor - 1.0
+        Rform = k * Rf_bare
 
-    # Residual resistance (simplified: function of Fn and Cb)
-    g = 9.81
-    Fn = V / math.sqrt(g * L)
+        # Residual resistance (simplified: function of Fn and Cb)
+        g = 9.81
+        Fn = V / math.sqrt(g * L)
 
-    # Empirical residual resistance coefficient for SUBOFF-like bodies.
-    # NOTE: curve fit, no published provenance -- see module docstring.
-    Cr = 0.002 * (1 + 2.0 * Cb) * Fn ** 2.5 if Fn > 0.05 else 0.0
-    Rr = 0.5 * rho * S * Cr * V ** 2
+        # Empirical residual resistance coefficient for SUBOFF-like bodies.
+        # NOTE: curve fit, no published provenance -- see module docstring.
+        Cr = 0.002 * (1 + 2.0 * Cb) * Fn ** 2.5 if Fn > 0.05 else 0.0
+        Rresid = 0.5 * rho * S * Cr * V ** 2
 
-    Rt = Rf + Rform + Rr
+        Rt = Rf_bare + Rform + Rresid
+        method = RESISTANCE_METHOD
+        form_factor = req.form_factor
+        notes = [
+            "legacy axisymmetric-body fit (SUBOFF-calibrated); "
+            "not a general merchant-ship method",
+        ]
+        notes.extend(f"out of Holtrop domain: {v}" for v in violations)
 
     elapsed_ms = (time.perf_counter() - t0) * 1000
+    q = 0.5 * rho * S * V ** 2 if S > 0 else 0.0
 
     return ResistanceResponse(
         ship_type=req.ship_type,
         speed_ms=V,
         total_resistance_n=round(Rt, 4),
-        frictional_resistance_n=round(Rf, 4),
+        frictional_resistance_n=round(Rf_bare, 4),
         form_resistance_n=round(Rform, 4),
-        residual_resistance_n=round(Rr, 4),
+        residual_resistance_n=round(Rresid, 4),
         reynolds_number=round(Re, 2),
         friction_coefficient_cf=round(Cf, 10),
         froude_number=round(Fn, 6),
         wetted_surface_m2=round(S, 6),
         wetted_surface_source=S_source,
-        form_factor=req.form_factor,
-        total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V), 8),
-        method=RESISTANCE_METHOD,
+        form_factor=form_factor,
+        total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V) if q > 0 else 0.0, 8),
+        method=method,
+        resistance_route=route,
+        method_notes=notes,
         computation_time_ms=round(elapsed_ms, 3),
     )
 
