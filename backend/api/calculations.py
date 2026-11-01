@@ -50,6 +50,10 @@ router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
 
 #: 阻力模型的来源标签，随响应下发，便于对标链记录"哪个模型给的数"。
 RESISTANCE_METHOD = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
+HOLTROP_METHOD = (
+    "Holtrop-Mennen 1982 + 1984 addenda (published regression; S from the HM "
+    "wetted-surface fit, Cf ITTC-1957, Rw, RB, Rtr, RA)"
+)
 
 # Conservative upper heel limit of the wall-sided identity when neither the hull
 # geometry (beam/draft/depth) nor an explicit caller limit is supplied.
@@ -87,6 +91,29 @@ class ResistanceRequest(BaseModel):
         le=1.5,
         description="(1+k) viscous form factor from ITTC-1957; 1.0 = bare flat-plate friction only.",
     )
+    method: str = Field(
+        default="ittc_axisymmetric",
+        description=(
+            "Resistance kernel. 'ittc_axisymmetric' (default, backward compatible): ITTC-1957 "
+            "friction + hand-fitted axisymmetric residual curve. 'holtrop_mennen': the "
+            "published Holtrop-Mennen (1982/1984) regression in "
+            "services/holtrop_mennen.py (wetted surface, form factor, wave, bulb, transom "
+            "and correlation allowance). Benchmark evidence for the merchant-hull domain, "
+            "see docs/reports/m1659_resistance_kernel_wiring.md."
+        ),
+    )
+    cm: Optional[float] = Field(
+        default=None, gt=0.5, le=1.0,
+        description="Midship section coefficient (Holtrop input). None = 0.92+0.13*Cb regression.",
+    )
+    cwp: Optional[float] = Field(
+        default=None, gt=0.5, le=1.0,
+        description="Waterplane coefficient (Holtrop input). None = (1+2*Cp)/3 (Schneekluth).",
+    )
+    lcb_frac: float = Field(
+        default=0.0, ge=-0.05, le=0.05,
+        description="Longitudinal centre of buoyancy as a fraction of L (+ forward), Holtrop input.",
+    )
 
 
 class ResistanceResponse(BaseModel):
@@ -103,6 +130,11 @@ class ResistanceResponse(BaseModel):
     wetted_surface_m2: float = 0.0
     wetted_surface_source: str = "empirical_formula"
     form_factor: float = 1.0
+    resistance_method: str = "ittc_axisymmetric"
+    wave_resistance_n: float = 0.0
+    correlation_allowance_n: float = 0.0
+    appendage_resistance_n: float = 0.0
+    model_notes: List[str] = Field(default_factory=list)
     # m1388 收编：下游对标链按 C_T = R_T/(0.5 rho S V^2) 复核，端点直接给出
     # 系数与模型来源，避免消费侧自己猜字段/自己反推。
     total_resistance_coefficient: float = 0.0
@@ -248,6 +280,62 @@ def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
     return math.pi * beam * length * (0.5 + 0.25 * cb)
 
 
+def _holtrop_resistance_response(req, t0: float) -> "ResistanceResponse":
+    """Holtrop-Mennen branch of ``/resistance`` (thin, faithful wire-up).
+
+    No re-fitting happens here: the numbers come from
+    ``services.holtrop_mennen.holtrop_resistance`` unchanged, so the audit
+    identity ``Ct = Rt / (0.5 rho S V^2)`` (canon rule R1) holds exactly and the
+    endpoint can be reproduced offline by calling the service directly.
+    """
+    from services.holtrop_mennen import holtrop_resistance
+
+    r = holtrop_resistance(
+        req.length,
+        req.beam,
+        req.draft,
+        req.cb,
+        req.speed_ms,
+        cm=req.cm,
+        cwp=req.cwp,
+        lcb_frac=req.lcb_frac,
+        wet_surface=req.wetted_surface_m2,
+        rho=req.water_density,
+        nu=req.kinematic_viscosity,
+    )
+
+    notes = [f"derived {k}: {v}" for k, v in r.derived.items()] + list(r.warnings)
+    if req.wetted_surface_m2 is not None:
+        s_source = "input_validated"
+    else:
+        s_source = "holtrop_mennen_1982"
+    # ``rf_n`` already carries the (1+k) form factor; form_resistance_n stays 0
+    # so that Rf + Rform + Rresidual + RA + Rapp == Rt exactly.
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+    return ResistanceResponse(
+        ship_type=req.ship_type,
+        speed_ms=req.speed_ms,
+        total_resistance_n=round(r.rt_n, 4),
+        frictional_resistance_n=round(r.rf_n, 4),
+        form_resistance_n=0.0,
+        residual_resistance_n=round(r.rw_n + r.rbulb_n + r.rtr_n, 4),
+        wave_resistance_n=round(r.rw_n, 4),
+        correlation_allowance_n=round(r.ra_n, 4),
+        appendage_resistance_n=round(r.rapp_n, 4),
+        reynolds_number=round(r.re, 2),
+        friction_coefficient_cf=round(r.cf, 10),
+        froude_number=round(r.fn, 6),
+        wetted_surface_m2=round(r.wetted_surface_m2, 6),
+        wetted_surface_source=s_source,
+        form_factor=round(r.form_factor, 6),
+        total_resistance_coefficient=round(r.ct, 8),
+        method=HOLTROP_METHOD,
+        resistance_method="holtrop_mennen",
+        model_notes=notes,
+        computation_time_ms=round(elapsed_ms, 3),
+    )
+
+
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
 async def calc_resistance(req: ResistanceRequest):
@@ -272,6 +360,9 @@ async def calc_resistance(req: ResistanceRequest):
         raise HTTPException(status_code=400, detail=f"Cb={Cb} out of physical range [0.3, 1.0]")
     if L <= 0 or B <= 0 or T <= 0:
         raise HTTPException(status_code=400, detail="Dimensions must be positive")
+
+    if req.method == "holtrop_mennen":
+        return _holtrop_resistance_response(req, t0)
 
     # Wetted surface area: geometry-validated input wins over the empirical fit
     if req.wetted_surface_m2 is not None:
@@ -322,6 +413,7 @@ async def calc_resistance(req: ResistanceRequest):
         form_factor=req.form_factor,
         total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V), 8),
         method=RESISTANCE_METHOD,
+        resistance_method="ittc_axisymmetric",
         computation_time_ms=round(elapsed_ms, 3),
     )
 
