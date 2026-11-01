@@ -19,6 +19,7 @@ import subprocess
 import sys
 import tempfile
 import unittest
+from unittest import mock
 
 # Add parent directory to path
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
@@ -138,14 +139,38 @@ class TestPermissionIsolation(unittest.TestCase):
         self.assertEqual(result["file_mode"], "0o600")
 
     def test_worker_cannot_read_insecure_bank(self):
-        """An insecure question bank is detected."""
+        """An insecure question bank is detected and tightened, never left readable.
+
+        The invariant is "after construction the bank is 0600", not "raise an
+        exception": git does not track the permission bit, so a plain checkout
+        hands us 0o644 and raising made the verifier un-instantiable on every
+        fresh worktree (see docs/verifier/question_bank_audit.md).  We still
+        refuse to proceed if the mode cannot be tightened (covered by
+        test_insecure_bank_raises_when_not_owner below).
+        """
         # Create a file with insecure permissions
         with open(self.qbank_path, "w") as f:
             f.write("test")
         os.chmod(self.qbank_path, 0o644)  # Group-readable
 
-        with self.assertRaises(PermissionError):
-            QuestionBank(self.qbank_path)
+        # exercise the permission guard without requiring a parseable database
+        qb = QuestionBank.__new__(QuestionBank)
+        qb.db_path = self.qbank_path
+        qb._ensure_permissions()
+        result = check_worker_access(self.qbank_path)
+        self.assertTrue(result["secure"], "insecure bank must be tightened to owner-only")
+        self.assertEqual(result["file_mode"], "0o600")
+
+    def test_insecure_bank_raises_when_not_owner(self):
+        """If the mode cannot be tightened, construction still fails loudly."""
+        with open(self.qbank_path, "w") as f:
+            f.write("test")
+        os.chmod(self.qbank_path, 0o644)
+        qb = QuestionBank.__new__(QuestionBank)
+        qb.db_path = self.qbank_path
+        with mock.patch("os.chmod", side_effect=OSError("operation not permitted")):
+            with self.assertRaises(PermissionError):
+                qb._ensure_permissions()
 
 
 class TestVerifier(unittest.TestCase):

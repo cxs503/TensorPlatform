@@ -94,16 +94,33 @@ class QuestionBank:
         except OSError:
             pass  # May not own the directory
 
-        # If DB already exists, verify permissions
+        # If DB already exists, enforce permissions.
+        # NOTE: git does not track the 0o600 bit, so every fresh checkout, copy
+        # or rsync of the repository hands us a 0o644 bank.  Raising here made
+        # the whole verifier un-instantiable after a plain checkout (that is a
+        # denial of verification, and it happened: see
+        # docs/verifier/question_bank_audit.md).  Tightening the mode when we own
+        # the file keeps the isolation invariant and keeps the tool usable; we
+        # still refuse to proceed silently if we cannot tighten it.
         if os.path.exists(self.db_path):
             st = os.stat(self.db_path)
             mode = stat.S_IMODE(st.st_mode)
             if mode & 0o077:  # Group or other has any permission
-                raise PermissionError(
-                    f"Question bank {self.db_path} has insecure permissions "
-                    f"{oct(mode)}; expected 0o600. "
-                    f"Run: chmod 600 {self.db_path}"
-                )
+                try:
+                    os.chmod(self.db_path, 0o600)
+                    tightened = stat.S_IMODE(os.stat(self.db_path).st_mode)
+                except OSError as exc:  # not the owner, or read-only filesystem
+                    raise PermissionError(
+                        f"Question bank {self.db_path} has insecure permissions "
+                        f"{oct(mode)}; expected 0o600 and cannot be tightened ({exc}). "
+                        f"Run: chmod 600 {self.db_path}"
+                    ) from exc
+                if tightened & 0o077:
+                    raise PermissionError(
+                        f"Question bank {self.db_path} has insecure permissions "
+                        f"{oct(tightened)}; expected 0o600. "
+                        f"Run: chmod 600 {self.db_path}"
+                    )
 
     def _init_db(self) -> None:
         """Initialize the question bank schema."""
