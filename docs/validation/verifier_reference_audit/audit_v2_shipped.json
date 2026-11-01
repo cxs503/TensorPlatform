@@ -1,0 +1,268 @@
+{
+  "bank": "tools/verifier/question_bank/questions.db",
+  "n_questions": 15,
+  "verdicts": {
+    "PASS": 8,
+    "WARN": 7,
+    "FAIL": 0
+  },
+  "grades": {
+    "EMPIRICAL": 7,
+    "REAL": 8
+  },
+  "families": [
+    "blasius_laminar",
+    "holtrop_mennen_form_factor",
+    "ittc_1957",
+    "prandtl_schlichting"
+  ],
+  "questions": [
+    {
+      "question_id": "025bf97c-eed7-4bae-9317-66923d414d76",
+      "title": "Turbulent flat plate Cf at Re_L=1e+09",
+      "family": "prandtl_schlichting",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "Cf": 0.00157060046719839
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.5,
+      "verdict": "WARN",
+      "notes": []
+    },
+    {
+      "question_id": "1671a258-307d-4f0b-b5d4-0d60e1cc70f8",
+      "title": "Turbulent flat plate Cf at Re_L=1e+06",
+      "family": "prandtl_schlichting",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "Cf": 0.004470758085611552
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.5,
+      "verdict": "WARN",
+      "notes": []
+    },
+    {
+      "question_id": "2be14f69-eeab-49cd-8bff-24d1711e4c1b",
+      "title": "Holtrop-1982 form factor: Bulk carrier Cb=0.7",
+      "family": "holtrop_mennen_form_factor",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "1+k": 1.173441416714677
+      },
+      "rel_deviation_pct": {
+        "1+k": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 1.0,
+      "verdict": "WARN",
+      "notes": [
+        "form factor reference is EMPIRICAL: reconstructible from the published formula, but the constants were not re-checked against the original table"
+      ]
+    },
+    {
+      "question_id": "61bc4bd3-8700-44e9-809e-aeab1bd8a55b",
+      "title": "Laminar flat plate Cf at Re_L=5e+05",
+      "family": "blasius_laminar",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.0018780756108314701
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "7bb4052e-2b46-4c89-b50b-00e2c15aeea9",
+      "title": "Laminar flat plate Cf at Re_L=1e+05",
+      "family": "blasius_laminar",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.004199504732703608
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "7cd709c2-6c3f-47e8-a6db-360ae2df9dab",
+      "title": "Turbulent flat plate Cf at Re_L=1e+08",
+      "family": "prandtl_schlichting",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "Cf": 0.002128331291412549
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.5,
+      "verdict": "WARN",
+      "notes": []
+    },
+    {
+      "question_id": "864e2b02-9b00-4c91-a968-7a5106ddb7b1",
+      "title": "ITTC-1957 Cf at Re=5e6 (medium model)",
+      "family": "ittc_1957",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.0033966900412411463
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "8ef6e44c-6383-4ac1-a075-a73593b09f8b",
+      "title": "ITTC-1957 Cf at Re=1e6 (low speed model)",
+      "family": "ittc_1957",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.0046875
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "aae03b0a-9975-405d-9be7-527183039635",
+      "title": "ITTC-1957 Cf at Re=1e9 (large ship)",
+      "family": "ittc_1957",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.001530612244897959
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "b104a32f-ad5e-4c75-89e2-d73cac9efa12",
+      "title": "Turbulent flat plate Cf at Re_L=1e+07",
+      "family": "prandtl_schlichting",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "Cf": 0.0030037131331590466
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.5,
+      "verdict": "WARN",
+      "notes": []
+    },
+    {
+      "question_id": "c87a922b-f4d1-494e-82f8-bfa3d8f199a1",
+      "title": "ITTC-1957 Cf at Re=1e8 (full ship)",
+      "family": "ittc_1957",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.0020833333333333333
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "d4142687-0c36-4c5a-81fb-f183d8bd33b7",
+      "title": "Laminar flat plate Cf at Re_L=1e+06",
+      "family": "blasius_laminar",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.001328
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "e578deb5-47ef-4630-9ef5-934e9d5a5319",
+      "title": "ITTC-1957 Cf at Re=1e7 (typical model)",
+      "family": "ittc_1957",
+      "grade": "REAL",
+      "recomputed": {
+        "Cf": 0.003
+      },
+      "rel_deviation_pct": {
+        "Cf": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 0.1,
+      "verdict": "PASS",
+      "notes": []
+    },
+    {
+      "question_id": "e9577730-ec11-4ff5-a58b-e6df1a225e2c",
+      "title": "Holtrop-1982 form factor: Tanker Cb=0.8",
+      "family": "holtrop_mennen_form_factor",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "1+k": 1.3031409268115408
+      },
+      "rel_deviation_pct": {
+        "1+k": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 1.0,
+      "verdict": "WARN",
+      "notes": [
+        "form factor reference is EMPIRICAL: reconstructible from the published formula, but the constants were not re-checked against the original table"
+      ]
+    },
+    {
+      "question_id": "f162279a-eb90-4dcf-9be8-2f7998f35363",
+      "title": "Holtrop-1982 form factor: Series 60 Cb=0.6",
+      "family": "holtrop_mennen_form_factor",
+      "grade": "EMPIRICAL",
+      "recomputed": {
+        "1+k": 1.1331730484357982
+      },
+      "rel_deviation_pct": {
+        "1+k": 0.0
+      },
+      "invariant_failures": [],
+      "max_effective_acceptance_window_pct": 1.0,
+      "verdict": "WARN",
+      "notes": [
+        "form factor reference is EMPIRICAL: reconstructible from the published formula, but the constants were not re-checked against the original table"
+      ]
+    }
+  ],
+  "ok": true
+}

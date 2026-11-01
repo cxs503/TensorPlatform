@@ -64,27 +64,45 @@ def compute_prandtl_schlichting_cf(Re_L: float) -> float:
     return 0.455 / (log_Re ** 2.58)
 
 
-def compute_holtrop_form_factor(Cb: float, L: float, B: float, T: float) -> float:
-    """
-    Compute Holtrop-Mennen form factor (1+k).
+def compute_holtrop_form_factor(
+    Cb: float,
+    L: float,
+    B: float,
+    T: float,
+    lcb: float = 0.0,
+    Cstern: float = 0.0,
+    Cm: float | None = None,
+) -> float:
+    """Holtrop-Mennen (1982) form factor 1+k1, full 1982 structure.
 
-    Simplified formula:
-      1+k ≈ 0.93 + 0.487118 * Cb^(-0.9249) * (L/B)^0.15 * (B/T)^0.2 * ...
-
-    This is a simplified version for pilot verification.
+    The earlier pilot used ``0.93 + 0.487118*Cb^-0.9249*(L/B)^0.15*(B/T)^0.2*0.1``
+    ("Scaled for pilot"), which mirrored the question generator's own bug and
+    therefore passed the verifier 100% while being physically inadmissible
+    (1+k < 1 for Cb=0.8, decreasing with Cb).
     """
     if not (0.3 < Cb < 0.95):
         raise ValueError(f"Block coefficient out of range: {Cb}")
     if L <= 0 or B <= 0 or T <= 0:
         raise ValueError("Dimensions must be positive")
-
-    # Simplified Holtrop form factor
-    term1 = 0.93
-    term2 = 0.487118 * (Cb ** (-0.9249))
-    term3 = (L / B) ** 0.15
-    term4 = (B / T) ** 0.2
-
-    return term1 + term2 * term3 * term4 * 0.1  # Scaled for pilot
+    if Cm is None:
+        Cm = 1.0 - 0.05 * (1.0 - Cb)
+    Cp = Cb / Cm
+    t_over_l = T / L
+    if t_over_l > 0.05:
+        c12 = t_over_l ** 0.2228446
+    elif t_over_l > 0.02:
+        c12 = 48.20 * (t_over_l - 0.02) ** 2.078 + 0.479948
+    else:
+        raise ValueError(f"T/L={t_over_l:.4f} outside Holtrop-1982 validity range")
+    c13 = 1.0 + 0.93 * Cstern
+    Lr = L * (1.0 - Cp + 0.0225 * lcb)
+    if Lr <= 0:
+        raise ValueError(f"length of run Lr={Lr:.3f} <= 0")
+    return c13 * (
+        0.93
+        + c12 * (B / Lr) ** 0.92497 * (0.95 - Cp) ** (-0.521448)
+        * (1.0 - Cp + 0.0225 * lcb) ** 0.6906
+    )
 
 
 def run_candidate(spec: dict) -> dict:
@@ -119,7 +137,12 @@ def run_candidate(spec: dict) -> dict:
         L = spec["L"]
         B = spec["B"]
         T = spec["T"]
-        form_factor = compute_holtrop_form_factor(Cb, L, B, T)
+        form_factor = compute_holtrop_form_factor(
+            Cb, L, B, T,
+            lcb=float(spec.get("lcb", 0.0)),
+            Cstern=float(spec.get("Cstern", 0.0)),
+            Cm=spec.get("Cm"),
+        )
         return {"1+k": form_factor}
 
     else:

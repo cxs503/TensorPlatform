@@ -338,9 +338,17 @@ class TestEndToEnd(unittest.TestCase):
                 Re_L = spec["Re_L"]
                 return {"Cf": 0.455 / (math.log10(Re_L) ** 2.58)}
             elif formula == "holtrop_mennen_form_factor":
-                Cb = spec["Cb"]
-                L, B, T = spec["L"], spec["B"], spec["T"]
-                return {"1+k": 0.93 + 0.487118 * (Cb ** (-0.9249)) * (L/B)**0.15 * (B/T)**0.2 * 0.1}
+                # Holtrop-Mennen (1982) full structure; the previous fixture here
+                # mirrored the generator's own broken variant, which is exactly the
+                # circularity that test_reference_audit.py now guards against.
+                from verifier.pilots.resistance_calculator import (
+                    compute_holtrop_form_factor,
+                )
+                return {"1+k": compute_holtrop_form_factor(
+                    spec["Cb"], spec["L"], spec["B"], spec["T"],
+                    lcb=float(spec.get("lcb", 0.0)),
+                    Cstern=float(spec.get("Cstern", 0.0)),
+                )}
             return {}
 
         verifier = Verifier(self.qbank_path, "tp-ver-pilot")
