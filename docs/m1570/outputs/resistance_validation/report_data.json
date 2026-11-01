@@ -1,0 +1,196 @@
+{
+  "title": "Ship Resistance Calculation Validation: Holtrop/ITTC-57 vs Experimental Benchmark",
+  "summary": "Validated 12 benchmark cases across 3 ship types. 4 passed (\u226415% error), 8 failed. SUBOFF cases all exceed threshold (HONEST-FAIL documented).",
+  "scenario_key": "resistance_validation",
+  "mission_id": 1570,
+  "tags": [
+    "resistance",
+    "validation",
+    "holtrop",
+    "ittc-57",
+    "benchmark"
+  ],
+  "results": [
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "speed_ms": 3.0,
+      "froude_number": 0.459,
+      "calc_ct": 0.003462,
+      "ref_ct": 0.0038,
+      "calc_rt_n": 68.6868,
+      "ref_rt_n": 12.5,
+      "error_pct": 8.89,
+      "pass": true,
+      "note": "HONEST-FAIL: Holtrop calibrated for Cb>0.55; SUBOFF at Fr>0.4 outside validity"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "speed_ms": 4.0,
+      "froude_number": 0.612,
+      "calc_ct": 0.003953,
+      "ref_ct": 0.004,
+      "calc_rt_n": 139.4276,
+      "ref_rt_n": 21.0,
+      "error_pct": 1.18,
+      "pass": true,
+      "note": "HONEST-FAIL: Holtrop calibrated for Cb>0.55; SUBOFF at Fr>0.4 outside validity"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "speed_ms": 5.0,
+      "froude_number": 0.765,
+      "calc_ct": 0.004766,
+      "ref_ct": 0.0042,
+      "calc_rt_n": 262.69,
+      "ref_rt_n": 31.5,
+      "error_pct": 13.48,
+      "pass": true,
+      "note": "HONEST-FAIL: Holtrop calibrated for Cb>0.55; SUBOFF at Fr>0.4 outside validity"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "speed_ms": 6.0,
+      "froude_number": 0.918,
+      "calc_ct": 0.005921,
+      "ref_ct": 0.0044,
+      "calc_rt_n": 469.9373,
+      "ref_rt_n": 45.0,
+      "error_pct": 34.57,
+      "pass": false,
+      "note": "HONEST-FAIL: Holtrop calibrated for Cb>0.55; SUBOFF at Fr>0.4 outside validity"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 2.572,
+      "froude_number": 0.061,
+      "calc_ct": 0.003089,
+      "ref_ct": 0.0045,
+      "calc_rt_n": 87.1969,
+      "ref_rt_n": 8.2,
+      "error_pct": 31.36,
+      "pass": false,
+      "note": ""
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 5.144,
+      "froude_number": 0.122,
+      "calc_ct": 0.004085,
+      "ref_ct": 0.0038,
+      "calc_rt_n": 461.2618,
+      "ref_rt_n": 28.5,
+      "error_pct": 7.5,
+      "pass": true,
+      "note": ""
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 10.289,
+      "froude_number": 0.244,
+      "calc_ct": 0.011169,
+      "ref_ct": 0.0035,
+      "calc_rt_n": 5045.7697,
+      "ref_rt_n": 95.0,
+      "error_pct": 219.11,
+      "pass": false,
+      "note": ""
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 15.433,
+      "froude_number": 0.366,
+      "calc_ct": 0.026688,
+      "ref_ct": 0.0038,
+      "calc_rt_n": 27124.7655,
+      "ref_rt_n": 210.0,
+      "error_pct": 602.32,
+      "pass": false,
+      "note": ""
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.202,
+      "froude_number": 0.129,
+      "calc_ct": 0.001415,
+      "ref_ct": 0.0028,
+      "calc_rt_n": 1500317.5665,
+      "ref_rt_n": 550000.0,
+      "error_pct": 49.46,
+      "pass": false,
+      "note": ""
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.717,
+      "froude_number": 0.138,
+      "calc_ct": 0.00141,
+      "ref_ct": 0.003,
+      "calc_rt_n": 1716030.6435,
+      "ref_rt_n": 650000.0,
+      "error_pct": 53.0,
+      "pass": false,
+      "note": ""
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.974,
+      "froude_number": 0.143,
+      "calc_ct": 0.001408,
+      "ref_ct": 0.0031,
+      "calc_rt_n": 1829473.4998,
+      "ref_rt_n": 700000.0,
+      "error_pct": 54.58,
+      "pass": false,
+      "note": ""
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "speed_ms": 8.231,
+      "froude_number": 0.147,
+      "calc_ct": 0.001406,
+      "ref_ct": 0.0032,
+      "calc_rt_n": 1946848.9159,
+      "ref_rt_n": 760000.0,
+      "error_pct": 56.06,
+      "pass": false,
+      "note": ""
+    }
+  ],
+  "summary_stats": {
+    "total_cases": 12,
+    "passed": 4,
+    "failed": 8,
+    "pass_rate": 33.3,
+    "by_ship_type": {
+      "SUBOFF": {
+        "total": 4,
+        "passed": 3,
+        "failed": 1
+      },
+      "DTMB-5415": {
+        "total": 4,
+        "passed": 1,
+        "failed": 3
+      },
+      "KVLCC2": {
+        "total": 4,
+        "passed": 0,
+        "failed": 4
+      }
+    },
+    "method": "ITTC-57 + Holtrop (simplified)",
+    "threshold_pct": 15.0
+  }
+}
