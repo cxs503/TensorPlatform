@@ -88,3 +88,8 @@ export const reportApi = {
   list: (params?: any) => http.get<any>("/tensor/reports", params),
   get: (id: number) => http.get<any>(`/tensor/reports/${id}`),
 }
+
+// ── paper production line (TensorPapers registry + paper-* missions) ──
+export const paperApi = {
+  line: () => http.get<any>('/tensor/papers/line'),
+}

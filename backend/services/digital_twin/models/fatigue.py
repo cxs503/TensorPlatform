@@ -7,7 +7,9 @@ Physics chain
 
        M_hog = 0.19 * C * L^2 * B * Cb      [kN m]
        M_sag = 0.11 * C * L^2 * B * Cb      [kN m]
+       C = 0.0412 * L + 4                   (L <= 90 m)
        C = 10.75 - ((300 - L)/100)^1.5      (90 < L <= 300 m)
+       C = 10.75                            (L > 300 m)
 
 2. Nominal stress amplitude ``sigma_a = M / Z`` with the thin-walled
    rectangular section modulus ``Z = B T^2 / 6`` of the idealised hull.
@@ -25,6 +27,20 @@ Physics chain
    load cycles per hour proportional to concentration, thickness and speed with
    the documented coefficient ``ICE_CYCLE_RATE``) so that the digital twin can
    extrapolate the damage increment in ice.
+
+Sea-state transfer
+------------------
+The UR S11 moment is a *design* value associated with the design sea state
+``HS_IACS = 11 m``.  For any other sea state the wave-induced stress amplitude
+follows **linear wave theory**, ``sigma_a(Hs) = sigma_design * (Hs/HS_IACS)``
+(wave loads of a linear RAO model are proportional to wave amplitude; the
+platform's own strip model obeys this, see ``seakeeping.irregular_seastate``
+whose ``heave_rms`` is exactly proportional to ``Hs``).  A quadratic
+``(Hs/HS_IACS)**2`` law is *not* physical -- it under-predicts the stress (and
+therefore the damage, which scales as ``sigma_a**3``) at every sea state below
+the design point, i.e. it errs non-conservatively.  The linear law is verified
+against IACS UR S11 + linear wave theory by
+``scripts/verify_fatigue_load_path.py`` (mission m1692).
 
 The fatigue "D" surrogate therefore returns damage per operational day and the
 remaining life in years, both of which enter the online forecast.
@@ -51,14 +67,19 @@ GAMMA_1_PLUS_M_HALF = math.gamma(1.0 + SN_M / 2.0)   # Gamma(2.5) = 1.3293
 ICE_CYCLE_RATE = 0.020             # Hz per (unit concentration * unit h * unit speed)
 
 
+def wave_parameter_C(L: float) -> float:
+    """IACS UR S11 Rev.7 3.2.1 wave parameter ``C(L)``."""
+    L = float(L)
+    if L <= 90.0:
+        return 0.0412 * L + 4.0
+    if L <= 300.0:
+        return 10.75 - ((300.0 - L) / 100.0) ** 1.5
+    return 10.75
+
+
 def wave_bending_moment(L: float, B: float, Cb: float) -> Dict[str, float]:
     """IACS UR S11 vertical wave bending moment amplitudes [kN m]."""
-    if 90.0 < L <= 300.0:
-        C = 10.75 - ((300.0 - L) / 100.0) ** 1.5
-    elif 300.0 < L <= 350.0:
-        C = 10.75
-    else:
-        C = 10.75 - ((300.0 - L) / 100.0) ** 1.5 if L <= 300 else 10.75
+    C = wave_parameter_C(L)
     base = C * L ** 2 * B * Cb
     return {"M_hog_kNm": 0.19 * base, "M_sag_kNm": 0.11 * base, "C_wave": C, "base": base}
 
@@ -134,11 +155,18 @@ def spectral_fatigue(
     exposure_s: float = 86400.0,
     sigma_rms_mpa: float | None = None,
 ) -> Dict[str, float]:
-    """Damage accumulated during ``exposure_s`` seconds of the given condition."""
+    """Damage accumulated during ``exposure_s`` seconds of the given condition.
+
+    ``sigma_rms_mpa`` (historical name) is consumed as a stress *amplitude*
+    [MPa], i.e. the same quantity as ``sigma_amp_MPa`` in the return dict; when
+    it is omitted the amplitude follows the linear wave-load law
+    ``sigma_design * Hs/HS_IACS``.
+    """
     Hs = max(float(Hs), 0.0)
     Tp = float(max(Tp, 2.0))
     sig_design = wave_bending_moment(hull.L, hull.B, hull.Cb)["M_hog_kNm"] * 1e3 / section_modulus(hull.B, hull.T) / 1e6
-    sig_a = sigma_rms_mpa if sigma_rms_mpa is not None else sig_design * (Hs / HS_IACS) ** 2
+    # linear wave theory: stress amplitude proportional to wave amplitude
+    sig_a = sigma_rms_mpa if sigma_rms_mpa is not None else sig_design * (Hs / HS_IACS)
     sigma_proc = max(sig_a / math.sqrt(2.0), 1e-6)      # Rayleigh amplitudes
     nu0 = 1.4 / Tp
     eps = spectral_width(Hs, Tp, U_knots, hull.L)
@@ -160,6 +188,8 @@ def spectral_fatigue(
         "sigma_amp_MPa": float(sig_a),
         "sigma_rms_MPa": float(sigma_proc),
         "sigma_design_MPa": float(sig_design),
+        "hs_ref_m": float(HS_IACS),
+        "stress_scaling": "linear_in_Hs",
         "nu0_Hz": float(nu0),
         "bandwidth_eps": float(eps),
         "wideband_factor": float(lam),
