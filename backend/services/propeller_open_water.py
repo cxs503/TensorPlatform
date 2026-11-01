@@ -46,7 +46,7 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass
-from typing import Dict, List, Optional, Sequence, Tuple
+from typing import Callable, Dict, List, Optional, Sequence, Tuple
 
 __all__ = [
     "PropellerGeometry",
@@ -151,6 +151,31 @@ class PropellerGeometry:
 # ---------------------------------------------------------------------------
 # Section aerodynamics and losses
 # ---------------------------------------------------------------------------
+@dataclass(frozen=True)
+class SectionModel:
+    """Parametric 2-D section model (lift slope scale + camber + drag scale).
+
+    The defaults reproduce the original certified section exactly
+    (``Cl = 2 pi sin(alpha)``, ``Cd = CD0 + alpha^2``); the extra parameters exist
+    so that a *calibrated* variant can be fitted against the Wageningen B-series
+    polynomial without touching the certified default path.  See
+    ``backend/services/propeller_bseries_calibration.py``.
+    """
+
+    lift_scale: float = 1.0
+    zero_lift_rad: float = 0.0
+    drag_scale: float = 1.0
+
+    def __call__(self, alpha_rad: float) -> Tuple[float, float]:
+        cl = self.lift_scale * CL_SLOPE * math.sin(alpha_rad + self.zero_lift_rad)
+        cl = min(max(cl, -CL_MAX), CL_MAX)
+        cd = min(max(self.drag_scale * (CD0 + 1.0 * alpha_rad * alpha_rad), 0.008), 0.10)
+        return cl, cd
+
+
+DEFAULT_SECTION = SectionModel()
+
+
 def blade_element_section(alpha_rad: float) -> Tuple[float, float]:
     """Section lift/drag: ``Cl = 2 pi sin(alpha)`` capped at ``CL_MAX``,
     ``Cd = 0.008 + 0.9 alpha^2`` clamped to ``[0.006, 0.08]``.
@@ -191,13 +216,19 @@ def open_water_point(
     rho: float = 1025.0,
     n_rps: float = 1.0,
     axial_induction: bool = True,
+    section: Optional[Callable[[float], Tuple[float, float]]] = None,
 ) -> Dict[str, float]:
     """Open-water point for advance coefficient ``J = Va/(n D)``.
 
     ``axial_induction=False`` selects the pure blade-element approximation
     (``u = a' = 0``) which is kept as an independent cross-check of the
     momentum-coupled solution.
+
+    ``section`` overrides the 2-D section closure (default ``DEFAULT_SECTION``,
+    i.e. ``blade_element_section``).  It is an *additive* hook: omitting it
+    reproduces the certified numbers bit for bit.
     """
+    section_fn = section if section is not None else DEFAULT_SECTION
     if J < 0:
         raise ValueError("J must be non-negative")
     R = geom.radius_m
@@ -228,7 +259,7 @@ def open_water_point(
                 a_p_l = 0.0
                 for _ in range(8):
                     phi_l = math.atan((Va + u_try) / (omega * r * (1.0 - a_p_l)))
-                    cl_l, cd_l = blade_element_section(beta - phi_l)
+                    cl_l, cd_l = section_fn(beta - phi_l)
                     F_l = _prandtl_loss(Z, x, phi_l, geom.hub_ratio)
                     w2 = (Va + u_try) ** 2 + (omega * r * (1.0 - a_p_l)) ** 2
                     dQ_l = 0.5 * rho * w2 * Z * c * (
@@ -237,7 +268,7 @@ def open_water_point(
                     a_p_new = dQ_l / denom if denom > 1e-14 else 0.0
                     a_p_l = max(0.0, min(0.5, 0.5 * (a_p_l + a_p_new)))
                 phi_l = math.atan((Va + u_try) / (omega * r * (1.0 - a_p_l)))
-                cl_l, cd_l = blade_element_section(beta - phi_l)
+                cl_l, cd_l = section_fn(beta - phi_l)
                 F_l = _prandtl_loss(Z, x, phi_l, geom.hub_ratio)
                 w2 = (Va + u_try) ** 2 + (omega * r * (1.0 - a_p_l)) ** 2
                 dT_be = 0.5 * rho * w2 * Z * c * (
@@ -272,7 +303,7 @@ def open_water_point(
         a_p_l = 0.0
         for _ in range(20):
             phi_l = math.atan((Va + u) / (omega * r * (1.0 - a_p_l)))
-            cl_l, cd_l = blade_element_section(beta - phi_l)
+            cl_l, cd_l = section_fn(beta - phi_l)
             F_l = _prandtl_loss(Z, x, phi_l, geom.hub_ratio)
             w2 = (Va + u) ** 2 + (omega * r * (1.0 - a_p_l)) ** 2
             dQ_l = 0.5 * rho * w2 * Z * c * (
@@ -287,7 +318,7 @@ def open_water_point(
         a_p = a_p_l
 
         phi = math.atan((Va + u) / (omega * r * (1.0 - a_p)))
-        cl, cd = blade_element_section(beta - phi)
+        cl, cd = section_fn(beta - phi)
         F = _prandtl_loss(Z, x, phi, geom.hub_ratio)
         w2 = (Va + u) ** 2 + (omega * r * (1.0 - a_p)) ** 2
         dT = 0.5 * rho * w2 * Z * c * (cl * math.cos(phi) - cd * math.sin(phi)) * F * dr
