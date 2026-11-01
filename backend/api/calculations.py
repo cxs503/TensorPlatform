@@ -11,11 +11,21 @@ import time
 from typing import Any, Dict, Optional
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from services.ship_timing import get_collector, timed_calc
+from services.stability_reference import (
+    box_parameters,
+    exact_gz_box,
+    wall_sided_limit_deg,
+)
 
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
+
+# Conservative upper bound of the wall-sided identity when the hull geometry
+# (beam / draft / depth) is not supplied, so the exact limit cannot be derived.
+# Typical deck-edge immersion angles of slender hulls are 15-25 deg.
+DEFAULT_WALL_SIDED_LIMIT_DEG = 25.0
 
 
 # ---------------------------------------------------------------------------
@@ -47,13 +57,34 @@ class ResistanceResponse(BaseModel):
 
 
 class StabilityRequest(BaseModel):
-    """Stability calculation request."""
+    """Stability calculation request.
+
+    ``beam_m`` / ``draft_m`` / ``depth_m`` are optional.  When beam and draft are
+    given, the endpoint derives the exact heel limit of the wall-sided identity
+    and returns an independent box-barge cross-check arm; otherwise a
+    conservative 25 deg limit is assumed.
+    """
     ship_type: str = Field(default="generic", description="Hull type identifier")
-    displacement_t: float = Field(default=1000.0, gt=0, description="Displacement (tonnes)")
+    displacement_t: float = Field(
+        default=1000.0, gt=0, description="Displacement (tonnes)",
+        validation_alias=AliasChoices("displacement_t", "displacement"),
+    )
     gm_m: float = Field(default=1.0, gt=0, description="Metacentric height (m)")
     kb_m: float = Field(default=2.0, gt=0, description="KB (m)")
     bm_m: float = Field(default=3.0, gt=0, description="BM (m)")
     heel_angle_deg: float = Field(default=10.0, description="Heel angle (degrees)")
+    beam_m: Optional[float] = Field(
+        default=None, gt=0, description="Beam (m); enables the analytic validity limit",
+        validation_alias=AliasChoices("beam_m", "beam"),
+    )
+    draft_m: Optional[float] = Field(
+        default=None, gt=0, description="Draft (m); enables the analytic validity limit",
+        validation_alias=AliasChoices("draft_m", "draft"),
+    )
+    depth_m: Optional[float] = Field(
+        default=None, gt=0, description="Moulded depth (m); defaults to 1.5 x draft",
+        validation_alias=AliasChoices("depth_m", "depth"),
+    )
 
 
 class StabilityResponse(BaseModel):
@@ -64,6 +95,11 @@ class StabilityResponse(BaseModel):
     righting_moment_knm: float
     gm_effective_m: float
     computation_time_ms: float
+    # Validity of the wall-sided identity at the requested heel angle.
+    wall_sided_valid: bool = True
+    heel_validity_limit_deg: Optional[float] = None
+    gz_box_exact_m: Optional[float] = None
+    validity_note: str = ""
 
 
 # ---------------------------------------------------------------------------
@@ -143,10 +179,26 @@ async def calc_stability(req: StabilityRequest):
     Compute righting arm and moment at a given heel angle.
 
     Uses the wall-sided formula: GZ = GM·sin(φ) + ½·BM·tan²(φ)·sin(φ)
+
+    That identity is exact only while the immersed section stays a
+    parallel-sided trapezoid (no deck-edge immersion, no bilge emergence).
+    Beyond that limit ``tan²(φ)`` makes the arm grow without bound, so the
+    response carries an explicit validity verdict (``wall_sided_valid``), the
+    angle limit itself when beam/draft are supplied, and an independently
+    integrated box-barge arm for cross-checking.
     """
     t0 = time.perf_counter()
 
-    phi = math.radians(req.heel_angle_deg)
+    phi_deg = req.heel_angle_deg
+    # |phi| = 90 deg is a mathematical singularity of tan(phi)**2 and every
+    # finite righting arm has vanished long before it.
+    if not (-90.0 < phi_deg < 90.0):
+        raise HTTPException(
+            status_code=400,
+            detail=f"heel_angle_deg={phi_deg} out of range (-90, 90): tan(phi)^2 is unbounded",
+        )
+
+    phi = math.radians(phi_deg)
     GM = req.gm_m
     BM = req.bm_m
     disp = req.displacement_t * 1000  # tonnes → kg
@@ -158,6 +210,44 @@ async def calc_stability(req: StabilityRequest):
     g = 9.81
     RM = disp * g * GZ / 1000  # kN·m
 
+    # -- validity verdict ---------------------------------------------------
+    heel_limit: Optional[float] = None
+    gz_exact: Optional[float] = None
+    if req.beam_m is not None and req.draft_m is not None:
+        try:
+            heel_limit = wall_sided_limit_deg(req.beam_m, req.draft_m, req.depth_m)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        note_prefix = f"analytic limit atan(2*min(T, D-T)/B) = {heel_limit:.2f} deg"
+    else:
+        heel_limit = DEFAULT_WALL_SIDED_LIMIT_DEG
+        note_prefix = (
+            "beam/draft not supplied; conservative default limit "
+            f"{DEFAULT_WALL_SIDED_LIMIT_DEG:.0f} deg assumed"
+        )
+
+    valid = abs(phi_deg) <= heel_limit + 1e-9
+    if valid:
+        note = f"within wall-sided domain ({note_prefix})"
+    else:
+        note = (
+            f"OUTSIDE wall-sided domain ({note_prefix}); GZ grows without bound, "
+            "do not use for IS-Code areas or GZmax"
+        )
+
+    # Independent box-barge cross-check (constant-displacement exact solution).
+    if req.beam_m is not None and req.draft_m is not None:
+        depth = req.depth_m if req.depth_m is not None else 1.5 * req.draft_m
+        kg = req.kb_m + req.bm_m - req.gm_m  # inferred from the supplied hydrostatics
+        if depth > req.draft_m and 0.0 < kg < depth:
+            gz_exact = round(
+                exact_gz_box(req.beam_m, req.draft_m, kg, phi, depth)["gz_m"], 6
+            )
+            if gz_exact is not None and not valid:
+                note += f"; exact box-barge arm at this heel = {gz_exact:.3f} m"
+        else:
+            note += "; box cross-check skipped (needs 0 < KG < depth, depth > draft)"
+
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
     return StabilityResponse(
@@ -167,6 +257,10 @@ async def calc_stability(req: StabilityRequest):
         righting_moment_knm=round(RM, 4),
         gm_effective_m=round(GM, 4),
         computation_time_ms=round(elapsed_ms, 3),
+        wall_sided_valid=valid,
+        heel_validity_limit_deg=round(heel_limit, 3),
+        gz_box_exact_m=gz_exact,
+        validity_note=note,
     )
 
 
