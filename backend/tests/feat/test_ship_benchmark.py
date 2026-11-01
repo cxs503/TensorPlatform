@@ -77,7 +77,7 @@ def mock_resistance_api():
             "ct": base_ct,
             "rf": 0.0,
             "rr": 0.0,
-            "rt": base_ct * 0.5 * geometry.get("displacement", 1000) * speed_ms ** 2,
+            "rt": base_ct * 0.5 * (geometry.get("displacement") or 1.0) * speed_ms ** 2,
             "pe": 0.0,
             "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力",
         }
