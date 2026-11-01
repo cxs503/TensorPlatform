@@ -1,0 +1,82 @@
+{
+ "domain": "ice_navigation",
+ "endpoint": "http://127.0.0.1:8001/api/v1/extended-calculations/ice",
+ "criteria_total": 11,
+ "criteria_pass": 1,
+ "criteria_fail": 10,
+ "grade": "MOCK",
+ "fails": [
+  "C2",
+  "C3",
+  "C4",
+  "C5",
+  "C6",
+  "C7",
+  "C8",
+  "C9",
+  "C10",
+  "C11"
+ ],
+ "defects": [
+  {
+   "id": "D1",
+   "field": "ice_resistance",
+   "defect": "无速度项：R_ice = 0.5*1000*h^2*B + 0.3*1000*h^1.5*sqrt(L)，V 仅用于 ice_power",
+   "evidence": "R(15kn)/R(1kn) = 1.0"
+  },
+  {
+   "id": "D2",
+   "field": "ice_resistance",
+   "defect": "等效冰压碎强度硬编码 1000 Pa，物理带 0.5-5 MPa，无 sigma_c 输入通道",
+   "evidence": "sigma_eff = 0.001 MPa"
+  },
+  {
+   "id": "D3",
+   "field": "R_bending",
+   "defect": "项结构非 Lindqvist：弯曲项写成 0.3*1000*h^1.5*sqrt(L)，缺 alpha/psi/mu 与 submergence/sliding 两成分",
+   "evidence": "schema 无 alpha/psi/mu；源码注释称三成分实为两项"
+  },
+  {
+   "id": "D4",
+   "field": "cb",
+   "defect": "死参数：cb 进入 schema 但计算未引用",
+   "evidence": "1 个不同输出值（4 个输入）"
+  },
+  {
+   "id": "D5",
+   "field": "continuous_speed",
+   "defect": "连续破冰航速 = 输入航速 x 冰级固定系数，与冰厚/功率/阻力解耦",
+   "evidence": "PC1..PC7 输出 [2.0, 3.0, 4.0, 5.0]"
+  },
+  {
+   "id": "D6",
+   "field": "shell_plating",
+   "defect": "板厚 15+10h 与冰级无关，PC1 与 PC7 同厚",
+   "evidence": "[25.0] mm"
+  },
+  {
+   "id": "D7",
+   "field": "frame_spacing",
+   "defect": "400-50h 无下界，h=9m 转负",
+   "evidence": "-50.0 mm @ h=9m"
+  },
+  {
+   "id": "D8",
+   "field": "max_ice_thickness",
+   "defect": "冰级查表常数，与船舶尺度/功率无关",
+   "evidence": "[1.0] m 覆盖 1200-200000 t"
+  },
+  {
+   "id": "D9",
+   "field": "method",
+   "defect": "标签伪标 'Lindqvist公式'：仓库内 methods/ice/lindqvist.py 独立实现未被调用",
+   "evidence": "endpoint/oracle = 25.4137"
+  },
+  {
+   "id": "D10",
+   "field": "ice_power",
+   "defect": "P = R*V 未除推进效率、未与可用功率/推力平衡比较",
+   "evidence": "39028.0 kW"
+  }
+ ]
+}
