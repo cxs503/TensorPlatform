@@ -1,0 +1,1640 @@
+{
+ "mission": "m1536",
+ "capability": "calc.resistance",
+ "endpoint": "http://127.0.0.1:8001/api/v1/calculations/resistance",
+ "platform_method": "ITTC-57摩擦阻力 + Holtrop剩余阻力",
+ "threshold_pct": 15.0,
+ "reference_stack": [
+  "ITTC-1957 friction line (analytic)",
+  "Holtrop-Mennen (1984) faithful implementation (src/ship_verification/holtrop1984.py)",
+  "published benchmark wetted surfaces: KVLCC2 27194 m2, KCS 9494 m2",
+  "Denny-Mumford wetted-surface correlation (cross-check)",
+  "IMO EEDI reference line MEPC.203(62) (plausibility band)"
+ ],
+ "cases": [
+  {
+   "hull": "KVLCC2",
+   "speed_kn": 12.0,
+   "speed_ms": 6.1728,
+   "reference": {
+    "fn": 0.110172,
+    "re": 1659912605.0,
+    "s_ref": 26490.19,
+    "cf": 0.001439,
+    "form_factor_1pk": 1.33266,
+    "cw": 2.4174588916259186e-06,
+    "ca": 0.0002326081518326784,
+    "ct": 0.002152,
+    "rt_kn": 1113.41,
+    "pe_kw": 6872.9,
+    "rf_kn": 744.25,
+    "rw_kn": 1.25,
+    "ra_kn": 120.33,
+    "k_rf_kn": 247.58,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 1659912605.0420165,
+    "froude_number": 0.11017237536505228,
+    "wetted_surface": 27603.33,
+    "cf": 0.001439,
+    "cr": 0.004357,
+    "ct": 0.006196,
+    "rf": 991.14,
+    "rr": 2348.65,
+    "rt": 3339.8,
+    "pe": 20615.89,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KVLCC2]",
+     "platform": 0.8098,
+     "reference": 0.8098008537798409,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": -0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26490.189442876,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 4.202,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26345.087999999996,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 4.776,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 1659912605.0420165,
+     "reference": 1659912605.0420165,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.11017237536505228,
+     "reference": 0.11017237536505228,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001439,
+     "reference": 0.0014387211092737845,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": 0.019,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.004757,
+     "reference": 0.0007136326881421674,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 566.589,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.004357,
+     "reference": 2.4174588916259186e-06,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 180130.572,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.006196,
+     "reference": 0.002152353797415952,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 187.871,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 991.14,
+     "reference": 744.2519162638989,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 33.173,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 2348.65,
+     "reference": 369.16292687639606,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 536.21,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 3339.8,
+     "reference": 1113.414843140295,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 199.96,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 20.61589,
+     "reference": 6.8728871437364125,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 199.96,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "KVLCC2",
+   "speed_kn": 13.5,
+   "speed_ms": 6.9444,
+   "reference": {
+    "fn": 0.123944,
+    "re": 1867401680.7,
+    "s_ref": 26490.19,
+    "cf": 0.001419,
+    "form_factor_1pk": 1.33266,
+    "cw": 9.433401286875446e-06,
+    "ca": 0.0002326081518326784,
+    "ct": 0.002132,
+    "rt_kn": 1396.16,
+    "pe_kw": 9695.5,
+    "rf_kn": 928.74,
+    "rw_kn": 6.18,
+    "ra_kn": 152.29,
+    "k_rf_kn": 308.96,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 1867401680.6722689,
+    "froude_number": 0.12394392228568384,
+    "wetted_surface": 27603.33,
+    "cf": 0.001419,
+    "cr": 0.004551,
+    "ct": 0.006369,
+    "rf": 1240.65,
+    "rr": 3104.49,
+    "rt": 4345.15,
+    "pe": 30174.44,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KVLCC2]",
+     "platform": 0.8098,
+     "reference": 0.8098008537798409,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": -0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26490.189442876,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 4.202,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26345.087999999996,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 4.776,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 1867401680.6722689,
+     "reference": 1867401680.6722689,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.12394392228568384,
+     "reference": 0.12394392228568384,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001419,
+     "reference": 0.0014185497568925604,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": 0.032,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.0049510000000000005,
+     "reference": 0.0007139383988264104,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 593.477,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.004551,
+     "reference": 9.433401286875446e-06,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 48143.469,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.006369,
+     "reference": 0.002132488155718971,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 198.665,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 1240.65,
+     "reference": 928.7374631527653,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 33.585,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 3104.49,
+     "reference": 467.42198090102465,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 564.173,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 4345.15,
+     "reference": 1396.15944405379,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 211.222,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 30.174439999999997,
+     "reference": 9.695489643287138,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 211.221,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "KVLCC2",
+   "speed_kn": 15.0,
+   "speed_ms": 7.716,
+   "reference": {
+    "fn": 0.137715,
+    "re": 2074890756.3,
+    "s_ref": 26490.19,
+    "cf": 0.001401,
+    "form_factor_1pk": 1.33266,
+    "cw": 2.7815234805654755e-05,
+    "ca": 0.0002326081518326784,
+    "ct": 0.002127,
+    "rt_kn": 1719.46,
+    "pe_kw": 13267.4,
+    "rf_kn": 1132.29,
+    "rw_kn": 22.48,
+    "ra_kn": 188.01,
+    "k_rf_kn": 376.67,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 2074890756.3025208,
+    "froude_number": 0.13771546920631536,
+    "wetted_surface": 27603.33,
+    "cf": 0.001401,
+    "cr": 0.004744,
+    "ct": 0.006545,
+    "rf": 1516.77,
+    "rr": 3995.65,
+    "rt": 5512.42,
+    "pe": 42533.83,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KVLCC2]",
+     "platform": 0.8098,
+     "reference": 0.8098008537798409,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": -0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26490.189442876,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 4.202,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26345.087999999996,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 4.776,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 2074890756.3025208,
+     "reference": 2074890756.3025208,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.13771546920631536,
+     "reference": 0.13771546920631536,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001401,
+     "reference": 0.0014008631746244833,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": 0.01,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.005144,
+     "reference": 0.0007264365879096758,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 608.114,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.004744,
+     "reference": 2.7815234805654755e-05,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 16955.402,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.006545,
+     "reference": 0.002127299762534159,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 207.667,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 1516.77,
+     "reference": 1132.2936993067424,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 33.956,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 3995.65,
+     "reference": 587.1662460229244,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 580.497,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 5512.42,
+     "reference": 1719.4599453296669,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 220.59,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 42.53383,
+     "reference": 13.26735293816371,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 220.59,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "KVLCC2",
+   "speed_kn": 16.5,
+   "speed_ms": 8.4876,
+   "reference": {
+    "fn": 0.151487,
+    "re": 2282379831.9,
+    "s_ref": 26490.19,
+    "cf": 0.001385,
+    "form_factor_1pk": 1.33266,
+    "cw": 6.687137683065323e-05,
+    "ca": 0.0002326081518326784,
+    "ct": 0.002145,
+    "rt_kn": 2098.26,
+    "pe_kw": 17809.2,
+    "rf_kn": 1354.7,
+    "rw_kn": 65.4,
+    "ra_kn": 227.5,
+    "k_rf_kn": 450.66,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 2282379831.9327726,
+    "froude_number": 0.15148701612694687,
+    "wetted_surface": 27603.33,
+    "cf": 0.001385,
+    "cr": 0.004937,
+    "ct": 0.006723,
+    "rf": 1819.28,
+    "rr": 5031.89,
+    "rt": 6851.16,
+    "pe": 58149.94,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KVLCC2]",
+     "platform": 0.8098,
+     "reference": 0.8098008537798409,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": -0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26490.189442876,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 4.202,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 27603.33,
+     "reference": 26345.087999999996,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 4.776,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 2282379831.9327726,
+     "reference": 2282379831.9327726,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.15148701612694687,
+     "reference": 0.15148701612694687,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001385,
+     "reference": 0.0013851471243526087,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": -0.011,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.005337000000000001,
+     "reference": 0.0007602646055673527,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 601.992,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.004937,
+     "reference": 6.687137683065323e-05,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 7282.83,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.006723,
+     "reference": 0.0021454117299199616,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 213.366,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 1819.28,
+     "reference": 1354.7047290643939,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 34.293,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 5031.89,
+     "reference": 743.5557121657675,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 576.733,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 6851.16,
+     "reference": 2098.260441230161,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 226.516,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 58.14994,
+     "reference": 17.80919532098511,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 226.516,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "KCS",
+   "speed_kn": 18.0,
+   "speed_ms": 9.2592,
+   "reference": {
+    "fn": 0.194928,
+    "re": 1789593277.3,
+    "s_ref": 8844.99,
+    "cf": 0.001426,
+    "form_factor_1pk": 1.18537,
+    "cw": 0.00024129901910469994,
+    "ca": 0.00032240603428283993,
+    "ct": 0.002254,
+    "rt_kn": 875.89,
+    "pe_kw": 8110.1,
+    "rf_kn": 554.11,
+    "rw_kn": 93.78,
+    "ra_kn": 125.3,
+    "k_rf_kn": 102.71,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 1789593277.3109243,
+    "froude_number": 0.1949283664566589,
+    "wetted_surface": 9648.18,
+    "cf": 0.001426,
+    "cr": 0.00496,
+    "ct": 0.006786,
+    "rf": 773.99,
+    "rr": 2102.81,
+    "rt": 2876.8,
+    "pe": 26636.91,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KCS]",
+     "platform": 0.6505,
+     "reference": 0.6504985947329991,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 9648.18,
+     "reference": 8844.991385651554,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 9.081,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 9648.18,
+     "reference": 9040.403,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 6.723,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 1789593277.3109243,
+     "reference": 1789593277.3109243,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.1949283664566589,
+     "reference": 0.1949283664566589,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001426,
+     "reference": 0.0014257892246470679,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": 0.015,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.00536,
+     "reference": 0.0008279973141136679,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 547.345,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.00496,
+     "reference": 0.00024129901910469994,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 1955.541,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.006786,
+     "reference": 0.002253786538760736,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 201.093,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 773.99,
+     "reference": 554.1068796290297,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 39.682,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 2102.81,
+     "reference": 321.78599763110896,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 553.481,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 2876.8,
+     "reference": 875.8928772601387,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 228.442,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 26.63691,
+     "reference": 8.110067329127075,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 228.443,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "KCS",
+   "speed_kn": 21.0,
+   "speed_ms": 10.8024,
+   "reference": {
+    "fn": 0.227416,
+    "re": 2087858823.5,
+    "s_ref": 8844.99,
+    "cf": 0.0014,
+    "form_factor_1pk": 1.18537,
+    "cw": 0.0005355492246724538,
+    "ca": 0.00032240603428283993,
+    "ct": 0.002517,
+    "rt_kn": 1331.56,
+    "pe_kw": 14384.0,
+    "rf_kn": 740.47,
+    "rw_kn": 283.29,
+    "ra_kn": 170.54,
+    "k_rf_kn": 137.26,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 2087858823.5294113,
+    "froude_number": 0.2274164275327687,
+    "wetted_surface": 9648.18,
+    "cf": 0.0014,
+    "cr": 0.006401,
+    "ct": 0.008201,
+    "rf": 1038.51,
+    "rr": 3693.7,
+    "rt": 4732.21,
+    "pe": 51119.17,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KCS]",
+     "platform": 0.6505,
+     "reference": 0.6504985947329991,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 9648.18,
+     "reference": 8844.991385651554,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 9.081,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 9648.18,
+     "reference": 9040.403,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 6.723,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 2087858823.5294113,
+     "reference": 2087858823.5294113,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.2274164275327687,
+     "reference": 0.2274164275327687,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.0014,
+     "reference": 0.0013998276444355353,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": 0.012,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.006801,
+     "reference": 0.001117435136050295,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 508.626,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.006401,
+     "reference": 0.0005355492246724538,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 1095.222,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.008201,
+     "reference": 0.0025172627804858298,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 225.79,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 1038.51,
+     "reference": 740.468109769616,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 40.25,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 3693.7,
+     "reference": 591.0906862501386,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 524.896,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 4732.21,
+     "reference": 1331.5587960197547,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 255.389,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 51.11917,
+     "reference": 14.384030738123794,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 255.388,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "KCS",
+   "speed_kn": 24.0,
+   "speed_ms": 12.3456,
+   "reference": {
+    "fn": 0.259904,
+    "re": 2386124369.7,
+    "s_ref": 8844.99,
+    "cf": 0.001378,
+    "form_factor_1pk": 1.18537,
+    "cw": 0.0009490843140312105,
+    "ca": 0.00032240603428283993,
+    "ct": 0.002905,
+    "rt_kn": 2006.94,
+    "pe_kw": 24776.9,
+    "rf_kn": 952.0,
+    "rw_kn": 655.72,
+    "ra_kn": 222.75,
+    "k_rf_kn": 176.47,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 2386124369.747899,
+    "froude_number": 0.25990448860887855,
+    "wetted_surface": 9648.18,
+    "cf": 0.001378,
+    "cr": 0.008034,
+    "ct": 0.009812,
+    "rf": 1339.9,
+    "rr": 6054.53,
+    "rt": 7394.43,
+    "pe": 91288.65,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [KCS]",
+     "platform": 0.6505,
+     "reference": 0.6504985947329991,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 9648.18,
+     "reference": 8844.991385651554,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 9.081,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 9648.18,
+     "reference": 9040.403,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 6.723,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 2386124369.747899,
+     "reference": 2386124369.747899,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.25990448860887855,
+     "reference": 0.25990448860887855,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001378,
+     "reference": 0.00137790759998662,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": 0.007,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.008433999999999999,
+     "reference": 0.001526907003438739,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 452.358,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.008034,
+     "reference": 0.0009490843140312105,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 746.5,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.009812,
+     "reference": 0.002904814603425359,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 237.784,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 1339.9,
+     "reference": 951.9974449671541,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 40.746,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 6054.53,
+     "reference": 1054.9412500448132,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 473.921,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 7394.43,
+     "reference": 2006.9386950119676,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 268.443,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 91.28864999999999,
+     "reference": 24.776862353139744,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 268.443,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "AFRAMAX-110k",
+   "speed_kn": 13.0,
+   "speed_ms": 6.6872,
+   "reference": {
+    "fn": 0.136683,
+    "re": 1371156974.8,
+    "s_ref": 14687.1,
+    "cf": 0.001472,
+    "form_factor_1pk": 1.33274,
+    "cw": 3.399578214533544e-05,
+    "ca": 0.0003066869642714535,
+    "ct": 0.002303,
+    "rt_kn": 775.19,
+    "pe_kw": 5183.9,
+    "rf_kn": 495.61,
+    "rw_kn": 11.44,
+    "ra_kn": 103.23,
+    "k_rf_kn": 164.91,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 1371156974.7899158,
+    "froude_number": 0.13668312367976757,
+    "wetted_surface": 15223.83,
+    "cf": 0.001472,
+    "cr": 0.004831,
+    "ct": 0.006703,
+    "rf": 653.28,
+    "rr": 1685.5,
+    "rt": 2338.78,
+    "pe": 15639.89,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [AFRAMAX-110k]",
+     "platform": 0.82,
+     "reference": 0.8175622929721291,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": 0.298,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 15223.83,
+     "reference": 14687.096067054475,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 3.654,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 15223.83,
+     "reference": 14542.399999999998,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 4.686,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 1371156974.7899158,
+     "reference": 1371156974.7899158,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.13668312367976757,
+     "reference": 0.13668312367976757,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001472,
+     "reference": 0.0014723777986505933,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": -0.026,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.005231,
+     "reference": 0.0008306017696029413,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 529.784,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.004831,
+     "reference": 3.399578214533544e-05,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 14110.586,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.006703,
+     "reference": 0.0023029795682535346,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 191.058,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 653.28,
+     "reference": 495.60729471953863,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 31.814,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 1685.5,
+     "reference": 279.5833354723542,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 502.861,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 2338.78,
+     "reference": 775.1906301918929,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 201.704,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 15.63989,
+     "reference": 5.183854782219226,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 201.704,
+     "status": "FAIL"
+    }
+   ]
+  },
+  {
+   "hull": "AFRAMAX-110k",
+   "speed_kn": 15.0,
+   "speed_ms": 7.716,
+   "reference": {
+    "fn": 0.157711,
+    "re": 1582104201.7,
+    "s_ref": 14687.1,
+    "cf": 0.001447,
+    "form_factor_1pk": 1.33274,
+    "cw": 0.0001168905791356167,
+    "ca": 0.0003066869642714535,
+    "ct": 0.002352,
+    "rt_kn": 1054.09,
+    "pe_kw": 8133.4,
+    "rf_kn": 648.49,
+    "rw_kn": 52.38,
+    "ra_kn": 137.44,
+    "k_rf_kn": 215.78,
+    "fn_in_rhow_domain": true,
+    "notes": []
+   },
+   "platform": {
+    "reynolds_number": 1582104201.680672,
+    "froude_number": 0.15771129655357796,
+    "wetted_surface": 15223.83,
+    "cf": 0.001447,
+    "cr": 0.005133,
+    "ct": 0.00698,
+    "rf": 858.0,
+    "rr": 2384.16,
+    "rt": 3242.16,
+    "pe": 25016.48,
+    "method": "ITTC-57摩擦阻力 + Holtrop剩余阻力"
+   },
+   "rows": [
+    {
+     "quantity": "geometry Cb=vol/(LBT) [AFRAMAX-110k]",
+     "platform": 0.82,
+     "reference": 0.8175622929721291,
+     "unit": "-",
+     "reference_basis": "hull particulars self-consistency",
+     "rel_err_pct": 0.298,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 15223.83,
+     "reference": 14687.096067054475,
+     "unit": "m2",
+     "reference_basis": "Holtrop S correlation with published Cm/Cwp",
+     "rel_err_pct": 3.654,
+     "status": "PASS"
+    },
+    {
+     "quantity": "wetted surface S",
+     "platform": 15223.83,
+     "reference": 14542.399999999998,
+     "unit": "m2",
+     "reference_basis": "Denny-Mumford correlation (independent estimator)",
+     "rel_err_pct": 4.686,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Reynolds number Re",
+     "platform": 1582104201.680672,
+     "reference": 1582104201.680672,
+     "unit": "-",
+     "reference_basis": "V L / nu (nu=1.19e-6 m^2/s)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "Froude number Fn",
+     "platform": 0.15771129655357796,
+     "reference": 0.15771129655357796,
+     "unit": "-",
+     "reference_basis": "V / sqrt(g L)",
+     "rel_err_pct": 0.0,
+     "status": "PASS"
+    },
+    {
+     "quantity": "friction coefficient Cf",
+     "platform": 0.001447,
+     "reference": 0.001447066710870929,
+     "unit": "-",
+     "reference_basis": "ITTC-1957 line (exact analytic)",
+     "rel_err_pct": -0.005,
+     "status": "PASS"
+    },
+    {
+     "quantity": "residuary+form coefficient (Cr+0.4e-3 vs kCf+Cw+Ca)",
+     "platform": 0.005533000000000001,
+     "reference": 0.000905074554652974,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984: k Cf + Cw + Ca",
+     "rel_err_pct": 511.331,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "platform Cr vs Holtrop Cw (wave-only, informational)",
+     "platform": 0.005133,
+     "reference": 0.0001168905791356167,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 Cw = Rw/(0.5 rho V^2 S); platform Cr is its whole residual coefficient, so this row is informational, not a like-for-like gate",
+     "rel_err_pct": 4291.286,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance coefficient Ct",
+     "platform": 0.00698,
+     "reference": 0.002352141265523903,
+     "unit": "-",
+     "reference_basis": "Holtrop-1984 (1+k)Cf + Cw + Ca",
+     "rel_err_pct": 196.751,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "frictional resistance RF",
+     "platform": 858.0,
+     "reference": 648.4892723025323,
+     "unit": "kN",
+     "reference_basis": "0.5 rho V^2 S Cf (bare hull)",
+     "rel_err_pct": 32.308,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "residuary resistance RR",
+     "platform": 2384.16,
+     "reference": 405.6006090923039,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 k Rf + Rw + Ra",
+     "rel_err_pct": 487.81,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "total resistance RT",
+     "platform": 3242.16,
+     "reference": 1054.0898813948363,
+     "unit": "kN",
+     "reference_basis": "Holtrop-1984 total",
+     "rel_err_pct": 207.579,
+     "status": "FAIL"
+    },
+    {
+     "quantity": "effective power PE",
+     "platform": 25.016479999999998,
+     "reference": 8.133357524842557,
+     "unit": "MW",
+     "reference_basis": "RT * V",
+     "rel_err_pct": 207.579,
+     "status": "FAIL"
+    }
+   ]
+  }
+ ],
+ "sweeps": {
+  "KVLCC2": {
+   "speed_kn": [
+    9.0,
+    10.5,
+    12.0,
+    13.5,
+    15.0,
+    16.5,
+    18.0
+   ],
+   "rt_platform_kn": [
+    1.7768199999999998,
+    2.48685,
+    3.3398000000000003,
+    4.345149999999999,
+    5.51242,
+    6.85116,
+    8.370959999999998
+   ],
+   "rt_reference_kn": [
+    645.4253060496098,
+    864.0125970152939,
+    1113.414843140295,
+    1396.15944405379,
+    1719.4599453296669,
+    2098.260441230161,
+    2557.9119100586668
+   ],
+   "pe_platform_mw": [
+    8.225959999999999,
+    13.431959999999998,
+    20.61589,
+    30.174439999999997,
+    42.53383,
+    58.14994,
+    77.50837
+   ],
+   "pe_reference_mw": [
+    2.9880609968872736,
+    4.666704838999005,
+    6.8728871437364125,
+    9.695489643287138,
+    13.26735293816371,
+    17.80919532098511,
+    23.684217957615207
+   ],
+   "rel_err_pct": [
+    -99.72470555719683,
+    -99.7121743353522,
+    -99.7000399248693,
+    -99.68877838283402,
+    -99.67940980451608,
+    -99.67348381233441,
+    -99.67274244405829
+   ]
+  },
+  "KCS": {
+   "speed_kn": [
+    14.0,
+    16.0,
+    18.0,
+    20.0,
+    22.0,
+    24.0
+   ],
+   "rt_platform_kn": [
+    1.61202,
+    2.18872,
+    2.8768000000000002,
+    4.011760000000001,
+    5.53329,
+    7.394430000000001
+   ],
+   "rt_reference_kn": [
+    496.1585470669451,
+    661.545701536613,
+    875.8928772601387,
+    1158.9479581644832,
+    1523.535361844869,
+    2006.9386950119676
+   ],
+   "pe_platform_mw": [
+    11.609129999999999,
+    18.01404,
+    26.63691,
+    41.27301,
+    62.61917,
+    91.28864999999999
+   ],
+   "pe_reference_mw": [
+    3.5731353925573113,
+    5.444785741926941,
+    8.110067329127075,
+    11.923256593596205,
+    17.241544982926012,
+    24.776862353139744
+   ],
+   "rel_err_pct": [
+    -99.67509982252054,
+    -99.66915059762069,
+    -99.67155800958231,
+    -99.6538446811405,
+    -99.63681249949462,
+    -99.63155675764396
+   ]
+  }
+ },
+ "displacement_check": {
+  "hull": "KVLCC2",
+  "speed_kn": 15.0,
+  "rt_normal_kn": 5512.42,
+  "rt_displacement_x10_kn": 5512.42,
+  "displacement_has_no_effect": true,
+  "verdict": "FAIL: endpoint ignores displacement (no Cb/vol cross-validation)"
+ },
+ "eedi_crosscheck": {
+  "hull": "KVLCC2",
+  "speed_kn": 15.0,
+  "deadweight_t": 312622.0,
+  "eedi_reference_line": 2.5372,
+  "pme_implied_by_reference_kw": 21833.2,
+  "pe_holtrop1984_mw": 13.267,
+  "pe_platform_mw": 42.534,
+  "eedi_holtrop1984": 2.1414,
+  "eedi_platform": 6.8651,
+  "ratio_platform_to_reference": 2.706,
+  "ratio_holtrop1984_to_reference": 0.844,
+  "verdict": "platform result implies an attained EEDI far above the IMO reference line (physically implausible for a modern VLCC)"
+ },
+ "benchmark_dataset": {
+  "path": "/srv/tensor/agent/work/m1536/backend/data/benchmark_reference.json",
+  "version": "1.0",
+  "sources": "Benchmark reference dataset for ship resistance validation. Sources: Roddy 1990 (SUBOFF), ITTC V&V Workshop (DTMB-5415), SIMMAN 2008 (KVLCC2).",
+  "cases": [
+   {
+    "case_id": "SUBOFF-01",
+    "speed_ms": 3.0,
+    "wetted_surface_m2": 5.42,
+    "experimental_ct": 0.0038,
+    "experimental_rt_n": 12.5,
+    "rt_implied_by_ct_n": 92.497,
+    "rel_err_pct": -86.49,
+    "status": "FAIL"
+   },
+   {
+    "case_id": "SUBOFF-02",
+    "speed_ms": 4.0,
+    "wetted_surface_m2": 5.42,
+    "experimental_ct": 0.004,
+    "experimental_rt_n": 21.0,
+    "rt_implied_by_ct_n": 173.093,
+    "rel_err_pct": -87.87,
+    "status": "FAIL"
+   },
+   {
+    "case_id": "SUBOFF-03",
+    "speed_ms": 5.0,
+    "wetted_surface_m2": 5.42,
+    "experimental_ct": 0.0042,
+    "experimental_rt_n": 31.5,
+    "rt_implied_by_ct_n": 283.981,
+    "rel_err_pct": -88.91,
+    "status": "FAIL"
+   },
+   {
+    "case_id": "SUBOFF-04",
+    "speed_ms": 6.0,
+    "wetted_surface_m2": 5.42,
+    "experimental_ct": 0.0044,
+    "experimental_rt_n": 45.0,
+    "rt_implied_by_ct_n": 428.405,
+    "rel_err_pct": -89.5,
+    "status": "FAIL"
+   },
+   {
+    "case_id": "DTMB5415-01",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "DTMB5415-02",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "DTMB5415-03",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "DTMB5415-04",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "KVLCC2-01",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "KVLCC2-02",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "KVLCC2-03",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   },
+   {
+    "case_id": "KVLCC2-04",
+    "status": "NOT_CHECKABLE",
+    "detail": "missing wetted_surface_m2 / speed_ms / experimental_ct / experimental_rt_n"
+   }
+  ],
+  "n_cases": 12,
+  "n_fail": 4,
+  "verdict": "4/12 cases have experimental_ct and experimental_rt_n that are mutually inconsistent (>10%): the two columns cannot both be experimental data"
+ },
+ "summary": {
+  "cases": 9,
+  "checks": 117,
+  "fails": 63,
+  "equivalent_ref_case_fails": 9,
+  "rt_rel_err_pct_min": 199.96,
+  "rt_rel_err_pct_max": 268.44
+ },
+ "verdict_note": "复核判决：**不通过（FAIL）**。平台 `calc.resistance` 自述 `ITTC-57摩擦阻力 + Holtrop剩余阻力`，但 (1) 阻力系数的结构与其声称的 Holtrop 方法不符——残余阻力用分段拟合式 Cr_base = 0.005·C4，量级比 Holtrop-1984 的 Cw+kCf+Ca 高出数倍；(2) 全尺度 RT 相对误差落在 199.96% … 268.44% 区间，远超 15% 可接受门；(3) 端点接收 displacement 却完全不使用，几何 Cb/∇ 未经交叉校验，违反平台「几何必须先验证 Cb/L/B」的精度前置条件。建议：以 src/ship_verification/holtrop1984.py 作为参考实现替换端点阻力内核，并补 Cb ↔ vol/(LBT) 一致性门。（附加）平台自带基准数据集 backend/data/benchmark_reference.json 的 4/12 个算例中 experimental_ct 与 experimental_rt_n 互相矛盾（同一几何同一速度下 Rt ≠ 0.5ρV²SCt，偏差 7-10 倍），任何以 Rt 列做判据的门禁都不可信。"
+}
