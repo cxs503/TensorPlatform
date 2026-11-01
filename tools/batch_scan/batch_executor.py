@@ -73,6 +73,21 @@ class BatchReport:
     config: Dict[str, Any]
 
 # ── 模拟计算引擎 ──────────────────────────────────────────────────────
+def _load_open_water_module():
+    """Import the BEM open-water module regardless of how this file is imported
+    (as ``tools.batch_scan.batch_executor`` from the repo root, or as a bare
+    ``batch_executor`` after ``tools/batch_scan`` was added to ``sys.path``)."""
+    try:
+        from backend.services import propeller_open_water as mod
+        return mod
+    except ImportError:
+        repo_root = Path(__file__).resolve().parents[2]
+        if str(repo_root) not in sys.path:
+            sys.path.insert(0, str(repo_root))
+        from backend.services import propeller_open_water as mod
+        return mod
+
+
 class ShipCalculationEngine:
     """模拟船舶性能计算引擎。
 
@@ -136,29 +151,43 @@ class ShipCalculationEngine:
 
     @classmethod
     def calc_propeller(cls, params: dict) -> dict:
-        rng = random.Random(cls._seed_from_params(params))
-        D = params.get("diameter_m", 5)
-        P_D = params.get("pitch_ratio", 1.0)
-        Ae_A0 = params.get("blade_area_ratio", 0.5)
-        Z = params.get("blade_count", 5)
-        rpm = params.get("rpm", 100)
-        Va = params.get("advance_speed_kn", 12) * 0.5144
+        """Open-water point from the first-principles BEM model.
+
+        Mission 1393 replaced the legacy linear surrogate
+        (``KT = max(0.05, 0.5 - 0.3 J)``, ``KQ = max(0.01, 0.05 + 0.02 J)``,
+        efficiency clipped to [0.30, 0.85] -- torque *rising* with advance ratio,
+        no P/D, Ae/A0 or Z dependence) with ``backend/services/propeller_open_water``,
+        but this batch wrapper was never rewired and kept serving the surrogate.
+        Mission 1638 completed the wiring; the response keeps the historical keys
+        and adds ``model``/``induction_converged`` so downstream scans can tell
+        which model produced a row.
+        """
+        open_water = _load_open_water_module()
+        D = float(params.get("diameter_m", 5))
+        P_D = float(params.get("pitch_ratio", 1.0))
+        Ae_A0 = float(params.get("blade_area_ratio", 0.5))
+        Z = int(params.get("blade_count", 5))
+        rpm = float(params.get("rpm", 100))
+        Va = float(params.get("advance_speed_kn", 12)) * 0.5144
 
         if D <= 0 or rpm <= 0:
             raise ValueError(f"Invalid parameters: D={D}, rpm={rpm}")
 
+        geom = open_water.PropellerGeometry(
+            diameter_m=D, pitch_ratio=P_D, blade_area_ratio=Ae_A0, blade_count=Z)
         n = rpm / 60.0
-        J = Va / (n * D) if n * D > 0 else 0
-        KT = max(0.05, 0.5 - 0.3 * J)
-        KQ = max(0.01, 0.05 + 0.02 * J)
-        eta0 = (J * KT) / (2 * 3.14159 * KQ) if KQ > 0 else 0
-        eta0 = min(0.85, max(0.3, eta0))
+        J = Va / (n * D) if n * D > 0 else 0.0
+        point = open_water.open_water_point(geom, J)
         return {
             "advance_coefficient": round(J, 4),
-            "thrust_coefficient": round(KT, 4),
-            "torque_coefficient": round(KQ, 4),
-            "efficiency": round(eta0, 4),
-            "thrust_kn": round(KT * 1025 * n**2 * D**4 / 1000, 2),
+            "thrust_coefficient": round(point["KT"], 4),
+            "torque_coefficient": round(point["KQ"], 4),
+            "efficiency": round(point["eta0"], 4),
+            "thrust_kn": round(point["thrust_n"] / 1000.0, 2),
+            "torque_knm": round(point["torque_nm"] / 1000.0, 4),
+            "eta_ideal": round(point["eta_ideal"], 4),
+            "induction_converged": bool(point["induction_converged"]),
+            "model": "bem-blade-element-momentum/v1",
         }
 
     @classmethod

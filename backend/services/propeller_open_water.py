@@ -38,9 +38,19 @@ delivering the same thrust; a physical model must satisfy ``0 < eta0 < eta_ideal
 All outputs are non-dimensional, hence exactly invariant under Froude scaling
 (``D -> k D`` with ``n -> n/k`` keeps ``J``, ``KT``, ``KQ``).
 
-No literature point data was reachable offline for mission 1393, so the published
-verification is analytic-bound + internal-consistency only; see
-``docs/verifier/PROPELLER_OPEN_WATER_VERIFICATION.md``.
+Mission 1393 verified this model against analytic bounds + internal consistency
+only (no literature point data).  That debt was closed in mission 1638 by a
+quantitative audit against the published Wageningen B-series regression and the
+KP505 model-test measurements: absolute ``KT``/``KQ`` sit 4-46 % off the
+regression (outside the platform's 15 % bar) while peak ``eta_0`` (<= 6.8 %) and
+the zero-thrust advance ratio (<= 10.7 %) stay inside it, so this model is a
+**trend-grade** predictor, not a quantitative one.  Use
+``tools/verify/propeller_open_water/reference_bseries.py`` for numeric open-water
+queries inside the B-series validity box.
+
+See ``docs/verifier/PROPELLER_OPEN_WATER_VERIFICATION.md`` (analytic,
+mission 1393) and ``docs/verifier/BEM_OPEN_WATER_LITERATURE_VERIFICATION.md``
+(literature audit, mission 1638).
 """
 from __future__ import annotations
 
