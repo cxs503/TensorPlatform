@@ -278,16 +278,25 @@ class TestBenchmarkValidateEndpoint:
             benchmark_validate(req)
         assert exc_info.value.status_code == 404
 
-    def test_all_fail_triggers_upgrade_recommendation(self, mock_resistance_api):
-        """When all cases fail, algorithm_upgrade_recommended should be True."""
+    def test_honest_fail_requires_verified_reference_rows(self, mock_resistance_api):
+        """m1388: the verdict is computed only over *verified* reference rows.
+
+        Canon v3.0 verified the four SUBOFF rows (fresh water 998.2 kg/m3,
+        Rt = 92.52 N at 3 m/s), so they now count as verified and all four miss
+        the 15 % band -> the upgrade recommendation is legitimate here.  The
+        gate that matters (rows failing their own identities are withheld and can
+        never produce a pass) is covered in
+        ``backend/tests/feat/test_benchmark_chain_m1388.py``.
+        """
         with patch("api.domain.ship_benchmark._call_resistance_api", side_effect=mock_resistance_api):
             req = BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="all")
             resp = benchmark_validate(req)
 
-            all_fail = all(not r.pass_ for r in resp.results)
-            if all_fail:
-                assert resp.summary.get("algorithm_upgrade_recommended") is True
-                assert "recommendation" in resp.summary
+            assert resp.summary["verified_cases"] == len(resp.results) > 0
+            assert resp.summary["withheld_count"] == 0
+            assert resp.summary["algorithm_upgrade_recommended"] is True
+            assert "recommendation" in resp.summary
+            assert "15%" in resp.summary["recommendation"]
 
 
 # ---------------------------------------------------------------------------

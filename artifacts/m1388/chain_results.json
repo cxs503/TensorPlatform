@@ -1,0 +1,251 @@
+{
+  "SUBOFF": {
+    "summary": {
+      "total_cases": 4,
+      "passed": 3,
+      "failed": 1,
+      "pass_rate": 75.0,
+      "verified_cases": 4,
+      "verified_passed": 3,
+      "pass_rate_verified": 75.0,
+      "withheld_cases": [],
+      "withheld_count": 0,
+      "honest_fail": false,
+      "transport": "in_process",
+      "model": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+      "algorithm_upgrade_recommended": false
+    },
+    "results": [
+      {
+        "case_id": "SUBOFF-01",
+        "ship_type": "SUBOFF",
+        "speed_ms": 3.0,
+        "calc_ct": 0.003462,
+        "ref_ct": 0.0038,
+        "error_pct": 8.9,
+        "pass": true,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "",
+        "calc_rt_n": 68.6868,
+        "dataset_status": "CONSISTENT",
+        "withheld": false,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "SUBOFF-02",
+        "ship_type": "SUBOFF",
+        "speed_ms": 4.0,
+        "calc_ct": 0.003953,
+        "ref_ct": 0.004,
+        "error_pct": 1.18,
+        "pass": true,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "",
+        "calc_rt_n": 139.4276,
+        "dataset_status": "CONSISTENT",
+        "withheld": false,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "SUBOFF-03",
+        "ship_type": "SUBOFF",
+        "speed_ms": 5.0,
+        "calc_ct": 0.004766,
+        "ref_ct": 0.0042,
+        "error_pct": 13.48,
+        "pass": true,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "",
+        "calc_rt_n": 262.69,
+        "dataset_status": "CONSISTENT",
+        "withheld": false,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "SUBOFF-04",
+        "ship_type": "SUBOFF",
+        "speed_ms": 6.0,
+        "calc_ct": 0.005921,
+        "ref_ct": 0.0044,
+        "error_pct": 34.58,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL (model outside applicability): ITTC-1957 friction + empirical residual (axisymmetric-body fit) is an axisymmetric-body fit, not a merchant-ship method; no accuracy claim is made outside its calibration range.",
+        "calc_rt_n": 469.9373,
+        "dataset_status": "CONSISTENT",
+        "withheld": false,
+        "dataset_checks_failed": []
+      }
+    ]
+  },
+  "DTMB-5415": {
+    "summary": {
+      "total_cases": 4,
+      "passed": 0,
+      "failed": 4,
+      "pass_rate": 0.0,
+      "verified_cases": 0,
+      "verified_passed": 0,
+      "pass_rate_verified": null,
+      "withheld_cases": [
+        "DTMB5415-01",
+        "DTMB5415-02",
+        "DTMB5415-03",
+        "DTMB5415-04"
+      ],
+      "withheld_count": 4,
+      "honest_fail": true,
+      "transport": "in_process",
+      "model": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+      "algorithm_upgrade_recommended": false,
+      "recommendation": "NO VERIFIED REFERENCE ROWS for this ship type: the reference dataset fails the internal-consistency audit (see /calculations/benchmark_cases_audit), so the reported error_pct cannot be used as an accuracy claim. Re-source the reference values from the primary publication before quoting any precision KPI."
+    },
+    "results": [
+      {
+        "case_id": "DTMB5415-01",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 0.4569,
+        "calc_ct": 0.003851,
+        "ref_ct": 0.0045,
+        "error_pct": 14.43,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 3.4302,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "DTMB5415-02",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 0.9139,
+        "calc_ct": 0.003392,
+        "ref_ct": 0.0038,
+        "error_pct": 10.73,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 12.0908,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "DTMB5415-03",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 1.8278,
+        "calc_ct": 0.003098,
+        "ref_ct": 0.0035,
+        "error_pct": 11.5,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 44.1607,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "DTMB5415-04",
+        "ship_type": "DTMB-5415",
+        "speed_ms": 2.7417,
+        "calc_ct": 0.003107,
+        "ref_ct": 0.0038,
+        "error_pct": 18.23,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 99.6697,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      }
+    ]
+  },
+  "KVLCC2": {
+    "summary": {
+      "total_cases": 4,
+      "passed": 0,
+      "failed": 4,
+      "pass_rate": 0.0,
+      "verified_cases": 0,
+      "verified_passed": 0,
+      "pass_rate_verified": null,
+      "withheld_cases": [
+        "KVLCC2-01",
+        "KVLCC2-02",
+        "KVLCC2-03",
+        "KVLCC2-04"
+      ],
+      "withheld_count": 4,
+      "honest_fail": true,
+      "transport": "in_process",
+      "model": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+      "algorithm_upgrade_recommended": false,
+      "recommendation": "NO VERIFIED REFERENCE ROWS for this ship type: the reference dataset fails the internal-consistency audit (see /calculations/benchmark_cases_audit), so the reported error_pct cannot be used as an accuracy claim. Re-source the reference values from the primary publication before quoting any precision KPI."
+    },
+    "results": [
+      {
+        "case_id": "KVLCC2-01",
+        "ship_type": "KVLCC2",
+        "speed_ms": 7.202,
+        "calc_ct": 0.001415,
+        "ref_ct": 0.0028,
+        "error_pct": 49.46,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 1500317.5665,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "KVLCC2-02",
+        "ship_type": "KVLCC2",
+        "speed_ms": 7.717,
+        "calc_ct": 0.00141,
+        "ref_ct": 0.003,
+        "error_pct": 53.0,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 1716030.6435,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "KVLCC2-03",
+        "ship_type": "KVLCC2",
+        "speed_ms": 7.974,
+        "calc_ct": 0.001408,
+        "ref_ct": 0.0031,
+        "error_pct": 54.59,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 1829473.4998,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      },
+      {
+        "case_id": "KVLCC2-04",
+        "ship_type": "KVLCC2",
+        "speed_ms": 8.231,
+        "calc_ct": 0.001406,
+        "ref_ct": 0.0032,
+        "error_pct": 56.06,
+        "pass": false,
+        "method": "ITTC-1957 friction + empirical residual (axisymmetric-body fit)",
+        "note": "HONEST-FAIL DATASET-WITHHELD(PARTIAL): reference row fails audit — error_pct reported for transparency but no accuracy claim is made.",
+        "calc_rt_n": 1946848.9159,
+        "dataset_status": "PARTIAL",
+        "withheld": true,
+        "dataset_checks_failed": []
+      }
+    ]
+  }
+}
