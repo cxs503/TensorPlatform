@@ -78,7 +78,6 @@ export const missionApi = {
     model?: string
   }) => http.post<any>('/tensor/missions', body),
   children: (id: number) => http.get<any>(`/tensor/missions/${id}/children`),
-  provenance: (id: number) => http.get<any>(`/tensor/missions/${id}/provenance`),
   stop: (id: number, reason?: string) =>
     http.post<any>(`/tensor/missions/${id}/stop`, { reason }),
 }
@@ -87,4 +86,9 @@ export const missionApi = {
 export const reportApi = {
   list: (params?: any) => http.get<any>("/tensor/reports", params),
   get: (id: number) => http.get<any>(`/tensor/reports/${id}`),
+}
+
+// ── paper production line (TensorPapers registry + paper-* missions) ──
+export const paperApi = {
+  line: () => http.get<any>('/tensor/papers/line'),
 }
