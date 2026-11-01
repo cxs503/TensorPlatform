@@ -125,9 +125,25 @@ def c16_coefficient(cp: float) -> float:
 
 
 def c15_coefficient(l_over_nabla13: float) -> float:
-    if l_over_nabla13 < 12.0:
+    """Holtrop-Mennen 1982 c15, piecewise in L/nabla^(1/3) (= (L^3/nabla)^(1/3)).
+
+    Published branches (1982, the m2 = c15 CP^2 exp(-0.1/Fn^2) coefficient)::
+
+        c15 = -1.69385                                L/nabla^(1/3) < 8
+        c15 = -1.69385 + (L/nabla^(1/3) - 8)/2.36     8 <= ... <= 12
+        c15 = 0                                      L/nabla^(1/3) > 12
+
+    m1648: the two constant branches used to be swapped (linear form extended
+    below 8, -1.69385 above 12), which made the function jump by 1.69 at
+    L/nabla^(1/3) = 12 - an internal inconsistency no paper transcription has.
+    It over-predicted R_W by 12.8 % for KVLCC2 (L/nabla^(1/3) = 4.71) at
+    Fn = 0.22, see docs/verification/holtrop_crosscheck_m1648.md.
+    """
+    if l_over_nabla13 < 8.0:
+        return -1.69385
+    if l_over_nabla13 <= 12.0:
         return -1.69385 + (l_over_nabla13 - 8.0) / 2.36
-    return -1.69385
+    return 0.0
 
 
 def half_entrance_angle(length: float, beam: float, cwp: float, cp: float,

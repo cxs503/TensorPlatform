@@ -64,8 +64,13 @@ def test_c7_continuous_at_upper_boundary_and_clipped_below():
 
 
 def test_c15_uses_length_over_nabla_cube_root():
-    assert c15_coefficient(12.5) == pytest.approx(-1.69385)
-    assert c15_coefficient(4.0) == pytest.approx(-1.69385 + (4.0 - 8.0) / 2.36)
+    """Published 1982 branches (m1648: the two constant branches were swapped)."""
+    assert c15_coefficient(4.0) == pytest.approx(-1.69385)
+    assert c15_coefficient(10.0) == pytest.approx(-1.69385 + (10.0 - 8.0) / 2.36)
+    assert c15_coefficient(12.5) == pytest.approx(0.0)
+    # continuity at the joins (the pre-m1648 form jumped 1.69 at x = 12)
+    assert abs(c15_coefficient(8.0) - c15_coefficient(7.999)) < 1e-4
+    assert abs(c15_coefficient(12.0) - c15_coefficient(12.001)) < 3e-3
 
 
 def test_wetted_surface_box_limit_within_regression_scatter():
@@ -185,13 +190,30 @@ def audit():
     return _load_audit_module()
 
 
-def test_audit_rejects_every_shipped_benchmark_case(audit):
+def test_audit_accepts_canon_v3_and_still_rejects_injected_legacy_rows(audit):
+    """m1648: this test used to pin the *v2.0* verdict REJECT for all 12 rows.
+
+    Canon v3.0 (m1561) re-derived every row from the filed sources, so the
+    shipped dataset is now self-consistent and the old assertion had gone red.
+    The protective intent is kept through the negative control below: a row
+    carrying the historical v2.0 SUBOFF figures must still be rejected.
+    """
     data = json.loads((REPO / "backend" / "data" / "benchmark_reference.json").read_text())
     results = [audit.audit_case(c) for c in data["cases"]]
     assert len(results) == 12
     for r in results:
-        assert r["verdict"] == "REJECT_AS_BASELINE", r["case_id"]
-        assert r["failed_identities"], r["case_id"]
+        assert not r["failed_identities"], (r["case_id"], r["failed_identities"])
+    # rows with no measured Rt must never be usable for the 15 % gate
+    withheld = [r for r in results if r["verdict"] == "REJECT_AS_BASELINE"]
+    assert all("WITHHELD" in json.dumps(r) or not r["identities"]["I2_ct_rt"]["tested"]
+               for r in withheld)
+    # negative control: historical v2.0 SUBOFF row (Ct = 0.0038 with Rt = 12.5 N)
+    import copy
+    suboff = copy.deepcopy(next(c for c in data["cases"] if c["case_id"] == "SUBOFF-01"))
+    suboff["experimental_rt_n"] = 12.5
+    bad = audit.audit_case(suboff)
+    assert bad["identities"]["I2_ct_rt"]["pass"] is False
+    assert bad["verdict"] == "REJECT_AS_BASELINE"
 
 
 def test_audit_catches_synthetic_froude_error(audit):
@@ -228,6 +250,6 @@ def test_artifact_written_by_audit_is_parseable(tmp_path, audit, monkeypatch):
     monkeypatch.setattr(audit, "_figures", lambda cases: None)
     assert audit.main() == 0
     payload = json.loads((tmp_path / "audit.json").read_text())
-    assert payload["verdict"] == "DATASET_REJECTED_AS_EXTERNAL_BASELINE"
-    assert payload["n_rejected"] == 12
+    assert payload["verdict"] == "DATASET_CONSISTENT"      # canon v3.0, m1648
+    assert payload["n_rejected"] == 0
     assert (tmp_path / "table.md").exists()

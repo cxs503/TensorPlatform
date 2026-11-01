@@ -30,6 +30,17 @@ plausibility band are claimed - stated explicitly in the report.
 from __future__ import annotations
 
 import math
+
+try:  # pragma: no cover - package root variants
+    from services.holtrop_mennen import (
+        c16_coefficient as _c16_coefficient,
+        holtrop_resistance as _mennen_holtrop,
+    )
+except ImportError:  # pragma: no cover
+    from ...holtrop_mennen import (  # type: ignore[no-redef]
+        c16_coefficient as _c16_coefficient,
+        holtrop_resistance as _mennen_holtrop,
+    )
 from typing import Dict
 
 import numpy as np
@@ -57,85 +68,67 @@ def holtrop_resistance(
     rho: float = 1025.0,
     nu: float = 1.19e-6,
 ) -> Dict[str, float]:
-    """Total calm-water resistance and its components [N]."""
-    V = float(max(V, 1e-6))
-    vol = Cb * L * B * T
-    Cm = 1.0 - 0.2 * (1.0 - Cb)
-    Cp = Cb / Cm
-    Cwp = (1.0 + 2.0 * Cb) / 3.0
-    lcb = 0.0  # design assumption: LCB at midship (fraction of L)
+    """Total calm-water resistance and its components [N].
 
-    # wetted surface (Holtrop, no bulb)
-    S = L * (2.0 * T + B) * math.sqrt(Cb) * (
-        0.453 + 0.4425 * Cb - 0.2862 * Cm - 0.003467 * B / T + 0.3696 * Cwp
+    Single source of truth: this wrapper delegates to the paper-faithful
+    Holtrop-Mennen (1982) + Holtrop (1984) implementation in
+    :mod:`services.holtrop_mennen` (equations audited against the publication;
+    see ``docs/verification/resistance_benchmark_audit.md`` and
+    ``docs/verification/holtrop_crosscheck_m1648.md``).
+
+    Before mission m1648 the local copy of the regression carried three defects
+    that cancelled in ``RT_N`` only by accident while leaving every component
+    wrong (KCS at Fn=0.21: ``RW`` +4056 %, S60 Cb=0.6: ``RW`` +22001 %):
+
+    * the published ``c7`` piecewise branches for ``0.11 <= B/L <= 0.25`` and
+      ``B/L > 0.25`` were swapped, so ``c1 ~ c7^3.78613`` was off by up to 24x;
+    * ``m2 = c15 Cp^2 exp(-0.1 Fn^-2)`` was replaced by the unrelated
+      ``m4 = c15 * 0.4 exp(-0.034 Fn^-3.29)`` term;
+    * the wetted surface used ``sqrt(Cb)`` instead of the published
+      ``sqrt(Cm)``.
+
+    Retained simplifications (documented, not paper-exact because the caller
+    supplies no hull form beyond ``L, B, T, Cb``): ``Cm = 1 - 0.2 (1 - Cb)``,
+    ``Cwp = (1 + 2 Cb) / 3``, ``lcb = 0`` (midship), no bulb (``ABT = 0``),
+    no transom (``AT = 0``), no appendages, ``cstern = 0``. These parameters
+    are passed explicitly to the reference implementation so the two entry
+    points agree to machine precision (verified by
+    ``tests/test_digital_twin_holtrop_consistency.py``).
+
+    Interface note: ``RF_N`` is the bare ITTC-1957 friction of the wetted
+    surface and the form factor is returned separately in ``form_factor``
+    (``services.holtrop_mennen`` folds ``(1 + k)`` into its ``rf_n``).
+    Valid for ``Fn >= 1e-3``: the wave-resistance regression contains
+    ``Fn^-2`` and is not extrapolated to zero speed.
+    """
+    length, beam, draft, cb = float(L), float(B), float(T), float(Cb)
+    speed = float(max(V, 1e-6))
+    cm = 1.0 - 0.2 * (1.0 - cb)
+    cwp = (1.0 + 2.0 * cb) / 3.0
+    ref = _mennen_holtrop(
+        length=length, beam=beam, draft=draft, cb=cb, speed_ms=speed,
+        cm=cm, cwp=cwp, lcb_frac=0.0, rho=float(rho), nu=float(nu),
     )
-
-    Rn = V * L / nu
-    if Rn < 1e6:
-        Rn = 1e6
-    Cf = 0.075 / (math.log10(Rn) - 2.0) ** 2
-    RF = 0.5 * rho * V * V * S * Cf
-
-    # form factor (Holtrop c14 = 1 for a normal stern)
-    c14 = 1.0
-    LR = L * (1.0 - Cp + 0.06 * Cp * lcb / (4.0 * Cp - 1.0))
-    form = (0.93 + 0.487118 * c14 * (B / L) ** 1.06806 * (T / L) ** 0.46106
-            * (L / LR) ** 0.121563 * (L ** 3 / vol) ** 0.36486
-            * (1.0 - Cp) ** -0.604247)
-    form = float(max(form, 1.0))
-
-    Fn = V / math.sqrt(G * L)
-    # wave resistance coefficient c1
-    if B / L < 0.11:
-        c7 = 0.229577 * (B / L) ** (1.0 / 3.0)
-    elif B / L < 0.25:
-        c7 = B / L
-    else:
-        c7 = 0.5 - 0.0625 * L / B
-    iE = 1.0 + 89.0 * math.exp(
-        -(L / B) ** 0.80856 * (1.0 - Cwp) ** 0.30484
-        * max(1.0 - Cp - 0.0225 * lcb, 1e-3) ** 0.6367
-        * (LR / B) ** 0.34574 * (100.0 * vol / L ** 3) ** 0.16302
-    )
-    c1 = 2223105.0 * c7 ** 3.78613 * (T / B) ** 1.07961 * (90.0 - iE) ** -1.37565
-    c2 = 1.0    # no bulbous bow
-    c5 = 1.0    # no transom
-    c16 = (8.07981 * Cp - 13.8673 * Cp ** 2 + 6.984388 * Cp ** 3
-           if Cp < 0.8 else 1.73014 - 0.7067 * Cp)
-    m1 = 0.0140407 * L / T - 1.75254 * vol ** (1.0 / 3.0) / L - 4.79323 * B / L - c16
-    if L ** 3 / vol < 512.0:
-        c15 = -1.69385
-    elif L ** 3 / vol > 1727.0:
-        c15 = 0.0
-    else:
-        c15 = -1.69385 + (L / vol ** (1.0 / 3.0) - 8.0) / 2.36
-    lam = 1.446 * Cp - 0.03 * L / B if L / B < 12.0 else 1.446 * Cp - 0.36
-    m4 = c15 * 0.4 * math.exp(-0.034 * Fn ** -3.29) if Fn > 0 else 0.0
-    expo = m1 * Fn ** -0.9 + m4 * math.cos(lam * Fn ** -2.0)
-    expo = min(max(expo, -30.0), 30.0)
-    RW = c1 * c2 * c5 * vol * rho * G * math.exp(expo)
-    RW = float(max(RW, 0.0))
-
-    CA = max(0.0, 0.006 * (L + 100.0) ** -0.16 - 0.00205)
-    RA = 0.5 * rho * V * V * S * CA
-
-    RT = RF * form + RW + RA
+    cp = ref.cp
+    lam = (1.446 * cp - 0.03 * length / beam) if length / beam < 12.0 \
+        else (1.446 * cp - 0.36)
     return {
-        "RT_N": RT,
-        "RF_N": RF,
-        "RW_N": RW,
-        "RA_N": RA,
-        "form_factor": form,
-        "Cf": Cf,
-        "Rn": Rn,
-        "Fn": Fn,
-        "wetted_surface_m2": S,
-        "Cwp": Cwp,
-        "Cm": Cm,
-        "Cp": Cp,
-        "c1": c1,
-        "c16": c16,
+        "RT_N": ref.rt_n,
+        "RF_N": ref.rf_n / ref.form_factor,
+        "RW_N": ref.rw_n,
+        "RA_N": ref.ra_n,
+        "form_factor": ref.form_factor,
+        "Cf": ref.cf,
+        "Rn": ref.re,
+        "Fn": ref.fn,
+        "wetted_surface_m2": ref.wetted_surface_m2,
+        "Cwp": cwp,
+        "Cm": cm,
+        "Cp": cp,
+        "c1": ref.c1,
+        "c16": _c16_coefficient(cp),
         "lambda": lam,
+        "warnings": list(ref.warnings),
     }
 
 
