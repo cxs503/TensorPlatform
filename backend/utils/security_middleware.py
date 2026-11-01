@@ -72,7 +72,7 @@ async def add_security_headers(request: Request, call_next: Callable):
 
     # 防止点击劫持
     response.headers["X-Content-Type-Options"] = "nosniff"
-    response.headers["X-Frame-Options"] = "DENY"
+    response.headers["X-Frame-Options"] = "SAMEORIGIN"
     response.headers["X-XSS-Protection"] = "1; mode=block"
 
     # 内容安全策略
@@ -82,7 +82,7 @@ async def add_security_headers(request: Request, call_next: Callable):
         "style-src 'self' 'unsafe-inline'; "
         "img-src 'self' data: https:; "
         "font-src 'self'; "
-        "frame-ancestors 'none'"
+        "frame-ancestors 'self'"
     )
 
     # HSTS (仅在生产环境启用HTTPS时)

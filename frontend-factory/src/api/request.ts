@@ -26,7 +26,36 @@ export function getToken(): string | null {
   return localStorage.getItem(TOKEN_KEY)
 }
 
+/** 免登录：用服务端 auto-login 换令牌（TP_AUTO_LOGIN=1 时可用），成功返回 true */
+export async function tryAutoLogin(): Promise<boolean> {
+  if (getToken()) return true
+  try {
+    const base = import.meta.env.VITE_API_BASE_URL || '/api/v1'
+    const res = await axios.post(base + '/auth/auto-login', {}, { timeout: 15000 })
+    const d: any = res.data || {}
+    if (!d.access_token) return false
+    saveTokens(d.access_token, d.refresh_token || '')
+    if (d.user) {
+      const u = { ...d.user, role: String(d.user.role || 'VIEWER').toUpperCase() }
+      localStorage.setItem(USER_KEY, JSON.stringify(u))
+    }
+    return true
+  } catch {
+    return false
+  }
+}
+
 function redirectToLogin(): void {
+  // 免登录模式：token 失效时先清空并整页重载，由路由守卫自动重新 auto-login；
+  // 连续失败 2 次才回落到登录页（避免无限重载）。
+  const tries = Number(sessionStorage.getItem('tp_auto_login_tries') || '0')
+  clearAuth()
+  if (tries < 2) {
+    sessionStorage.setItem('tp_auto_login_tries', String(tries + 1))
+    window.location.reload()
+    return
+  }
+  sessionStorage.removeItem('tp_auto_login_tries')
   const base = import.meta.env.BASE_URL
   const loginPath = base + 'login'
   if (window.location.pathname === loginPath) return
