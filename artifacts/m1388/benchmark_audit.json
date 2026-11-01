@@ -1,0 +1,709 @@
+{
+  "total_cases": 12,
+  "status_counts": {
+    "CONSISTENT": 4,
+    "PARTIAL": 8,
+    "INCONSISTENT": 0
+  },
+  "status_by_ship_type": {
+    "DTMB-5415": {
+      "CONSISTENT": 0,
+      "PARTIAL": 4,
+      "INCONSISTENT": 0
+    },
+    "KVLCC2": {
+      "CONSISTENT": 0,
+      "PARTIAL": 4,
+      "INCONSISTENT": 0
+    },
+    "SUBOFF": {
+      "CONSISTENT": 4,
+      "PARTIAL": 0,
+      "INCONSISTENT": 0
+    }
+  },
+  "verified_cases": 4,
+  "withheld_cases": 8,
+  "verifiable_accuracy_claim": true,
+  "tolerances": {
+    "ct_rt_identity_pct": 1.0,
+    "froude_identity_pct": 2.0
+  },
+  "delegated_to": "services.benchmark_integrity",
+  "cases": [
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 0.4569,
+      "experimental_ct": 0.0045,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 998.2,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.0610 vs Fr_stated=0.0610 (误差 0.0%)",
+          "computed": 0.061,
+          "stated": 0.061,
+          "error_pct": 0.01,
+          "implied_length_m": 5.7
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 0.5 t vs Δ = 0.5416 t (误差 0.0%)",
+          "derived_t": 0.5,
+          "stated_t": 0.5416,
+          "error_pct": 0.01
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=7.54, B/T=3.09, Cb=0.508",
+          "values": [
+            "L/B=7.54, B/T=3.09, Cb=0.508"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=2.603e+06, Cf_ITTC57=0.003847, Ct/Cf=1.17 ≥ 1",
+          "reynolds": 2603055.8,
+          "cf": 0.003847,
+          "ct_over_cf": 1.17
+        }
+      ],
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415."
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 0.9139,
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 998.2,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.1220 vs Fr_stated=0.1220 (误差 0.0%)",
+          "computed": 0.122,
+          "stated": 0.122,
+          "error_pct": 0.0,
+          "implied_length_m": 5.7
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 0.5 t vs Δ = 0.5416 t (误差 0.0%)",
+          "derived_t": 0.5,
+          "stated_t": 0.5416,
+          "error_pct": 0.01
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=7.54, B/T=3.09, Cb=0.508",
+          "values": [
+            "L/B=7.54, B/T=3.09, Cb=0.508"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=5.207e+06, Cf_ITTC57=0.003371, Ct/Cf=1.13 ≥ 1",
+          "reynolds": 5206681.3,
+          "cf": 0.003371,
+          "ct_over_cf": 1.127
+        }
+      ],
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415."
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 1.8278,
+      "experimental_ct": 0.0035,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 998.2,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.2440 vs Fr_stated=0.2440 (误差 0.0%)",
+          "computed": 0.244,
+          "stated": 0.244,
+          "error_pct": 0.0,
+          "implied_length_m": 5.7
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 0.5 t vs Δ = 0.5416 t (误差 0.0%)",
+          "derived_t": 0.5,
+          "stated_t": 0.5416,
+          "error_pct": 0.01
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=7.54, B/T=3.09, Cb=0.508",
+          "values": [
+            "L/B=7.54, B/T=3.09, Cb=0.508"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=1.041e+07, Cf_ITTC57=0.002979, Ct/Cf=1.17 ≥ 1",
+          "reynolds": 10413362.5,
+          "cf": 0.002979,
+          "ct_over_cf": 1.175
+        }
+      ],
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415."
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "speed_ms": 2.7417,
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 998.2,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.3660 vs Fr_stated=0.3660 (误差 0.0%)",
+          "computed": 0.366,
+          "stated": 0.366,
+          "error_pct": 0.0,
+          "implied_length_m": 5.7
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 0.5 t vs Δ = 0.5416 t (误差 0.0%)",
+          "derived_t": 0.5,
+          "stated_t": 0.5416,
+          "error_pct": 0.01
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=7.54, B/T=3.09, Cb=0.508",
+          "values": [
+            "L/B=7.54, B/T=3.09, Cb=0.508"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=1.562e+07, Cf_ITTC57=0.002780, Ct/Cf=1.37 ≥ 1",
+          "reynolds": 15620043.8,
+          "cf": 0.00278,
+          "ct_over_cf": 1.367
+        }
+      ],
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415."
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.202,
+      "experimental_ct": 0.0028,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 1025.0,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.1285 vs Fr_stated=0.1285 (误差 0.0%)",
+          "computed": 0.1285,
+          "stated": 0.1285,
+          "error_pct": 0.03,
+          "implied_length_m": 320.2
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 320437.2 t vs Δ = 320437 t (误差 0.0%)",
+          "derived_t": 320437.2,
+          "stated_t": 320437.2,
+          "error_pct": 0.0
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=5.52, B/T=2.79, Cb=0.810",
+          "values": [
+            "L/B=5.52, B/T=2.79, Cb=0.810"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=1.940e+09, Cf_ITTC57=0.001412, Ct/Cf=1.98 ≥ 1",
+          "reynolds": 1939932659.9,
+          "cf": 0.001412,
+          "ct_over_cf": 1.983
+        }
+      ],
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data."
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.717,
+      "experimental_ct": 0.003,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 1025.0,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.1377 vs Fr_stated=0.1377 (误差 0.0%)",
+          "computed": 0.1377,
+          "stated": 0.1377,
+          "error_pct": 0.02,
+          "implied_length_m": 320.2
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 320437.2 t vs Δ = 320437 t (误差 0.0%)",
+          "derived_t": 320437.2,
+          "stated_t": 320437.2,
+          "error_pct": 0.0
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=5.52, B/T=2.79, Cb=0.810",
+          "values": [
+            "L/B=5.52, B/T=2.79, Cb=0.810"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=2.079e+09, Cf_ITTC57=0.001401, Ct/Cf=2.14 ≥ 1",
+          "reynolds": 2078653198.7,
+          "cf": 0.001401,
+          "ct_over_cf": 2.142
+        }
+      ],
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data."
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "speed_ms": 7.974,
+      "experimental_ct": 0.0031,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 1025.0,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.1423 vs Fr_stated=0.1423 (误差 0.0%)",
+          "computed": 0.1423,
+          "stated": 0.1423,
+          "error_pct": 0.01,
+          "implied_length_m": 320.1
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 320437.2 t vs Δ = 320437 t (误差 0.0%)",
+          "derived_t": 320437.2,
+          "stated_t": 320437.2,
+          "error_pct": 0.0
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=5.52, B/T=2.79, Cb=0.810",
+          "values": [
+            "L/B=5.52, B/T=2.79, Cb=0.810"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=2.148e+09, Cf_ITTC57=0.001395, Ct/Cf=2.22 ≥ 1",
+          "reynolds": 2147878787.9,
+          "cf": 0.001395,
+          "ct_over_cf": 2.222
+        }
+      ],
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data."
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "speed_ms": 8.231,
+      "experimental_ct": 0.0032,
+      "experimental_rt_n": null,
+      "reference_density_kg_m3": 1025.0,
+      "status": "PARTIAL",
+      "verdict": "WITHHELD",
+      "withheld": true,
+      "failed_checks": [],
+      "checks_not_run": [
+        "resistance_closure"
+      ],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.1469 vs Fr_stated=0.1469 (误差 0.0%)",
+          "computed": 0.1469,
+          "stated": 0.1469,
+          "error_pct": 0.0,
+          "implied_length_m": 320.0
+        },
+        {
+          "check": "displacement_closure",
+          "status": "PASS",
+          "detail": "Cb·L·B·T·ρ = 320437.2 t vs Δ = 320437 t (误差 0.0%)",
+          "derived_t": 320437.2,
+          "stated_t": 320437.2,
+          "error_pct": 0.0
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/B=5.52, B/T=2.79, Cb=0.810",
+          "values": [
+            "L/B=5.52, B/T=2.79, Cb=0.810"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "WITHHELD",
+          "detail": "缺少 Ct 或 Rt 或 V，无法闭合"
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=2.217e+09, Cf_ITTC57=0.001390, Ct/Cf=2.30 ≥ 1",
+          "reynolds": 2217104377.1,
+          "cf": 0.00139,
+          "ct_over_cf": 2.302
+        }
+      ],
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data."
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "speed_ms": 3.0,
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": 92.52,
+      "reference_density_kg_m3": 998.2,
+      "status": "CONSISTENT",
+      "verdict": "PASS",
+      "withheld": false,
+      "failed_checks": [],
+      "checks_not_run": [],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.4589 vs Fr_stated=0.4589 (误差 0.0%)",
+          "computed": 0.4589,
+          "stated": 0.4589,
+          "error_pct": 0.01,
+          "implied_length_m": 4.4
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/D=8.57; S/(πDL)=0.780",
+          "values": [
+            "L/D=8.57",
+            "S/(πDL)=0.780"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "PASS",
+          "detail": "Ct·½ρV²S = 92.52 N vs Rt = 92.52 N (误差 0.0%)",
+          "derived_rt_n": 92.52,
+          "stated_rt_n": 92.52,
+          "error_pct": 0.01
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=1.302e+07, Cf_ITTC57=0.002867, Ct/Cf=1.33 ≥ 1",
+          "reynolds": 13015936.3,
+          "cf": 0.002867,
+          "ct_over_cf": 1.325
+        }
+      ],
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures."
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "speed_ms": 4.0,
+      "experimental_ct": 0.004,
+      "experimental_rt_n": 173.13,
+      "reference_density_kg_m3": 998.2,
+      "status": "CONSISTENT",
+      "verdict": "PASS",
+      "withheld": false,
+      "failed_checks": [],
+      "checks_not_run": [],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.6119 vs Fr_stated=0.6119 (误差 0.0%)",
+          "computed": 0.6119,
+          "stated": 0.6119,
+          "error_pct": 0.0,
+          "implied_length_m": 4.4
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/D=8.57; S/(πDL)=0.780",
+          "values": [
+            "L/D=8.57",
+            "S/(πDL)=0.780"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "PASS",
+          "detail": "Ct·½ρV²S = 173.13 N vs Rt = 173.13 N (误差 0.0%)",
+          "derived_rt_n": 173.13,
+          "stated_rt_n": 173.13,
+          "error_pct": 0.0
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=1.735e+07, Cf_ITTC57=0.002732, Ct/Cf=1.46 ≥ 1",
+          "reynolds": 17354581.7,
+          "cf": 0.002732,
+          "ct_over_cf": 1.464
+        }
+      ],
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures."
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "speed_ms": 5.0,
+      "experimental_ct": 0.0042,
+      "experimental_rt_n": 284.04,
+      "reference_density_kg_m3": 998.2,
+      "status": "CONSISTENT",
+      "verdict": "PASS",
+      "withheld": false,
+      "failed_checks": [],
+      "checks_not_run": [],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.7649 vs Fr_stated=0.7649 (误差 0.0%)",
+          "computed": 0.7649,
+          "stated": 0.7649,
+          "error_pct": 0.0,
+          "implied_length_m": 4.4
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/D=8.57; S/(πDL)=0.780",
+          "values": [
+            "L/D=8.57",
+            "S/(πDL)=0.780"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "PASS",
+          "detail": "Ct·½ρV²S = 284.04 N vs Rt = 284.04 N (误差 0.0%)",
+          "derived_rt_n": 284.04,
+          "stated_rt_n": 284.04,
+          "error_pct": 0.0
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=2.169e+07, Cf_ITTC57=0.002634, Ct/Cf=1.59 ≥ 1",
+          "reynolds": 21693227.1,
+          "cf": 0.002634,
+          "ct_over_cf": 1.595
+        }
+      ],
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures."
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "speed_ms": 6.0,
+      "experimental_ct": 0.0044,
+      "experimental_rt_n": 428.49,
+      "reference_density_kg_m3": 998.2,
+      "status": "CONSISTENT",
+      "verdict": "PASS",
+      "withheld": false,
+      "failed_checks": [],
+      "checks_not_run": [],
+      "warned_checks": [],
+      "checks": [
+        {
+          "check": "froude_closure",
+          "status": "PASS",
+          "detail": "Fr_computed=0.9179 vs Fr_stated=0.9179 (误差 0.0%)",
+          "computed": 0.9179,
+          "stated": 0.9179,
+          "error_pct": 0.01,
+          "implied_length_m": 4.4
+        },
+        {
+          "check": "form_bands",
+          "status": "PASS",
+          "detail": "L/D=8.57; S/(πDL)=0.780",
+          "values": [
+            "L/D=8.57",
+            "S/(πDL)=0.780"
+          ],
+          "violations": []
+        },
+        {
+          "check": "resistance_closure",
+          "status": "PASS",
+          "detail": "Ct·½ρV²S = 428.49 N vs Rt = 428.49 N (误差 0.0%)",
+          "derived_rt_n": 428.49,
+          "stated_rt_n": 428.49,
+          "error_pct": 0.0
+        },
+        {
+          "check": "friction_floor",
+          "status": "PASS",
+          "detail": "Re=2.603e+07, Cf_ITTC57=0.002557, Ct/Cf=1.72 ≥ 1",
+          "reynolds": 26031872.5,
+          "cf": 0.002557,
+          "ct_over_cf": 1.721
+        }
+      ],
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures."
+    }
+  ],
+  "dataset_description": "船舶阻力基准参考数据集（唯一正典 v3.0）。来源：Roddy 1990 DTRC-90/012（SUBOFF）、ITTC V&V Workshop 2010（DTMB-5415）、SIMMAN 2008（KVLCC2）。每个量由 backend/services/benchmark_canon.py 的解析恒等式复算，含密度/黏度溯源。",
+  "dataset_version": "3.0"
+}

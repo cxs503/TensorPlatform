@@ -314,6 +314,10 @@ class ShipProxy:
 
 
 # ── 基准验证 ──────────────────────────────────────────
+# 平台精度标准：对标参考值误差 >15% 不可接受。tolerance_pct 被放大到 >15%
+# 的门禁「永远不会失败」，按 PB-005 不算门禁：这种算例必须显式 gate_enabled=False，
+# 消费侧输出 WITHHELD，而不是给出 PASS。
+POLICY_MAX_TOLERANCE_PCT = 15.0
 # 内置参考数据（用于 benchmark_validate）
 BENCHMARK_REFERENCE = {
     "resistance": {
@@ -337,6 +341,9 @@ BENCHMARK_REFERENCE = {
             "reference_rt": 95.0,  # N，derived: Ct·½ρV²S（Ct=0.0038, S=5.42 m², ρ=1025, V=3.0 m/s）
             "legacy_reference_rt": 15.0,  # v1 值，与 Ct·½ρV²S 相差 6.3 倍，见 services/benchmark_integrity.py
             "tolerance_pct": 300.0,  # Holtrop 对 SUBOFF 误差可达 300%+
+            # 宽容差作为历史记录保留，但该算例明确不是门禁：消费侧必须输出
+            # WITHHELD。否则「300% 容差」等于一个永远不会失败的门禁（PB-005）。
+            "gate_enabled": False,
             "note": "honest-FAIL: Holtrop 方法不适用于潜艇外形，误差 >300%",
         },
     },
@@ -405,6 +412,22 @@ async def benchmark_validate(
             error_pct = float("inf") if computed != 0 else 0.0
         else:
             error_pct = abs(computed - reference) / abs(reference) * 100
+
+        if not ref_data.get("gate_enabled", True):
+            # honest-FAIL 算例不是门禁：数值偶然落进宽容差也不得打印 PASS。
+            return {
+                "case_name": case_name,
+                "calc_type": calc_type,
+                "computed_value": computed,
+                "reference_value": reference,
+                "error_pct": round(error_pct, 2),
+                "status": "WITHHELD",
+                "pass": None,
+                "gate_enabled": False,
+                "tolerance_pct": ref_data.get("tolerance_pct"),
+                "note": ref_data.get("note", ""),
+                "error": "honest-FAIL case: not a gate, no verdict is granted",
+            }
 
         tolerance = ref_data.get("tolerance_pct", 15.0)
         passed = error_pct <= tolerance

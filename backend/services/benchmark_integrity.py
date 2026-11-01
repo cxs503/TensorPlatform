@@ -31,6 +31,7 @@ from __future__ import annotations
 
 import json
 import math
+import os
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
@@ -381,6 +382,59 @@ def _summarize(rows: List[Dict[str, Any]], source: str,
         "binding": len(failing) == 0,
         "rows": rows,
     }
+
+
+# ---------------------------------------------------------------------------
+# 交付侧工具（m1406 收编）：端点探测 + C_T 反推
+# ---------------------------------------------------------------------------
+
+#: 历史实现只探测 :8002（多数部署已不再监听），整条对标链因此退化为
+#: "Resistance API call failed" / error_pct = 999。这里按优先级给出候选端点。
+DEFAULT_PLATFORM_PORTS = (8001, 8002, 8010)
+
+
+def ship_platform_bases(ports: Iterable[int] = DEFAULT_PLATFORM_PORTS) -> List[str]:
+    """候选的船舶计算 API base URL 列表（去重、保持优先级）。
+
+    ``SHIP_PLATFORM_URL`` 显式设置时排在最前；其余按端口顺序补全 127.0.0.1。
+    只做「候选」，是否有服务在听由调用方逐个探测。
+    """
+    bases: List[str] = []
+    env = os.getenv("SHIP_PLATFORM_URL")
+    if env:
+        bases.append(env)
+    bases.extend(f"http://127.0.0.1:{p}" for p in ports)
+    seen: set = set()
+    ordered: List[str] = []
+    for b in bases:
+        b = (b or "").strip().rstrip("/")
+        if b and b not in seen:
+            seen.add(b)
+            ordered.append(b)
+    return ordered
+
+
+def total_resistance_coefficient(
+    response: Dict[str, Any], case: Dict[str, Any], rho: float, speed_ms: float
+) -> Optional[float]:
+    """C_T = R_T / (0.5 rho S V^2)，缺 ct 时由 R_T 与湿表面积反推。
+
+    计算端点历史上只回 ``total_resistance_n``，而端点读 ``ct``，于是 ``calc_ct``
+    恒为 0、每个算例都以 100% 误差"失败"。湿表面积优先取参考行自带的实测值
+    （``geometry.wetted_surface_m2``），其次用响应里的同名字段；两者皆无则返回
+    ``None``（不猜），由调用方如实记为不可反推。
+    """
+    if response.get("ct"):
+        return float(response["ct"])
+    if response.get("total_resistance_coefficient"):
+        return float(response["total_resistance_coefficient"])
+    rt = response.get("total_resistance_n", response.get("rt_n", response.get("rt")))
+    if not rt:
+        return None
+    area = (case.get("geometry") or {}).get("wetted_surface_m2") or response.get("wetted_surface_m2")
+    if not area:
+        return None
+    return float(rt) / (0.5 * float(rho) * float(area) * speed_ms ** 2)
 
 
 def dataset_path() -> Path:

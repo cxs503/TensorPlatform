@@ -37,6 +37,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
+from services.ship_resistance import ct_from_rt
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -46,6 +47,9 @@ from services.ship_hydrostatics import (
 )
 
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
+
+#: 阻力模型的来源标签，随响应下发，便于对标链记录"哪个模型给的数"。
+RESISTANCE_METHOD = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
 
 # Conservative upper heel limit of the wall-sided identity when neither the hull
 # geometry (beam/draft/depth) nor an explicit caller limit is supplied.
@@ -99,6 +103,10 @@ class ResistanceResponse(BaseModel):
     wetted_surface_m2: float = 0.0
     wetted_surface_source: str = "empirical_formula"
     form_factor: float = 1.0
+    # m1388 收编：下游对标链按 C_T = R_T/(0.5 rho S V^2) 复核，端点直接给出
+    # 系数与模型来源，避免消费侧自己猜字段/自己反推。
+    total_resistance_coefficient: float = 0.0
+    method: str = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
     computation_time_ms: float
 
 
@@ -312,6 +320,8 @@ async def calc_resistance(req: ResistanceRequest):
         wetted_surface_m2=round(S, 6),
         wetted_surface_source=S_source,
         form_factor=req.form_factor,
+        total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V), 8),
+        method=RESISTANCE_METHOD,
         computation_time_ms=round(elapsed_ms, 3),
     )
 

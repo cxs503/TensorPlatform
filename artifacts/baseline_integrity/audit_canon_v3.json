@@ -1,0 +1,502 @@
+{
+  "dataset": "backend/data/benchmark_reference.json",
+  "policy": {
+    "max_tolerance_pct": 15.0,
+    "identity_tol_pct": 2.0,
+    "froude_tol_pct": 1.0
+  },
+  "summary": {
+    "cases": 12,
+    "fail": 0,
+    "partial": 12,
+    "pass": 2,
+    "verdict": "PASS",
+    "failing_checks": []
+  },
+  "case_results": [
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "check": "C_case",
+      "speed_ms": 0.4569,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.061,
+          "computed": 0.061,
+          "deviation_pct": 0.01,
+          "implied_length_m": 5.72,
+          "recorded_length_m": 5.72
+        },
+        "C3_units": {
+          "status": "WARN",
+          "deviation_pct": 82.237,
+          "reason": "declared scale mix: 条件值：由记录 Fr=0.061 与 L=5.72 m 反算 V=Fr√(gL)=0.4569 m/s；原始航速 2.572 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy   {'filed_speed_ms': 2.572, 'filed_froude_number': 0.061, 'filed_experimental_rt_n': 8.2}"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "2.295e+06",
+          "cf_ittc57": 0.003944,
+          "friction_lower_bound_ct": 0.004062,
+          "ct_over_cf": 1.141
+        }
+      },
+      "wetted_surface_m2": 4.41,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "check": "C_case",
+      "speed_ms": 0.9139,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.122,
+          "computed": 0.122,
+          "deviation_pct": 0.0,
+          "implied_length_m": 5.72,
+          "recorded_length_m": 5.72
+        },
+        "C3_units": {
+          "status": "WARN",
+          "deviation_pct": 82.235,
+          "reason": "declared scale mix: 条件值：由记录 Fr=0.122 与 L=5.72 m 反算 V=Fr√(gL)=0.9139 m/s；原始航速 5.144 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy   {'filed_speed_ms': 5.144, 'filed_froude_number': 0.122, 'filed_experimental_rt_n': 28.5}"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "4.590e+06",
+          "cf_ittc57": 0.003451,
+          "friction_lower_bound_ct": 0.003555,
+          "ct_over_cf": 1.101
+        }
+      },
+      "wetted_surface_m2": 4.41,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "check": "C_case",
+      "speed_ms": 1.8278,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.244,
+          "computed": 0.244,
+          "deviation_pct": 0.0,
+          "implied_length_m": 5.72,
+          "recorded_length_m": 5.72
+        },
+        "C3_units": {
+          "status": "WARN",
+          "deviation_pct": 82.235,
+          "reason": "declared scale mix: 条件值：由记录 Fr=0.244 与 L=5.72 m 反算 V=Fr√(gL)=1.8278 m/s；原始航速 10.289 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy   {'filed_speed_ms': 10.289, 'filed_froude_number': 0.244, 'filed_experimental_rt_n': 95.0}"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "9.179e+06",
+          "cf_ittc57": 0.003045,
+          "friction_lower_bound_ct": 0.003136,
+          "ct_over_cf": 1.149
+        }
+      },
+      "wetted_surface_m2": 4.41,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "check": "C_case",
+      "speed_ms": 2.7417,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.366,
+          "computed": 0.366,
+          "deviation_pct": 0.0,
+          "implied_length_m": 5.72,
+          "recorded_length_m": 5.72
+        },
+        "C3_units": {
+          "status": "WARN",
+          "deviation_pct": 82.235,
+          "reason": "declared scale mix: 条件值：由记录 Fr=0.366 与 L=5.72 m 反算 V=Fr√(gL)=2.7417 m/s；原始航速 15.433 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy   {'filed_speed_ms': 15.433, 'filed_froude_number': 0.366, 'filed_experimental_rt_n': 210.0}"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "1.377e+07",
+          "cf_ittc57": 0.00284,
+          "friction_lower_bound_ct": 0.002925,
+          "ct_over_cf": 1.338
+        }
+      },
+      "wetted_surface_m2": 4.41,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "check": "C_case",
+      "speed_ms": 7.202,
+      "fluid_density_kg_m3": 1025.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.1285,
+          "computed": 0.1285,
+          "deviation_pct": 0.03,
+          "implied_length_m": 320.21,
+          "recorded_length_m": 320.0
+        },
+        "C3_units": {
+          "status": "PASS",
+          "deviation_pct": 0.003
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "1.938e+09",
+          "cf_ittc57": 0.001412,
+          "friction_lower_bound_ct": 0.001455,
+          "ct_over_cf": 1.983
+        }
+      },
+      "wetted_surface_m2": 25678.49,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "check": "C_case",
+      "speed_ms": 7.717,
+      "fluid_density_kg_m3": 1025.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.1377,
+          "computed": 0.1377,
+          "deviation_pct": 0.02,
+          "implied_length_m": 320.15,
+          "recorded_length_m": 320.0
+        },
+        "C3_units": {
+          "status": "PASS",
+          "deviation_pct": 0.004
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "2.077e+09",
+          "cf_ittc57": 0.001401,
+          "friction_lower_bound_ct": 0.001443,
+          "ct_over_cf": 2.142
+        }
+      },
+      "wetted_surface_m2": 25678.49,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "check": "C_case",
+      "speed_ms": 7.974,
+      "fluid_density_kg_m3": 1025.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.1423,
+          "computed": 0.1423,
+          "deviation_pct": 0.01,
+          "implied_length_m": 320.09,
+          "recorded_length_m": 320.0
+        },
+        "C3_units": {
+          "status": "PASS",
+          "deviation_pct": 0.001
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "2.146e+09",
+          "cf_ittc57": 0.001395,
+          "friction_lower_bound_ct": 0.001437,
+          "ct_over_cf": 2.222
+        }
+      },
+      "wetted_surface_m2": 25678.49,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "check": "C_case",
+      "speed_ms": 8.231,
+      "fluid_density_kg_m3": 1025.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "WITHHELD",
+          "reason": "missing wetted surface or Rt or speed"
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.1469,
+          "computed": 0.1469,
+          "deviation_pct": 0.0,
+          "implied_length_m": 320.03,
+          "recorded_length_m": 320.0
+        },
+        "C3_units": {
+          "status": "PASS",
+          "deviation_pct": 0.001
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "2.215e+09",
+          "cf_ittc57": 0.00139,
+          "friction_lower_bound_ct": 0.001432,
+          "ct_over_cf": 2.302
+        }
+      },
+      "wetted_surface_m2": 25678.49,
+      "wetted_surface_source": "holtrop_estimate",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "check": "C_case",
+      "speed_ms": 3.0,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "PASS",
+          "ct_declared": 0.0038,
+          "ct_from_rt": 0.00379336,
+          "deviation_pct": 0.17,
+          "ratio": 0.9983,
+          "rt_implied_by_ct_n": 92.68,
+          "indicative": false
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.4589,
+          "computed": 0.4589,
+          "deviation_pct": 0.01,
+          "implied_length_m": 4.36,
+          "recorded_length_m": 4.356
+        },
+        "C3_units": {
+          "status": "WITHHELD",
+          "reason": "kn speed absent"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "1.147e+07",
+          "cf_ittc57": 0.00293,
+          "friction_lower_bound_ct": 0.003018,
+          "ct_over_cf": 1.297
+        }
+      },
+      "wetted_surface_m2": 5.42,
+      "wetted_surface_source": "measured",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "check": "C_case",
+      "speed_ms": 4.0,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "PASS",
+          "ct_declared": 0.004,
+          "ct_from_rt": 0.00399285,
+          "deviation_pct": 0.18,
+          "ratio": 0.9982,
+          "rt_implied_by_ct_n": 173.44,
+          "indicative": false
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.6119,
+          "computed": 0.6119,
+          "deviation_pct": 0.0,
+          "implied_length_m": 4.36,
+          "recorded_length_m": 4.356
+        },
+        "C3_units": {
+          "status": "WITHHELD",
+          "reason": "kn speed absent"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "1.530e+07",
+          "cf_ittc57": 0.00279,
+          "friction_lower_bound_ct": 0.002874,
+          "ct_over_cf": 1.434
+        }
+      },
+      "wetted_surface_m2": 5.42,
+      "wetted_surface_source": "measured",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "check": "C_case",
+      "speed_ms": 5.0,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "PASS",
+          "ct_declared": 0.0042,
+          "ct_from_rt": 0.00419247,
+          "deviation_pct": 0.18,
+          "ratio": 0.9982,
+          "rt_implied_by_ct_n": 284.55,
+          "indicative": false
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.7649,
+          "computed": 0.7649,
+          "deviation_pct": 0.0,
+          "implied_length_m": 4.36,
+          "recorded_length_m": 4.356
+        },
+        "C3_units": {
+          "status": "WITHHELD",
+          "reason": "kn speed absent"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "1.912e+07",
+          "cf_ittc57": 0.002689,
+          "friction_lower_bound_ct": 0.002769,
+          "ct_over_cf": 1.562
+        }
+      },
+      "wetted_surface_m2": 5.42,
+      "wetted_surface_source": "measured",
+      "verdict": "PARTIAL"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "check": "C_case",
+      "speed_ms": 6.0,
+      "fluid_density_kg_m3": 1000.0,
+      "checks": {
+        "C1_ct_rt": {
+          "status": "PASS",
+          "ct_declared": 0.0044,
+          "ct_from_rt": 0.00439207,
+          "deviation_pct": 0.18,
+          "ratio": 0.9982,
+          "rt_implied_by_ct_n": 429.26,
+          "indicative": false
+        },
+        "C2_froude": {
+          "status": "PASS",
+          "declared": 0.9179,
+          "computed": 0.9179,
+          "deviation_pct": 0.01,
+          "implied_length_m": 4.36,
+          "recorded_length_m": 4.356
+        },
+        "C3_units": {
+          "status": "WITHHELD",
+          "reason": "kn speed absent"
+        },
+        "C4_physicality": {
+          "status": "PASS",
+          "reynolds": "2.295e+07",
+          "cf_ittc57": 0.00261,
+          "friction_lower_bound_ct": 0.002688,
+          "ct_over_cf": 1.686
+        }
+      },
+      "wetted_surface_m2": 5.42,
+      "wetted_surface_source": "measured",
+      "verdict": "PARTIAL"
+    }
+  ],
+  "cross_store": [
+    {
+      "check": "C5_cross_store",
+      "case": "kvlcc2_full",
+      "status": "WITHHELD",
+      "reason": "no dataset block for ship type"
+    },
+    {
+      "check": "C5_cross_store",
+      "case": "suboff_model",
+      "status": "WITHHELD",
+      "reason": "no dataset block for ship type"
+    }
+  ],
+  "gate_policy": [
+    {
+      "check": "C6_gate_policy",
+      "case": "resistance/kvlcc2_full",
+      "tolerance_pct": 15.0,
+      "status": "PASS",
+      "gate_enabled": true,
+      "reason": ""
+    },
+    {
+      "check": "C6_gate_policy",
+      "case": "resistance/suboff_model",
+      "tolerance_pct": 300.0,
+      "status": "WARN",
+      "gate_enabled": false,
+      "reason": "declared non-gate (honest-FAIL): verdict withheld at consumption"
+    },
+    {
+      "check": "C6_gate_policy",
+      "case": "stability/generic_barge",
+      "tolerance_pct": 15.0,
+      "status": "PASS",
+      "gate_enabled": true,
+      "reason": ""
+    }
+  ]
+}

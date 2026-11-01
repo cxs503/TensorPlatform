@@ -1,0 +1,534 @@
+{
+  "dataset": "船舶阻力基准参考数据集（唯一正典 v3.0）。来源：Roddy 1990 DTRC-90/012（SUBOFF）、ITTC V&V Workshop 2010（DTMB-5415）、SIMMAN 2008（KVLCC2）。每个量由 backend/services/benchmark_canon.py 的解析恒等式复算，含密度/黏度溯源。",
+  "n_cases": 12,
+  "verdict_counts": {
+    "REAL": 4,
+    "DERIVED": 0,
+    "WITHHELD": 8
+  },
+  "trend_flags": [
+    {
+      "ship_type": "DTMB-5415",
+      "from": "DTMB5415-01",
+      "to": "DTMB5415-02",
+      "ct_drop_pct": 15.56
+    },
+    {
+      "ship_type": "DTMB-5415",
+      "from": "DTMB5415-02",
+      "to": "DTMB5415-03",
+      "ct_drop_pct": 7.89
+    }
+  ],
+  "cases": [
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.061,
+          "froude_from_geometry": 0.06099,
+          "rel_err": 0.0001,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 2.08,
+          "s_wetted_ref_m2": 4.435,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.85,
+            "cwp": 0.672,
+            "cwp_source": "schneekluth"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 2294528.5,
+          "cf_ittc57": 0.003944,
+          "ct_over_cf": 1.141,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.122,
+          "froude_from_geometry": 0.122,
+          "rel_err": 0.0,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 7.02,
+          "s_wetted_ref_m2": 4.435,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.85,
+            "cwp": 0.672,
+            "cwp_source": "schneekluth"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 4589559.3,
+          "cf_ittc57": 0.003451,
+          "ct_over_cf": 1.101,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.244,
+          "froude_from_geometry": 0.244,
+          "rel_err": 0.0,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 25.88,
+          "s_wetted_ref_m2": 4.435,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.85,
+            "cwp": 0.672,
+            "cwp_source": "schneekluth"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 9179118.5,
+          "cf_ittc57": 0.003045,
+          "ct_over_cf": 1.149,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.366,
+          "froude_from_geometry": 0.36601,
+          "rel_err": 0.0,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 63.22,
+          "s_wetted_ref_m2": 4.435,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.85,
+            "cwp": 0.672,
+            "cwp_source": "schneekluth"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 13768677.8,
+          "cf_ittc57": 0.00284,
+          "ct_over_cf": 1.338,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "medium": "sea",
+      "rho": 1025.0,
+      "nu": 1.19e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.1285,
+          "froude_from_geometry": 0.12854,
+          "rel_err": 0.0003,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 1973298.15,
+          "s_wetted_ref_m2": 26511.517,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.9986,
+            "cwp": 0.8564,
+            "cwp_source": "explicit"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 1936672268.9,
+          "cf_ittc57": 0.001412,
+          "ct_over_cf": 1.982,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "medium": "sea",
+      "rho": 1025.0,
+      "nu": 1.19e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.1377,
+          "froude_from_geometry": 0.13773,
+          "rel_err": 0.0002,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 2427429.9,
+          "s_wetted_ref_m2": 26511.517,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.9986,
+            "cwp": 0.8564,
+            "cwp_source": "explicit"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 2075159663.9,
+          "cf_ittc57": 0.001401,
+          "ct_over_cf": 2.142,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "medium": "sea",
+      "rho": 1025.0,
+      "nu": 1.19e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.1423,
+          "froude_from_geometry": 0.14232,
+          "rel_err": 0.0001,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 2678197.49,
+          "s_wetted_ref_m2": 26511.517,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.9986,
+            "cwp": 0.8564,
+            "cwp_source": "explicit"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 2144268907.6,
+          "cf_ittc57": 0.001395,
+          "ct_over_cf": 2.222,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "medium": "sea",
+      "rho": 1025.0,
+      "nu": 1.19e-06,
+      "verdict": "WITHHELD",
+      "reason": "failed C2_resistance",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.1469,
+          "froude_from_geometry": 0.14691,
+          "rel_err": 0.0,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": false,
+          "rt_reported_n": null,
+          "rt_derived_from_ct_n": 2945666.83,
+          "s_wetted_ref_m2": 26511.517,
+          "s_wetted_source": "holtrop1982",
+          "s_wetted_implied_m2": null,
+          "implied_over_ref": null,
+          "tolerance": 0.25,
+          "assumptions": {
+            "cm": 0.9986,
+            "cwp": 0.8564,
+            "cwp_source": "explicit"
+          }
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 2213378151.3,
+          "cf_ittc57": 0.00139,
+          "ct_over_cf": 2.302,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "REAL",
+      "reason": "all identity checks pass (wetted surface declared)",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.4589,
+          "froude_from_geometry": 0.45893,
+          "rel_err": 0.0001,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": true,
+          "rt_reported_n": 92.52,
+          "rt_derived_from_ct_n": 92.52,
+          "s_wetted_ref_m2": 5.42,
+          "s_wetted_source": "declared",
+          "s_wetted_implied_m2": 5.42,
+          "implied_over_ref": 1.0001,
+          "tolerance": 0.25,
+          "assumptions": {}
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 11473222.1,
+          "cf_ittc57": 0.00293,
+          "ct_over_cf": 1.297,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "REAL",
+      "reason": "all identity checks pass (wetted surface declared)",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.6119,
+          "froude_from_geometry": 0.6119,
+          "rel_err": 0.0,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": true,
+          "rt_reported_n": 173.13,
+          "rt_derived_from_ct_n": 173.13,
+          "s_wetted_ref_m2": 5.42,
+          "s_wetted_source": "declared",
+          "s_wetted_implied_m2": 5.42,
+          "implied_over_ref": 1.0,
+          "tolerance": 0.25,
+          "assumptions": {}
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 15297629.5,
+          "cf_ittc57": 0.00279,
+          "ct_over_cf": 1.434,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "REAL",
+      "reason": "all identity checks pass (wetted surface declared)",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.7649,
+          "froude_from_geometry": 0.76488,
+          "rel_err": 0.0,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": true,
+          "rt_reported_n": 284.04,
+          "rt_derived_from_ct_n": 284.04,
+          "s_wetted_ref_m2": 5.42,
+          "s_wetted_source": "declared",
+          "s_wetted_implied_m2": 5.42,
+          "implied_over_ref": 1.0,
+          "tolerance": 0.25,
+          "assumptions": {}
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 19122036.9,
+          "cf_ittc57": 0.002689,
+          "ct_over_cf": 1.562,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "medium": "fresh",
+      "rho": 998.2,
+      "nu": 1.139e-06,
+      "verdict": "REAL",
+      "reason": "all identity checks pass (wetted surface declared)",
+      "checks": {
+        "C1_froude": {
+          "pass": true,
+          "froude_reported": 0.9179,
+          "froude_from_geometry": 0.91785,
+          "rel_err": 0.0001,
+          "tolerance": 0.02
+        },
+        "C2_resistance": {
+          "pass": true,
+          "rt_reported_n": 428.49,
+          "rt_derived_from_ct_n": 428.49,
+          "s_wetted_ref_m2": 5.42,
+          "s_wetted_source": "declared",
+          "s_wetted_implied_m2": 5.42,
+          "implied_over_ref": 1.0,
+          "tolerance": 0.25,
+          "assumptions": {}
+        },
+        "C3_friction": {
+          "pass": true,
+          "reynolds": 22946444.2,
+          "cf_ittc57": 0.00261,
+          "ct_over_cf": 1.686,
+          "band": [
+            0.9,
+            3.5
+          ]
+        }
+      }
+    }
+  ],
+  "tolerances": {
+    "froude_rel": 0.02,
+    "wetted_surface_rel": 0.25,
+    "ct_over_cf_band": [
+      0.9,
+      3.5
+    ],
+    "ct_trend_rel": 0.05
+  }
+}
