@@ -1,5 +1,5 @@
 """
-Ship API Proxy — 封装对 port 8002 船舶计算服务的 HTTP 调用。
+Ship API Proxy — 封装对船舶总体性能平台（默认 :8001）的 HTTP 调用。
 
 功能：
 - resistance / stability 代理调用
@@ -17,10 +17,15 @@ from typing import Any, Callable, Dict, List, Optional, Tuple
 
 import httpx
 
+from services.ship_api_endpoint import ship_api_base
+
 logger = logging.getLogger(__name__)
 
 # ── 配置 ──────────────────────────────────────────────
-SHIP_API_BASE = "http://localhost:8002/api/v1"
+# 端点由 services.ship_api_endpoint 统一解析（历史事故：此处曾写死 :8002，
+# 而船舶平台监听 :8001，导致代理全链路 Connection refused）。``SHIP_API_BASE``
+# 保留为模块级常量供外部读取，实际取值在 ShipProxy 实例化时按环境变量重解析。
+SHIP_API_BASE = ship_api_base()
 DEFAULT_TIMEOUT = 30.0  # 秒
 DEFAULT_RETRIES = 3
 DEFAULT_RETRY_DELAY = 0.5  # 秒
@@ -102,7 +107,7 @@ class ShipProxy:
     """
     船舶计算服务代理。
 
-    封装对 port 8002 的 HTTP 调用，支持：
+    封装对船舶平台（默认 :8001）的 HTTP 调用，支持：
     - resistance（阻力计算）
     - stability（稳性计算）
     - 自动重试 + 超时
@@ -111,12 +116,13 @@ class ShipProxy:
 
     def __init__(
         self,
-        base_url: str = SHIP_API_BASE,
+        base_url: Optional[str] = None,
         timeout: float = DEFAULT_TIMEOUT,
         max_retries: int = DEFAULT_RETRIES,
         retry_delay: float = DEFAULT_RETRY_DELAY,
     ):
-        self.base_url = base_url.rstrip("/")
+        # 实例化时解析，便于测试用环境变量或显式入参覆盖
+        self.base_url = (base_url or ship_api_base()).rstrip("/")
         self.timeout = timeout
         self.max_retries = max_retries
         self.retry_delay = retry_delay

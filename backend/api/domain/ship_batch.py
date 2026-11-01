@@ -20,9 +20,12 @@ logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/calculations", tags=["船舶批量计算"])
 
-# Ship performance platform base URL (default port 8002)
-SHIP_API_BASE = os.environ.get("SHIP_API_BASE", "http://localhost:8002")
-RESISTANCE_ENDPOINT = f"{SHIP_API_BASE}/api/v1/calculations/resistance"
+# Ship performance platform endpoint — resolved by the single source of truth
+# (services.ship_api_endpoint). 历史事故：此处曾默认 :8002，与真实监听 :8001 不符。
+from services.ship_api_endpoint import ship_api_origin, ship_api_url
+
+SHIP_API_BASE = ship_api_origin()
+RESISTANCE_ENDPOINT = ship_api_url("calculations/resistance")
 
 # Timeout for the entire batch (seconds).  If exceeded we degrade to serial.
 BATCH_TIMEOUT_SECONDS = int(os.environ.get("BATCH_TIMEOUT_SECONDS", "5000"))
