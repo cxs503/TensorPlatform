@@ -35,7 +35,9 @@ from __future__ import annotations
 
 import math
 from dataclasses import dataclass, field
-from typing import Iterable, List, Sequence, Tuple
+from typing import Iterable, List, Optional, Sequence, Tuple
+
+from ...stability_criteria import evaluate_is_code_2008
 
 Point = Tuple[float, float]  # (y, z) in the transverse section
 
@@ -321,65 +323,78 @@ class LoadingCondition:
         return direction * 0.5 * (lo + hi)
 
     # -- IS Code criteria --------------------------------------------------
-    def stability_criteria(self, step_deg: float = 0.5, max_deg: float = 60.0) -> dict:
+    def stability_criteria(
+        self,
+        step_deg: float = 0.5,
+        max_deg: float = 60.0,
+        theta_f_deg: Optional[float] = None,
+    ) -> dict:
         """Evaluate IMO IS Code 2008 Part A 2.2 criteria on the loaded GZ curve.
 
-        Only the criteria that are computable from GZ/GM alone are returned;
-        weather-criteria items (wind pressure, passenger crowding) are out of
-        scope and flagged as such.
+        The numeric set and the area integration live in
+        :mod:`services.stability_criteria` (single source of truth shared with
+        the ice-integration pipeline).  Historically this method implemented
+        only five of the six clauses and **omitted A(0-40 deg) >= 0.09 m rad**,
+        which let a curve that keeps its area up to 30 deg but loses it between
+        30 and 40 deg -- precisely the post-icing / deck-edge-immersion case --
+        be reported as a pass (m1642 audit, see
+        ``tools/verification/stability_criteria_anchors.py``).
+
+        The legacy key names (``gm_initial``, ``area_0_30``, ``gz_at_30``,
+        ``heel_at_max_gz``, ``area_30_40``, ``all_pass``) are preserved for
+        consumers; ``area_0_40`` is new.  Weather-criterion items (wind
+        pressure, passenger crowding) remain out of scope.
+
+        ``theta_f_deg`` (angle of flooding) caps the 40 deg area clauses as the
+        Code prescribes; when it is not supplied the optimistic 40 deg branch is
+        used and the returned ``notes`` say so.
         """
         curve = self.gz_curve(max_deg=max_deg, step_deg=step_deg)
+        result = evaluate_is_code_2008(
+            [(p["heel_deg"], p["gz_m"]) for p in curve],
+            self.gm_loaded,
+            theta_f_deg=theta_f_deg,
+        )
+        crit = result["criteria"]
 
-        def area(a0: float, a1: float) -> float:
-            vals = [p for p in curve if a0 - 1e-9 <= p["heel_deg"] <= a1 + 1e-9]
-            acc = 0.0
-            for p, q in zip(vals, vals[1:]):
-                rad0, rad1 = math.radians(p["heel_deg"]), math.radians(q["heel_deg"])
-                acc += 0.5 * (p["gz_m"] + q["gz_m"]) * (rad1 - rad0)
-            return acc
+        def legacy(name: str, label: str) -> dict:
+            entry = crit[name]
+            return {
+                "value": entry["value"],
+                "limit": entry["required"],
+                "pass": entry["pass"],
+                "margin": entry["margin"],
+                "reference": f"{entry['reference']} ({label})",
+            }
 
-        def gz_at(angle: float) -> float:
-            return self.gz(angle)
-
-        peak = max(curve, key=lambda p: p["gz_m"])
         checks = {
-            "gm_initial": {
-                "value": self.gm_loaded,
-                "limit": 0.15,
-                "pass": self.gm_loaded >= 0.15,
-                "reference": "IS Code 2008 A.2.2.1 (GM >= 0.15 m)",
-            },
-            "area_0_30": {
-                "value": area(0.0, 30.0),
-                "limit": 0.055,
-                "pass": area(0.0, 30.0) >= 0.055,
-                "reference": "IS Code 2008 A.2.2.2 (A0-30 >= 0.055 m rad)",
-            },
-            "gz_at_30": {
-                "value": gz_at(30.0),
-                "limit": 0.20,
-                "pass": gz_at(30.0) >= 0.20,
-                "reference": "IS Code 2008 A.2.2.3 (GZ(30 deg) >= 0.20 m)",
-            },
-            "heel_at_max_gz": {
-                "value": peak["heel_deg"],
-                "limit": 25.0,
-                "pass": peak["heel_deg"] >= 25.0,
-                "reference": "IS Code 2008 A.2.2.4 (max GZ at >= 25 deg)",
-            },
-            "area_30_40": {
-                "value": area(30.0, 40.0),
-                "limit": 0.030,
-                "pass": area(30.0, 40.0) >= 0.03,
-                "reference": "IS Code 2008 A.2.2.5 (A30-40 >= 0.03 m rad)",
-            },
+            "gm_initial": legacy("gm0_m", "GM >= 0.15 m"),
+            "area_0_30": legacy("area_0_30_m_rad", "A0-30 >= 0.055 m rad"),
+            "area_0_40": legacy("area_0_40_m_rad", "A0-40 >= 0.090 m rad"),
+            "gz_at_30": legacy("gz_at_30_m", "GZ(30 deg) >= 0.20 m"),
+            "heel_at_max_gz": legacy("angle_of_max_gz_deg", "max GZ at >= 25 deg"),
+            "area_30_40": legacy("area_30_40_m_rad", "A30-40 >= 0.030 m rad"),
         }
         checks["all_pass"] = {
-            "value": all(v["pass"] for k, v in checks.items() if k != "all_pass"),
+            "value": result["all_pass"],
             "limit": True,
-            "pass": all(v["pass"] for k, v in checks.items() if k != "all_pass"),
+            "pass": result["all_pass"],
             "reference": "conjunction of IS Code 2008 A.2.2 with ice accretion",
         }
+        checks["min_margin"] = {
+            "value": result["min_margin"],
+            "limit": 0.0,
+            "pass": result["min_margin"] >= 0.0,
+            "reference": "smallest per-clause margin (m rad / m / deg as labelled)",
+        }
+        checks["theta_40_deg"] = {
+            "value": result["theta_40_deg"],
+            "limit": 40.0,
+            "pass": True,
+            "reference": "upper limit of the area window (theta_f if smaller)",
+        }
+        checks["notes"] = {"value": result["notes"], "limit": None,
+                           "pass": True, "reference": "evaluation caveats"}
         return checks
 
 

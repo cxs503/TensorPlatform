@@ -7,6 +7,7 @@ from typing import Dict, List, Tuple
 import numpy as np
 
 from .reference_nodes import G, STEEL, NodeResult, slosh_pendulum_length
+from ..stability_criteria import evaluate_is_code_2008
 
 # ===========================================================================
 # N03 滚-液晃 2-DOF 耦合 (Lagrange) + 稳性 (GZ 数值积分 + IMO IS 2008)
@@ -148,31 +149,61 @@ def gz_curve(B: float, T: float, KG: float, phis_deg: Sequence[float]) -> Dict[s
 
 
 def imo_criteria(curve: Dict[str, List[float]], gm_corrected: float) -> Dict[str, object]:
-    """IMO IS Code 2008 完整稳性衡准 (2.2.1) 逐项判定."""
-    phis = np.deg2rad(np.asarray(curve["phi_deg"], dtype=float))
-    gz = np.asarray(curve["gz_numeric"], dtype=float)
+    """IMO IS Code 2008 完整稳性衡准 (Part A 2.2) 逐项判定.
 
-    def area(a_deg: float, b_deg: float) -> float:
-        m = (np.rad2deg(phis) >= a_deg - 1e-9) & (np.rad2deg(phis) <= b_deg + 1e-9)
-        return float(np.trapezoid(gz[m], phis[m])) if m.sum() > 1 else 0.0
+    判据本体统一在 :mod:`services.stability_criteria`（与结冰链共用同一份数值集），
+    本函数只做字段映射。
 
-    checks = {
-        "area_0_30_m_rad": (area(0, 30), 0.055),
-        "area_0_40_m_rad": (area(0, 40), 0.090),
-        "area_30_40_m_rad": (area(30, 40), 0.030),
-        "gz_at_30_m": (float(np.interp(30.0, np.rad2deg(phis), gz)), 0.200),
-        "gz_max_m": (float(gz.max()), 0.250),
-        "gm0_m": (float(gm_corrected), 0.150),
+    m1642 审计修正两处（原实现与世界标准不符，两个方向都会给出错误裁决）：
+
+    * 原实现把 ``GZ_max >= 0.25 m`` 当作强制衡准。IS Code 2008 A.2.2 的六条中没有
+      这一条（其数值集为 A0-30>=0.055、A0-40>=0.09、A30-40>=0.03、GZ(30)>=0.20、
+      GZ_max 出现在 >=25 度、GM0>=0.15），故 GZ_max 降级为 **informational**（仍返回、
+      不计入 ``margins``/``passed``），避免把合规船误判为不合格。
+    * 原实现完全没有对 A.2.2.4（GZ_max 所在横倾角 >= 25 度）设门，现补为
+      ``angle_of_max_gz_deg`` 门。
+
+    ``checks`` 键名（含 ``gz_max_m``）与 ``margins``/``min_margin``/``passed``/
+    ``gz_max_angle_deg`` 保持不变，仅 ``margins`` 只统计真正的门控判据。
+    """
+    pts = [(float(a), float(b)) for a, b in zip(curve["phi_deg"], curve["gz_numeric"])]
+    result = evaluate_is_code_2008(pts, float(gm_corrected))
+    crit = result["criteria"]
+
+    checks: Dict[str, Dict[str, object]] = {}
+    for key, name in (
+        ("area_0_30_m_rad", "area_0_30_m_rad"),
+        ("area_0_40_m_rad", "area_0_40_m_rad"),
+        ("area_30_40_m_rad", "area_30_40_m_rad"),
+        ("gz_at_30_m", "gz_at_30_m"),
+        ("angle_of_max_gz_deg", "angle_of_max_gz_deg"),
+        ("gm0_m", "gm0_m"),
+    ):
+        entry = crit[name]
+        checks[key] = {
+            "value": entry["value"],
+            "required": entry["required"],
+            "pass": entry["pass"],
+            "reference": entry["reference"],
+        }
+    # GZ_max: 报告但不门控（非 IS Code 2008 A.2.2 条款）
+    checks["gz_max_m"] = {
+        "value": float(result["informational"]["gz_max_m"]),
+        "required": None,
+        "pass": True,
+        "reference": "informational: not an IS Code 2008 A.2.2 requirement",
     }
-    margins = {k: (v[0] - v[1]) for k, v in checks.items()}
-    passed = all(m >= -1e-12 for m in margins.values())
-    phi_max = float(np.rad2deg(phis[int(np.argmax(gz))]))
+
+    margins = {k: float(v["value"]) - float(v["required"])
+               for k, v in checks.items() if v["required"] is not None}
     return {
-        "checks": {k: {"value": float(v[0]), "required": float(v[1])} for k, v in checks.items()},
+        "checks": checks,
         "margins": margins,
         "min_margin": float(min(margins.values())),
-        "gz_max_angle_deg": phi_max,
-        "passed": bool(passed),
+        "gz_max_angle_deg": float(result["informational"]["gz_max_angle_deg"]),
+        "informational": dict(result["informational"]),
+        "passed": bool(result["all_pass"]),
+        "notes": list(result["notes"]),
     }
 
 
