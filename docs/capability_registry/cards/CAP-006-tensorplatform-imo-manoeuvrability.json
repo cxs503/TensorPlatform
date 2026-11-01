@@ -1,0 +1,153 @@
+{
+  "card_id": "CAP-006",
+  "name": "TensorPlatform IMO MSC.137(76) Manoeuvrability Compliance (wind-current-ice coupled MMG, VLCC/KVLCC2)",
+  "version": "1.0.0",
+  "repo": "TensorPlatform",
+  "discipline": "maneuvering",
+  "interface": {
+    "input": {
+      "vessel": {
+        "type": "object",
+        "description": "Vessel particulars (L, B, T, Cb, rudder area, propeller diameter); default data.VESSEL_VLCC",
+        "unit": "m"
+      },
+      "speed_ms": {
+        "type": "number",
+        "description": "Approach speed for the trial",
+        "unit": "m/s",
+        "range": {
+          "min": 1.0,
+          "max": 20.0
+        }
+      },
+      "coefficient_sets": {
+        "type": "object",
+        "description": "Named MMG derivative sets to audit; the verdict must agree across all of them"
+      }
+    },
+    "output": {
+      "results": {
+        "type": "object",
+        "description": "Per coefficient set: C1-C4 criteria with value / limit / margin / pass / borderline flags"
+      },
+      "overall_passed": {
+        "type": "boolean",
+        "description": "True only if every criterion passes for every set"
+      },
+      "coefficient_set_robust": {
+        "type": "boolean",
+        "description": "True if all sets agree, making the verdict independent of the derivative choice"
+      },
+      "absolute_accuracy_claim": {
+        "type": "string",
+        "description": "Always WITHHELD - no EFD manoeuvring baseline is available offline"
+      }
+    },
+    "format": "JSON"
+  },
+  "applicability": {
+    "parameter_domain": {
+      "L_pp": {
+        "min": 100.0,
+        "max": 400.0,
+        "unit": "m"
+      },
+      "speed_ms": {
+        "min": 1.0,
+        "max": 20.0,
+        "unit": "m/s"
+      },
+      "rudder_deg": {
+        "min": 10.0,
+        "max": 35.0,
+        "unit": "deg"
+      }
+    },
+    "regime": "Calm-water 3-DOF manoeuvring; statutory minimum-manoeuvrability verdict for ships >= 100 m. Wind/current/ice loads available in the parent module but not used by the standards audit (IMO trials are calm-water).",
+    "geometry_type": "monohull displacement (VLCC / tanker form)",
+    "dimensionality": "3D"
+  },
+  "dependencies": {
+    "code_version": "TensorPlatform agent/m1652",
+    "environment": {
+      "python": "3.11"
+    },
+    "external_libraries": [
+      "numpy",
+      "matplotlib"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": false,
+    "min_cpu_cores": 1,
+    "min_ram_gb": 1,
+    "estimated_runtime_hours": 0.01,
+    "storage_gb": 0.01
+  },
+  "validation_evidence": {
+    "report_id": "1217",
+    "report_md5": "5b6dda2a97f835d482512eb6f2ced76a",
+    "verification_status": "HONEST_FAIL",
+    "reference_values": {
+      "C1_advance_over_L_max": {
+        "value": 4.5,
+        "tolerance": 0.0,
+        "source": "IMO Res. MSC.137(76)"
+      },
+      "C1_tactical_diameter_over_L_max": {
+        "value": 5.0,
+        "tolerance": 0.0,
+        "source": "IMO Res. MSC.137(76)"
+      },
+      "C2_track_distance_over_L_max": {
+        "value": 2.5,
+        "tolerance": 0.0,
+        "source": "IMO Res. MSC.137(76)"
+      },
+      "C3_first_overshoot_deg_high_LV_max": {
+        "value": 20.0,
+        "tolerance": 0.0,
+        "source": "IMO Res. MSC.137(76), L/V >= 2.5 s"
+      },
+      "C4_first_overshoot_deg_max": {
+        "value": 25.0,
+        "tolerance": 0.0,
+        "source": "IMO Res. MSC.137(76)"
+      }
+    }
+  },
+  "failure_modes": [
+    {
+      "mode": "20/20 zigzag overshoot over-prediction",
+      "symptom": "C4 first overshoot 26.49 deg (kvlcc2_reference) and 29.15 deg (slender_body) exceed the 25 deg statutory limit",
+      "mitigation": "Calibrate the MMG derivative set against Z-test data before any regulatory-compliance use; treat C4 verdicts as model-capability diagnostics only",
+      "severity": "major"
+    },
+    {
+      "mode": "Wrong L/V branch selected for C3",
+      "symptom": "applying the 10 deg limit to a long slow ship (L/V = 41.5 s here) fails a compliant hull",
+      "mitigation": "overshoot_limit_deg() returns the branch explicitly and every result carries branch/LV_s",
+      "severity": "critical"
+    },
+    {
+      "mode": "Diverged simulation silently certified",
+      "symptom": "NaN or infinite metric compared against a limit",
+      "mitigation": "_check() fails any non-finite value and records 'value not finite, cannot certify'",
+      "severity": "critical"
+    },
+    {
+      "mode": "Compliance margin mistaken for accuracy",
+      "symptom": "reading a 40 % margin below the limit as 40 % modelling accuracy",
+      "mitigation": "absolute_accuracy_claim is hard-wired to WITHHELD and the withheld reasons are enumerated in output",
+      "severity": "major"
+    },
+    {
+      "mode": "C5/C6 absence read as compliance",
+      "symptom": "stopping ability and course keeping silently treated as passing",
+      "mitigation": "run_imo_compliance() lists C5/C6 in 'withheld'",
+      "severity": "minor"
+    }
+  ],
+  "created_at": "2026-11-01T00:00:00Z",
+  "status": "experimental"
+}

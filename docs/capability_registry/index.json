@@ -1,13 +1,56 @@
 {
   "registry_version": "1.0.0",
   "created_at": "2026-11-01T00:00:00Z",
-  "total_cards": 5,
+  "total_cards": 6,
   "cards": [
-    {"card_id": "CAP-001", "name": "TensorLBM 2D Cylinder Re=100", "repo": "TensorLBM", "discipline": "general_fluid", "status": "active", "verification_status": "IN_PROGRESS"},
-    {"card_id": "CAP-002", "name": "TensorLBM SUBOFF Resistance", "repo": "TensorLBM", "discipline": "resistance", "status": "active", "verification_status": "PASS"},
-    {"card_id": "CAP-003", "name": "TensorLBM Multiphase Wave-10", "repo": "TensorLBM", "discipline": "seakeeping", "status": "active", "verification_status": "HONEST_FAIL"},
-    {"card_id": "CAP-004", "name": "TensorCAD DTMB 5415 Geometry Validation", "repo": "TensorCAD", "discipline": "geometry", "status": "active", "verification_status": "PASS"},
-    {"card_id": "CAP-005", "name": "TensorPlatform Report Generation", "repo": "TensorPlatform", "discipline": "reporting", "status": "active", "verification_status": "PASS"}
+    {
+      "card_id": "CAP-001",
+      "name": "TensorLBM 2D Cylinder Re=100",
+      "repo": "TensorLBM",
+      "discipline": "general_fluid",
+      "status": "active",
+      "verification_status": "IN_PROGRESS"
+    },
+    {
+      "card_id": "CAP-002",
+      "name": "TensorLBM SUBOFF Resistance",
+      "repo": "TensorLBM",
+      "discipline": "resistance",
+      "status": "active",
+      "verification_status": "PASS"
+    },
+    {
+      "card_id": "CAP-003",
+      "name": "TensorLBM Multiphase Wave-10",
+      "repo": "TensorLBM",
+      "discipline": "seakeeping",
+      "status": "active",
+      "verification_status": "HONEST_FAIL"
+    },
+    {
+      "card_id": "CAP-004",
+      "name": "TensorCAD DTMB 5415 Geometry Validation",
+      "repo": "TensorCAD",
+      "discipline": "geometry",
+      "status": "active",
+      "verification_status": "PASS"
+    },
+    {
+      "card_id": "CAP-005",
+      "name": "TensorPlatform Report Generation",
+      "repo": "TensorPlatform",
+      "discipline": "reporting",
+      "status": "active",
+      "verification_status": "PASS"
+    },
+    {
+      "card_id": "CAP-006",
+      "name": "TensorPlatform IMO MSC.137(76) Manoeuvrability Compliance",
+      "repo": "TensorPlatform",
+      "discipline": "maneuvering",
+      "status": "experimental",
+      "verification_status": "HONEST_FAIL"
+    }
   ],
   "schema_path": "docs/capability_card.schema.json",
   "validation_script": "scripts/validate_capability_card.py",

@@ -96,23 +96,75 @@ def validate_schema(card, schema):
     return errors
 
 
-def validate_report_id_exists(report_id, known_reports=None):
-    """Check if report_id exists in tensor_reports.
-    
-    In production, this queries the database. For offline validation,
-    we check against a known list of valid report IDs.
+# Offline fallback only: report ids that predate live lookup support.
+_OFFLINE_REPORT_IDS = {
+    "e2e1", "suboff_sail", "wave10_multiphase",
+    "dtmb5415_geometry", "report_gate_v1", "m597",
+}
+
+
+def _live_report_ids(limit=200):
+    """Fetch report ids from the platform API (the real ``tensor_reports`` view).
+
+    Returns ``None`` when the platform is unreachable, so callers can fall back
+    to the offline id set instead of silently failing every card.
+    (Audit note: before tp-ver-8 this function did not exist and the gate
+    compared against a frozen 6-element set while its docstring claimed a
+    database query - i.e. the gate itself was a MOCK.)
     """
-    # Known valid report IDs from platform artifacts
-    valid_ids = {
-        "e2e1", "suboff_sail", "wave10_multiphase", 
-        "dtmb5415_geometry", "report_gate_v1", "m597"
-    }
-    
+    import os
+    import json as _json
+    import urllib.error
+    import urllib.request
+
+    base = os.environ.get("TENSOR_API_BASE",
+                          "http://127.0.0.1:8010/api/v1").rstrip("/")
+    try:
+        login = urllib.request.Request(
+            base + "/auth/login",
+            data=_json.dumps({
+                "username": os.environ["TENSOR_AGENT_USER"],
+                "password": os.environ["TENSOR_AGENT_PASS"],
+            }).encode(),
+            headers={"Content-Type": "application/json"}, method="POST")
+        with urllib.request.urlopen(login, timeout=10) as r:
+            token = _json.loads(r.read())["access_token"]
+        req = urllib.request.Request(
+            f"{base}/tensor/reports?limit={limit}",
+            headers={"Authorization": f"Bearer {token}"})
+        with urllib.request.urlopen(req, timeout=15) as r:
+            data = _json.loads(r.read())
+        items = data.get("items") or data.get("reports") or data.get("data") or data
+        if isinstance(items, dict):
+            items = items.get("items") or items.get("reports") or []
+        ids = set()
+        for it in items:
+            if isinstance(it, dict) and it.get("id") is not None:
+                ids.add(str(it["id"]))
+        return ids or None
+    except Exception:
+        return None
+
+
+def validate_report_id_exists(report_id, known_reports=None):
+    """Check that ``report_id`` exists in the platform ``tensor_reports`` view.
+
+    Live API first; frozen offline set only as a last resort.
+    """
+    valid_ids = set(_OFFLINE_REPORT_IDS)
     if known_reports:
-        valid_ids.update(known_reports)
-    
-    if report_id not in valid_ids:
-        return False, f"report_id '{report_id}' not found in tensor_reports table"
+        valid_ids.update(str(k) for k in known_reports)
+
+    live = _live_report_ids()
+    if live is not None:
+        valid_ids |= live
+        source = "live platform API"
+    else:
+        source = "offline id set (platform unreachable)"
+
+    if str(report_id) not in valid_ids:
+        return False, (f"report_id '{report_id}' not found in tensor_reports "
+                       f"({source})")
     return True, None
 
 

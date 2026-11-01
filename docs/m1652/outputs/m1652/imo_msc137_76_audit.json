@@ -1,0 +1,340 @@
+{
+  "mission_id": 1652,
+  "task": "tp-ver-8 verification debt: IMO MSC.137(76) manoeuvrability audit",
+  "standard": "IMO Res. MSC.137(76), adopted 2002-12-04",
+  "provenance": "IMO Res. MSC.137(76), adopted 2002-12-04: {'C1_turning_circle': {'rudder_deg': 35.0, 'advance_over_L_max': 4.5, 'tactical_diameter_over_L_max': 5.0}, 'C2_initial_turning': {'rudder_deg': 10.0, 'heading_change_deg': 10.0, 'track_distance_over_L_max': 2.5}, 'C3_zigzag_10_10': {'rudder_deg': 10.0, 'heading_over_overshoot_deg': 10.0, 'first_overshoot_max_deg_low_LV': 10.0, 'first_overshoot_max_deg_high_LV': 20.0, 'LV_split_s': 2.5}, 'C4_zigzag_20_20': {'rudder_deg': 20.0, 'heading_over_overshoot_deg': 20.0, 'first_overshoot_max_deg': 25.0}}. Thresholds transcribed from the resolution text (offline constants); no experimental baseline is involved, so this tier is available without network access, unlike the EFD comparisons withheld in validation.py.",
+  "vessel": {
+    "name": "VLCC-320 reference hull (KVLCC2 particulars)",
+    "L_m": 320.0,
+    "particulars": {
+      "L": 320.0,
+      "B": 58.0,
+      "T": 20.8,
+      "Cb": 0.8098,
+      "volume": 312621.6704,
+      "mass": 320437212.16,
+      "S_wetted": 26627.3261125606,
+      "A_MS": 1182.2720000000002,
+      "A_LS": 5657.599999999999,
+      "A_L": 1500.0,
+      "A_F": 500.0,
+      "A_R": 77.8752,
+      "I_z": 2050798157824.0002
+    }
+  },
+  "speed_ms": 7.717,
+  "speed_kn": 15.000660907698407,
+  "LV_s": 41.46689127899443,
+  "results": {
+    "kvlcc2_reference": {
+      "criteria": {
+        "C1_turning_circle": {
+          "criterion": "C1_turning_circle",
+          "rudder_deg": 35.0,
+          "checks": [
+            {
+              "check": "advance_over_L",
+              "value": 3.314162133953571,
+              "limit": 4.5,
+              "unit": "L",
+              "margin": 1.185837866046429,
+              "margin_pct": 26.351952578809534,
+              "passed": true,
+              "borderline": false,
+              "note": ""
+            },
+            {
+              "check": "tactical_diameter_over_L",
+              "value": 2.8756167671760866,
+              "limit": 5.0,
+              "unit": "L",
+              "margin": 2.1243832328239134,
+              "margin_pct": 42.487664656478266,
+              "passed": true,
+              "borderline": false,
+              "note": ""
+            }
+          ],
+          "passed": true
+        },
+        "C2_initial_turning": {
+          "criterion": "C2_initial_turning",
+          "rudder_deg": 10.0,
+          "time_to_heading_s": 88.5,
+          "track_distance_m": 679.5732137710891,
+          "checks": [
+            {
+              "check": "track_distance_over_L_at_heading_10deg",
+              "value": 2.1236662930346535,
+              "limit": 2.5,
+              "unit": "L",
+              "margin": 0.3763337069653465,
+              "margin_pct": 15.053348278613859,
+              "passed": true,
+              "borderline": false,
+              "note": ""
+            }
+          ],
+          "passed": true
+        },
+        "C3_zigzag_10_10": {
+          "criterion": "C3_zigzag_10_10",
+          "rudder_deg": 10.0,
+          "LV_s": 41.46689127899443,
+          "branch": "high_LV",
+          "checks": [
+            {
+              "check": "first_overshoot_deg_10_10",
+              "value": 13.550412841915737,
+              "limit": 20.0,
+              "unit": "deg",
+              "margin": 6.449587158084263,
+              "margin_pct": 32.247935790421316,
+              "passed": true,
+              "borderline": false,
+              "note": "L/V = 41.47 s -> high_LV branch (split 2.5 s)"
+            }
+          ],
+          "passed": true,
+          "completed": true,
+          "second_overshoot_deg": 17.409483838868738
+        },
+        "C4_zigzag_20_20": {
+          "criterion": "C4_zigzag_20_20",
+          "rudder_deg": 20.0,
+          "checks": [
+            {
+              "check": "first_overshoot_deg_20_20",
+              "value": 26.493675642592695,
+              "limit": 25.0,
+              "unit": "deg",
+              "margin": -1.4936756425926951,
+              "margin_pct": -5.974702570370781,
+              "passed": false,
+              "borderline": false,
+              "note": ""
+            }
+          ],
+          "passed": false,
+          "completed": true,
+          "second_overshoot_deg": 31.848560044413766
+        }
+      },
+      "passed": false,
+      "failing": [
+        "C4_zigzag_20_20"
+      ],
+      "raw_metrics": {
+        "turning_circle": {
+          "tactical_diameter": 920.1973654963477,
+          "tactical_diameter_over_L": 2.8756167671760866,
+          "advance": 1060.5318828651427,
+          "advance_over_L": 3.314162133953571,
+          "transfer": 462.2153603968386,
+          "transfer_over_L": 1.4444230012401207,
+          "steady_turning_diameter": 1031.4337532929949,
+          "steady_turning_diameter_over_L": 3.223230479040609,
+          "steady_yaw_rate_degs": 0.27979919911502615,
+          "steady_speed": 2.51846070133046,
+          "steady_speed_ratio": 0.326352300289032,
+          "steady_drift_angle_deg": 13.253802345436029,
+          "initial_speed": 7.717,
+          "rudder_deg": 35.0,
+          "n_rps": 1.2212027577456726,
+          "time_to_360_deg": 877.5
+        },
+        "zigzag_10_10": {
+          "rudder_deg": 10.0,
+          "heading_target_deg": 10.0,
+          "initial_speed": 7.717,
+          "time_to_first_heading": 88.5,
+          "first_overshoot_deg": 13.550412841915737,
+          "second_overshoot_deg": 17.409483838868738,
+          "time_between_reversals": 260.5,
+          "n_rps": 1.2212027577456726,
+          "completed": true
+        },
+        "zigzag_20_20": {
+          "rudder_deg": 20.0,
+          "heading_target_deg": 20.0,
+          "initial_speed": 7.717,
+          "time_to_first_heading": 91.5,
+          "first_overshoot_deg": 26.493675642592695,
+          "second_overshoot_deg": 31.848560044413766,
+          "time_between_reversals": 275.0,
+          "n_rps": 1.2212027577456726,
+          "completed": true
+        },
+        "initial_turning_time_s": 88.5,
+        "initial_turning_track_over_L": 2.1236662930346535
+      }
+    },
+    "slender_body": {
+      "criteria": {
+        "C1_turning_circle": {
+          "criterion": "C1_turning_circle",
+          "rudder_deg": 35.0,
+          "checks": [
+            {
+              "check": "advance_over_L",
+              "value": 3.0248807106706743,
+              "limit": 4.5,
+              "unit": "L",
+              "margin": 1.4751192893293257,
+              "margin_pct": 32.7804286517628,
+              "passed": true,
+              "borderline": false,
+              "note": ""
+            },
+            {
+              "check": "tactical_diameter_over_L",
+              "value": 1.9892289492004624,
+              "limit": 5.0,
+              "unit": "L",
+              "margin": 3.0107710507995376,
+              "margin_pct": 60.215421015990756,
+              "passed": true,
+              "borderline": false,
+              "note": ""
+            }
+          ],
+          "passed": true
+        },
+        "C2_initial_turning": {
+          "criterion": "C2_initial_turning",
+          "rudder_deg": 10.0,
+          "time_to_heading_s": 84.0,
+          "track_distance_m": 645.1628860296411,
+          "checks": [
+            {
+              "check": "track_distance_over_L_at_heading_10deg",
+              "value": 2.0161340188426284,
+              "limit": 2.5,
+              "unit": "L",
+              "margin": 0.48386598115737156,
+              "margin_pct": 19.354639246294862,
+              "passed": true,
+              "borderline": false,
+              "note": ""
+            }
+          ],
+          "passed": true
+        },
+        "C3_zigzag_10_10": {
+          "criterion": "C3_zigzag_10_10",
+          "rudder_deg": 10.0,
+          "LV_s": 41.46689127899443,
+          "branch": "high_LV",
+          "checks": [
+            {
+              "check": "first_overshoot_deg_10_10",
+              "value": 14.724779063759799,
+              "limit": 20.0,
+              "unit": "deg",
+              "margin": 5.275220936240201,
+              "margin_pct": 26.376104681201006,
+              "passed": true,
+              "borderline": false,
+              "note": "L/V = 41.47 s -> high_LV branch (split 2.5 s)"
+            }
+          ],
+          "passed": true,
+          "completed": true,
+          "second_overshoot_deg": 22.832106538675365
+        },
+        "C4_zigzag_20_20": {
+          "criterion": "C4_zigzag_20_20",
+          "rudder_deg": 20.0,
+          "checks": [
+            {
+              "check": "first_overshoot_deg_20_20",
+              "value": 29.149456572271827,
+              "limit": 25.0,
+              "unit": "deg",
+              "margin": -4.149456572271827,
+              "margin_pct": -16.59782628908731,
+              "passed": false,
+              "borderline": false,
+              "note": ""
+            }
+          ],
+          "passed": false,
+          "completed": true,
+          "second_overshoot_deg": 42.35327230422402
+        }
+      },
+      "passed": false,
+      "failing": [
+        "C4_zigzag_20_20"
+      ],
+      "raw_metrics": {
+        "turning_circle": {
+          "tactical_diameter": 636.553263744148,
+          "tactical_diameter_over_L": 1.9892289492004624,
+          "advance": 967.9618274146158,
+          "advance_over_L": 3.0248807106706743,
+          "transfer": 363.05800125714956,
+          "transfer_over_L": 1.1345562539285923,
+          "steady_turning_diameter": 170.3466709071063,
+          "steady_turning_diameter_over_L": 0.5323333465847072,
+          "steady_yaw_rate_degs": 0.3911593256947286,
+          "steady_speed": 0.5814799056111221,
+          "steady_speed_ratio": 0.07535051258405107,
+          "steady_drift_angle_deg": 37.6923070702571,
+          "initial_speed": 7.717,
+          "rudder_deg": 35.0,
+          "n_rps": 1.2212027577456726,
+          "time_to_360_deg": 582.5
+        },
+        "zigzag_10_10": {
+          "rudder_deg": 10.0,
+          "heading_target_deg": 10.0,
+          "initial_speed": 7.717,
+          "time_to_first_heading": 84.0,
+          "first_overshoot_deg": 14.724779063759799,
+          "second_overshoot_deg": 22.832106538675365,
+          "time_between_reversals": 290.5,
+          "n_rps": 1.2212027577456726,
+          "completed": true
+        },
+        "zigzag_20_20": {
+          "rudder_deg": 20.0,
+          "heading_target_deg": 20.0,
+          "initial_speed": 7.717,
+          "time_to_first_heading": 86.5,
+          "first_overshoot_deg": 29.149456572271827,
+          "second_overshoot_deg": 42.35327230422402,
+          "time_between_reversals": 314.5,
+          "n_rps": 1.2212027577456726,
+          "completed": true
+        },
+        "initial_turning_time_s": 84.0,
+        "initial_turning_track_over_L": 2.0161340188426284
+      }
+    }
+  },
+  "verdicts": {
+    "kvlcc2_reference": false,
+    "slender_body": false
+  },
+  "coefficient_set_robust": true,
+  "overall_passed": false,
+  "absolute_accuracy_claim": "WITHHELD",
+  "withheld": [
+    "No comparison against model tests / sea trials: the worktree has no EFD manoeuvring data and general network access is blocked. Passing MSC.137(76) certifies the model's own output against published numeric limits, not the real ship.",
+    "C4 (20/20 zigzag) is reported as FAILED for this coefficient set; that is a model-capability finding, not a claim that a real VLCC of these particulars would fail the standard.",
+    "Stopping ability (MSC.137(76) C5) and course keeping (C6) are not implemented in mmg.py and therefore not audited here."
+  ],
+  "sensitivity_tactical_diameter": {
+    "perturbation": "Y_v and N_r scaled by +20 % (within the uncalibrated hydrodynamic uncertainty band)",
+    "TD_over_L_baseline": 2.8756167671760866,
+    "TD_over_L_perturbed": 5.184613972597127,
+    "C1_passed_perturbed": false,
+    "conclusion": "a 20 % stiffness perturbation drives the tactical diameter past the 5 L IMO limit, so the C1 pass is fragile under uncalibrated derivatives"
+  },
+  "figures": [
+    "fig_turning_circle.png",
+    "fig_zigzag.png",
+    "fig_compliance_matrix.png"
+  ]
+}
