@@ -1,0 +1,255 @@
+{
+  "corpus_id": "resistance-reference-v1",
+  "version": 1,
+  "units": {
+    "rt_n": "N",
+    "pe_w": "W"
+  },
+  "withheld": [
+    {
+      "class": "experimental",
+      "why": "离线环境无文献/试验原文可查；不手抄数值以免污染基准",
+      "needed": "KVLCC2/KCS/DTMB5415 拖曳试验 R_T 或 ITTC 工作坊 measured C_T 表 + 实船试航 R_T；引入时须附 sha256 原文锚与容差"
+    }
+  ],
+  "entries": [
+    {
+      "case_id": "ittc57_cf_re_1e6",
+      "class": "analytic",
+      "quantity": "ittc57_cf",
+      "inputs": {
+        "re": 1000000.0
+      },
+      "reference": {
+        "value": 0.0046875
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "a3f9c5add21520be165c27b1f322156a9553008b86b49ae816e5ff39043ec421"
+    },
+    {
+      "case_id": "ittc57_cf_re_1e7",
+      "class": "analytic",
+      "quantity": "ittc57_cf",
+      "inputs": {
+        "re": 10000000.0
+      },
+      "reference": {
+        "value": 0.003
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "870807d97032768df1e97ec9c7a51d1ba4465a8b17f31ea17a7bc7ca9403e363"
+    },
+    {
+      "case_id": "ittc57_cf_re_1e8",
+      "class": "analytic",
+      "quantity": "ittc57_cf",
+      "inputs": {
+        "re": 100000000.0
+      },
+      "reference": {
+        "value": 0.0020833333333333333
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "757cea3c5bab48a62abe6bf7a841ed457c209e4e69bc12ebfceba1832564c268"
+    },
+    {
+      "case_id": "ittc57_cf_re_1e9",
+      "class": "analytic",
+      "quantity": "ittc57_cf",
+      "inputs": {
+        "re": 1000000000.0
+      },
+      "reference": {
+        "value": 0.001530612244897959
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "e57170d97b6ed5fae38fbe34e9e7d64ee388da800fa3e27b53b0a0b0bd37fd8d"
+    },
+    {
+      "case_id": "ittc57_cf_re_kvlcc2",
+      "class": "analytic",
+      "quantity": "ittc57_cf",
+      "inputs": {
+        "re": 2074890756.3025208
+      },
+      "reference": {
+        "value": 0.0014008631746244833
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "d12f3e512c620161d94378c77864acac99ff3c60bd7881ca608764d6c8519006"
+    },
+    {
+      "case_id": "ca_ittc78_L100",
+      "class": "analytic",
+      "quantity": "ca_ittc78",
+      "inputs": {
+        "L": 100.0
+      },
+      "reference": {
+        "value": 0.0005619499546809985
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "9a860423b6661b260dee87574491cc4df51b3dd99657224e1c6a9172e99dbab4"
+    },
+    {
+      "case_id": "ca_ittc78_L320",
+      "class": "analytic",
+      "quantity": "ca_ittc78",
+      "inputs": {
+        "L": 320.0
+      },
+      "reference": {
+        "value": 0.00017564853281288795
+      },
+      "tolerance_pct": 0.05,
+      "source": "closed-form formula; reference evaluated with mpmath dps=40",
+      "sha256": "f0f6fb03e590fe80a4b2852ac0ddda926b8f7336c48009b45ff9ecf2a3e97830"
+    },
+    {
+      "case_id": "kvlcc2_design_15kn",
+      "class": "cross_method",
+      "hull": "KVLCC2 (MOERI 320m VLCC)",
+      "inputs": {
+        "L": 320.0,
+        "B": 58.0,
+        "T": 20.8,
+        "cb": 0.8098,
+        "disp_t": 310000.0,
+        "Vs_ms": 7.715999999999999,
+        "i_e_deg": 25.0,
+        "lcb_pct": 1.5
+      },
+      "note": "设计点 Fn≈0.138；双桨? 否，单桨尾机型",
+      "reference": {
+        "rt_n": 1698573.0300464053,
+        "ct": 0.0020856640297123976,
+        "pe_w": 13106189.499838062,
+        "one_plus_k1": 1.340180607644879,
+        "wetted_surface": 26690.798414102002,
+        "cf": 0.0014008631746244833,
+        "fn": 0.13771546920631536
+      },
+      "tolerance_pct": 0.5,
+      "source": "Holtrop & Mennen (1982) + Holtrop (1984) formula set, second independent implementation tools/validate/holtrop_ref_independent.py (no code shared)",
+      "sha256": "d790b3a72b7181c4b15dd62a37f8aa99f0f5775273f7ee6c1b6512648da664fe"
+    },
+    {
+      "case_id": "kvlcc2_slow_13kn",
+      "class": "cross_method",
+      "hull": "KVLCC2 (MOERI 320m VLCC)",
+      "inputs": {
+        "L": 320.0,
+        "B": 58.0,
+        "T": 20.8,
+        "cb": 0.8098,
+        "disp_t": 310000.0,
+        "Vs_ms": 6.6872,
+        "i_e_deg": 25.0,
+        "lcb_pct": 1.5
+      },
+      "note": "低速点 Fn≈0.119",
+      "reference": {
+        "rt_n": 1280084.0604187467,
+        "ct": 0.002092639556448176,
+        "pe_w": 8560178.128832243,
+        "one_plus_k1": 1.340180607644879,
+        "wetted_surface": 26690.798414102002,
+        "cf": 0.0014249666762760297,
+        "fn": 0.11935340664547332
+      },
+      "tolerance_pct": 0.5,
+      "source": "Holtrop & Mennen (1982) + Holtrop (1984) formula set, second independent implementation tools/validate/holtrop_ref_independent.py (no code shared)",
+      "sha256": "ab330d0ac0d25ec16a44e69a16d9b9072c7e2792f1ca44771bf5569204328f14"
+    },
+    {
+      "case_id": "kcs_design_24kn",
+      "class": "cross_method",
+      "hull": "KCS (KRISO 230m container)",
+      "inputs": {
+        "L": 230.0,
+        "B": 32.2,
+        "T": 10.8,
+        "cb": 0.651,
+        "disp_t": 52030.0,
+        "Vs_ms": 12.3456,
+        "i_e_deg": 30.0,
+        "lcb_pct": -1.5
+      },
+      "note": "Fn≈0.26，细长高速段",
+      "reference": {
+        "rt_n": 2350488.976422079,
+        "ct": 0.0033436329627560264,
+        "pe_w": 29018196.707316417,
+        "one_plus_k1": 1.1674027509512055,
+        "wetted_surface": 8999.561470966588,
+        "cf": 0.00137790759998662,
+        "fn": 0.25990448860887855
+      },
+      "tolerance_pct": 0.5,
+      "source": "Holtrop & Mennen (1982) + Holtrop (1984) formula set, second independent implementation tools/validate/holtrop_ref_independent.py (no code shared)",
+      "sha256": "d636391eb3c5e71e3bee83326edeb2865476b8335f55755a5163cf3b419fc90f"
+    },
+    {
+      "case_id": "dtmb5415_15kn",
+      "class": "cross_method",
+      "hull": "DTMB 5415 (destroyer-like)",
+      "inputs": {
+        "L": 142.0,
+        "B": 19.0,
+        "T": 6.15,
+        "cb": 0.506,
+        "disp_t": 8630.0,
+        "Vs_ms": 7.715999999999999,
+        "i_e_deg": 32.0,
+        "lcb_pct": -1.0
+      },
+      "note": "Fn≈0.21，军船型；Holtrop 对军船外推，误差带加大",
+      "reference": {
+        "rt_n": 208851.75481961027,
+        "ct": 0.0024545622763596665,
+        "pe_w": 1611500.1401881126,
+        "one_plus_k1": 1.12061859779291,
+        "wetted_surface": 2788.597063031167,
+        "cf": 0.0015464186371137462,
+        "fn": 0.20673477849495733
+      },
+      "tolerance_pct": 0.5,
+      "source": "Holtrop & Mennen (1982) + Holtrop (1984) formula set, second independent implementation tools/validate/holtrop_ref_independent.py (no code shared)",
+      "sha256": "17c5d6518579bf8e5772130c208c264efc48e466a3f527df53c9ae332dba28a5"
+    },
+    {
+      "case_id": "panamax_tanker_14kn",
+      "class": "cross_method",
+      "hull": "Panamax tanker (230m)",
+      "inputs": {
+        "L": 230.0,
+        "B": 32.2,
+        "T": 12.5,
+        "cb": 0.82,
+        "disp_t": 77000.0,
+        "Vs_ms": 7.201599999999999,
+        "i_e_deg": 22.0,
+        "lcb_pct": 1.8
+      },
+      "note": "Fn≈0.153，Holtrop 主适用区",
+      "reference": {
+        "rt_n": 669940.4601324031,
+        "ct": 0.0022666796616434594,
+        "pe_w": 4824643.217689513,
+        "one_plus_k1": 1.2739643991507077,
+        "wetted_surface": 11119.728880144223,
+        "cf": 0.0014696902263852938,
+        "fn": 0.15161095168851246
+      },
+      "tolerance_pct": 0.5,
+      "source": "Holtrop & Mennen (1982) + Holtrop (1984) formula set, second independent implementation tools/validate/holtrop_ref_independent.py (no code shared)",
+      "sha256": "0c59a56a255ffc052208635e51b2308a2f447eabe091a1ba9f16a3a03770be6e"
+    }
+  ]
+}
