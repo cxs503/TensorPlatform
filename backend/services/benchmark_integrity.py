@@ -32,10 +32,11 @@ from __future__ import annotations
 import json
 import math
 from pathlib import Path
-from typing import Any, Dict, Iterable, List, Optional
+from typing import Any, Dict, Iterable, List, Optional, Tuple
 
 G = 9.81
 RHO_SEA = 1025.0            # kg/m³，海水 15 °C
+RHO_FRESH_20C = 998.2       # kg/m³，淡水 20 °C（m1561：参考行自带 reference_density_kg_m3 时以其为准）
 RHO_FRESH = 998.0           # kg/m³，淡水 20 °C（船模水池常规）
 NU_SEA_15C = 1.1883e-6      # m²/s，海水 15 °C
 NU_FRESH_20C = 1.004e-6     # m²/s，淡水 20 °C
@@ -137,15 +138,21 @@ def check_resistance_closure(ct: Optional[float], speed: float, rt_n: Optional[f
                              wetted_surface_m2: Optional[float] = None,
                              rho: float = RHO_SEA,
                              form_type: str = "displacement_hull",
-                             diameter: Optional[float] = None) -> Dict[str, Any]:
-    """Rt 与 Ct 的一致性：有实测 S 则直接比；没有则用反解 S_imp 的无量纲带判定。"""
+                             diameter: Optional[float] = None,
+                             tol: float = 0.15) -> Dict[str, Any]:
+    """Rt 与 Ct 的一致性：有实测 S 则直接比；没有则用反解 S_imp 的无量纲带判定。
+
+    ``tol`` 是"记录值自洽"的容差：诊断用途 15%，**证据闸门用途 1%**——一条要被
+    当成判据（并支撑 15% 精度声明）的参考行，其自身恒等式必须远严于判决阈值，
+    否则"用 15% 容差验证 15% 误差"是循环论证。
+    """
     if not ct or not rt_n or speed <= 0:
         return _check("resistance_closure", WITHHELD, "缺少 Ct 或 Rt 或 V，无法闭合")
 
     if wetted_surface_m2:
         derived = ct * 0.5 * rho * speed ** 2 * wetted_surface_m2
         err = abs(derived - rt_n) / rt_n
-        status = PASS if err <= 0.15 else FAIL
+        status = PASS if err <= tol else FAIL
         return _check("resistance_closure", status,
                       (f"Ct·½ρV²S = {derived:.2f} N vs Rt = {rt_n:.2f} N (误差 {err*100:.1f}%)"
                        if status is PASS else
@@ -239,9 +246,27 @@ def _worst(statuses: Iterable[str]) -> str:
     return worst
 
 
-def audit_case(case: Dict[str, Any], rho: float = RHO_SEA,
-               nu: float = NU_SEA_15C) -> Dict[str, Any]:
-    """审计单条参考用例。case["geometry"] 为长度量纲字典（m / kg / t）。"""
+def fluid_of(case: Dict[str, Any], rho: Optional[float] = None,
+             nu: Optional[float] = None) -> Tuple[float, float]:
+    """m1561：流体物性溯源。
+
+    参考行若自带 ``reference_density_kg_m3`` / ``reference_kinematic_viscosity_m2_s``
+    （v3.0 正典的数据集每条都带），闸门必须用行内值；否则同一份数据会被闸门用海水
+    密度、被物理核用淡水密度各判一遍（契约漂移）。无行内值时才回落到模块默认。
+    """
+    rho_out = rho if rho is not None else case.get("reference_density_kg_m3", RHO_SEA)
+    nu_out = nu if nu is not None else case.get("reference_kinematic_viscosity_m2_s", NU_SEA_15C)
+    return float(rho_out), float(nu_out)
+
+
+def audit_case(case: Dict[str, Any], rho: Optional[float] = None,
+               nu: Optional[float] = None, identity_tol: float = 0.15) -> Dict[str, Any]:
+    """审计单条参考用例。case["geometry"] 为长度量纲字典（m / kg / t）。
+
+    rho/nu 为 None 时优先取行内 ``reference_density_kg_m3``（v3.0 正典），
+    再回落到海水 15 °C 默认值。
+    """
+    rho, nu = fluid_of(case, rho, nu)
     geo = case.get("geometry", {}) or {}
     form = case.get("form_type") or ("body_of_revolution" if case.get("ship_type") == "SUBOFF"
                                      else "displacement_hull")
@@ -259,13 +284,16 @@ def audit_case(case: Dict[str, Any], rho: float = RHO_SEA,
     if length and case.get("speed_ms"):
         checks.append(check_froude_closure(case["speed_ms"], length, case.get("froude_number")))
     if length and beam and draft:
-        checks.append(check_displacement_closure(length, beam, draft, cb, disp_t, rho=rho,
-                                                 form_type=form))
+        if form != "body_of_revolution":
+            # 不适用（回转体没有 Cb·L·B·T 闭式）的检查项直接不参与裁决：
+            # 把 N.A. 记成 WITHHELD 会让每一艘潜艇行永久不可验证，那是误判而非保守。
+            checks.append(check_displacement_closure(length, beam, draft, cb, disp_t, rho=rho,
+                                                     form_type=form))
         checks.append(check_form_bands(form, length, beam, draft, cb, s, diameter))
     checks.append(check_resistance_closure(case.get("experimental_ct"), case.get("speed_ms", 0.0),
                                            case.get("experimental_rt_n"), length, beam,
                                            wetted_surface_m2=s, rho=rho, form_type=form,
-                                           diameter=diameter))
+                                           diameter=diameter, tol=identity_tol))
     checks.append(check_friction_floor(case.get("experimental_ct"), case.get("speed_ms", 0.0),
                                        length or 0.0, nu=nu))
 
@@ -274,10 +302,14 @@ def audit_case(case: Dict[str, Any], rho: float = RHO_SEA,
             "form_type": form, "verdict": verdict, "checks": checks}
 
 
-def audit_dataset(path: Path, rho: float = RHO_SEA, nu: float = NU_SEA_15C) -> Dict[str, Any]:
+def audit_dataset(path: Path, rho: Optional[float] = None,
+                  nu: Optional[float] = None, identity_tol: float = 0.01) -> Dict[str, Any]:
+    """数据集级闸门。identity_tol 默认 1%：被当成判据的参考行，其自身恒等式
+    必须远严于它所支撑的 15% 精度判决。"""
     path = Path(path)
     data = json.loads(path.read_text())
-    rows = [audit_case(c, rho=rho, nu=nu) for c in data.get("cases", [])]
+    rows = [audit_case(c, rho=rho, nu=nu, identity_tol=identity_tol)
+            for c in data.get("cases", [])]
     return _summarize(rows, source=str(path), dataset_version=data.get("version"))
 
 
