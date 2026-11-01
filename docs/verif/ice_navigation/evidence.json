@@ -1,0 +1,359 @@
+{
+ "endpoint": "http://127.0.0.1:8001/api/v1/extended-calculations/ice",
+ "probes": {
+  "P1_baseline": {
+   "input": {
+    "length": 150.0,
+    "beam": 23.0,
+    "draft": 8.0,
+    "displacement": 15000.0,
+    "speed": 5.0,
+    "cb": 0.75,
+    "ice_class": "PC7",
+    "ice_thickness": 1.0
+   },
+   "output": {
+    "ice_resistance": 15174.0,
+    "ice_power": 39028.0,
+    "max_ice_thickness": 1.0,
+    "continuous_speed": 2.0,
+    "shell_plating": 25.0,
+    "frame_spacing": 350.0,
+    "ice_capability": "满足PC7要求",
+    "method": "Lindqvist公式 + IACS极地规则"
+   },
+   "oracle": {
+    "R_ice_N": 597078.8343396024,
+    "R_breaking_N": 339792.94533960236,
+    "R_submergence_N": 81104.9598,
+    "R_sliding_N": 176180.9292
+   }
+  },
+  "P2_speed_sweep": {
+   "input": {
+    "speed_kn": [
+     1.0,
+     2.0,
+     5.0,
+     10.0,
+     15.0
+    ]
+   },
+   "R_ice": [
+    15174.0,
+    15174.0,
+    15174.0,
+    15174.0,
+    15174.0
+   ],
+   "ice_power": [
+    7806.0,
+    15611.0,
+    39028.0,
+    78056.0,
+    117084.0
+   ]
+  },
+  "P3_thickness_sweep": {
+   "input": {
+    "ice_thickness_m": [
+     0.25,
+     0.5,
+     1.0,
+     1.5,
+     2.0,
+     3.0
+    ]
+   },
+   "R_ice": [
+    1178.0,
+    4174.0,
+    15174.0,
+    32625.0,
+    56392.0,
+    122592.0
+   ],
+   "shell_plating": [
+    17.5,
+    20.0,
+    25.0,
+    30.0,
+    35.0,
+    45.0
+   ],
+   "frame_spacing": [
+    388.0,
+    375.0,
+    350.0,
+    325.0,
+    300.0,
+    250.0
+   ],
+   "oracle_R_ice_kN": [
+    70.35135137122515,
+    193.3149408849006,
+    597.0788343396024,
+    1211.2916803641053,
+    2035.9534789584095,
+    4316.623933856421
+   ]
+  },
+  "P4_beam_sweep": {
+   "input": {
+    "beam_m": [
+     15.0,
+     23.0,
+     32.0
+    ]
+   },
+   "R_ice": [
+    11174.0,
+    15174.0,
+    19674.0
+   ]
+  },
+  "P5_cb_sweep": {
+   "input": {
+    "cb": [
+     0.55,
+     0.65,
+     0.75,
+     0.85
+    ]
+   },
+   "R_ice": [
+    15174.0,
+    15174.0,
+    15174.0,
+    15174.0
+   ]
+  },
+  "P6_size_sweep": {
+   "input": [
+    {
+     "length": 50.0,
+     "beam": 12.0,
+     "draft": 4.0,
+     "displacement": 1200.0
+    },
+    {
+     "length": 150.0,
+     "beam": 23.0,
+     "draft": 8.0,
+     "displacement": 15000.0
+    },
+    {
+     "length": 300.0,
+     "beam": 50.0,
+     "draft": 13.0,
+     "displacement": 200000.0
+    }
+   ],
+   "max_ice_thickness": [
+    1.0,
+    1.0,
+    1.0
+   ],
+   "R_ice": [
+    8121.0,
+    15174.0,
+    30196.0
+   ]
+  },
+  "P7_ice_class_sweep": {
+   "input": {
+    "ice_class": [
+     "PC1",
+     "PC3",
+     "PC5",
+     "PC7"
+    ],
+    "ice_thickness": 1.0
+   },
+   "shell_plating": [
+    25.0,
+    25.0,
+    25.0,
+    25.0
+   ],
+   "frame_spacing": [
+    350.0,
+    350.0,
+    350.0,
+    350.0
+   ],
+   "max_ice_thickness": [
+    4.0,
+    2.5,
+    1.5,
+    1.0
+   ],
+   "continuous_speed": [
+    5.0,
+    4.0,
+    3.0,
+    2.0
+   ]
+  },
+  "P8_zero_ice": {
+   "output": {
+    "ice_resistance": 0.0,
+    "ice_power": 0.0,
+    "max_ice_thickness": 1.0,
+    "continuous_speed": 2.0,
+    "shell_plating": 15.0,
+    "frame_spacing": 400.0,
+    "ice_capability": "满足PC7要求",
+    "method": "Lindqvist公式 + IACS极地规则"
+   }
+  },
+  "P9_thick_extrapolation": {
+   "output": {
+    "ice_resistance": 1030704.0,
+    "ice_power": 2650972.0,
+    "max_ice_thickness": 1.0,
+    "continuous_speed": 2.0,
+    "shell_plating": 105.0,
+    "frame_spacing": -50.0,
+    "ice_capability": "超出PC7能力范围",
+    "method": "Lindqvist公式 + IACS极地规则"
+   }
+  },
+  "P10_input_contract": {
+   "keys_accepted_by_base_body": [
+    "beam",
+    "cb",
+    "displacement",
+    "draft",
+    "ice_class",
+    "ice_thickness",
+    "length",
+    "speed"
+   ],
+   "note": "schema = IceNavigationInput；无 sigma_c/sigma_f/alpha/psi/mu 通道"
+  }
+ },
+ "derived": {
+  "R_ice_kN_baseline": 15174.0,
+  "oracle_R_ice_kN_baseline": 597.0788343396024,
+  "ratio_endpoint_over_oracle": 25.4137,
+  "sigma_eff_MPa": 0.001,
+  "thickness_scaling_exponent": [
+   1.825,
+   1.844,
+   1.854,
+   1.86,
+   1.869
+  ],
+  "speed_ratio_15_over_1": 1.0
+ },
+ "criteria": [
+  {
+   "id": "C1",
+   "name": "零冰厚极限 R_ice(h=0)=0",
+   "pass": true,
+   "reference": "0 kN（Lindqvist 各项 ∝ h^n, n>0）",
+   "measured": 0.0,
+   "tolerance": "== 0",
+   "note": ""
+  },
+  {
+   "id": "C2",
+   "name": "航速依赖：R_ice(15kn)/R_ice(1kn) >= 1.5",
+   "pass": false,
+   "reference": "Lindqvist 速度项 (1+1.4v/sqrt(gh))(1+9.4v/sqrt(gL)) 保证 >=1.5",
+   "measured": 1.0,
+   "tolerance": ">= 1.5 kN/kn",
+   "note": "端点 R_ice 与速度完全无关，仅 P_ice 用到 V"
+  },
+  {
+   "id": "C3",
+   "name": "冰强度量级：等效 sigma_eff 落在 0.5-5 MPa",
+   "pass": false,
+   "reference": "0.5-5 MPa（一级冰压碎强度）",
+   "measured": 0.001,
+   "tolerance": "0.5-5 MPa",
+   "note": "端点硬编码 1000 Pa，低 500-5000x 且无输入通道"
+  },
+  {
+   "id": "C4",
+   "name": "三成分完整性：输出/输入含滑行(submergence+sliding)与船首角/摩擦",
+   "pass": false,
+   "reference": "Lindqvist = R_c + R_b(submerged, alpha, mu) + R_s(sliding, psi, mu)",
+   "measured": "仅 R_crushing + R_bending 两项；schema 无 alpha/psi/mu sigma_c",
+   "tolerance": "三成分齐备",
+   "note": ""
+  },
+  {
+   "id": "C5",
+   "name": "Cb 参与计算（schema 暴露 cb）",
+   "pass": false,
+   "reference": "R 应对船型参数敏感",
+   "measured": "1 个不同输出值",
+   "tolerance": ">=2",
+   "note": "cb 为死参数（源码 446-490 行未引用）"
+  },
+  {
+   "id": "C6",
+   "name": "冰级影响结构板厚（PC1 vs PC7）",
+   "pass": false,
+   "reference": "IACS 极地冰带：PC1 板厚显著大于 PC7",
+   "measured": "shell_plating = [25.0] mm",
+   "tolerance": ">=2 档",
+   "note": "15+10h 与冰级无关"
+  },
+  {
+   "id": "C7",
+   "name": "结构量物理有界（frame_spacing > 0）",
+   "pass": false,
+   "reference": "400-50h 在 h>8m 转负",
+   "measured": -50.0,
+   "tolerance": "> 0 mm",
+   "note": ""
+  },
+  {
+   "id": "C8",
+   "name": "破冰能力与船相关（max_ice_thickness 随尺度变）",
+   "pass": false,
+   "reference": "PC7 能力应由功率/尺度决定",
+   "measured": [
+    1.0
+   ],
+   "tolerance": ">=2 档",
+   "note": "查表常数，与船无关"
+  },
+  {
+   "id": "C9",
+   "name": "连续破冰航速与冰厚/功率解耦程度",
+   "pass": false,
+   "reference": "应为 speed x 固定系数（缺陷确认）",
+   "measured": [
+    2.0,
+    3.0,
+    4.0,
+    5.0
+   ],
+   "tolerance": "1 档（=缺陷）",
+   "note": "continuous_speed = speed x speed_factor，与 h/功率无关"
+  },
+  {
+   "id": "C10",
+   "name": "自洽：端点 vs 仓库内 Lindqvist 实现（同输入）",
+   "pass": false,
+   "reference": "oracle R(h=1m) = 597.1 kN",
+   "measured": "endpoint R = 15174.0 kN (比值 25.414)",
+   "tolerance": "0.5-2.0 x",
+   "note": "method 标签伪标：端点自称 Lindqvist 却未调用仓库内 636 行实现"
+  },
+  {
+   "id": "C11",
+   "name": "功率一致性：ice_power = R*V 未除推进效率且与可用功率无比较",
+   "pass": false,
+   "reference": "P_D = R*V/eta_D, eta_D in [0.4,0.8]",
+   "measured": "P = R*V = 39028.0 kW（R=15174.0 kN, V=5.0kn）",
+   "tolerance": "含效率且<=可用功率",
+   "note": ""
+  }
+ ],
+ "oracle_available": true
+}
