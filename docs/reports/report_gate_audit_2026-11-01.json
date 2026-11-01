@@ -1,0 +1,146 @@
+{
+  "generated_at": "2026-11-01T04:56:56Z",
+  "corpus_max_id": 974,
+  "repo": "/srv/tensor/agent/work/m1408",
+  "v1_source": "git show HEAD:backend/api/tensor_reports.py",
+  "corpus_size": 837,
+  "v1_pass": 710,
+  "v1_pass_rate": 0.8483,
+  "v2_pass": 421,
+  "v2_pass_rate": 0.503,
+  "v1_pass_v2_fail": 300,
+  "v1_false_accept_rate": 0.3584,
+  "false_accept_share_of_v1_passes": 0.4225,
+  "issue_breakdown_among_false_accepts": {
+    "missing_figures": 170,
+    "missing_physics_statement": 106,
+    "missing_error_verdict": 102,
+    "missing_validation": 21,
+    "missing_limitations": 6,
+    "figures_missing_caption": 4
+  },
+  "error_verdict_reject_causes": {
+    "no_error_number": 150
+  },
+  "v2_check_pass_rates": {
+    "physics_statement": 0.7754,
+    "method": 0.9522,
+    "validation": 0.957,
+    "figures": 0.6989,
+    "limitations": 0.9462,
+    "error_verdict": 0.8208
+  },
+  "error_verdict_strict_pass_rate": 0.779,
+  "error_verdict_calibrated_pass_rate": 0.8208,
+  "v2_only_pass": 11,
+  "adversarial": {
+    "cases": [
+      {
+        "name": "A_param_table_only",
+        "why": "v1 组间 AND 被拍平成 OR：只写「参数表」即算有物理背景",
+        "expect": "reject",
+        "v1_pass": true,
+        "v2_pass": false,
+        "v2_correct": true
+      },
+      {
+        "name": "B_figure_word_only",
+        "why": "v1 只要正文出现「图」字即算有图（figures 为空也过）",
+        "expect": "reject",
+        "v1_pass": true,
+        "v2_pass": false,
+        "v2_correct": true
+      },
+      {
+        "name": "C_numbers_without_verdict",
+        "why": "v1 完全没有第 ⑥ 要素检查：列了误差数字就算合规",
+        "expect": "reject",
+        "v1_pass": true,
+        "v2_pass": false,
+        "v2_correct": true
+      },
+      {
+        "name": "D_compliant_control",
+        "why": "具体性控制：六要素齐全的报告不得被误拒",
+        "expect": "accept",
+        "v1_pass": true,
+        "v2_pass": true,
+        "v2_correct": true
+      }
+    ],
+    "recall_on_false_accept": 1.0,
+    "specificity_control": 1.0,
+    "v1_missed": 3
+  },
+  "test_twin_imports_shared_impl": true,
+  "test_twin_mismatches_vs_v1": 0,
+  "examples": [
+    {
+      "id": 11,
+      "title": "Mission 5 补报：UI Probe 工件创建 — TensorPhysics 研究编排平台",
+      "mission_id": 5,
+      "codes": [
+        "missing_figures"
+      ]
+    },
+    {
+      "id": 14,
+      "title": "Mission 7 — 船舶总体性能平台审计报告（补报）",
+      "mission_id": 7,
+      "codes": [
+        "missing_physics_statement",
+        "missing_figures"
+      ]
+    },
+    {
+      "id": 20,
+      "title": "TensorBEM v0.5.0 审计与基线",
+      "mission_id": 56,
+      "codes": [
+        "missing_figures"
+      ]
+    },
+    {
+      "id": 24,
+      "title": "【QA】批次质检 10,11,14",
+      "mission_id": 98,
+      "codes": [
+        "missing_error_verdict"
+      ]
+    },
+    {
+      "id": 34,
+      "title": "Mission 20 Backfill: SDAA Sweep cylinder_3d (Re=40) — honest-FAIL",
+      "mission_id": 20,
+      "codes": [
+        "missing_physics_statement",
+        "missing_figures",
+        "missing_error_verdict"
+      ]
+    },
+    {
+      "id": 37,
+      "title": "【QA】批次质检 27,28,29",
+      "mission_id": 111,
+      "codes": [
+        "missing_physics_statement"
+      ]
+    },
+    {
+      "id": 40,
+      "title": "Mission 24 补报：SDAA 验证扫荡 — Laplace CAC 相场两相 LBM 静态液滴基准",
+      "mission_id": 24,
+      "codes": [
+        "missing_figures"
+      ]
+    },
+    {
+      "id": 41,
+      "title": "Mission 23 补报：SDAA 验证案例扫荡 — Kovasznay 2D (B18)",
+      "mission_id": 23,
+      "codes": [
+        "missing_figures"
+      ]
+    }
+  ]
+}
