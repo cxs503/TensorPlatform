@@ -48,6 +48,8 @@ NS = 40                   # radial strips
 CD0 = 0.008               # section parasitic drag
 CD_K = 0.016              # induced/quadratic drag coefficient
 CL_DESIGN = 0.70          # design lift of the a=0.8 cambered mean line used by B-series
+CL_MAX = 1.40             # maximum lift coefficient before stall (typical for marine sections)
+ALPHA_I_MAX = math.radians(30.0)  # maximum induced angle (prevents oscillation near hub)
 
 
 def _pitch_angle(x: float, p_d: float) -> float:
@@ -77,6 +79,11 @@ def kp_curves(j: float, p_d: float, z: int, ae_ao: float) -> Tuple[float, float]
     ``alpha_i = C_L / (4*pi*kappa*x)`` (lifting-line optimum circulation) and a
     section drag law ``C_D = CD0 + CD_K*C_L**2``.  Velocity magnitude neglects
     the induced axial component (standard thin-strip approximation).
+    
+    A stall model caps the lift coefficient at CL_MAX to prevent unphysical
+    behavior at high angles of attack (low J, high P/D). The induced angle is
+    also bounded to prevent oscillation near the hub where the Prandtl factor
+    is small.
     """
     if j < 0.0:
         raise ValueError("J must be >= 0")
@@ -99,13 +106,18 @@ def kp_curves(j: float, p_d: float, z: int, ae_ao: float) -> Tuple[float, float]
             cd = CD0
             beta_i = beta
         else:
-            # two-pass closure on the induced angle
+            # two-pass closure on the induced angle with bounds
             cl = 2.0 * math.pi * (alpha_geo - alpha0)
             for _ in range(3):
                 alpha_i = cl / (4.0 * math.pi * kap * x)
+                # Bound the induced angle to prevent oscillation near hub
+                alpha_i = max(-ALPHA_I_MAX, min(ALPHA_I_MAX, alpha_i))
                 cl = 2.0 * math.pi * (alpha_geo - alpha_i - alpha0)
                 cl = max(cl, 0.0)
+            # Stall model: cap lift coefficient at CL_MAX
+            cl = min(cl, CL_MAX)
             alpha_i = cl / (4.0 * math.pi * kap * x)
+            alpha_i = max(-ALPHA_I_MAX, min(ALPHA_I_MAX, alpha_i))
             cd = CD0 + CD_K * cl * cl
             beta_i = beta + alpha_i
         w_bar2 = j * j + (math.pi * x) ** 2        # (W / (nD))**2 at the disc

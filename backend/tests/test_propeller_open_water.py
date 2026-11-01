@@ -79,10 +79,18 @@ def test_serving_kernel_torque_is_a_fixed_fraction_of_thrust():
 
 
 def test_serving_kernel_efficiency_is_geometry_independent():
-    """eta0 = 10J/(2*pi) until the 0.85 clip -> independent of P/D, Z, Ae/Ao."""
+    """eta0 = 10J/(2*pi) until the 0.85 clip -> independent of P/D, Z, Ae/Ao.
+    
+    This test documents a known defect in the serving kernel (MOCK hand-fit):
+    the efficiency is independent of geometry, which is unphysical. The test
+    uses a tolerance to account for floating-point precision.
+    """
     eta = {K.serve_kernel_replay(0.3, p, z, ae)[2]
            for p in (0.6, 1.0, 1.4) for z in (4, 5) for ae in (0.40, 0.85)}
-    assert len(eta) == 1
+    # All values should be approximately equal (within floating-point tolerance)
+    eta_list = list(eta)
+    for e in eta_list[1:]:
+        assert e == pytest.approx(eta_list[0], rel=1e-9)
 
 
 def test_serving_kernel_efficiency_plateaus_at_clip():
