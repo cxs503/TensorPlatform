@@ -212,6 +212,63 @@ def attained_eexi(
     return co2_g_h / (dwt * v_ref_kn)
 
 
+def required_eexi(
+    category: str, dwt: float, reduction_pct: float
+) -> Dict[str, float]:
+    """Required EEXI [g CO2 / (t nm)] = EEDI reference line x (1 - r/100).
+
+    ``reduction_pct`` is the ship-type reduction factor of the EEXI framework
+    (MEPC.328(76) table).  It is a *caller* input on purpose: the table cannot be
+    re-derived inside this repository, so hard-coding it would present an
+    unverified number as a platform constant.  The algebraic structure
+    (reference line x reduction, monotone in ``reduction_pct``) is what the
+    regression tests pin down; the table values themselves are marked WITHHELD
+    in docs/verification/EEDI_EEXI_AUDIT_m1693.md.
+    """
+    if not (0.0 <= reduction_pct < 100.0):
+        raise ValueError(f"reduction_pct must be in [0, 100), got {reduction_pct}")
+    ref = eedi_reference_value(category, dwt)
+    return {
+        "category": category,
+        "capacity": dwt,
+        "reduction_factor_pct": reduction_pct,
+        "eexi_reference": ref,
+        "required_eexi": ref * (1.0 - reduction_pct / 100.0),
+    }
+
+
+def eexi_status(
+    p_me_kw: float,
+    sfoc_g_kwh: float,
+    fuel_type: str,
+    dwt: float,
+    v_ref_kn: float,
+    reduction_pct: float,
+    category: str = "bulk_carrier",
+    p_ae_kw: float = 0.0,
+    sfoc_ae_g_kwh: Optional[float] = None,
+) -> Dict[str, Any]:
+    """Attained vs required EEXI verdict (attached ship / EEDI-phase linkage).
+
+    The comparison itself is exact guideline algebra; whether the supplied
+    ``reduction_pct`` is the right table entry is the caller's responsibility.
+    """
+    attained = attained_eexi(
+        p_me_kw, sfoc_g_kwh, fuel_type, dwt, v_ref_kn, p_ae_kw, sfoc_ae_g_kwh
+    )
+    req = required_eexi(category, dwt, reduction_pct)
+    required = req["required_eexi"]
+    if required <= 0:
+        raise ValueError("required EEXI must be positive")
+    return {
+        **req,
+        "attained_eexi": attained,
+        "attained_over_required": attained / required,
+        "margin_pct": 100.0 * (required - attained) / required,
+        "compliant": bool(attained <= required),
+    }
+
+
 @dataclass
 class VoyageEfficiency:
     """Aggregated voyage energy-efficiency result."""

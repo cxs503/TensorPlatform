@@ -405,8 +405,12 @@ def attained_eedi(capacity_t: float, v_ref_kn: float,
     - (sum f_eff P_eff C_F SFC_ME)] / (f_i f_c f_l Capacity f_w V_ref)``
 
     Unit chain: kW * g/kWh -> g/h; capacity (t) * V (kn) -> t*nm/h, so the ratio
-    is g CO2 per tonne-mile.  ``f_w`` defaults to ``f_i`` (MEPC default for
-    weather correction when no separate factor is supplied).
+    is g CO2 per tonne-mile.
+
+    ``f_w`` is the speed-decrease (weather) coefficient of MEPC.1/Circ.850 and
+    defaults to 1.0 when no approved value is supplied; it must not be aliased
+    to ``f_i`` (ice-class capacity correction), which enters the denominator
+    only.  ``prod f_j`` is taken as 1 (no sea-margin / ship-specific factors).
     """
     if capacity_t <= 0.0:
         raise ValueError(f"capacity must be > 0, got {capacity_t}")
@@ -422,14 +426,14 @@ def attained_eedi(capacity_t: float, v_ref_kn: float,
         raise ValueError("capacity/cubic/load correction factors must be > 0")
     cf_ae_resolved = cf_me if cf_ae is None else cf_ae
     cf_eff_resolved = cf_me if cf_eff is None else cf_eff
-    f_w_resolved = f_i if f_w is None else f_w
+    f_w_resolved = 1.0 if f_w is None else f_w
     if f_w_resolved <= 0.0:
         raise ValueError(f"f_w must be > 0, got {f_w_resolved}")
 
     me_term = p_me_kw * sfc_me_g_kwh * cf_me
     ae_term = p_ae_kw * sfc_ae_g_kwh * cf_ae_resolved
     eff_term = f_eff * p_eff_kw * sfc_eff_g_kwh * cf_eff_resolved
-    numerator = f_i * (me_term + ae_term) - eff_term
+    numerator = me_term + ae_term - eff_term
     denominator = f_i * f_c * f_l * capacity_t * f_w_resolved * v_ref_kn
 
     return EediResult(
