@@ -1,270 +1,495 @@
 {
-  "description": "Benchmark reference dataset for ship resistance validation. Sources: Roddy 1990 (SUBOFF), ITTC V&V Workshop (DTMB-5415), SIMMAN 2008 (KVLCC2).",
-  "version": "2.0",
-  "cases": [
-    {
-      "case_id": "SUBOFF-01",
-      "ship_type": "SUBOFF",
-      "speed_ms": 3.0,
-      "froude_number": 0.459,
-      "experimental_ct": 0.0038,
-      "experimental_rt_n": 95.0,
-      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {
-        "length_m": 4.356,
-        "diameter_m": 0.508,
-        "wetted_surface_m2": 5.42
-      },
-      "form_type": "body_of_revolution",
-      "legacy_experimental_rt_n": 12.5,
-      "rt_basis": "derived: Ct·½ρV²S，S=5.42 m²（Roddy 1990 表列湿面积），ρ=1025 kg/m³；v1 记录值 12.5 N 与之相差 7.6 倍，物理上不可同时成立"
-    },
-    {
-      "case_id": "SUBOFF-02",
-      "ship_type": "SUBOFF",
-      "speed_ms": 4.0,
-      "froude_number": 0.612,
-      "experimental_ct": 0.004,
-      "experimental_rt_n": 177.78,
-      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {
-        "length_m": 4.356,
-        "diameter_m": 0.508,
-        "wetted_surface_m2": 5.42
-      },
-      "form_type": "body_of_revolution",
-      "legacy_experimental_rt_n": 21.0,
-      "rt_basis": "derived: Ct·½ρV²S，S=5.42 m²（Roddy 1990 表列湿面积），ρ=1025 kg/m³；v1 记录值 21.0 N 与之相差 8.5 倍，物理上不可同时成立"
-    },
-    {
-      "case_id": "SUBOFF-03",
-      "ship_type": "SUBOFF",
-      "speed_ms": 5.0,
-      "froude_number": 0.765,
-      "experimental_ct": 0.0042,
-      "experimental_rt_n": 291.66,
-      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {
-        "length_m": 4.356,
-        "diameter_m": 0.508,
-        "wetted_surface_m2": 5.42
-      },
-      "form_type": "body_of_revolution",
-      "legacy_experimental_rt_n": 31.5,
-      "rt_basis": "derived: Ct·½ρV²S，S=5.42 m²（Roddy 1990 表列湿面积），ρ=1025 kg/m³；v1 记录值 31.5 N 与之相差 9.3 倍，物理上不可同时成立"
-    },
-    {
-      "case_id": "SUBOFF-04",
-      "ship_type": "SUBOFF",
-      "speed_ms": 6.0,
-      "froude_number": 0.918,
-      "experimental_ct": 0.0044,
-      "experimental_rt_n": 440.0,
-      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {
-        "length_m": 4.356,
-        "diameter_m": 0.508,
-        "wetted_surface_m2": 5.42
-      },
-      "form_type": "body_of_revolution",
-      "legacy_experimental_rt_n": 45.0,
-      "rt_basis": "derived: Ct·½ρV²S，S=5.42 m²（Roddy 1990 表列湿面积），ρ=1025 kg/m³；v1 记录值 45.0 N 与之相差 9.8 倍，物理上不可同时成立"
-    },
-    {
-      "case_id": "DTMB5415-01",
-      "ship_type": "DTMB-5415",
-      "speed_kn": 5.0,
-      "speed_ms": 0.4569,
-      "froude_number": 0.061,
-      "experimental_ct": 0.0045,
-      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {
-        "length_m": 5.72,
-        "beam_m": 0.759,
-        "draft_m": 0.246,
-        "displacement_kg": 556.1,
-        "cb": 0.508,
-        "legacy_displacement_kg": 466.3,
-        "displacement_basis": "derived: Cb·L·B·T·ρ_model(1025)",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.12 低于物理下限 → Rt 列不可复核"
-      },
-      "legacy_speed_ms": 2.572,
-      "speed_basis": "derived: Fr·√(gL)，L=5.72 m，Fr=0.061；v1 的 2.572 m/s = 5 kn 全尺度航速，与船模主尺度搭配时 Fr 达 0.34，不可能",
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 8.2,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "DTMB5415-02",
-      "ship_type": "DTMB-5415",
-      "speed_kn": 10.0,
-      "speed_ms": 0.9139,
-      "froude_number": 0.122,
-      "experimental_ct": 0.0038,
-      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {
-        "length_m": 5.72,
-        "beam_m": 0.759,
-        "draft_m": 0.246,
-        "displacement_kg": 556.1,
-        "cb": 0.508,
-        "legacy_displacement_kg": 466.3,
-        "displacement_basis": "derived: Cb·L·B·T·ρ_model(1025)",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.12 低于物理下限 → Rt 列不可复核"
-      },
-      "legacy_speed_ms": 5.144,
-      "speed_basis": "derived: Fr·√(gL)，L=5.72 m，Fr=0.122；v1 的 5.144 m/s = 10 kn 全尺度航速，与船模主尺度搭配时 Fr 达 0.69，不可能",
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 28.5,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "DTMB5415-03",
-      "ship_type": "DTMB-5415",
-      "speed_kn": 20.0,
-      "speed_ms": 1.8278,
-      "froude_number": 0.244,
-      "experimental_ct": 0.0035,
-      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {
-        "length_m": 5.72,
-        "beam_m": 0.759,
-        "draft_m": 0.246,
-        "displacement_kg": 556.1,
-        "cb": 0.508,
-        "legacy_displacement_kg": 466.3,
-        "displacement_basis": "derived: Cb·L·B·T·ρ_model(1025)",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.12 低于物理下限 → Rt 列不可复核"
-      },
-      "legacy_speed_ms": 10.289,
-      "speed_basis": "derived: Fr·√(gL)，L=5.72 m，Fr=0.244；v1 的 10.289 m/s = 20 kn 全尺度航速，与船模主尺度搭配时 Fr 达 1.37，不可能",
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 95.0,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "DTMB5415-04",
-      "ship_type": "DTMB-5415",
-      "speed_kn": 30.0,
-      "speed_ms": 2.7417,
-      "froude_number": 0.366,
-      "experimental_ct": 0.0038,
-      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {
-        "length_m": 5.72,
-        "beam_m": 0.759,
-        "draft_m": 0.246,
-        "displacement_kg": 556.1,
-        "cb": 0.508,
-        "legacy_displacement_kg": 466.3,
-        "displacement_basis": "derived: Cb·L·B·T·ρ_model(1025)",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.12 低于物理下限 → Rt 列不可复核"
-      },
-      "legacy_speed_ms": 15.433,
-      "speed_basis": "derived: Fr·√(gL)，L=5.72 m，Fr=0.366；v1 的 15.433 m/s = 30 kn 全尺度航速，与船模主尺度搭配时 Fr 达 2.06，不可能",
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 210.0,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "KVLCC2-01",
-      "ship_type": "KVLCC2",
-      "speed_kn": 14.0,
-      "speed_ms": 7.202,
-      "froude_number": 0.129,
-      "experimental_ct": 0.0028,
-      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {
-        "length_m": 320.0,
-        "beam_m": 58.0,
-        "draft_m": 20.8,
-        "displacement_t": 320437.2,
-        "cb": 0.8098,
-        "legacy_displacement_t": 307000.0,
-        "displacement_basis": "derived: Cb·L·B·T·ρ(1025)（SIMMAN 2008 官方值 320475 t，与派生值差 0.05%）",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.40 低于物理下限 → Rt 列不可复核"
-      },
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 550000.0,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "KVLCC2-02",
-      "ship_type": "KVLCC2",
-      "speed_kn": 15.0,
-      "speed_ms": 7.717,
-      "froude_number": 0.138,
-      "experimental_ct": 0.003,
-      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {
-        "length_m": 320.0,
-        "beam_m": 58.0,
-        "draft_m": 20.8,
-        "displacement_t": 320437.2,
-        "cb": 0.8098,
-        "legacy_displacement_t": 307000.0,
-        "displacement_basis": "derived: Cb·L·B·T·ρ(1025)（SIMMAN 2008 官方值 320475 t，与派生值差 0.05%）",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.40 低于物理下限 → Rt 列不可复核"
-      },
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 650000.0,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "KVLCC2-03",
-      "ship_type": "KVLCC2",
-      "speed_kn": 15.5,
-      "speed_ms": 7.974,
-      "froude_number": 0.143,
-      "experimental_ct": 0.0031,
-      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {
-        "length_m": 320.0,
-        "beam_m": 58.0,
-        "draft_m": 20.8,
-        "displacement_t": 320437.2,
-        "cb": 0.8098,
-        "legacy_displacement_t": 307000.0,
-        "displacement_basis": "derived: Cb·L·B·T·ρ(1025)（SIMMAN 2008 官方值 320475 t，与派生值差 0.05%）",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.40 低于物理下限 → Rt 列不可复核"
-      },
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 700000.0,
-      "experimental_rt_n": null
-    },
-    {
-      "case_id": "KVLCC2-04",
-      "ship_type": "KVLCC2",
-      "speed_kn": 16.0,
-      "speed_ms": 8.231,
-      "froude_number": 0.147,
-      "experimental_ct": 0.0032,
-      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {
-        "length_m": 320.0,
-        "beam_m": 58.0,
-        "draft_m": 20.8,
-        "displacement_t": 320437.2,
-        "cb": 0.8098,
-        "legacy_displacement_t": 307000.0,
-        "displacement_basis": "derived: Cb·L·B·T·ρ(1025)（SIMMAN 2008 官方值 320475 t，与派生值差 0.05%）",
-        "rt_note": "记录缺湿面积，反解表观湿面积 S_imp/(L·B)=0.40 低于物理下限 → Rt 列不可复核"
-      },
-      "rt_status": "WITHHELD",
-      "legacy_experimental_rt_n": 760000.0,
-      "experimental_rt_n": null
-    }
-  ],
-  "changelog": "2.0 (2026-11-01): 物理闭合修正。Δ 由 Cb·L·B·T·ρ 派生；DTMB-5415 航速改按 Fr 反算的模型尺度值；无湿面积的 Rt 列置 null 并标 rt_status=WITHHELD；SUBOFF 标 body_of_revolution。v1 原值全部保留于 *_legacy_* 字段与 benchmark_reference_v1_legacy.json。判据来源：services/benchmark_integrity.py（闭合闸门）。",
+  "description": "船舶阻力基准参考数据集（唯一正典 v3.0）。来源：Roddy 1990 DTRC-90/012（SUBOFF）、ITTC V&V Workshop 2010（DTMB-5415）、SIMMAN 2008（KVLCC2）。每个量由 backend/services/benchmark_canon.py 的解析恒等式复算，含密度/黏度溯源。",
+  "version": "3.0",
+  "supersedes": "2.0",
+  "changelog": "3.0 (m1561 六分支裁决)：①流体溯源落盘——模型试验（SUBOFF、DTMB-5415）统一淡水 ρ=998.2 kg/m³、ν=1.004e-6 m²/s，实船（KVLCC2）海水 1025/1.188e-6；v2 把海水密度用在 DTRC 模型拖曳水池行上，SUBOFF-01 的 95.0 N 因此偏高 2.68%，正典为 92.52 N；v1 的 12.5 N 与 R1 差 7.6 倍作废，两者均留 legacy_values。②DTMB-5415 的 Fr/航速互不自洽（Fr 列隐含船长 181 m），整列 WITHHELD，航速按 Fr 反算只作条件值。③排水量按 R4（Cb·L·B·T·ρ）派生，记录值移入 legacy。④Rt 为空的算例一律 rt_status=WITHHELD，禁止参与 15% 判决。",
+  "provenance": {
+    "adjudication_engine": "backend/services/benchmark_canon.py",
+    "filed_sources": "backend/data/benchmark_reference_sources_v2.json（冻结的 v2.0 记录值，裁决输入）",
+    "gate_engine": "backend/services/benchmark_integrity.py",
+    "adjudication_report": "docs/reports/m1561_benchmark_canon_adjudication.md",
+    "superseded_branches": "docs/superseded/",
+    "rules": [
+      "R1 Rt=Ct·½ρV²S",
+      "R2 流体溯源（模型=淡水/实船=海水）",
+      "R3 Fr=V/√(gL)",
+      "R4 Δ=Cb·L·B·T·ρ",
+      "R5 Ct≥Cf_ITTC57",
+      "R6 形体带"
+    ]
+  },
   "integrity_gate": {
     "module": "services/benchmark_integrity.py",
-    "audit_script": "scripts/audit_benchmark_integrity.py",
+    "canon_engine": "services/benchmark_canon.py",
     "checks": [
       "froude_closure",
       "displacement_closure",
       "resistance_closure",
       "friction_floor",
       "form_bands"
-    ]
-  }
+    ],
+    "policy": "仅 reference_status=DERIVED 的行可参与 15% 精度判决；WITHHELD 行如实标注、不出判决"
+  },
+  "cases": [
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_kn": 5.0,
+      "speed_ms": 0.4569,
+      "speed_basis": "条件值：由记录 Fr=0.061 与 L=5.72 m 反算 V=Fr√(gL)=0.4569 m/s；原始航速 2.572 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy",
+      "froude_number": 0.061,
+      "froude_status": "WITHHELD",
+      "froude_basis": "R3 反解：记录 Fr 的隐含船长 (V_filed/Fr)²/g = 181.2 m ≠ L=5.72 m → Fr 列不是本几何的试验条件；Fr 与航速对同一行不可能同时成立",
+      "experimental_ct": 0.0045,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=8.2 N 得 S_imp=17.49 m²，S_imp/(L·B)=4.028 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=998.2（fresh_water_20c）",
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "cb": 0.508,
+        "legacy_displacement_kg": 466.3,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=998.2）= 541.6 kg；v1/v2 记录 466.3 kg 误差 16.1%，已移入 legacy",
+        "displacement_kg": 541.6
+      },
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "froude_provenance_withheld",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "记录缺湿面积 → Rt 列不可复核；且航速列 5/10/20/30 kn 是实船服务航速，与模型主尺度 L=5.72 m 搭配时 Fr 达 0.34–2.06，物理不可能；Fr 列的隐含船长是 181 m，也不是 5.72 m。航速与 Fr 两列互不自洽且都无法溯源到 ITTC-2010 试验矩阵 → 整列 WITHHELD。",
+      "legacy_values": {
+        "filed_speed_ms": 2.572,
+        "filed_froude_number": 0.061,
+        "filed_experimental_rt_n": 8.2
+      }
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_kn": 10.0,
+      "speed_ms": 0.9139,
+      "speed_basis": "条件值：由记录 Fr=0.122 与 L=5.72 m 反算 V=Fr√(gL)=0.9139 m/s；原始航速 5.144 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy",
+      "froude_number": 0.122,
+      "froude_status": "WITHHELD",
+      "froude_basis": "R3 反解：记录 Fr 的隐含船长 (V_filed/Fr)²/g = 181.2 m ≠ L=5.72 m → Fr 列不是本几何的试验条件；Fr 与航速对同一行不可能同时成立",
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=28.5 N 得 S_imp=17.99 m²，S_imp/(L·B)=4.144 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=998.2（fresh_water_20c）",
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "cb": 0.508,
+        "legacy_displacement_kg": 466.3,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=998.2）= 541.6 kg；v1/v2 记录 466.3 kg 误差 16.1%，已移入 legacy",
+        "displacement_kg": 541.6
+      },
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "froude_provenance_withheld",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "同 DTMB5415-01。",
+      "legacy_values": {
+        "filed_speed_ms": 5.144,
+        "filed_froude_number": 0.122,
+        "filed_experimental_rt_n": 28.5
+      }
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_kn": 20.0,
+      "speed_ms": 1.8278,
+      "speed_basis": "条件值：由记录 Fr=0.244 与 L=5.72 m 反算 V=Fr√(gL)=1.8278 m/s；原始航速 10.289 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy",
+      "froude_number": 0.244,
+      "froude_status": "WITHHELD",
+      "froude_basis": "R3 反解：记录 Fr 的隐含船长 (V_filed/Fr)²/g = 181.3 m ≠ L=5.72 m → Fr 列不是本几何的试验条件；Fr 与航速对同一行不可能同时成立",
+      "experimental_ct": 0.0035,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=95 N 得 S_imp=16.28 m²，S_imp/(L·B)=3.750 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=998.2（fresh_water_20c）",
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "cb": 0.508,
+        "legacy_displacement_kg": 466.3,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=998.2）= 541.6 kg；v1/v2 记录 466.3 kg 误差 16.1%，已移入 legacy",
+        "displacement_kg": 541.6
+      },
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "froude_provenance_withheld",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "同 DTMB5415-01。",
+      "legacy_values": {
+        "filed_speed_ms": 10.289,
+        "filed_froude_number": 0.244,
+        "filed_experimental_rt_n": 95.0
+      }
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_kn": 30.0,
+      "speed_ms": 2.7417,
+      "speed_basis": "条件值：由记录 Fr=0.366 与 L=5.72 m 反算 V=Fr√(gL)=2.7417 m/s；原始航速 15.433 m/s 是实船服务航速，与模型尺度不自洽，移入 legacy",
+      "froude_number": 0.366,
+      "froude_status": "WITHHELD",
+      "froude_basis": "R3 反解：记录 Fr 的隐含船长 (V_filed/Fr)²/g = 181.2 m ≠ L=5.72 m → Fr 列不是本几何的试验条件；Fr 与航速对同一行不可能同时成立",
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=210 N 得 S_imp=14.73 m²，S_imp/(L·B)=3.393 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=998.2（fresh_water_20c）",
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "cb": 0.508,
+        "legacy_displacement_kg": 466.3,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=998.2）= 541.6 kg；v1/v2 记录 466.3 kg 误差 16.1%，已移入 legacy",
+        "displacement_kg": 541.6
+      },
+      "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "froude_provenance_withheld",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "同 DTMB5415-01。",
+      "legacy_values": {
+        "filed_speed_ms": 15.433,
+        "filed_froude_number": 0.366,
+        "filed_experimental_rt_n": 210.0
+      }
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "scale": "full",
+      "reference_fluid": "sea_water_15c",
+      "reference_density_kg_m3": 1025.0,
+      "reference_kinematic_viscosity_m2_s": 1.188e-06,
+      "fluid_basis": "海水 15 °C（ITTC-2011 标准海水）——实船全尺度",
+      "speed_kn": 14.0,
+      "speed_ms": 7.202,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.1285,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.1285；记录 0.129（误差 0.36%，容差 2%）",
+      "experimental_ct": 0.0028,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=550000 N 得 S_imp=7389.32 m²，S_imp/(L·B)=0.398 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=1025（sea_water_15c）",
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "cb": 0.8098,
+        "legacy_displacement_t": 307000.0,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=1025）= 320437.2 t；v1/v2 记录 307000.0 t 误差 4.4%，已移入 legacy",
+        "displacement_t": 320437.2
+      },
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "实船全尺度（L=320 m，海水密度适用）；记录缺湿面积，由记录 Rt 反解的表观湿面积 S/(L·B)≈0.40–0.55 远低于物理下限 1.0 → Rt 列不可复核，须回 SIMMAN 原始表取湿面积。",
+      "legacy_values": {
+        "filed_froude_number": 0.129,
+        "filed_experimental_rt_n": 550000.0
+      }
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "scale": "full",
+      "reference_fluid": "sea_water_15c",
+      "reference_density_kg_m3": 1025.0,
+      "reference_kinematic_viscosity_m2_s": 1.188e-06,
+      "fluid_basis": "海水 15 °C（ITTC-2011 标准海水）——实船全尺度",
+      "speed_kn": 15.0,
+      "speed_ms": 7.717,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.1377,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.1377；记录 0.138（误差 0.19%，容差 2%）",
+      "experimental_ct": 0.003,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=650000 N 得 S_imp=7099.07 m²，S_imp/(L·B)=0.382 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=1025（sea_water_15c）",
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "cb": 0.8098,
+        "legacy_displacement_t": 307000.0,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=1025）= 320437.2 t；v1/v2 记录 307000.0 t 误差 4.4%，已移入 legacy",
+        "displacement_t": 320437.2
+      },
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "同 KVLCC2-01。",
+      "legacy_values": {
+        "filed_froude_number": 0.138,
+        "filed_experimental_rt_n": 650000.0
+      }
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "scale": "full",
+      "reference_fluid": "sea_water_15c",
+      "reference_density_kg_m3": 1025.0,
+      "reference_kinematic_viscosity_m2_s": 1.188e-06,
+      "fluid_basis": "海水 15 °C（ITTC-2011 标准海水）——实船全尺度",
+      "speed_kn": 15.5,
+      "speed_ms": 7.974,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.1423,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.1423；记录 0.143（误差 0.48%，容差 2%）",
+      "experimental_ct": 0.0031,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=700000 N 得 S_imp=6929.31 m²，S_imp/(L·B)=0.373 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=1025（sea_water_15c）",
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "cb": 0.8098,
+        "legacy_displacement_t": 307000.0,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=1025）= 320437.2 t；v1/v2 记录 307000.0 t 误差 4.4%，已移入 legacy",
+        "displacement_t": 320437.2
+      },
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "同 KVLCC2-01。",
+      "legacy_values": {
+        "filed_froude_number": 0.143,
+        "filed_experimental_rt_n": 700000.0
+      }
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "scale": "full",
+      "reference_fluid": "sea_water_15c",
+      "reference_density_kg_m3": 1025.0,
+      "reference_kinematic_viscosity_m2_s": 1.188e-06,
+      "fluid_basis": "海水 15 °C（ITTC-2011 标准海水）——实船全尺度",
+      "speed_kn": 16.0,
+      "speed_ms": 8.231,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.1469,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.1469；记录 0.147（误差 0.06%，容差 2%）",
+      "experimental_ct": 0.0032,
+      "experimental_rt_n": null,
+      "rt_status": "WITHHELD",
+      "rt_basis": "R1 反解：由记录 Rt=760000 N 得 S_imp=6840.13 m²，S_imp/(L·B)=0.369 落在物理带 [1.0, 3.2] 之外 → Rt 与 Ct 不能同时成立；ρ=1025（sea_water_15c）",
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "cb": 0.8098,
+        "legacy_displacement_t": 307000.0,
+        "displacement_basis": "R4 派生 Δ=Cb·L·B·T·ρ（ρ=1025）= 320437.2 t；v1/v2 记录 307000.0 t 误差 4.4%，已移入 legacy",
+        "displacement_t": 320437.2
+      },
+      "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
+      "reference_status": "WITHHELD",
+      "audit_flags": [
+        "displacement_closure_fail",
+        "resistance_not_reviewable"
+      ],
+      "adjudication_reason": "同 KVLCC2-01。",
+      "legacy_values": {
+        "filed_froude_number": 0.147,
+        "filed_experimental_rt_n": 760000.0
+      }
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_ms": 3.0,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.4589,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.4589；记录 0.459（误差 0.02%，容差 2%）",
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": 92.52,
+      "rt_status": "DERIVED",
+      "rt_basis": "R1 复算 Rt=Ct·½ρV²S = 0.0038·0.5·998.2·3²·5.42 = 92.52 N；ρ 取 fresh_water_20c（淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质）",
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
+      "reference_status": "DERIVED",
+      "audit_flags": [],
+      "adjudication_reason": "DTRC 拖曳水池是淡水，模型 L=4.356 m；记录自带湿面积 S=5.42 m²，Rt 可由 R1 唯一复算。基线 v2 对模型试验行套用海水 1025（尺度/介质张冠李戴）→ 95.0 N 偏高 2.68%；v1 的 12.5 N 反解湿面积仅 0.71 m²，与 R1 差 7.6 倍，直接作废。两者均留 legacy。",
+      "legacy_values": {
+        "filed_froude_number": 0.459,
+        "superseded_experimental_rt_n": 95.0,
+        "v1_experimental_rt_n": 12.5
+      }
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_ms": 4.0,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.6119,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.6119；记录 0.612（误差 0.02%，容差 2%）",
+      "experimental_ct": 0.004,
+      "experimental_rt_n": 173.13,
+      "rt_status": "DERIVED",
+      "rt_basis": "R1 复算 Rt=Ct·½ρV²S = 0.004·0.5·998.2·4²·5.42 = 173.13 N；ρ 取 fresh_water_20c（淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质）",
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
+      "reference_status": "DERIVED",
+      "audit_flags": [],
+      "adjudication_reason": "同 SUBOFF-01。",
+      "legacy_values": {
+        "filed_froude_number": 0.612,
+        "superseded_experimental_rt_n": 177.78,
+        "v1_experimental_rt_n": 21.0
+      }
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_ms": 5.0,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.7649,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.7649；记录 0.765（误差 0.02%，容差 2%）",
+      "experimental_ct": 0.0042,
+      "experimental_rt_n": 284.04,
+      "rt_status": "DERIVED",
+      "rt_basis": "R1 复算 Rt=Ct·½ρV²S = 0.0042·0.5·998.2·5²·5.42 = 284.04 N；ρ 取 fresh_water_20c（淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质）",
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
+      "reference_status": "DERIVED",
+      "audit_flags": [],
+      "adjudication_reason": "同 SUBOFF-01。",
+      "legacy_values": {
+        "filed_froude_number": 0.765,
+        "superseded_experimental_rt_n": 291.66,
+        "v1_experimental_rt_n": 31.5
+      }
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "scale": "model",
+      "reference_fluid": "fresh_water_20c",
+      "reference_density_kg_m3": 998.2,
+      "reference_kinematic_viscosity_m2_s": 1.004e-06,
+      "fluid_basis": "淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质",
+      "speed_ms": 6.0,
+      "speed_basis": "记录航速；与 L 的 Fr 闭合通过 R3",
+      "froude_number": 0.9179,
+      "froude_status": "DERIVED",
+      "froude_basis": "R3 复算 Fr=V/√(gL)=0.9179；记录 0.918（误差 0.02%，容差 2%）",
+      "experimental_ct": 0.0044,
+      "experimental_rt_n": 428.49,
+      "rt_status": "DERIVED",
+      "rt_basis": "R1 复算 Rt=Ct·½ρV²S = 0.0044·0.5·998.2·6²·5.42 = 428.49 N；ρ 取 fresh_water_20c（淡水 20 °C（ITTC 7.5-02-01-01 物性表）——船模拖曳水池常规介质）",
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
+      "reference_status": "DERIVED",
+      "audit_flags": [],
+      "adjudication_reason": "同 SUBOFF-01。",
+      "legacy_values": {
+        "filed_froude_number": 0.918,
+        "superseded_experimental_rt_n": 440.0,
+        "v1_experimental_rt_n": 45.0
+      }
+    }
+  ]
 }

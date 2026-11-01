@@ -1,0 +1,778 @@
+{
+  "dataset_version": "3.0",
+  "summary": {
+    "DERIVED": 4,
+    "WITHHELD": 8,
+    "REJECTED": 0
+  },
+  "cases": [
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.061,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=0.4569，L=5.72 → Fr=0.0610 vs 记录 0.0610（误差 0.01%）；反解 (V/Fr)²/g = 5.7 m 与 L 一致",
+          "computed": 0.061,
+          "error_pct": 0.01,
+          "implied_length_m": 5.7
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 0.5416,
+          "m1395": null,
+          "canon": 0.542,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.508·5.72·0.759·0.246·998.2=0.542 t vs 记录 0.5416 t（误差 0.01%，容差 2%）",
+          "error_pct": 0.01,
+          "rho": 998.2
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0045,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=2.603e+06（ν=1.004e-06），Cf_ITTC57=0.003847，Ct=0.0045 → (1+k)=Ct/Cf=1.17 ≥1 物理可行",
+          "reynolds": 2603055.8,
+          "cf": 0.003847,
+          "one_plus_k": 1.17
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 7.5362,
+            "Cb": 0.508
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=7.5362∈[3.5, 12.0]；Cb=0.5080∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.122,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=0.9139，L=5.72 → Fr=0.1220 vs 记录 0.1220（误差 0.00%）；反解 (V/Fr)²/g = 5.7 m 与 L 一致",
+          "computed": 0.122,
+          "error_pct": 0.0,
+          "implied_length_m": 5.7
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 0.5416,
+          "m1395": null,
+          "canon": 0.542,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.508·5.72·0.759·0.246·998.2=0.542 t vs 记录 0.5416 t（误差 0.01%，容差 2%）",
+          "error_pct": 0.01,
+          "rho": 998.2
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0038,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=5.207e+06（ν=1.004e-06），Cf_ITTC57=0.003371，Ct=0.0038 → (1+k)=Ct/Cf=1.13 ≥1 物理可行",
+          "reynolds": 5206681.3,
+          "cf": 0.003371,
+          "one_plus_k": 1.127
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 7.5362,
+            "Cb": 0.508
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=7.5362∈[3.5, 12.0]；Cb=0.5080∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.244,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=1.8278，L=5.72 → Fr=0.2440 vs 记录 0.2440（误差 0.00%）；反解 (V/Fr)²/g = 5.7 m 与 L 一致",
+          "computed": 0.244,
+          "error_pct": 0.0,
+          "implied_length_m": 5.7
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 0.5416,
+          "m1395": null,
+          "canon": 0.542,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.508·5.72·0.759·0.246·998.2=0.542 t vs 记录 0.5416 t（误差 0.01%，容差 2%）",
+          "error_pct": 0.01,
+          "rho": 998.2
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0035,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=1.041e+07（ν=1.004e-06），Cf_ITTC57=0.002979，Ct=0.0035 → (1+k)=Ct/Cf=1.17 ≥1 物理可行",
+          "reynolds": 10413362.5,
+          "cf": 0.002979,
+          "one_plus_k": 1.175
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 7.5362,
+            "Cb": 0.508
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=7.5362∈[3.5, 12.0]；Cb=0.5080∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "form_type": "displacement_hull",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.366,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=2.7417，L=5.72 → Fr=0.3660 vs 记录 0.3660（误差 0.00%）；反解 (V/Fr)²/g = 5.7 m 与 L 一致",
+          "computed": 0.366,
+          "error_pct": 0.0,
+          "implied_length_m": 5.7
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 0.5416,
+          "m1395": null,
+          "canon": 0.542,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.508·5.72·0.759·0.246·998.2=0.542 t vs 记录 0.5416 t（误差 0.01%，容差 2%）",
+          "error_pct": 0.01,
+          "rho": 998.2
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0038,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=1.562e+07（ν=1.004e-06），Cf_ITTC57=0.002780，Ct=0.0038 → (1+k)=Ct/Cf=1.37 ≥1 物理可行",
+          "reynolds": 15620043.8,
+          "cf": 0.00278,
+          "one_plus_k": 1.367
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 7.5362,
+            "Cb": 0.508
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=7.5362∈[3.5, 12.0]；Cb=0.5080∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "fluid": "sea_water_15c",
+      "rho": 1025.0,
+      "nu": 1.188e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.1285,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=7.202，L=320 → Fr=0.1285 vs 记录 0.1285（误差 0.03%）；反解 (V/Fr)²/g = 320.2 m 与 L 一致",
+          "computed": 0.1285,
+          "error_pct": 0.03,
+          "implied_length_m": 320.2
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 320437.2,
+          "m1395": null,
+          "canon": 320437.212,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.8098·320·58·20.8·1025=320437.212 t vs 记录 320437 t（误差 0.00%，容差 2%）",
+          "error_pct": 0.0,
+          "rho": 1025.0
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0028,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=1.940e+09（ν=1.188e-06），Cf_ITTC57=0.001412，Ct=0.0028 → (1+k)=Ct/Cf=1.98 ≥1 物理可行",
+          "reynolds": 1939932659.9,
+          "cf": 0.001412,
+          "one_plus_k": 1.983
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 5.5172,
+            "Cb": 0.8098
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=5.5172∈[3.5, 12.0]；Cb=0.8098∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "fluid": "sea_water_15c",
+      "rho": 1025.0,
+      "nu": 1.188e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.1377,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=7.717，L=320 → Fr=0.1377 vs 记录 0.1377（误差 0.02%）；反解 (V/Fr)²/g = 320.2 m 与 L 一致",
+          "computed": 0.1377,
+          "error_pct": 0.02,
+          "implied_length_m": 320.2
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 320437.2,
+          "m1395": null,
+          "canon": 320437.212,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.8098·320·58·20.8·1025=320437.212 t vs 记录 320437 t（误差 0.00%，容差 2%）",
+          "error_pct": 0.0,
+          "rho": 1025.0
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.003,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=2.079e+09（ν=1.188e-06），Cf_ITTC57=0.001401，Ct=0.003 → (1+k)=Ct/Cf=2.14 ≥1 物理可行",
+          "reynolds": 2078653198.7,
+          "cf": 0.001401,
+          "one_plus_k": 2.142
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 5.5172,
+            "Cb": 0.8098
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=5.5172∈[3.5, 12.0]；Cb=0.8098∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "fluid": "sea_water_15c",
+      "rho": 1025.0,
+      "nu": 1.188e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.1423,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=7.974，L=320 → Fr=0.1423 vs 记录 0.1423（误差 0.01%）；反解 (V/Fr)²/g = 320.1 m 与 L 一致",
+          "computed": 0.1423,
+          "error_pct": 0.01,
+          "implied_length_m": 320.1
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 320437.2,
+          "m1395": null,
+          "canon": 320437.212,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.8098·320·58·20.8·1025=320437.212 t vs 记录 320437 t（误差 0.00%，容差 2%）",
+          "error_pct": 0.0,
+          "rho": 1025.0
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0031,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=2.148e+09（ν=1.188e-06），Cf_ITTC57=0.001395，Ct=0.0031 → (1+k)=Ct/Cf=2.22 ≥1 物理可行",
+          "reynolds": 2147878787.9,
+          "cf": 0.001395,
+          "one_plus_k": 2.222
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 5.5172,
+            "Cb": 0.8098
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=5.5172∈[3.5, 12.0]；Cb=0.8098∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "form_type": "displacement_hull",
+      "fluid": "sea_water_15c",
+      "rho": 1025.0,
+      "nu": 1.188e-06,
+      "verdict": "WITHHELD",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": null,
+          "verdict": "WITHHELD",
+          "basis": "记录缺 Rt / Ct / 湿面积之一，R1 不可运行"
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.1469,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=8.231，L=320 → Fr=0.1469 vs 记录 0.1469（误差 0.00%）；反解 (V/Fr)²/g = 320.0 m 与 L 一致",
+          "computed": 0.1469,
+          "error_pct": 0.0,
+          "implied_length_m": 320.0
+        },
+        {
+          "quantity": "displacement_t",
+          "baseline_v2": 320437.2,
+          "m1395": null,
+          "canon": 320437.212,
+          "verdict": "DERIVED",
+          "basis": "R4 Δ=Cb·L·B·T·ρ=0.8098·320·58·20.8·1025=320437.212 t vs 记录 320437 t（误差 0.00%，容差 2%）",
+          "error_pct": 0.0,
+          "rho": 1025.0
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0032,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=2.217e+09（ν=1.188e-06），Cf_ITTC57=0.001390，Ct=0.0032 → (1+k)=Ct/Cf=2.30 ≥1 物理可行",
+          "reynolds": 2217104377.1,
+          "cf": 0.00139,
+          "one_plus_k": 2.302
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/B": 5.5172,
+            "Cb": 0.8098
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/B=5.5172∈[3.5, 12.0]；Cb=0.8098∈[0.4, 0.9]"
+        }
+      ]
+    },
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "DERIVED",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 92.515,
+          "verdict": "DERIVED",
+          "basis": "R1 Rt=Ct·½ρV²S：0.0038·0.5·998.2·3²·5.42 = 92.515 N vs 记录 92.52 N（误差 0.01%，容差 1%）；ρ 取自 fresh_water_20c",
+          "error_pct": 0.0052,
+          "rho": 998.2
+        },
+        {
+          "quantity": "reference_density_kg_m3",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 998.2,
+          "verdict": "DERIVED",
+          "basis": "R2 介质溯源：本行是模型（拖曳水池=淡水） → ρ=998.2；若误用 ρ=1025 得 Rt=94.999 N（偏差 2.68%）",
+          "rejected_alternative_rho": 1025.0,
+          "rejected_alternative_rt_n": 94.999
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.4589,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=3，L=4.356 → Fr=0.4589 vs 记录 0.4589（误差 0.01%）；反解 (V/Fr)²/g = 4.4 m 与 L 一致",
+          "computed": 0.4589,
+          "error_pct": 0.01,
+          "implied_length_m": 4.4
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0038,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=1.302e+07（ν=1.004e-06），Cf_ITTC57=0.002867，Ct=0.0038 → (1+k)=Ct/Cf=1.33 ≥1 物理可行",
+          "reynolds": 13015936.3,
+          "cf": 0.002867,
+          "one_plus_k": 1.325
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/D": 8.5748,
+            "S/(πDL)": 0.7796
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/D=8.5748∈[5.0, 15.0]；S/(πDL)=0.7796∈[0.5, 1.0]"
+        }
+      ]
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "DERIVED",
+      "flags": [],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 173.128,
+          "verdict": "DERIVED",
+          "basis": "R1 Rt=Ct·½ρV²S：0.004·0.5·998.2·4²·5.42 = 173.128 N vs 记录 173.13 N（误差 0.00%，容差 1%）；ρ 取自 fresh_water_20c",
+          "error_pct": 0.0013,
+          "rho": 998.2
+        },
+        {
+          "quantity": "reference_density_kg_m3",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 998.2,
+          "verdict": "DERIVED",
+          "basis": "R2 介质溯源：本行是模型（拖曳水池=淡水） → ρ=998.2；若误用 ρ=1025 得 Rt=177.776 N（偏差 2.68%）",
+          "rejected_alternative_rho": 1025.0,
+          "rejected_alternative_rt_n": 177.776
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.6119,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=4，L=4.356 → Fr=0.6119 vs 记录 0.6119（误差 0.00%）；反解 (V/Fr)²/g = 4.4 m 与 L 一致",
+          "computed": 0.6119,
+          "error_pct": 0.0,
+          "implied_length_m": 4.4
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.004,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=1.735e+07（ν=1.004e-06），Cf_ITTC57=0.002732，Ct=0.004 → (1+k)=Ct/Cf=1.46 ≥1 物理可行",
+          "reynolds": 17354581.7,
+          "cf": 0.002732,
+          "one_plus_k": 1.464
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/D": 8.5748,
+            "S/(πDL)": 0.7796
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/D=8.5748∈[5.0, 15.0]；S/(πDL)=0.7796∈[0.5, 1.0]"
+        }
+      ]
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "DERIVED",
+      "flags": [
+        "form_factor_high"
+      ],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 284.038,
+          "verdict": "DERIVED",
+          "basis": "R1 Rt=Ct·½ρV²S：0.0042·0.5·998.2·5²·5.42 = 284.038 N vs 记录 284.04 N（误差 0.00%，容差 1%）；ρ 取自 fresh_water_20c",
+          "error_pct": 0.0008,
+          "rho": 998.2
+        },
+        {
+          "quantity": "reference_density_kg_m3",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 998.2,
+          "verdict": "DERIVED",
+          "basis": "R2 介质溯源：本行是模型（拖曳水池=淡水） → ρ=998.2；若误用 ρ=1025 得 Rt=291.664 N（偏差 2.68%）",
+          "rejected_alternative_rho": 1025.0,
+          "rejected_alternative_rt_n": 291.664
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.7649,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=5，L=4.356 → Fr=0.7649 vs 记录 0.7649（误差 0.00%）；反解 (V/Fr)²/g = 4.4 m 与 L 一致",
+          "computed": 0.7649,
+          "error_pct": 0.0,
+          "implied_length_m": 4.4
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0042,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=2.169e+07（ν=1.004e-06），Cf_ITTC57=0.002634，Ct=0.0042 → (1+k)=Ct/Cf=1.59 ≥1 物理可行（(1+k)>1.5，对回转体偏高，标 form_factor_high）",
+          "reynolds": 21693227.1,
+          "cf": 0.002634,
+          "one_plus_k": 1.595
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/D": 8.5748,
+            "S/(πDL)": 0.7796
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/D=8.5748∈[5.0, 15.0]；S/(πDL)=0.7796∈[0.5, 1.0]"
+        }
+      ]
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "form_type": "body_of_revolution",
+      "fluid": "fresh_water_20c",
+      "rho": 998.2,
+      "nu": 1.004e-06,
+      "verdict": "DERIVED",
+      "flags": [
+        "form_factor_high"
+      ],
+      "rows": [
+        {
+          "quantity": "experimental_rt_n",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 428.491,
+          "verdict": "DERIVED",
+          "basis": "R1 Rt=Ct·½ρV²S：0.0044·0.5·998.2·6²·5.42 = 428.491 N vs 记录 428.49 N（误差 0.00%，容差 1%）；ρ 取自 fresh_water_20c",
+          "error_pct": 0.0003,
+          "rho": 998.2
+        },
+        {
+          "quantity": "reference_density_kg_m3",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 998.2,
+          "verdict": "DERIVED",
+          "basis": "R2 介质溯源：本行是模型（拖曳水池=淡水） → ρ=998.2；若误用 ρ=1025 得 Rt=439.996 N（偏差 2.68%）",
+          "rejected_alternative_rho": 1025.0,
+          "rejected_alternative_rt_n": 439.996
+        },
+        {
+          "quantity": "froude_number",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.9179,
+          "verdict": "DERIVED",
+          "basis": "R3 Fr=V/√(gL)：V=6，L=4.356 → Fr=0.9179 vs 记录 0.9179（误差 0.01%）；反解 (V/Fr)²/g = 4.4 m 与 L 一致",
+          "computed": 0.9179,
+          "error_pct": 0.01,
+          "implied_length_m": 4.4
+        },
+        {
+          "quantity": "experimental_ct",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": 0.0044,
+          "verdict": "DERIVED",
+          "basis": "R5 Re=2.603e+07（ν=1.004e-06），Cf_ITTC57=0.002557，Ct=0.0044 → (1+k)=Ct/Cf=1.72 ≥1 物理可行（(1+k)>1.5，对回转体偏高，标 form_factor_high）",
+          "reynolds": 26031872.5,
+          "cf": 0.002557,
+          "one_plus_k": 1.721
+        },
+        {
+          "quantity": "form_bands",
+          "baseline_v2": null,
+          "m1395": null,
+          "canon": {
+            "L/D": 8.5748,
+            "S/(πDL)": 0.7796
+          },
+          "verdict": "DERIVED",
+          "basis": "R6 无量纲带：L/D=8.5748∈[5.0, 15.0]；S/(πDL)=0.7796∈[0.5, 1.0]"
+        }
+      ]
+    }
+  ]
+}

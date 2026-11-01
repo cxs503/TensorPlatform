@@ -141,7 +141,7 @@ def test_current_dataset_has_no_fail_row():
     assert rep["total"] == 12
     assert rep["verdict_counts"][FAIL] == 0, rep["failing_cases"]
     assert rep["binding"] is True
-    assert rep["dataset_version"] == "2.0"
+    assert rep["dataset_version"] == "3.0"   # m1561：v3.0 正典（六分支裁决后）
 
 
 def test_current_dataset_froude_rows_closed():
@@ -153,14 +153,16 @@ def test_current_dataset_froude_rows_closed():
 
 
 def test_current_dataset_displacement_rows_closed():
+    """排水量必须按行内流体密度闭合（m1561：写死 1025 正是 SUBOFF 95.0 N 的根因）。"""
     data = json.loads(DATA.read_text())
     for case in data["cases"]:
         if case.get("form_type") == "body_of_revolution":
             continue
         geo = case["geometry"]
+        rho = case["reference_density_kg_m3"]
         disp_t = geo.get("displacement_t", (geo.get("displacement_kg") or 0) / 1000.0)
-        derived = geo["cb"] * geo["length_m"] * geo["beam_m"] * geo["draft_m"] * 1025.0 / 1000.0
-        assert abs(derived - disp_t) <= 0.02 * disp_t, case["case_id"]
+        derived = geo["cb"] * geo["length_m"] * geo["beam_m"] * geo["draft_m"] * rho / 1000.0
+        assert abs(derived - disp_t) <= 0.02 * disp_t, (case["case_id"], derived, disp_t, rho)
 
 
 def test_legacy_values_preserved_for_audit():
@@ -168,9 +170,12 @@ def test_legacy_values_preserved_for_audit():
     data = json.loads(DATA.read_text())
     by_id = {c["case_id"]: c for c in data["cases"]}
     assert by_id["KVLCC2-01"]["geometry"]["legacy_displacement_t"] == 307000.0
-    assert by_id["DTMB5415-03"]["legacy_speed_ms"] == 10.289
-    assert by_id["SUBOFF-01"]["legacy_experimental_rt_n"] == 12.5
-    assert abs(by_id["SUBOFF-01"]["experimental_rt_n"] - 95.0) < 0.5
+    # v3.0：被 v2 藏在顶层的原始记录值统一收进 legacy_values（不再散落两套口径）
+    assert by_id["DTMB5415-03"]["legacy_values"]["filed_speed_ms"] == 10.289
+    assert by_id["SUBOFF-01"]["legacy_values"]["v1_experimental_rt_n"] == 12.5
+    assert by_id["SUBOFF-01"]["legacy_values"]["superseded_experimental_rt_n"] == 95.0
+    # 裁决值 = 淡水密度复算值（不是 v2 的 95.0，也不是 v1 的 12.5）
+    assert abs(by_id["SUBOFF-01"]["experimental_rt_n"] - 92.52) < 0.01
 
 
 def test_withheld_marks_where_evidence_missing():
