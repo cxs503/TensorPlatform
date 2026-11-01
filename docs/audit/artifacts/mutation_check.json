@@ -1,0 +1,620 @@
+{
+ "shim_mode": "stub",
+ "baseline": {
+  "summary": {
+   "figures_pass": 18,
+   "figures_total": 18,
+   "root_path_pass": 5,
+   "root_path_total": 5
+  },
+  "detail": {
+   "figures": [
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "HEAD",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/1/figures/fig.resistance-v1.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/1405/figures/a_b_c.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "POST",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "DELETE",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "PATCH",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "PUT",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/../../../../etc/passwd",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/a/b.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures%2F..%2F..%2Fx.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/abc/figures/fig1.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports//figures/fig1.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png/QR",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    }
+   ],
+   "root_path": [
+    {
+     "path": "/tp/api/v1/health",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    },
+    {
+     "path": "/tp/api/v1/tensor/reports/971/figures/fig1.png",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    },
+    {
+     "path": "/tp/api/v1/auth/auto-login",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    },
+    {
+     "path": "/tp/api/v1/tensor/reports/971",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": false,
+     "got_forward": false,
+     "status": 401,
+     "ok": true
+    },
+    {
+     "path": "/tp/",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    }
+   ]
+  }
+ },
+ "mutation_M1_figures_regex_disabled": {
+  "summary": {
+   "figures_pass": 14,
+   "figures_total": 18,
+   "root_path_pass": 4,
+   "root_path_total": 5
+  },
+  "detail": {
+   "figures": [
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": false,
+     "ok": false
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "HEAD",
+     "expect_allow": true,
+     "got_allow": false,
+     "ok": false
+    },
+    {
+     "path": "/api/v1/tensor/reports/1/figures/fig.resistance-v1.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": false,
+     "ok": false
+    },
+    {
+     "path": "/api/v1/tensor/reports/1405/figures/a_b_c.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": false,
+     "ok": false
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "POST",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "DELETE",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "PATCH",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "PUT",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/../../../../etc/passwd",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/a/b.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures%2F..%2F..%2Fx.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/abc/figures/fig1.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports//figures/fig1.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png/QR",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    }
+   ],
+   "root_path": [
+    {
+     "path": "/tp/api/v1/health",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    },
+    {
+     "path": "/tp/api/v1/tensor/reports/971/figures/fig1.png",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": false,
+     "status": 401,
+     "ok": false
+    },
+    {
+     "path": "/tp/api/v1/auth/auto-login",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    },
+    {
+     "path": "/tp/api/v1/tensor/reports/971",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": false,
+     "got_forward": false,
+     "status": 401,
+     "ok": true
+    },
+    {
+     "path": "/tp/",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": true,
+     "status": 200,
+     "ok": true
+    }
+   ]
+  }
+ },
+ "mutation_M2_root_path_strip_removed": {
+  "summary": {
+   "figures_pass": 18,
+   "figures_total": 18,
+   "root_path_pass": 1,
+   "root_path_total": 5
+  },
+  "detail": {
+   "figures": [
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "HEAD",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/1/figures/fig.resistance-v1.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/1405/figures/a_b_c.png",
+     "method": "GET",
+     "expect_allow": true,
+     "got_allow": true,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "POST",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "DELETE",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "PATCH",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png",
+     "method": "PUT",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/../../../../etc/passwd",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/a/b.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures%2F..%2F..%2Fx.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/abc/figures/fig1.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports//figures/fig1.png",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    },
+    {
+     "path": "/api/v1/tensor/reports/971/figures/fig1.png/QR",
+     "method": "GET",
+     "expect_allow": false,
+     "got_allow": false,
+     "ok": true
+    }
+   ],
+   "root_path": [
+    {
+     "path": "/tp/api/v1/health",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": false,
+     "status": 401,
+     "ok": false
+    },
+    {
+     "path": "/tp/api/v1/tensor/reports/971/figures/fig1.png",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": false,
+     "status": 401,
+     "ok": false
+    },
+    {
+     "path": "/tp/api/v1/auth/auto-login",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": false,
+     "status": 401,
+     "ok": false
+    },
+    {
+     "path": "/tp/api/v1/tensor/reports/971",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": false,
+     "got_forward": false,
+     "status": 401,
+     "ok": true
+    },
+    {
+     "path": "/tp/",
+     "root_path": "/tp",
+     "method": "GET",
+     "expect_forward": true,
+     "got_forward": false,
+     "status": 401,
+     "ok": false
+    }
+   ]
+  }
+ },
+ "caught": {
+  "M1": true,
+  "M2": true
+ },
+ "live_platform": [
+  {
+   "case": "report_list_needs_auth",
+   "url": "tensor/reports",
+   "status": 401,
+   "ctype": "application/json",
+   "bytes": 0
+  },
+  {
+   "case": "report_body_needs_auth",
+   "url": "tensor/reports/970",
+   "status": 401,
+   "ctype": "application/json",
+   "bytes": 0
+  },
+  {
+   "case": "public_figure_gif_free_970",
+   "url": "tensor/reports/970/figures/fig_anchors.png",
+   "status": 200,
+   "ctype": "image/png",
+   "bytes": 4096
+  },
+  {
+   "case": "public_figure_gif_free_958",
+   "url": "tensor/reports/958/figures/fig1_dispersion.png",
+   "status": 200,
+   "ctype": "image/png",
+   "bytes": 4096
+  },
+  {
+   "case": "figure_missing_name",
+   "url": "tensor/reports/970/figures/definitely_absent.png",
+   "status": 404,
+   "ctype": "application/json",
+   "bytes": 0
+  },
+  {
+   "case": "figure_traversal_dotdot",
+   "url": "tensor/reports/970/figures/../../../../etc/passwd",
+   "status": 401,
+   "ctype": "application/json",
+   "bytes": 0
+  },
+  {
+   "case": "figure_traversal_encoded",
+   "url": "tensor/reports/970/figures/..%2f..%2fmain.py",
+   "status": 401,
+   "ctype": "application/json",
+   "bytes": 0
+  },
+  {
+   "case": "auto_login_escape_hatch",
+   "url": "auth/auto-login",
+   "status": 200,
+   "ctype": "application/json",
+   "bytes": 613
+  }
+ ]
+}
