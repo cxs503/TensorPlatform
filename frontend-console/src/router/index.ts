@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory, RouteRecordRaw } from 'vue-router'
-import { getToken } from '@/api/request'
+import { ensureToken, getToken } from '@/api/request'
 
 const routes: RouteRecordRaw[] = [
   { path: '/login', name: 'login', component: () => import('@/views/LoginView.vue'),
@@ -18,6 +18,8 @@ const routes: RouteRecordRaw[] = [
         meta: { title: 'Run 详情' } },
       { path: 'reports', name: 'reports', component: () => import('@/views/ReportsView.vue'),
         meta: { title: '进展报告' } },
+      { path: 'papers', name: 'papers', component: () => import('@/views/PapersView.vue'),
+        meta: { title: '论文生产线' } },
       { path: 'executions/:id', name: 'execution-detail',
         component: () => import('@/views/ExecutionDetailView.vue'), meta: { title: '执行详情' } },
       { path: 'approvals', name: 'approvals', component: () => import('@/views/ApprovalsView.vue'),
@@ -46,10 +48,12 @@ const router = createRouter({
   routes,
 })
 
-router.beforeEach((to) => {
+router.beforeEach(async (to) => {
   if (to.meta.public) return true
   if (!getToken()) {
-    return { path: '/login', query: { redirect: to.fullPath } }
+    // 免登录（owner 2026-11-01）：auto-login 可用直接进入，不可用回落登录页
+    const ok = await ensureToken()
+    if (!ok) return { path: '/login', query: { redirect: to.fullPath } }
   }
   return true
 })
