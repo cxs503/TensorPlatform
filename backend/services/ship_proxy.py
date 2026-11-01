@@ -308,40 +308,114 @@ class ShipProxy:
 
 
 # ── 基准验证 ──────────────────────────────────────────
-# 内置参考数据（用于 benchmark_validate）
-BENCHMARK_REFERENCE = {
-    "resistance": {
-        # KVLCC2 典型工况参考值（Holtrop 方法）
-        "kvlcc2_full": {
-            "params": {
-                "length": 320.0, "beam": 58.0, "draft": 20.8,
-                "cb": 0.8098, "displacement": 310000, "speed": 15.0
-            },
-            "reference_rt": 2500.0,  # kN（参考值，允许 ±15%）
-            "tolerance_pct": 15.0,
+# 平台精度标准：对标参考值误差 >15% 不可接受（docs/QUALITY_BAR.md）。任何
+# tolerance_pct > POLICY_MAX_TOLERANCE_PCT 的门禁「永远不会失败」，按 PB-005
+# 不算门禁，必须显式 gate_enabled=False 而不是把阈值放大到能过。
+POLICY_MAX_TOLERANCE_PCT = 15.0
+
+# 基准参考值不再手抄 R_T / GM：一律由可复算的解析关系派生，避免基线腐坏。
+#   R_T = Ct · ½ ρ S V²            （Ct 为试验参考、ρ 为流体密度、S 为湿表面积）
+#   GM  = KB + BM − KG            （墙侧公式：KB=T/2, BM=I_wp/∇）
+# 审计工具：tools/audit/baseline_integrity.py（C1 恒等式/C5 跨库一致/C6 门禁策略）。
+
+
+def derive_rt_from_ct(
+    ct: float, rho: float, wetted_surface_m2: float, speed_ms: float
+) -> float:
+    """由总阻力系数反算总阻力 R_T [N]（Ct 恒等式）。"""
+    if speed_ms <= 0:
+        raise ValueError("speed_ms must be positive")
+    return ct * 0.5 * rho * wetted_surface_m2 * speed_ms ** 2
+
+
+def wall_sided_gm(
+    length: float, beam: float, draft: float, cb: float, kg: float
+) -> Dict[str, float]:
+    """墙侧假设下的解析初稳性高（方箱/驳船近似，用于基准值派生）。
+
+    KB = T/2，BM = I_wp/∇，GM = KB + BM − KG。
+    对舷侧近垂直的箱型驳船 Cb≈0.8-0.9 该式与静水力曲线积分一致到 ~1%。
+    """
+    kb = 0.5 * draft
+    displacement_volume = length * beam * draft * cb
+    waterplane_inertia = length * beam ** 3 / 12.0
+    bm = waterplane_inertia / displacement_volume
+    return {
+        "kb": kb,
+        "bm": bm,
+        "km": kb + bm,
+        "gm": kb + bm - kg,
+    }
+
+
+def _build_benchmark_reference() -> Dict[str, Any]:
+    """构造基准表：R_T / GM 全部由 Ct 恒等式与墙侧公式派生（零手抄）。"""
+    kvlcc2 = {
+        # KVLCC2 全尺度，取自 backend/data/benchmark_reference.json: KVLCC2-02
+        "ship_type": "KVLCC2",
+        "params": {
+            "length": 320.0, "beam": 58.0, "draft": 20.8,
+            "cb": 0.8098, "displacement": 307000, "speed": 15.0,
         },
-        # SUBOFF 模型（注意：Holtrop 对潜艇外形误差极大，honest-FAIL）
-        "suboff_model": {
-            "params": {
-                "length": 4.356, "beam": 0.508, "draft": 0.508,
-                "cb": 0.5, "displacement": 500, "speed": 3.0
-            },
-            "reference_rt": 15.0,  # N（实验参考值）
-            "tolerance_pct": 300.0,  # Holtrop 对 SUBOFF 误差可达 300%+
-            "note": "honest-FAIL: Holtrop 方法不适用于潜艇外形，误差 >300%",
+        "reference_ct": 0.0030,
+        "speed_ms": 7.717,               # 15 kn = 7.717 m/s（params.speed 为节）
+        "wetted_surface_m2": 25678.0,     # Holtrop 估算（dataset 无实测值）
+        "fluid_density_kg_m3": 1025.0,    # 海水 15 °C
+        "tolerance_pct": 15.0,
+        "gate_enabled": True,
+        "provenance": "Ct=0.0030 @15kn (SIMMAN/KVLCC2 基准库 KVLCC2-02)；"
+                      "R_T 由 Ct 恒等式派生",
+    }
+    suboff = {
+        # SUBOFF AFF-1（Roddy 1990），3 m/s，淡水
+        "ship_type": "SUBOFF",
+        "params": {
+            "length": 4.356, "beam": 0.508, "draft": 0.508,
+            "cb": 0.5, "displacement": 500, "speed": 3.0,
         },
-    },
-    "stability": {
-        "generic_barge": {
-            "params": {
-                "length": 80.0, "beam": 20.0, "draft": 4.0,
-                "cb": 0.85, "displacement": 10000, "kg": 5.0
-            },
-            "reference_gm": 3.5,
-            "tolerance_pct": 15.0,
-        },
-    },
-}
+        "reference_ct": 0.0038,
+        "speed_ms": 3.0,
+        "wetted_surface_m2": 5.42,
+        "fluid_density_kg_m3": 1000.0,    # 淡水
+        "tolerance_pct": 15.0,
+        "gate_enabled": False,            # Holtrop 对潜艇外形不成立 → 不作门禁
+        "status": "honest_fail_not_a_gate",
+        "note": "honest-FAIL: Holtrop 方法不适用于潜艇外形（Fr>0.4），"
+                "历史实现把容差放到 300% 使其恒过，等于没有门禁；"
+                "现改为 gate_enabled=False，结果以 WITHHELD 输出。",
+        "provenance": "Ct=0.0038 @3m/s (Roddy 1990, DTRC-90/012)；"
+                      "R_T 由 Ct 恒等式派生",
+    }
+    for case in (kvlcc2, suboff):
+        case["reference_rt"] = round(
+            derive_rt_from_ct(
+                case["reference_ct"], case["fluid_density_kg_m3"],
+                case["wetted_surface_m2"], case["speed_ms"],
+            ), 2)
+
+    barge_params = {
+        "length": 80.0, "beam": 20.0, "draft": 4.0,
+        "cb": 0.85, "displacement": 10000, "kg": 5.0,
+    }
+    barge_gm = wall_sided_gm(
+        barge_params["length"], barge_params["beam"], barge_params["draft"],
+        barge_params["cb"], barge_params["kg"],
+    )
+    barge = {
+        "params": barge_params,
+        "reference_gm": round(barge_gm["gm"], 3),   # 解析值 6.804 m（旧手抄值 3.5 m 错 ~94%）
+        "tolerance_pct": 15.0,
+        "gate_enabled": True,
+        "note": "墙侧公式解析基准（KB=T/2, BM=I_wp/∇, KG=5.0）；"
+                "旧手抄参考值 3.5 m 与解析值不符，已纠正。",
+        "provenance": f"解析式派生: KB={barge_gm['kb']:.3f}, BM={barge_gm['bm']:.3f}, "
+                      f"KM={barge_gm['km']:.3f}",
+    }
+    return {"resistance": {"kvlcc2_full": kvlcc2, "suboff_model": suboff},
+            "stability": {"generic_barge": barge}}
+
+
+BENCHMARK_REFERENCE = _build_benchmark_reference()
 
 
 async def benchmark_validate(
@@ -378,23 +452,53 @@ async def benchmark_validate(
     try:
         if calc_type == "resistance":
             result = await proxy.resistance(ref_data["params"])
-            computed = result.get("rt", 0)
-            reference = ref_data["reference_rt"]
             key = "rt"
+            reference = ref_data["reference_rt"]
         elif calc_type == "stability":
             result = await proxy.stability(ref_data["params"])
-            computed = result.get("gm", 0)
-            reference = ref_data["reference_gm"]
             key = "gm"
+            reference = ref_data["reference_gm"]
         else:
             return {"error": f"Unsupported calc_type: {calc_type}", "pass": False}
+
+        # 缺键不可静默按 0 处理：0 会被判成「100% 误差」的假结果（也是假门禁的反面）。
+        if not isinstance(result, dict) or key not in result:
+            return {
+                "case_name": case_name,
+                "calc_type": calc_type,
+                "params": ref_data["params"],
+                "error": f"upstream response missing '{key}'",
+                "reference_value": reference,
+                "status": "WITHHELD",
+                "pass": None,
+                "note": ref_data.get("note", ""),
+            }
+        computed = result[key]
+
+        # 恒过门禁（tolerance > 策略上限 or 显式 gate_enabled=False）不算验证：
+        # 照实输出 WITHHELD，不给出 pass=True 的假绿灯（PB-005）。
+        gate_on = bool(ref_data.get("gate_enabled", True))
+        tolerance = float(ref_data.get("tolerance_pct", POLICY_MAX_TOLERANCE_PCT))
+        if not gate_on or tolerance > POLICY_MAX_TOLERANCE_PCT:
+            return {
+                "case_name": case_name,
+                "calc_type": calc_type,
+                "params": ref_data["params"],
+                "computed_value": round(float(computed), 4),
+                "reference_value": reference,
+                "tolerance_pct": tolerance,
+                "gate_enabled": gate_on,
+                "status": "WITHHELD",
+                "pass": None,
+                "note": ref_data.get("note", ""),
+                "reason": "case is not a gate (tolerance > policy max or gate_enabled=False)",
+            }
 
         if reference == 0:
             error_pct = float("inf") if computed != 0 else 0.0
         else:
             error_pct = abs(computed - reference) / abs(reference) * 100
 
-        tolerance = ref_data.get("tolerance_pct", 15.0)
         passed = error_pct <= tolerance
 
         return {
@@ -403,8 +507,11 @@ async def benchmark_validate(
             "params": ref_data["params"],
             "computed_value": round(computed, 4),
             "reference_value": reference,
+            "error_provenance": ref_data.get("provenance", ""),
             "error_pct": round(error_pct, 2),
             "tolerance_pct": tolerance,
+            "gate_enabled": gate_on,
+            "status": "PASS" if passed else "FAIL",
             "pass": passed,
             "note": ref_data.get("note", ""),
         }

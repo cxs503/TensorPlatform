@@ -153,10 +153,12 @@ class TestBenchmarkValidate:
         assert "kvlcc2_full" in BENCHMARK_REFERENCE["resistance"]
         assert "suboff_model" in BENCHMARK_REFERENCE["resistance"]
 
-    def test_suboff_honest_fail(self):
-        """SUBOFF case should have >300% tolerance (honest-FAIL)."""
+    def test_suboff_honest_fail_not_a_gate(self):
+        """SUBOFF is honest-FAIL: it must be excluded from the gate, not given a
+        300% tolerance (a threshold that can never fail is not a gate, PB-005)."""
         suboff = BENCHMARK_REFERENCE["resistance"]["suboff_model"]
-        assert suboff["tolerance_pct"] >= 300
+        assert suboff["tolerance_pct"] <= 15.0
+        assert suboff["gate_enabled"] is False
         assert "honest-FAIL" in suboff.get("note", "")
 
     @pytest.mark.asyncio
