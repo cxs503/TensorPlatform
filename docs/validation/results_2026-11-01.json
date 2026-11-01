@@ -1,0 +1,713 @@
+{
+  "generated": "2026-11-01",
+  "friction": {
+    "rows": [
+      {
+        "Re": 1000000.0,
+        "cf_ittc57": 0.0046875,
+        "cf_schoenherr": 0.00440943,
+        "rel_diff_pct": 6.306
+      },
+      {
+        "Re": 3162277.6601683795,
+        "cf_ittc57": 0.0037037,
+        "cf_schoenherr": 0.00356648,
+        "rel_diff_pct": 3.847
+      },
+      {
+        "Re": 10000000.0,
+        "cf_ittc57": 0.003,
+        "cf_schoenherr": 0.00293428,
+        "rel_diff_pct": 2.24
+      },
+      {
+        "Re": 31622776.60168379,
+        "cf_ittc57": 0.00247934,
+        "cf_schoenherr": 0.00244998,
+        "rel_diff_pct": 1.198
+      },
+      {
+        "Re": 100000000.0,
+        "cf_ittc57": 0.00208333,
+        "cf_schoenherr": 0.00207203,
+        "rel_diff_pct": 0.546
+      },
+      {
+        "Re": 316227766.01683795,
+        "cf_ittc57": 0.00177515,
+        "cf_schoenherr": 0.00177222,
+        "rel_diff_pct": 0.165
+      },
+      {
+        "Re": 1000000000.0,
+        "cf_ittc57": 0.00153061,
+        "cf_schoenherr": 0.00153094,
+        "rel_diff_pct": -0.021
+      }
+    ]
+  },
+  "wetted_surface": {
+    "rows": [
+      {
+        "hull": "KVLCC2",
+        "S_legacy_m2": 40958.43,
+        "S_holtrop_m2": 26710.98,
+        "S_box_bound_m2": 34284.8,
+        "legacy_exceeds_box": true,
+        "legacy_vs_box_pct": 19.47,
+        "holtrop_vs_box_pct": -22.09
+      },
+      {
+        "hull": "SUBOFF(axisym.)",
+        "S_legacy_m2": 4.36,
+        "S_holtrop_m2": 4.16,
+        "S_box_bound_m2": 7.15,
+        "legacy_exceeds_box": false,
+        "legacy_vs_box_pct": -39.08,
+        "holtrop_vs_box_pct": -41.84
+      }
+    ],
+    "sweep": [
+      {
+        "cb": 0.5,
+        "S_legacy": 12566.4,
+        "S_holtrop": 6644.3,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.54,
+        "S_legacy": 12767.4,
+        "S_holtrop": 6942.0,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.58,
+        "S_legacy": 12968.5,
+        "S_holtrop": 7243.7,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.62,
+        "S_legacy": 13169.6,
+        "S_holtrop": 7549.6,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.66,
+        "S_legacy": 13370.6,
+        "S_holtrop": 7859.5,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.7,
+        "S_legacy": 13571.7,
+        "S_holtrop": 8173.4,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.74,
+        "S_legacy": 13772.7,
+        "S_holtrop": 8491.2,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.78,
+        "S_legacy": 13973.8,
+        "S_holtrop": 8812.9,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.82,
+        "S_legacy": 14174.9,
+        "S_holtrop": 9122.5,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.86,
+        "S_legacy": 14375.9,
+        "S_holtrop": 9420.0,
+        "S_box": 11504.0
+      },
+      {
+        "cb": 0.9,
+        "S_legacy": 14577.0,
+        "S_holtrop": 9717.4,
+        "S_box": 11504.0
+      }
+    ]
+  },
+  "gate": {
+    "KVLCC2": {
+      "results": [
+        {
+          "case_id": "KVLCC2-01",
+          "ship_type": "KVLCC2",
+          "speed_ms": 7.202,
+          "froude_number": 0.1285,
+          "calc_ct": 0.001749,
+          "ref_ct": 0.0028,
+          "error_pct": 37.54,
+          "calc_rt_n": 1241820.8,
+          "wetted_surface_m2": 26710.982,
+          "form_factor": 1.162,
+          "cf_ittc57": 0.001412,
+          "correlation_allowance": 0.000108,
+          "reference_ct_viscous_estimate": 0.002571,
+          "wave_gap_pct": 37.54,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [],
+          "blockers": [],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "REAL(ITTC-1978)",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "KVLCC2-02",
+          "ship_type": "KVLCC2",
+          "speed_ms": 7.717,
+          "froude_number": 0.1377,
+          "calc_ct": 0.001717,
+          "ref_ct": 0.003,
+          "error_pct": 42.75,
+          "calc_rt_n": 1400152.06,
+          "wetted_surface_m2": 26710.982,
+          "form_factor": 1.162,
+          "cf_ittc57": 0.001401,
+          "correlation_allowance": 9e-05,
+          "reference_ct_viscous_estimate": 0.002773,
+          "wave_gap_pct": 42.75,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [],
+          "blockers": [],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "REAL(ITTC-1978)",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "KVLCC2-03",
+          "ship_type": "KVLCC2",
+          "speed_ms": 7.974,
+          "froude_number": 0.1423,
+          "calc_ct": 0.001703,
+          "ref_ct": 0.0031,
+          "error_pct": 45.08,
+          "calc_rt_n": 1482039.28,
+          "wetted_surface_m2": 26710.982,
+          "form_factor": 1.162,
+          "cf_ittc57": 0.001395,
+          "correlation_allowance": 8.1e-05,
+          "reference_ct_viscous_estimate": 0.002874,
+          "wave_gap_pct": 45.08,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [],
+          "blockers": [],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "REAL(ITTC-1978)",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "KVLCC2-04",
+          "ship_type": "KVLCC2",
+          "speed_ms": 8.231,
+          "froude_number": 0.1469,
+          "calc_ct": 0.001688,
+          "ref_ct": 0.0032,
+          "error_pct": 47.24,
+          "calc_rt_n": 1565808.5,
+          "wetted_surface_m2": 26710.982,
+          "form_factor": 1.162,
+          "cf_ittc57": 0.00139,
+          "correlation_allowance": 7.3e-05,
+          "reference_ct_viscous_estimate": 0.002975,
+          "wave_gap_pct": 47.24,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [],
+          "blockers": [],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "REAL(ITTC-1978)",
+            "wave": "NOT_SUPPORTED"
+          }
+        }
+      ],
+      "summary": {
+        "total_cases": 4,
+        "judged": 4,
+        "excluded_inconsistent": 0,
+        "excluded_case_ids": [],
+        "passed": 0,
+        "failed": 4,
+        "pass_rate": 0.0,
+        "mean_error_pct": 43.15,
+        "max_error_pct": 47.24,
+        "model_scope": "viscous lower bound (no wave-resistance model)",
+        "wave_model": "NOT_SUPPORTED",
+        "honest_note": "calc_ct omits wave/pressure resistance, so error_pct is an upper bound on the model-vs-experiment deviation. Rows whose own columns contradict each other are excluded and listed in excluded_case_ids."
+      },
+      "dataset": {
+        "description": "Benchmark reference dataset for ship resistance validation. Sources: Roddy 1990 (SUBOFF), ITTC V&V Workshop (DTMB-5415), SIMMAN 2008 (KVLCC2).",
+        "cases": 12
+      }
+    },
+    "SUBOFF": {
+      "results": [
+        {
+          "case_id": "SUBOFF-01",
+          "ship_type": "SUBOFF",
+          "speed_ms": 3.0,
+          "froude_number": 0.4589,
+          "calc_ct": 0.00307,
+          "ref_ct": 0.0038,
+          "error_pct": 19.2,
+          "calc_rt_n": 74.74,
+          "wetted_surface_m2": 5.42,
+          "form_factor": 1.0708,
+          "cf_ittc57": 0.002867,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.003597,
+          "wave_gap_pct": 19.2,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [
+            "RT_CT_MISMATCH(Ct_table=0.00380, Rt/(qS)=0.00051, 86%)"
+          ],
+          "blockers": [],
+          "warnings": [
+            "RT_CT_MISMATCH(Ct_table=0.00380, Rt/(qS)=0.00051, 86%)"
+          ],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(measured/computed input)",
+            "form_factor": "REAL(Hoerner 1965 closed form)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "SUBOFF-02",
+          "ship_type": "SUBOFF",
+          "speed_ms": 4.0,
+          "froude_number": 0.6119,
+          "calc_ct": 0.002926,
+          "ref_ct": 0.004,
+          "error_pct": 26.86,
+          "calc_rt_n": 126.6,
+          "wetted_surface_m2": 5.42,
+          "form_factor": 1.0708,
+          "cf_ittc57": 0.002732,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.003806,
+          "wave_gap_pct": 26.86,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [
+            "RT_CT_MISMATCH(Ct_table=0.00400, Rt/(qS)=0.00049, 88%)"
+          ],
+          "blockers": [],
+          "warnings": [
+            "RT_CT_MISMATCH(Ct_table=0.00400, Rt/(qS)=0.00049, 88%)"
+          ],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(measured/computed input)",
+            "form_factor": "REAL(Hoerner 1965 closed form)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "SUBOFF-03",
+          "ship_type": "SUBOFF",
+          "speed_ms": 5.0,
+          "froude_number": 0.7649,
+          "calc_ct": 0.00282,
+          "ref_ct": 0.0042,
+          "error_pct": 32.85,
+          "calc_rt_n": 190.7,
+          "wetted_surface_m2": 5.42,
+          "form_factor": 1.0708,
+          "cf_ittc57": 0.002634,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.004013,
+          "wave_gap_pct": 32.85,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [
+            "RT_CT_MISMATCH(Ct_table=0.00420, Rt/(qS)=0.00047, 89%)"
+          ],
+          "blockers": [],
+          "warnings": [
+            "RT_CT_MISMATCH(Ct_table=0.00420, Rt/(qS)=0.00047, 89%)"
+          ],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(measured/computed input)",
+            "form_factor": "REAL(Hoerner 1965 closed form)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "SUBOFF-04",
+          "ship_type": "SUBOFF",
+          "speed_ms": 6.0,
+          "froude_number": 0.9179,
+          "calc_ct": 0.002738,
+          "ref_ct": 0.0044,
+          "error_pct": 37.76,
+          "calc_rt_n": 266.63,
+          "wetted_surface_m2": 5.42,
+          "form_factor": 1.0708,
+          "cf_ittc57": 0.002557,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.004219,
+          "wave_gap_pct": 37.76,
+          "pass": false,
+          "status": "OK",
+          "quality_flags": [
+            "RT_CT_MISMATCH(Ct_table=0.00440, Rt/(qS)=0.00046, 89%)"
+          ],
+          "blockers": [],
+          "warnings": [
+            "RT_CT_MISMATCH(Ct_table=0.00440, Rt/(qS)=0.00046, 89%)"
+          ],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(measured/computed input)",
+            "form_factor": "REAL(Hoerner 1965 closed form)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        }
+      ],
+      "summary": {
+        "total_cases": 4,
+        "judged": 4,
+        "excluded_inconsistent": 0,
+        "excluded_case_ids": [],
+        "passed": 0,
+        "failed": 4,
+        "pass_rate": 0.0,
+        "mean_error_pct": 29.17,
+        "max_error_pct": 37.76,
+        "model_scope": "viscous lower bound (no wave-resistance model)",
+        "wave_model": "NOT_SUPPORTED",
+        "honest_note": "calc_ct omits wave/pressure resistance, so error_pct is an upper bound on the model-vs-experiment deviation. Rows whose own columns contradict each other are excluded and listed in excluded_case_ids."
+      },
+      "dataset": {
+        "description": "Benchmark reference dataset for ship resistance validation. Sources: Roddy 1990 (SUBOFF), ITTC V&V Workshop (DTMB-5415), SIMMAN 2008 (KVLCC2).",
+        "cases": 12
+      }
+    },
+    "DTMB-5415": {
+      "results": [
+        {
+          "case_id": "DTMB5415-01",
+          "ship_type": "DTMB-5415",
+          "speed_ms": 2.572,
+          "froude_number": 0.3434,
+          "calc_ct": 0.003035,
+          "ref_ct": 0.0045,
+          "error_pct": 32.55,
+          "calc_rt_n": 44.46,
+          "wetted_surface_m2": 4.437,
+          "form_factor": 1.08,
+          "cf_ittc57": 0.00281,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.004275,
+          "wave_gap_pct": 32.55,
+          "pass": null,
+          "status": "EXCLUDED_INCONSISTENT",
+          "quality_flags": [
+            "FROUDE_MISMATCH(table=0.061,V/sqrt(gL)=0.343)"
+          ],
+          "blockers": [
+            "FROUDE_MISMATCH(table=0.061,V/sqrt(gL)=0.343)"
+          ],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "DTMB5415-02",
+          "ship_type": "DTMB-5415",
+          "speed_ms": 5.144,
+          "froude_number": 0.6867,
+          "calc_ct": 0.00271,
+          "ref_ct": 0.0038,
+          "error_pct": 28.68,
+          "calc_rt_n": 158.79,
+          "wetted_surface_m2": 4.437,
+          "form_factor": 1.08,
+          "cf_ittc57": 0.002509,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.003599,
+          "wave_gap_pct": 28.68,
+          "pass": null,
+          "status": "EXCLUDED_INCONSISTENT",
+          "quality_flags": [
+            "FROUDE_MISMATCH(table=0.122,V/sqrt(gL)=0.687)",
+            "UNPHYSICAL_FROUDE(0.687)"
+          ],
+          "blockers": [
+            "FROUDE_MISMATCH(table=0.122,V/sqrt(gL)=0.687)",
+            "UNPHYSICAL_FROUDE(0.687)"
+          ],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "DTMB5415-03",
+          "ship_type": "DTMB-5415",
+          "speed_ms": 10.289,
+          "froude_number": 1.3735,
+          "calc_ct": 0.002435,
+          "ref_ct": 0.0035,
+          "error_pct": 30.44,
+          "calc_rt_n": 570.71,
+          "wetted_surface_m2": 4.437,
+          "form_factor": 1.08,
+          "cf_ittc57": 0.002254,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.00332,
+          "wave_gap_pct": 30.44,
+          "pass": null,
+          "status": "EXCLUDED_INCONSISTENT",
+          "quality_flags": [
+            "FROUDE_MISMATCH(table=0.244,V/sqrt(gL)=1.374)",
+            "UNPHYSICAL_FROUDE(1.374)"
+          ],
+          "blockers": [
+            "FROUDE_MISMATCH(table=0.244,V/sqrt(gL)=1.374)",
+            "UNPHYSICAL_FROUDE(1.374)"
+          ],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        },
+        {
+          "case_id": "DTMB5415-04",
+          "ship_type": "DTMB-5415",
+          "speed_ms": 15.433,
+          "froude_number": 2.0602,
+          "calc_ct": 0.002293,
+          "ref_ct": 0.0038,
+          "error_pct": 39.67,
+          "calc_rt_n": 1209.06,
+          "wetted_surface_m2": 4.437,
+          "form_factor": 1.08,
+          "cf_ittc57": 0.002123,
+          "correlation_allowance": 0.0,
+          "reference_ct_viscous_estimate": 0.00363,
+          "wave_gap_pct": 39.67,
+          "pass": null,
+          "status": "EXCLUDED_INCONSISTENT",
+          "quality_flags": [
+            "FROUDE_MISMATCH(table=0.366,V/sqrt(gL)=2.060)",
+            "UNPHYSICAL_FROUDE(2.060)"
+          ],
+          "blockers": [
+            "FROUDE_MISMATCH(table=0.366,V/sqrt(gL)=2.060)",
+            "UNPHYSICAL_FROUDE(2.060)"
+          ],
+          "warnings": [],
+          "method": "ittc57+form_factor+ca (viscous lower bound)",
+          "evidence": {
+            "friction": "REAL(ITTC-1957, cross-checked vs Schoenherr)",
+            "wetted_surface": "REAL(Holtrop&Mennen 1982 regression)",
+            "form_factor": "ESTIMATE(class default on Cb)",
+            "correlation_allowance": "disabled",
+            "wave": "NOT_SUPPORTED"
+          }
+        }
+      ],
+      "summary": {
+        "total_cases": 4,
+        "judged": 0,
+        "excluded_inconsistent": 4,
+        "excluded_case_ids": [
+          "DTMB5415-01",
+          "DTMB5415-02",
+          "DTMB5415-03",
+          "DTMB5415-04"
+        ],
+        "passed": 0,
+        "failed": 0,
+        "pass_rate": null,
+        "mean_error_pct": null,
+        "max_error_pct": null,
+        "model_scope": "viscous lower bound (no wave-resistance model)",
+        "wave_model": "NOT_SUPPORTED",
+        "honest_note": "calc_ct omits wave/pressure resistance, so error_pct is an upper bound on the model-vs-experiment deviation. Rows whose own columns contradict each other are excluded and listed in excluded_case_ids."
+      },
+      "dataset": {
+        "description": "Benchmark reference dataset for ship resistance validation. Sources: Roddy 1990 (SUBOFF), ITTC V&V Workshop (DTMB-5415), SIMMAN 2008 (KVLCC2).",
+        "cases": 12
+      }
+    }
+  },
+  "stability": {
+    "box": {
+      "beam_m": 20.0,
+      "draft_m": 8.0,
+      "depth_m": 12.0,
+      "kg_m": 6.0,
+      "bm_m": 4.1667,
+      "gm_m": 2.1667,
+      "deck_edge_heel_deg": 21.801
+    },
+    "rows": [
+      {
+        "heel_deg": 0.5,
+        "gz_numeric_m": 0.018909,
+        "gz_wall_sided_m": 0.018909,
+        "abs_diff_m": 1.527e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 2.0,
+        "gz_numeric_m": 0.075704,
+        "gz_wall_sided_m": 0.075704,
+        "abs_diff_m": 1.11e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 5.0,
+        "gz_numeric_m": 0.190227,
+        "gz_wall_sided_m": 0.190227,
+        "abs_diff_m": 1.11e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 10.0,
+        "gz_numeric_m": 0.387485,
+        "gz_wall_sided_m": 0.387485,
+        "abs_diff_m": 4.996e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 15.0,
+        "gz_numeric_m": 0.599488,
+        "gz_wall_sided_m": 0.599488,
+        "abs_diff_m": 6.661e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 20.0,
+        "gz_numeric_m": 0.835437,
+        "gz_wall_sided_m": 0.835437,
+        "abs_diff_m": 4.441e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 21.0,
+        "gz_numeric_m": 0.886477,
+        "gz_wall_sided_m": 0.886477,
+        "abs_diff_m": 4.441e-16,
+        "rel_diff_pct": 0.0,
+        "within_validity": true
+      },
+      {
+        "heel_deg": 22.0,
+        "gz_numeric_m": 0.938907,
+        "gz_wall_sided_m": 0.939043,
+        "abs_diff_m": 0.0001354,
+        "rel_diff_pct": 0.0144,
+        "within_validity": false
+      },
+      {
+        "heel_deg": 25.0,
+        "gz_numeric_m": 1.074087,
+        "gz_wall_sided_m": 1.107121,
+        "abs_diff_m": 0.03303,
+        "rel_diff_pct": 2.9838,
+        "within_validity": false
+      },
+      {
+        "heel_deg": 30.0,
+        "gz_numeric_m": 1.228253,
+        "gz_wall_sided_m": 1.430556,
+        "abs_diff_m": 0.2023,
+        "rel_diff_pct": 14.1416,
+        "within_validity": false
+      },
+      {
+        "heel_deg": 45.0,
+        "gz_numeric_m": 1.402428,
+        "gz_wall_sided_m": 3.005204,
+        "abs_diff_m": 1.603,
+        "rel_diff_pct": 53.3333,
+        "within_validity": false
+      },
+      {
+        "heel_deg": 60.0,
+        "gz_numeric_m": 1.141667,
+        "gz_wall_sided_m": 7.289047,
+        "abs_diff_m": 6.147,
+        "rel_diff_pct": 84.3372,
+        "within_validity": false
+      }
+    ]
+  },
+  "figures": {
+    "friction": "validation/figures/fig_friction_lines.png",
+    "surface": "validation/figures/fig_wetted_surface.png",
+    "gate": "validation/figures/fig_gate_ct_comparison.png",
+    "stability": "validation/figures/fig_gz_validity.png"
+  }
+}
