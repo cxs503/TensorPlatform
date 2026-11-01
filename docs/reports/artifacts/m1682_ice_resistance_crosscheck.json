@@ -1,0 +1,838 @@
+{
+  "harness": "tools/ice_resistance_crosscheck.py",
+  "implementations": {
+    "polar": "services/polar/resistance.py::ice_components (TP-POLAR-1)",
+    "lindqvist": "services/ice_resistance_uq.py::_lindqvist_raw (Lindqvist 1989)",
+    "twin": "services/digital_twin/models/resistance.py::lindqvist_ice_resistance"
+  },
+  "trial_cases": [
+    {
+      "key": "MV_Arctic",
+      "mean_resistance_kN": 4800.0,
+      "h": 1.0,
+      "sigma_mpa": 1.5,
+      "v": 3.0,
+      "mu": 0.15,
+      "calibration_factor": 1.0972000026095734
+    },
+    {
+      "key": "Polarstern",
+      "mean_resistance_kN": 1800.0,
+      "h": 0.8,
+      "sigma_mpa": 1.2,
+      "v": 2.5,
+      "mu": 0.12,
+      "calibration_factor": 1.0677257983469741
+    },
+    {
+      "key": "Terry_Fox",
+      "mean_resistance_kN": 850.0,
+      "h": 0.6,
+      "sigma_mpa": 1.0,
+      "v": 2.0,
+      "mu": 0.1,
+      "calibration_factor": 1.4098079387888838
+    }
+  ],
+  "P1_absolute": [
+    {
+      "ship": "MV_Arctic",
+      "trial_kN": 4800.0,
+      "h_m": 1.0,
+      "sigma_MPa": 1.5,
+      "v_ms": 3.0,
+      "polar_kN": 2198.0569165951893,
+      "polar_err_pct": -54.20714757093356,
+      "lindqvist_kN": 4373.778551137264,
+      "lindqvist_err_pct": -8.879613517973667,
+      "twin_kN": 2195.075786173811,
+      "twin_err_pct": -54.26925445471227
+    },
+    {
+      "ship": "Polarstern",
+      "trial_kN": 1800.0,
+      "h_m": 0.8,
+      "sigma_MPa": 1.2,
+      "v_ms": 2.5,
+      "polar_kN": 1098.5260470222972,
+      "polar_err_pct": -38.97077516542793,
+      "lindqvist_kN": 1685.5194897668582,
+      "lindqvist_err_pct": -6.360028346285655,
+      "twin_kN": 1140.7617654934324,
+      "twin_err_pct": -36.62434636147597
+    },
+    {
+      "ship": "Terry_Fox",
+      "trial_kN": 850.0,
+      "h_m": 0.6,
+      "sigma_MPa": 1.0,
+      "v_ms": 2.0,
+      "polar_kN": 439.2238331071803,
+      "polar_err_pct": -48.32660786974349,
+      "lindqvist_kN": 602.8118144631119,
+      "lindqvist_err_pct": -29.08096300433978,
+      "twin_kN": 470.50974636086323,
+      "twin_err_pct": -44.645912192839624
+    }
+  ],
+  "P2_components": [
+    {
+      "ship": "MV_Arctic",
+      "impl": "polar",
+      "crushing": 944.8557158514986,
+      "breaking": 1102.1412389251245,
+      "submersion": 151.05996181856628,
+      "total": 2198.0569165951893,
+      "submersion_share": 0.06872431768170933
+    },
+    {
+      "ship": "MV_Arctic",
+      "impl": "lindqvist",
+      "crushing": 1091.0254037844386,
+      "breaking": 400.0550456271145,
+      "submersion": 2867.845851725711,
+      "speed": 14.85225,
+      "total": 4373.778551137264,
+      "submersion_share": 0.655690684426631
+    },
+    {
+      "ship": "MV_Arctic",
+      "impl": "twin",
+      "crushing": 108.53932584269666,
+      "breaking": 36.63202247191012,
+      "submersion": 1855.2026842499686,
+      "total": 2195.075786173811,
+      "submersion_share": 0.8451656639535585
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "polar",
+      "crushing": 515.999755519277,
+      "breaking": 517.9333310061123,
+      "submersion": 64.59296049690816,
+      "total": 1098.5260470222972,
+      "submersion_share": 0.05879966221283152
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "lindqvist",
+      "crushing": 629.9193893450571,
+      "breaking": 170.82957649373563,
+      "submersion": 878.3642739280656,
+      "speed": 6.40625,
+      "total": 1685.5194897668582,
+      "submersion_share": 0.5211237717871546
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "twin",
+      "crushing": 81.35593220338984,
+      "breaking": 27.45762711864407,
+      "submersion": 895.9773821535326,
+      "total": 1140.7617654934324,
+      "submersion_share": 0.7854202422062951
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "polar",
+      "crushing": 200.79587594584203,
+      "breaking": 216.89607353635088,
+      "submersion": 21.531883624987394,
+      "total": 439.2238331071803,
+      "submersion_share": 0.049022575739265814
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "lindqvist",
+      "crushing": 227.41539539813235,
+      "breaking": 67.41324388829943,
+      "submersion": 305.76917517668016,
+      "speed": 2.214,
+      "total": 602.8118144631119,
+      "submersion_share": 0.5072381924846816
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "twin",
+      "crushing": 43.2,
+      "breaking": 14.58,
+      "submersion": 346.03377440624996,
+      "total": 470.50974636086323,
+      "submersion_share": 0.7354444346427101
+    }
+  ],
+  "P3_exponents": {
+    "analytic_breaking_exponent": 1.25,
+    "analytic_window_total": [
+      1.0,
+      2.0
+    ],
+    "by_impl": {
+      "polar": [
+        {
+          "ship": "MV_Arctic",
+          "h_m": 0.3,
+          "n_total": 1.3430382888720203,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.7667560132837342
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 0.6,
+          "n_total": 1.4569568799405157,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.250000000000058,
+          "n_submersion": 0.808971092616879
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 1.0,
+          "n_total": 1.5440860616391217,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.8380860868285814
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 1.5,
+          "n_total": 1.6125187695710002,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.8594456073267183
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 0.3,
+          "n_total": 1.4120544969126696,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.250000000000058,
+          "n_submersion": 0.7892441670840032
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 0.6,
+          "n_total": 1.529528052974617,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.2500000000001685,
+          "n_submersion": 0.8299832024556614
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 1.0,
+          "n_total": 1.6158684616142474,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.8573740290200031
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 1.5,
+          "n_total": 1.680884044364633,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.2499999999998364,
+          "n_submersion": 0.8771139476954741
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 0.3,
+          "n_total": 1.461197431290296,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.815872997264958
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 0.6,
+          "n_total": 1.5734605344139998,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.2500000000001685,
+          "n_submersion": 0.8540617822064733
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 1.0,
+          "n_total": 1.6550652128762389,
+          "n_crushing": 1.9999999999997962,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.8789958915182777
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 1.5,
+          "n_total": 1.7156490873135193,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.2499999999999472,
+          "n_submersion": 0.8966090348842256
+        }
+      ],
+      "lindqvist": [
+        {
+          "ship": "MV_Arctic",
+          "h_m": 0.3,
+          "n_total": 1.1001930221580043,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.084293195552928,
+          "n_submersion": 1.0000000000001108
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 0.6,
+          "n_total": 1.176238186103309,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.0942305817678513,
+          "n_submersion": 1.0000000000001108
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 1.0,
+          "n_total": 1.258761570844182,
+          "n_crushing": 1.9999999999997962,
+          "n_breaking": 1.1018378376592282,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 1.5,
+          "n_total": 1.3406390281574756,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.1080083712554039,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 0.3,
+          "n_total": 1.196995298213741,
+          "n_crushing": 2.000000000000128,
+          "n_breaking": 1.0971752795316665,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 0.6,
+          "n_total": 1.3219597583783889,
+          "n_crushing": 2.000000000000128,
+          "n_breaking": 1.1076447954366435,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 1.0,
+          "n_total": 1.4371798011721066,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.1155317893841172,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 1.5,
+          "n_total": 1.5349537312674975,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.121849678659566,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 0.3,
+          "n_total": 1.248862017392417,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.1081989266254477,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 0.6,
+          "n_total": 1.3905578951910775,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.1189318396226158,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 1.0,
+          "n_total": 1.5115182753036,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.1269085680336783,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 1.5,
+          "n_total": 1.6076722195427693,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.133232176055205,
+          "n_submersion": 1.0
+        }
+      ],
+      "twin": [
+        {
+          "ship": "MV_Arctic",
+          "h_m": 0.3,
+          "n_total": 1.0483059806226245,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 2.0000000000000173,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 0.6,
+          "n_total": 1.0776402533304716,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 2.0000000000000173,
+          "n_submersion": 0.9999999999998892
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 1.0,
+          "n_total": 1.1104846409634543,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.9999999999999067,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "MV_Arctic",
+          "h_m": 1.5,
+          "n_total": 1.1457921820324382,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.9999999999999067,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 0.3,
+          "n_total": 1.0808172912645369,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 2.000000000000128,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 0.6,
+          "n_total": 1.1282588086539769,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 2.000000000000128,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 1.0,
+          "n_total": 1.1790746014786118,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 2.0000000000000173,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Polarstern",
+          "h_m": 1.5,
+          "n_total": 1.2310067308617196,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.9999999999999067,
+          "n_submersion": 1.0000000000001108
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 0.3,
+          "n_total": 1.1243128277287966,
+          "n_crushing": 2.000000000000128,
+          "n_breaking": 2.000000000000128,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 0.6,
+          "n_total": 1.193679223924275,
+          "n_crushing": 2.000000000000128,
+          "n_breaking": 2.000000000000128,
+          "n_submersion": 1.0
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 1.0,
+          "n_total": 1.2637055910074433,
+          "n_crushing": 2.0000000000000173,
+          "n_breaking": 1.9999999999999067,
+          "n_submersion": 1.0000000000001108
+        },
+        {
+          "ship": "Terry_Fox",
+          "h_m": 1.5,
+          "n_total": 1.3308688087737026,
+          "n_crushing": 1.9999999999999067,
+          "n_breaking": 1.9999999999999067,
+          "n_submersion": 1.0000000000001108
+        }
+      ]
+    }
+  },
+  "P4_length_sensitivity": [
+    {
+      "ship": "MV_Arctic",
+      "dL_pct": 10.0,
+      "polar_dL_hi_pct": -0.27475941490095546,
+      "polar_dL_lo_pct": 0.3343342122381786,
+      "polar_spread_pct": 0.6090936271391341,
+      "lindqvist_dL_hi_pct": 6.556906844266313,
+      "lindqvist_dL_lo_pct": -6.556906844266313,
+      "lindqvist_spread_pct": 13.113813688532627,
+      "twin_dL_hi_pct": -1.4075848731494809,
+      "twin_dL_lo_pct": 1.7203815116271173,
+      "twin_spread_pct": 3.1279663847765984
+    },
+    {
+      "ship": "Polarstern",
+      "dL_pct": 10.0,
+      "polar_dL_hi_pct": -0.3087726076899065,
+      "polar_dL_lo_pct": 0.3738735691802831,
+      "polar_spread_pct": 0.6826461768701896,
+      "lindqvist_dL_hi_pct": 5.211237717871551,
+      "lindqvist_dL_lo_pct": -5.211237717871551,
+      "lindqvist_spread_pct": 10.422475435743102,
+      "twin_dL_hi_pct": -1.9507250708518618,
+      "twin_dL_lo_pct": 2.384219531041169,
+      "twin_spread_pct": 4.334944601893031
+    },
+    {
+      "ship": "Terry_Fox",
+      "dL_pct": 10.0,
+      "polar_dL_hi_pct": -0.28525738568723724,
+      "polar_dL_lo_pct": 0.34458497494193857,
+      "polar_spread_pct": 0.6298423606291758,
+      "lindqvist_dL_hi_pct": 5.072381924846812,
+      "lindqvist_dL_lo_pct": -5.072381924846812,
+      "lindqvist_spread_pct": 10.144763849693623,
+      "twin_dL_hi_pct": -2.405050594157174,
+      "twin_dL_lo_pct": 2.939506281747676,
+      "twin_spread_pct": 5.34455687590485
+    }
+  ],
+  "P5_invariants": [
+    {
+      "ship": "MV_Arctic",
+      "impl": "polar",
+      "R_at_h_1mm_kN": 1.8459832531678184,
+      "small_h_ratio": 0.0008398250469452191,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 16.147149828269143
+    },
+    {
+      "ship": "MV_Arctic",
+      "impl": "lindqvist",
+      "R_at_h_1mm_kN": 3.1498605680183793,
+      "small_h_ratio": 0.0007201691926536511,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 16.147149828269143
+    },
+    {
+      "ship": "MV_Arctic",
+      "impl": "twin",
+      "R_at_h_1mm_kN": 1.861504865656624,
+      "small_h_ratio": 0.0008480367180858809,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 16.147149828269143
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "polar",
+      "R_at_h_1mm_kN": 0.8829690311696062,
+      "small_h_ratio": 0.0008037761449198338,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 13.622624856890951
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "lindqvist",
+      "R_at_h_1mm_kN": 1.2427567373557862,
+      "small_h_ratio": 0.0007373137747150492,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 13.622624856890951
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "twin",
+      "R_at_h_1mm_kN": 1.1261508671100162,
+      "small_h_ratio": 0.0009871919809855334,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 13.622624856890951
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "polar",
+      "R_at_h_1mm_kN": 0.3555798291141057,
+      "small_h_ratio": 0.0008095640589415291,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 11.09809988551276
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "lindqvist",
+      "R_at_h_1mm_kN": 0.5836416289817451,
+      "small_h_ratio": 0.0009681987230153401,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 11.09809988551276
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "twin",
+      "R_at_h_1mm_kN": 0.5814215434322992,
+      "small_h_ratio": 0.0012357268854243262,
+      "small_h_finite": true,
+      "monotone_in_h": true,
+      "monotone_in_sigma": true,
+      "non_negative": true,
+      "dyn_amplification_at_1mm": 11.09809988551276
+    }
+  ],
+  "P6_speed": [
+    {
+      "ship": "MV_Arctic",
+      "impl": "polar",
+      "R_0.5v_ratio": 0.9888725787855883,
+      "R_1.5v_ratio": 1.011127421214412,
+      "speed_sensitivity_pct": 2.2254842428823673
+    },
+    {
+      "ship": "MV_Arctic",
+      "impl": "lindqvist",
+      "R_0.5v_ratio": 0.9974531889601261,
+      "R_1.5v_ratio": 1.0042446850664566,
+      "speed_sensitivity_pct": 0.6791496106330367
+    },
+    {
+      "ship": "MV_Arctic",
+      "impl": "twin",
+      "R_0.5v_ratio": 0.9556503345270332,
+      "R_1.5v_ratio": 1.0443496654729667,
+      "speed_sensitivity_pct": 8.869933094593343
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "polar",
+      "R_0.5v_ratio": 0.990929176822666,
+      "R_1.5v_ratio": 1.0090708231773342,
+      "speed_sensitivity_pct": 1.8141646354668122
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "lindqvist",
+      "R_0.5v_ratio": 0.9971494322497187,
+      "R_1.5v_ratio": 1.004750946250469,
+      "speed_sensitivity_pct": 0.7601514000750137
+    },
+    {
+      "ship": "Polarstern",
+      "impl": "twin",
+      "R_0.5v_ratio": 0.9404034969742117,
+      "R_1.5v_ratio": 1.0595965030257886,
+      "speed_sensitivity_pct": 11.919300605157693
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "polar",
+      "R_0.5v_ratio": 0.9928457340193533,
+      "R_1.5v_ratio": 1.0071542659806467,
+      "speed_sensitivity_pct": 1.4308531961293436
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "lindqvist",
+      "R_0.5v_ratio": 0.9972454089980322,
+      "R_1.5v_ratio": 1.0045909850032797,
+      "speed_sensitivity_pct": 0.7345576005247595
+    },
+    {
+      "ship": "Terry_Fox",
+      "impl": "twin",
+      "R_0.5v_ratio": 0.9291237084136192,
+      "R_1.5v_ratio": 1.0708762915863808,
+      "speed_sensitivity_pct": 14.17525831727616
+    }
+  ],
+  "P7_inter_impl_spread": [
+    {
+      "kN_polar": 2198.0569165951893,
+      "kN_lindqvist": 4373.778551137264,
+      "kN_twin": 2195.075786173811,
+      "ship": "MV_Arctic",
+      "max_kN": 4373.778551137264,
+      "min_kN": 2195.075786173811,
+      "spread_ratio": 1.9925410223585502
+    },
+    {
+      "kN_polar": 1098.5260470222972,
+      "kN_lindqvist": 1685.5194897668582,
+      "kN_twin": 1140.7617654934324,
+      "ship": "Polarstern",
+      "max_kN": 1685.5194897668582,
+      "min_kN": 1098.5260470222972,
+      "spread_ratio": 1.5343464038341974
+    },
+    {
+      "kN_polar": 439.2238331071803,
+      "kN_lindqvist": 602.8118144631119,
+      "kN_twin": 470.50974636086323,
+      "ship": "Terry_Fox",
+      "max_kN": 602.8118144631119,
+      "min_kN": 439.2238331071803,
+      "spread_ratio": 1.37244787059634
+    }
+  ],
+  "P8_submersion_form": [
+    {
+      "ship": "MV_Arctic",
+      "polar_contact_area_m2": 96.40819221708203,
+      "lindqvist_contact_area_m2": 2707.7675104872246,
+      "area_ratio_lindqvist_over_polar": 28.08648775811658,
+      "polar_submersion_kN": 151.05996181856628,
+      "lindqvist_submersion_kN": 2867.845851725711,
+      "submersion_ratio_lindqvist_over_polar": 18.984817798181343
+    },
+    {
+      "ship": "Polarstern",
+      "polar_contact_area_m2": 52.69553158204741,
+      "lindqvist_contact_area_m2": 1036.6693183160123,
+      "area_ratio_lindqvist_over_polar": 19.672812612240357,
+      "polar_submersion_kN": 64.59296049690816,
+      "lindqvist_submersion_kN": 878.3642739280656,
+      "submersion_ratio_lindqvist_over_polar": 13.598452016611157
+    },
+    {
+      "ship": "Terry_Fox",
+      "polar_contact_area_m2": 23.985406946192906,
+      "lindqvist_contact_area_m2": 481.16942184652646,
+      "area_ratio_lindqvist_over_polar": 20.060923832809944,
+      "polar_submersion_kN": 21.531883624987394,
+      "lindqvist_submersion_kN": 305.76917517668016,
+      "submersion_ratio_lindqvist_over_polar": 14.200762947735798
+    }
+  ],
+  "verdict": {
+    "checks": [
+      {
+        "id": "C1_polar_total_exponent_in_[0.9,2.1]",
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "C1_lindqvist_total_exponent_in_[0.9,2.1]",
+        "pass": true,
+        "failures": []
+      },
+      {
+        "id": "C2_polar_breaking_exponent_vs_1.250",
+        "pass": true,
+        "min": 1.2499999999998364,
+        "max": 1.2500000000001685
+      },
+      {
+        "id": "C2_lindqvist_breaking_exponent_vs_1.250",
+        "pass": true,
+        "min": 1.084293195552928,
+        "max": 1.133232176055205
+      },
+      {
+        "id": "C2_twin_breaking_exponent_vs_1.250",
+        "pass": false,
+        "min": 1.9999999999999067,
+        "max": 2.000000000000128
+      },
+      {
+        "id": "C3_polar_length_sensitivity_lt_15pct",
+        "pass": true,
+        "worst_dL_hi_pct": 0.3087726076899065
+      },
+      {
+        "id": "C3_lindqvist_length_sensitivity_lt_15pct",
+        "pass": true,
+        "worst_dL_hi_pct": 6.556906844266313
+      },
+      {
+        "id": "C3_twin_length_sensitivity_lt_15pct",
+        "pass": true,
+        "worst_dL_hi_pct": 2.405050594157174
+      },
+      {
+        "id": "C4_polar_invariants",
+        "pass": true
+      },
+      {
+        "id": "C4_lindqvist_invariants",
+        "pass": true
+      },
+      {
+        "id": "C4_twin_invariants",
+        "pass": true
+      },
+      {
+        "id": "C5_polar_MV_Arctic_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -54.20714757093356
+      },
+      {
+        "id": "C5_polar_Polarstern_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -38.97077516542793
+      },
+      {
+        "id": "C5_polar_Terry_Fox_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -48.32660786974349
+      },
+      {
+        "id": "C5_lindqvist_MV_Arctic_abs_err_lt_15pct",
+        "pass": true,
+        "err_pct": -8.879613517973667
+      },
+      {
+        "id": "C5_lindqvist_Polarstern_abs_err_lt_15pct",
+        "pass": true,
+        "err_pct": -6.360028346285655
+      },
+      {
+        "id": "C5_lindqvist_Terry_Fox_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -29.08096300433978
+      },
+      {
+        "id": "C5_twin_MV_Arctic_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -54.26925445471227
+      },
+      {
+        "id": "C5_twin_Polarstern_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -36.62434636147597
+      },
+      {
+        "id": "C5_twin_Terry_Fox_abs_err_lt_15pct",
+        "pass": false,
+        "err_pct": -44.645912192839624
+      }
+    ],
+    "n_checks": 20,
+    "n_pass": 12
+  }
+}
