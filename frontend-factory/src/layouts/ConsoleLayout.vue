@@ -17,6 +17,7 @@
           <el-badge v-if="pendingCount > 0" :value="pendingCount" class="tf-nav-badge" />
         </router-link>
         <router-link to="/sessions">执行追踪</router-link>
+        <router-link to="/reports">研究报告</router-link>
         <router-link to="/missions" class="tf-nav-mission">任务中心</router-link>
         <router-link to="/system">运行配置</router-link>
       </nav>

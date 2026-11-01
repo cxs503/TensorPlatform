@@ -1,0 +1,149 @@
+{
+  "card_id": "CAP-001",
+  "name": "TensorLBM 2D Cylinder Re=100",
+  "version": "1.0.0",
+  "repo": "TensorLBM",
+  "discipline": "general_fluid",
+  "interface": {
+    "input": {
+      "Re": {
+        "type": "number",
+        "description": "Reynolds number based on cylinder diameter",
+        "unit": "dimensionless",
+        "range": {
+          "min": 40,
+          "max": 300
+        }
+      },
+      "D": {
+        "type": "number",
+        "description": "Cylinder diameter in lattice units",
+        "unit": "lu",
+        "range": {
+          "min": 10,
+          "max": 80
+        }
+      },
+      "domain_size": {
+        "type": "object",
+        "description": "Computational domain [Lx, Ly] in lattice units"
+      },
+      "boundary_conditions": {
+        "type": "string",
+        "description": "Inlet: uniform velocity; Outlet: zero-gradient; Walls: slip or periodic"
+      }
+    },
+    "output": {
+      "C_D_mean": {
+        "type": "number",
+        "description": "Time-averaged drag coefficient",
+        "unit": "dimensionless"
+      },
+      "St": {
+        "type": "number",
+        "description": "Strouhal number (f*D/U)",
+        "unit": "dimensionless"
+      },
+      "C_L_rms": {
+        "type": "number",
+        "description": "RMS of lift coefficient",
+        "unit": "dimensionless"
+      },
+      "flow_field": {
+        "type": "string",
+        "description": "Velocity/pressure field snapshots",
+        "unit": "VTK"
+      }
+    },
+    "format": "JSON"
+  },
+  "applicability": {
+    "parameter_domain": {
+      "Re": {
+        "min": 40,
+        "max": 300,
+        "unit": "dimensionless"
+      },
+      "Ma": {
+        "min": 0,
+        "max": 0.17,
+        "unit": "dimensionless"
+      }
+    },
+    "regime": "laminar vortex shedding (2D)",
+    "geometry_type": "circular cylinder",
+    "dimensionality": "2D"
+  },
+  "dependencies": {
+    "code_version": "TensorLBM @ main (git commit frozen in RunManifest)",
+    "environment": {
+      "python": ">=3.10",
+      "cuda": ">=11.8",
+      "gpu_memory_gb": 8
+    },
+    "external_libraries": [
+      "numpy",
+      "taichi"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": true,
+    "min_gpu_memory_gb": 8,
+    "min_cpu_cores": 4,
+    "min_ram_gb": 16,
+    "estimated_runtime_hours": 2.0,
+    "storage_gb": 5
+  },
+  "validation_evidence": {
+    "report_id": "e2e1",
+    "report_md5": "96f84c5fa931467b9052e52a97fb5e2a",
+    "prereg_md5": "af20c79970712132604371186f10e93b",
+    "verification_status": "IN_PROGRESS",
+    "reference_values": {
+      "C_D_mean": {
+        "value": 1.33,
+        "tolerance": 0.07,
+        "source": "Braza1986/Liu&Zheng1998/Park1998 2D DNS consensus"
+      },
+      "St": {
+        "value": 0.165,
+        "tolerance": 0.006,
+        "source": "Williamson1989 universal relation"
+      }
+    },
+    "relative_error_pct": null,
+    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+  },
+  "failure_modes": [
+    {
+      "mode": "insufficient_statistics_window",
+      "symptom": "C_D mean not converged, oscillating",
+      "mitigation": "Ensure >=30 vortex shedding cycles after transient discard",
+      "severity": "major"
+    },
+    {
+      "mode": "boundary_reflection",
+      "symptom": "St shifted from reference",
+      "mitigation": "Use domain >=30D streamwise, >=15D cross-stream; verify with sensitivity study",
+      "severity": "major"
+    },
+    {
+      "mode": "Ma_too_high",
+      "symptom": "Compressibility artifacts in C_D",
+      "mitigation": "Keep Ma < 0.17; reduce U or increase c_s",
+      "severity": "critical"
+    }
+  ],
+  "created_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-01T00:00:00Z",
+  "status": "active",
+  "tags": [
+    "benchmark",
+    "2D",
+    "laminar",
+    "vortex_shedding",
+    "e2e1",
+    "prereg"
+  ],
+  "notes": "E2E-1 prereg frozen 2026-10-31. Hard gates: C_D mean in [1.28,1.42], St in [0.160,0.172]. Grid convergence required at >=3 resolutions (D/10, D/20, D/40)."
+}

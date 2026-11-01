@@ -1,0 +1,145 @@
+{
+  "card_id": "CAP-004",
+  "name": "TensorCAD DTMB 5415 Geometry Validation",
+  "version": "1.0.0",
+  "repo": "TensorCAD",
+  "discipline": "geometry",
+  "interface": {
+    "input": {
+      "cad_file": {
+        "type": "string",
+        "description": "CAD geometry file (IGES/STEP)",
+        "unit": "file"
+      },
+      "target_mesh": {
+        "type": "string",
+        "description": "Target mesh format for CFD",
+        "unit": "STL"
+      },
+      "tolerance": {
+        "type": "number",
+        "description": "Geometry deviation tolerance",
+        "unit": "m"
+      }
+    },
+    "output": {
+      "deviation_mean": {
+        "type": "number",
+        "description": "Mean deviation between CAD and meshed geometry",
+        "unit": "m"
+      },
+      "deviation_max": {
+        "type": "number",
+        "description": "Maximum deviation",
+        "unit": "m"
+      },
+      "deviation_pct_L": {
+        "type": "number",
+        "description": "Mean deviation as percentage of ship length",
+        "unit": "%"
+      },
+      "waterline_check": {
+        "type": "boolean",
+        "description": "Waterline accuracy check result"
+      },
+      "manifold_check": {
+        "type": "boolean",
+        "description": "Manifold/watertight check result"
+      }
+    },
+    "format": "JSON"
+  },
+  "applicability": {
+    "parameter_domain": {
+      "L_pp": {
+        "min": 50,
+        "max": 300,
+        "unit": "m"
+      },
+      "B": {
+        "min": 5,
+        "max": 50,
+        "unit": "m"
+      },
+      "T": {
+        "min": 2,
+        "max": 15,
+        "unit": "m"
+      }
+    },
+    "regime": "surface ship hull geometry",
+    "geometry_type": "DTMB 5415 (surface combatant)",
+    "dimensionality": "3D"
+  },
+  "dependencies": {
+    "code_version": "TensorCAD @ main",
+    "environment": {
+      "python": ">=3.10"
+    },
+    "external_libraries": [
+      "numpy",
+      "trimesh",
+      "open3d"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": false,
+    "min_gpu_memory_gb": null,
+    "min_cpu_cores": 4,
+    "min_ram_gb": 8,
+    "estimated_runtime_hours": 0.5,
+    "storage_gb": 2
+  },
+  "validation_evidence": {
+    "report_id": "dtmb5415_geometry",
+    "report_md5": "7fcb2df603f56da19c6f11b290eb251b",
+    "prereg_md5": null,
+    "verification_status": "PASS",
+    "reference_values": {
+      "deviation_mean": {
+        "value": 0.236,
+        "tolerance": 0.05,
+        "source": "DTMB 5415 dual-workpiece comparison"
+      },
+      "deviation_pct_L": {
+        "value": 0.17,
+        "tolerance": 0.05,
+        "source": "0.236m / L_pp = 0.17% (L_pp = 142.0m for DTMB 5415)"
+      }
+    },
+    "relative_error_pct": 0.17,
+    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+  },
+  "failure_modes": [
+    {
+      "mode": "non_manifold_geometry",
+      "symptom": "STL not watertight, volume computation fails",
+      "mitigation": "Run manifold check before CFD mesh generation; repair non-manifold edges",
+      "severity": "critical"
+    },
+    {
+      "mode": "excessive_deviation",
+      "symptom": "Mean deviation > 0.5% L_pp",
+      "mitigation": "Refine mesh resolution; check CAD import tolerance",
+      "severity": "major"
+    },
+    {
+      "mode": "waterline_mismatch",
+      "symptom": "Waterline position offset from design",
+      "mitigation": "Verify draft and trim settings; check coordinate system alignment",
+      "severity": "major"
+    }
+  ],
+  "created_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-01T00:00:00Z",
+  "status": "active",
+  "tags": [
+    "DTMB5415",
+    "geometry",
+    "CAD",
+    "validation",
+    "mesh_quality",
+    "surface_ship"
+  ],
+  "notes": "Dual-workpiece validation: mean deviation 0.236m = 0.17% L_pp (L_pp = 142.0m). Both STL water-tightness and manifold checks pass."
+}

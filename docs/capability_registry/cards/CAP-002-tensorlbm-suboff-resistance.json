@@ -1,0 +1,141 @@
+{
+  "card_id": "CAP-002",
+  "name": "TensorLBM SUBOFF Resistance",
+  "version": "1.0.0",
+  "repo": "TensorLBM",
+  "discipline": "resistance",
+  "interface": {
+    "input": {
+      "geometry": {
+        "type": "string",
+        "description": "SUBOFF submarine geometry (standard DARPA model)",
+        "unit": "STL"
+      },
+      "Re": {
+        "type": "number",
+        "description": "Reynolds number based on body length",
+        "unit": "dimensionless"
+      },
+      "tau": {
+        "type": "number",
+        "description": "TRT relaxation parameter (unique healing knob for stern-heavy singularity)",
+        "unit": "dimensionless",
+        "range": {
+          "min": 0.51,
+          "max": 2.0
+        }
+      },
+      "sail": {
+        "type": "boolean",
+        "description": "Include sail geometry"
+      }
+    },
+    "output": {
+      "C_T": {
+        "type": "number",
+        "description": "Total resistance coefficient",
+        "unit": "dimensionless"
+      },
+      "C_D": {
+        "type": "number",
+        "description": "Drag coefficient",
+        "unit": "dimensionless"
+      },
+      "pressure_field": {
+        "type": "string",
+        "description": "Pressure distribution on hull",
+        "unit": "VTK"
+      },
+      "velocity_field": {
+        "type": "string",
+        "description": "Wake velocity field",
+        "unit": "VTK"
+      }
+    },
+    "format": "JSON"
+  },
+  "applicability": {
+    "parameter_domain": {
+      "Re": {
+        "min": 100000.0,
+        "max": 10000000.0,
+        "unit": "dimensionless"
+      },
+      "tau_minus_half": {
+        "min": 0.0001,
+        "max": 1.0,
+        "unit": "dimensionless"
+      }
+    },
+    "regime": "turbulent (RANS/LES via LBM)",
+    "geometry_type": "axisymmetric body with sail (SUBOFF)",
+    "dimensionality": "3D"
+  },
+  "dependencies": {
+    "code_version": "TensorLBM @ main (PR #256-#278 merged, tau singularity fix)",
+    "environment": {
+      "python": ">=3.10",
+      "cuda": ">=11.8",
+      "gpu_memory_gb": 16
+    },
+    "external_libraries": [
+      "numpy",
+      "taichi"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": true,
+    "min_gpu_memory_gb": 16,
+    "min_cpu_cores": 8,
+    "min_ram_gb": 32,
+    "estimated_runtime_hours": 12.0,
+    "storage_gb": 20
+  },
+  "validation_evidence": {
+    "report_id": "suboff_sail",
+    "report_md5": "7a3504622026f3c4afa649e1486e7c36",
+    "prereg_md5": null,
+    "verification_status": "PASS",
+    "reference_values": {
+      "C_T_ballast": {
+        "value": 1.1290741584063078,
+        "tolerance": 0.05,
+        "source": "Four-tree md5 anchor (PR #275 tau staircase scan)"
+      }
+    },
+    "relative_error_pct": null,
+    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+  },
+  "failure_modes": [
+    {
+      "mode": "tau_near_singular_stern_heavy",
+      "symptom": "Negative resistance, stern mass accumulation",
+      "mitigation": "Tau is the unique healing knob: adjust tau away from near-singular (tau-0.5)~1.4e-3; run tau staircase scan to verify sign flip",
+      "severity": "critical"
+    },
+    {
+      "mode": "AMR_chain_reduction_artifact",
+      "symptom": "Domain-specific intrinsic behavior at near-singular tau with AMR",
+      "mitigation": "Use v3.4 uniform baseline A/B for cross-validation",
+      "severity": "major"
+    },
+    {
+      "mode": "insufficient_resolution",
+      "symptom": "Wake not resolved, C_T biased",
+      "mitigation": "Verify grid convergence; check boundary layer resolution",
+      "severity": "major"
+    }
+  ],
+  "created_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-01T00:00:00Z",
+  "status": "active",
+  "tags": [
+    "SUBOFF",
+    "resistance",
+    "3D",
+    "tau_singularity",
+    "submarine",
+    "DARPA"
+  ],
+  "notes": "Root cause closed: PR #256-#278. Tau is the unique healing knob for stern-heavy near-singular behavior. Four-tree md5 anchor: 1.1290741584063078. Do NOT re-examine 10 excluded root causes (operator/geometry/chain-leaf/interface/band/Ma/bookkeeping/relaxation/resolution/wall-mediated)."
+}
