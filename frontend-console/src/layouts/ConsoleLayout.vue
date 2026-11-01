@@ -13,13 +13,13 @@
         <router-link to="/" exact-active-class="is-active">运行总览</router-link>
         <router-link to="/runs">计算结果</router-link>
         <router-link to="/reports">进展报告</router-link>
+        <router-link to="/papers">论文生产线</router-link>
         <router-link to="/approvals" class="tf-nav-approval">
           人工审批
           <el-badge v-if="pendingCount > 0" :value="pendingCount" class="tf-nav-badge" />
         </router-link>
         <router-link to="/sessions">Agent 活动</router-link>
         <router-link to="/missions" class="tf-nav-mission">开发任务</router-link>
-        <router-link to="/provenance">谱系追溯</router-link>
         <router-link to="/system">系统状态</router-link>
       </nav>
 
