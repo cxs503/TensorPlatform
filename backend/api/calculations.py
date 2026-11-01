@@ -37,6 +37,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
+from services.hull_vibration import hull_girder_vibration
 from services.ship_resistance import ct_from_rt
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
@@ -710,3 +711,81 @@ async def get_timing_baseline():
         "baseline": baseline,
         "total_records": len(records),
     }
+
+# ---------------------------------------------------------------------------
+# Hull-girder vertical vibration (振动噪声域)
+# ---------------------------------------------------------------------------
+
+class HullVibrationRequest(BaseModel):
+    """Principal dimensions + midship plating; all lengths in metres."""
+
+    length: float = Field(320.0, gt=0, description="Length between perpendiculars (m)")
+    beam: float = Field(58.0, gt=0)
+    depth: float = Field(30.0, gt=0, description="Moulded depth to deck (m)")
+    draft: float = Field(20.8, gt=0)
+    t_deck: float = Field(0.035, gt=0, description="Deck plate thickness (m)")
+    t_bottom: float = Field(0.030, gt=0, description="Bottom plate thickness (m)")
+    t_side: float = Field(0.022, ge=0, description="Side shell thickness (m)")
+    cb: float = Field(0.82, gt=0, le=1.0)
+    rpm: Optional[float] = Field(90.0, gt=0, description="Propeller rpm (blade-rate check)")
+    n_blades: int = Field(4, ge=1)
+    added_mass_ratio: float = Field(
+        0.6,
+        ge=0.0,
+        le=2.0,
+        description="Empirical entrained-water mass as fraction of displaced water mass",
+    )
+    nonstructural_mass_per_m: float = Field(0.0, ge=0.0, description="kg/m (cargo, outfit)")
+    n_modes: int = Field(3, ge=1, le=8)
+    n_elements: int = Field(48, ge=8, le=256)
+    solver: str = Field("fem", description="fem | tmm | closed_form")
+    I_vertical_m4: Optional[float] = Field(
+        None, gt=0, description="Measured midship section inertia (m^4); overrides the box-girder idealisation"
+    )
+    steel_mass_per_m: Optional[float] = Field(
+        None, gt=0, description="Measured longitudinal steel mass per length (kg/m); overrides the idealisation"
+    )
+
+
+@router.post("/vibration/hull_girder")
+@timed_calc("vibration")
+async def calc_hull_girder_vibration(req: HullVibrationRequest):
+    """
+    Global vertical hull-girder natural frequencies (2-node, 3-node, ...).
+
+    Solves the free-free Euler-Bernoulli beam for the ship idealised as a
+    uniform girder with the midship box-girder ``EI`` and the distributed
+    (steel + entrained-water) mass.  Three mutually independent solvers are
+    available (``fem``, ``tmm``, ``closed_form``) so the caller can
+    cross-examine the number instead of trusting a single code path.
+
+    Verified against the exact free-free beam roots
+    (``docs/verification/hull_girder_vibration.md``); the added-mass
+    coefficient is an **empirical parameter** and is returned with a
+    sensitivity table.  Frequencies are *not* externally validated against a
+    full-scale measurement (none exists in this repository).
+    """
+    try:
+        result = hull_girder_vibration(
+            length_m=req.length,
+            beam_m=req.beam,
+            depth_m=req.depth,
+            draft_m=req.draft,
+            t_deck_m=req.t_deck,
+            t_bottom_m=req.t_bottom,
+            t_side_m=req.t_side,
+            cb=req.cb,
+            rpm=req.rpm,
+            n_blades=req.n_blades,
+            nonstructural_mass_per_m=req.nonstructural_mass_per_m,
+            added_mass_ratio=req.added_mass_ratio,
+            n_modes=req.n_modes,
+            n_elements=req.n_elements,
+            solver=req.solver,
+            I_vertical_m4=req.I_vertical_m4,
+            steel_mass_per_m=req.steel_mass_per_m,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
+
+    return result.as_dict()
