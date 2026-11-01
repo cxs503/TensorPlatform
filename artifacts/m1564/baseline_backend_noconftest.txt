@@ -1,0 +1,500 @@
+
+==================================== ERRORS ====================================
+____________ ERROR collecting tests/test_advanced_features_unit.py _____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_advanced_features_unit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_advanced_features_unit.py:9: in <module>
+    from api.advanced_features import (
+backend/api/advanced_features.py:13: in <module>
+    from services.nas_service import get_nas_service
+backend/services/nas_service.py:28: in <module>
+    from sklearn.model_selection import cross_val_score
+E   ModuleNotFoundError: No module named 'sklearn'
+_____________ ERROR collecting tests/test_algorithm_store_unit.py ______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_algorithm_store_unit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_algorithm_store_unit.py:8: in <module>
+    from api.algorithm_store import (
+backend/api/algorithm_store.py:18: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+__________ ERROR collecting tests/test_algorithm_upload_detection.py ___________
+ImportError while importing test module '/tmp/base577/backend/tests/test_algorithm_upload_detection.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_algorithm_upload_detection.py:9: in <module>
+    from api.algorithm_store import _infer_python_source_identity  # noqa: E402
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/api/algorithm_store.py:18: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+__________________ ERROR collecting tests/test_cache_unit.py ___________________
+ImportError while importing test module '/tmp/base577/backend/tests/test_cache_unit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_cache_unit.py:8: in <module>
+    from api.cache import (
+backend/api/cache.py:5: in <module>
+    from services.cache_service import CacheType, EvictionPolicy, get_cache_service
+backend/services/cache_service.py:15: in <module>
+    import redis
+E   ModuleNotFoundError: No module named 'redis'
+______________ ERROR collecting tests/test_data_analysis_sigma.py ______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_data_analysis_sigma.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_data_analysis_sigma.py:4: in <module>
+    from services.data_analysis_service import analyze_frame
+backend/services/data_analysis_service.py:11: in <module>
+    from sklearn.decomposition import PCA
+E   ModuleNotFoundError: No module named 'sklearn'
+___________ ERROR collecting tests/test_data_analysis_timeseries.py ____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_data_analysis_timeseries.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_data_analysis_timeseries.py:4: in <module>
+    from services.data_analysis_service import analyze_frame
+backend/services/data_analysis_service.py:11: in <module>
+    from sklearn.decomposition import PCA
+E   ModuleNotFoundError: No module named 'sklearn'
+_____________ ERROR collecting tests/test_docker_bundle_upload.py ______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_docker_bundle_upload.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_docker_bundle_upload.py:7: in <module>
+    from api.algorithm_store import _validate_artifact
+backend/api/algorithm_store.py:18: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+_______________ ERROR collecting tests/test_experiment_audit.py ________________
+ImportError while importing test module '/tmp/base577/backend/tests/test_experiment_audit.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_experiment_audit.py:10: in <module>
+    from services.experiment_runtime import (
+backend/services/experiment_runtime.py:21: in <module>
+    from utils.experiment_metrics import (
+backend/utils/experiment_metrics.py:13: in <module>
+    from prometheus_client import Counter, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+___________ ERROR collecting tests/test_experiment_observability.py ____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_experiment_observability.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_experiment_observability.py:10: in <module>
+    from prometheus_client import REGISTRY, generate_latest
+E   ModuleNotFoundError: No module named 'prometheus_client'
+______________ ERROR collecting tests/test_experiment_runtime.py _______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_experiment_runtime.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_experiment_runtime.py:9: in <module>
+    from services.experiment_runtime import (
+backend/services/experiment_runtime.py:21: in <module>
+    from utils.experiment_metrics import (
+backend/utils/experiment_metrics.py:13: in <module>
+    from prometheus_client import Counter, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+________ ERROR collecting tests/test_model_evaluation_dataset_policy.py ________
+ImportError while importing test module '/tmp/base577/backend/tests/test_model_evaluation_dataset_policy.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_model_evaluation_dataset_policy.py:7: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+______________ ERROR collecting tests/test_model_explain_shap.py _______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_model_explain_shap.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_model_explain_shap.py:9: in <module>
+    from sklearn.ensemble import RandomForestRegressor
+E   ModuleNotFoundError: No module named 'sklearn'
+_________ ERROR collecting tests/test_model_factory_experiment_apis.py _________
+ImportError while importing test module '/tmp/base577/backend/tests/test_model_factory_experiment_apis.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_model_factory_experiment_apis.py:9: in <module>
+    from api import causal_api, gan_training, gnn_training, recsys_training
+backend/api/causal_api.py:10: in <module>
+    from api.experiment_http import audit_actor, experiment_call
+backend/api/experiment_http.py:5: in <module>
+    from services.experiment_runtime import (
+backend/services/experiment_runtime.py:21: in <module>
+    from utils.experiment_metrics import (
+backend/utils/experiment_metrics.py:13: in <module>
+    from prometheus_client import Counter, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+____ ERROR collecting tests/test_model_factory_experiment_evidence_gate.py _____
+ImportError while importing test module '/tmp/base577/backend/tests/test_model_factory_experiment_evidence_gate.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_model_factory_experiment_evidence_gate.py:13: in <module>
+    from scripts.generate_model_factory_experiment_evidence import (
+scripts/generate_model_factory_experiment_evidence.py:32: in <module>
+    from services.experiment_runtime import (  # noqa: E402
+backend/services/experiment_runtime.py:21: in <module>
+    from utils.experiment_metrics import (
+backend/utils/experiment_metrics.py:13: in <module>
+    from prometheus_client import Counter, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+__________________ ERROR collecting tests/test_new_modules.py __________________
+ImportError while importing test module '/tmp/base577/backend/tests/test_new_modules.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_new_modules.py:13: in <module>
+    from main import app
+backend/main.py:66: in <module>
+    from api.domain import (
+backend/api/domain/data.py:13: in <module>
+    from api.datasource import router as datasource_router          # prefix="/datasources"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/api/datasource.py:13: in <module>
+    from services.datasource_service import get_datasource_manager
+backend/services/datasource_service.py:17: in <module>
+    from cryptography.fernet import Fernet, InvalidToken
+E   ModuleNotFoundError: No module named 'cryptography'
+_______________ ERROR collecting tests/test_pipeline_contract.py _______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_pipeline_contract.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_pipeline_contract.py:17: in <module>
+    from api.ml_pipeline import (
+backend/api/ml_pipeline.py:43: in <module>
+    from services.pipeline_observability import (
+backend/services/pipeline_observability.py:16: in <module>
+    from prometheus_client import Counter, Gauge, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+____________ ERROR collecting tests/test_pipeline_node_executor.py _____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_pipeline_node_executor.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_pipeline_node_executor.py:8: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+____________ ERROR collecting tests/test_pipeline_observability.py _____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_pipeline_observability.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_pipeline_observability.py:9: in <module>
+    from services.pipeline_observability import (
+backend/services/pipeline_observability.py:16: in <module>
+    from prometheus_client import Counter, Gauge, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+_____________ ERROR collecting tests/test_pipeline_orchestrator.py _____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_pipeline_orchestrator.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_pipeline_orchestrator.py:8: in <module>
+    from api.ml_pipeline import resume_pipeline_run, run_pipeline, run_resume_allowed
+backend/api/ml_pipeline.py:43: in <module>
+    from services.pipeline_observability import (
+backend/services/pipeline_observability.py:16: in <module>
+    from prometheus_client import Counter, Gauge, Histogram
+E   ModuleNotFoundError: No module named 'prometheus_client'
+______________ ERROR collecting tests/test_tensorphysics_runs.py _______________
+ImportError while importing test module '/tmp/base577/backend/tests/test_tensorphysics_runs.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_tensorphysics_runs.py:6: in <module>
+    from api.tensorphysics_runs import RunRegistration, _canonical_json, _digest
+backend/api/tensorphysics_runs.py:17: in <module>
+    from services.s3_stream import s3_client
+backend/services/s3_stream.py:11: in <module>
+    import boto3
+E   ModuleNotFoundError: No module named 'boto3'
+___________ ERROR collecting tests/test_training_adapter_registry.py ___________
+ImportError while importing test module '/tmp/base577/backend/tests/test_training_adapter_registry.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_training_adapter_registry.py:6: in <module>
+    from services.real_training_service import select_best_metrics, split_training_data
+backend/services/real_training_service.py:16: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+___________ ERROR collecting tests/test_training_progress_summary.py ___________
+ImportError while importing test module '/tmp/base577/backend/tests/test_training_progress_summary.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_training_progress_summary.py:3: in <module>
+    from api.real_training import _merge_live_run_summary
+backend/api/real_training.py:19: in <module>
+    from services.real_training_service import get_training_service, LIGHTGBM_AVAILABLE, XGBOOST_AVAILABLE, TORCH_AVAILABLE
+backend/services/real_training_service.py:16: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+___________ ERROR collecting tests/test_training_security_limits.py ____________
+ImportError while importing test module '/tmp/base577/backend/tests/test_training_security_limits.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_training_security_limits.py:8: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+_________ ERROR collecting tests/test_user_script_trainer_contract.py __________
+ImportError while importing test module '/tmp/base577/backend/tests/test_user_script_trainer_contract.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/tests/test_user_script_trainer_contract.py:12: in <module>
+    from services.real_training_service import (  # noqa: E402
+backend/services/real_training_service.py:16: in <module>
+    import joblib
+E   ModuleNotFoundError: No module named 'joblib'
+=============================== warnings summary ===============================
+backend/tests/feat/test_ship_batch.py:109
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:109: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:123
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:123: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:136
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:136: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:151
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:151: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:163
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:163: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:176
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:176: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:196
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:196: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:213
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:213: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:223
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:223: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/feat/test_ship_batch.py:229
+  /tmp/base577/backend/tests/feat/test_ship_batch.py:229: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+../../usr/lib64/python3.11/site-packages/torch/cuda/__init__.py:61
+  /usr/lib64/python3.11/site-packages/torch/cuda/__init__.py:61: FutureWarning: The pynvml package is deprecated. Please install nvidia-ml-py instead. If you did not install pynvml directly, please report this to the maintainers of the package that installed pynvml for you.
+    import pynvml  # type: ignore[import]
+
+backend/tests/test_api_key_unit.py:224
+  /tmp/base577/backend/tests/test_api_key_unit.py:224: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_api_key_unit.py:236
+  /tmp/base577/backend/tests/test_api_key_unit.py:236: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_auth_guard.py:129
+  /tmp/base577/backend/tests/test_auth_guard.py:129: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_cicd_unit.py:266
+  /tmp/base577/backend/tests/test_cicd_unit.py:266: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_cicd_unit.py:282
+  /tmp/base577/backend/tests/test_cicd_unit.py:282: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:36
+  /tmp/base577/backend/tests/test_code_generator_unit.py:36: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:50
+  /tmp/base577/backend/tests/test_code_generator_unit.py:50: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:63
+  /tmp/base577/backend/tests/test_code_generator_unit.py:63: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:82
+  /tmp/base577/backend/tests/test_code_generator_unit.py:82: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:95
+  /tmp/base577/backend/tests/test_code_generator_unit.py:95: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:109
+  /tmp/base577/backend/tests/test_code_generator_unit.py:109: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:120
+  /tmp/base577/backend/tests/test_code_generator_unit.py:120: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:132
+  /tmp/base577/backend/tests/test_code_generator_unit.py:132: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:143
+  /tmp/base577/backend/tests/test_code_generator_unit.py:143: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:153
+  /tmp/base577/backend/tests/test_code_generator_unit.py:153: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:167
+  /tmp/base577/backend/tests/test_code_generator_unit.py:167: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:176
+  /tmp/base577/backend/tests/test_code_generator_unit.py:176: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:186
+  /tmp/base577/backend/tests/test_code_generator_unit.py:186: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_code_generator_unit.py:196
+  /tmp/base577/backend/tests/test_code_generator_unit.py:196: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_proxy.py:34
+  /tmp/base577/backend/tests/test_ship_proxy.py:34: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_proxy.py:60
+  /tmp/base577/backend/tests/test_ship_proxy.py:60: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_proxy.py:86
+  /tmp/base577/backend/tests/test_ship_proxy.py:86: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_proxy.py:105
+  /tmp/base577/backend/tests/test_ship_proxy.py:105: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_proxy.py:162
+  /tmp/base577/backend/tests/test_ship_proxy.py:162: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_proxy.py:173
+  /tmp/base577/backend/tests/test_ship_proxy.py:173: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_ship_timing.py:114
+  /tmp/base577/backend/tests/test_ship_timing.py:114: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_tenant_isolation.py:78
+  /tmp/base577/backend/tests/test_tenant_isolation.py:78: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+backend/tests/test_tenant_isolation.py:98
+  /tmp/base577/backend/tests/test_tenant_isolation.py:98: PytestUnknownMarkWarning: Unknown pytest.mark.asyncio - is this a typo?  You can register custom marks to avoid this warning - for details, see https://docs.pytest.org/en/stable/how-to/mark.html
+    @pytest.mark.asyncio
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+ERROR backend/tests/test_advanced_features_unit.py
+ERROR backend/tests/test_algorithm_store_unit.py
+ERROR backend/tests/test_algorithm_upload_detection.py
+ERROR backend/tests/test_cache_unit.py
+ERROR backend/tests/test_data_analysis_sigma.py
+ERROR backend/tests/test_data_analysis_timeseries.py
+ERROR backend/tests/test_docker_bundle_upload.py
+ERROR backend/tests/test_experiment_audit.py
+ERROR backend/tests/test_experiment_observability.py
+ERROR backend/tests/test_experiment_runtime.py
+ERROR backend/tests/test_model_evaluation_dataset_policy.py
+ERROR backend/tests/test_model_explain_shap.py
+ERROR backend/tests/test_model_factory_experiment_apis.py
+ERROR backend/tests/test_model_factory_experiment_evidence_gate.py
+ERROR backend/tests/test_new_modules.py
+ERROR backend/tests/test_pipeline_contract.py
+ERROR backend/tests/test_pipeline_node_executor.py
+ERROR backend/tests/test_pipeline_observability.py
+ERROR backend/tests/test_pipeline_orchestrator.py
+ERROR backend/tests/test_tensorphysics_runs.py
+ERROR backend/tests/test_training_adapter_registry.py
+ERROR backend/tests/test_training_progress_summary.py
+ERROR backend/tests/test_training_security_limits.py
+ERROR backend/tests/test_user_script_trainer_contract.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 24 errors during collection !!!!!!!!!!!!!!!!!!!
+39 warnings, 24 errors in 19.83s
+EXIT=2

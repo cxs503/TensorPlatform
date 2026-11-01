@@ -1,0 +1,49 @@
+........................................................F                [100%]
+=================================== FAILURES ===================================
+___ TestBenchmarkDatasetConsistency.test_reference_rows_satisfy_r_equals_ct ____
+
+self = <test_ship_calcs_verification.TestBenchmarkDatasetConsistency object at 0x7fffee785010>
+
+    def test_reference_rows_satisfy_r_equals_ct(self):
+        path = BACKEND_DIR / "data" / "benchmark_reference.json"
+        data = json.loads(path.read_text())
+        bad = []
+        for case in data["cases"]:
+            geom = case.get("geometry", {}) or {}
+            S = geom.get("wetted_surface_m2")
+            V = case.get("speed_ms")
+            ct = case.get("experimental_ct")
+            rt = case.get("experimental_rt_n")
+            if not (S and V and ct and rt):
+                continue
+            implied = 0.5 * RHO * S * V * V * ct
+            if abs(rt - implied) / implied > 0.05:
+                bad.append((case["case_id"], rt, round(implied, 2)))
+        # Known debt: the four SUBOFF rows are internally inconsistent (Rt is
+        # ~7x lower than their own Ct implies) and must not be used as criteria.
+>       assert {b[0] for b in bad} == {"SUBOFF-01", "SUBOFF-02", "SUBOFF-03", "SUBOFF-04"}
+E       AssertionError: assert set() == {'SUBOFF-01',..., 'SUBOFF-04'}
+E         
+E         Extra items in the right set:
+E         'SUBOFF-04'
+E         'SUBOFF-03'
+E         'SUBOFF-02'
+E         'SUBOFF-01'
+E         Use -v to get more diff
+
+tools/verif/test_ship_calcs_verification.py:197: AssertionError
+=============================== warnings summary ===============================
+../../../../usr/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /usr/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tools/verif/test_ship_calcs_verification.py::TestBenchmarkDatasetConsistency::test_reference_rows_satisfy_r_equals_ct
+1 failed, 56 passed, 1 warning in 2.53s
+EXIT=1
+.........................................                                [100%]
+41 passed in 0.75s

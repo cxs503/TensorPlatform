@@ -1,0 +1,14 @@
+ImportError while loading conftest '/tmp/base577/backend/tests/conftest.py'.
+backend/tests/conftest.py:6: in <module>
+    from main import app
+backend/main.py:66: in <module>
+    from api.domain import (
+backend/api/domain/data.py:13: in <module>
+    from api.datasource import router as datasource_router          # prefix="/datasources"
+    ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+backend/api/datasource.py:13: in <module>
+    from services.datasource_service import get_datasource_manager
+backend/services/datasource_service.py:17: in <module>
+    from cryptography.fernet import Fernet, InvalidToken
+E   ModuleNotFoundError: No module named 'cryptography'
+EXIT=4
