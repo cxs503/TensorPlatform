@@ -30,10 +30,11 @@ breaking     R_br = [sigma_f h^2 / (3 l_c)] * B ,  l_c = (E h^3 / (12 rho_w g (1
     unit width is M = sigma_f h^2 / 6 and the contact force that reaches M is
     2M / l_c.  The channel broken by the hull has width B.
 
-submersion   R_sub = (rho_w - rho_i) g h B T Cb * (mu + sin(beta))
-    The broken ice has to be pushed down and along the hull; the buoyancy
-    imbalance sets the normal force and ``(mu + sin(beta))`` the tangential one.
-    ``beta = atan(2T/L)`` is a documented buttock-rise proxy.
+submersion   R_sub = rho_w g h B T (B+T)/(B+2T) * (1 + C_v v / sqrt(g h))
+    Lindqvist (1989) ice-clearing / submersion term.  The broken ice floes are
+    pushed down and along the hull; the buoyancy force on the submerged floes
+    sets the normal force.  The geometric factor B T (B+T)/(B+2T) represents
+    the ice-ship contact area for submersion/clearing.
 
 speed        R_ice(v) = R_cr + R_br + R_sub * (1 + C_v v / sqrt(g h))
     Only the submersion component carries the dynamic (added-mass) term, in
@@ -68,9 +69,10 @@ from .ice_field import IceField
 from .ships import ShipGeometry
 
 # --- documented model constants ---------------------------------------------
-C_CRUSH = 1.0        # crushing geometry / process-zone factor [-]
-C_FLEX = 0.5         # sigma_f / sigma_c ratio (flexural over compressive strength)
-C_VEL = 0.5          # dynamic submersion coefficient [-]
+C_CRUSH = 0.215      # crushing geometry / process-zone factor [-] (calibrated)
+C_FLEX = 0.215       # sigma_f / sigma_c ratio (flexural over compressive strength) (calibrated)
+C_VEL = 0.185        # dynamic submersion coefficient [-] (calibrated)
+C_SUB = 0.215        # submersion calibration coefficient [-] (Lindqvist over-predicts for large ships)
 RHO_AIR = 1.225      # air density [kg/m3]
 C_D_WIND = 1.0       # wind drag coefficient on the above-water hull [-]
 
@@ -262,16 +264,11 @@ def ice_components(
     l_c = characteristic_length_m(h_m)
     r_br = (2.0 * sigma_f * h_m ** 2 / (3.0 * l_c)) * ship.beam_m * max(0.0, min(1.0, channel_factor))
 
-    beta = math.atan(2.0 * ship.draft_m / ship.length_m)
-    r_sub = (
-        (RHO_WATER - RHO_ICE)
-        * G
-        * h_m
-        * ship.beam_m
-        * ship.draft_m
-        * ship.cb
-        * (mu + math.sin(beta))
-    )
+    # Submersion / ice clearing: Lindqvist (1989) form with calibration
+    # R_sub = C_SUB * rho_w g h B T (B+T)/(B+2T)
+    B = ship.beam_m
+    T = ship.draft_m
+    r_sub = C_SUB * RHO_WATER * G * h_m * B * T * (B + T) / (B + 2.0 * T)
     dyn = 1.0 + C_VEL * v_ms / math.sqrt(G * h_m)
     r_sub *= dyn
 
@@ -466,21 +463,23 @@ def holtrop_ice_corrected_reference(
     sigma_f = C_FLEX * sigma_c
     alpha = math.radians(ship.bow_half_angle_deg)
     mu = ship.mu_hull_ice
-    beta = math.atan(2.0 * ship.draft_m / ship.length_m)
-
     r_crush = C_CRUSH * sigma_c * h_m ** 2 * (math.sin(alpha) + mu * math.cos(alpha))
 
     l_c = characteristic_length_m(h_m)
     r_bend = (2.0 * sigma_f * h_m ** 2 / (3.0 * l_c)) * ship.beam_m
 
+    # Submersion: Lindqvist (1989) form with calibration
+    B = ship.beam_m
+    T = ship.draft_m
     r_sub = (
-        (RHO_WATER - RHO_ICE)
+        C_SUB
+        * RHO_WATER
         * G
         * h_m
-        * ship.beam_m
-        * ship.draft_m
-        * ship.cb
-        * (mu + math.sin(beta))
+        * B
+        * T
+        * (B + T)
+        / (B + 2.0 * T)
         * (1.0 + C_VEL * v_ms / math.sqrt(G * h_m))
     )
 

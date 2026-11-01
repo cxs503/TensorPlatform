@@ -1,0 +1,54 @@
+{
+  "harness": "tools/ice_resistance_crosscheck.py",
+  "timestamp": "2026-11-01T00:00:00Z",
+  "criteria": {
+    "C1_monotonicity": {
+      "pass": true,
+      "R_ice_0.5m": 1442826.6490150066,
+      "R_ice_1.0m": 2948053.5792062143
+    },
+    "C2_breaking_exponent": {
+      "pass": true,
+      "value": 1.25,
+      "range": [
+        1.0,
+        1.3
+      ],
+      "analytical": 1.25
+    },
+    "C3_submersion_ratio": {
+      "pass": true,
+      "values": {
+        "handysize_bulker": 0.5336092895142346,
+        "pc6_bulker": 0.5597480110931784,
+        "aframax_tanker": 0.6418129492892682
+      },
+      "range": [
+        0.4,
+        0.9
+      ]
+    },
+    "C4_dimensional": {
+      "pass": true,
+      "message": "All components in valid range"
+    },
+    "C5_trial_error": {
+      "pass": true,
+      "errors_pct": {
+        "handysize_bulker": 5.927410299149424,
+        "pc6_bulker": -13.591110433179695,
+        "aframax_tanker": 14.74088551057737
+      },
+      "threshold_pct": 15.0
+    },
+    "total_thickness_exponent": {
+      "value": 1.0308647697691422,
+      "range": [
+        1.0,
+        2.0
+      ],
+      "pass": true
+    }
+  },
+  "overall_pass": true
+}

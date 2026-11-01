@@ -19,7 +19,8 @@ Lindqvist (1989) three-component model for continuous level ice:
 
     R_ice = (R_c + R_b) * (1 + 1.4 v / sqrt(g h)) + R_s
     R_c = 0.5 * sigma_c * h^2 * B / L                (crushing)
-    R_b = (27/64) * sigma_b * h^2 * B / L            (plate bending)
+    R_b = (27/64) * sigma_b * h^2 * B / l_c          (plate bending)
+    l_c = (E h^3 / (12 rho g (1-nu^2)))^{1/4}        (ice characteristic length)
     R_s = rho g h B T (B+T)/(B+2T)                   (submersion / clearing)
 
 Validation status: the ice term is an engineering model whose absolute level is
@@ -36,12 +37,30 @@ import numpy as np
 
 G = 9.80665
 
+# Ice mechanical properties (default values for sea ice)
+ICE_YOUNG_MODULUS = 5.0e9    # Pa (0.5-10 GPa range)
+ICE_POISSON_RATIO = 0.3      # [-]
+
 # Lindqvist's original submersion term over-predicts for large ships (documented
 # in the ice-resistance literature).  Engineering correction applied to R_s so
 # that the 0.6 m / 90 % / 5 kn condition lands at ~1 MN, inside the 0.5-1.0 MN
 # band reported for 1A-class bulkers.  Single-point calibration: the absolute
 # level keeps +/-40 % uncertainty and is *not* claimed to 3 %.
 SUBMERSION_COEFF = 0.55
+
+
+def _ice_characteristic_length(h: float, rho: float = 1025.0) -> float:
+    """Compute ice characteristic length l_c = (E h^3 / (12 rho g (1-nu^2)))^{1/4}.
+    
+    This is the characteristic length of an ice beam on an elastic foundation,
+    used in the breaking resistance formula.
+    """
+    if h <= 0.0:
+        return 0.0
+    return (
+        ICE_YOUNG_MODULUS * h ** 3
+        / (12.0 * rho * G * (1.0 - ICE_POISSON_RATIO ** 2))
+    ) ** 0.25
 
 
 # ---------------------------------------------------------------------------
@@ -155,14 +174,23 @@ def lindqvist_ice_resistance(
     sigma_b: float = 0.6e6,
     rho: float = 1025.0,
 ) -> Dict[str, float]:
-    """Level-ice resistance [N] with linear scaling on ice concentration."""
+    """Level-ice resistance [N] with linear scaling on ice concentration.
+    
+    Breaking term uses ice characteristic length l_c instead of ship length L,
+    giving the correct thickness exponent of 1.25 (analytical value).
+    """
     conc = float(min(max(ice_concentration, 0.0), 1.0))
     h = float(max(ice_thickness, 0.0))
     if conc <= 0.0 or h <= 0.0:
         return {"R_ice_N": 0.0, "Rc_N": 0.0, "Rb_N": 0.0, "Rs_N": 0.0, "Rs_raw_N": 0.0,
                 "ice_speed_factor": 1.0, "ice_concentration": conc, "ice_thickness_m": h}
+    
+    # Ice characteristic length for breaking term
+    l_c = _ice_characteristic_length(h, rho)
+    
     Rc = 0.5 * sigma_c * h * h * B / L
-    Rb = (27.0 / 64.0) * sigma_b * h * h * B / L
+    # Breaking term: use l_c instead of L (gives thickness exponent 1.25)
+    Rb = (27.0 / 64.0) * sigma_b * h * h * B / l_c
     Rs = SUBMERSION_COEFF * rho * G * h * B * T * (B + T) / (B + 2.0 * T)
     speed_factor = 1.0 + 1.4 * V / math.sqrt(G * h)
     Rice = (Rc + Rb) * speed_factor + Rs
@@ -176,6 +204,7 @@ def lindqvist_ice_resistance(
         "ice_speed_factor": speed_factor,
         "ice_concentration": conc,
         "ice_thickness_m": h,
+        "l_c_m": l_c,  # diagnostic: ice characteristic length
     }
 
 

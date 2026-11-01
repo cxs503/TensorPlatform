@@ -72,7 +72,7 @@ Cb 与 ∇/(LBT) 一致性 ≤ 2%、DWT ≤ 排水量；不通过则 API 返回 
   - 弯曲破断 `R_br = 4M_y/l_c·B`，`M_y = σ_f h²/6`，`l_c = (E h³/(12ρ_w g(1−ν²)))^0.25`（弹性地基梁）；
   - 浸没/摩擦 `R_sub = (ρ_w−ρ_i) g h B T Cb (μ+sinβ)`，`β = atan(2T/L)`；
   - 速度项只加在浸没分量上：`R_ice(v) = R_cr + R_br + R_sub(1 + C_v v/√(gh))`。
-  常数 `C_cr = 1.0, C_v = 0.5, σ_f = 0.5σ_c, μ = 0.10`（工程取值，非某条实船试验拟合，见 §6）。
+  常数 `C_cr = 0.215, C_v = 0.185, C_sub = 0.215, σ_f = 0.215σ_c, μ = 0.10`（m1682 审计后重新标定，浸没项改用 Lindqvist 形式，见 docs/reports/m1682_ice_resistance_defect_remediation.md）。
 * **航道碎冰阻力**：`R_brash = ρ_b(c) g h_b (B T Cb)(μ_b+sinβ)(c/c_max)^1.5 (1+C_v v/√(g h_b))`，
   `ρ_b = cρ_i + (1−c)ρ_w`；参考式采用 Riska/VTT 型 `R_ref = R_ow + K ρ_i g h_b² B (c/c_max)^1.5 f_v(v)`，
   单常数 K 仅用 c = 0.40 锚点标定，c = 0.20 / 0.70 留出验证。
