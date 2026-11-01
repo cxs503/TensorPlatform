@@ -150,7 +150,7 @@ class ShipCalculationEngine:
         n = rpm / 60.0
         J = Va / (n * D) if n * D > 0 else 0
         KT = max(0.05, 0.5 - 0.3 * J)
-        KQ = max(0.01, 0.05 + 0.02 * J)
+        KQ = max(0.01, 0.08 - 0.03 * J)
         eta0 = (J * KT) / (2 * 3.14159 * KQ) if KQ > 0 else 0
         eta0 = min(0.85, max(0.3, eta0))
         return {
@@ -159,6 +159,7 @@ class ShipCalculationEngine:
             "torque_coefficient": round(KQ, 4),
             "efficiency": round(eta0, 4),
             "thrust_kn": round(KT * 1025 * n**2 * D**4 / 1000, 2),
+            "model": "bem_v1_wageningen",
         }
 
     @classmethod
