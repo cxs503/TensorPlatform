@@ -72,6 +72,7 @@ def regular_response(
     KG: float,
     U: float = 0.0,
     n_sections: int = 41,
+    use_encounter_frequency: bool = False,
 ) -> Dict[str, float]:
     """Heave / pitch RAO of one regular wave component.
 
@@ -90,6 +91,12 @@ def regular_response(
     omega = float(max(omega, 1e-3))
     beta = math.radians(heading_deg)          # 180 deg = head seas
     k = omega ** 2 / G
+    # Encounter frequency (dispersion identity): omega_e = omega - k U cos(beta).
+    # The shipped default keeps the original zero-forward-speed behaviour; setting
+    # ``use_encounter_frequency=True`` puts omega_e in the modal ratio, which is where
+    # it physically belongs (m1679: without it the RAO is identical at 0 and 15 kn).
+    omega_e = omega - k * U * math.cos(beta)
+    omega_used = omega_e if use_encounter_frequency else omega
     xm, b, dx = _sections(hull, n_sections)
 
     A33 = hull.rho * math.pi * b ** 2 / 2.0     # [kg/m]
@@ -107,7 +114,7 @@ def regular_response(
     head = abs(math.cos(beta))                 # 1.0 in head seas, 0 in beam seas
 
     def modal(wn, zeta, factor):
-        r = omega / wn
+        r = omega_used / wn
         amp = smith * factor / math.sqrt((1.0 - r ** 2) ** 2 + (2.0 * zeta * r) ** 2)
         phase = math.degrees(math.atan2(2.0 * zeta * r, 1.0 - r ** 2))
         return amp, phase
@@ -116,6 +123,8 @@ def regular_response(
     rao_p, ph_p = modal(wn5, ZETA_PITCH, head)
     return {
         "omega": omega,
+        "omega_e": float(omega_e),
+        "encounter_frequency_applied": bool(use_encounter_frequency),
         "heave_rao": float(rao_h),
         "pitch_rao": float(rao_p),
         "heave_phase_deg": float(ph_h),
@@ -158,6 +167,7 @@ def irregular_seastate(
     n_sections: int = 41,
     fmin: float = 0.03,
     fmax: float = 0.50,
+    use_encounter_frequency: bool = False,
 ) -> Dict[str, float]:
     """Integrate the RAO over a JONSWAP sea state and add the added resistance."""
     Hs = float(max(Hs, 0.0))
@@ -165,7 +175,9 @@ def irregular_seastate(
     omega = np.linspace(2 * math.pi * fmin, 2 * math.pi * fmax, n_freq)
     S = jonswap(omega, Hs, Tp)
     dw = float(omega[1] - omega[0])
-    res = [regular_response(w, heading_deg, hull, KG, U, n_sections) for w in omega]
+    res = [regular_response(w, heading_deg, hull, KG, U, n_sections,
+                            use_encounter_frequency=use_encounter_frequency)
+           for w in omega]
     h = np.array([r["heave_rao"] for r in res])
     # pitch RAO is stored non-dimensional (theta / (k zeta_a)); restore rad/m
     p = np.array([r["pitch_rao"] * (r["omega"] ** 2 / G) for r in res])
@@ -180,6 +192,7 @@ def irregular_seastate(
         "pitch_rao_peak": float(p[i_peak]),
         "peak_period_s": float(2 * math.pi / omega[i_peak]),
         "natural_heave_period_s": res[i_peak]["natural_heave_period_s"],
+        "encounter_frequency_applied": bool(use_encounter_frequency),
         "R_aw_N": R_aw,
         "R_aw_kN": R_aw / 1e3,
         "Hs": Hs,
