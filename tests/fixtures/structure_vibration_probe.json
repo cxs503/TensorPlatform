@@ -1,0 +1,369 @@
+{
+  "base_url": "http://127.0.0.1:8001/api/v1",
+  "fixtures": {
+    "vib_base": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 6.67,
+        "twice_blade_frequency": 13.33,
+        "hull_natural_freq": 0.99,
+        "deck_natural_freq": 2.47,
+        "vertical_vibration": 2.12,
+        "longitudinal_vibration": 1.27,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_disp2x": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 6.67,
+        "twice_blade_frequency": 13.33,
+        "hull_natural_freq": 0.99,
+        "deck_natural_freq": 2.47,
+        "vertical_vibration": 2.12,
+        "longitudinal_vibration": 1.27,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_length_half_similar": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 13.33,
+        "twice_blade_frequency": 26.67,
+        "hull_natural_freq": 1.4,
+        "deck_natural_freq": 3.5,
+        "vertical_vibration": 2.24,
+        "longitudinal_vibration": 1.34,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_length_1p5_similar": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 4.44,
+        "twice_blade_frequency": 8.89,
+        "hull_natural_freq": 0.81,
+        "deck_natural_freq": 2.02,
+        "vertical_vibration": 2.08,
+        "longitudinal_vibration": 1.25,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_rpm60": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 5.0,
+        "twice_blade_frequency": 10.0,
+        "hull_natural_freq": 0.99,
+        "deck_natural_freq": 2.47,
+        "vertical_vibration": 2.09,
+        "longitudinal_vibration": 1.25,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_rpm120": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 10.0,
+        "twice_blade_frequency": 20.0,
+        "hull_natural_freq": 0.99,
+        "deck_natural_freq": 2.47,
+        "vertical_vibration": 2.18,
+        "longitudinal_vibration": 1.31,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_blades4": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 5.33,
+        "twice_blade_frequency": 10.67,
+        "hull_natural_freq": 0.99,
+        "deck_natural_freq": 2.47,
+        "vertical_vibration": 2.12,
+        "longitudinal_vibration": 1.27,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_draft2x": {
+      "status": 200,
+      "data": {
+        "blade_frequency": 6.67,
+        "twice_blade_frequency": 13.33,
+        "hull_natural_freq": 0.99,
+        "deck_natural_freq": 2.47,
+        "vertical_vibration": 2.12,
+        "longitudinal_vibration": 1.27,
+        "vibration_level": "良好",
+        "comfort_index": "舒适",
+        "resonance_risk": "低风险",
+        "method": "经验公式 + ISO 6954标准"
+      }
+    },
+    "vib_predict_a": {
+      "status": 200,
+      "data": {
+        "acceleration": 0.15,
+        "noise_level": 65.0,
+        "status": "合格"
+      }
+    },
+    "vib_predict_b": {
+      "status": 200,
+      "data": {
+        "acceleration": 0.15,
+        "noise_level": 65.0,
+        "status": "合格"
+      }
+    },
+    "vib_predict_q_draft": {
+      "status": 200,
+      "data": {
+        "acceleration": 0.15,
+        "noise_level": 65.0,
+        "status": "合格"
+      }
+    },
+    "struct_base": {
+      "status": 200,
+      "data": {
+        "max_stress": 6634808.9,
+        "allowable_stress": 141.0,
+        "utilization": 47055.382,
+        "fatigue_life": 0.0,
+        "status": "需校核"
+      }
+    },
+    "plate_base": {
+      "status": 200,
+      "data": {
+        "location": "船底板",
+        "critical_stress": 51.5,
+        "actual_stress": 117.5,
+        "safety_factor": 0.44,
+        "status": "需加强"
+      }
+    },
+    "struct_t2x": {
+      "status": 200,
+      "data": {
+        "max_stress": 6634808.9,
+        "allowable_stress": 141.0,
+        "utilization": 47055.382,
+        "fatigue_life": 0.0,
+        "status": "需校核"
+      }
+    },
+    "plate_t2x": {
+      "status": 200,
+      "data": {
+        "location": "船底板",
+        "critical_stress": 206.0,
+        "actual_stress": 117.5,
+        "safety_factor": 1.75,
+        "status": "合格"
+      }
+    },
+    "struct_D1p5x": {
+      "status": 200,
+      "data": {
+        "max_stress": 2948803.9,
+        "allowable_stress": 141.0,
+        "utilization": 20913.503,
+        "fatigue_life": 0.0,
+        "status": "需校核"
+      }
+    },
+    "plate_D1p5x": {
+      "status": 200,
+      "data": {
+        "location": "船底板",
+        "critical_stress": 51.5,
+        "actual_stress": 117.5,
+        "safety_factor": 0.44,
+        "status": "需加强"
+      }
+    },
+    "struct_disp2x": {
+      "status": 200,
+      "data": {
+        "max_stress": 13026772.8,
+        "allowable_stress": 141.0,
+        "utilization": 92388.46,
+        "fatigue_life": 0.0,
+        "status": "需校核"
+      }
+    },
+    "plate_disp2x": {
+      "status": 200,
+      "data": {
+        "location": "船底板",
+        "critical_stress": 51.5,
+        "actual_stress": 117.5,
+        "safety_factor": 0.44,
+        "status": "需加强"
+      }
+    },
+    "struct_yield355": {
+      "status": 200,
+      "data": {
+        "max_stress": 6634808.9,
+        "allowable_stress": 213.0,
+        "utilization": 31149.337,
+        "fatigue_life": 0.0,
+        "status": "需校核"
+      }
+    },
+    "struct_half_similar": {
+      "status": 200,
+      "data": {
+        "max_stress": 3438826.9,
+        "allowable_stress": 141.0,
+        "utilization": 24388.843,
+        "fatigue_life": 0.0,
+        "status": "需校核"
+      }
+    },
+    "struct_fatigue_base": {
+      "status": 200,
+      "data": {
+        "stress_range": 70.5,
+        "design_life": 25,
+        "calculated_life": 28.5,
+        "s_n_curve": "DNV-C",
+        "status": "合格"
+      }
+    },
+    "struct_fatigue_y355": {
+      "status": 200,
+      "data": {
+        "stress_range": 106.5,
+        "design_life": 25,
+        "calculated_life": 8.3,
+        "s_n_curve": "DNV-C",
+        "status": "需详细分析"
+      }
+    },
+    "fatigue_analyze_bsd": {
+      "status": 200,
+      "data": {
+        "total_damage": 0.589103,
+        "fatigue_life": 1.7,
+        "damage_distribution": [
+          {
+            "stress_range": 80.0,
+            "cycles": 1000000,
+            "fatigue_life": 2849246,
+            "damage": 0.35097
+          },
+          {
+            "stress_range": 50.0,
+            "cycles": 5000000,
+            "fatigue_life": 20996648,
+            "damage": 0.238133
+          }
+        ],
+        "safety_factor": 1.7,
+        "status": "警告",
+        "sn_curve_used": "BS-D",
+        "recommendations": [
+          "累积损伤较高，建议加强监测",
+          "考虑增加板厚或优化结构细节"
+        ]
+      }
+    },
+    "fatigue_curves": {
+      "status": 200,
+      "data": {
+        "curves": [
+          {
+            "id": "BS-B",
+            "m": 3.0,
+            "Sc": 101.2,
+            "description": "斜率m=3.0, 参考应力Sc=101.2 MPa"
+          },
+          {
+            "id": "BS-C",
+            "m": 3.0,
+            "Sc": 78.2,
+            "description": "斜率m=3.0, 参考应力Sc=78.2 MPa"
+          },
+          {
+            "id": "BS-D",
+            "m": 3.0,
+            "Sc": 53.4,
+            "description": "斜率m=3.0, 参考应力Sc=53.4 MPa"
+          },
+          {
+            "id": "BS-E",
+            "m": 3.0,
+            "Sc": 43.1,
+            "description": "斜率m=3.0, 参考应力Sc=43.1 MPa"
+          },
+          {
+            "id": "BS-F",
+            "m": 3.0,
+            "Sc": 33.6,
+            "description": "斜率m=3.0, 参考应力Sc=33.6 MPa"
+          },
+          {
+            "id": "BS-F2",
+            "m": 3.0,
+            "Sc": 28.6,
+            "description": "斜率m=3.0, 参考应力Sc=28.6 MPa"
+          },
+          {
+            "id": "BS-G",
+            "m": 3.0,
+            "Sc": 24.5,
+            "description": "斜率m=3.0, 参考应力Sc=24.5 MPa"
+          },
+          {
+            "id": "BS-W",
+            "m": 3.0,
+            "Sc": 18.5,
+            "description": "斜率m=3.0, 参考应力Sc=18.5 MPa"
+          },
+          {
+            "id": "DNVGL-B1",
+            "m": 3.0,
+            "Sc": 106.0,
+            "description": "斜率m=3.0, 参考应力Sc=106.0 MPa"
+          },
+          {
+            "id": "DNVGL-B2",
+            "m": 3.0,
+            "Sc": 84.0,
+            "description": "斜率m=3.0, 参考应力Sc=84.0 MPa"
+          }
+        ],
+        "standards": [
+          "BS 7608",
+          "DNVGL-RP-C203",
+          "IIW"
+        ]
+      }
+    }
+  }
+}
