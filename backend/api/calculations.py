@@ -29,9 +29,14 @@ import time
 from typing import Any, Dict, List, Optional
 
 from fastapi import APIRouter, HTTPException
-from pydantic import BaseModel, Field
+from pydantic import AliasChoices, BaseModel, Field
 
 from services.propulsion import actuator_disk, self_propulsion_point
+from services.stability_reference import (
+    exact_gz_box,
+    wall_sided_limit_deg,
+    wall_sided_gz,
+)
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -41,6 +46,10 @@ from services.ship_hydrostatics import (
 )
 
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
+
+# Conservative upper heel limit of the wall-sided identity when neither the hull
+# geometry (beam/draft/depth) nor an explicit caller limit is supplied.
+DEFAULT_WALL_SIDED_LIMIT_DEG = 25.0
 
 
 def _propeller_curves(kt_coefficients, kq_coefficients):
@@ -94,9 +103,21 @@ class ResistanceResponse(BaseModel):
 
 
 class StabilityRequest(BaseModel):
-    """Stability calculation request."""
+    """Stability calculation request.
+
+    ``beam_m`` / ``draft_m`` / ``depth_m`` are optional.  When beam and draft are
+    supplied the endpoint *derives* the exact heel limit of the wall-sided
+    identity and returns an independently integrated box-barge arm for
+    cross-checking; otherwise the conservative
+    ``DEFAULT_WALL_SIDED_LIMIT_DEG`` (or an explicit ``wall_sided_limit_deg``)
+    is used.  The same fields are also accepted under the short names posted by
+    ``services.ship_proxy`` (``beam`` / ``draft`` / ``depth`` / ``displacement``).
+    """
     ship_type: str = Field(default="generic", description="Hull type identifier")
-    displacement_t: float = Field(default=1000.0, gt=0, description="Displacement (tonnes)")
+    displacement_t: float = Field(
+        default=1000.0, gt=0, description="Displacement (tonnes)",
+        validation_alias=AliasChoices("displacement_t", "displacement"),
+    )
     gm_m: float = Field(default=1.0, gt=0, description="Metacentric height (m)")
     kb_m: float = Field(default=2.0, gt=0, description="KB (m)")
     bm_m: float = Field(default=3.0, gt=0, description="BM (m)")
@@ -104,18 +125,39 @@ class StabilityRequest(BaseModel):
         default=10.0,
         ge=0.0,
         le=90.0,
-        description="Heel angle (degrees). 90 deg is the tan() singularity and is rejected.",
+        description="Heel angle (degrees, 0 <= phi <= 90; heel magnitude). phi = 90 deg is "
+                    "the tan() singularity of the wall-sided form and is rejected with HTTP 400.",
     )
-    wall_sided_limit_deg: float = Field(
-        default=25.0,
+    wall_sided_limit_deg: Optional[float] = Field(
+        default=None,
         gt=0.0,
         lt=90.0,
-        description="Deck-edge immersion angle: upper validity limit of the wall-sided formula.",
+        description="Explicit upper validity limit override (deg). When omitted it is "
+                    "derived from beam/draft/depth, else DEFAULT_WALL_SIDED_LIMIT_DEG.",
+    )
+    beam_m: Optional[float] = Field(
+        default=None, gt=0, description="Beam (m); enables the analytic validity limit",
+        validation_alias=AliasChoices("beam_m", "beam"),
+    )
+    draft_m: Optional[float] = Field(
+        default=None, gt=0, description="Draft (m); enables the analytic validity limit",
+        validation_alias=AliasChoices("draft_m", "draft"),
+    )
+    depth_m: Optional[float] = Field(
+        default=None, gt=0, description="Moulded depth (m); defaults to 1.5 x draft",
+        validation_alias=AliasChoices("depth_m", "depth"),
     )
 
 
 class StabilityResponse(BaseModel):
-    """Stability calculation response."""
+    """Stability calculation response.
+
+    Two generations of validity reporting are exposed side by side so that both
+    consumer sets keep working: ``formula_valid`` / ``wall_sided_limit_deg``
+    (inline, m1384) and ``wall_sided_valid`` / ``heel_validity_limit_deg`` /
+    ``gz_box_exact_m`` (service-backed, m1386).  ``wall_sided_valid`` and
+    ``formula_valid`` carry the same verdict by construction.
+    """
     ship_type: str
     heel_angle_deg: float
     righting_arm_m: float
@@ -123,9 +165,13 @@ class StabilityResponse(BaseModel):
     gm_effective_m: float
     formula_valid: bool = True
     gz_basis: str = "wall_sided"
-    wall_sided_limit_deg: float = 25.0
+    wall_sided_limit_deg: float = DEFAULT_WALL_SIDED_LIMIT_DEG
     validity_note: str = ""
     computation_time_ms: float
+    wall_sided_valid: bool = True
+    heel_validity_limit_deg: Optional[float] = DEFAULT_WALL_SIDED_LIMIT_DEG
+    gz_box_exact_m: Optional[float] = None
+    validity_limit_source: str = "default"
 
 
 
@@ -277,56 +323,112 @@ async def calc_resistance(req: ResistanceRequest):
 @router.post("/stability", response_model=StabilityResponse)
 @timed_calc("stability")
 async def calc_stability(req: StabilityRequest):
-    """
-    Compute righting arm and moment at a given heel angle.
+    """Compute righting arm and moment at a given heel angle.
 
-    Uses the wall-sided formula: GZ = GM·sin(φ) + ½·BM·tan²(φ)·sin(φ)
+    The shipped closed form is the classic wall-sided identity
 
-    Validity: exact only for a wall-sided hull section, up to deck-edge
-    immersion (``wall_sided_limit_deg``). Beyond that limit the cubic term
-    over-predicts GZ without bound (the section has already lost its wall-sided
-    buoyancy wedge), so it is dropped: the response falls back to the linear
-    estimate ``GZ = GM*sin(phi)`` with ``gz_basis="linear_fallback"`` and
-    ``formula_valid=False``. That fallback is conservative, not a substitute for
-    a hydrostatics GZ curve. φ = 90 deg is the tan() singularity (GZ -> inf)
-    and is rejected.
+        GZ(phi) = GM*sin(phi) + 0.5*BM*tan(phi)**2*sin(phi)
+
+    which is *exact* only while the immersed section stays a parallel-sided
+    trapezoid -- i.e. below the first of bilge emergence (``tan(phi) = 2T/B``)
+    and deck-edge immersion (``tan(phi) = 2(D-T)/B``).
+
+    Adjudicated behaviour (m1564, one endpoint, one verdict):
+
+    * ``wall_sided_valid`` (= legacy ``formula_valid``) says whether the closed
+      form may be trusted at this heel. The limit is derived from the geometry
+      when beam/draft are supplied (``heel_validity_limit_deg``,
+      ``validity_limit_source="analytic"``), otherwise from an explicit
+      ``wall_sided_limit_deg`` (source ``"request"``) or the conservative
+      ``DEFAULT_WALL_SIDED_LIMIT_DEG`` (source ``"default"``).
+    * Inside the domain the arm is the wall-sided value itself
+      (``gz_basis="wall_sided"``), which the reference integration reproduces to
+      machine precision.
+    * Outside the domain the arm is *never* the unbounded wall-sided ray: with
+      geometry known the independently integrated constant-displacement box
+      solution is returned (``gz_basis="hydrostatics_box_exact"``) and mirrored
+      in ``gz_box_exact_m``; without geometry the bounded linear estimate
+      ``GM*sin(phi)`` is returned (``gz_basis="linear_fallback"``).
+    * ``|phi| >= 90 deg`` is the tan() singularity and is rejected with HTTP 400.
     """
     t0 = time.perf_counter()
 
-    if req.heel_angle_deg >= 90.0 - 1e-9:
+    phi_deg = req.heel_angle_deg
+    if not (-90.0 < phi_deg < 90.0):
         raise HTTPException(
             status_code=400,
             detail=(
-                "heel_angle_deg=90 deg is the tan() singularity of the wall-sided "
-                "formula (GZ -> inf); supply a GZ curve from hydrostatics instead"
+                f"heel_angle_deg={phi_deg} out of range (-90, 90): tan(phi)^2 is "
+                "unbounded (wall-sided singularity); supply a GZ curve from "
+                "hydrostatics instead"
             ),
         )
 
-    phi = math.radians(req.heel_angle_deg)
+    phi = math.radians(phi_deg)
     GM = req.gm_m
     BM = req.bm_m
-    disp = req.displacement_t * 1000  # tonnes → kg
-
+    disp = req.displacement_t * 1000  # tonnes -> kg
     sin_phi = math.sin(phi)
-    valid = req.heel_angle_deg <= req.wall_sided_limit_deg
-    if valid:
-        # Wall-sided formula
-        GZ = GM * sin_phi + 0.5 * BM * (math.tan(phi) ** 2) * sin_phi
-        gz_basis = "wall_sided"
-        note = "within wall-sided validity range (phi <= deck-edge immersion)"
+
+    # -- validity limit: analytic when the geometry is known -----------------
+    has_geometry = req.beam_m is not None and req.draft_m is not None
+    if has_geometry:
+        try:
+            limit = wall_sided_limit_deg(req.beam_m, req.draft_m, req.depth_m)
+        except ValueError as exc:
+            raise HTTPException(status_code=400, detail=str(exc)) from exc
+        limit_source = "analytic"
+        limit_text = f"analytic limit atan(2*min(T, D-T)/B) = {limit:.2f} deg"
+    elif req.wall_sided_limit_deg is not None:
+        limit = req.wall_sided_limit_deg
+        limit_source = "request"
+        limit_text = f"caller supplied limit = {limit:.2f} deg"
     else:
-        # Cubic term is unbounded above deck-edge immersion -> bounded fallback
+        limit = DEFAULT_WALL_SIDED_LIMIT_DEG
+        limit_source = "default"
+        limit_text = (
+            f"beam/draft not supplied; conservative default limit "
+            f"{DEFAULT_WALL_SIDED_LIMIT_DEG:.0f} deg assumed"
+        )
+
+    valid = abs(phi_deg) <= limit + 1e-9
+
+    # -- independent box-barge cross-check (constant displacement) -----------
+    gz_exact: Optional[float] = None
+    if has_geometry:
+        depth = req.depth_m if req.depth_m is not None else 1.5 * req.draft_m
+        kg = req.kb_m + req.bm_m - req.gm_m  # KG implied by the supplied hydrostatics
+        if depth > req.draft_m and 0.0 < kg < depth:
+            gz_exact = exact_gz_box(req.beam_m, req.draft_m, kg, phi, depth)["gz_m"]
+
+    # -- the arm that is actually shipped ------------------------------------
+    gz_wall = wall_sided_gz(GM, BM, phi)
+    if valid:
+        GZ = gz_wall
+        gz_basis = "wall_sided"
+        note = f"within wall-sided domain ({limit_text})"
+    elif gz_exact is not None:
+        GZ = gz_exact
+        gz_basis = "hydrostatics_box_exact"
+        note = (
+            f"OUTSIDE wall-sided domain ({limit_text}): cubic term is unbounded here, "
+            f"so the independently integrated box-barge arm is returned "
+            f"(wall-sided ray would give {gz_wall:.3f} m, "
+            f"{(gz_wall - gz_exact) / abs(gz_exact) * 100.0:+.1f}% off); "
+            "do not use the closed form for IS-Code areas or GZmax"
+        )
+    else:
         GZ = GM * sin_phi
         gz_basis = "linear_fallback"
         note = (
-            "phi exceeds wall_sided_limit_deg=%.1f deg: wall-sided cubic term dropped, "
-            "linear fallback GZ=GM*sin(phi); use a hydrostatics-derived GZ curve"
-            % req.wall_sided_limit_deg
+            f"OUTSIDE wall-sided domain ({limit_text}): cubic term dropped, bounded "
+            "linear fallback GZ=GM*sin(phi); supply beam/draft for the integrated "
+            "box-barge arm, or a hydrostatics-derived GZ curve for a real hull"
         )
 
     # Righting moment
     g = 9.81
-    RM = disp * g * GZ / 1000  # kN·m
+    RM = disp * g * GZ / 1000  # kN*m
 
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
@@ -338,9 +440,13 @@ async def calc_stability(req: StabilityRequest):
         gm_effective_m=round(GM, 4),
         formula_valid=valid,
         gz_basis=gz_basis,
-        wall_sided_limit_deg=req.wall_sided_limit_deg,
+        wall_sided_limit_deg=round(limit, 3),
         validity_note=note,
         computation_time_ms=round(elapsed_ms, 3),
+        wall_sided_valid=valid,
+        heel_validity_limit_deg=round(limit, 3),
+        gz_box_exact_m=None if gz_exact is None else round(gz_exact, 6),
+        validity_limit_source=limit_source,
     )
 
 

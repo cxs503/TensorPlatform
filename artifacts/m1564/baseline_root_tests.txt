@@ -1,0 +1,951 @@
+..F..........EEEEEEEEEEEEEEEEE.F.FFFFFFFFFFFF........................... [ 13%]
+........................................................................ [ 26%]
+........................................................................ [ 39%]
+.......x................................................................ [ 52%]
+........................................................................ [ 65%]
+........................................................................ [ 78%]
+........................................................................ [ 91%]
+............................................s                            [100%]
+==================================== ERRORS ====================================
+________________________ ERROR collecting tests/factory ________________________
+/usr/lib64/python3.11/importlib/__init__.py:126: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+<frozen importlib._bootstrap>:1204: in _gcd_import
+    ???
+<frozen importlib._bootstrap>:1176: in _find_and_load
+    ???
+<frozen importlib._bootstrap>:1147: in _find_and_load_unlocked
+    ???
+<frozen importlib._bootstrap>:690: in _load_unlocked
+    ???
+/root/ship-venv/lib64/python3.11/site-packages/_pytest/assertion/rewrite.py:185: in exec_module
+    exec(co, module.__dict__)
+tests/factory/conftest.py:9: in <module>
+    import pgserver
+E   ModuleNotFoundError: No module named 'pgserver'
+__________________ ERROR collecting tests/test_public_wall.py __________________
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlite3.OperationalError: table organizations already exists
+
+The above exception was the direct cause of the following exception:
+tests/test_public_wall.py:36: in <module>
+    db.execute(text(ddl))
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:1421: in execute
+    return meth(
+/usr/lib64/python3.11/site-packages/sqlalchemy/sql/elements.py:526: in _execute_on_connection
+    return connection._execute_clauseelement(
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:1643: in _execute_clauseelement
+    ret = self._execute_context(
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:1848: in _execute_context
+    return self._exec_single_context(
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:1988: in _exec_single_context
+    self._handle_dbapi_exception(
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:2365: in _handle_dbapi_exception
+    raise sqlalchemy_exception.with_traceback(exc_info[2]) from e
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/base.py:1969: in _exec_single_context
+    self.dialect.do_execute(
+/usr/lib64/python3.11/site-packages/sqlalchemy/engine/default.py:952: in do_execute
+    cursor.execute(statement, parameters)
+E   sqlalchemy.exc.OperationalError: (sqlite3.OperationalError) table organizations already exists
+E   [SQL: CREATE TABLE organizations (id INTEGER PRIMARY KEY, name TEXT)]
+E   (Background on this error at: https://sqlalche.me/e/20/e3q8)
+______ ERROR at setup of ArmTests.test_budgeted_arms_respect_token_budget ______
+
+cls = <class 'ail.test_ail_benchmark.ArmTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+__________ ERROR at setup of ArmTests.test_each_arm_is_deterministic ___________
+
+cls = <class 'ail.test_ail_benchmark.ArmTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_____________ ERROR at setup of ArmTests.test_four_arms_registered _____________
+
+cls = <class 'ail.test_ail_benchmark.ArmTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+________ ERROR at setup of ArmTests.test_nl_summary_is_smaller_than_raw ________
+
+cls = <class 'ail.test_ail_benchmark.ArmTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_____ ERROR at setup of ArmTests.test_raw_arm_is_by_far_the_most_expensive _____
+
+cls = <class 'ail.test_ail_benchmark.ArmTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+______________ ERROR at setup of ArmTests.test_unknown_arm_raises ______________
+
+cls = <class 'ail.test_ail_benchmark.ArmTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:108: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_ ERROR at setup of BenchmarkTests.test_ail_approaches_raw_unbudgeted_accuracy_at_fraction_of_cost _
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_ ERROR at setup of BenchmarkTests.test_ail_beats_baselines_on_recovery_at_T2 __
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_____ ERROR at setup of BenchmarkTests.test_ail_latency_same_order_as_raw ______
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_ ERROR at setup of BenchmarkTests.test_ail_uses_far_fewer_tokens_than_raw_natural _
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_ ERROR at setup of BenchmarkTests.test_all_arms_all_tiers_all_probes_present __
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+______ ERROR at setup of BenchmarkTests.test_bundles_roundtrip_from_jsonl ______
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_____ ERROR at setup of BenchmarkTests.test_corpus_metadata_has_checksums ______
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+____ ERROR at setup of BenchmarkTests.test_latency_measured_for_every_cell _____
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+__________ ERROR at setup of BenchmarkTests.test_limits_are_declared ___________
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_______ ERROR at setup of BenchmarkTests.test_summary_has_quad_breakdown _______
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_______ ERROR at setup of BenchmarkTests.test_tokenizer_caliber_recorded _______
+
+cls = <class 'ail.test_ail_benchmark.BenchmarkTests'>
+
+    @classmethod
+    def setUpClass(cls):
+>       cls.records = extract_all()
+                      ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:167: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+=================================== FAILURES ===================================
+_______ ProbeContractTests.test_gold_locators_point_at_real_source_files _______
+
+self = <ail.test_ail_benchmark.ProbeContractTests testMethod=test_gold_locators_point_at_real_source_files>
+
+    def test_gold_locators_point_at_real_source_files(self):
+        from pathlib import Path
+        from tools.ail import corpus
+    
+        for probe in PROBES:
+            locator = probe.gold.get("evidence_locator")
+            if not locator:
+                continue
+            candidate = corpus.ECOSYSTEM_ROOT / locator
+            if not candidate.is_file():
+                candidate = corpus.PLATFORM_ROOT / locator
+>           self.assertTrue(candidate.is_file(), f"{probe.probe_id}: {locator}")
+E           AssertionError: False is not true : tp-next-handoff: agent_memory/platform-operator/context.md
+
+tests/ail/test_ail_benchmark.py:44: AssertionError
+___________ CorpusPinningTests.test_benchmark_records_corpus_source ____________
+
+self = <ail.test_ail_benchmark.CorpusPinningTests testMethod=test_benchmark_records_corpus_source>
+
+    def test_benchmark_records_corpus_source(self):
+>       payload = run_benchmark(records=extract_all())
+                                        ^^^^^^^^^^^^^
+
+tests/ail/test_ail_benchmark.py:286: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_______________ CorpusSourceTests.test_all_three_corpora_present _______________
+
+self = <ail.test_ail_corpus.CorpusSourceTests testMethod=test_all_three_corpora_present>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_________ CorpusSourceTests.test_declared_sha256_matches_file_on_disk __________
+
+self = <ail.test_ail_corpus.CorpusSourceTests testMethod=test_declared_sha256_matches_file_on_disk>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+____ CorpusSourceTests.test_every_record_carries_source_sha256_and_pointer _____
+
+self = <ail.test_ail_corpus.CorpusSourceTests testMethod=test_every_record_carries_source_sha256_and_pointer>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+______________ CorpusSourceTests.test_extraction_is_deterministic ______________
+
+self = <ail.test_ail_corpus.CorpusSourceTests testMethod=test_extraction_is_deterministic>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_ CorpusSourceTests.test_source_paths_exist_and_are_outside_the_platform_worktree _
+
+self = <ail.test_ail_corpus.CorpusSourceTests testMethod=test_source_paths_exist_and_are_outside_the_platform_worktree>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:16: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_______________ ConversionTests.test_all_quads_have_source_items _______________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_all_quads_have_source_items>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_______________ ConversionTests.test_conversion_is_deterministic _______________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_conversion_is_deterministic>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+______________ ConversionTests.test_full_coverage_no_silent_skips ______________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_full_coverage_no_silent_skips>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+__________ ConversionTests.test_items_are_schema_valid_and_traceable ___________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_items_are_schema_valid_and_traceable>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+__________ ConversionTests.test_known_gold_values_survive_conversion ___________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_known_gold_values_survive_conversion>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+_______ ConversionTests.test_temporal_series_are_closed_not_conflicting ________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_temporal_series_are_closed_not_conflicting>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+________ ConversionTests.test_verification_never_upgraded_by_converter _________
+
+self = <ail.test_ail_corpus.ConversionTests testMethod=test_verification_never_upgraded_by_converter>
+
+    def setUp(self):
+>       self.records = corpus.extract_all()
+                       ^^^^^^^^^^^^^^^^^^^^
+
+tests/ail/test_ail_corpus.py:73: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tools/ail/corpus.py:551: in extract_all
+    records.extend(EXTRACTORS[name](retrieved_at=retrieved_at))
+                   ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tools/ail/corpus.py:306: in extract_tensorphysics
+    goal, gsha = _read_json(goal_path)
+                 ^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+path = PosixPath('/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json')
+
+    def _read_json(path: Path) -> tuple[dict, str]:
+        if not path.is_file():
+>           raise AILCorpusError(f"语料文件不存在：{path}")
+E           tools.ail.corpus.AILCorpusError: 语料文件不存在：/srv/tensor/shared/tensor_eco/TensorPhysics/outputs/wedge-icebreaking-s0/research_goal.json
+
+tools/ail/corpus.py:73: AILCorpusError
+=============================== warnings summary ===============================
+../../usr/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /usr/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+backend/database/config.py:148
+  /tmp/base577/tests/../backend/database/config.py:148: MovedIn20Warning: The ``declarative_base()`` function is now available as sqlalchemy.orm.declarative_base(). (deprecated since: 2.0) (Background on SQLAlchemy 2.0 at: https://sqlalche.me/e/b8d9)
+    Base = declarative_base()
+
+../../root/ship-venv/lib64/python3.11/site-packages/passlib/utils/__init__.py:854
+  /root/ship-venv/lib64/python3.11/site-packages/passlib/utils/__init__.py:854: DeprecationWarning: 'crypt' is deprecated and slated for removal in Python 3.13
+    from crypt import crypt as _crypt
+
+backend/api/auth.py:41
+  /tmp/base577/backend/api/auth.py:41: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    @validator("username")
+
+backend/api/auth.py:49
+  /tmp/base577/backend/api/auth.py:49: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    @validator("password")
+
+backend/api/auth.py:77
+  /tmp/base577/backend/api/auth.py:77: PydanticDeprecatedSince20: Pydantic V1 style `@validator` validators are deprecated. You should migrate to Pydantic V2 style `@field_validator` validators, see the migration guide for more details. Deprecated in Pydantic V2.0 to be removed in V3.0. See Pydantic V2 Migration Guide at https://errors.pydantic.dev/2.13/migration/
+    @validator("new_password")
+
+tests/test_extreme_ice_load.py::TestReturnPeriodMonotone::test_return_period_monotone_gumbel
+tests/test_extreme_ice_load.py::TestReturnPeriodMonotone::test_return_period_monotone_from_data
+tests/test_extreme_ice_load.py::TestExtremeIceLoad::test_kujala_comparison
+  /tmp/base577/backend/services/extreme_ice_load/extreme_ice_load.py:206: RuntimeWarning: divide by zero encountered in log
+    return mu - beta * np.log(-np.log(p))
+
+tests/test_pce_ice_resistance_uq.py::TestIceResistanceUQ::test_pce_ice_resistance_uq_pass
+  /root/ship-venv/lib64/python3.11/site-packages/_pytest/fixtures.py:1392: PytestRemovedIn10Warning: Class-scoped fixtures defined as instance methods are deprecated.
+  Instance attributes set in the 'uq_results' fixture will NOT be visible to test methods,
+  as each test gets a new instance while the fixture runs only once per class.
+  Use a @classmethod decorator below @pytest.fixture and set attributes on cls instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#class-scoped-fixture-as-instance-method
+    fixturefunc = resolve_fixture_function(fixturedef, request)
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/ail/test_ail_benchmark.py::ProbeContractTests::test_gold_locators_point_at_real_source_files
+FAILED tests/ail/test_ail_benchmark.py::CorpusPinningTests::test_benchmark_records_corpus_source
+FAILED tests/ail/test_ail_corpus.py::CorpusSourceTests::test_all_three_corpora_present
+FAILED tests/ail/test_ail_corpus.py::CorpusSourceTests::test_declared_sha256_matches_file_on_disk
+FAILED tests/ail/test_ail_corpus.py::CorpusSourceTests::test_every_record_carries_source_sha256_and_pointer
+FAILED tests/ail/test_ail_corpus.py::CorpusSourceTests::test_extraction_is_deterministic
+FAILED tests/ail/test_ail_corpus.py::CorpusSourceTests::test_source_paths_exist_and_are_outside_the_platform_worktree
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_all_quads_have_source_items
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_conversion_is_deterministic
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_full_coverage_no_silent_skips
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_items_are_schema_valid_and_traceable
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_known_gold_values_survive_conversion
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_temporal_series_are_closed_not_conflicting
+FAILED tests/ail/test_ail_corpus.py::ConversionTests::test_verification_never_upgraded_by_converter
+ERROR tests/factory - ModuleNotFoundError: No module named 'pgserver'
+ERROR tests/test_public_wall.py - sqlalchemy.exc.OperationalError: (sqlite3.O...
+ERROR tests/ail/test_ail_benchmark.py::ArmTests::test_budgeted_arms_respect_token_budget
+ERROR tests/ail/test_ail_benchmark.py::ArmTests::test_each_arm_is_deterministic
+ERROR tests/ail/test_ail_benchmark.py::ArmTests::test_four_arms_registered - ...
+ERROR tests/ail/test_ail_benchmark.py::ArmTests::test_nl_summary_is_smaller_than_raw
+ERROR tests/ail/test_ail_benchmark.py::ArmTests::test_raw_arm_is_by_far_the_most_expensive
+ERROR tests/ail/test_ail_benchmark.py::ArmTests::test_unknown_arm_raises - to...
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_ail_approaches_raw_unbudgeted_accuracy_at_fraction_of_cost
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_ail_beats_baselines_on_recovery_at_T2
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_ail_latency_same_order_as_raw
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_ail_uses_far_fewer_tokens_than_raw_natural
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_all_arms_all_tiers_all_probes_present
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_bundles_roundtrip_from_jsonl
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_corpus_metadata_has_checksums
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_latency_measured_for_every_cell
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_limits_are_declared
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_summary_has_quad_breakdown
+ERROR tests/ail/test_ail_benchmark.py::BenchmarkTests::test_tokenizer_caliber_recorded
+14 failed, 516 passed, 1 skipped, 1 xfailed, 10 warnings, 19 errors in 110.40s (0:01:50)
+EXIT=1

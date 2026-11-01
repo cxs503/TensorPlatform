@@ -1,0 +1,132 @@
+{
+  "kept": [
+    {
+      "path": "backend/services/stability_reference.py",
+      "source": "from c922a33 (m1386)",
+      "reason": "独立参考静水力：等排水量二维积分（Sutherland-Hodgman 裁剪 + 鞋带形心 + 二分吃水），与闭式解零共享代码；同时提供解析有效域 wall_sided_limit_deg 与 GZmax/误差包络工具。这是两代中唯一可作为「判据生成器」复用的层，故整体入库为正典服务层。"
+    },
+    {
+      "path": "backend/api/calculations.py::StabilityRequest(beam_m/draft_m/depth_m + alias)",
+      "source": "from c922a33 (m1386)",
+      "reason": "几何入参 + AliasChoices（beam/draft/depth/displacement）打通 services.ship_proxy 的投递格式；有效域由几何解析导出，取代常数 25° 猜测。"
+    },
+    {
+      "path": "backend/api/calculations.py::StabilityResponse(wall_sided_valid/heel_validity_limit_deg/gz_box_exact_m/validity_limit_source)",
+      "source": "from c922a33 (m1386)",
+      "reason": "显式有效域判定 + 独立交叉核 + 有效域来源，供下游程序化消费。"
+    },
+    {
+      "path": "backend/api/calculations.py::calc_stability(闭合式域内 / 积分臂域外 / 线性回退兜底)",
+      "source": "m1564 合成",
+      "reason": "域内保留两代一致且可证精确的闭式解；域外几何已知时改为返回积分臂（消除 genB 的有界性缺陷），几何未知时沿用 genA 的有界线性回退（消除无界输出）。"
+    },
+    {
+      "path": "backend/api/calculations.py::StabilityRequest(wall_sided_limit_deg 请求字段) / Response(formula_valid/gz_basis/wall_sided_limit_deg)",
+      "source": "from 577b14f5 (m1384+m1387)",
+      "reason": "向后兼容：既有调用方（tools/verif、前端、渲染脚本）按这些字段消费，保留不删。"
+    },
+    {
+      "path": "backend/api/calculations.py::HydrostaticsRequest + services/ship_hydrostatics.py + services/propulsion.py + 阻力段 wetted_surface 覆盖",
+      "source": "from 577b14f5 (m1384)",
+      "reason": "m1384 的静水力/螺旋桨/湿表面积增量已在服务层（ship_hydrostatics、propulsion 已被calc_* 端点调用）；本单只动稳性端点，这些增量原样保留，其测试（41 项静水力 + m1384 的 tools/verif 16 项）在本分支全绿。"
+    },
+    {
+      "path": "tests/test_m1386_stability_gz_validation.py",
+      "source": "from c922a33 (m1386，两处按裁决改写)",
+      "reason": "25 项复核测试保留；两处断言按裁决改写（见下「测试改写」），其余原样通过。"
+    },
+    {
+      "path": "tests/test_m1564_stability_canon.py",
+      "source": "m1564 新增",
+      "reason": "正典契约 15 项：域内闭式=积分、域外返回积分臂、无几何时有界、有效域来源、以及「为何两代单独都不可取」的可执行复现。"
+    },
+    {
+      "path": "artifacts/m1386/{analysis.py,results.json,results_tables.md,fig1..fig3}.png",
+      "source": "from c922a33 (m1386)",
+      "reason": "复核证据工件，随正典入库（只读证据，不改代码路径）。"
+    },
+    {
+      "path": "docs/research/m1386_stability_gz_validation.md",
+      "source": "from c922a33 (m1386)",
+      "reason": "复核研究文档，作为正典服务层的设计依据。"
+    },
+    {
+      "path": "artifacts/m1564/*",
+      "source": "m1564 新增",
+      "reason": "平行对照工具链（compare_generations.py）、两代数值对照表、误差包络图、test 签名对照日志。"
+    }
+  ],
+  "rejected": [
+    {
+      "object": "backend/api/calculations.py @ c922a33 整文件",
+      "action": "否决整块替换",
+      "reason": "该分支基线为 1b073a3（m1384 之前的 main），整块合并会删掉 main 侧 400 行级增量（Hydrostatics/propeller/wetted_surface 端点与模型）。本单只移植稳性相关增量。"
+    },
+    {
+      "object": "域外「返回闭式射线 + 仅打 flag」语义",
+      "action": "否决",
+      "reason": "有效域判定正确，但域外仍输出 tan² 无界值（40° 时 +90%，89° 时高 1e4 量级）——稳性工具给高估臂是最危险的一类缺陷，即便带 flag 也不接受。"
+    },
+    {
+      "object": "域外「丢弃 tan² 用 GM·sinφ」作为唯一兜底（genA 语义）",
+      "action": "部分否决",
+      "reason": "有界但不准：30/40/50° 三个规范关注角上最坏误差远超 15%（几何已知时不接受）；仅保留为「无几何输入」时的兜底分支。"
+    },
+    {
+      "object": "常数 25° 有效域默认值作为判定依据",
+      "action": "否决",
+      "reason": "浅吃水箱体真限 11.31°，常数 25° 会把非物理区判为可信（对照表「域外被误判 valid」列 genA(默认25°) = 3）。仅在既无几何又无显式限值时作为保守兜底保留。"
+    },
+    {
+      "object": "负横倾（signed heel）放行",
+      "action": "本单不做（WITHHELD）",
+      "reason": "genB 放宽到 -90..90。采纳需改 tools/verif 侧的 schema 契约测试，而该文件不在本单 EDIT_WHITELIST 内；本单保持 0..90（横倾幅值）语义，交 owner 决定是否开 signed。"
+    }
+  ],
+  "criteria": [
+    {
+      "criterion": "公式正确性（域内）",
+      "verdict": "genA = genB = canon",
+      "evidence": "三实现在 φ<φ_lim 内与积分基准差 <1e-9 m（见汇总一 + 25 项复核测试）",
+      "action": "无分歧，不构成裁决依据"
+    },
+    {
+      "criterion": "有效域判定",
+      "verdict": "genB/canon 胜",
+      "evidence": "genB 由 atan(2·min(T,D−T)/B) 解析导出，并报出来源；genA 只有常数 25°/调用方自填，浅吃水箱体把 25° 误判为可信",
+      "action": "genB 语义入正典"
+    },
+    {
+      "criterion": "域外输出有界性",
+      "verdict": "canon 胜（两代各有一半）",
+      "evidence": "genA 有界但不准（30–50° 最坏误差 >15%，浅箱体达 310%）；genB 准的只是 flag，臂值无界（89° 高于真值 1e4 量级）",
+      "action": "改为：几何已知返回积分臂；未知退线性回退"
+    },
+    {
+      "criterion": "可测性/复用",
+      "verdict": "genB 胜",
+      "evidence": "stability_reference.py 提供与闭式解零共享的参考积分、误差包络、GZmax、A40 可用积分；genA 无任何参考实现，只有端点内联公式",
+      "action": "服务层入正典"
+    },
+    {
+      "criterion": "几何输入/别名",
+      "verdict": "genB 胜",
+      "evidence": "beam/draft/depth + AliasChoices 打通 ship_proxy；genA 端点不接受几何，只能外部算好 GM/BM",
+      "action": "genB 语义入正典"
+    },
+    {
+      "criterion": "向后兼容",
+      "verdict": "genA 胜（字段面）",
+      "evidence": "genA 的 formula_valid / gz_basis / wall_sided_limit_deg 已被 tools/verif、渲染脚本消费",
+      "action": "两代字段并存，wall_sided_valid ≡ formula_valid"
+    },
+    {
+      "criterion": "单点线性回退的可疑巧合",
+      "verdict": "canon 胜",
+      "evidence": "genA 的 GM·sinφ 在 40° 偶然接近真值（算例1 1.2%），但同公式在 30°/50° 偏差 14.8%/30.6%——没有误差控制的兜底不可作正典",
+      "action": "仅作无几何兜底，且必须带 flag"
+    }
+  ],
+  "baseline": "577b14f5",
+  "canon": "agent/m1564"
+}

@@ -1,0 +1,444 @@
+{
+ "mission": "m1386",
+ "imo_indicators": [
+  {
+   "case": "A",
+   "gz_30_exact_m": 0.9782527428323555,
+   "gz_30_wall_m": 1.180555555555556,
+   "gz_40_exact_m": 1.0587687018552137,
+   "gz_40_wall_m": 2.0141859439115417,
+   "a30_exact_mrad": 0.25656123375051954,
+   "a30_wall_mrad": 0.2664701656400561,
+   "a40_exact_mrad": 0.17984223707881228,
+   "a40_wall_mrad": 0.2723138280386837,
+   "gzmax_exact_m": 1.0613084582278374,
+   "gzmax_wall_m": 5.556445391903274e+32,
+   "phi_vanishing_exact_deg": 78.30000000000001,
+   "phi_vanishing_wall_deg": null
+  },
+  {
+   "case": "B",
+   "gz_30_exact_m": 3.0835778827725284,
+   "gz_30_wall_m": 3.1481481481481475,
+   "gz_40_exact_m": 3.9138812674315098,
+   "gz_40_wall_m": 4.894529259565186,
+   "a30_exact_mrad": 0.7571507244949834,
+   "a30_wall_mrad": 0.7584514815091089,
+   "a40_exact_mrad": 0.6170803226546819,
+   "a40_wall_mrad": 0.6913724296457575,
+   "gzmax_exact_m": 4.138883146564943,
+   "gzmax_wall_m": 9.48300013551492e+32,
+   "phi_vanishing_exact_deg": null,
+   "phi_vanishing_wall_deg": null
+  },
+  {
+   "case": "C",
+   "gz_30_exact_m": 0.9498060281596913,
+   "gz_30_wall_m": 1.9305555555555554,
+   "gz_40_exact_m": 0.8079672141522445,
+   "gz_40_wall_m": 2.9783673584413504,
+   "a30_exact_mrad": 0.3507208054856889,
+   "a30_wall_mrad": 0.46743204720996173,
+   "a40_exact_mrad": 0.15496649129276116,
+   "a40_wall_mrad": 0.42228525951939244,
+   "gzmax_exact_m": 0.9653083674136601,
+   "gzmax_wall_m": 5.556445391903274e+32,
+   "phi_vanishing_exact_deg": 72.15,
+   "phi_vanishing_wall_deg": null
+  }
+ ],
+ "subject": "calc.stability wall-sided GZ vs exact box-barge hydrostatics",
+ "reference": "constant-displacement 2D hydrostatics, shoelace area/centroid + bisection sinkage",
+ "cases": [
+  {
+   "case": "A",
+   "label": "full-form barge",
+   "beam_m": 20.0,
+   "draft_m": 8.0,
+   "depth_m": 12.0,
+   "kg_m": 6.5,
+   "kb_m": 4.0,
+   "bm_m": 4.166666666666667,
+   "gm_m": 1.6666666666666679,
+   "wall_sided_limit_deg": 21.80140948635181,
+   "gz_max_exact_m": 1.0612950926049027,
+   "heel_at_gz_max_deg": 42.25,
+   "first_breach_3pct_deg": 25.0,
+   "first_breach_15pct_deg": 30.0,
+   "envelope": [
+    {
+     "heel_deg": 0.0,
+     "gz_exact_m": 0.0,
+     "gz_wall_sided_m": 0.0,
+     "abs_err_m": 0.0,
+     "rel_err_pct": NaN
+    },
+    {
+     "heel_deg": 5.0,
+     "gz_exact_m": 0.14664939053738746,
+     "gz_wall_sided_m": 0.14664939053738754,
+     "abs_err_m": 8.326672684688674e-17,
+     "rel_err_pct": 5.6779456458537646e-14
+    },
+    {
+     "heel_deg": 10.0,
+     "gz_exact_m": 0.30066140223219584,
+     "gz_wall_sided_m": 0.30066140223219523,
+     "abs_err_m": -6.106226635438361e-16,
+     "rel_err_pct": -2.0309313367475828e-13
+    },
+    {
+     "heel_deg": 15.0,
+     "gz_exact_m": 0.47007834888240563,
+     "gz_wall_sided_m": 0.4700783488824063,
+     "abs_err_m": 6.661338147750939e-16,
+     "rel_err_pct": 1.4170697637081203e-13
+    },
+    {
+     "heel_deg": 20.0,
+     "gz_exact_m": 0.6644270926746039,
+     "gz_wall_sided_m": 0.6644270926746033,
+     "abs_err_m": -5.551115123125783e-16,
+     "rel_err_pct": -8.354739269857533e-14
+    },
+    {
+     "heel_deg": 25.0,
+     "gz_exact_m": 0.862777702051686,
+     "gz_wall_sided_m": 0.8958123356316577,
+     "abs_err_m": 0.03303463357997172,
+     "rel_err_pct": 3.8288696499011663
+    },
+    {
+     "heel_deg": 30.0,
+     "gz_exact_m": 0.9782527428323555,
+     "gz_wall_sided_m": 1.180555555555556,
+     "abs_err_m": 0.2023028127232005,
+     "rel_err_pct": 20.68001487401599
+    },
+    {
+     "heel_deg": 35.0,
+     "gz_exact_m": 1.0363231717769987,
+     "gz_wall_sided_m": 1.5418339213237937,
+     "abs_err_m": 0.505510749546795,
+     "rel_err_pct": 48.77925760165993
+    },
+    {
+     "heel_deg": 40.0,
+     "gz_exact_m": 1.0587687018552137,
+     "gz_wall_sided_m": 2.0141859439115417,
+     "abs_err_m": 0.955417242056328,
+     "rel_err_pct": 90.23852333207533
+    },
+    {
+     "heel_deg": 45.0,
+     "gz_exact_m": 1.0488750587600464,
+     "gz_wall_sided_m": 2.6516504294495533,
+     "abs_err_m": 1.602775370689507,
+     "rel_err_pct": 152.80898876404473
+    },
+    {
+     "heel_deg": 50.0,
+     "gz_exact_m": 0.9774336709466844,
+     "gz_wall_sided_m": 3.5433970231698204,
+     "abs_err_m": 2.565963352223136,
+     "rel_err_pct": 262.5204582667892
+    },
+    {
+     "heel_deg": 60.0,
+     "gz_exact_m": 0.7086539647744496,
+     "gz_wall_sided_m": 6.856034446626803,
+     "abs_err_m": 6.147380481852354,
+     "rel_err_pct": 867.4728128853328
+    },
+    {
+     "heel_deg": 70.0,
+     "gz_exact_m": 0.34201370461236635,
+     "gz_wall_sided_m": 16.34405842540201,
+     "abs_err_m": 16.002044720789645,
+     "rel_err_pct": 4678.772957044555
+    },
+    {
+     "heel_deg": 80.0,
+     "gz_exact_m": -0.0722894964386338,
+     "gz_wall_sided_m": 67.63051832041899,
+     "abs_err_m": 67.70280781685761,
+     "rel_err_pct": 93655.11056551652
+    },
+    {
+     "heel_deg": 85.0,
+     "gz_exact_m": -0.28631857599348987,
+     "gz_wall_sided_m": 272.8039657609871,
+     "abs_err_m": 273.09028433698063,
+     "rel_err_pct": 95379.86956989825
+    },
+    {
+     "heel_deg": 89.0,
+     "gz_exact_m": -0.45745871807154526,
+     "gz_wall_sided_m": 6838.416033407736,
+     "abs_err_m": 6838.873492125807,
+     "rel_err_pct": 1494970.6327503473
+    }
+   ]
+  },
+  {
+   "case": "B",
+   "label": "slender hull",
+   "beam_m": 32.0,
+   "draft_m": 12.0,
+   "depth_m": 20.0,
+   "kg_m": 8.0,
+   "kb_m": 6.0,
+   "bm_m": 7.111111111111111,
+   "gm_m": 5.111111111111111,
+   "wall_sided_limit_deg": 26.56505117707799,
+   "gz_max_exact_m": 4.13886079013166,
+   "heel_at_gz_max_deg": 49.0,
+   "first_breach_3pct_deg": 35.0,
+   "first_breach_15pct_deg": 40.0,
+   "envelope": [
+    {
+     "heel_deg": 0.0,
+     "gz_exact_m": 0.0,
+     "gz_wall_sided_m": 0.0,
+     "abs_err_m": 0.0,
+     "rel_err_pct": NaN
+    },
+    {
+     "heel_deg": 5.0,
+     "gz_exact_m": 0.44783464341183343,
+     "gz_wall_sided_m": 0.4478346434118331,
+     "abs_err_m": -3.3306690738754696e-16,
+     "rel_err_pct": -7.43727427717679e-14
+    },
+    {
+     "heel_deg": 10.0,
+     "gz_exact_m": 0.9067313291879875,
+     "gz_wall_sided_m": 0.9067313291879883,
+     "abs_err_m": 7.771561172376096e-16,
+     "rel_err_pct": 8.570963550289836e-14
+    },
+    {
+     "heel_deg": 15.0,
+     "gz_exact_m": 1.3889235509916875,
+     "gz_wall_sided_m": 1.3889235509916864,
+     "abs_err_m": -1.1102230246251565e-15,
+     "rel_err_pct": -7.993406288146388e-14
+    },
+    {
+     "heel_deg": 20.0,
+     "gz_exact_m": 1.909201229702838,
+     "gz_wall_sided_m": 1.9092012297028378,
+     "abs_err_m": -2.220446049250313e-16,
+     "rel_err_pct": -1.163023580073809e-14
+    },
+    {
+     "heel_deg": 25.0,
+     "gz_exact_m": 2.4867877794236164,
+     "gz_wall_sided_m": 2.4867877794236137,
+     "abs_err_m": -2.6645352591003757e-15,
+     "rel_err_pct": -1.0714767384444673e-13
+    },
+    {
+     "heel_deg": 30.0,
+     "gz_exact_m": 3.0835778827725284,
+     "gz_wall_sided_m": 3.1481481481481475,
+     "abs_err_m": 0.06457026537561905,
+     "rel_err_pct": 2.0940046864508632
+    },
+    {
+     "heel_deg": 35.0,
+     "gz_exact_m": 3.5519573064754173,
+     "gz_wall_sided_m": 3.931503148121644,
+     "abs_err_m": 0.37954584164622673,
+     "rel_err_pct": 10.685540644148322
+    },
+    {
+     "heel_deg": 40.0,
+     "gz_exact_m": 3.9138812674315098,
+     "gz_wall_sided_m": 4.894529259565186,
+     "abs_err_m": 0.9806479921336759,
+     "rel_err_pct": 25.055639788920516
+    },
+    {
+     "heel_deg": 45.0,
+     "gz_exact_m": 4.098273052627032,
+     "gz_wall_sided_m": 6.12825877028341,
+     "abs_err_m": 2.029985717656378,
+     "rel_err_pct": 49.53271028037376
+    },
+    {
+     "heel_deg": 50.0,
+     "gz_exact_m": 4.137115018178522,
+     "gz_wall_sided_m": 7.783764990612841,
+     "abs_err_m": 3.646649972434319,
+     "rel_err_pct": 88.14475682718282
+    },
+    {
+     "heel_deg": 60.0,
+     "gz_exact_m": 3.919319326087397,
+     "gz_wall_sided_m": 13.663956370821134,
+     "abs_err_m": 9.744637044733738,
+     "rel_err_pct": 248.63085229806154
+    },
+    {
+     "heel_deg": 70.0,
+     "gz_exact_m": 3.4351985542774424,
+     "gz_wall_sided_m": 30.023829653134147,
+     "abs_err_m": 26.588631098856705,
+     "rel_err_pct": 774.0056558229817
+    },
+    {
+     "heel_deg": 80.0,
+     "gz_exact_m": 2.774804740426302,
+     "gz_wall_sided_m": 117.65498217367603,
+     "abs_err_m": 114.88017743324973,
+     "rel_err_pct": 4140.117528255351
+    },
+    {
+     "heel_deg": 85.0,
+     "gz_exact_m": 2.3982950050157807,
+     "gz_wall_sided_m": 467.84347621442595,
+     "abs_err_m": 465.4451812094102,
+     "rel_err_pct": 19407.33647178436
+    },
+    {
+     "heel_deg": 89.0,
+     "gz_exact_m": 2.081086858992821,
+     "gz_wall_sided_m": 11673.163018458225,
+     "abs_err_m": 11671.081931599232,
+     "rel_err_pct": 560816.6656363234
+    }
+   ]
+  },
+  {
+   "case": "C",
+   "label": "shallow-draft box",
+   "beam_m": 10.0,
+   "draft_m": 2.0,
+   "depth_m": 3.0,
+   "kg_m": 2.0,
+   "kb_m": 1.0,
+   "bm_m": 4.166666666666667,
+   "gm_m": 3.166666666666667,
+   "wall_sided_limit_deg": 11.309932474020215,
+   "gz_max_exact_m": 0.9653002014571583,
+   "heel_at_gz_max_deg": 26.25,
+   "first_breach_3pct_deg": 15.0,
+   "first_breach_15pct_deg": 20.0,
+   "envelope": [
+    {
+     "heel_deg": 0.0,
+     "gz_exact_m": 0.0,
+     "gz_wall_sided_m": 0.0,
+     "abs_err_m": 0.0,
+     "rel_err_pct": NaN
+    },
+    {
+     "heel_deg": 5.0,
+     "gz_exact_m": 0.27738300465887467,
+     "gz_wall_sided_m": 0.2773830046588747,
+     "abs_err_m": 5.551115123125783e-17,
+     "rel_err_pct": 2.0012455809801825e-14
+    },
+    {
+     "heel_deg": 10.0,
+     "gz_exact_m": 0.5611336687325905,
+     "gz_wall_sided_m": 0.5611336687325906,
+     "abs_err_m": 1.1102230246251565e-16,
+     "rel_err_pct": 1.9785357509072153e-14
+    },
+    {
+     "heel_deg": 15.0,
+     "gz_exact_m": 0.8002963106087135,
+     "gz_wall_sided_m": 0.8583069165361872,
+     "abs_err_m": 0.058010605927473646,
+     "rel_err_pct": 7.248640929426525
+    },
+    {
+     "heel_deg": 20.0,
+     "gz_exact_m": 0.9145452264971082,
+     "gz_wall_sided_m": 1.1774573076631059,
+     "abs_err_m": 0.2629120811659976,
+     "rel_err_pct": 28.747849045476258
+    },
+    {
+     "heel_deg": 25.0,
+     "gz_exact_m": 0.9627926530437504,
+     "gz_wall_sided_m": 1.5297397282427065,
+     "abs_err_m": 0.5669470751989562,
+     "rel_err_pct": 58.885687734178575
+    },
+    {
+     "heel_deg": 30.0,
+     "gz_exact_m": 0.9498060281596913,
+     "gz_wall_sided_m": 1.9305555555555554,
+     "abs_err_m": 0.9807495273958641,
+     "rel_err_pct": 103.25787564184319
+    },
+    {
+     "heel_deg": 35.0,
+     "gz_exact_m": 0.8923310077675111,
+     "gz_wall_sided_m": 2.4021985758503623,
+     "abs_err_m": 1.5098675680828513,
+     "rel_err_pct": 169.20487520212163
+    },
+    {
+     "heel_deg": 40.0,
+     "gz_exact_m": 0.8079672141522445,
+     "gz_wall_sided_m": 2.9783673584413504,
+     "abs_err_m": 2.170400144289106,
+     "rel_err_pct": 268.6247791089379
+    },
+    {
+     "heel_deg": 45.0,
+     "gz_exact_m": 0.705633642059075,
+     "gz_wall_sided_m": 3.7123106012293743,
+     "abs_err_m": 3.0066769591702993,
+     "rel_err_pct": 426.0960334029232
+    },
+    {
+     "heel_deg": 50.0,
+     "gz_exact_m": 0.5905192771119576,
+     "gz_wall_sided_m": 4.692463687848287,
+     "abs_err_m": 4.101944410736329,
+     "rel_err_pct": 694.6334471581754
+    },
+    {
+     "heel_deg": 60.0,
+     "gz_exact_m": 0.33469563144111447,
+     "gz_wall_sided_m": 8.15507255230346,
+     "abs_err_m": 7.820376920862346,
+     "rel_err_pct": 2336.563786981559
+    },
+    {
+     "heel_deg": 70.0,
+     "gz_exact_m": 0.05916137063979643,
+     "gz_wall_sided_m": 17.753597356580872,
+     "abs_err_m": 17.694435985941077,
+     "rel_err_pct": 29908.766133349953
+    },
+    {
+     "heel_deg": 80.0,
+     "gz_exact_m": -0.2228293569140074,
+     "gz_wall_sided_m": 69.1077299499373,
+     "abs_err_m": 69.3305593068513,
+     "rel_err_pct": 31113.745633438604
+    },
+    {
+     "heel_deg": 85.0,
+     "gz_exact_m": -0.36268032397975203,
+     "gz_wall_sided_m": 274.2982578081248,
+     "abs_err_m": 274.66093813210455,
+     "rel_err_pct": 75730.86268320377
+    },
+    {
+     "heel_deg": 89.0,
+     "gz_exact_m": -0.4728001983432597,
+     "gz_wall_sided_m": 6839.91580495047,
+     "abs_err_m": 6840.388605148813,
+     "rel_err_pct": 1446782.0929682846
+    }
+   ]
+  }
+ ]
+}
