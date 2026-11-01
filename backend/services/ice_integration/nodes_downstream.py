@@ -147,32 +147,63 @@ def gz_curve(B: float, T: float, KG: float, phis_deg: Sequence[float]) -> Dict[s
     }
 
 
-def imo_criteria(curve: Dict[str, List[float]], gm_corrected: float) -> Dict[str, object]:
-    """IMO IS Code 2008 完整稳性衡准 (2.2.1) 逐项判定."""
+def imo_criteria(
+    curve: Dict[str, List[float]],
+    gm_corrected: float,
+    flooding_angle_deg: float | None = None,
+) -> Dict[str, object]:
+    """IMO IS Code 2008 完整稳性衡准 (Part A 2.2.1) 逐项判定.
+
+    六条 normative 判据 (缺一不可, ``passed`` 只由它们决定):
+      1. A(0,30°) >= 0.055 m·rad
+      2. A(0,40°) >= 0.090 m·rad —— 上限取 ``min(40°, θf)``, θf 更小时按 2.2.1.2 截断
+      3. A(30,40°) >= 0.030 m·rad —— 同上截断
+      4. GZ(30°) >= 0.200 m
+      5. **最大复原力臂对应角 >= 25°** —— 此前遗漏, 只算出了角却没有判定
+      6. GM0 >= 0.150 m
+    另报 ``advisory``: GZmax 幅值 0.25 m 等船级社/船型附加门槛,
+    **不属于** Part A 2.2.1, 因此不计入 ``passed`` (避免以偏严冒充规范语义)。
+    """
     phis = np.deg2rad(np.asarray(curve["phi_deg"], dtype=float))
     gz = np.asarray(curve["gz_numeric"], dtype=float)
+    upper = 40.0 if flooding_angle_deg is None else min(40.0, float(flooding_angle_deg))
 
     def area(a_deg: float, b_deg: float) -> float:
+        a_deg, b_deg = min(a_deg, upper), min(b_deg, upper)
+        if b_deg <= a_deg:
+            return 0.0
         m = (np.rad2deg(phis) >= a_deg - 1e-9) & (np.rad2deg(phis) <= b_deg + 1e-9)
         return float(np.trapezoid(gz[m], phis[m])) if m.sum() > 1 else 0.0
 
-    checks = {
+    phi_max = float(np.rad2deg(phis[int(np.argmax(gz))]))
+    normative = {
         "area_0_30_m_rad": (area(0, 30), 0.055),
-        "area_0_40_m_rad": (area(0, 40), 0.090),
-        "area_30_40_m_rad": (area(30, 40), 0.030),
+        "area_0_40_m_rad": (area(0, upper), 0.090),
+        "area_30_40_m_rad": (area(30, upper), 0.030),
         "gz_at_30_m": (float(np.interp(30.0, np.rad2deg(phis), gz)), 0.200),
-        "gz_max_m": (float(gz.max()), 0.250),
+        "angle_gz_max_deg": (phi_max, 25.0),
         "gm0_m": (float(gm_corrected), 0.150),
     }
-    margins = {k: (v[0] - v[1]) for k, v in checks.items()}
+    advisory = {"gz_max_m": (float(gz.max()), 0.250)}
+    checks = dict(normative)
+    checks.update(advisory)
+    margins = {k: (v[0] - v[1]) for k, v in normative.items()}
+    adv_margins = {k: (v[0] - v[1]) for k, v in advisory.items()}
     passed = all(m >= -1e-12 for m in margins.values())
-    phi_max = float(np.rad2deg(phis[int(np.argmax(gz))]))
     return {
-        "checks": {k: {"value": float(v[0]), "required": float(v[1])} for k, v in checks.items()},
+        "checks": {
+            k: {"value": float(v[0]), "required": float(v[1]),
+                "normative": k in normative}
+            for k, v in checks.items()
+        },
         "margins": margins,
+        "advisory_margins": adv_margins,
         "min_margin": float(min(margins.values())),
         "gz_max_angle_deg": phi_max,
+        "area_upper_limit_deg": float(upper),
+        "flooding_angle_deg": flooding_angle_deg,
         "passed": bool(passed),
+        "standard": "IS Code 2008 Part A 2.2.1",
     }
 
 

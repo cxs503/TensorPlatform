@@ -19,6 +19,7 @@ from api.tensor_llm import router as tensor_llm_router                     # pre
 from api.tensor_missions import router as tensor_missions_router           # prefix="/tensor/missions"
 from api.tensor_mission_lifecycle import router as tensor_mission_lifecycle_router  # prefix="/tensor/missions" (lifecycle)
 from api.tensor_reports import router as tensor_reports_router             # prefix="/tensor/reports"
+from api.tensor_papers import router as tensor_papers_router             # prefix="/tensor/papers"
 from api.campaign_plans import router as campaign_plans_router             # prefix="/tensor/campaigns"
 from api.tensor_repro import router as tensor_repro_router                 # prefix="/tensor/repro"
 from api.execution_lineage import router as execution_lineage_router       # prefix="/lineage"
@@ -34,6 +35,7 @@ router.include_router(tensor_llm_router)
 router.include_router(tensor_missions_router)
 router.include_router(tensor_mission_lifecycle_router)
 router.include_router(tensor_reports_router)
+router.include_router(tensor_papers_router)
 router.include_router(campaign_plans_router)
 
 # ── m613: Truth Gates — Independence-Convergence Verdict Mechanism ──
