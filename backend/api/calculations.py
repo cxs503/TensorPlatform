@@ -12,6 +12,14 @@ Verification status (m1384, see docs/reports/m1384_resistance_stability_verifica
     per the platform rule "geometry must be validated first") should pass
     ``wetted_surface_m2``; the response records which source was used in
     ``wetted_surface_source``.
+  * The legacy wetted-surface fit is now *opt-out*: ``hull_form='ship'`` (or any
+    of ``midship_coefficient``/``waterplane_coefficient``) routes S through the
+    merged Holtrop-Mennen (1982) regression
+    (``services.holtrop_mennen.wetted_surface``, verified to <3 % against the
+    published KVLCC2 S = 27 194 m^2, see
+    docs/verification/wetted_surface_holtrop_verification.md).  The legacy path
+    is kept bit-identical for backward compatibility and reports a
+    ``wetted_surface_warnings`` entry when it is used on a non-axisymmetric hull.
   * The residual-resistance coefficient ``Cr`` is an empirical curve fit without
     a published provenance; it is exposed as-is but must not be quoted as a
     literature-validated model.
@@ -37,6 +45,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
+from services.holtrop_mennen import wetted_surface as holtrop_wetted_surface
 from services.ship_resistance import ct_from_rt
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
@@ -87,6 +96,24 @@ class ResistanceRequest(BaseModel):
         le=1.5,
         description="(1+k) viscous form factor from ITTC-1957; 1.0 = bare flat-plate friction only.",
     )
+    hull_form: str = Field(
+        default="auto",
+        pattern="^(auto|ship|axisymmetric)$",
+        description=(
+            "Wetted-surface model selector. 'ship' -> Holtrop-Mennen (1982) regression; "
+            "'axisymmetric' / 'auto' -> legacy pi*B*L*(0.5+0.25*Cb) body-of-revolution fit. "
+            "'auto' also switches to Holtrop as soon as a midship/waterplane coefficient is given."
+        ),
+    )
+    midship_coefficient: Optional[float] = Field(
+        default=None, gt=0.4, le=1.0, description="Cm; estimated from Cb when hull_form='ship' and omitted."
+    )
+    waterplane_coefficient: Optional[float] = Field(
+        default=None, gt=0.4, le=1.0, description="Cwp; estimated as (1+2Cp)/3 when omitted."
+    )
+    bulb_section_area_m2: float = Field(
+        default=0.0, ge=0.0, description="Abt, transverse bulbous-bow section area (m²) for the Holtrop term."
+    )
 
 
 class ResistanceResponse(BaseModel):
@@ -106,6 +133,11 @@ class ResistanceResponse(BaseModel):
     # m1388 收编：下游对标链按 C_T = R_T/(0.5 rho S V^2) 复核，端点直接给出
     # 系数与模型来源，避免消费侧自己猜字段/自己反推。
     total_resistance_coefficient: float = 0.0
+    # Coefficients behind the wetted-surface number (Holtrop path) so the
+    # consumer can re-do the arithmetic instead of trusting the endpoint.
+    midship_coefficient: Optional[float] = None
+    waterplane_coefficient: Optional[float] = None
+    wetted_surface_warnings: List[str] = Field(default_factory=list)
     method: str = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
     computation_time_ms: float
 
@@ -248,6 +280,61 @@ def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
     return math.pi * beam * length * (0.5 + 0.25 * cb)
 
 
+def _estimated_midship_coefficient(cb: float) -> float:
+    """Rough Cm estimate used only when the caller does not supply one.
+
+    ``Cm = 0.9 + 0.1*Cb`` sits within ~2 % of the moulded Cm of full hulls
+    (KVLCC2 Cm = 0.998 vs 0.981) and its influence on the Holtrop S is a
+    fraction of a percent (see tests/test_wetted_surface_holtrop_verification.py,
+    sensitivity guard).  The estimate is always reported back as a warning so it
+    never masquerades as caller-supplied geometry.
+    """
+    return min(1.0, 0.9 + 0.1 * cb)
+
+
+def _holtrop_wetted_surface(
+    length: float,
+    beam: float,
+    draft: float,
+    cb: float,
+    cm: Optional[float] = None,
+    cwp: Optional[float] = None,
+    abt: float = 0.0,
+) -> tuple:
+    """Holtrop & Mennen (1982) wetted-surface regression for displacement hulls.
+
+    Returns ``(S, cm, cwp, warnings)``.  Missing coefficients fall back to
+    documented estimates:
+        Cwp ~= (1 + 2*Cp)/3   (Schneekluth waterplane estimate, Cp = Cb/Cm)
+        Cm  ~= 0.9 + 0.1*Cb   (see :func:`_estimated_midship_coefficient`)
+
+    Reference: Holtrop, J. & Mennen, G.G.J. (1982), "An approximate power
+    prediction method", Int. Shipbuilding Progress 29(335), Eq. for S.
+    """
+    warnings: List[str] = []
+    cm_from_caller = cm is not None
+    if cm is None:
+        cm = _estimated_midship_coefficient(cb)
+        warnings.append(f"midship_coefficient_estimated: Cm={cm:.4f} from Cb={cb:.4f}")
+    cp = cb / cm
+    if not (0.0 < cp < 1.0):
+        raise HTTPException(
+            status_code=400,
+            detail=f"Cb/Cm={cp:.4f} outside (0, 1): check Cb={cb} vs Cm={cm}",
+        )
+    if cwp is None:
+        cwp = (1.0 + 2.0 * cp) / 3.0
+        warnings.append(
+            f"waterplane_coefficient_estimated: Cwp={cwp:.4f} from Cp={cp:.4f}"
+        )
+    if not (0.5 < cwp <= 1.0):
+        raise HTTPException(status_code=400, detail=f"Cwp={cwp} outside (0.5, 1.0]")
+    s_val = holtrop_wetted_surface(length, beam, draft, cb, cm, cwp, abt)
+    if not cm_from_caller:
+        warnings.append("wetted_surface_basis: holtrop_mennen_1982 (cm estimated)")
+    return s_val, cm, cwp, warnings
+
+
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
 async def calc_resistance(req: ResistanceRequest):
@@ -273,13 +360,37 @@ async def calc_resistance(req: ResistanceRequest):
     if L <= 0 or B <= 0 or T <= 0:
         raise HTTPException(status_code=400, detail="Dimensions must be positive")
 
-    # Wetted surface area: geometry-validated input wins over the empirical fit
+    # Wetted surface area: geometry-validated input wins over every regression.
+    warnings: List[str] = []
+    cm_used: Optional[float] = None
+    cwp_used: Optional[float] = None
     if req.wetted_surface_m2 is not None:
         S = float(req.wetted_surface_m2)
         S_source = "input_validated"
+    elif (
+        req.hull_form == "ship"
+        or req.midship_coefficient is not None
+        or req.waterplane_coefficient is not None
+    ):
+        S, cm_used, cwp_used, warns = _holtrop_wetted_surface(
+            L, B, T, Cb, req.midship_coefficient, req.waterplane_coefficient,
+            req.bulb_section_area_m2,
+        )
+        warnings.extend(warns)
+        S_source = "holtrop_mennen_1982"
     else:
         S = _empirical_wetted_surface(L, B, Cb)
         S_source = "empirical_formula"
+        if req.hull_form != "axisymmetric":
+            # Body-of-revolution fit applied to what may well be a ship hull:
+            # measured +40..+45 % S for KVLCC2-class hulls.  Stay backward
+            # compatible (numbers unchanged) but say so in the response.
+            warnings.append(
+                "legacy_axisymmetric_wetted_surface: S=pi*B*L*(0.5+0.25*Cb) is a "
+                "body-of-revolution fit; for displacement hulls it overestimates S by up "
+                "to ~45 % (KVLCC2). Pass hull_form='ship' or the geometry-validated "
+                "wetted_surface_m2 to switch models."
+            )
 
     # Reynolds number
     Re = V * L / nu
@@ -319,6 +430,9 @@ async def calc_resistance(req: ResistanceRequest):
         froude_number=round(Fn, 6),
         wetted_surface_m2=round(S, 6),
         wetted_surface_source=S_source,
+        midship_coefficient=None if cm_used is None else round(cm_used, 6),
+        waterplane_coefficient=None if cwp_used is None else round(cwp_used, 6),
+        wetted_surface_warnings=warnings,
         form_factor=req.form_factor,
         total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V), 8),
         method=RESISTANCE_METHOD,

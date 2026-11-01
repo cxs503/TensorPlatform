@@ -1,0 +1,210 @@
+{
+  "mission": "m1686",
+  "references": {
+    "R1_kvlcc2": {
+      "published_surface_m2": 27194.0,
+      "holtrop_with_caller_coefficients_m2": 26725.55,
+      "error_pct": -1.723,
+      "holtrop_with_estimated_coefficients_m2": 26753.91,
+      "error_estimated_pct": -1.618,
+      "pass_3pct": true
+    },
+    "R2_spheroid": {
+      "length_m": 4.0,
+      "diameter_m": 0.5,
+      "cb_equivalent": 0.06545,
+      "exact_surface_m2": 4.969671,
+      "legacy_surface_m2": 3.244401,
+      "legacy_error_pct": -34.716
+    },
+    "R2_legacy_on_kvlcc2": {
+      "legacy_surface_m2": 40958.43,
+      "reference_surface_m2": 27194.0,
+      "legacy_error_pct": 50.616,
+      "holtrop_error_pct": -1.723
+    },
+    "R3_wigley": {
+      "length_m": 10.0,
+      "beam_m": 1.0,
+      "draft_m": 0.625,
+      "reference_convergence": [
+        {
+          "n": 40,
+          "surface_m2": 14.879067562864334,
+          "richardson_delta_pct": null
+        },
+        {
+          "n": 80,
+          "surface_m2": 14.879063379504467,
+          "richardson_delta_pct": 2.811573943623577e-05
+        },
+        {
+          "n": 160,
+          "surface_m2": 14.87906312205709,
+          "richardson_delta_pct": 1.730266016266725e-06
+        },
+        {
+          "n": 320,
+          "surface_m2": 14.87906310602557,
+          "richardson_delta_pct": 1.0774550029187477e-07
+        },
+        {
+          "n": 640,
+          "surface_m2": 14.879063105024512,
+          "richardson_delta_pct": 6.727957317785798e-09
+        }
+      ],
+      "reference_surface_m2": 14.87906,
+      "grid_study": [
+        {
+          "n_stations": 21,
+          "n_waterlines": 10,
+          "cb_integrated": 0.443073,
+          "cm_integrated": 0.664609,
+          "cw_integrated": 0.666667,
+          "surface_m2": 14.8311,
+          "error_vs_reference_pct": -0.322
+        },
+        {
+          "n_stations": 41,
+          "n_waterlines": 20,
+          "cb_integrated": 0.444137,
+          "cm_integrated": 0.666205,
+          "cw_integrated": 0.666667,
+          "surface_m2": 14.8351,
+          "error_vs_reference_pct": -0.295
+        },
+        {
+          "n_stations": 81,
+          "n_waterlines": 40,
+          "cb_integrated": 0.444371,
+          "cm_integrated": 0.666557,
+          "cw_integrated": 0.666667,
+          "surface_m2": 14.836,
+          "error_vs_reference_pct": -0.289
+        },
+        {
+          "n_stations": 161,
+          "n_waterlines": 80,
+          "cb_integrated": 0.444427,
+          "cm_integrated": 0.66664,
+          "cw_integrated": 0.666667,
+          "surface_m2": 14.8362,
+          "error_vs_reference_pct": -0.288
+        }
+      ],
+      "holtrop_regression_surface_m2": 12.8544,
+      "holtrop_regression_error_pct": -13.607,
+      "note": "Holtrop is a ship-hull regression; the Wigley probe is an out-of-domain extrapolation check, not an accuracy claim."
+    },
+    "R4_resistance": {
+      "hull": "KVLCC2 (L=320 m, B=58 m, T=20.8 m, Cb=0.8098)",
+      "rows": [
+        {
+          "speed_kn": 7.0,
+          "froude_number": 0.06427,
+          "s_holtrop_m2": 26725.6,
+          "s_legacy_m2": 40958.4,
+          "rt_holtrop_n": 261186.2,
+          "rt_legacy_n": 400282.7,
+          "ct_holtrop": 0.00151026,
+          "ct_legacy": 0.00151026,
+          "ct_error_legacy_pct": 0.0
+        },
+        {
+          "speed_kn": 10.0,
+          "froude_number": 0.09182,
+          "s_holtrop_m2": 26725.6,
+          "s_legacy_m2": 40958.4,
+          "rt_holtrop_n": 513259.7,
+          "rt_legacy_n": 786599.6,
+          "ct_holtrop": 0.00145423,
+          "ct_legacy": 0.00145423,
+          "ct_error_legacy_pct": 0.0
+        },
+        {
+          "speed_kn": 13.0,
+          "froude_number": 0.11936,
+          "s_holtrop_m2": 26725.6,
+          "s_legacy_m2": 40958.4,
+          "rt_holtrop_n": 848292.2,
+          "rt_legacy_n": 1300056.0,
+          "ct_holtrop": 0.00142218,
+          "ct_legacy": 0.00142218,
+          "ct_error_legacy_pct": 0.0
+        },
+        {
+          "speed_kn": 15.0,
+          "froude_number": 0.13773,
+          "s_holtrop_m2": 26725.6,
+          "s_legacy_m2": 40958.4,
+          "rt_holtrop_n": 1119621.2,
+          "rt_legacy_n": 1715883.1,
+          "ct_holtrop": 0.00140989,
+          "ct_legacy": 0.00140989,
+          "ct_error_legacy_pct": 0.0
+        },
+        {
+          "speed_kn": 15.5,
+          "froude_number": 0.14232,
+          "s_holtrop_m2": 26725.6,
+          "s_legacy_m2": 40958.4,
+          "rt_holtrop_n": 1193704.9,
+          "rt_legacy_n": 1829420.5,
+          "ct_holtrop": 0.00140776,
+          "ct_legacy": 0.00140776,
+          "ct_error_legacy_pct": 0.0
+        },
+        {
+          "speed_kn": 17.0,
+          "froude_number": 0.15609,
+          "s_holtrop_m2": 26725.6,
+          "s_legacy_m2": 40958.4,
+          "rt_holtrop_n": 1431537.5,
+          "rt_legacy_n": 2193912.5,
+          "ct_holtrop": 0.00140346,
+          "ct_legacy": 0.00140346,
+          "ct_error_legacy_pct": 0.0
+        }
+      ],
+      "legacy_rt_overestimate_pct_range": [
+        53.25567154405459,
+        53.25568502470651
+      ],
+      "ct_difference_pct": 0.0,
+      "note": "Every term of the simplified endpoint (Rf, Rform, Rr) is proportional to S, so a wrong S cancels out of C_T and only moves R_T (and hence EHP/power). C_T is therefore NOT a check on the wetted surface."
+    },
+    "R5_cross_method": {
+      "hull": "KVLCC2",
+      "rows": [
+        {
+          "speed_kn": 13.0,
+          "simplified_endpoint_rt_n": 848292.2,
+          "full_holtrop_rt_n": 1257363.9,
+          "simplified_vs_full_pct": -32.534,
+          "full_holtrop_ct": 0.002108,
+          "simplified_ct": 0.00142218,
+          "full_holtrop_wetted_surface_m2": 26725.55,
+          "form_factor_1k": 1.3385
+        },
+        {
+          "speed_kn": 15.5,
+          "simplified_endpoint_rt_n": 1193704.9,
+          "full_holtrop_rt_n": 1782222.5,
+          "simplified_vs_full_pct": -33.022,
+          "full_holtrop_ct": 0.00210182,
+          "simplified_ct": 0.00140776,
+          "full_holtrop_wetted_surface_m2": 26725.55,
+          "form_factor_1k": 1.3385
+        }
+      ],
+      "note": "Same hull + same S, different residual/viscous treatment: the simplified endpoint omits the published wave/residual regression and the form factor, so it is a lower bound."
+    }
+  },
+  "figures": [
+    "outputs/wetted_surface/fig1_kvlcc2_surface_comparison.png",
+    "outputs/wetted_surface/fig2_surface_error_vs_cb.png",
+    "outputs/wetted_surface/fig3_resistance_consequence.png",
+    "outputs/wetted_surface/fig4_wigley_convergence.png"
+  ]
+}
