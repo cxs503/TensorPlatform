@@ -1,0 +1,238 @@
+{
+  "runs": [
+    {
+      "target": "live",
+      "label": "在线 :8001 服务",
+      "generated_at": "2026-11-01T06:15:27.060010+00:00",
+      "summary": {
+        "required_total": 12,
+        "required_pass": 6,
+        "required_fail": 6,
+        "extra_total": 2,
+        "extra_pass": 0,
+        "gate_pass": false,
+        "flip_pass": {
+          "A-CT": false,
+          "S-KB-BOX": false,
+          "S-GZMAX": false,
+          "S-AREA-3040": true,
+          "P-ETA-BOUND": false,
+          "P-KT": false,
+          "P-THRUST": false
+        },
+        "regression_pass": {
+          "R-CF": true,
+          "R-RE": true,
+          "R-FN": true,
+          "S-GM": true,
+          "P-PD": true
+        }
+      },
+      "checks": [
+        {
+          "name": "A-CT",
+          "required": true,
+          "status": "FAIL",
+          "title": "水下回转体 Ct 不得套用越域 Holtrop Cr；(1+k)Cf+Ca+附体 或显式拒绝",
+          "value": 529.8639057327697,
+          "reference": 0.004573282778281024,
+          "deviation_pct": 11585973.536697667,
+          "tolerance_pct": 15.0,
+          "detail": "Ct_ref=0.00457（Ct/Cf=1.736, Cf=0.00263）；实测最大偏差 529.9%",
+          "evidence": {
+            "case": "SUBOFF AFF-8 水下回转体 L=4.356 m，V=5.0 m/s（Fn_L=0.765）",
+            "ct_ref": 0.004573282778281024,
+            "endpoints": {
+              "resistance/predict": {
+                "ct": 0.02880545752748498,
+                "dev_pct": 529.8639057327697,
+                "pass": false
+              },
+              "calculations/resistance": {
+                "ct": 0.024654,
+                "dev_pct": 439.08759189535147,
+                "pass": false
+              }
+            }
+          }
+        },
+        {
+          "name": "S-KB-BOX",
+          "required": true,
+          "status": "FAIL",
+          "title": "矩形浮箱 KB 回退解析 T/2",
+          "value": 10.667,
+          "reference": 8.0,
+          "deviation_pct": 33.3375,
+          "tolerance_pct": 3.0,
+          "detail": "KB_被测=10.6670 m vs 解析 T/2=8.0000 m（偏差 +33.3%）",
+          "evidence": {
+            "case": "矩形浮箱 L=100 B=16 T=16 D=26 Cb=Cm=1，KG=8",
+            "raw": {
+              "kb": 10.667,
+              "bm": 1.333,
+              "gm": 4.0
+            }
+          }
+        },
+        {
+          "name": "S-GZMAX",
+          "required": true,
+          "status": "FAIL",
+          "title": "GZ_max 与自述 wall-sided 一致（0–40°，wall-sided 精确域）",
+          "value": 2.748,
+          "reference": 2.872869882298363,
+          "deviation_pct": -4.346520636655632,
+          "tolerance_pct": 3.0,
+          "detail": "GZ_max_被测=2.7480 m vs wall-sided 2.8729 m@40°（GM 用被测自报 4.0000 m）",
+          "evidence": {
+            "case": "矩形浮箱 L=100 B=16 T=16 D=26 Cb=Cm=1，KG=8",
+            "gz_max_angle": 40.0
+          }
+        },
+        {
+          "name": "S-AREA-3040",
+          "required": true,
+          "status": "PASS",
+          "title": "30–40° GZ 面积与 wall-sided 一致",
+          "value": 0.422,
+          "reference": 0.4340438079803345,
+          "deviation_pct": -2.7747908756897126,
+          "tolerance_pct": 3.0,
+          "detail": "area_30_40_被测=0.42200 m·rad vs wall-sided 0.43404 m·rad（-2.8%）",
+          "evidence": {}
+        },
+        {
+          "name": "P-ETA-BOUND",
+          "required": true,
+          "status": "FAIL",
+          "title": "敞水效率 η0 ≤ min(0.998, η_致动盘)",
+          "value": 1.545,
+          "reference": 0.5189287466588645,
+          "deviation_pct": 197.72873635301968,
+          "tolerance_pct": null,
+          "detail": "η0=1.5450 vs 上界 0.5189（η_致动盘 C_T=7.146 ⇒ 0.5189）",
+          "evidence": {
+            "J": null,
+            "KT": null
+          }
+        },
+        {
+          "name": "P-KT",
+          "required": true,
+          "status": "FAIL",
+          "title": "隐含 KT=thrust/(ρn²D⁴) 落在 B 系列 O(0.10–0.35)",
+          "value": 0.9949882215779636,
+          "reference": null,
+          "deviation_pct": null,
+          "tolerance_pct": null,
+          "detail": "KT=0.9950（T=1170.76 kN, n=2.117 rps, D=4.00 m）；越域 2.8×",
+          "evidence": {
+            "J": null
+          }
+        },
+        {
+          "name": "P-THRUST",
+          "required": true,
+          "status": "FAIL",
+          "title": "跨端点推力平衡 T(1-t)=Rt",
+          "value": 1170.76,
+          "reference": 421.16883116883116,
+          "deviation_pct": 177.9787850755473,
+          "tolerance_pct": 5.0,
+          "detail": "T_被测=1170.760 kN vs 需求 Rt/(1-t)=421.169 kN（Rt=324.300 kN, t=0.230）",
+          "evidence": {
+            "Rt_kN": 324.3,
+            "t": 0.22999999999999998
+          }
+        },
+        {
+          "name": "R-CF",
+          "required": true,
+          "status": "PASS",
+          "title": "ITTC-57 摩擦线（双速度比，免湿面积）",
+          "value": 1.8762698090207233,
+          "reference": 1.8764464009585868,
+          "deviation_pct": -0.009410976928163572,
+          "tolerance_pct": 2.0,
+          "detail": "Rf(14kn)/Rf(10kn)=1.8763 vs ITTC-57 预测 1.8764（-0.01%）",
+          "evidence": {}
+        },
+        {
+          "name": "R-RE",
+          "required": true,
+          "status": "PASS",
+          "title": "Re = V·L/ν",
+          "value": 605176471.0,
+          "reference": 606094555.2469915,
+          "deviation_pct": -0.15147541568285228,
+          "tolerance_pct": 2.0,
+          "detail": "Re_被测=6.0518e+08 vs 6.0609e+08（-0.15%）",
+          "evidence": {}
+        },
+        {
+          "name": "R-FN",
+          "required": true,
+          "status": "PASS",
+          "title": "Fn = V/√(gL)",
+          "value": 0.2299,
+          "reference": 0.22998851122556077,
+          "deviation_pct": -0.038485063923028154,
+          "tolerance_pct": 2.0,
+          "detail": "Fn_被测=0.22990 vs 0.22999（-0.04%）",
+          "evidence": {}
+        },
+        {
+          "name": "S-GM",
+          "required": true,
+          "status": "PASS",
+          "title": "GM=KM-KG 结构完整（dGM/dKG=-1 且 GM>0.05 m）",
+          "value": -1.0,
+          "reference": -1.0,
+          "deviation_pct": -0.0,
+          "tolerance_pct": 2.0,
+          "detail": "GM(KG=8.0)=4.0000 m，GM(KG=9.0)=3.0000 m，Δ=-1.0000 m",
+          "evidence": {}
+        },
+        {
+          "name": "P-PD",
+          "required": true,
+          "status": "PASS",
+          "title": "P/D∈[0.6,1.4] 且 P_D=2πnQ",
+          "value": 4364.89,
+          "reference": 4364.892599862387,
+          "deviation_pct": -5.9563032248931375e-05,
+          "tolerance_pct": 1.0,
+          "detail": "P/D=1.000；P_D_被测=4364.89 kW vs 2πnQ=4364.89 kW（-0.00%）",
+          "evidence": {}
+        },
+        {
+          "name": "S-VANISH",
+          "required": false,
+          "status": "FAIL",
+          "title": "消失角为 GZ=0 真实根且随 KG 变化（D3 后半）",
+          "value": 60.0,
+          "reference": 65.97778213549665,
+          "deviation_pct": -9.060295666229361,
+          "tolerance_pct": 3.0,
+          "detail": "φ_v(KG=6.0)=60.0°（ref 65.98°），φ_v(KG=5.6)=60.0°（ref 75.39°）",
+          "evidence": {
+            "case": "矩形浮箱 L=100 B=16 T=6 D=10 Cb=Cm=1，KG=6.0 / 5.6"
+          }
+        },
+        {
+          "name": "A-CR-SURF",
+          "required": false,
+          "status": "FAIL",
+          "title": "水面船 Cr 回归合理性（Fn=0.23, Cb=0.70）",
+          "value": 0.006507,
+          "reference": 0.0012570578041875505,
+          "deviation_pct": 417.63729387174374,
+          "tolerance_pct": 30.0,
+          "detail": "Cr_服务=0.006507 vs Holtrop 参考 0.001257",
+          "evidence": {}
+        }
+      ]
+    }
+  ]
+}
