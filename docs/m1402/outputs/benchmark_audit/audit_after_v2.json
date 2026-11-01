@@ -1,0 +1,383 @@
+{
+  "dataset": "data/benchmark_reference.json",
+  "dataset_version": "2.0",
+  "constants": {
+    "g": 9.81,
+    "rho_sea": 1025.0,
+    "nu": 1.139e-06
+  },
+  "tolerances": {
+    "fr_rel_pct": 1.0,
+    "rt_rel_pct": 5.0,
+    "cb_rel_pct": 3.0,
+    "fr_max_plausible": 0.5,
+    "ct_over_cf_range": [
+      1.0,
+      3.0
+    ]
+  },
+  "cases": [
+    {
+      "case_id": "SUBOFF-01",
+      "ship_type": "SUBOFF",
+      "derived": {
+        "froude_number": 0.4589,
+        "reynolds_number": 11473222.124670763,
+        "cf_ittc57": 0.00293,
+        "ct_over_cf": 1.297,
+        "rt_from_ct_n": 95.0,
+        "cb_status": "not_applicable_body_of_revolution"
+      },
+      "findings": [],
+      "n_errors": 0,
+      "status": "verified"
+    },
+    {
+      "case_id": "SUBOFF-02",
+      "ship_type": "SUBOFF",
+      "derived": {
+        "froude_number": 0.6119,
+        "reynolds_number": 15297629.499561017,
+        "cf_ittc57": 0.00279,
+        "ct_over_cf": 1.434,
+        "rt_from_ct_n": 177.78,
+        "cb_status": "not_applicable_body_of_revolution"
+      },
+      "findings": [
+        {
+          "check": "froude_range",
+          "severity": "WARN",
+          "message": "Fr=0.612 exceeds 0.5 : row is outside any towing-tank displacement-hull regime, Ct not usable as a benchmark target",
+          "filed": 0.6119,
+          "expected": 0.5
+        }
+      ],
+      "n_errors": 0,
+      "status": "out_of_validity_range"
+    },
+    {
+      "case_id": "SUBOFF-03",
+      "ship_type": "SUBOFF",
+      "derived": {
+        "froude_number": 0.7649,
+        "reynolds_number": 19122036.874451272,
+        "cf_ittc57": 0.002689,
+        "ct_over_cf": 1.562,
+        "rt_from_ct_n": 291.66,
+        "cb_status": "not_applicable_body_of_revolution"
+      },
+      "findings": [
+        {
+          "check": "froude_range",
+          "severity": "WARN",
+          "message": "Fr=0.765 exceeds 0.5 : row is outside any towing-tank displacement-hull regime, Ct not usable as a benchmark target",
+          "filed": 0.7649,
+          "expected": 0.5
+        }
+      ],
+      "n_errors": 0,
+      "status": "out_of_validity_range"
+    },
+    {
+      "case_id": "SUBOFF-04",
+      "ship_type": "SUBOFF",
+      "derived": {
+        "froude_number": 0.9179,
+        "reynolds_number": 22946444.249341525,
+        "cf_ittc57": 0.00261,
+        "ct_over_cf": 1.686,
+        "rt_from_ct_n": 440.0,
+        "cb_status": "not_applicable_body_of_revolution"
+      },
+      "findings": [
+        {
+          "check": "froude_range",
+          "severity": "WARN",
+          "message": "Fr=0.918 exceeds 0.5 : row is outside any towing-tank displacement-hull regime, Ct not usable as a benchmark target",
+          "filed": 0.9179,
+          "expected": 0.5
+        }
+      ],
+      "n_errors": 0,
+      "status": "out_of_validity_range"
+    },
+    {
+      "case_id": "DTMB5415-01",
+      "ship_type": "DTMB-5415",
+      "derived": {
+        "froude_number": 0.3434,
+        "reynolds_number": 12916453.028972784,
+        "cf_ittc57": 0.002871,
+        "ct_over_cf": 1.567,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6,
+        "cb_consistency_pct": 19.26
+      },
+      "findings": [
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.508 incompatible with displacement and L*B*T (implies 0.6 t)",
+          "filed": 0.508,
+          "expected": 0.426,
+          "rel_error_pct": 19.26
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "DTMB5415-02",
+      "ship_type": "DTMB-5415",
+      "derived": {
+        "froude_number": 0.6867,
+        "reynolds_number": 25832906.057945568,
+        "cf_ittc57": 0.00256,
+        "ct_over_cf": 1.484,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6,
+        "cb_consistency_pct": 19.26
+      },
+      "findings": [
+        {
+          "check": "froude_range",
+          "severity": "WARN",
+          "message": "Fr=0.687 exceeds 0.5 : row is outside any towing-tank displacement-hull regime, Ct not usable as a benchmark target",
+          "filed": 0.6867,
+          "expected": 0.5
+        },
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.508 incompatible with displacement and L*B*T (implies 0.6 t)",
+          "filed": 0.508,
+          "expected": 0.426,
+          "rel_error_pct": 19.26
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "DTMB5415-03",
+      "ship_type": "DTMB-5415",
+      "derived": {
+        "froude_number": 1.3735,
+        "reynolds_number": 51670834.06496927,
+        "cf_ittc57": 0.002298,
+        "ct_over_cf": 1.523,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6,
+        "cb_consistency_pct": 19.26
+      },
+      "findings": [
+        {
+          "check": "froude_range",
+          "severity": "WARN",
+          "message": "Fr=1.374 exceeds 0.5 : row is outside any towing-tank displacement-hull regime, Ct not usable as a benchmark target",
+          "filed": 1.3735,
+          "expected": 0.5
+        },
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.508 incompatible with displacement and L*B*T (implies 0.6 t)",
+          "filed": 0.508,
+          "expected": 0.426,
+          "rel_error_pct": 19.26
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "DTMB5415-04",
+      "ship_type": "DTMB-5415",
+      "derived": {
+        "froude_number": 2.0602,
+        "reynolds_number": 77503740.12291484,
+        "cf_ittc57": 0.002162,
+        "ct_over_cf": 1.757,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6,
+        "cb_consistency_pct": 19.26
+      },
+      "findings": [
+        {
+          "check": "froude_range",
+          "severity": "WARN",
+          "message": "Fr=2.060 exceeds 0.5 : row is outside any towing-tank displacement-hull regime, Ct not usable as a benchmark target",
+          "filed": 2.0602,
+          "expected": 0.5
+        },
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.508 incompatible with displacement and L*B*T (implies 0.6 t)",
+          "filed": 0.508,
+          "expected": 0.426,
+          "rel_error_pct": 19.26
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "KVLCC2-01",
+      "ship_type": "KVLCC2",
+      "derived": {
+        "froude_number": 0.1285,
+        "reynolds_number": 2023388937.664618,
+        "cf_ittc57": 0.001405,
+        "ct_over_cf": 1.993,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2,
+        "cb_consistency_pct": 4.38
+      },
+      "findings": [
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.8098 incompatible with displacement and L*B*T (implies 320437.2 t)",
+          "filed": 0.8098,
+          "expected": 0.7758,
+          "rel_error_pct": 4.38
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "KVLCC2-02",
+      "ship_type": "KVLCC2",
+      "derived": {
+        "froude_number": 0.1377,
+        "reynolds_number": 2168077260.7550483,
+        "cf_ittc57": 0.001394,
+        "ct_over_cf": 2.153,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2,
+        "cb_consistency_pct": 4.38
+      },
+      "findings": [
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.8098 incompatible with displacement and L*B*T (implies 320437.2 t)",
+          "filed": 0.8098,
+          "expected": 0.7758,
+          "rel_error_pct": 4.38
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "KVLCC2-03",
+      "ship_type": "KVLCC2",
+      "derived": {
+        "froude_number": 0.1423,
+        "reynolds_number": 2240280948.200176,
+        "cf_ittc57": 0.001388,
+        "ct_over_cf": 2.233,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2,
+        "cb_consistency_pct": 4.38
+      },
+      "findings": [
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.8098 incompatible with displacement and L*B*T (implies 320437.2 t)",
+          "filed": 0.8098,
+          "expected": 0.7758,
+          "rel_error_pct": 4.38
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    },
+    {
+      "case_id": "KVLCC2-04",
+      "ship_type": "KVLCC2",
+      "derived": {
+        "froude_number": 0.1469,
+        "reynolds_number": 2312484635.645303,
+        "cf_ittc57": 0.001383,
+        "ct_over_cf": 2.314,
+        "rt_status": "not_verifiable_no_wetted_surface",
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2,
+        "cb_consistency_pct": 4.38
+      },
+      "findings": [
+        {
+          "check": "cb_closure",
+          "severity": "ERROR",
+          "message": "cb filed 0.8098 incompatible with displacement and L*B*T (implies 320437.2 t)",
+          "filed": 0.8098,
+          "expected": 0.7758,
+          "rel_error_pct": 4.38
+        }
+      ],
+      "n_errors": 1,
+      "status": "inconsistent_unresolved"
+    }
+  ],
+  "summary": {
+    "n_cases": 12,
+    "n_cases_with_errors": 8,
+    "n_findings_by_check": {
+      "cb_closure:ERROR": 8,
+      "froude_range:WARN": 6
+    },
+    "status_counts": {
+      "verified": 1,
+      "out_of_validity_range": 3,
+      "inconsistent_unresolved": 8
+    }
+  },
+  "geometry_presets": {
+    "SUBOFF": {
+      "cb_filed": 0.508,
+      "displacement_unit": "placeholder",
+      "cb_from_geometry": 0.0004,
+      "applicable": false,
+      "validated": false,
+      "reason": "body of revolution: preset displacement/cb are placeholders, ship Cb undefined"
+    },
+    "DTMB-5415": {
+      "cb_filed": 0.508,
+      "displacement_unit": "kg",
+      "cb_from_geometry": 0.426,
+      "applicable": true,
+      "cb_consistency_pct": 19.26,
+      "validated": false,
+      "reason": "cb 0.508 inconsistent with displacement/L*B*T (implies cb=0.4260)"
+    },
+    "KVLCC2": {
+      "cb_filed": 0.8098,
+      "displacement_unit": "t",
+      "cb_from_geometry": 0.7758,
+      "applicable": true,
+      "cb_consistency_pct": 4.38,
+      "validated": false,
+      "reason": "cb 0.8098 inconsistent with displacement/L*B*T (implies cb=0.7758)"
+    }
+  }
+}

@@ -1,134 +1,380 @@
 {
+  "version": "2.0",
+  "supersedes": "1.0",
   "description": "Benchmark reference dataset for ship resistance validation. Sources: Roddy 1990 (SUBOFF), ITTC V&V Workshop (DTMB-5415), SIMMAN 2008 (KVLCC2).",
-  "version": "1.0",
+  "audit": {
+    "tool": "backend/tools/benchmark_dataset_audit.py",
+    "migration": "backend/tools/migrate_benchmark_dataset_v2.py",
+    "doc": "docs/ship-benchmark-reference-audit.md",
+    "constants": {
+      "g": 9.81,
+      "rho_sea": 1025.0,
+      "nu": 1.139e-06
+    },
+    "tolerances": {
+      "fr_rel_pct": 1.0,
+      "rt_rel_pct": 5.0,
+      "cb_rel_pct": 3.0,
+      "fr_max_plausible": 0.5
+    },
+    "corrections": [
+      "SUBOFF-01: experimental_rt_n(12.5 N) contradicts Ct*0.5*rho*V^2*S (95.0 N)",
+      "SUBOFF-02: experimental_rt_n(21.0 N) contradicts Ct*0.5*rho*V^2*S (177.78 N) | Fr=0.6119 > 0.5: outside towing-tank validity range",
+      "SUBOFF-03: experimental_rt_n(31.5 N) contradicts Ct*0.5*rho*V^2*S (291.66 N) | Fr=0.7649 > 0.5: outside towing-tank validity range",
+      "SUBOFF-04: experimental_rt_n(45.0 N) contradicts Ct*0.5*rho*V^2*S (440.0 N) | Fr=0.9179 > 0.5: outside towing-tank validity range",
+      "DTMB5415-01: froude_number_as_filed(0.061) contradicts V/L identity -> corrected to 0.3434 | experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source",
+      "DTMB5415-02: froude_number_as_filed(0.122) contradicts V/L identity -> corrected to 0.6867 | experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source | Fr=0.6867 > 0.5: outside towing-tank validity range",
+      "DTMB5415-03: froude_number_as_filed(0.244) contradicts V/L identity -> corrected to 1.3735 | experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source | Fr=1.3735 > 0.5: outside towing-tank validity range",
+      "DTMB5415-04: froude_number_as_filed(0.366) contradicts V/L identity -> corrected to 2.0602 | experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source | Fr=2.0602 > 0.5: outside towing-tank validity range",
+      "KVLCC2-01: experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source",
+      "KVLCC2-02: experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source",
+      "KVLCC2-03: experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source",
+      "KVLCC2-04: experimental_rt_n cannot be closed without geometry.wetted_surface_m2 | cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source"
+    ],
+    "policy": "reference_status=verified rows may decide PASS/FAIL; out_of_validity_range rows are kept for traceability but excluded from statistics in strict mode; inconsistent_unresolved rows hold a contradiction that cannot be resolved without an external source (cb vs displacement) and must not be used as a yardstick."
+  },
   "cases": [
     {
       "case_id": "SUBOFF-01",
       "ship_type": "SUBOFF",
       "speed_ms": 3.0,
-      "froude_number": 0.459,
-      "experimental_ct": 0.00380,
-      "experimental_rt_n": 12.50,
+      "froude_number": 0.4589,
+      "experimental_ct": 0.0038,
       "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {"length_m": 4.356, "diameter_m": 0.508, "wetted_surface_m2": 5.42}
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "froude_number_as_filed": 0.459,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 95.0,
+      "rt_n_source": "derived: Ct*0.5*rho*V^2*S (rho=1025 kg/m3)",
+      "rt_n_as_filed": 12.5,
+      "reference_status": "verified",
+      "audit_flags": [
+        "experimental_rt_n(12.5 N) contradicts Ct*0.5*rho*V^2*S (95.0 N)"
+      ]
     },
     {
       "case_id": "SUBOFF-02",
       "ship_type": "SUBOFF",
       "speed_ms": 4.0,
-      "froude_number": 0.612,
-      "experimental_ct": 0.00400,
-      "experimental_rt_n": 21.00,
+      "froude_number": 0.6119,
+      "experimental_ct": 0.004,
       "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {"length_m": 4.356, "diameter_m": 0.508, "wetted_surface_m2": 5.42}
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "froude_number_as_filed": 0.612,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 177.78,
+      "rt_n_source": "derived: Ct*0.5*rho*V^2*S (rho=1025 kg/m3)",
+      "rt_n_as_filed": 21.0,
+      "reference_status": "out_of_validity_range",
+      "audit_flags": [
+        "experimental_rt_n(21.0 N) contradicts Ct*0.5*rho*V^2*S (177.78 N)",
+        "Fr=0.6119 > 0.5: outside towing-tank validity range"
+      ]
     },
     {
       "case_id": "SUBOFF-03",
       "ship_type": "SUBOFF",
       "speed_ms": 5.0,
-      "froude_number": 0.765,
-      "experimental_ct": 0.00420,
-      "experimental_rt_n": 31.50,
+      "froude_number": 0.7649,
+      "experimental_ct": 0.0042,
       "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {"length_m": 4.356, "diameter_m": 0.508, "wetted_surface_m2": 5.42}
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "froude_number_as_filed": 0.765,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 291.66,
+      "rt_n_source": "derived: Ct*0.5*rho*V^2*S (rho=1025 kg/m3)",
+      "rt_n_as_filed": 31.5,
+      "reference_status": "out_of_validity_range",
+      "audit_flags": [
+        "experimental_rt_n(31.5 N) contradicts Ct*0.5*rho*V^2*S (291.66 N)",
+        "Fr=0.7649 > 0.5: outside towing-tank validity range"
+      ]
     },
     {
       "case_id": "SUBOFF-04",
       "ship_type": "SUBOFF",
       "speed_ms": 6.0,
-      "froude_number": 0.918,
-      "experimental_ct": 0.00440,
-      "experimental_rt_n": 45.00,
+      "froude_number": 0.9179,
+      "experimental_ct": 0.0044,
       "source_citation": "Roddy, J.D. (1990). 'DARPA SUBOFF Model Experiments', David Taylor Research Center, DTRC-90/012. ITTC Recommended Procedures.",
-      "geometry": {"length_m": 4.356, "diameter_m": 0.508, "wetted_surface_m2": 5.42}
+      "geometry": {
+        "length_m": 4.356,
+        "diameter_m": 0.508,
+        "wetted_surface_m2": 5.42
+      },
+      "froude_number_as_filed": 0.918,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 440.0,
+      "rt_n_source": "derived: Ct*0.5*rho*V^2*S (rho=1025 kg/m3)",
+      "rt_n_as_filed": 45.0,
+      "reference_status": "out_of_validity_range",
+      "audit_flags": [
+        "experimental_rt_n(45.0 N) contradicts Ct*0.5*rho*V^2*S (440.0 N)",
+        "Fr=0.9179 > 0.5: outside towing-tank validity range"
+      ]
     },
     {
       "case_id": "DTMB5415-01",
       "ship_type": "DTMB-5415",
       "speed_kn": 5.0,
       "speed_ms": 2.572,
-      "froude_number": 0.061,
-      "experimental_ct": 0.00450,
-      "experimental_rt_n": 8.20,
+      "froude_number": 0.3434,
+      "experimental_ct": 0.0045,
+      "experimental_rt_n": 8.2,
       "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {"length_m": 5.720, "beam_m": 0.759, "draft_m": 0.246, "displacement_kg": 466.3, "cb": 0.508}
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "displacement_kg": 466.3,
+        "cb": 0.508,
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6
+      },
+      "froude_number_as_filed": 0.061,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 8.2,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "froude_number_as_filed(0.061) contradicts V/L identity -> corrected to 0.3434",
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source"
+      ]
     },
     {
       "case_id": "DTMB5415-02",
       "ship_type": "DTMB-5415",
       "speed_kn": 10.0,
       "speed_ms": 5.144,
-      "froude_number": 0.122,
-      "experimental_ct": 0.00380,
-      "experimental_rt_n": 28.50,
+      "froude_number": 0.6867,
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": 28.5,
       "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {"length_m": 5.720, "beam_m": 0.759, "draft_m": 0.246, "displacement_kg": 466.3, "cb": 0.508}
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "displacement_kg": 466.3,
+        "cb": 0.508,
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6
+      },
+      "froude_number_as_filed": 0.122,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 28.5,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "froude_number_as_filed(0.122) contradicts V/L identity -> corrected to 0.6867",
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source",
+        "Fr=0.6867 > 0.5: outside towing-tank validity range"
+      ]
     },
     {
       "case_id": "DTMB5415-03",
       "ship_type": "DTMB-5415",
       "speed_kn": 20.0,
       "speed_ms": 10.289,
-      "froude_number": 0.244,
-      "experimental_ct": 0.00350,
-      "experimental_rt_n": 95.00,
+      "froude_number": 1.3735,
+      "experimental_ct": 0.0035,
+      "experimental_rt_n": 95.0,
       "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {"length_m": 5.720, "beam_m": 0.759, "draft_m": 0.246, "displacement_kg": 466.3, "cb": 0.508}
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "displacement_kg": 466.3,
+        "cb": 0.508,
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6
+      },
+      "froude_number_as_filed": 0.244,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 95.0,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "froude_number_as_filed(0.244) contradicts V/L identity -> corrected to 1.3735",
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source",
+        "Fr=1.3735 > 0.5: outside towing-tank validity range"
+      ]
     },
     {
       "case_id": "DTMB5415-04",
       "ship_type": "DTMB-5415",
       "speed_kn": 30.0,
       "speed_ms": 15.433,
-      "froude_number": 0.366,
-      "experimental_ct": 0.00380,
-      "experimental_rt_n": 210.00,
+      "froude_number": 2.0602,
+      "experimental_ct": 0.0038,
+      "experimental_rt_n": 210.0,
       "source_citation": "ITTC V&V Workshop (2010). 'Verification and Validation Workshop for CFD in Ship Hydrodynamics', Gothenburg 2010. DTMB Report 5415.",
-      "geometry": {"length_m": 5.720, "beam_m": 0.759, "draft_m": 0.246, "displacement_kg": 466.3, "cb": 0.508}
+      "geometry": {
+        "length_m": 5.72,
+        "beam_m": 0.759,
+        "draft_m": 0.246,
+        "displacement_kg": 466.3,
+        "cb": 0.508,
+        "cb_from_displacement": 0.426,
+        "cb_implied_density_kg_m3": 859.5,
+        "displacement_implied_by_filed_cb_t": 0.6
+      },
+      "froude_number_as_filed": 0.366,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 210.0,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "froude_number_as_filed(0.366) contradicts V/L identity -> corrected to 2.0602",
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.508) contradicts displacement*L*B*T (cb=0.426, implied rho=859.5 kg/m3) - needs external source",
+        "Fr=2.0602 > 0.5: outside towing-tank validity range"
+      ]
     },
     {
       "case_id": "KVLCC2-01",
       "ship_type": "KVLCC2",
       "speed_kn": 14.0,
       "speed_ms": 7.202,
-      "froude_number": 0.129,
-      "experimental_ct": 0.00280,
+      "froude_number": 0.1285,
+      "experimental_ct": 0.0028,
       "experimental_rt_n": 550000.0,
       "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {"length_m": 320.0, "beam_m": 58.0, "draft_m": 20.8, "displacement_t": 307000.0, "cb": 0.8098}
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "displacement_t": 307000.0,
+        "cb": 0.8098,
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2
+      },
+      "froude_number_as_filed": 0.129,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 550000.0,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source"
+      ]
     },
     {
       "case_id": "KVLCC2-02",
       "ship_type": "KVLCC2",
       "speed_kn": 15.0,
       "speed_ms": 7.717,
-      "froude_number": 0.138,
-      "experimental_ct": 0.00300,
+      "froude_number": 0.1377,
+      "experimental_ct": 0.003,
       "experimental_rt_n": 650000.0,
       "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {"length_m": 320.0, "beam_m": 58.0, "draft_m": 20.8, "displacement_t": 307000.0, "cb": 0.8098}
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "displacement_t": 307000.0,
+        "cb": 0.8098,
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2
+      },
+      "froude_number_as_filed": 0.138,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 650000.0,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source"
+      ]
     },
     {
       "case_id": "KVLCC2-03",
       "ship_type": "KVLCC2",
       "speed_kn": 15.5,
       "speed_ms": 7.974,
-      "froude_number": 0.143,
-      "experimental_ct": 0.00310,
+      "froude_number": 0.1423,
+      "experimental_ct": 0.0031,
       "experimental_rt_n": 700000.0,
       "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {"length_m": 320.0, "beam_m": 58.0, "draft_m": 20.8, "displacement_t": 307000.0, "cb": 0.8098}
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "displacement_t": 307000.0,
+        "cb": 0.8098,
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2
+      },
+      "froude_number_as_filed": 0.143,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 700000.0,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source"
+      ]
     },
     {
       "case_id": "KVLCC2-04",
       "ship_type": "KVLCC2",
       "speed_kn": 16.0,
       "speed_ms": 8.231,
-      "froude_number": 0.147,
-      "experimental_ct": 0.00320,
+      "froude_number": 0.1469,
+      "experimental_ct": 0.0032,
       "experimental_rt_n": 760000.0,
       "source_citation": "SIMMAN 2008 Workshop (2008). 'Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods', Copenhagen. KVLCC2 benchmark data.",
-      "geometry": {"length_m": 320.0, "beam_m": 58.0, "draft_m": 20.8, "displacement_t": 307000.0, "cb": 0.8098}
+      "geometry": {
+        "length_m": 320.0,
+        "beam_m": 58.0,
+        "draft_m": 20.8,
+        "displacement_t": 307000.0,
+        "cb": 0.8098,
+        "cb_from_displacement": 0.7758,
+        "cb_implied_density_kg_m3": 982.0,
+        "displacement_implied_by_filed_cb_t": 320437.2
+      },
+      "froude_number_as_filed": 0.147,
+      "froude_number_source": "derived: V/sqrt(g*L)",
+      "experimental_ct_status": "externally_unverified_in_offline_audit",
+      "rt_n": 760000.0,
+      "rt_n_source": "filed, not closable offline (no wetted_surface_m2)",
+      "reference_status": "inconsistent_unresolved",
+      "audit_flags": [
+        "experimental_rt_n cannot be closed without geometry.wetted_surface_m2",
+        "cb(0.8098) contradicts displacement*L*B*T (cb=0.7758, implied rho=982.0 kg/m3) - needs external source"
+      ]
     }
   ]
 }
