@@ -13,6 +13,7 @@ from typing import Any, Dict, Optional
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel, Field
 
+from services.ship_resistance_core import compute_resistance
 from services.ship_timing import get_collector, timed_calc
 
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
@@ -35,7 +36,13 @@ class ResistanceRequest(BaseModel):
 
 
 class ResistanceResponse(BaseModel):
-    """Resistance calculation response."""
+    """Resistance calculation response.
+
+    ``ct`` and ``wetted_surface_m2`` are the dimensionless total-resistance
+    coefficient and the wetted surface used to obtain it; downstream benchmark
+    validation compares ``ct`` against reference coefficients (Rt follows from
+    Rt = 0.5 rho S V^2 ct), so every response must publish it.
+    """
     ship_type: str
     speed_ms: float
     total_resistance_n: float
@@ -43,6 +50,8 @@ class ResistanceResponse(BaseModel):
     residual_resistance_n: float
     reynolds_number: float
     froude_number: float
+    ct: Optional[float] = None
+    wetted_surface_m2: Optional[float] = None
     computation_time_ms: float
 
 
@@ -69,68 +78,6 @@ class StabilityResponse(BaseModel):
 # ---------------------------------------------------------------------------
 # Resistance calculation (Holtrop-Mennen simplified for SUBOFF)
 # ---------------------------------------------------------------------------
-
-@router.post("/resistance", response_model=ResistanceResponse)
-@timed_calc("resistance")
-async def calc_resistance(req: ResistanceRequest):
-    """
-    Compute total resistance for a given hull at specified speed.
-
-    Uses a simplified Holtrop-Mennen formulation calibrated for the
-    SUBOFF axisymmetric body (DARPA SUBOFF model).
-    """
-    t0 = time.perf_counter()
-
-    L = req.length
-    B = req.beam
-    T = req.draft
-    Cb = req.cb
-    V = req.speed_ms
-    rho = req.water_density
-    nu = req.kinematic_viscosity
-
-    # Geometric sanity check
-    if not (0.3 < Cb < 1.0):
-        raise HTTPException(status_code=400, detail=f"Cb={Cb} out of physical range [0.3, 1.0]")
-    if L <= 0 or B <= 0 or T <= 0:
-        raise HTTPException(status_code=400, detail="Dimensions must be positive")
-
-    # Wetted surface area (approximation for axisymmetric body)
-    S = math.pi * B * L * (0.5 + 0.25 * Cb)
-
-    # Reynolds number
-    Re = V * L / nu
-
-    # ITTC-1957 friction line
-    Cf = 0.075 / (math.log10(Re) - 2.0) ** 2
-
-    # Frictional resistance
-    Rf = 0.5 * rho * S * Cf * V ** 2
-
-    # Residual resistance (simplified: function of Fn and Cb)
-    g = 9.81
-    Fn = V / math.sqrt(g * L)
-
-    # Empirical residual resistance coefficient for SUBOFF-like bodies
-    # Based on curve-fitting to experimental data
-    Cr = 0.002 * (1 + 2.0 * Cb) * Fn ** 2.5 if Fn > 0.05 else 0.0
-    Rr = 0.5 * rho * S * Cr * V ** 2
-
-    Rt = Rf + Rr
-
-    elapsed_ms = (time.perf_counter() - t0) * 1000
-
-    return ResistanceResponse(
-        ship_type=req.ship_type,
-        speed_ms=V,
-        total_resistance_n=round(Rt, 4),
-        frictional_resistance_n=round(Rf, 4),
-        residual_resistance_n=round(Rr, 4),
-        reynolds_number=round(Re, 2),
-        froude_number=round(Fn, 6),
-        computation_time_ms=round(elapsed_ms, 3),
-    )
-
 
 # ---------------------------------------------------------------------------
 # Stability calculation (simplified GZ curve)
