@@ -1,0 +1,61 @@
+{
+  "tank": {
+    "length_m": 2.0,
+    "depth_m": 1.0,
+    "h_over_L": 0.5
+  },
+  "method": "FD Laplace + linearised free-surface eigenproblem (Schur complement) vs analytic w^2 = g k tanh(k h)",
+  "rows": [
+    {
+      "mode": 1.0,
+      "analytic_omega": 3.758728998157155,
+      "fd_omega": 3.7907743811892405,
+      "rel_error": 0.008525590178966508,
+      "nx": 60,
+      "nz": 30
+    },
+    {
+      "mode": 2.0,
+      "analytic_omega": 5.540184821653352,
+      "fd_omega": 5.589507433073075,
+      "rel_error": 0.008902701445437434,
+      "nx": 60,
+      "nz": 30
+    },
+    {
+      "mode": 3.0,
+      "analytic_omega": 6.797447410844045,
+      "fd_omega": 6.862033150739057,
+      "rel_error": 0.009501469594597772,
+      "nx": 60,
+      "nz": 30
+    },
+    {
+      "mode": 1.0,
+      "analytic_omega": 3.758728998157155,
+      "fd_omega": 3.7745687071793506,
+      "rel_error": 0.004214113076511048,
+      "nx": 120,
+      "nz": 60
+    },
+    {
+      "mode": 2.0,
+      "analytic_omega": 5.540184821653352,
+      "fd_omega": 5.564044747511437,
+      "rel_error": 0.004306702145536847,
+      "nx": 120,
+      "nz": 60
+    },
+    {
+      "mode": 3.0,
+      "analytic_omega": 6.797447410844045,
+      "fd_omega": 6.8277263593008835,
+      "rel_error": 0.004454458655838084,
+      "nx": 120,
+      "nz": 60
+    }
+  ],
+  "criterion_a_max_rel_error": 0.009501469594597772,
+  "criterion_a_threshold": 0.03,
+  "criterion_a_pass": true
+}

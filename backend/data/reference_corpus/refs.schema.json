@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorplatform.local/schemas/refs.schema.json",
+  "title": "TensorPlatform reference-value entry (refs.schema)",
+  "description": "One anchored, tolerance-carrying reference value or reference table digitised from literature / classification-society rules / ITTC procedures. Enforced with jsonschema (Draft 2020-12) at corpus load time; an entry that does not validate is never served.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "id",
+    "quantity",
+    "domain",
+    "unit",
+    "value",
+    "tolerance",
+    "k",
+    "source",
+    "sha256_of_scan",
+    "sha256_scope",
+    "digitisation_error",
+    "validity_range",
+    "provenance",
+    "supersedes",
+    "table",
+    "dual_pass",
+    "verification"
+  ],
+  "properties": {
+    "id": {
+      "type": "string",
+      "pattern": "^[a-z0-9]+(_[a-z0-9]+)*\\.[a-z0-9]+(_[a-z0-9]+)*$",
+      "description": "Stable identifier, namespace.name (e.g. ittc1957.cf_table)."
+    },
+    "quantity": {
+      "type": "string",
+      "minLength": 3,
+      "description": "Physical quantity the value/table carries (machine filter key)."
+    },
+    "domain": {
+      "type": "string",
+      "enum": [
+        "resistance",
+        "propulsion",
+        "seakeeping",
+        "manoeuvring",
+        "stability",
+        "structure",
+        "vibration_noise",
+        "green",
+        "ice"
+      ]
+    },
+    "unit": {"type": "string", "minLength": 1},
+    "value": {
+      "type": "number",
+      "description": "Canonical single value of the entry (for tables: the tabulated value at x_ref)."
+    },
+    "x_ref": {"type": ["number", "null"]},
+    "tolerance": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "value", "basis"],
+      "properties": {
+        "type": {"enum": ["relative", "absolute"]},
+        "value": {"type": "number", "exclusiveMinimum": 0},
+        "basis": {"type": "string", "minLength": 3}
+      }
+    },
+    "k": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "description": "Coverage factor of the stated tolerance (GUM style, e.g. k=2 for ~95%)."
+    },
+    "source": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["type", "doc", "table"],
+      "properties": {
+        "type": {"enum": ["JOURNAL", "BOOK", "STANDARD", "REPORT", "RULES", "DATASHEET", "DERIVED"]},
+        "doc": {"type": "string", "minLength": 3},
+        "doi": {"type": ["string", "null"]},
+        "isbn": {"type": ["string", "null"]},
+        "report_no": {"type": ["string", "null"]},
+        "page": {"type": ["string", "null"]},
+        "table": {"type": "string", "minLength": 1},
+        "access_note": {"type": "string"}
+      }
+    },
+    "sha256_of_scan": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "sha256 of the archived source artefact of this entry (the digitised table CSV for tables). A flipped bit makes the entry unservable."
+    },
+    "sha256_scope": {
+      "type": "string",
+      "minLength": 8,
+      "description": "What exactly the anchor covers (artefact scope), stated explicitly to avoid over-claiming a page image."
+    },
+    "digitisation_error": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["value", "unit"],
+      "properties": {
+        "value": {"type": "number", "minimum": 0},
+        "unit": {"type": "string"},
+        "note": {"type": "string"}
+      }
+    },
+    "validity_range": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["x_quantity", "x_unit", "x_min", "x_max"],
+      "properties": {
+        "x_quantity": {"type": "string", "minLength": 2},
+        "x_unit": {"type": "string"},
+        "x_min": {"type": "number"},
+        "x_max": {"type": "number"},
+        "note": {"type": "string"}
+      }
+    },
+    "provenance": {"enum": ["MEASURED", "ANALYTIC", "FITTED"]},
+    "supersedes": {"type": ["string", "null"]},
+    "table": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["path", "pass_b_path", "x_quantity", "x_unit", "y_quantity", "x_min", "x_max", "n_points"],
+      "properties": {
+        "path": {"type": "string", "minLength": 3},
+        "pass_b_path": {"type": "string", "minLength": 3},
+        "x_quantity": {"type": "string"},
+        "x_unit": {"type": "string"},
+        "y_quantity": {"type": "string"},
+        "x_min": {"type": "number"},
+        "x_max": {"type": "number"},
+        "n_points": {"type": "integer", "minimum": 5}
+      }
+    },
+    "dual_pass": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["max_rel_diff", "gate", "n_points"],
+      "properties": {
+        "max_rel_diff": {"type": "number", "minimum": 0},
+        "gate": {"type": "number", "exclusiveMinimum": 0},
+        "n_points": {"type": "integer", "minimum": 5},
+        "gate_scale": {"type": "number", "minimum": 0},
+        "note": {"type": "string"}
+      }
+    },
+    "verification": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["method", "rel_error"],
+      "properties": {
+        "method": {"type": "string", "minLength": 5},
+        "rel_error": {"type": "number", "minimum": 0},
+        "reference": {"type": "string"}
+      }
+    },
+    "notes": {"type": "array", "items": {"type": "string"}}
+  }
+}

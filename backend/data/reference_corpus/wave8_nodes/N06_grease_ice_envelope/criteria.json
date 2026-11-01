@@ -1,0 +1,161 @@
+{
+  "mission": "W8-N06",
+  "criterion_a_rheology_15pct": {
+    "value_max_rel_error": 0.05659335612747254,
+    "points": 6,
+    "phi_range": [
+      0.05,
+      0.3
+    ],
+    "monotone": true,
+    "limit_correct": true,
+    "pass": true,
+    "artifact": "artifacts/grease_ice_envelope/rheology_calibration.json"
+  },
+  "criterion_a2_identifiability": {
+    "phi_max_hat": 0.3496553043818597,
+    "alpha_hat": 1.7046333508365983,
+    "rel_error_phi_max": 0.0009848446232579063,
+    "rel_error_alpha": 0.002725500492116663,
+    "intrinsic_viscosity": 4.875182299465312,
+    "pass": true,
+    "artifact": "artifacts/grease_ice_envelope/rheology_calibration.json"
+  },
+  "criterion_b_frazil_15pct": {
+    "value_max_rel_error": 0.0012017735554880637,
+    "dT_scan_K": [
+      0.01,
+      0.03,
+      0.05,
+      0.07,
+      0.1
+    ],
+    "pass": true,
+    "artifact": "artifacts/grease_ice_envelope/frazil_thermal.json"
+  },
+  "criterion_c_thrust_vs_experiment": {
+    "grade": "WITHHELD",
+    "reason": "工作树内无可数字化的冰池推力/扭矩试验表；按纪律记 WITHHELD，只主张趋势（phi 单调退化）、极限（phi->phi_max 塌陷）与功率守恒",
+    "power_rel_error_max": 5.587935447692871e-16,
+    "monotone_loss": true,
+    "thrust_loss_at_phi_0": 0.0,
+    "pass": null,
+    "artifact": "artifacts/grease_ice_envelope/thrust_degradation.json"
+  },
+  "criterion_d_riska_continuity_10pct": {
+    "value_max_rel_error_at_limit": 0.058978425809315345,
+    "unregularized_rel_error_at_limit": 0.8588354481977516,
+    "jump_rel": 0.005897842580931943,
+    "pass": true,
+    "artifact": "artifacts/grease_ice_envelope/riska_continuity.json"
+  },
+  "criterion_e_capability_and_pytest": {
+    "capability": "calc.grease_ice_envelope",
+    "evidence_grade": "REAL",
+    "sub_grades": {
+      "rheology_parameter_recovery": "REAL",
+      "rheology_experimental_absolute": "WITHHELD",
+      "frazil_thermal_balance": "REAL",
+      "layer_riska_continuity": "REAL",
+      "riska_coefficients_absolute": "ANCHOR_APPROX",
+      "thrust_degradation_vs_experiment": "WITHHELD",
+      "open_water_base_KT_KQ": "ANCHOR_APPROX"
+    },
+    "pytest_passed": 44,
+    "pytest_returncode": 0,
+    "pass": true,
+    "artifact": "backend/tests/test_grease_ice.py"
+  },
+  "envelope_summary": {
+    "phi_limit_by_speed_5MW": [
+      {
+        "V_kn": 2.0,
+        "phi_limit": 0.2435029296875,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 3.0,
+        "phi_limit": 0.24486328125,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 4.0,
+        "phi_limit": 0.24486328125,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 5.0,
+        "phi_limit": 0.2462236328125,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 6.0,
+        "phi_limit": 0.247583984375,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 8.0,
+        "phi_limit": 0.2503046875,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 10.0,
+        "phi_limit": 0.25166503906250004,
+        "binding": "thrust_loss"
+      }
+    ],
+    "phi_limit_by_speed_1p5MW": [
+      {
+        "V_kn": 2.0,
+        "phi_limit": 0.2285390625,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 3.0,
+        "phi_limit": 0.2298994140625,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 4.0,
+        "phi_limit": 0.231259765625,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 5.0,
+        "phi_limit": 0.2326201171875,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 6.0,
+        "phi_limit": 0.2353408203125,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 8.0,
+        "phi_limit": 0.2380615234375,
+        "binding": "thrust_loss"
+      },
+      {
+        "V_kn": 10.0,
+        "phi_limit": 0.2407822265625,
+        "binding": "thrust_loss"
+      }
+    ],
+    "phi_crit_thrust_loss_25pct": 0.2462236328125,
+    "phi_crit_thrust_loss_5pct": 0.16392236328125004,
+    "artifact": "artifacts/grease_ice_envelope/envelope.json"
+  },
+  "pass_flags": {
+    "criterion_a_rheology_15pct": true,
+    "criterion_a2_identifiability": true,
+    "criterion_b_frazil_15pct": true,
+    "criterion_c_thrust_vs_experiment": null,
+    "criterion_d_riska_continuity_10pct": true,
+    "criterion_e_capability_and_pytest": true
+  },
+  "withheld": [
+    "criterion_c_thrust_vs_experiment"
+  ],
+  "all_pass_excluding_withheld": true,
+  "all_pass_strict": false
+}

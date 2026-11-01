@@ -1,0 +1,66 @@
+{
+  "id": "ittc1957.cf_friction_line",
+  "quantity": "friction_coefficient_cf",
+  "domain": "resistance",
+  "unit": "-",
+  "value": 0.001530612244897959,
+  "x_ref": 9.0,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.005,
+    "basis": "ITTC-1957 line is an empirical fit to flat-plate data; 0.5% band is the reading accuracy claimed for model-scale Cf"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "REPORT",
+    "doc": "ITTC 1957 frictional resistance line (8th ITTC, Madrid, 1957); reproduced in ITTC Recommended Procedure 7.5-02-03-01.4 '1978 ITTC Performance Prediction Method'",
+    "doi": null,
+    "isbn": null,
+    "report_no": "ITTC-1957",
+    "page": null,
+    "table": "ITTC-1957 line, Cf(Re) = 0.075 / (log10(Re) - 2)^2",
+    "access_note": "formula transcribed from the ITTC recommended procedure text; page/table numbers not re-verified against a primary PDF because no scan is held in-repo (offline discipline)"
+  },
+  "sha256_of_scan": "81506af6a5b3d4e0021bed639b09235ab45e3f71ad41584c863b233bea8b57c9",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/ittc1957.cf_friction_line.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 2e-06,
+    "unit": "-",
+    "note": "print rounding of pass B (5 s.f.) dominates; the closed form itself is reproduced at machine precision"
+  },
+  "validity_range": {
+    "x_quantity": "log10_reynolds_number",
+    "x_unit": "-",
+    "x_min": 5.0,
+    "x_max": 9.0,
+    "note": "1e5 <= Re <= 1e9: the Reynolds range over which the ITTC-1957 line is used for model/ship extrapolation"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/ittc1957.cf_friction_line.csv",
+    "pass_b_path": "sources/ittc1957.cf_friction_line.passB.csv",
+    "x_quantity": "log10_reynolds_number",
+    "x_unit": "-",
+    "y_quantity": "friction_coefficient_cf",
+    "x_min": 5.0,
+    "x_max": 9.0,
+    "n_points": 81
+  },
+  "dual_pass": {
+    "max_rel_diff": 2.9492463502156884e-05,
+    "gate": 0.001,
+    "n_points": 81,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "unavailable",
+    "rel_error": 0.0,
+    "reference": ""
+  },
+  "notes": [
+    "Cf is monotone decreasing in Re; served by monotone PCHIP so no overshoot can create a negative friction coefficient.",
+    "Cross-checked against the independent implementation in delivered node W8-N07 (mission 1218): Cf(Re=1e9) matches to 0 ulp.",
+    "verification_detail: {\"method\": \"unavailable\", \"rel_error\": 0.0}"
+  ]
+}

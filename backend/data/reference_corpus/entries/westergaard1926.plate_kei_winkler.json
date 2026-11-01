@@ -1,0 +1,65 @@
+{
+  "id": "westergaard1926.plate_kei_winkler",
+  "quantity": "plate_deflection_kernel_kei",
+  "domain": "structure",
+  "unit": "-",
+  "value": 0.7853981633974483,
+  "x_ref": 0.0,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.001,
+    "basis": "thin-plate (Kirchhoff) closed form; Kelvin kei kernel"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "JOURNAL",
+    "doc": "Westergaard, H.M. (1926) 'Stresses in concrete pavements computed by theoretical analysis', Public Roads 7(2); reproduced in Hetenyi (1946) and in Kerr, A.D. (1964) 'Elastic and viscoelastic foundation models', J. Appl. Mech. 31(3)",
+    "doi": "10.1115/1.3629667",
+    "isbn": null,
+    "report_no": null,
+    "page": null,
+    "table": "w(r) = (P ell^2 / (2 pi D)) (-kei(r/ell)), w_max = P/(8 sqrt(D k))",
+    "access_note": "closed form via the Kelvin kei function; kei(0) = -pi/4 re-verified numerically"
+  },
+  "sha256_of_scan": "0b362a72a1f1abcb03ff46db59b6ce8c3b3f3363031c18a1816796aba528279e",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/westergaard1926.plate_kei_winkler.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 1e-06,
+    "unit": "-",
+    "note": "pass B print rounding"
+  },
+  "validity_range": {
+    "x_quantity": "r_over_characteristic_length_ell",
+    "x_unit": "-",
+    "x_min": 0.0,
+    "x_max": 3.0,
+    "note": "r/ell > 3 deflection is < 1% of w_max; thin-plate assumption limits r/ell to O(1) for real ice plates"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/westergaard1926.plate_kei_winkler.csv",
+    "pass_b_path": "sources/westergaard1926.plate_kei_winkler.passB.csv",
+    "x_quantity": "r_over_characteristic_length_ell",
+    "x_unit": "-",
+    "y_quantity": "minus_kei_r_over_ell",
+    "x_min": 0.0,
+    "x_max": 3.0,
+    "n_points": 151
+  },
+  "dual_pass": {
+    "max_rel_diff": 3.802546656360242e-05,
+    "gate": 0.001,
+    "n_points": 151,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "scipy.special.kei(0) vs closed form kei(0) = -pi/4 (=> w_max = P/(8 sqrt(Dk)))",
+    "rel_error": 0.0,
+    "reference": "Westergaard (1926) / Hetenyi (1946) infinite plate on Winkler foundation"
+  },
+  "notes": [
+    "w_max = P/(8 sqrt(D k)) is the Nevel/Westergaard point-load result quoted for ice plates on an elastic foundation.",
+    "verification_detail: {\"method\": \"scipy.special.kei(0) vs closed form kei(0) = -pi/4 (=> w_max = P/(8 sqrt(Dk)))\", \"kei0\": 0.7853981633974483, \"pi_over_4\": 0.7853981633974483, \"rel_error\": 0.0, \"reference\": \"Westergaard (1926) / Hetenyi (1946) infinite plate on Winkler foundation\"}"
+  ]
+}

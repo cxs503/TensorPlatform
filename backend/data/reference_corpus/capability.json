@@ -1,0 +1,53 @@
+{
+  "capability_id": "reference_corpus.digitisation_service",
+  "name_zh": "参考值语料库与数字化服务（sha256 锚定 / 带容差 / 可被 pytest 直接消费）",
+  "name_en": "Reference-value corpus and digitisation service",
+  "covers_domains": [
+    "resistance",
+    "seakeeping",
+    "structure"
+  ],
+  "evidence_grade": "REAL",
+  "evidence_basis": [
+    "9 reference tables digitised with two independent transcription passes; max pointwise relative difference 3.93e-05 against a 1e-3 gate (artifacts/reference_corpus/corpus_audit.json)",
+    "every entry carries source + sha256 anchor + tolerance (with coverage factor k) + validity_range; jsonschema Draft 2020-12 validation with zero errors",
+    "serving is fail-closed: one flipped bit in an archived artefact refuses the entry (9/9 parametrised pytest cases; API returns 409 INTEGRITY_REFUSED)",
+    "values are served by monotone PCHIP; PCHIP-vs-linear deviation 5.43e-04 <= 1e-3, so the tabulated grids are dense enough for linear reading too",
+    "each table carries an independent numerical verification block (finite difference for the beam ODE, adaptive quadrature for the Pasternak Hankel integral, Bessel-zero residual for the cylinder mode, deep-water limit for the sloshing dispersion), all rel. errors <= 6.2e-06",
+    "corpus-driven re-adjudication of delivered Wave-8 nodes: W8-N07 ITTC-1957 anchor upgraded from self-referential to anchored (0.00%), W8-N02 sloshing modes 1-3 at 0.42/0.43/0.45% vs a 3% gate"
+  ],
+  "api_endpoints": [
+    "GET /api/v1/reference/{id}",
+    "GET /api/v1/reference?quantity=&validity=&domain=&provenance=",
+    "GET /api/v1/reference/{id}/evaluate?x=&scheme=",
+    "GET /api/v1/reference/{id}/dualpass",
+    "GET /api/v1/reference/audit",
+    "GET /api/v1/reference/pending",
+    "GET /api/v1/reference/wave8/ledger",
+    "GET /api/v1/reference/wave8/readjudication"
+  ],
+  "artifacts": {
+    "corpus_root": "backend/data/reference_corpus",
+    "audit": "artifacts/reference_corpus/corpus_audit.json",
+    "ledger": "artifacts/reference_corpus/ledger.json",
+    "readjudication": "artifacts/reference_corpus/readjudication.json",
+    "acceptance": "artifacts/reference_corpus/acceptance.json",
+    "report": "docs/reports/m1425_reference_corpus_report.md"
+  },
+  "pytest": {
+    "command": "cd backend && python -m pytest tests/test_reference_corpus.py tests/test_reference_api.py -q",
+    "n_tests": 72
+  },
+  "withheld": [
+    "Abramson (1966) / Faltinsen (2000) nonlinear resonant amplitude and sloshing impact-pressure tables (no scan in repo)",
+    "Riska / FSICR ice-load coefficient tables (rulebook revision not archived in repo)",
+    "Kerr (1964) viscoelastic foundation creep tables (material constants unavailable offline)"
+  ],
+  "limits": [
+    "sha256 anchors the in-repo digitisation artefact, not a page image of the source document",
+    "the two digitisation passes are two independent transcription programs, not two human keyers; human double-keying remains an open item",
+    "first batch is ANALYTIC/FITTED provenance only: no MEASURED reference table is served yet",
+    "12 of 102 Wave-8 acceptance items could not be classified beyond NO_STATUS because the node artefacts do not carry a pass/verdict field"
+  ],
+  "generated_by": "tools/build_reference_corpus.py + tools/render_reference_corpus_report.py"
+}

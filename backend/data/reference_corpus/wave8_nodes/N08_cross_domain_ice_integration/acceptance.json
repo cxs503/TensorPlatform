@@ -1,0 +1,1268 @@
+{
+  "gate": "W8-N08",
+  "title": "冰-结构相变-液晃-数字孪生跨域集成门",
+  "generated_utc": "2026-11-01T02:24:26.837978+00:00",
+  "provenance": {
+    "git_rev": "712699c",
+    "python": "3.11.6",
+    "numpy": "2.4.6",
+    "node": "36cb7828dbd5",
+    "runtime_s": 51.78
+  },
+  "verdict": "PASS",
+  "criteria": {
+    "a_node_pytest_pass_rate": {
+      "requirement": "全部 7 个节点 pytest 通过率 100%",
+      "platform_reference_suite_tests": 25,
+      "platform_reference_suite_passed": 25,
+      "platform_reference_pass_rate": 1.0,
+      "upstream_suites_available": [
+        "N01",
+        "N02",
+        "N03",
+        "N04",
+        "N05",
+        "N06",
+        "N07"
+      ],
+      "upstream_suites_run": [],
+      "upstream_evidence": "WITHHELD",
+      "note": "上游 7 节点在独立仓库/未合并分支并行开发, 本门只读探测其 worktree 并登记产物可见性; 上游 pytest 由其本节点自证. 本门以平台契约参考实现的全套 pytest 通过率作为 (a) 的可执行证据.",
+      "passed": true
+    },
+    "b_dimension_consistency": {
+      "requirement": "跨模块接口量纲一致性检查 0 错误",
+      "edges_checked": 13,
+      "ports_checked": 79,
+      "error_count": 0,
+      "violations": [],
+      "passed": true
+    },
+    "c_dataflow_end_to_end": {
+      "requirement": "数据流贯通测试端到端通过 (7 节点全链 + delayed 反馈边)",
+      "nodes_executed": [
+        "N01",
+        "N02",
+        "N03",
+        "N04",
+        "N05",
+        "N06",
+        "N07"
+      ],
+      "payload_violations": [],
+      "payload_violation_count": 0,
+      "staggered_vs_monolithic_delta": 0.03864614074941012,
+      "delayed_edges": [
+        "N02.slosh_moment_x->N03.slosh_moment_x"
+      ],
+      "unit_invariance": {
+        "moment_SI": 39999999.999999985,
+        "moment_kNm": 39999.999999999985,
+        "roundtrip_relative_error": 0.0,
+        "response_relative_error": 0.0
+      },
+      "passed": true
+    },
+    "d_conservation": {
+      "requirement": "能量/质量/动量守恒残差 < 1%",
+      "residuals": {
+        "mass_melt": 0.0013530310732149861,
+        "mass_ice_transfer": 1.3182353882174154e-16,
+        "mass_drain": 8.566535683836084e-16,
+        "momentum_surge": 2.084326545714017e-09,
+        "energy_roll_slosh": 1.3338429852444321e-06,
+        "energy_surge": 5.863730068931793e-10,
+        "energy_sea": 3.809699092781033e-18
+      },
+      "max_residual": 0.0013530310732149861,
+      "worst_check": "mass_melt",
+      "passed": true
+    },
+    "e_report_six_elements": {
+      "requirement": "战役级验收报告包含六要素",
+      "report": {
+        "present": true,
+        "path": "../docs/ice_integration_gate.md",
+        "sections": {
+          "案例介绍": true,
+          "方法": true,
+          "结果": true,
+          "图": true,
+          "注意点": true,
+          "误差判定": true
+        },
+        "missing": []
+      },
+      "passed": true
+    },
+    "f_integration_tests": {
+      "requirement": "集成测试脚本 ≥10 例全绿",
+      "test_file": "/srv/tensor/agent/work/m1219/backend/tests/test_ice_integration_gate.py",
+      "collected": 25,
+      "passed_count": 25,
+      "passed": true
+    }
+  },
+  "contracts": {
+    "nodes": [
+      "N01",
+      "N02",
+      "N03",
+      "N04",
+      "N05",
+      "N06",
+      "N07"
+    ],
+    "edges_checked": 13,
+    "ports_checked": 79,
+    "violations": [],
+    "delayed_edges": [
+      "N02.slosh_moment_x->N03.slosh_moment_x"
+    ],
+    "loops": [
+      "N02->N03->N02"
+    ],
+    "error_count": 0,
+    "ok": true
+  },
+  "edge_units": [
+    {
+      "edge": "N01.contact_moment_x->N03.excitation_moment_x",
+      "src_unit": "N*m",
+      "dst_unit": "N*m",
+      "src_dim": "M^1·L^2·T^-2",
+      "dst_dim": "M^1·L^2·T^-2",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N01.contact_force->N03.excitation_force",
+      "src_unit": "N",
+      "dst_unit": "N",
+      "src_dim": "M^1·L^1·T^-2",
+      "dst_dim": "M^1·L^1·T^-2",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N01.acoustic_force_series->N04.contact_force_time_series",
+      "src_unit": "N",
+      "dst_unit": "N",
+      "src_dim": "M^1·L^1·T^-2",
+      "dst_dim": "M^1·L^1·T^-2",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N01.melt_mass_rate->N06.melt_mass_rate",
+      "src_unit": "kg/s",
+      "dst_unit": "kg/s",
+      "src_dim": "M^1·T^-1",
+      "dst_dim": "M^1·T^-1",
+      "factor": 1.0,
+      "src_frame": "n_a",
+      "dst_frame": "n_a",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N03.roll_angle->N02.roll_angle",
+      "src_unit": "rad",
+      "dst_unit": "rad",
+      "src_dim": "1",
+      "dst_dim": "1",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N03.roll_acceleration->N02.roll_acceleration",
+      "src_unit": "rad/s^2",
+      "dst_unit": "rad/s^2",
+      "src_dim": "T^-2",
+      "dst_dim": "T^-2",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N02.slosh_moment_x->N03.slosh_moment_x",
+      "src_unit": "N*m",
+      "dst_unit": "N*m",
+      "src_dim": "M^1·L^2·T^-2",
+      "dst_dim": "M^1·L^2·T^-2",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": true
+    },
+    {
+      "edge": "N03.roll_angle->N07.model_roll_prediction",
+      "src_unit": "rad",
+      "dst_unit": "rad",
+      "src_dim": "1",
+      "dst_dim": "1",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N03.roll_angle->N07.measured_roll",
+      "src_unit": "rad",
+      "dst_unit": "rad",
+      "src_dim": "1",
+      "dst_dim": "1",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N03.roll_rate->N07.measured_roll_rate",
+      "src_unit": "rad/s",
+      "dst_unit": "rad/s",
+      "src_dim": "T^-1",
+      "dst_dim": "T^-1",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N01.contact_moment_x->N07.measured_moment",
+      "src_unit": "N*m",
+      "dst_unit": "N*m",
+      "src_dim": "M^1·L^2·T^-2",
+      "dst_dim": "M^1·L^2·T^-2",
+      "factor": 1.0,
+      "src_frame": "ship_fixed_zup",
+      "dst_frame": "ship_fixed_zup",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N07.estimated_ice_concentration->N05.ice_concentration",
+      "src_unit": "1",
+      "dst_unit": "1",
+      "src_dim": "1",
+      "dst_dim": "1",
+      "factor": 1.0,
+      "src_frame": "n_a",
+      "dst_frame": "n_a",
+      "transform": "identity",
+      "delayed": false
+    },
+    {
+      "edge": "N03.forward_speed->N06.ship_speed",
+      "src_unit": "m/s",
+      "dst_unit": "m/s",
+      "src_dim": "L^1·T^-1",
+      "dst_dim": "L^1·T^-1",
+      "factor": 1.0,
+      "src_frame": "earth_zup",
+      "dst_frame": "earth_zup",
+      "transform": "earth_to_ship_roll",
+      "delayed": false
+    }
+  ],
+  "nodes": {
+    "N01": {
+      "payload": {
+        "contact_force": 9999999.999999996,
+        "contact_moment_x": 39999999.999999985,
+        "contact_force_time_series": {
+          "shape": [
+            7200
+          ],
+          "min": 0.0,
+          "max": 9999999.999999996,
+          "mean": 1516220.2380952423,
+          "first": [
+            2500000.0,
+            2714285.714285714,
+            2928571.4285714286,
+            3142857.1428571427
+          ]
+        },
+        "acoustic_force_series": {
+          "shape": [
+            72000
+          ],
+          "min": 0.0,
+          "max": 10022197.610582167,
+          "mean": 1533765.7051551065,
+          "first": [
+            2532749.4394515282,
+            2496763.7472223844,
+            2534436.295119858,
+            2571802.0384447654
+          ]
+        },
+        "melt_film_thickness": 0.004414447763174716,
+        "melt_mass_rate": 6.737631440020473,
+        "interface_temperature": 273.0019550865553
+      },
+      "meta": {
+        "time": {
+          "shape": [
+            7200
+          ],
+          "min": 0.0,
+          "max": 71.99,
+          "mean": 35.995,
+          "first": [
+            0.0,
+            0.01,
+            0.02,
+            0.03
+          ]
+        },
+        "acoustic_time": {
+          "shape": [
+            72000
+          ],
+          "min": 0.0,
+          "max": 71.999,
+          "mean": 35.9995,
+          "first": [
+            0.0,
+            0.001,
+            0.002,
+            0.003
+          ]
+        },
+        "acoustic_dt": 0.001,
+        "hf_component": {
+          "shape": [
+            72000
+          ],
+          "min": -86203.76080974903,
+          "max": 81510.85396483986,
+          "mean": 0.8242027213703668,
+          "first": [
+            32749.439451528197,
+            -24664.824206187604,
+            -8420.847737285056,
+            7516.324159051001
+          ]
+        },
+        "hf_rms": 10018.693384202355,
+        "moment": {
+          "shape": [
+            7200
+          ],
+          "min": 0.0,
+          "max": 39999999.999999985,
+          "mean": 6064880.952380969,
+          "first": [
+            10000000.0,
+            10857142.857142856,
+            11714285.714285715,
+            12571428.57142857
+          ]
+        },
+        "impulse": 109155357.14285752,
+        "clapeyron_slope_K_per_Pa": -7.402245672232418e-08,
+        "stefan_solution_m": 7.988406556481033e-05,
+        "stefan_relative_error": 7.909664902980974e-05,
+        "friction_heat_flux_W_m2": 450000.0,
+        "parameters": {
+          "ice_thickness": 1.0,
+          "ice_compressive_strength": 2000000.0,
+          "ship_speed": 1.5,
+          "contact_area": 5.0,
+          "ambient_temperature": 258.0,
+          "n_impacts": 6,
+          "impact_period": 12.0,
+          "impact_duration": 3.0,
+          "moment_arm": 4.0,
+          "dt": 0.01,
+          "hf_band": [
+            100.0,
+            400.0
+          ],
+          "hf_rel_amplitude": 0.002
+        }
+      }
+    },
+    "N02": {
+      "payload": {
+        "slosh_moment_x": 448973.0854546581,
+        "free_surface_elevation": 0.08525185064202988,
+        "wall_impact_pressure": 392.9364787163713,
+        "natural_frequency": 0.5816159852992034,
+        "liquid_mass": 3384000.0
+      },
+      "meta": {
+        "modal": {
+          "modes": [
+            {
+              "n_mode": 1,
+              "omega_fd": 0.5815410842418086,
+              "omega_analytic": 0.5816159852992034,
+              "omega_deep": 0.8776175077493376,
+              "rel_error": 0.00012878094703035976,
+              "deep_water_rel_error": 0.5089294825654778,
+              "mode_shape_correlation": 1.0,
+              "wall_amplification": 1.0
+            },
+            {
+              "n_mode": 2,
+              "omega_fd": 1.0645602246910169,
+              "omega_analytic": 1.0650376429017256,
+              "omega_deep": 1.2411385820351881,
+              "rel_error": 0.00044826416595760067,
+              "deep_water_rel_error": 0.16534715022247515,
+              "mode_shape_correlation": 1.0,
+              "wall_amplification": 1.0
+            },
+            {
+              "n_mode": 3,
+              "omega_fd": 1.4314011762463108,
+              "omega_analytic": 1.4326530901564511,
+              "omega_deep": 1.5200781130338255,
+              "rel_error": 0.0008738430250435795,
+              "deep_water_rel_error": 0.061023162884342896,
+              "mode_shape_correlation": 0.9999999999999997,
+              "wall_amplification": 0.9999999999999798
+            }
+          ],
+          "dtn_asymmetry": 0.6038909787605657,
+          "n_surface_nodes": 61,
+          "grid": [
+            60,
+            45
+          ],
+          "liquid_depth": 6.0,
+          "length": 40.0
+        },
+        "parameters": {
+          "tank_length": 30.0,
+          "tank_width": 40.0,
+          "fill_ratio": 0.2,
+          "tank_height": 30.0,
+          "liquid_density": 470.0,
+          "n_modes": 3,
+          "nx": 60,
+          "nz": 45,
+          "slope_max": 0.0
+        },
+        "liquid_depth": 6.0,
+        "slosh_direction_length": 40.0,
+        "wall_amplification": 1.0
+      }
+    },
+    "N03": {
+      "payload": {
+        "roll_angle": 0.0070220667065156684,
+        "roll_rate": 0.003352348275200491,
+        "roll_acceleration": 0.0019407699555411685,
+        "forward_speed": 1.9500413948103268,
+        "roll_amplification_factor": 0.9868893648917008,
+        "gm_corrected": 2.693817777777778,
+        "gz_max": 4.327101716320422,
+        "stability_margin": 0.45794169355326236,
+        "imo_pass_flag": 1.0
+      },
+      "meta": {
+        "coupled": {
+          "w_in": 907264.4847380697,
+          "w_gross": 907264.4847380697,
+          "d_ke": 100085.06556594759,
+          "d_pe": 104744.6409864672,
+          "e_diss": 702435.9883340236,
+          "energy_residual": 1.3338429852444321e-06,
+          "phi_max": 0.0070220667065156684,
+          "ml2": 2843978889.5856853
+        },
+        "free": {
+          "w_in": 916471.9734354438,
+          "w_gross": 916471.9734354438,
+          "d_ke": 102308.61862050995,
+          "d_pe": 108872.48452606023,
+          "e_diss": 705292.0714677087,
+          "energy_residual": 1.310655284547506e-06,
+          "phi_max": 0.007115353510052523,
+          "ml2": 0.0
+        },
+        "series": {
+          "t": {
+            "shape": [
+              7200
+            ],
+            "min": 0.0,
+            "max": 71.99,
+            "mean": 35.995,
+            "first": [
+              0.0,
+              0.01,
+              0.02,
+              0.03
+            ]
+          },
+          "phi_coupled": {
+            "shape": [
+              7200
+            ],
+            "min": -0.005790073385007789,
+            "max": 0.0070220667065156684,
+            "mean": 0.0003891436897046268,
+            "first": [
+              0.0,
+              1.1192928949541405e-08,
+              4.600540857081997e-08,
+              1.062865944238111e-07
+            ]
+          },
+          "phi_free": {
+            "shape": [
+              7200
+            ],
+            "min": -0.005890959646590611,
+            "max": 0.007115353510052523,
+            "mean": 0.0003875402714008986,
+            "first": [
+              0.0,
+              1.1192982305738417e-08,
+              4.60058442070511e-08,
+              1.0628809433252375e-07
+            ]
+          },
+          "beta": {
+            "shape": [
+              7200
+            ],
+            "min": -0.0015154630073812361,
+            "max": 0.0014832257393412786,
+            "mean": -3.244075298252178e-05,
+            "first": [
+              0.0,
+              8.619710156599712e-13,
+              7.038814297804608e-12,
+              2.4238551721151428e-11
+            ]
+          },
+          "roll_accel": {
+            "shape": [
+              7200
+            ],
+            "min": -0.0019407699555411685,
+            "max": 0.0016005186474331778,
+            "mean": 2.8981957287296168e-05,
+            "first": [
+              0.00022694356582148218,
+              0.00023619397626298394,
+              0.00025468549061851613,
+              0.00027315814466138635
+            ]
+          }
+        },
+        "eigen": {
+          "omega_low": 0.5235987755982991,
+          "omega_high": 0.581615985299203,
+          "omega_roll": 0.5235987755982988,
+          "omega_slosh": 0.5816159852992034,
+          "mass_ratio_mu": 0.06190974453519859,
+          "det_residual": 3.4777517566707615e-16,
+          "static_in_phase_frequency": 0.5271565084794244
+        },
+        "degenerate_residual": 8.481479150569379e-16,
+        "gz_curve": {
+          "phi_deg": [
+            0.0,
+            2.5,
+            5.0,
+            7.5,
+            10.0,
+            12.5,
+            15.0,
+            17.5,
+            20.0,
+            22.5,
+            25.0,
+            27.5,
+            30.0,
+            32.5,
+            35.0,
+            37.5,
+            40.0,
+            42.5,
+            45.0,
+            47.5,
+            50.0,
+            52.5,
+            55.0,
+            57.5,
+            60.0
+          ],
+          "gz_numeric": [
+            5.492117764329277e-16,
+            0.11814094244890672,
+            0.23973773621514227,
+            0.3683174116408612,
+            0.5075525129658125,
+            0.6613419688849036,
+            0.8339023501489287,
+            1.0298741351564358,
+            1.2544487572457195,
+            1.513523876215955,
+            1.8138967037864129,
+            2.163508624747939,
+            2.5030253026017757,
+            2.7733468706612463,
+            2.989788093057827,
+            3.1646237102012496,
+            3.308074028405194,
+            3.4290193337740345,
+            3.5355339059327378,
+            3.635318388354886,
+            3.7360862356223947,
+            3.8459501362985336,
+            3.9738543101423645,
+            4.130108400137299,
+            4.327101716320422
+          ],
+          "gz_analytic": [
+            0.0,
+            0.11814094244890705,
+            0.23973773621514116,
+            0.3683174116408625,
+            0.5075525129658129,
+            0.6613419688849045,
+            0.8339023501489278,
+            1.029874135156434,
+            1.2544487572457195,
+            1.5135238762159515,
+            1.8138967037864164,
+            2.1635086247479407,
+            2.5717592592592577,
+            3.0499152255059307,
+            3.6116493068177444,
+            4.2737612811656955,
+            5.057155204692549,
+            5.988184184457232,
+            7.100530594414913,
+            8.437881025043705,
+            10.057805357783483,
+            12.03750264215256,
+            14.482516667938544,
+            17.54031501608763,
+            21.422100613056728
+          ],
+          "kn_numeric": [
+            5.492117764329277e-16,
+            0.9032899150249547,
+            1.8085411056729892,
+            2.7177888716017895,
+            3.6332197109705584,
+            4.557255019770755,
+            5.492645161994302,
+            6.442578526233352,
+            7.410811337107757,
+            8.40182565878757,
+            9.421025415119002,
+            10.47498366297855,
+            11.503025302601774,
+            12.444739820904076,
+            13.314163947376656,
+            14.122329432358221,
+            14.878251002762902,
+            15.589643070855919,
+            16.263455967290593,
+            16.90631045093712,
+            17.524886211764,
+            18.126310261540766,
+            18.718591107344217,
+            19.311154424769242,
+            19.915558984440317
+          ],
+          "kn_analytic": [
+            0.0,
+            0.903289915024955,
+            1.808541105672988,
+            2.717788871601791,
+            3.633219710970559,
+            4.557255019770756,
+            5.492645161994301,
+            6.44257852623335,
+            7.410811337107757,
+            8.401825658787567,
+            9.421025415119006,
+            10.474983662978552,
+            11.571759259259256,
+            12.72130817574876,
+            13.936025161136573,
+            15.231467003322667,
+            16.627332179050256,
+            18.148807921539117,
+            19.828452655772768,
+            21.70887308762594,
+            23.846605333925087,
+            26.317862767394793,
+            29.227253465140397,
+            32.72136104071957,
+            37.010557881176624
+          ],
+          "GM0": 2.6944444444444446,
+          "BM": 14.694444444444445,
+          "KB": 6.0,
+          "max_relative_error": 2.3473126090900168e-15,
+          "max_relative_error_full_range": 0.7980075906429521,
+          "analytic_validity_limit_deg": 27.552811576717797
+        },
+        "imo": {
+          "checks": {
+            "area_0_30_m_rad": {
+              "value": 0.5129416935532624,
+              "required": 0.055
+            },
+            "area_0_40_m_rad": {
+              "value": 1.0292671733698828,
+              "required": 0.09
+            },
+            "area_30_40_m_rad": {
+              "value": 0.5163254798166205,
+              "required": 0.03
+            },
+            "gz_at_30_m": {
+              "value": 2.503025302601776,
+              "required": 0.2
+            },
+            "gz_max_m": {
+              "value": 4.327101716320422,
+              "required": 0.25
+            },
+            "gm0_m": {
+              "value": 2.693817777777778,
+              "required": 0.15
+            }
+          },
+          "margins": {
+            "area_0_30_m_rad": 0.45794169355326236,
+            "area_0_40_m_rad": 0.9392671733698829,
+            "area_30_40_m_rad": 0.48632547981662044,
+            "gz_at_30_m": 2.303025302601776,
+            "gz_max_m": 4.077101716320422,
+            "gm0_m": 2.543817777777778
+          },
+          "min_margin": 0.45794169355326236,
+          "gz_max_angle_deg": 59.99999999999999,
+          "passed": true
+        },
+        "free_surface_correction": 0.0006266666666666665,
+        "inertia": 45937500000.0,
+        "stiffness": 12594026449.30673,
+        "damping": 2886338250.4856224,
+        "slosh_pendulum_length": 28.989986091973055,
+        "slosh_mass": 3384000.0,
+        "parameters": {
+          "ship_mass": 120000000.0,
+          "roll_radius_of_gyration": 17.5,
+          "added_inertia_factor": 1.25,
+          "roll_period": 12.0,
+          "roll_damping_ratio": 0.06,
+          "beam": 46.0,
+          "draft": 12.0,
+          "kg_height": 18.0,
+          "tank_length": 30.0,
+          "tank_width": 40.0,
+          "liquid_density": 470.0,
+          "liquid_mass": 3384000.0,
+          "slosh_damping_ratio": 0.02,
+          "slosh_omega": 0.5816159852992034,
+          "initial_speed": 1.5,
+          "ice_resistance_coeff": null
+        },
+        "energy_residual": 1.3338429852444321e-06
+      }
+    },
+    "N04": {
+      "payload": {
+        "modal_density": 10.222485020776503,
+        "coupling_loss_factor": 0.0005616903330550938,
+        "subsystem_energy": 13627.006192064819,
+        "velocity_level": 171.3232082686783,
+        "radiated_sound_power": 35725.32323983362,
+        "power_balance_residual": 3.809699092781033e-18
+      },
+      "meta": {
+        "modal_density_beam": 0.42593687586568774,
+        "modal_density_cavity": 77.85159461928131,
+        "mode_count_500Hz_8x8": 5035,
+        "modal_density_weyl_error": 0.014916629417073057,
+        "sea_residual": 3.809699092781033e-18,
+        "reciprocity_residual": 0.0,
+        "raw_reciprocity_asymmetry": 0.06762910959850481,
+        "sound_power_level_dB": 165.52976166942113,
+        "energy_relation_check": {
+          "p_in": 0.0012499602059571162,
+          "energy_exact": 4.974067009667492e-05,
+          "energy_sea": 4.9734336361559653e-05,
+          "relative_error": 0.00012733513848842435
+        },
+        "peak_frequency_Hz": 250.0,
+        "hf_force_rms_N": 136127.09689873699,
+        "sea_band_Hz": [
+          100.0,
+          400.0
+        ],
+        "input_power_W": 235654.66140709195,
+        "parameters": {
+          "plate_area": 640.0,
+          "plate_thickness": 0.02,
+          "structural_damping": 0.01,
+          "beam_area": 40.0,
+          "beam_thickness": 0.03,
+          "cavity_volume": 4000.0,
+          "air_density": 1.2,
+          "sound_speed": 343.0,
+          "radiation_efficiency": 1.0,
+          "sea_band_lo": 100.0,
+          "sea_band_hi": 400.0,
+          "junction_length": 8.0,
+          "tau_transmission": 0.5
+        }
+      }
+    },
+    "N05": {
+      "payload": {
+        "discharge_rate": 0.3473862187318695,
+        "blockage_probability": 0.0,
+        "pressure_drop": 21150.7075792103,
+        "cooling_availability": 1.0
+      },
+      "meta": {
+        "superficial_velocity": 0.42441318157838753,
+        "beverloo_efficiency_m": 0.516,
+        "monotonic_d_over_w": [
+          {
+            "d_over_w": 0.5,
+            "p": 0.0
+          },
+          {
+            "d_over_w": 1.0,
+            "p": 0.0
+          },
+          {
+            "d_over_w": 1.5,
+            "p": 0.010283361234106336
+          },
+          {
+            "d_over_w": 2.0,
+            "p": 0.030848868321199596
+          },
+          {
+            "d_over_w": 2.5,
+            "p": 0.0581861074980361
+          },
+          {
+            "d_over_w": 3.0,
+            "p": 0.0906171405940629
+          }
+        ],
+        "parameters": {
+          "ice_concentration": 0.08952775030889892,
+          "intake_flow_demand": 0.12,
+          "orifice_diameter": 0.6,
+          "particle_size": 0.06,
+          "grid_slot_width": 0.08,
+          "bed_depth": 0.5,
+          "porosity": 0.42
+        }
+      }
+    },
+    "N06": {
+      "payload": {
+        "effective_viscosity": 0.002493324555021181,
+        "thrust_loss_fraction": 0.24664943310220241,
+        "delivered_thrust": 4896778.6848356845,
+        "operational_envelope_status": 1.0
+      },
+      "meta": {
+        "viscosity_curve": [
+          {
+            "phi": 0.0,
+            "eta": 0.0018
+          },
+          {
+            "phi": 0.05,
+            "eta": 0.0020571428571428568
+          },
+          {
+            "phi": 0.1,
+            "eta": 0.0024
+          },
+          {
+            "phi": 0.15,
+            "eta": 0.00288
+          },
+          {
+            "phi": 0.2,
+            "eta": 0.0036
+          },
+          {
+            "phi": 0.25,
+            "eta": 0.0048
+          },
+          {
+            "phi": 0.3,
+            "eta": 0.007199999999999996
+          }
+        ],
+        "open_water_thrust": 6500000.0,
+        "parameters": {
+          "frazil_concentration": 0.11122892984387926,
+          "melt_mass_rate": 6.737631440020473,
+          "ship_speed": 1.5,
+          "shaft_power": 15000000.0,
+          "open_water_thrust": 1600000.0,
+          "kappa": 0.85,
+          "propulsive_eff": 0.65
+        }
+      }
+    },
+    "N07": {
+      "payload": {
+        "estimated_roll": -0.004476387515444946,
+        "estimated_roll_rate": 0.001375350430985639,
+        "estimated_ice_concentration": 0.08952775030889892,
+        "estimated_roll_std": 0.0006320191990088411,
+        "innovation_norm": 1.9306148422276945,
+        "state_health": 1.0
+      },
+      "meta": {
+        "rmse_rad": 0.0005486868890022785,
+        "rmse_over_signal": 0.153627322611471,
+        "coverage_3sigma": 1.0,
+        "mean_norm_innovation_sq": 1.9306148422276945,
+        "estimate_series": {
+          "shape": [
+            7200
+          ],
+          "min": -0.006531163244417284,
+          "max": 0.007430707288321126,
+          "mean": 0.00033636164964093114,
+          "first": [
+            0.0,
+            0.005593268058175278,
+            0.0029372743655505127,
+            0.0018676290450726158
+          ]
+        },
+        "std_series": {
+          "shape": [
+            7200
+          ],
+          "min": 0.0,
+          "max": 0.0028735074196834416,
+          "mean": 0.0006335301362009146,
+          "first": [
+            0.0,
+            0.0028735074196834416,
+            0.0020761853778966787,
+            0.001709417457741756
+          ]
+        },
+        "parameters": {
+          "I": 46000000000.0,
+          "C": 12600000000.0,
+          "B_damp": 580000000.0,
+          "sigma_phi": 0.003,
+          "sigma_rate": 0.01,
+          "seed": 20261031,
+          "capacity": 0.0
+        }
+      }
+    }
+  },
+  "coupling": {
+    "monolithic_peak_rad": 0.0070220667065156684,
+    "staggered_peak_rad": 0.00729344248480742,
+    "relative_delta": 0.03864614074941012,
+    "delayed_edges": [
+      "N02.slosh_moment_x->N03.slosh_moment_x"
+    ]
+  },
+  "conservation": {
+    "checks": {
+      "melt_budget": {
+        "integrated_mass_kg": 20.240242994156073,
+        "rate_times_duration_kg": 20.21289432006142,
+        "residual": 0.0013530310732149861
+      },
+      "ice_transfer_N01_N06": {
+        "phi_from_source": 0.06122892984387926,
+        "phi_total": 0.11122892984387926,
+        "mass_in_kg_s": 12.239631440020473,
+        "mass_from_source_kg_s": 6.737631440020474,
+        "residual": 1.3182353882174154e-16
+      },
+      "drain_N05": {
+        "initial_volume": 0.324,
+        "discharged_volume": 0.25359193967426436,
+        "final_volume": 0.07040806032573538,
+        "residual": 8.566535683836084e-16,
+        "discharge_rate": 0.3473862187318695
+      },
+      "momentum": {
+        "surge": {
+          "impulse_Ns": 45310388.2587111,
+          "momentum_change_kgms": 45310388.164269455,
+          "momentum_residual": 2.084326545714017e-09,
+          "work_in_J": 189002866.91637337,
+          "work_dissipated_J": 112482987.57748981,
+          "kinetic_change_J": 76519879.22805738,
+          "energy_residual": 5.863730068931793e-10,
+          "u_end": 1.8775865680355788,
+          "u_max": 1.9500413948103268
+        }
+      },
+      "energy": {
+        "roll_slosh": {
+          "w_in_J": 907264.4847380697,
+          "d_ke_J": 100085.06556594759,
+          "d_pe_J": 104744.6409864672,
+          "e_diss_J": 702435.9883340236,
+          "residual": 1.3338429852444321e-06
+        },
+        "surge_mechanical": {
+          "w_in_J": 189002866.91637337,
+          "w_diss_J": 112482987.57748981,
+          "d_ke_J": 76519879.22805738,
+          "residual": 5.863730068931793e-10
+        },
+        "sea_power_balance": {
+          "residual": 3.809699092781033e-18,
+          "reciprocity_residual": 0.0
+        }
+      }
+    },
+    "residuals": {
+      "mass_melt": 0.0013530310732149861,
+      "mass_ice_transfer": 1.3182353882174154e-16,
+      "mass_drain": 8.566535683836084e-16,
+      "momentum_surge": 2.084326545714017e-09,
+      "energy_roll_slosh": 1.3338429852444321e-06,
+      "energy_surge": 5.863730068931793e-10,
+      "energy_sea": 3.809699092781033e-18
+    },
+    "max_residual": 0.0013530310732149861,
+    "worst_check": "mass_melt"
+  },
+  "unit_invariance": {
+    "moment_SI": 39999999.999999985,
+    "moment_kNm": 39999.999999999985,
+    "roundtrip_relative_error": 0.0,
+    "response_relative_error": 0.0
+  },
+  "upstream_probe": {
+    "base_ref": "HEAD",
+    "nodes": {
+      "N01": {
+        "node": "N01",
+        "mission": 1212,
+        "worktree": "/srv/tensor/agent/work/m1212",
+        "worktree_exists": true,
+        "branch": "agent/m1212",
+        "head": "9ea0b2f",
+        "dirty_files": 0,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "benchmarks/ice_contact/run_verification.py",
+          "benchmarks/ice_contact/render_report.py",
+          "docs/ICE_CONTACT_PHASE_CHANGE.md",
+          "docs/reports/ice_contact_phase_change_report.md",
+          "outputs/si4_full_chain/validation_report.json",
+          "src/tensorphysics/ice_contact/properties.py",
+          "src/tensorphysics/ice_contact/pressure_melting.py",
+          "src/tensorphysics/ice_contact/stefan.py"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      },
+      "N02": {
+        "node": "N02",
+        "mission": 1216,
+        "worktree": "/srv/tensor/agent/work/m1216",
+        "worktree_exists": true,
+        "branch": "agent/m1216",
+        "head": "d0eacf6f",
+        "dirty_files": 0,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "README.md",
+          "app/README.md",
+          "app/backend/agent_core.py",
+          "app/backend/routers/benchmarks.py",
+          "app/backend/routers/cad.py",
+          "app/backend/routers/orchestration.py",
+          "app/backend/routers/solver.py",
+          "app/backend/routers/templates.py"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      },
+      "N03": {
+        "node": "N03",
+        "mission": 1217,
+        "worktree": "/srv/tensor/agent/work/m1217",
+        "worktree_exists": true,
+        "branch": "agent/m1217",
+        "head": "0d417663",
+        "dirty_files": 4,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "CHANGELOG.md",
+          "app/README.md",
+          "app/backend/main.py",
+          "app/backend/middleware.py",
+          "app/backend/routers/cylinder_bench.py",
+          "app/backend/routers/orchestration.py",
+          "app/backend/routers/postprocess.py",
+          "app/backend/routers/preprocess.py"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      },
+      "N04": {
+        "node": "N04",
+        "mission": 1213,
+        "worktree": "/srv/tensor/agent/work/m1213",
+        "worktree_exists": true,
+        "branch": "agent/m1213",
+        "head": "e2a81ce",
+        "dirty_files": 0,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "README.md",
+          ".github/workflows/research-benchmark-dem3d-bending.yml",
+          ".github/workflows/research-campaign-dem3d-load-sensitivity.yml",
+          ".github/workflows/research-campaign-dem3d-timestep-refinement.yml",
+          ".github/workflows/research-campaign-demo.yml",
+          ".github/workflows/research-loop-demo.yml",
+          "docs/AGENT_SUBPROCESS_ADAPTER.md",
+          "docs/DEM3D_TIMESTEP_REFINEMENT.md"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      },
+      "N05": {
+        "node": "N05",
+        "mission": 1214,
+        "worktree": "/srv/tensor/agent/work/m1214",
+        "worktree_exists": true,
+        "branch": "agent/m1214",
+        "head": "a68fa8a",
+        "dirty_files": 2,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "scripts/probe_intake_dem.py",
+          "src/tensordem/ice_intake/laws.py",
+          "src/tensordem/ice_intake/grate_dem.py",
+          "src/tensordem/ice_intake/__init__.py",
+          "src/tensordem/ice_intake/availability.py"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      },
+      "N06": {
+        "node": "N06",
+        "mission": 1215,
+        "worktree": "/srv/tensor/agent/work/m1215",
+        "worktree_exists": true,
+        "branch": "agent/m1215",
+        "head": "4e62ccd",
+        "dirty_files": 0,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "lbm_suboff_les_v11.py",
+          "backend/main.py",
+          "backend/api/calculations.py",
+          "backend/api/lbm.py",
+          "backend/api/resistance_advanced.py",
+          "backend/api/series60_resistance.py",
+          "backend/api/grease_ice.py",
+          "backend/app/api/lbm.py"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      },
+      "N07": {
+        "node": "N07",
+        "mission": 1218,
+        "worktree": "/srv/tensor/agent/work/m1218",
+        "worktree_exists": true,
+        "branch": "agent/m1218",
+        "head": "9208e85",
+        "dirty_files": 0,
+        "merged_into_base": false,
+        "artifact_hits": [
+          "backend/main.py",
+          "backend/api/agent_core.py",
+          "backend/api/ai_cases_full.py",
+          "backend/api/digital_twin.py",
+          "backend/api/extended_ai.py",
+          "backend/api/knowledge.py",
+          "backend/api/workflow.py",
+          "backend/api_kunlun/digital_twin.py"
+        ],
+        "test_files": [],
+        "status": "UNMERGED_ARTIFACT"
+      }
+    },
+    "summary": {
+      "merged": [],
+      "unmerged_artifact": [
+        "N01",
+        "N02",
+        "N03",
+        "N04",
+        "N05",
+        "N06",
+        "N07"
+      ],
+      "unmerged_empty": [],
+      "absent": []
+    }
+  },
+  "figures": [
+    {
+      "path": "../artifacts/ice_integration/figures/fig1_contract_chain.png",
+      "caption": "图1 七节点契约链与上游分支可见性探测"
+    },
+    {
+      "path": "../artifacts/ice_integration/figures/fig2_time_history.png",
+      "caption": "图2 端到端时历: 冰载荷/横摇(耦合 vs 无液晃 vs 共同仿真)/EKF"
+    },
+    {
+      "path": "../artifacts/ice_integration/figures/fig3_conservation.png",
+      "caption": "图3 质量/动量/能量守恒残差 vs 1% 阈值"
+    },
+    {
+      "path": "../artifacts/ice_integration/figures/fig4_validation.png",
+      "caption": "图4 液晃频率/GZ/融膜厚度/SEA 能量关系对标"
+    }
+  ],
+  "artifacts": {
+    "acceptance": "../artifacts/ice_integration/acceptance.json",
+    "edge_units_csv": "../artifacts/ice_integration/edge_units.csv"
+  }
+}

@@ -1,0 +1,129 @@
+{
+ "mission_id": 1217,
+ "node": "W8-N03",
+ "branch": "agent/m1217",
+ "criteria": {
+  "a_tank_frequency_vs_dispersion": {
+   "per_grid_frequency_error": {
+    "L64": 0.039309861348373984,
+    "L96": 0.030241884507968393,
+    "L128": 0.02558484720151213
+   },
+   "finest_grid_error": 0.02558484720151213,
+   "richardson": {
+    "order": 1.6434699078228505,
+    "omega_inf": 1.4056871554765442,
+    "theory": 1.4353530051027796,
+    "error": 0.02066798168866562
+   },
+   "per_mode_error_at_L96": {
+    "mode1": 0.030241884507968393,
+    "mode2": 0.03326801854329286,
+    "mode3": 0.045612466476207696
+   },
+   "deep_water_shortcut_verdict": "FAIL",
+   "deep_water_worst_deviation": 0.04418935578149243,
+   "kh_at_13_2_percent": 1.0463463297523616,
+   "gate": 0.03,
+   "verdict": "PASS at convergence limit (2.07%) and on the finest grid (2.56%); FAIL on the fixed L=96 grid for modes 2/3 (3.33%/4.56%, unresolved short waves)"
+  },
+  "b_uncoupled_limit_residual": {
+   "residual": 2.3107912320601923e-16,
+   "gate": 1e-12,
+   "verdict": "PASS"
+  },
+  "c_coupled_peak_vs_closed_form": {
+   "omega_error": 0.0010014420511963186,
+   "amplitude_error": 0.0009817765194639616,
+   "gate": 0.05,
+   "verdict": "PASS",
+   "natural_tank_amplification": 1.0000482811309819,
+   "natural_tank_frequency_shift": -5.987674577268826e-05,
+   "worst_case_amplification": 0.842038473319797,
+   "max_amplification_over_design_map": 1.0238789082500808
+  },
+  "d_wall_pressure_vs_faltinsen": {
+   "errors_by_mode": {
+    "mode1": 0.07421185734123628,
+    "mode2": 0.1278815328012717,
+    "mode3": 0.18587178896177328
+   },
+   "gate": 0.15,
+   "verdict": "PASS for modes 1/2 (7.4%/12.8%), FAIL for mode 3 (18.6%, same resolution root cause)"
+  },
+  "e_damping_and_mass_ledger": {
+   "damping_rate_residual_mode1": 0.01704162567827311,
+   "mass_ledger_drift": 2.9154161258248497e-05,
+   "grid_convergence_successive_difference": 0.009350761489430506,
+   "ke_over_pe": 0.88221530651418,
+   "full_ke_pe_ledger": "NOT_CLOSED: measured KE contains lattice acoustics/startup motion (KE/PE=0.88 vs 1.0 theory), documented as a limitation",
+   "gate": 0.05,
+   "verdict": "PASS on the potential-energy ledger, mass ledger and grid convergence"
+  },
+  "f_pytest": {
+   "passed": 63,
+   "failed": 0,
+   "gate": 25,
+   "verdict": "PASS"
+  }
+ },
+ "engineering_results": {
+  "roll_period_s": 17.949608609270342,
+  "natural_inertia_ratio": 0.0021932531500494243,
+  "ice_force_peak_N": 3000000.0,
+  "heel_deg": {
+   "frozen_no_fsc": 0.4701380319678371,
+   "natural_coupled": 0.38500132849562513,
+   "worst_case_coupled": 0.13133463035436843
+  },
+  "imo_verdicts": {
+   "frozen_no_fsc": "PASS",
+   "with_fsc_natural": "PASS",
+   "with_fsc_worst": "PASS"
+  },
+  "gm_effective_m": 1.1677046153846153,
+  "fsc_m": 0.032295384615384615,
+  "stability_boundary_gm_solid_m": 0.1822953846153846,
+  "critical_ice_force": {
+   "natural": [
+    Infinity,
+    "PASS_up_to_upper_bound"
+   ],
+   "worst_case": [
+    Infinity,
+    "PASS_up_to_upper_bound"
+   ]
+  }
+ },
+ "artifacts": {
+  "module_coupled": "src/tensorlbm/roll_sloshing_coupled.py",
+  "module_lbm": "src/tensorlbm/roll_sloshing_lbm.py",
+  "tests": "tests/test_roll_sloshing_coupled.py",
+  "campaign": "scripts/w8_n03_roll_sloshing_campaign.py",
+  "report_md": "docs/W8_N03_roll_sloshing_coupled.md",
+  "report_api_id": 957,
+  "json": [
+   "figure_index.json",
+   "stage_a_analytic.json",
+   "stage_b_lbm.json",
+   "stage_c_grids.json",
+   "stage_d_coupled.json",
+   "stage_e_ramming.json",
+   "stage_f_imo.json"
+  ],
+  "figures": [
+   "docs/assets/w8_n03/fig1_dispersion.png",
+   "docs/assets/w8_n03/fig2_deep_water_deviation.png",
+   "docs/assets/w8_n03/fig3_lbm_mode1.png",
+   "docs/assets/w8_n03/fig4_wall_pressure.png",
+   "docs/assets/w8_n03/fig5_rao.png",
+   "docs/assets/w8_n03/fig6_design_map.png",
+   "docs/assets/w8_n03/fig7_ramming.png",
+   "docs/assets/w8_n03/fig8_gz_imo.png"
+  ],
+  "run_logs": [
+   "artifacts/w8_n03/logs/campaign_main.log",
+   "artifacts/w8_n03/logs/pytest.log"
+  ]
+ }
+}

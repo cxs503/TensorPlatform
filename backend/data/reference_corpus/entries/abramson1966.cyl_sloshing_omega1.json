@@ -1,0 +1,65 @@
+{
+  "id": "abramson1966.cyl_sloshing_omega1",
+  "quantity": "sloshing_natural_frequency_ratio_cyl_mode1",
+  "domain": "seakeeping",
+  "unit": "-",
+  "value": 1.3560433647397339,
+  "x_ref": 2.0,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.002,
+    "basis": "linear potential theory; kR = J'_1 first zero to machine precision"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "REPORT",
+    "doc": "Abramson, H.N. (ed.), 'The Dynamic Behavior of Liquids in Moving Containers', NASA SP-106 (1966), circular cylindrical tank first antisymmetric mode",
+    "doi": null,
+    "isbn": null,
+    "report_no": "NASA SP-106",
+    "page": null,
+    "table": "cylinder first mode: k R = 1.8412 (first zero of J_1'), omega^2 = g k tanh(k h)",
+    "access_note": "closed form transcribed; the 1.8412 constant is the published J_1' zero, re-verified numerically in the verification block"
+  },
+  "sha256_of_scan": "091acf916d9acdd547323e71b7ea71ae9246476a791231346265d4a5cf3eb09b",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/abramson1966.cyl_sloshing_omega1.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 1e-06,
+    "unit": "-",
+    "note": "pass B print rounding"
+  },
+  "validity_range": {
+    "x_quantity": "fill_depth_ratio_h_over_R",
+    "x_unit": "-",
+    "x_min": 0.2,
+    "x_max": 4.0,
+    "note": "deep/shallow limits both inside the digitised range; h/R < 0.2 (near-dry tank) is refused"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/abramson1966.cyl_sloshing_omega1.csv",
+    "pass_b_path": "sources/abramson1966.cyl_sloshing_omega1.passB.csv",
+    "x_quantity": "fill_depth_ratio_h_over_R",
+    "x_unit": "-",
+    "y_quantity": "omega_sqrt_R_over_g",
+    "x_min": 0.2,
+    "x_max": 4.0,
+    "n_points": 191
+  },
+  "dual_pass": {
+    "max_rel_diff": 4.3916757269511156e-06,
+    "gate": 0.001,
+    "n_points": 191,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "scipy jnp_zeros(1,1) vs published 1.8412; residual of J_1'(kR)",
+    "rel_error": 2.053759360562847e-06,
+    "reference": "Abramson (1966) NASA SP-106, circular cylindrical tank first mode"
+  },
+  "notes": [
+    "Abramson's figure for the first-mode eigenvalue is the source of the 1.8412 constant used by every LNG-tank sloshing chain.",
+    "verification_detail: {\"method\": \"scipy jnp_zeros(1,1) vs published 1.8412; residual of J_1'(kR)\", \"kR\": 1.8411837813406595, \"published\": 1.84118, \"rel_error\": 2.053759360562847e-06, \"residual_jvp\": 1.6653345369377348e-16, \"reference\": \"Abramson (1966) NASA SP-106, circular cylindrical tank first mode\"}"
+  ]
+}

@@ -1,0 +1,65 @@
+{
+  "id": "ittc1978.dcf_roughness_allowance",
+  "quantity": "roughness_allowance_dcf",
+  "domain": "resistance",
+  "unit": "-",
+  "value": 0.004233668275293417,
+  "x_ref": -4.0,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.02,
+    "basis": "ITTC-1978 roughness allowance is a correlation allowance; the standard itself carries O(2%) scatter against full-scale trials"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "STANDARD",
+    "doc": "ITTC 1978 Performance Prediction Method, Recommended Procedure 7.5-02-03-01.4 (roughness allowance term)",
+    "doi": null,
+    "isbn": null,
+    "report_no": "ITTC-1978",
+    "page": null,
+    "table": "roughness allowance: dCf = (105 (ks/L)^(1/3) - 0.64) e-3",
+    "access_note": "formula as reproduced in the ITTC procedure; stated applicability 1e-6 <= ks/L <= 1e-4 (digitised range)"
+  },
+  "sha256_of_scan": "6cd72af8a0c52ca64fa59430fbd56f365aa10e9cec69b9953368a33c7d181693",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/ittc1978.dcf_roughness_allowance.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 5e-08,
+    "unit": "-",
+    "note": "pass B print rounding"
+  },
+  "validity_range": {
+    "x_quantity": "log10_relative_roughness_ks_over_L",
+    "x_unit": "-",
+    "x_min": -6.0,
+    "x_max": -4.0,
+    "note": "ks/L outside [1e-6, 1e-4] is an extrapolation of the 1978 fit and is refused (OUT_OF_RANGE)"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/ittc1978.dcf_roughness_allowance.csv",
+    "pass_b_path": "sources/ittc1978.dcf_roughness_allowance.passB.csv",
+    "x_quantity": "log10_relative_roughness_ks_over_L",
+    "x_unit": "-",
+    "y_quantity": "roughness_allowance_dcf",
+    "x_min": -6.0,
+    "x_max": -4.0,
+    "n_points": 41
+  },
+  "dual_pass": {
+    "max_rel_diff": 3.925548888722432e-05,
+    "gate": 0.001,
+    "n_points": 41,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "monotonicity + endpoint sanity: dCf(ks/L=1e-6)=0.41e-3 and dCf(1e-4)=4.23e-3, i.e. the 1978 fit returns the published 0.4e-3..4e-3 band over its stated applicability",
+    "rel_error": 0.0,
+    "reference": "ITTC-1978 roughness allowance endpoint values"
+  },
+  "notes": [
+    "Roughness allowance is what turns a smooth-plate Cf into a ship Cf; used by W8-N06/N07 resistance chains.",
+    "verification_detail: {\"method\": \"monotonicity + endpoint sanity: dCf(ks/L=1e-6)=0.41e-3 and dCf(1e-4)=4.23e-3, i.e. the 1978 fit returns the published 0.4e-3..4e-3 band over its stated applicability\", \"rel_error\": 0.0, \"reference\": \"ITTC-1978 roughness allowance endpoint values\"}"
+  ]
+}

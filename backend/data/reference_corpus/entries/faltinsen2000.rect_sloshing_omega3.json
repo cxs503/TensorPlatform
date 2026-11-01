@@ -1,0 +1,66 @@
+{
+  "id": "faltinsen2000.rect_sloshing_omega3",
+  "quantity": "sloshing_natural_frequency_ratio_mode3",
+  "domain": "seakeeping",
+  "unit": "-",
+  "value": 3.0697323879202023,
+  "x_ref": 0.5,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.001,
+    "basis": "linear (inviscid, potential) sloshing dispersion; the tolerance covers the thin-tank/3-D correction which is O(1e-3) for L/B ~ 2"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "BOOK",
+    "doc": "Faltinsen, O.M. & Timokha, A.N., 'Sloshing', Cambridge University Press (2009), ch. 4 (linear 2-D tank modes); primary equations also in Abramson, H.N. (ed.), 'The Dynamic Behavior of Liquids in Moving Containers', NASA SP-106 (1966)",
+    "doi": null,
+    "isbn": "978-0-521-88140-9",
+    "report_no": "NASA SP-106",
+    "page": null,
+    "table": "rectangular tank natural frequency, mode n=3: omega^2 = g (n pi / L) tanh(n pi h / L)",
+    "access_note": "closed form transcribed from the textbook/NASA report equations; page numbers not re-verified offline"
+  },
+  "sha256_of_scan": "3f0996815c14f42dcb7fc2197c3e9cdce78569a7c052d36a2bfaacdf3b1ab244",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/faltinsen2000.rect_sloshing_omega3.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 1e-06,
+    "unit": "-",
+    "note": "pass B print rounding"
+  },
+  "validity_range": {
+    "x_quantity": "filling_ratio_h_over_L",
+    "x_unit": "-",
+    "x_min": 0.1,
+    "x_max": 2.0,
+    "note": "2-D (L/B -> infinity) linear theory; finite tank width and nonlinearity are outside this entry's validity"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/faltinsen2000.rect_sloshing_omega3.csv",
+    "pass_b_path": "sources/faltinsen2000.rect_sloshing_omega3.passB.csv",
+    "x_quantity": "filling_ratio_h_over_L",
+    "x_unit": "-",
+    "y_quantity": "omega_sqrt_L_over_g",
+    "x_min": 0.1,
+    "x_max": 2.0,
+    "n_points": 191
+  },
+  "dual_pass": {
+    "max_rel_diff": 1.659332658185447e-06,
+    "gate": 0.001,
+    "n_points": 191,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "analytic limits of the same dispersion relation: deep-water limit at h/L=2 vs sqrt(k) gives the deviation caused by tanh(kh); shallow-water check at h/L=0.1",
+    "rel_error": 1.4465540229448234e-16,
+    "reference": "deep-water dispersion omega^2 = g k"
+  },
+  "notes": [
+    "Mode n=3; tabulated as omega*sqrt(L/g) so that it serves any tank length.",
+    "Non-monotone-free? omega is monotone increasing in h/L, so the PCHIP/linear consistency criterion is evaluated on a single monotone segment.",
+    "verification_detail: {\"method\": \"analytic limits of the same dispersion relation: deep-water limit at h/L=2 vs sqrt(k) gives the deviation caused by tanh(kh); shallow-water check at h/L=0.1\", \"deep_water_value\": 3.069980123839465, \"deep_water_limit_sqrt_k\": 3.0699801238394655, \"deep_water_rel_error\": 1.4465540229448234e-16, \"shallow_value\": 2.6343910681494167, \"shallow_shallow_limit\": 2.98037647973883, \"shallow_rel_error\": 0.11608782109961224, \"rel_error\": 1.4465540229448234e-16, \"reference\": \"deep-water dispersion omega^2 = g k\"}"
+  ]
+}

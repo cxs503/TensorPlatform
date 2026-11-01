@@ -1,0 +1,673 @@
+{
+  "a_pressure_melting": {
+    "criterion": "a_pressure_melting",
+    "detail": "RK4 march of dT/dp = T dv/Lf against T(p) = T0 exp(dv p / Lf)",
+    "error": 1.4766311467821593e-15,
+    "literature_slope_K_per_MPa": -0.0742,
+    "melting_threshold_pressure_at_263K": 137386205.34026295,
+    "passed": true,
+    "rows": [
+      {
+        "depression": 0.07414325811606659,
+        "melt_temperature_analytic": 273.0758567418839,
+        "melt_temperature_linear": 273.07584667741804,
+        "melt_temperature_rk4": 273.07585674188385,
+        "pressure": 1000000.0,
+        "relative_error": 2.0815981148614472e-16,
+        "steps": 200
+      },
+      {
+        "depression": 0.7405275983709885,
+        "melt_temperature_analytic": 272.409472401629,
+        "melt_temperature_linear": 272.40846677418057,
+        "melt_temperature_rk4": 272.40947240162876,
+        "pressure": 10000000.0,
+        "relative_error": 8.346760978561052e-16,
+        "steps": 200
+      },
+      {
+        "depression": 3.682616156201732,
+        "melt_temperature_analytic": 269.46738384379825,
+        "melt_temperature_linear": 269.4423338709028,
+        "melt_temperature_rk4": 269.46738384379785,
+        "pressure": 50000000.0,
+        "relative_error": 1.4766311467821593e-15,
+        "steps": 200
+      },
+      {
+        "depression": 7.315583175467964,
+        "melt_temperature_analytic": 265.834416824532,
+        "melt_temperature_linear": 265.7346677418057,
+        "melt_temperature_rk4": 265.83441682453173,
+        "pressure": 100000000.0,
+        "relative_error": 1.0691508560068873e-15,
+        "steps": 200
+      }
+    ],
+    "slope_K_per_MPa": -0.07415332258194282,
+    "slope_relative_error": 0.0006290757150563485,
+    "threshold": 0.01
+  },
+  "b_friction_melting_steady": {
+    "criterion": "b_friction_melting_steady",
+    "detail": "ODE fixed point / RK4 transient against the closed-form quadratic steady state",
+    "error": 2.151184111086583e-05,
+    "passed": true,
+    "rows": [
+      {
+        "analytic_thickness": 1.635062863588929e-05,
+        "friction_coefficient": 0.05,
+        "ice_temperature": 273.0758567418839,
+        "mode": "pure_friction_melting_closed_form",
+        "pressure": 1000000.0,
+        "reference_thickness": 1.635062863588929e-05,
+        "relative_error": 0.0,
+        "velocity": 1.0
+      },
+      {
+        "analytic_thickness": 1.635062863588929e-05,
+        "friction_coefficient": 0.05,
+        "ice_temperature": 273.0758567418839,
+        "mode": "pure_friction_melting_closed_form",
+        "pressure": 1000000.0,
+        "reference_thickness": 1.635062863588929e-05,
+        "relative_error": 0.0,
+        "velocity": 4.0
+      },
+      {
+        "analytic_thickness": 3.270125727177858e-05,
+        "friction_coefficient": 0.05,
+        "ice_temperature": 273.0017336090569,
+        "mode": "pure_friction_melting_closed_form",
+        "pressure": 2000000.0,
+        "reference_thickness": 3.270125727177858e-05,
+        "relative_error": 0.0,
+        "velocity": 2.0
+      },
+      {
+        "analytic_thickness": 6.540251454355716e-05,
+        "friction_coefficient": 0.05,
+        "ice_temperature": 272.85354769742077,
+        "mode": "pure_friction_melting_closed_form",
+        "pressure": 4000000.0,
+        "reference_thickness": 6.540251454355716e-05,
+        "relative_error": 0.0,
+        "velocity": 8.0
+      },
+      {
+        "analytic_thickness": 4.5401827259016943e-07,
+        "exists": true,
+        "friction_coefficient": 0.06550324533307024,
+        "ice_temperature": 263.15,
+        "mode": "coupled",
+        "ode_fixed_point": 4.5400850582122804e-07,
+        "pressure": 1000000.0,
+        "relative_error": 2.151184111086583e-05,
+        "velocity": 1.0
+      },
+      {
+        "analytic_thickness": 1.2049485036157747e-06,
+        "exists": true,
+        "friction_coefficient": 0.0357421479518264,
+        "ice_temperature": 263.15,
+        "mode": "coupled",
+        "ode_fixed_point": 1.2049513967037198e-06,
+        "pressure": 1000000.0,
+        "relative_error": 2.4010054673974736e-06,
+        "velocity": 4.0
+      },
+      {
+        "analytic_thickness": 2.0191121111247183e-06,
+        "exists": true,
+        "friction_coefficient": 0.014167283019394353,
+        "ice_temperature": 268.15,
+        "mode": "coupled",
+        "ode_fixed_point": 2.019114208936691e-06,
+        "pressure": 2000000.0,
+        "relative_error": 1.0389774600936546e-06,
+        "velocity": 2.0
+      },
+      {
+        "analytic_thickness": 2.2951924190562017e-06,
+        "exists": true,
+        "friction_coefficient": 0.013004087660976119,
+        "ice_temperature": 253.15,
+        "mode": "coupled",
+        "ode_fixed_point": 2.2951892701387405e-06,
+        "pressure": 4000000.0,
+        "relative_error": 1.3719622960740611e-06,
+        "velocity": 8.0
+      }
+    ],
+    "threshold": 0.05,
+    "transient": [
+      {
+        "analytic_thickness": 1.2049485036157747e-06,
+        "final_thickness": 1.2049511449811942e-06,
+        "initial_thickness": 5e-08,
+        "relative_error": 2.192098178106072e-06
+      },
+      {
+        "analytic_thickness": 1.2049485036157747e-06,
+        "final_thickness": 1.2049511461709174e-06,
+        "initial_thickness": 2e-07,
+        "relative_error": 2.1930855424657467e-06
+      },
+      {
+        "analytic_thickness": 1.2049485036157747e-06,
+        "final_thickness": 1.2049511438074653e-06,
+        "initial_thickness": 1e-06,
+        "relative_error": 2.1911240876011193e-06
+      }
+    ]
+  },
+  "c_refreezing_stefan": {
+    "criterion": "c_refreezing_stefan",
+    "detail": "1-D enthalpy solver vs X(t) = 2 lambda sqrt(alpha t); the grid sequence documents first-order convergence of the front position",
+    "error": 0.012753321626388365,
+    "error_coarsest_grid": 0.049074017666691644,
+    "grid_convergence": [
+      0.049074017666691644,
+      0.02467517819203368,
+      0.012753321626388365
+    ],
+    "neumann_lambda_freezing": 0.24549603982965706,
+    "passed": true,
+    "rows": [
+      {
+        "dt": 2.122007678352149e-07,
+        "dx": 2.6666666666666667e-07,
+        "front_neumann": [
+          2.5422293989270413e-06,
+          3.5952552946262233e-06,
+          4.403270483436924e-06,
+          5.0844587978540825e-06,
+          5.684597750399295e-06
+        ],
+        "front_numerical": [
+          2.6669868093627698e-06,
+          3.7241077321011045e-06,
+          4.533400767012466e-06,
+          5.209918739777686e-06,
+          5.813633344253285e-06
+        ],
+        "max_relative_error": 0.049074017666691644,
+        "n_cells": 150,
+        "n_steps": 4715,
+        "relative_errors": [
+          0.049074017666691644,
+          0.03583957936658217,
+          0.02955309787691505,
+          0.0246751811572461,
+          0.02269915999683999
+        ],
+        "times": [
+          0.0002,
+          0.0004,
+          0.0006,
+          0.0008,
+          0.001
+        ]
+      },
+      {
+        "dt": 5.305019195880372e-08,
+        "dx": 1.3333333333333334e-07,
+        "front_neumann": [
+          2.5422293989270413e-06,
+          3.5952552946262233e-06,
+          4.403270483436924e-06,
+          5.0844587978540825e-06,
+          5.684597750399295e-06
+        ],
+        "front_numerical": [
+          2.6049593623505927e-06,
+          3.658769958248095e-06,
+          4.467458675045418e-06,
+          5.1493025360187015e-06,
+          5.749359944426341e-06
+        ],
+        "max_relative_error": 0.02467517819203368,
+        "n_cells": 300,
+        "n_steps": 18855,
+        "relative_errors": [
+          0.02467517819203368,
+          0.017666245764746222,
+          0.014577390112631214,
+          0.01275332159088133,
+          0.011392572855748195
+        ],
+        "times": [
+          0.0002,
+          0.0004,
+          0.0006,
+          0.0008,
+          0.001
+        ]
+      },
+      {
+        "dt": 1.326254798970093e-08,
+        "dx": 6.666666666666667e-08,
+        "front_neumann": [
+          2.5422293989270413e-06,
+          3.5952552946262233e-06,
+          4.403270483436924e-06,
+          5.0844587978540825e-06,
+          5.684597750399295e-06
+        ],
+        "front_numerical": [
+          2.5746512680996178e-06,
+          3.627702429634158e-06,
+          4.4359643295435165e-06,
+          5.117532879725762e-06,
+          5.7177117281016555e-06
+        ],
+        "max_relative_error": 0.012753321626388365,
+        "n_cells": 600,
+        "n_steps": 75405,
+        "relative_errors": [
+          0.012753321626388365,
+          0.009024987754397624,
+          0.007424900702687236,
+          0.006504936550107983,
+          0.005825210358997613
+        ],
+        "times": [
+          0.0002,
+          0.0004,
+          0.0006,
+          0.0008,
+          0.001
+        ]
+      }
+    ],
+    "stefan_number_freezing": 0.125498426023085,
+    "threshold": 0.05
+  },
+  "clapeyron_slope_K_per_MPa": -0.07415332258194282,
+  "d_competition_gates": {
+    "cold_structure_onset": 18.337044319068,
+    "criterion": "d_competition_gates",
+    "detail": "gates G1-G5 plus melting-onset speed against its closed form",
+    "error": 0.01773922163145646,
+    "gate_flags": {
+      "G1_friction_melting_V": true,
+      "G2_load_p": true,
+      "G3_thermal_T": true,
+      "G4_pressure_melting": true,
+      "G5_mechanism_coverage": true
+    },
+    "gates": {
+      "G1_friction_melting_V": {
+        "detail": "film thickness must increase with sliding speed above the melting onset",
+        "passed": true,
+        "values": [
+          {
+            "film_thickness": null,
+            "velocity": 0.25
+          },
+          {
+            "film_thickness": 1.0732635879516603e-07,
+            "velocity": 0.5
+          },
+          {
+            "film_thickness": 4.5400850582122804e-07,
+            "velocity": 1.0
+          },
+          {
+            "film_thickness": 8.115480074882508e-07,
+            "velocity": 2.0
+          },
+          {
+            "film_thickness": 1.2049513967037198e-06,
+            "velocity": 4.0
+          },
+          {
+            "film_thickness": 1.6980083801746368e-06,
+            "velocity": 8.0
+          }
+        ]
+      },
+      "G2_load_p": {
+        "detail": "film thickness must increase with contact pressure",
+        "passed": true,
+        "values": [
+          {
+            "film_thickness": null,
+            "pressure": 250000.0
+          },
+          {
+            "film_thickness": 6.267794032096863e-07,
+            "pressure": 500000.0
+          },
+          {
+            "film_thickness": 1.2049513967037198e-06,
+            "pressure": 1000000.0
+          },
+          {
+            "film_thickness": 1.8091044981479648e-06,
+            "pressure": 2000000.0
+          },
+          {
+            "film_thickness": 2.4343505994081496e-06,
+            "pressure": 4000000.0
+          }
+        ]
+      },
+      "G3_thermal_T": {
+        "detail": "colder ice must thin the steady film (Range -5..-30 degC) and raise friction monotonically; the thickness plateau below -30 degC is the friction self-regulation",
+        "passed": true,
+        "values": {
+          "film_thickness_vs_temperature": [
+            {
+              "film_thickness": 2.1880279389619825e-06,
+              "ice_temperature": 268.15
+            },
+            {
+              "film_thickness": 1.6980083801746368e-06,
+              "ice_temperature": 263.15
+            },
+            {
+              "film_thickness": 1.1599606802463532e-06,
+              "ice_temperature": 253.15
+            },
+            {
+              "film_thickness": 9.303381381034852e-07,
+              "ice_temperature": 243.15
+            }
+          ],
+          "friction_vs_temperature": [
+            {
+              "friction_coefficient": 0.017940303709815007,
+              "ice_temperature": 268.15
+            },
+            {
+              "friction_coefficient": 0.027860513473159737,
+              "ice_temperature": 263.15
+            },
+            {
+              "friction_coefficient": 0.04905251884672046,
+              "ice_temperature": 253.15
+            },
+            {
+              "friction_coefficient": 0.07118769710297214,
+              "ice_temperature": 243.15
+            },
+            {
+              "friction_coefficient": 0.09416033611442712,
+              "ice_temperature": 233.15
+            },
+            {
+              "friction_coefficient": null,
+              "ice_temperature": 223.15
+            }
+          ]
+        }
+      },
+      "G4_pressure_melting": {
+        "detail": "pressure melting must be negligible at 1 MPa and active above ~135 MPa at -10 degC",
+        "passed": true,
+        "values": {
+          "depression_at_1MPa_K": 0.07414325811606659,
+          "depression_at_threshold_K": 10.0,
+          "superheat_at_1.05x_threshold_K": 0.49027645195326386,
+          "superheat_at_1MPa_K": -9.925856741883933,
+          "threshold_pressure_Pa": 137386205.34026295
+        }
+      },
+      "G5_mechanism_coverage": {
+        "detail": "pressure melting, friction melting and refreezing must each dominate somewhere",
+        "passed": true,
+        "values": [
+          "friction_melting",
+          "pressure_melting",
+          "refreezing"
+        ]
+      }
+    },
+    "onset_relative_error": 0.01773922163145646,
+    "onset_velocity_analytic": 0.41107157383111936,
+    "onset_velocity_numeric": 0.4037794840765375,
+    "passed": true,
+    "threshold": 0.05
+  },
+  "e_end_to_end": {
+    "cases": [
+      {
+        "adhesion_strength": 900000.0,
+        "film_lifetime": 0.002175,
+        "inputs": {
+          "contact_length": 0.1,
+          "equilibrated_structure": false,
+          "ice_temperature": 263.15,
+          "initial_thickness": 1e-06,
+          "pressure": 1000000.0,
+          "structure_temperature": 263.15,
+          "t_end": 0.005,
+          "velocity": 0.1
+        },
+        "melt_point_depression": 0.07414325811606659,
+        "melting_temperature": 273.0758567418839,
+        "name": "specified_1MPa_0p1mps_253K",
+        "onset_velocity_equilibrated": 0.4037794840765375,
+        "steady_rates": {
+          "dh_dt": -0.00045399884201219787,
+          "drain_rate": 1e-09,
+          "friction_melting": 3.274971793710539e-05,
+          "melting_temperature_depression": 0.07414325811606659,
+          "passive_melting": 0.0,
+          "pressure_melting": 4.952526830184516e-07,
+          "refreezing": 0.0004872428126323217
+        },
+        "steady_state": {
+          "dh_dt_at_floor": -0.0004539988420121979,
+          "exists": false,
+          "film_thickness": 0.0,
+          "friction_coefficient": 0.10014819205550432,
+          "regime": "boundary"
+        }
+      },
+      {
+        "adhesion_strength": 900000.0,
+        "film_lifetime": null,
+        "inputs": {
+          "contact_length": 0.1,
+          "equilibrated_structure": true,
+          "ice_temperature": 263.15,
+          "initial_thickness": 5e-08,
+          "pressure": 1000000.0,
+          "structure_temperature": 273.0758567418839,
+          "t_end": 0.5,
+          "velocity": 1.0
+        },
+        "melt_point_depression": 0.07414325811606659,
+        "melting_temperature": 273.0758567418839,
+        "name": "friction_melting_1MPa_1mps_253K",
+        "onset_velocity_equilibrated": 0.4037794840765375,
+        "steady_rates": {
+          "dh_dt": 9.766768941145974e-11,
+          "drain_rate": 4.54008505821228e-06,
+          "friction_melting": 0.00021420384777731595,
+          "melting_temperature_depression": 0.07414325811606659,
+          "passive_melting": 0.0,
+          "pressure_melting": 1.5661264956476835e-06,
+          "refreezing": 0.00021122979154706195
+        },
+        "steady_state": {
+          "dh_dt_at_floor": 0.00012512661628733066,
+          "exists": true,
+          "film_thickness": 4.5400850582122804e-07,
+          "friction_coefficient": 0.06550324533307024,
+          "regime": "boundary"
+        }
+      },
+      {
+        "adhesion_strength": 58499.999999997955,
+        "film_lifetime": null,
+        "inputs": {
+          "contact_length": 0.1,
+          "equilibrated_structure": true,
+          "ice_temperature": 272.5,
+          "initial_thickness": 1e-06,
+          "pressure": 20000000.0,
+          "structure_temperature": 271.6709524222365,
+          "t_end": 1.0,
+          "velocity": 0.005
+        },
+        "melt_point_depression": 1.479047577763481,
+        "melting_temperature": 271.6709524222365,
+        "name": "pressure_melting_20MPa_5mmps_272p5K",
+        "onset_velocity_equilibrated": 0.0001,
+        "steady_rates": {
+          "dh_dt": 7.917039928099969e-15,
+          "drain_rate": 2.87334504792951e-06,
+          "friction_melting": 1.635062863588929e-06,
+          "melting_temperature_depression": 1.479047577763481,
+          "passive_melting": 0.0,
+          "pressure_melting": 2.209135309202651e-06,
+          "refreezing": 9.708531169450307e-07
+        },
+        "steady_state": {
+          "dh_dt_at_floor": 2.8732950558465493e-06,
+          "exists": true,
+          "film_thickness": 5.74669009585902e-05,
+          "friction_coefficient": 0.005,
+          "regime": "hydrodynamic"
+        }
+      },
+      {
+        "adhesion_strength": 900000.0,
+        "film_lifetime": 0.0008,
+        "inputs": {
+          "contact_length": 0.1,
+          "equilibrated_structure": false,
+          "ice_temperature": 263.15,
+          "initial_thickness": 1e-06,
+          "pressure": 1000000.0,
+          "structure_temperature": 263.15,
+          "t_end": 0.005,
+          "velocity": 1.0
+        },
+        "melt_point_depression": 0.07414325811606659,
+        "melting_temperature": 273.0758567418839,
+        "name": "refreezing_1MPa_1mps_253K_cold_slider",
+        "onset_velocity_equilibrated": 0.4037794840765375,
+        "steady_rates": {
+          "dh_dt": -0.0012043742770161822,
+          "drain_rate": 1e-08,
+          "friction_melting": 0.0003348002813387449,
+          "melting_temperature_depression": 0.07414325811606659,
+          "passive_melting": 0.0,
+          "pressure_melting": 1.5661264956476835e-06,
+          "refreezing": 0.0015407306848505748
+        },
+        "steady_state": {
+          "dh_dt_at_floor": -0.0012043742770161822,
+          "exists": false,
+          "film_thickness": 0.0,
+          "friction_coefficient": 0.10238147070500557,
+          "regime": "boundary"
+        }
+      }
+    ],
+    "criterion": "e_end_to_end",
+    "detail": "film thickness and friction time histories at 1 MPa / 0.1 m/s / -10 degC plus friction-melting, pressure-melting and refreezing companion cases",
+    "error": null,
+    "passed": true,
+    "specified_case": {
+      "adhesion_strength": 900000.0,
+      "film_lifetime": 0.002175,
+      "inputs": {
+        "contact_length": 0.1,
+        "equilibrated_structure": false,
+        "ice_temperature": 263.15,
+        "initial_thickness": 1e-06,
+        "pressure": 1000000.0,
+        "structure_temperature": 263.15,
+        "t_end": 0.005,
+        "velocity": 0.1
+      },
+      "melt_point_depression": 0.07414325811606659,
+      "melting_temperature": 273.0758567418839,
+      "name": "specified_1MPa_0p1mps_253K",
+      "onset_velocity_equilibrated": 0.4037794840765375,
+      "steady_rates": {
+        "dh_dt": -0.00045399884201219787,
+        "drain_rate": 1e-09,
+        "friction_melting": 3.274971793710539e-05,
+        "melting_temperature_depression": 0.07414325811606659,
+        "passive_melting": 0.0,
+        "pressure_melting": 4.952526830184516e-07,
+        "refreezing": 0.0004872428126323217
+      },
+      "steady_state": {
+        "dh_dt_at_floor": -0.0004539988420121979,
+        "exists": false,
+        "film_thickness": 0.0,
+        "friction_coefficient": 0.10014819205550432,
+        "regime": "boundary"
+      }
+    },
+    "threshold": null
+  },
+  "f_pytest": {
+    "command": "/usr/bin/python3 -m pytest tests/test_ice_contact_pressure_melting.py tests/test_ice_contact_stefan.py tests/test_ice_contact_film.py tests/test_ice_contact_adhesion.py tests/test_ice_contact_tribology.py tests/test_ice_contact_competition.py tests/test_ice_contact_end_to_end.py -q --no-header",
+    "criterion": "f_pytest",
+    "passed": true,
+    "tests_failed": 0,
+    "tests_passed": 53,
+    "threshold": 18
+  },
+  "figures": {
+    "fig1_pressure_melting": "figures/fig1_pressure_melting.png",
+    "fig2_stefan_refreezing": "figures/fig2_stefan_refreezing.png",
+    "fig3_steady_film_map": "figures/fig3_steady_film_map.png",
+    "fig4_case_histories": "figures/fig4_case_histories.png",
+    "fig5_mechanism_map": "figures/fig5_mechanism_map.png",
+    "fig6_adhesion": "figures/fig6_adhesion.png",
+    "fig7_stribeck": "figures/fig7_stribeck.png"
+  },
+  "onset_samples": [
+    {
+      "onset_velocity": 1.445147865492125,
+      "onset_velocity_analytic": 1.6565907345881963,
+      "pressure": 500000.0
+    },
+    {
+      "onset_velocity": 0.4037794840765375,
+      "onset_velocity_analytic": 0.41107157383111936,
+      "pressure": 1000000.0
+    },
+    {
+      "onset_velocity": 0.10119003299325843,
+      "onset_velocity_analytic": 0.10123874872692104,
+      "pressure": 2000000.0
+    },
+    {
+      "onset_velocity": 0.024596036459608964,
+      "onset_velocity_analytic": 0.02455401672871389,
+      "pressure": 4000000.0
+    }
+  ],
+  "provenance": {
+    "figure_dir": "artifacts/ice_contact_m1212/figures",
+    "module": "tensorphysics.ice_contact",
+    "properties": {
+      "k_ice": 2.22,
+      "k_water": 0.561,
+      "latent_heat_fusion": 333550.0,
+      "melting_temperature": 273.15,
+      "rho_ice": 916.8,
+      "rho_water": 999.8
+    }
+  },
+  "summary": {
+    "all_passed": true,
+    "criteria": {
+      "a_pressure_melting": true,
+      "b_friction_melting_steady": true,
+      "c_refreezing_stefan": true,
+      "d_competition_gates": true,
+      "e_end_to_end": true
+    }
+  }
+}

@@ -1,0 +1,62 @@
+{
+ "a_kalman_convergence": {
+  "criterion": "协方差收敛到稳态（收缩 + 平台漂移<2% + 与Riccati相对差<10%）",
+  "value": {
+   "contraction_ratio": 0.231849175477904,
+   "drift_rel": 0.0004862364446202941,
+   "vs_riccati_rel": 0.045242839391625635
+  },
+  "pass": true
+ },
+ "b_ice_load_accuracy": {
+  "criterion": "冰载荷估计相对RMS误差 < 15%",
+  "value": 0.050507313979436794,
+  "pass": true
+ },
+ "c_gm_accuracy": {
+  "criterion": "GM 估计相对RMS误差 < 10%",
+  "value": 0.013772596983166113,
+  "pass": true
+ },
+ "d_resistance_accuracy": {
+  "criterion": "阻力估计相对RMS误差 < 15%",
+  "value": 0.11800587513571992,
+  "pass": true
+ },
+ "e_realtime": {
+  "criterion": "单步计算 < 100 ms",
+  "value": {
+   "mean_ms": 6.1217156702190785,
+   "p95_ms": 10.487379506230354,
+   "max_ms": 28.973540291190147
+  },
+  "pass": true
+ },
+ "f_end_to_end_case": {
+  "criterion": "10 分钟航行算例输出冰载荷/GM/阻力时历 + 安全状态",
+  "value": {
+   "steps": 601,
+   "duration_s": 600.0,
+   "status_counts": {
+    "NORMAL": 601
+   },
+   "stress_status_counts": {
+    "NORMAL": 277,
+    "WARNING": 71,
+    "CRITICAL": 253
+   },
+   "stress_alarm_counts": {
+    "ICE_THICKNESS_EXCEEDS_CLASS_LIMIT": 324,
+    "ICE_LOAD_EXCEEDS_ALLOWABLE": 253,
+    "POWER_DEMAND_EXCEEDS_MCR": 57
+   }
+  },
+  "pass": true
+ },
+ "g_pytest": {
+  "criterion": "pytest >= 20 例全绿",
+  "value": 46,
+  "pass": true
+ },
+ "all_pass": true
+}

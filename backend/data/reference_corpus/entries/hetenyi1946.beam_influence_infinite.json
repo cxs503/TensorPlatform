@@ -1,0 +1,65 @@
+{
+  "id": "hetenyi1946.beam_influence_infinite",
+  "quantity": "beam_deflection_influence_coefficient",
+  "domain": "structure",
+  "unit": "-",
+  "value": 1.0,
+  "x_ref": 0.0,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.001,
+    "basis": "closed form for prismatic infinite beam on homogeneous Winkler foundation"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "BOOK",
+    "doc": "Hetenyi, M., 'Beams on Elastic Foundation', University of Michigan Press (1946), infinite beam under a concentrated load",
+    "doi": null,
+    "isbn": null,
+    "report_no": null,
+    "page": null,
+    "table": "w(x) = (P beta / 2k) exp(-beta x)(cos beta x + sin beta x), beta = (k/(4EI))^(1/4)",
+    "access_note": "closed form from the monograph; page not re-verified offline"
+  },
+  "sha256_of_scan": "4e36738c432292615d5a3ae7c03ea2f1b552240e4d3e79427d15ce6ac12faa79",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/hetenyi1946.beam_influence_infinite.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 1e-06,
+    "unit": "-",
+    "note": "pass B print rounding"
+  },
+  "validity_range": {
+    "x_quantity": "beta_x",
+    "x_unit": "-",
+    "x_min": 0.0,
+    "x_max": 2.0,
+    "note": "digitised to beta x <= 2 (deflection already 2.4% of w_max); the sign change at beta x = 3 pi/4 is outside the table and refused"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/hetenyi1946.beam_influence_infinite.csv",
+    "pass_b_path": "sources/hetenyi1946.beam_influence_infinite.passB.csv",
+    "x_quantity": "beta_x",
+    "x_unit": "-",
+    "y_quantity": "w_over_Pbeta_2k",
+    "x_min": 0.0,
+    "x_max": 2.0,
+    "n_points": 101
+  },
+  "dual_pass": {
+    "max_rel_diff": 2.5372130307500833e-05,
+    "gate": 0.001,
+    "n_points": 101,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "finite-difference solution of the fourth-derivative beam equation with 4w on u in [-10,10] (n=2001, n=4001) vs Hetenyi closed form w(0) = P beta/(2k) = 1/8",
+    "rel_error": 6.238734000296731e-06,
+    "reference": "Hetenyi (1946): w(0) = P beta/(2k), beta = (k/(4EI))^(1/4)"
+  },
+  "notes": [
+    "Non-dimensional influence coefficient: multiply by P beta/(2k) to obtain the deflection.",
+    "verification_detail: {\"method\": \"finite-difference solution of the fourth-derivative beam equation with 4w on u in [-10,10] (n=2001, n=4001) vs Hetenyi closed form w(0) = P beta/(2k) = 1/8\", \"fd_n2001\": 0.12500312289040413, \"fd_n4001\": 0.12500077984175004, \"analytic\": 0.125, \"rel_error\": 6.238734000296731e-06, \"rel_error_coarse\": 2.4983123233068838e-05, \"reference\": \"Hetenyi (1946): w(0) = P beta/(2k), beta = (k/(4EI))^(1/4)\"}"
+  ]
+}

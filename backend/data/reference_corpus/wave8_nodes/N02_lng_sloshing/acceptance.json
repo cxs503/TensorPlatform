@@ -1,0 +1,99 @@
+{
+  "criteria": {
+    "a_natural_frequencies_lt_3pct": {
+      "value": 0.009501469594597772,
+      "threshold": 0.03,
+      "pass": true,
+      "evidence": "artifacts/lng_sloshing/natural_frequencies.json"
+    },
+    "a_vof_period_vs_analytic": {
+      "value": 0.3902439554785084,
+      "threshold": 0.03,
+      "pass": false,
+      "evidence": "artifacts/lng_sloshing/vof_free_decay.json"
+    },
+    "b_resonant_amplitude_lt_15pct": {
+      "value": 0.8925766573658844,
+      "threshold": 0.15,
+      "pass": false,
+      "evidence": "artifacts/lng_sloshing/vof_forced_resonance.json",
+      "caveat": "reference = linear potential theory with the measured damping; the digitised Faltinsen (2000) / Abramson (1966) tables are not available in the worktree and are therefore NOT used (no fabricated numbers)"
+    },
+    "c_impact_pressure_lt_20pct": {
+      "value": 12.997018337595312,
+      "threshold": 0.2,
+      "pass": false,
+      "evidence": "artifacts/lng_sloshing/vof_impact_pressure.json",
+      "caveat": "reference = stagnation pressure 0.5 rho V^2 with V taken from the measured wall wave approach velocity"
+    },
+    "d_filling_monotonicity": {
+      "value": [
+        1.5491892040567152,
+        2.1647684005162313,
+        2.601065759859074,
+        2.928911676786446,
+        3.178367145806306,
+        3.3679447453865143,
+        3.511215911845859,
+        3.618795585230826,
+        3.699094372712352
+      ],
+      "threshold": "monotone increasing 10 % -> 90 %",
+      "pass": true,
+      "evidence": "artifacts/lng_sloshing/filling_sweep.json"
+    },
+    "e_end_to_end_150m_lng": {
+      "value": [
+        "zeta0.005_roll10deg",
+        "zeta0.005_roll15deg",
+        "zeta0.005_roll5deg"
+      ],
+      "pass": true,
+      "evidence": "artifacts/lng_sloshing/coupled_150m_lng.json"
+    },
+    "sixdof_ice_excitation": {
+      "pass": true,
+      "evidence": "artifacts/lng_sloshing/sixdof_ice.json"
+    }
+  },
+  "n_criteria": 7,
+  "n_pass": 4,
+  "all_pass": false,
+  "figures": [
+    {
+      "name": "fig1_natural_frequencies.png",
+      "caption": "Sloshing natural frequencies: analytic Faltinsen dispersion versus the independent finite-difference eigen-solver, and the resulting relative error against the 3 % gate.",
+      "path": "artifacts/lng_sloshing/figures/fig1_natural_frequencies.png"
+    },
+    {
+      "name": "fig2_filling_sweep.png",
+      "caption": "First sloshing natural frequency versus filling ratio (10-90 %): monotone increase predicted by the dispersion relation and confirmed by the numerical eigen-solver.",
+      "path": "artifacts/lng_sloshing/figures/fig2_filling_sweep.png"
+    },
+    {
+      "name": "fig3_vof_free_decay.png",
+      "caption": "THINC-VOF free-decay of the first sloshing mode: measured period against the analytic dispersion value and the numerically damped envelope (mass drift at machine precision).",
+      "path": "artifacts/lng_sloshing/figures/fig3_vof_free_decay.png"
+    },
+    {
+      "name": "fig4_vof_forced_resonance.png",
+      "caption": "Forced resonant sloshing: VOF steady-state wall elevation amplitude against the linear potential-flow transfer function evaluated with the numerically measured damping.",
+      "path": "artifacts/lng_sloshing/figures/fig4_vof_forced_resonance.png"
+    },
+    {
+      "name": "fig5_vof_impact_pressure.png",
+      "caption": "Wall impact pressure history from the VOF solver for strong excitation, compared with the stagnation-pressure bound and the hydrostatic reference level.",
+      "path": "artifacts/lng_sloshing/figures/fig5_vof_impact_pressure.png"
+    },
+    {
+      "name": "fig6_coupled_roll_wave_pressure.png",
+      "caption": "End-to-end chain for the 150 m LNG carrier at 20 % filling: ice-induced roll (5/10/15 deg targets), tank wall wave elevation and tank wall pressure time histories.",
+      "path": "artifacts/lng_sloshing/figures/fig6_coupled_roll_wave_pressure.png"
+    },
+    {
+      "name": "fig7_sixdof_ice_response.png",
+      "caption": "Six-degree-of-freedom response amplitudes of the 150 m LNG carrier under the Korzhavin/intermittent-crushing ice load history.",
+      "path": "artifacts/lng_sloshing/figures/fig7_sixdof_ice_response.png"
+    }
+  ]
+}

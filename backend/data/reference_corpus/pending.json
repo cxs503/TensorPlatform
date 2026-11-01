@@ -1,0 +1,32 @@
+{
+  "generated_by": "tools/build_reference_corpus.py",
+  "policy": "An entry is only digitised when a verifiable primary source can be transcribed offline. Where the source document is not held in the worktree the family is recorded here as WITHHELD instead of fabricating numbers (honest-FAIL discipline).",
+  "families": [
+    {
+      "family": "Abramson (1966) / Faltinsen (2000) resonant free-surface amplitude and impact-pressure tables",
+      "requested_for": [
+        "W8-N02 (mission 1216) criteria b_resonant_amplitude, c_impact_pressure"
+      ],
+      "status": "WITHHELD",
+      "reason": "The nonlinear resonant amplitude and sloshing impact pressure tables are read off figures in NASA SP-106 / Faltinsen ch.8; no scan is held in-repo and figure read-off would be a MEASURED-provenance claim we cannot support offline."
+    },
+    {
+      "family": "Riska / FSICR (Finnish-Swedish Ice Class Rules) ice-load coefficients",
+      "requested_for": [
+        "W8-N01 (1212) ice contact",
+        "W8-N05 (1214) ice intake",
+        "W8-N06 (1215) grease-ice envelope"
+      ],
+      "status": "WITHHELD",
+      "reason": "Rule tables are distributed as rulebook PDFs; the c1..c4/p0 coefficient set differs between FSICR 2008/2010/2017 revisions. Transcribing them from memory would risk a silent revision mismatch, so they are deferred until the rulebook is archived in-repo."
+    },
+    {
+      "family": "Kerr (1964) two-parameter *viscoelastic* foundation creep compliance tables",
+      "requested_for": [
+        "ice-plate creep problems"
+      ],
+      "status": "PARTIAL",
+      "reason": "Only the elastic two-parameter (Pasternak) peak-deflection factor is digitised (kerr1964.pasternak_peak_factor); the viscoelastic tables require material constants not available offline."
+    }
+  ]
+}

@@ -1,0 +1,75 @@
+{
+  "schema": "grease_ice_anchors/v1",
+  "mission": "W8-N06",
+  "constants": {
+    "rho_water": 1025.0,
+    "rho_ice": 917.0,
+    "nu_water": 1.19e-06,
+    "cp_water": 3985.0,
+    "L_fusion": 334000.0,
+    "g": 9.81,
+    "p_atm": 101325.0,
+    "p_vapour": 2340.0
+  },
+  "rheology_reference_points": {
+    "phi": [
+      0.05,
+      0.1,
+      0.15,
+      0.2,
+      0.25,
+      0.3
+    ],
+    "nu_ratio": [
+      1.3789307144791287,
+      1.7199882913406308,
+      2.5904425343124777,
+      4.332842709411782,
+      8.376537559131306,
+      27.92947249971122
+    ],
+    "nu_ratio_noiseless": [
+      1.2995995203093214,
+      1.7718120894937863,
+      2.5891945414569046,
+      4.222411298698643,
+      8.41231788372342,
+      27.331701439859074
+    ],
+    "scatter_factor": [
+      1.0610428004397274,
+      0.9707509625538441,
+      1.0004820004196637,
+      1.026153636607399,
+      0.9957466746874433,
+      1.0218709786936422
+    ],
+    "truth": {
+      "phi_max": 0.35,
+      "alpha": 1.7
+    },
+    "noise_rel": 0.03,
+    "seed": 20261031,
+    "provenance": "SYNTHETIC_FROM_REFERENCE_PARAMS",
+    "evidence_grade": {
+      "parameter_recovery": "REAL",
+      "experimental_absolute_calibration": "WITHHELD"
+    },
+    "note": "参考参数取 Krieger-Dougherty 形式 alpha=[eta]*phi_max，[eta]=4~6 对应 片状晶体；本轮未数字化试验黏度表，故试验绝对标定为 WITHHELD。"
+  },
+  "riska_channel": {
+    "h_i_m": 0.5,
+    "c1": 0.5,
+    "c2": 0.015,
+    "B_m": 21.5,
+    "C1_N": 24176.131875000003,
+    "C2_N_per_ms": 1450.5679125000001,
+    "provenance": "RISKA_FORM_1997",
+    "evidence_grade": "ANCHOR_APPROX"
+  },
+  "propulsor_experiment_anchors": [],
+  "propulsor_evidence": {
+    "grade": "WITHHELD",
+    "note": "推力退化 vs 文献冰池试验值：本轮工作树内无可数字化的碎冰/油脂冰推力试验表，按纪律记 WITHHELD，只主张趋势（随浓度单调退化）与极限（phi->phi_max 处推进失效），不主张绝对误差 <15%。开放水基础 KT/KQ 采用 B4-70 特征点参数化（ANCHOR_APPROX）。"
+  }
+}

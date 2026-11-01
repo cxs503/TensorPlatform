@@ -1,0 +1,66 @@
+{
+  "id": "kerr1964.pasternak_peak_factor",
+  "quantity": "two_parameter_foundation_peak_factor",
+  "domain": "structure",
+  "unit": "-",
+  "value": 0.7698003589195012,
+  "x_ref": 0.5,
+  "tolerance": {
+    "type": "relative",
+    "value": 0.002,
+    "basis": "closed-form Hankel integral for a Pasternak foundation; verified against adaptive quadrature"
+  },
+  "k": 2.0,
+  "source": {
+    "type": "JOURNAL",
+    "doc": "Kerr, A.D. (1964) 'Elastic and viscoelastic foundation models', J. Appl. Mech. 31(3), 491-498; Pasternak, P.L. (1954) 'On a new method of analysis of an elastic foundation by means of two foundation constants'",
+    "doi": "10.1115/1.3629667",
+    "isbn": null,
+    "report_no": null,
+    "page": null,
+    "table": "w_max(Pasternak) = P/(8 sqrt(D k)) * g(lambda), lambda = G_p/(2 sqrt(D k))",
+    "access_note": "closed form derived here from the Hankel integral and cross-checked by adaptive quadrature (see verification)"
+  },
+  "sha256_of_scan": "773cf10fd67e9a551a99496a0e94e527b5358aad512d78c58c94eeccb66c57d3",
+  "sha256_scope": "sha256 over the archived digitisation artefact (sources/kerr1964.pasternak_peak_factor.csv), i.e. the byte-exact table this entry serves; no page image of the source document is held in-repo, so the anchor does not claim pixel-level provenance",
+  "digitisation_error": {
+    "value": 1e-06,
+    "unit": "-",
+    "note": "pass B print rounding"
+  },
+  "validity_range": {
+    "x_quantity": "pasternak_shear_parameter_lambda",
+    "x_unit": "-",
+    "x_min": 0.0,
+    "x_max": 0.9,
+    "note": "lambda -> 1 is the singular limit of the closed form; excluded from the digitised range"
+  },
+  "provenance": "ANALYTIC",
+  "supersedes": null,
+  "table": {
+    "path": "sources/kerr1964.pasternak_peak_factor.csv",
+    "pass_b_path": "sources/kerr1964.pasternak_peak_factor.passB.csv",
+    "x_quantity": "pasternak_shear_parameter_lambda",
+    "x_unit": "-",
+    "y_quantity": "wmax_over_winkler_wmax",
+    "x_min": 0.0,
+    "x_max": 0.9,
+    "n_points": 19
+  },
+  "dual_pass": {
+    "max_rel_diff": 6.915773309627491e-06,
+    "gate": 0.001,
+    "n_points": 19,
+    "note": "pass A = machine-precision transcription of the published closed form; pass B = re-typed at printed precision (5-6 s.f.) with an independent format convention. Human double-keying is NOT claimed."
+  },
+  "verification": {
+    "method": "adaptive quadrature of the Hankel integral vs closed form (lambda=0.5); Winkler limit lambda->0 must give pi/4",
+    "rel_error": 1.8362941015152856e-16,
+    "reference": "Kerr (1964) two-parameter foundation model / Pasternak (1954)"
+  },
+  "notes": [
+    "lambda = 0 recovers the Winkler/Westergaard result g=1 exactly, which is how the entry is regression-tested.",
+    "Kerr's critique of Winkler models is quantified here as a single factor: at lambda=0.5 the peak deflection drops to 77% of the Winkler value.",
+    "verification_detail: {\"method\": \"adaptive quadrature of the Hankel integral vs closed form (lambda=0.5); Winkler limit lambda->0 must give pi/4\", \"quad\": 0.6045997880780726, \"closed\": 0.6045997880780727, \"rel_error\": 1.8362941015152856e-16, \"winkler_quad\": 0.7853981633982999, \"winkler_closed\": 0.7853981633974483, \"winkler_rel_error\": 1.084357109400295e-12, \"quad_abserr\": 1.0820750931522003e-11, \"reference\": \"Kerr (1964) two-parameter foundation model / Pasternak (1954)\"}"
+  ]
+}
