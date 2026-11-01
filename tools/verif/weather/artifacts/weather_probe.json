@@ -1,0 +1,764 @@
+{
+ "api": "http://127.0.0.1:8001/api/v1/dynamic-stability/weather-criterion",
+ "P_std_Pa": 504.0,
+ "gust_factor": 1.5,
+ "theta1_representative_deg": 15.0,
+ "results": [
+  {
+   "case": {
+    "name": "case1_stiff_high_windage",
+    "L": 100.0,
+    "B": 18.0,
+    "T": 6.0,
+    "disp": 6000.0,
+    "A": 1200.0,
+    "Z": 9.0
+   },
+   "gz_curve": [
+    [
+     0,
+     0.0
+    ],
+    [
+     10,
+     0.16
+    ],
+    [
+     20,
+     0.33
+    ],
+    [
+     30,
+     0.46
+    ],
+    [
+     40,
+     0.52
+    ],
+    [
+     50,
+     0.45
+    ],
+    [
+     60,
+     0.31
+    ],
+    [
+     70,
+     0.12
+    ],
+    [
+     75.0,
+     0.0
+    ]
+   ],
+   "theta_f_deg": 75.0,
+   "gz_max_m": 0.52,
+   "area_total_mrad": 0.40491638646268446,
+   "lw1_m": 0.09250865484135765,
+   "lw2_m": 0.13876298226203648,
+   "reference_sweep": [
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.010502063486335044,
+     "area_b": 0.18524182568142264,
+     "ratio": 17.63861225200681,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 0.0
+    },
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.0018833673885285756,
+     "area_b": 0.18524182568142264,
+     "ratio": 98.35671298638505,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 5.0
+    },
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.0,
+     "area_b": 0.18524182568142264,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 10.0
+    },
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.0,
+     "area_b": 0.18524182568142264,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 15.0
+    },
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.0,
+     "area_b": 0.18524182568142264,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 20.0
+    },
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.0,
+     "area_b": 0.18524182568142264,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 25.0
+    },
+    {
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "theta0": 5.7817909275848525,
+     "thetaC": 8.67268639137728,
+     "theta2": 50.0,
+     "area_a": 0.0,
+     "area_b": 0.18524182568142264,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 30.0
+    }
+   ],
+   "reference_representative_theta1_15": {
+    "lw1": 0.09250865484135765,
+    "lw2": 0.13876298226203648,
+    "theta0": 5.7817909275848525,
+    "thetaC": 8.67268639137728,
+    "theta2": 50.0,
+    "area_a": 0.0,
+    "area_b": 0.18524182568142264,
+    "ratio": Infinity,
+    "compliant": true,
+    "note": "route=linear"
+   },
+   "reference_representative_pchip": {
+    "lw1": 0.09250865484135765,
+    "lw2": 0.13876298226203648,
+    "theta0": 5.7817909275848525,
+    "thetaC": 8.67268639137728,
+    "theta2": 50.0,
+    "area_a": 0.0,
+    "area_b": 0.1889907273646031,
+    "ratio": Infinity,
+    "compliant": true,
+    "note": "route=pchip"
+   },
+   "route_agreement_max_rel": 0.013833623635253476,
+   "wind_area_sweep_theta1_15": [
+    {
+     "A": 300.0,
+     "lw1": 0.02312716371033941,
+     "lw2": 0.03469074556550912,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 600.0,
+     "lw1": 0.04625432742067882,
+     "lw2": 0.06938149113101824,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 900.0,
+     "lw1": 0.06938149113101824,
+     "lw2": 0.10407223669652736,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 1200.0,
+     "lw1": 0.09250865484135765,
+     "lw2": 0.13876298226203648,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 1500.0,
+     "lw1": 0.11563581855169706,
+     "lw2": 0.1734537278275456,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 1800.0,
+     "lw1": 0.13876298226203648,
+     "lw2": 0.20814447339305472,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 2400.0,
+     "lw1": 0.1850173096827153,
+     "lw2": 0.27752596452407297,
+     "ratio": 175.31932497771402,
+     "compliant": true
+    },
+    {
+     "A": 3600.0,
+     "lw1": 0.27752596452407297,
+     "lw2": 0.41628894678610945,
+     "ratio": 1.6098829071895127,
+     "compliant": true
+    }
+   ],
+   "platform_formula_replica": {
+    "area_b": 0.40491638646268446,
+    "wind_moment": 5443200.0,
+    "wind_arm": 0.09247706422018348,
+    "area_a": 0.08070146266102221,
+    "ratio": 5.017460317460317,
+    "compliant": true
+   },
+   "platform_api": {
+    "status": 200,
+    "data": {
+     "area_b": 0.4049,
+     "area_a": 0.0807,
+     "ratio": 5.017,
+     "compliant": true,
+     "margin": 401.7,
+     "method": "天气衡准检查"
+    }
+   },
+   "platform_api_alt_keys": {
+    "status": 500,
+    "data": "Internal Server Error"
+   },
+   "compliance_platform": true,
+   "compliance_reference": true,
+   "verdict_diverges": false
+  },
+  {
+   "case": {
+    "name": "case2_borderline_false_pass",
+    "L": 60.0,
+    "B": 13.0,
+    "T": 3.2,
+    "disp": 1800.0,
+    "A": 700.0,
+    "Z": 10.0
+   },
+   "gz_curve": [
+    [
+     0,
+     0.0
+    ],
+    [
+     10,
+     0.13
+    ],
+    [
+     20,
+     0.26
+    ],
+    [
+     30,
+     0.34
+    ],
+    [
+     40,
+     0.3
+    ],
+    [
+     50,
+     0.18
+    ],
+    [
+     60,
+     0.0
+    ]
+   ],
+   "theta_f_deg": 60.0,
+   "gz_max_m": 0.34,
+   "area_total_mrad": 0.2111848394913139,
+   "lw1_m": 0.19986437774367394,
+   "lw2_m": 0.2997965666155109,
+   "reference_sweep": [
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.06099780440479302,
+     "area_b": 0.005289321731811393,
+     "ratio": 0.08671331342863506,
+     "compliant": false,
+     "note": "route=linear",
+     "theta1": 0.0
+    },
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.03767177857120792,
+     "area_b": 0.005289321731811393,
+     "ratio": 0.14040541573617013,
+     "compliant": false,
+     "note": "route=linear",
+     "theta1": 5.0
+    },
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.020018072806604382,
+     "area_b": 0.005289321731811393,
+     "ratio": 0.2642273201277565,
+     "compliant": false,
+     "note": "route=linear",
+     "theta1": 10.0
+    },
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.008036687110982418,
+     "area_b": 0.005289321731811393,
+     "ratio": 0.6581470273470454,
+     "compliant": false,
+     "note": "route=linear",
+     "theta1": 15.0
+    },
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.001727621484342027,
+     "area_b": 0.005289321731811393,
+     "ratio": 3.06162071944009,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 20.0
+    },
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.0,
+     "area_b": 0.005289321731811393,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 25.0
+    },
+    {
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "theta0": 15.374182903359532,
+     "thetaC": 24.974570826938862,
+     "theta2": 40.016952782040754,
+     "area_a": 0.0,
+     "area_b": 0.005289321731811393,
+     "ratio": Infinity,
+     "compliant": true,
+     "note": "route=linear",
+     "theta1": 30.0
+    }
+   ],
+   "reference_representative_theta1_15": {
+    "lw1": 0.19986437774367394,
+    "lw2": 0.2997965666155109,
+    "theta0": 15.374182903359532,
+    "thetaC": 24.974570826938862,
+    "theta2": 40.016952782040754,
+    "area_a": 0.008036687110982418,
+    "area_b": 0.005289321731811393,
+    "ratio": 0.6581470273470454,
+    "compliant": false,
+    "note": "route=linear"
+   },
+   "reference_representative_pchip": {
+    "lw1": 0.19986437774367394,
+    "lw2": 0.2997965666155109,
+    "theta0": 15.374182903359532,
+    "thetaC": 24.974570826938862,
+    "theta2": 40.016952782040754,
+    "area_a": 0.007178599044250193,
+    "area_b": 0.007054004126873992,
+    "ratio": 0.9826435608663787,
+    "compliant": false,
+    "note": "route=pchip"
+   },
+   "route_agreement_max_rel": 0.48826823084024934,
+   "wind_area_sweep_theta1_15": [
+    {
+     "A": 175.0,
+     "lw1": 0.049966094435918484,
+     "lw2": 0.07494914165387773,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 350.0,
+     "lw1": 0.09993218887183697,
+     "lw2": 0.14989828330775545,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 525.0,
+     "lw1": 0.14989828330775545,
+     "lw2": 0.22484742496163318,
+     "ratio": 57.95871688052091,
+     "compliant": true
+    },
+    {
+     "A": 700.0,
+     "lw1": 0.19986437774367394,
+     "lw2": 0.2997965666155109,
+     "ratio": 0.6581470273470454,
+     "compliant": false
+    },
+    {
+     "A": 875.0,
+     "lw1": 0.24983047217959242,
+     "lw2": 0.37474570826938863,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 1050.0,
+     "lw1": 0.2997965666155109,
+     "lw2": 0.44969484992326636,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 1400.0,
+     "lw1": 0.3997287554873479,
+     "lw2": 0.5995931332310218,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 2100.0,
+     "lw1": 0.5995931332310218,
+     "lw2": 0.8993896998465327,
+     "ratio": 0.0,
+     "compliant": false
+    }
+   ],
+   "platform_formula_replica": {
+    "area_b": 0.21118483949131386,
+    "wind_moment": 3528000.0,
+    "wind_arm": 0.199796126401631,
+    "area_a": 0.17435501192196157,
+    "ratio": 1.211234693877551,
+    "compliant": true
+   },
+   "platform_api": {
+    "status": 200,
+    "data": {
+     "area_b": 0.2112,
+     "area_a": 0.1744,
+     "ratio": 1.211,
+     "compliant": true,
+     "margin": 21.1,
+     "method": "天气衡准检查"
+    }
+   },
+   "platform_api_alt_keys": {
+    "status": 500,
+    "data": "Internal Server Error"
+   },
+   "compliance_platform": true,
+   "compliance_reference": false,
+   "verdict_diverges": true
+  },
+  {
+   "case": {
+    "name": "case3_gross_noncompliant",
+    "L": 60.0,
+    "B": 13.0,
+    "T": 3.2,
+    "disp": 1800.0,
+    "A": 1500.0,
+    "Z": 10.0
+   },
+   "gz_curve": [
+    [
+     0,
+     0.0
+    ],
+    [
+     10,
+     0.13
+    ],
+    [
+     20,
+     0.26
+    ],
+    [
+     30,
+     0.34
+    ],
+    [
+     40,
+     0.3
+    ],
+    [
+     50,
+     0.18
+    ],
+    [
+     60,
+     0.0
+    ]
+   ],
+   "theta_f_deg": 60.0,
+   "gz_max_m": 0.34,
+   "area_total_mrad": 0.2111848394913139,
+   "lw1_m": 0.4282808094507299,
+   "lw2_m": 0.6424212141760948,
+   "reference_sweep": [
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.4615570828306377,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 0.0
+    },
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.40833141600496575,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 5.0
+    },
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.3607780692482755,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 10.0
+    },
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.3188970425605668,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 15.0
+    },
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.2826883359418397,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 20.0
+    },
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.2510611186095977,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 25.0
+    },
+    {
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "theta0": null,
+     "thetaC": null,
+     "theta2": null,
+     "area_a": 0.22292455978134434,
+     "area_b": 0.0,
+     "ratio": 0.0,
+     "compliant": false,
+     "note": "GZ never reaches lw2",
+     "theta1": 30.0
+    }
+   ],
+   "reference_representative_theta1_15": {
+    "lw1": 0.4282808094507299,
+    "lw2": 0.6424212141760948,
+    "theta0": null,
+    "thetaC": null,
+    "theta2": null,
+    "area_a": 0.3188970425605668,
+    "area_b": 0.0,
+    "ratio": 0.0,
+    "compliant": false,
+    "note": "GZ never reaches lw2"
+   },
+   "reference_representative_pchip": {
+    "lw1": 0.4282808094507299,
+    "lw2": 0.6424212141760948,
+    "theta0": null,
+    "thetaC": null,
+    "theta2": null,
+    "area_a": 0.3145289578676415,
+    "area_b": 0.0,
+    "ratio": 0.0,
+    "compliant": false,
+    "note": "GZ never reaches lw2"
+   },
+   "route_agreement_max_rel": 0.0,
+   "wind_area_sweep_theta1_15": [
+    {
+     "A": 375.0,
+     "lw1": 0.10707020236268247,
+     "lw2": 0.1606053035440237,
+     "ratio": Infinity,
+     "compliant": true
+    },
+    {
+     "A": 750.0,
+     "lw1": 0.21414040472536494,
+     "lw2": 0.3212106070880474,
+     "ratio": 0.09419804011045875,
+     "compliant": false
+    },
+    {
+     "A": 1125.0,
+     "lw1": 0.3212106070880474,
+     "lw2": 0.4818159106320711,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 1500.0,
+     "lw1": 0.4282808094507299,
+     "lw2": 0.6424212141760948,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 1875.0,
+     "lw1": 0.5353510118134124,
+     "lw2": 0.8030265177201186,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 2250.0,
+     "lw1": 0.6424212141760948,
+     "lw2": 0.9636318212641422,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 3000.0,
+     "lw1": 0.8565616189014598,
+     "lw2": 1.2848424283521895,
+     "ratio": 0.0,
+     "compliant": false
+    },
+    {
+     "A": 4500.0,
+     "lw1": 1.2848424283521895,
+     "lw2": 1.9272636425282843,
+     "ratio": 0.0,
+     "compliant": false
+    }
+   ],
+   "platform_formula_replica": {
+    "area_b": 0.21118483949131386,
+    "wind_moment": 7560000.0,
+    "wind_arm": 0.42813455657492355,
+    "area_a": 0.37361788268991764,
+    "ratio": 0.5652428571428572,
+    "compliant": false
+   },
+   "platform_api": {
+    "status": 200,
+    "data": {
+     "area_b": 0.2112,
+     "area_a": 0.3736,
+     "ratio": 0.565,
+     "compliant": false,
+     "margin": -43.5,
+     "method": "天气衡准检查"
+    }
+   },
+   "platform_api_alt_keys": {
+    "status": 500,
+    "data": "Internal Server Error"
+   },
+   "compliance_platform": false,
+   "compliance_reference": false,
+   "verdict_diverges": false
+  }
+ ],
+ "figures": [
+  "fig_gz_areas.png",
+  "fig_ratio.png"
+ ]
+}
