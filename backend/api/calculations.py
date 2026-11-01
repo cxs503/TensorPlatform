@@ -3,6 +3,24 @@ Ship performance calculations API.
 
 Provides resistance and stability calculation endpoints with timing instrumentation,
 plus a timing baseline endpoint for latency statistics.
+
+Verification status (m1384, see docs/reports/m1384_resistance_stability_verification.md):
+  * Friction line Cf is the exact ITTC-1957 closed form (verified analytically).
+  * The legacy wetted-surface estimate ``S = pi*B*L*(0.5+0.25*Cb)`` carries a
+    documented shape-dependent bias (measured -30.4% on a closed-form cylinder,
+    -8.7% on a prolate spheroid).  Callers that *know* the geometry (preferred,
+    per the platform rule "geometry must be validated first") should pass
+    ``wetted_surface_m2``; the response records which source was used in
+    ``wetted_surface_source``.
+  * The residual-resistance coefficient ``Cr`` is an empirical curve fit without
+    a published provenance; it is exposed as-is but must not be quoted as a
+    literature-validated model.
+  * The GZ wall-sided formula is only valid below deck-edge immersion.  Beyond
+    ``wall_sided_limit_deg`` the cubic term is dropped (``gz_basis =
+    "linear_fallback"``, ``formula_valid=False``) so the returned arm stays
+    bounded by GM instead of exploding (pre-fix GZ(89 deg) = 4925 m,
+    GZ(90 deg) = 4.0e32 m). The 90 deg singularity (tan -> inf) is rejected with
+    HTTP 400.
 """
 from __future__ import annotations
 
@@ -32,6 +50,17 @@ class ResistanceRequest(BaseModel):
     cb: float = Field(default=0.542, gt=0, le=1, description="Block coefficient")
     water_density: float = Field(default=998.0, gt=0, description="Water density (kg/m³)")
     kinematic_viscosity: float = Field(default=1.004e-6, gt=0, description="Kinematic viscosity (m²/s)")
+    wetted_surface_m2: Optional[float] = Field(
+        default=None,
+        gt=0,
+        description="Geometry-validated wetted surface area (m²). Overrides the empirical estimate.",
+    )
+    form_factor: float = Field(
+        default=1.0,
+        ge=1.0,
+        le=1.5,
+        description="(1+k) viscous form factor from ITTC-1957; 1.0 = bare flat-plate friction only.",
+    )
 
 
 class ResistanceResponse(BaseModel):
@@ -40,9 +69,14 @@ class ResistanceResponse(BaseModel):
     speed_ms: float
     total_resistance_n: float
     frictional_resistance_n: float
+    form_resistance_n: float = 0.0
     residual_resistance_n: float
     reynolds_number: float
+    friction_coefficient_cf: float = 0.0
     froude_number: float
+    wetted_surface_m2: float = 0.0
+    wetted_surface_source: str = "empirical_formula"
+    form_factor: float = 1.0
     computation_time_ms: float
 
 
@@ -53,7 +87,18 @@ class StabilityRequest(BaseModel):
     gm_m: float = Field(default=1.0, gt=0, description="Metacentric height (m)")
     kb_m: float = Field(default=2.0, gt=0, description="KB (m)")
     bm_m: float = Field(default=3.0, gt=0, description="BM (m)")
-    heel_angle_deg: float = Field(default=10.0, description="Heel angle (degrees)")
+    heel_angle_deg: float = Field(
+        default=10.0,
+        ge=0.0,
+        le=90.0,
+        description="Heel angle (degrees). 90 deg is the tan() singularity and is rejected.",
+    )
+    wall_sided_limit_deg: float = Field(
+        default=25.0,
+        gt=0.0,
+        lt=90.0,
+        description="Deck-edge immersion angle: upper validity limit of the wall-sided formula.",
+    )
 
 
 class StabilityResponse(BaseModel):
@@ -63,12 +108,28 @@ class StabilityResponse(BaseModel):
     righting_arm_m: float
     righting_moment_knm: float
     gm_effective_m: float
+    formula_valid: bool = True
+    gz_basis: str = "wall_sided"
+    wall_sided_limit_deg: float = 25.0
+    validity_note: str = ""
     computation_time_ms: float
 
 
 # ---------------------------------------------------------------------------
 # Resistance calculation (Holtrop-Mennen simplified for SUBOFF)
 # ---------------------------------------------------------------------------
+
+def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
+    """Legacy wetted-surface estimate for an axisymmetric body.
+
+    Kept for backward compatibility. Measured bias against closed-form shapes
+    (``tools/verif/verify_ship_calcs.py``):
+        cylinder (Cb = pi/4)        : -30.4 %
+        prolate spheroid (b/a=0.25) : -8.7 %
+    Prefer passing ``wetted_surface_m2`` when the geometry has been validated.
+    """
+    return math.pi * beam * length * (0.5 + 0.25 * cb)
+
 
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
@@ -95,8 +156,13 @@ async def calc_resistance(req: ResistanceRequest):
     if L <= 0 or B <= 0 or T <= 0:
         raise HTTPException(status_code=400, detail="Dimensions must be positive")
 
-    # Wetted surface area (approximation for axisymmetric body)
-    S = math.pi * B * L * (0.5 + 0.25 * Cb)
+    # Wetted surface area: geometry-validated input wins over the empirical fit
+    if req.wetted_surface_m2 is not None:
+        S = float(req.wetted_surface_m2)
+        S_source = "input_validated"
+    else:
+        S = _empirical_wetted_surface(L, B, Cb)
+        S_source = "empirical_formula"
 
     # Reynolds number
     Re = V * L / nu
@@ -104,19 +170,23 @@ async def calc_resistance(req: ResistanceRequest):
     # ITTC-1957 friction line
     Cf = 0.075 / (math.log10(Re) - 2.0) ** 2
 
-    # Frictional resistance
+    # Frictional resistance (bare flat plate, ITTC-1957)
     Rf = 0.5 * rho * S * Cf * V ** 2
+
+    # Viscous form resistance from the (1+k) form factor
+    k = req.form_factor - 1.0
+    Rform = k * Rf
 
     # Residual resistance (simplified: function of Fn and Cb)
     g = 9.81
     Fn = V / math.sqrt(g * L)
 
-    # Empirical residual resistance coefficient for SUBOFF-like bodies
-    # Based on curve-fitting to experimental data
+    # Empirical residual resistance coefficient for SUBOFF-like bodies.
+    # NOTE: curve fit, no published provenance -- see module docstring.
     Cr = 0.002 * (1 + 2.0 * Cb) * Fn ** 2.5 if Fn > 0.05 else 0.0
     Rr = 0.5 * rho * S * Cr * V ** 2
 
-    Rt = Rf + Rr
+    Rt = Rf + Rform + Rr
 
     elapsed_ms = (time.perf_counter() - t0) * 1000
 
@@ -125,9 +195,14 @@ async def calc_resistance(req: ResistanceRequest):
         speed_ms=V,
         total_resistance_n=round(Rt, 4),
         frictional_resistance_n=round(Rf, 4),
+        form_resistance_n=round(Rform, 4),
         residual_resistance_n=round(Rr, 4),
         reynolds_number=round(Re, 2),
+        friction_coefficient_cf=round(Cf, 10),
         froude_number=round(Fn, 6),
+        wetted_surface_m2=round(S, 6),
+        wetted_surface_source=S_source,
+        form_factor=req.form_factor,
         computation_time_ms=round(elapsed_ms, 3),
     )
 
@@ -143,16 +218,48 @@ async def calc_stability(req: StabilityRequest):
     Compute righting arm and moment at a given heel angle.
 
     Uses the wall-sided formula: GZ = GM·sin(φ) + ½·BM·tan²(φ)·sin(φ)
+
+    Validity: exact only for a wall-sided hull section, up to deck-edge
+    immersion (``wall_sided_limit_deg``). Beyond that limit the cubic term
+    over-predicts GZ without bound (the section has already lost its wall-sided
+    buoyancy wedge), so it is dropped: the response falls back to the linear
+    estimate ``GZ = GM*sin(phi)`` with ``gz_basis="linear_fallback"`` and
+    ``formula_valid=False``. That fallback is conservative, not a substitute for
+    a hydrostatics GZ curve. φ = 90 deg is the tan() singularity (GZ -> inf)
+    and is rejected.
     """
     t0 = time.perf_counter()
+
+    if req.heel_angle_deg >= 90.0 - 1e-9:
+        raise HTTPException(
+            status_code=400,
+            detail=(
+                "heel_angle_deg=90 deg is the tan() singularity of the wall-sided "
+                "formula (GZ -> inf); supply a GZ curve from hydrostatics instead"
+            ),
+        )
 
     phi = math.radians(req.heel_angle_deg)
     GM = req.gm_m
     BM = req.bm_m
     disp = req.displacement_t * 1000  # tonnes → kg
 
-    # Wall-sided formula
-    GZ = GM * math.sin(phi) + 0.5 * BM * (math.tan(phi) ** 2) * math.sin(phi)
+    sin_phi = math.sin(phi)
+    valid = req.heel_angle_deg <= req.wall_sided_limit_deg
+    if valid:
+        # Wall-sided formula
+        GZ = GM * sin_phi + 0.5 * BM * (math.tan(phi) ** 2) * sin_phi
+        gz_basis = "wall_sided"
+        note = "within wall-sided validity range (phi <= deck-edge immersion)"
+    else:
+        # Cubic term is unbounded above deck-edge immersion -> bounded fallback
+        GZ = GM * sin_phi
+        gz_basis = "linear_fallback"
+        note = (
+            "phi exceeds wall_sided_limit_deg=%.1f deg: wall-sided cubic term dropped, "
+            "linear fallback GZ=GM*sin(phi); use a hydrostatics-derived GZ curve"
+            % req.wall_sided_limit_deg
+        )
 
     # Righting moment
     g = 9.81
@@ -166,6 +273,10 @@ async def calc_stability(req: StabilityRequest):
         righting_arm_m=round(GZ, 6),
         righting_moment_knm=round(RM, 4),
         gm_effective_m=round(GM, 4),
+        formula_valid=valid,
+        gz_basis=gz_basis,
+        wall_sided_limit_deg=req.wall_sided_limit_deg,
+        validity_note=note,
         computation_time_ms=round(elapsed_ms, 3),
     )
 
