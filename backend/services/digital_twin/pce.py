@@ -154,6 +154,101 @@ class PolynomialChaos:
             out[name] = float(np.sqrt(var))
         return out
 
+    # -- variance-based (global) sensitivity ---------------------------------
+    #
+    # Both quantities below are exact for the *polynomial* surrogate: the
+    # tensor-product Legendre basis is orthogonal on the uniform measure of
+    # [lower, upper], with E[P_alpha^2] = prod_d 1/(2 alpha_d + 1).  Hence
+    #     E[Y]  = c_0
+    #     Var[Y]= sum_{alpha != 0} c_alpha^2 prod_d 1/(2 alpha_d + 1)
+    # and the Sobol (ANOVA) splitting follows by grouping multi-indices, exactly
+    # as for the Hermite engine in ``services/ice_resistance_uq.py``.  These are
+    # *global* indices of the surrogate, unlike ``predict_std`` which is a
+    # first-order local linearisation.  Verified against the closed-form Legendre
+    # model (machine precision) and against Ishigami (1990) / Sobol g-function in
+    # ``tools/pce_verify``.
+    def basis_norm_sq(self, alpha: Sequence[int]) -> float:
+        """||P_alpha||^2 = prod_d 1/(2 alpha_d + 1) on U[lower, upper]."""
+        out = 1.0
+        for a in alpha:
+            out /= (2.0 * a + 1.0)
+        return out
+
+    def _variance_scale(self, c: np.ndarray) -> float:
+        """Numerically-meaningful variance scale of one output.
+
+        ``|E[Y^2]|`` (constant plus fluctuating part) sets the scale against which
+        a variance is considered distinguishable from zero.  A least-squares fit
+        of a *constant* model leaves a residual variance of order 1e-30; dividing
+        Sobol indices by that noise produces meaningless indices (up to 1.0 for
+        an input the model does not depend on at all).
+        """
+        norms = np.array([self.basis_norm_sq(a) for a in self.indices])
+        return float(np.sum((c ** 2) * norms))
+
+    def _coef_matrix(self) -> np.ndarray:
+        if not self.coefficients:
+            raise RuntimeError("fit() must be called before statistics()")
+        return np.column_stack([self.coefficients[f"y{i}"]
+                                for i in range(len(self.output_names))])
+
+    def statistics(self) -> Dict[str, Dict[str, float]]:
+        """Exact mean / variance / std of the surrogate, per output."""
+        coef = self._coef_matrix()
+        norms = np.array([self.basis_norm_sq(a) for a in self.indices])
+        non_const = np.array([sum(a) > 0 for a in self.indices])
+        out: Dict[str, Dict[str, float]] = {}
+        for i, name in enumerate(self.output_names):
+            c = coef[:, i]
+            var = float(np.sum((c[non_const] ** 2) * norms[non_const]))
+            if var <= 1e-20 * max(self._variance_scale(c), 1e-300):
+                var = 0.0
+            out[name] = {
+                "mean": float(c[0]),
+                "variance": var,
+                "std": float(np.sqrt(max(var, 0.0))),
+            }
+        return out
+
+    def sobol_indices(self) -> Dict[str, Dict[str, object]]:
+        """Exact first- and total-order Sobol indices of the surrogate.
+
+        ``S_d``  = share of the variance carried by basis terms that depend on
+                   ``x_d`` only.
+        ``S_T_d``= share carried by every term that depends on ``x_d`` at all
+                   (so ``S_T_d - S_d`` is the interaction budget of ``x_d``).
+        """
+        coef = self._coef_matrix()
+        norms = np.array([self.basis_norm_sq(a) for a in self.indices])
+        dim = len(self.names)
+        out: Dict[str, Dict[str, object]] = {}
+        for i, name in enumerate(self.output_names):
+            c = coef[:, i]
+            contrib = (c ** 2) * norms
+            var = float(np.sum(contrib[[sum(a) > 0 for a in self.indices]]))
+            if var <= 1e-20 * max(self._variance_scale(c), 1e-300):
+                # variance is numerical noise: every index is undefined, report 0
+                var = 0.0
+            first, total = {}, {}
+            for d in range(dim):
+                v_d = v_t = 0.0
+                for j, alpha in enumerate(self.indices):
+                    if sum(alpha) == 0 or alpha[d] == 0:
+                        continue
+                    v_t += float(contrib[j])
+                    if all(alpha[k] == 0 for k in range(dim) if k != d):
+                        v_d += float(contrib[j])
+                first[self.names[d]] = v_d / var if var > 0.0 else 0.0
+                total[self.names[d]] = v_t / var if var > 0.0 else 0.0
+            out[name] = {
+                "variance": var,
+                "first_order": first,
+                "total_order": total,
+                "sum_first_order": float(sum(first.values())),
+                "sum_total_order": float(sum(total.values())),
+            }
+        return out
+
     def to_dict(self) -> Dict[str, object]:
         return {
             "inputs": self.names,
