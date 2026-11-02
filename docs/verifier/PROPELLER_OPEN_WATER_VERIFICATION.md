@@ -167,3 +167,96 @@ python3 tools/verification/open_water_benchmark.py               # 重生成 out
    故留待「模型改进」单处理（审计字段 `section_docstring_drift`）。
 5. **能力项口径建议**：`propeller.open_water` 应注为「REAL 实现，KT/KQ ±15–20%、效率 ±4%」，
    而不是「REAL 且精度未定」。未作任何调参，本模型未针对上述基准拟合。
+
+---
+
+## 9. 附录：绝对精度闭合（2026-11-01，m1658）
+
+> > 注：batch 层接线已由 m1640 以正典形态（`bem_blade_element_momentum_v1`）先行合入 main，本附录 §9.4 所述改动与其等价。
+
+> 本节**撤下**第 5.1 节「绝对精度对文献值 WITHHELD」的理由（"本机无网、图谱点值无法取证"）。
+> 复核发现该理由不成立：Oosterveld & van Oossanen (1975) 的 39 项 $K_T$ / 47 项 $K_Q$
+> 回归系数表**已在本仓离线转录**（`tools/verify/propeller_open_water/reference_bseries.py`，
+> 并与姊妹仓 `backend/data/official/Wageningen_Bseries_coeffs.dat` 逐项逐指数交叉核对）。
+> 因此绝对精度可以在无网环境机器判定，本节即为该判定。
+
+### 9.1 方法（`tools/verify/propeller_open_water/absolute_accuracy.py`）
+
+- 判据基准：转录的公开多项式（B 系列公认行业参考），有效性箱
+  $Z\in[2,7]$, $P/D\in[0.5,1.4]$, $A_E/A_0\in[0.2,1.05]$, $J\in[0,1.5]$。
+- 试验网格：$P/D\in\{0.8,1.0,1.2\}$、$A_E/A_0\in\{0.35,0.55,0.75\}$、$Z\in\{4,5\}$ 的 6 个几何
+  × $J=0.05\!:\!0.05\!:\!1.20$ 共 **144 点**（6 几何 × 24 J）。
+- 合格门：平台验收线 **15%**（均值与 p95 同时满足），发表线 **3%**（最大值）。
+- 相对误差只在**有载区**统计：参考 $K_T<0.05$ 的点（29/144）单列，避免近零推力尾段
+  的相对误差放大掩盖真实一致性；设计区取 $J\le 0.75$。
+- 被评实现：(a) 仓内叶片元/动量模型 `backend/services/propeller_open_water.py`；
+  (b) 在线平台端点 `POST /propeller-design/wageningen-b`（:8001，2026-11-01 实测）。
+
+### 9.2 结果（程序化来自 `outputs/propeller_open_water_absolute/absolute_accuracy.json`）
+
+**仓内 BEM 模型（sections=40）**——全网格 vs 设计区（相对误差 %）：
+
+| 量 | n | mean | p95 | max | <15% 占比 | <3% 占比 | 全网格判定 | 设计区 mean / p95 / max | 设计区判定 |
+|---|---|---|---|---|---|---|---|---|---|
+| $K_T$ | 115 | 17.03 | 51.88 | 107.88 | 67% | 12% | **FAIL** | 13.13 / 38.32 / 55.89 | FAIL |
+| $K_Q$ | 115 | 15.37 | 44.89 | 89.46 | 58% | 10% | **FAIL** | 11.31 / 25.97 / 43.08 | FAIL |
+| $\eta_0$ | 108 | 11.58 | 20.39 | 100.00 | 76% | 7% | **FAIL** | 11.84 / 20.39 / 23.71 | FAIL |
+
+**在线端点（平台分级 REAL 的那条路径）**：
+
+| 量 | n | mean | p95 | max | <15% 占比 | <3% 占比 | 全网格判定 | 设计区 mean / p95 / max |
+|---|---|---|---|---|---|---|---|---|
+| $K_T$ | 115 | 25.59 | 57.72 | 162.03 | 22% | 4% | **FAIL** | 22.14 / 34.89 / 55.41 |
+| $K_Q$ | 115 | 45.87 | 57.22 | 57.58 | 2% | 0% | **FAIL** | 48.22 / 57.40 / 57.58 |
+| $\eta_0$ | 108 | 41.42 | 75.63 | 81.06 | **0%** | 0% | **FAIL** | 46.64 / 76.71 / 81.06 |
+
+单几何细看（$P/D=1.0$, $A_E/A_0=0.55$, $Z=4$，BEM vs 参考）：
+
+| J | $K_T$ BEM / ref | 误差 | $K_Q$ BEM / ref | 误差 | $\eta_0$ BEM / ref | 误差 |
+|---|---|---|---|---|---|---|
+| 0.4 | 0.3274 / 0.3038 | +7.8% | 0.04516 / 0.04654 | −3.0% | 0.4616 / 0.4156 | +11.1% |
+| 0.6 | 0.2284 / 0.2241 | +1.9% | 0.03474 / 0.03655 | −5.0% | 0.6277 / 0.5854 | +7.2% |
+| 0.8 | 0.1183 / 0.1356 | −12.7% | 0.02089 / 0.02476 | −15.6% | 0.7214 / 0.6971 | +3.5% |
+| 0.9 | 0.0587 / 0.0889 | −34.0% | 0.01244 / 0.01816 | −31.5% | 0.6762 / 0.7014 | −3.6% |
+
+径向离散收敛性（$J=0.6$，sections 16 → 80）：$K_T$ 变化 <1%；全网格均值随 sections
+16/40/80 依次为 $K_T$ 17.34/17.03/16.98 %、$K_Q$ 15.07/15.37/15.42 %、$\eta_0$ 11.65/11.58/11.57 %
+——即**剩余误差不是离散误差**，而是模型本体（剖面/弦长分布）差异。
+
+### 9.3 判定与结论
+
+| 问题 | 回答 |
+|---|---|
+| 在线端点（`propeller.open_water` = REAL）是否达到 15% 线？ | **否**。$K_Q$ 设计区 48%、$\eta_0$ 47%，108 个 $\eta_0$ 点中 **0 个**在 15% 内 |
+| 仓内 BEM 模型是否达到 15% 线？ | **否**（全网格 FAIL；设计区均值 11–13% 但 p95 26–38%） |
+| 是否达到 3% 发表线？ | **否**，两实现均未达到；BEM 仅 7–12% 的点进入 3% |
+| 与旧文档相比变化 | 结论由「WITHHELD 无法判定」→ **实测 FAIL 并给出逐点数字** |
+
+偏离的物理来源（不作调参，如实记录）：BEM 用通用 $\sin^{0.55}$ 弦长分布与薄翼无弯度剖面，
+与 B 系列的实际弦长/螺距分布（叶梢更宽）不同；因此中载区吻合（$J=0.6$: $K_T$ 1.9%），
+轻载区（$J\ge0.8$，$K_T\to0$）迅速发散。模型**系统性偏乐观**（$\eta_0$ 平均误差为正），
+与第 5.1 节 3.4 的判断一致，本次给出的是量化幅度而非定性描述。
+
+### 9.4 本单同时修掉的两处接线缺口
+
+1. `tools/batch_scan/batch_executor.py::ShipCalculationEngine.calc_propeller`
+   仍是占位代理式（`KT=0.5-0.3J`、`KQ=0.05+0.02J`、$\eta_0$ 钳位 0.85，与载荷/几何无关）——
+   m1393 的真实模型只落在 service 层、未接线到批量层，导致既有测试
+   `TestBatchWrapperWiring::test_batch_executor_uses_bem_model` 长期红。本单改为调用
+   BEM 模型并输出 `model="bem_open_water_v1"`；模型不可用时**显式报错而非静默回退占位式**。
+2. 在线端点 `/propeller-design/wageningen-b` 的占位实现位于**仓外**
+   （`/srv/tensor/ship-workspace/.../platforms/shared/methods/wageningen_b.py`，
+   不在本单白名单），本单只判定不改动：**该端点当前数值不可用于任何量化结论**，
+   建议由该仓维护方改为调用仓内 BEM 模型或转录多项式。
+
+### 9.5 复现
+
+```bash
+python3 tools/verify/propeller_open_water/absolute_accuracy.py \
+    --live http://127.0.0.1:8001/api/v1 \
+    --out outputs/propeller_open_water_absolute      # 写 absolute_accuracy.json + 2 张图
+python3 -m pytest tests/verify/test_propeller_absolute_accuracy.py -q   # 18 passed
+```
+
+图：`outputs/propeller_open_water_absolute/open_water_curves_vs_reference.png`（$K_T/K_Q/\eta_0$ vs J
+三实现对比）、`open_water_relative_errors.png`（相对误差带 ±15%/±3%）。
