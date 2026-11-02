@@ -307,11 +307,11 @@ def _auto_login():
     # __DB__ 恢复签 DB 原角色（旧行为）。
     _clamp = os.getenv("TP_AUTO_LOGIN_ROLE", "VIEWER")
     issued = role if _clamp == "__DB__" else _clamp
-    tokens = _pair({"sub": uname, "user_id": uid, "role": issued})
+    tokens = _pair({"sub": uname, "user_id": uid, "role": issued, "auto": True})
     return {
         **tokens,
         "user": {"id": uid, "username": uname, "email": email, "role": issued,
-                 "features": features, "is_admin": str(role).split(".")[-1].lower() == "admin"},
+                 "features": features, "is_admin": str(issued).split(".")[-1].lower() == "admin"},
         "auto": True,
     }
 
