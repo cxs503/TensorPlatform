@@ -1,9 +1,9 @@
 """操纵性域验证欠账：参考模型自洽 + 平台缺陷证据的回归测试。
 
 分两类：
-  A. 参考模型（artifacts/verif_maneuvering/mmg_ref.py）的物理/量纲自洽断言——
+  A. 参考模型（tests/data/verifier_assets/maneuvering/mmg_ref.py）的物理/量纲自洽断言——
      不依赖平台，任何环境可跑；
-  B. 平台侧证据断言——消费 artifacts/verif_maneuvering/results.json（由 verify.py 生成）；
+  B. 平台侧证据断言——消费同目录 results.json（由 verify.py 生成）；
      平台不可达时 skip，绝不把"环境不可达"当成"通过"。
 
 运行：python3 -m pytest tests/test_maneuvering_reference.py -q
@@ -20,7 +20,12 @@ import numpy as np
 import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
-VDIR = os.path.abspath(os.path.join(HERE, "..", "artifacts", "verif_maneuvering"))
+# Versioned assets first (artifacts/ is stripped by the merge gate).
+_VDIR_CANDIDATES = [
+    os.path.abspath(os.path.join(HERE, "..", "tests", "data", "verifier_assets", "maneuvering")),
+    os.path.abspath(os.path.join(HERE, "..", "artifacts", "verif_maneuvering")),
+]
+VDIR = next((d for d in _VDIR_CANDIDATES if os.path.isdir(d)), _VDIR_CANDIDATES[0])
 sys.path.insert(0, VDIR)
 
 from mmg_ref import MMGRef, kvlcc2_params, KNOT  # noqa: E402
@@ -44,7 +49,7 @@ def model():
 @pytest.fixture(scope="module")
 def results():
     if not os.path.exists(RES_PATH):
-        pytest.skip("results.json 缺失：先运行 artifacts/verif_maneuvering/verify.py")
+        pytest.skip("results.json 缺失：先运行 tools/verifier 下的 maneuvering verify.py")
     return json.load(open(RES_PATH, encoding="utf-8"))
 
 

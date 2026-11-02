@@ -24,7 +24,12 @@ import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
-VDIR = os.path.join(ROOT, "artifacts", "verif", "damage_stability")
+# Versioned assets first (artifacts/ is stripped by the merge gate).
+_VDIR_CANDIDATES = [
+    os.path.join(ROOT, "tests", "data", "verifier_assets", "damage_stability"),
+    os.path.join(ROOT, "artifacts", "verif", "damage_stability"),
+]
+VDIR = next((d for d in _VDIR_CANDIDATES if os.path.isdir(d)), _VDIR_CANDIDATES[0])
 sys.path.insert(0, VDIR)
 
 import solas_reference as ref  # noqa: E402

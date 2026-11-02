@@ -1,7 +1,8 @@
 """Tests for the m1584 propulsion open-water evidence gate.
 
 The gate is deterministic: it consumes the recorded probe fixture
-(artifacts/m1584/prop_openwater_fixture.json) and never touches the network, so
+(tests/data/verifier_assets/propulsion/,
+legacy artifacts/m1584/) and never touches the network, so
 these tests are stable in CI while still adjudicating the *serving* platform.
 """
 import json
@@ -16,7 +17,12 @@ sys.path.insert(0, ROOT)
 
 from tools.verifier import propulsion_openwater_gate as gate  # noqa: E402
 
-FIXTURE = os.path.join(ROOT, "artifacts/m1584/prop_openwater_fixture.json")
+# Versioned capture (the artifacts/ copy was dropped by the merge gate).
+FIXTURE_CANDIDATES = [
+    os.path.join(ROOT, "tests/data/verifier_assets/propulsion/prop_openwater_fixture.json"),
+    os.path.join(ROOT, "artifacts/m1584/prop_openwater_fixture.json"),
+]
+FIXTURE = next((p for p in FIXTURE_CANDIDATES if os.path.exists(p)), FIXTURE_CANDIDATES[0])
 
 
 @pytest.fixture(scope="module")
