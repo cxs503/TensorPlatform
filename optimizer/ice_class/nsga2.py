@@ -400,21 +400,33 @@ class NSGA2Optimizer:
         # Scale to bounds
         return lb + samples * (ub - lb)
 
-    def _compute_fixed_reference_point(self, objs: np.ndarray, cvs: np.ndarray) -> np.ndarray:
+    def _compute_fixed_reference_point(self, objs: np.ndarray, cvs: np.ndarray,
+                                       margin: float = 0.1) -> np.ndarray:
         """
         Compute a FIXED reference point for hypervolume.
 
-        Uses worst-case values with generous margin to ensure
-        stable HV tracking across generations.
+        Derived from the initial population's objective range (m2065, settling
+        the m2009 follow-up debt): ref_i = nadir_i + margin * (nadir_i - ideal_i)
+        for objectives with positive range, so the reference point is
+        (a) strictly worse than every initial-population point in every
+            objective (no silent clipping in compute_hypervolume), and
+        (b) problem-dependent instead of a hardcoded physical guess, so the
+            reference point adapts to the actual feasible region.
+
+        Degenerate (zero-range) objectives fall back to nadir * (1 + margin)
+        when nadir > 0, else nadir - (1 + margin) (minimization: worse = larger).
+        Infeasible-only populations use the full population as the pool.
         """
-        # Use generous upper bounds based on physical limits
-        # R_ice: max ~2000 kN, R_ow: max ~5000 kN, -GM: max ~-0.1 (GM min ~0.1)
-        # Reference point should be worse than any feasible solution
-        ref = np.array([
-            3000.0,   # R_ice reference [kN]
-            8000.0,   # R_ow reference [kN]
-            0.0,      # -GM reference (GM=0, i.e., -GM=0)
-        ])
+        feas = cvs <= 0
+        pool = objs[feas] if feas.any() else objs
+        nadir = pool.max(axis=0)
+        ideal = pool.min(axis=0)
+        rng_ = nadir - ideal
+        ref = np.where(
+            rng_ > 0,
+            nadir + margin * rng_,
+            np.where(nadir > 0, nadir * (1.0 + margin), nadir - (1.0 + margin)),
+        )
         return ref
 
     def _create_offspring(self, pop, objs, cvs, lb, ub, rng):
