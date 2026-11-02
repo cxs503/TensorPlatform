@@ -67,7 +67,12 @@ def _propeller_curves(kt_coefficients, kq_coefficients):
 class ResistanceRequest(BaseModel):
     """Resistance calculation request."""
     ship_type: str = Field(default="SUBOFF", description="Hull type identifier")
-    speed_ms: float = Field(default=1.0, gt=0, description="Speed in m/s")
+    speed_ms: float = Field(
+        default=1.0, gt=0,
+        # m1609 契约：基准链旧载荷发 "speed"；两别名都收，别再静默落到默认 1.0 m/s。
+        validation_alias=AliasChoices("speed_ms", "speed"),
+        description="Speed in m/s (alias: speed)",
+    )
     length: float = Field(default=4.356, gt=0, description="Length overall (m)")
     beam: float = Field(default=0.508, gt=0, description="Beam (m)")
     draft: float = Field(default=0.476, gt=0, description="Draft (m)")
@@ -97,6 +102,10 @@ class ResistanceResponse(BaseModel):
     residual_resistance_n: float
     reynolds_number: float
     friction_coefficient_cf: float = 0.0
+    # m1609 契约：被对比量以短名直接暴露（ct/cf/cr），下游不再从力与湿面积反推。
+    ct: float = 0.0
+    cf: float = 0.0
+    cr: float = 0.0
     froude_number: float
     wetted_surface_m2: float = 0.0
     wetted_surface_source: str = "empirical_formula"
@@ -352,6 +361,9 @@ async def calc_resistance(req: ResistanceRequest):
         residual_resistance_n=round(float(result["residual_resistance_n"]), 4),
         reynolds_number=round(float(result["reynolds_number"]), 2),
         friction_coefficient_cf=round(float(result["cf"]), 10),
+        ct=round(float(result["ct"]), 8),
+        cf=round(float(result["cf"]), 10),
+        cr=round(float(result["cr"]), 10),
         froude_number=round(float(result["froude_number"]), 6),
         wetted_surface_m2=round(float(result["wetted_surface_m2"]), 6),
         wetted_surface_source=(
