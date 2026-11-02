@@ -22,6 +22,7 @@ from sqlalchemy.orm import Session
 from api.deps import require_auth, require_role
 from api.domain.tensor_common import resolved_org
 from database.config import get_db
+from services.report_gate import check_report_quality_v1, evaluate_report, gate_mode
 
 router = APIRouter(prefix="/tensor/reports", tags=["科研运行台·报告"])
 
@@ -175,89 +176,22 @@ def get_figure(report_id: int, name: str):
 
 
 # ───────────────────────── report QA (paper-quality gate) ─────────────────────────
-# Minimum fields for paper-quality reports:
-# 1. Physical statement (物理表述): clear problem description with physics context
-# 2. Traceable criteria (判据可溯源): method/validation with references
-# 3. Figures (图): at least one figure or explicit justification for none
-# 4. Limitations (局限): known limitations and scope of applicability
-
-REQUIRED_SECTIONS = {
-    "physics_statement": [
-        r"(?i)(物理|背景|problem|background|物理背景|案例介绍)",
-        r"(?i)(几何|参数|geometry|parameter|参数表)",
-    ],
-    "traceable_criteria": [
-        r"(?i)(方法|method|流程|procedure|工具链|toolchain)",
-        r"(?i)(验证|validation|对标|benchmark|参考|reference|文献|误差|error)",
-    ],
-    "figures": [
-        r"(?i)(图|figure|云图|contour|曲线|curve|比较|comparison)",
-    ],
-    "limitations": [
-        r"(?i)(局限|limitation|注意|note|适用|scope|范围|展望|outlook|future)",
-    ],
-}
-
-
-def _check_report_quality(markdown: str, figures: list) -> dict:
-    """Check if report meets paper-quality minimum requirements."""
-    issues = []
-    
-    # Check physics statement
-    physics_found = any(
-        re.search(pattern, markdown)
-        for patterns in REQUIRED_SECTIONS["physics_statement"]
-        for pattern in [patterns]
-    )
-    if not physics_found:
-        issues.append("missing_physics_statement: 缺少物理背景/案例介绍（需包含物理问题描述、几何参数）")
-    
-    # Check traceable criteria
-    method_found = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["traceable_criteria"][:1]
-    )
-    validation_found = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["traceable_criteria"][1:]
-    )
-    if not method_found:
-        issues.append("missing_method: 缺少方法/流程描述（需包含计算方法、关键设置、工具链）")
-    if not validation_found:
-        issues.append("missing_validation: 缺少验证/对标（需包含与基准/文献/解析解的比较，或声明无基准原因）")
-    
-    # Check figures
-    has_figure_section = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["figures"]
-    )
-    has_figures = len(figures) > 0
-    if not has_figure_section and not has_figures:
-        issues.append("missing_figures: 缺少图表（需包含场量云图/比较曲线，或纯文档任务需写明无图理由）")
-    
-    # Check limitations
-    limitations_found = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["limitations"]
-    )
-    if not limitations_found:
-        issues.append("missing_limitations: 缺少局限与展望（需包含踩过的坑、适用范围、后续改进方向）")
-    
-    return {
-        "passed": len(issues) == 0,
-        "issues": issues,
-        "checks": {
-            "physics_statement": physics_found,
-            "method": method_found,
-            "validation": validation_found,
-            "figures": has_figure_section or has_figures,
-            "limitations": limitations_found,
-        }
-    }
+# 判据单一实现：``services/report_gate``（纯函数、无 DB 依赖、可离线复算）。
+#   * ``check_report_quality_v1`` 历史 keyword-only 判决（灰度 off/warn 期仍在用）
+#   * ``check_report_quality``   论文级六要素判决（灰度 enforce 期由它决定 qa_status）
+# 本模块只负责 I/O 与状态落库，**不再持有任何判据关键词表**：历史上生产内联一份、
+# 测试手抄一份，副本漂移让绿灯与生产脱钩（docs/reports/report_gate_audit_2026-11-01.json）。
+# 兼容别名：旧调用点/旧测试仍可通过 ``_check_report_quality`` 拿到 v1 判决。
+_check_report_quality = check_report_quality_v1
 
 
 class ReportQACheck(BaseModel):
     report_id: int = Field(ge=1)
+    # 灰度模式覆盖（省略则取 TP_REPORT_GATE_MODE，默认 warn）：
+    #   off     → 仅 v1 判决（等价于灰度前线上行为）
+    #   warn    → v1 判决写 qa_status，v2 六要素判决只作 advisory 返回（不改状态）
+    #   enforce → v2 六要素判决写 qa_status
+    mode: str | None = Field(default=None, description="off|warn|enforce")
 
 
 @router.post("/qa/check", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
@@ -275,11 +209,17 @@ def qa_check_report(
     if not report:
         raise HTTPException(status_code=404, detail="report not found")
     
-    result = _check_report_quality(report["markdown"], report["figures"] or [])
-    
-    # Update QA status
+    try:
+        result = evaluate_report(report["markdown"], report["figures"] or [], mode=body.mode)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+
+    # Update QA status —— 只有被判据授权的那一版（result["decided_by"]）能写状态
     qa_status = "passed" if result["passed"] else "rejected"
-    rejection_reason = "; ".join(result["issues"]) if result["issues"] else None
+    reasons = list(result["issues"])
+    if result["v2_advisory_issues"]:
+        reasons += [f"[advisory:v2] {i}" for i in result["v2_advisory_issues"]]
+    rejection_reason = "; ".join(reasons) if reasons else None
     db.execute(
         text("""
             UPDATE tensor_reports
@@ -296,6 +236,16 @@ def qa_check_report(
         "passed": result["passed"],
         "issues": result["issues"],
         "checks": result["checks"],
+        "gate": {
+            "mode": result["mode"],
+            "decided_by": result["decided_by"],
+            "diverges": result["diverges"],
+            "would_flip": result["would_flip"],
+            "v1_passed": result["v1"]["passed"],
+            "v2_passed": result["v2"]["passed"],
+            "v2_issue_codes": result["v2"]["issue_codes"],
+            "v2_advisory_issues": result["v2_advisory_issues"],
+        },
     }
 
 
