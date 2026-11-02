@@ -1,0 +1,131 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "experimental-reference/v1",
+  "title": "跨仓实验参考数据登记册条目",
+  "type": "object",
+  "required": [
+    "schema",
+    "dataset_id",
+    "title",
+    "points",
+    "provenance",
+    "tolerance"
+  ],
+  "properties": {
+    "schema": {
+      "const": "experimental-reference/v1"
+    },
+    "dataset_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9_]+$"
+    },
+    "title": {
+      "type": "string"
+    },
+    "quantity": {
+      "type": "string"
+    },
+    "independent_variable": {
+      "type": "object"
+    },
+    "dependent_variable": {
+      "type": "object"
+    },
+    "points": {
+      "type": "array",
+      "minItems": 5,
+      "items": {
+        "type": "array",
+        "minItems": 2,
+        "maxItems": 3,
+        "items": {
+          "type": [
+            "number",
+            "null"
+          ]
+        }
+      }
+    },
+    "y_scale": {
+      "oneOf": [
+        {
+          "type": "number"
+        },
+        {
+          "type": "object",
+          "required": [
+            "value"
+          ],
+          "properties": {
+            "value": {
+              "type": "number"
+            }
+          }
+        }
+      ]
+    },
+    "tolerance": {
+      "type": "object",
+      "required": [
+        "gate"
+      ],
+      "properties": {
+        "gate": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 0.5
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "citation",
+        "digitised_by",
+        "retrieved_from"
+      ],
+      "properties": {
+        "citation": {
+          "type": "string",
+          "minLength": 8
+        },
+        "doi": {
+          "type": "string"
+        },
+        "url": {
+          "type": "string"
+        },
+        "digitised_by": {
+          "type": "string",
+          "minLength": 2
+        },
+        "retrieved_from": {
+          "type": "string",
+          "minLength": 2
+        },
+        "retrieved_repo_commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "retrieved_sha256": {
+          "type": "string"
+        },
+        "digitisation_uncertainty": {
+          "type": "number"
+        },
+        "license_note": {
+          "type": "string"
+        }
+      }
+    },
+    "notes": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    }
+  },
+  "additionalProperties": true
+}
