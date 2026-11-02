@@ -80,7 +80,7 @@ class TestWettedSurface:
         req = calc.ResistanceRequest(speed_ms=3.0, wetted_surface_m2=5.42)
         resp = _run(calc.calc_resistance(req))
         assert resp.wetted_surface_m2 == pytest.approx(5.42)
-        assert resp.wetted_surface_source == "input_validated"
+        assert resp.wetted_surface_source == "caller_supplied_unverified"
 
     def test_default_path_is_backward_compatible(self):
         req = calc.ResistanceRequest(speed_ms=3.0)
