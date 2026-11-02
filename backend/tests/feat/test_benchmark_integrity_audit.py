@@ -49,12 +49,18 @@ from api.domain.ship_benchmark import (  # noqa: E402
 )
 from api.calculations import ResistanceRequest, calc_resistance  # noqa: E402
 from services.benchmark_integrity import total_resistance_coefficient  # noqa: E402
-from services.resistance_core import (  # noqa: E402
+from api.domain.resistance_core_service import (  # noqa: E402
     axisym_wetted_surface,
     ct_from_rt,
     ittc57_cf,
     resistance_core,
 )
+
+from api.domain.physics_providers import (  # noqa: E402
+    register_ship_resistance_providers,
+)
+
+register_ship_resistance_providers()
 from services.benchmark_integrity import total_resistance_coefficient  # noqa: E402
 from services.ship_resistance import (  # noqa: E402
     DEFAULT_KINEMATIC_VISCOSITY,
