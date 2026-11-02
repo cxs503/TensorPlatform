@@ -1,0 +1,288 @@
+{
+ "generated_utc": "2026-11-02T00:21:48+00:00",
+ "api_base": "http://127.0.0.1:8001/api/v1",
+ "reference": {
+  "wigley": {
+   "L": 100.0,
+   "B": 10.0,
+   "T": 6.25,
+   "Cb_exact": 0.4444444444444444,
+   "nabla_exact_m3": 2777.777777777778,
+   "wetted_surface_exact_m2": 1487.9063104957825
+  },
+  "pontoon": {
+   "L": 100.0,
+   "B": 20.0,
+   "T": 8.0,
+   "D": 16.0,
+   "Cb": 1.0,
+   "Cm": 1.0,
+   "KG_list": [
+    3.0,
+    6.0,
+    9.0
+   ],
+   "KM_exact": 8.166666666666668,
+   "wall_sided_valid_deg": 38.659808254090095
+  },
+  "michell_curve": [
+   {
+    "Fn": 0.1,
+    "U_ms": 3.132091952673165,
+    "Rw_ref_N": 1471.4477855169318,
+    "cw_ref": 0.00019670092078251432,
+    "theta_refine_rel": 2.2096900690879488e-14,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.13,
+    "U_ms": 4.071719538475115,
+    "Rw_ref_N": 4245.425303549923,
+    "cw_ref": 0.000335811864957755,
+    "theta_refine_rel": 4.327432862957475e-14,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.16,
+    "U_ms": 5.011347124277064,
+    "Rw_ref_N": 13237.70926817677,
+    "cw_ref": 0.0006912488321585987,
+    "theta_refine_rel": 7.420122757009668e-15,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.19,
+    "U_ms": 5.950974710079014,
+    "Rw_ref_N": 25556.35451102761,
+    "cw_ref": 0.0009463531656083762,
+    "theta_refine_rel": 4.5694748700270843e-14,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.22,
+    "U_ms": 6.890602295880963,
+    "Rw_ref_N": 47214.9599218918,
+    "cw_ref": 0.0013040546765350526,
+    "theta_refine_rel": 1.9108747431985427e-14,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.25,
+    "U_ms": 7.830229881682913,
+    "Rw_ref_N": 99342.56318332201,
+    "cw_ref": 0.0021247942434262823,
+    "theta_refine_rel": 4.409113619965237e-14,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.28,
+    "U_ms": 8.769857467484863,
+    "Rw_ref_N": 187780.66141832454,
+    "cw_ref": 0.003201815767125594,
+    "theta_refine_rel": 7.284456349949782e-15,
+    "rw_route_b_N": null
+   },
+   {
+    "Fn": 0.32,
+    "U_ms": 10.022694248554128,
+    "Rw_ref_N": 261902.62787480082,
+    "cw_ref": 0.003419018388871498,
+    "theta_refine_rel": 4.222735626328132e-14,
+    "rw_route_b_N": null
+   }
+  ],
+  "michell_route_cross_check": [
+   {
+    "Fn": 0.15,
+    "route_a_N": 12125.44135839709,
+    "route_b_N": 12125.441358397135
+   },
+   {
+    "Fn": 0.25,
+    "route_a_N": 99342.56318331763,
+    "route_b_N": 99342.56318332255
+   }
+  ],
+  "normalization": {
+   "prefactor_in_code": 2.5464790894703255,
+   "prefactor_classical_one_side": 1.2732395447351628,
+   "rw_scale_range": [
+    0.5,
+    1.0
+   ],
+   "cw_scale_range": [
+    0.5,
+    1.0
+   ],
+   "evidence": "WITHHELD",
+   "why": "no offline citable table for absolute Wigley Rw; the two printed conventions differ by a factor 2 in Rw. Scale-free verdicts (Froude invariance, ratios, Fn-shape) are unaffected."
+  },
+  "rho": 1025.0,
+  "nu": 1.19e-06,
+  "knot": 0.5144444444444445,
+  "g": 9.81
+ },
+ "platform": {
+  "geometry": {
+   "status": 200,
+   "data": {
+    "draft": 6.0,
+    "hydrostatics": {
+     "displacement": 0.0,
+     "displacement_volume": 0.0,
+     "Cb": 0.7274,
+     "Awp": 0.1,
+     "LCB": 0.5,
+     "LCB_from_fp": 0.5,
+     "VCB": 0.051,
+     "TPC": 0.001,
+     "MTC": 0.0,
+     "wet_surface": 0.2,
+     "draft": 0.062
+    },
+    "meta": {
+     "L": 1.0,
+     "B": 0.1,
+     "T": 0.0625,
+     "Cb": 0.444
+    }
+   }
+  },
+  "resistance_full": {
+   "status": 200,
+   "data": [
+    {
+     "speed": 4.0,
+     "total_resistance": 11.21,
+     "friction_resistance": 5.38,
+     "wave_resistance": 4.44,
+     "effective_power": 23.06,
+     "reynolds_number": 172907563.0,
+     "froude_number": 0.0657
+    },
+    {
+     "speed": 6.0,
+     "total_resistance": 26.54,
+     "friction_resistance": 11.44,
+     "wave_resistance": 11.96,
+     "effective_power": 81.91,
+     "reynolds_number": 259361345.0,
+     "froude_number": 0.0985
+    },
+    {
+     "speed": 8.0,
+     "total_resistance": 49.93,
+     "friction_resistance": 19.57,
+     "wave_resistance": 24.78,
+     "effective_power": 205.48,
+     "reynolds_number": 345815126.0,
+     "froude_number": 0.1314
+    },
+    {
+     "speed": 10.0,
+     "total_resistance": 82.63,
+     "friction_resistance": 29.69,
+     "wave_resistance": 44.22,
+     "effective_power": 425.04,
+     "reynolds_number": 432268908.0,
+     "froude_number": 0.1642
+    },
+    {
+     "speed": 12.0,
+     "total_resistance": 125.9,
+     "friction_resistance": 41.75,
+     "wave_resistance": 71.59,
+     "effective_power": 777.14,
+     "reynolds_number": 518722689.0,
+     "froude_number": 0.1971
+    },
+    {
+     "speed": 14.0,
+     "total_resistance": 190.84,
+     "friction_resistance": 55.72,
+     "wave_resistance": 118.04,
+     "effective_power": 1374.32,
+     "reynolds_number": 605176471.0,
+     "froude_number": 0.2299
+    },
+    {
+     "speed": 16.0,
+     "total_resistance": 276.17,
+     "friction_resistance": 71.54,
+     "wave_resistance": 182.31,
+     "effective_power": 2272.99,
+     "reynolds_number": 691630252.0,
+     "froude_number": 0.2628
+    },
+    {
+     "speed": 18.0,
+     "total_resistance": 383.81,
+     "friction_resistance": 89.21,
+     "wave_resistance": 266.36,
+     "effective_power": 3553.76,
+     "reynolds_number": 778084034.0,
+     "froude_number": 0.2956
+    },
+    {
+     "speed": 20.0,
+     "total_resistance": 535.42,
+     "friction_resistance": 108.68,
+     "wave_resistance": 391.88,
+     "effective_power": 5508.44,
+     "reynolds_number": 864537815.0,
+     "froude_number": 0.3285
+    }
+   ]
+  },
+  "resistance_half": {
+   "status": 200,
+   "data": [
+    {
+     "speed": 12.0,
+     "total_resistance": 41.82,
+     "friction_resistance": 11.44,
+     "wave_resistance": 27.56,
+     "effective_power": 258.17,
+     "reynolds_number": 259361345.0,
+     "froude_number": 0.2787
+    }
+   ],
+   "Fn": 0.09854968223497625
+  },
+  "stability": [
+   {
+    "KG": 3.0,
+    "status": 200,
+    "data": {
+     "GM": 9.167,
+     "GZ_max": 9.723,
+     "GZ_angle": 45.0,
+     "vanishing_angle": 151.7,
+     "status": "合格"
+    }
+   },
+   {
+    "KG": 6.0,
+    "status": 200,
+    "data": {
+     "GM": 6.167,
+     "GZ_max": 6.541,
+     "GZ_angle": 45.0,
+     "vanishing_angle": 121.7,
+     "status": "合格"
+    }
+   },
+   {
+    "KG": 9.0,
+    "status": 200,
+    "data": {
+     "GM": 3.167,
+     "GZ_max": 3.359,
+     "GZ_angle": 45.0,
+     "vanishing_angle": 91.7,
+     "status": "合格"
+    }
+   }
+  ]
+ }
+}
