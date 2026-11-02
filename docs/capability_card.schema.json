@@ -4,65 +4,427 @@
   "description": "Machine-verifiable capability card for ship performance platform.",
   "type": "object",
   "required": [
-    "card_id", "name", "version", "repo", "interface",
-    "applicability", "dependencies", "resource_requirements",
-    "validation_evidence", "failure_modes", "created_at", "status"
+    "card_id",
+    "name",
+    "version",
+    "repo",
+    "interface",
+    "applicability",
+    "dependencies",
+    "resource_requirements",
+    "validation_evidence",
+    "failure_modes",
+    "created_at",
+    "status"
   ],
   "properties": {
-    "card_id": {"type": "string", "pattern": "^CAP-[A-Za-z0-9_-]+$"},
-    "name": {"type": "string", "minLength": 3, "maxLength": 120},
-    "version": {"type": "string", "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"},
-    "repo": {"type": "string", "enum": ["TensorLBM","TensorFVM","TensorFEM","TensorBEM","TensorCAD","TensorSPH","TensorPlatform"]},
-    "discipline": {"type": "string", "enum": ["resistance","propulsion","seakeeping","maneuvering","stability","structure","vibration_noise","green_navigation","ice_navigation","general_fluid","geometry","reporting"]},
+    "card_id": {
+      "type": "string",
+      "pattern": "^CAP-[A-Za-z0-9_-]+$"
+    },
+    "name": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 120
+    },
+    "version": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$"
+    },
+    "repo": {
+      "type": "string",
+      "enum": [
+        "TensorLBM",
+        "TensorFVM",
+        "TensorFEM",
+        "TensorBEM",
+        "TensorCAD",
+        "TensorSPH",
+        "TensorPlatform"
+      ]
+    },
+    "discipline": {
+      "type": "string",
+      "enum": [
+        "resistance",
+        "propulsion",
+        "seakeeping",
+        "maneuvering",
+        "stability",
+        "structure",
+        "vibration_noise",
+        "green_navigation",
+        "ice_navigation",
+        "general_fluid",
+        "geometry",
+        "reporting"
+      ]
+    },
     "interface": {
-      "type": "object", "required": ["input","output","format"],
+      "type": "object",
+      "required": [
+        "input",
+        "output",
+        "format"
+      ],
       "properties": {
-        "input": {"type": "object", "additionalProperties": {"type": "object", "required": ["type","description"], "properties": {"type": {"type": "string"}, "description": {"type": "string"}, "unit": {"type": "string"}, "range": {"type": "object", "properties": {"min": {}, "max": {}}}}}},
-        "output": {"type": "object", "additionalProperties": {"type": "object", "required": ["type","description"], "properties": {"type": {"type": "string"}, "description": {"type": "string"}, "unit": {"type": "string"}}}},
-        "format": {"type": "string", "enum": ["JSON","YAML","VTK","STL","CSV","HDF5","PNG"]}
+        "input": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "type",
+              "description"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              },
+              "range": {
+                "type": "object",
+                "properties": {
+                  "min": {},
+                  "max": {}
+                }
+              }
+            }
+          }
+        },
+        "output": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "required": [
+              "type",
+              "description"
+            ],
+            "properties": {
+              "type": {
+                "type": "string"
+              },
+              "description": {
+                "type": "string"
+              },
+              "unit": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "format": {
+          "type": "string",
+          "enum": [
+            "JSON",
+            "YAML",
+            "VTK",
+            "STL",
+            "CSV",
+            "HDF5",
+            "PNG"
+          ]
+        }
       }
     },
     "applicability": {
-      "type": "object", "required": ["parameter_domain","regime"],
+      "type": "object",
+      "required": [
+        "parameter_domain",
+        "regime"
+      ],
       "properties": {
-        "parameter_domain": {"type": "object", "additionalProperties": {"type": "object", "properties": {"min": {"type": "number"}, "max": {"type": "number"}, "unit": {"type": "string"}}}},
-        "regime": {"type": "string"},
-        "geometry_type": {"type": "string"},
-        "dimensionality": {"type": "string", "enum": ["2D","3D","2D-axisymmetric"]}
+        "parameter_domain": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "min": {
+                "type": "number"
+              },
+              "max": {
+                "type": "number"
+              },
+              "unit": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "regime": {
+          "type": "string"
+        },
+        "geometry_type": {
+          "type": "string"
+        },
+        "dimensionality": {
+          "type": "string",
+          "enum": [
+            "2D",
+            "3D",
+            "2D-axisymmetric",
+            "N/A"
+          ]
+        }
       }
     },
     "dependencies": {
-      "type": "object", "required": ["code_version"],
+      "type": "object",
+      "required": [
+        "code_version"
+      ],
       "properties": {
-        "code_version": {"type": "string"},
-        "environment": {"type": "object", "properties": {"python": {"type": "string"}, "cuda": {"type": "string"}, "gpu_memory_gb": {"type": "number"}}},
-        "external_libraries": {"type": "array", "items": {"type": "string"}}
+        "code_version": {
+          "type": "string"
+        },
+        "environment": {
+          "type": "object",
+          "properties": {
+            "python": {
+              "type": "string"
+            },
+            "cuda": {
+              "type": "string"
+            },
+            "gpu_memory_gb": {
+              "type": "number"
+            }
+          }
+        },
+        "external_libraries": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
       }
     },
     "resource_requirements": {
       "type": "object",
-      "properties": {"gpu": {"type": "boolean"}, "min_gpu_memory_gb": {"type": "number"}, "min_cpu_cores": {"type": "integer"}, "min_ram_gb": {"type": "number"}, "estimated_runtime_hours": {"type": "number"}, "storage_gb": {"type": "number"}}
+      "properties": {
+        "gpu": {
+          "type": "boolean"
+        },
+        "min_gpu_memory_gb": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "min_cpu_cores": {
+          "type": "integer"
+        },
+        "min_ram_gb": {
+          "type": "number"
+        },
+        "estimated_runtime_hours": {
+          "type": "number"
+        },
+        "storage_gb": {
+          "type": "number"
+        }
+      }
     },
     "validation_evidence": {
-      "type": "object", "required": ["report_id","report_md5","verification_status"],
+      "type": "object",
+      "required": [
+        "verification_status"
+      ],
       "properties": {
-        "report_id": {"type": "string"},
-        "report_md5": {"type": "string", "pattern": "^[a-fA-F0-9]{32}$"},
-        "prereg_md5": {"type": "string", "pattern": "^[a-fA-F0-9]{32}$"},
-        "verification_status": {"type": "string", "enum": ["PASS","HONEST_FAIL","FAIL","IN_PROGRESS","NOT_VERIFIED"]},
-        "reference_values": {"type": "object", "additionalProperties": {"type": "object", "properties": {"value": {"type": "number"}, "tolerance": {"type": "number"}, "source": {"type": "string"}}}},
-        "relative_error_pct": {"type": "number"}
+        "report_id": {
+          "type": "string",
+          "description": "numeric platform report id, repo-relative path (repo_file anchor), or \"\" for an explicitly empty anchor"
+        },
+        "report_md5": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "md5 of the pinned anchor bytes, recomputed by tools/audit/capability_card_evidence.py (E3); null for declared-empty anchors"
+        },
+        "prereg_md5": {
+          "anyOf": [
+            {
+              "type": "string",
+              "pattern": "^[a-fA-F0-9]{32}$"
+            },
+            {
+              "type": "null"
+            }
+          ]
+        },
+        "verification_status": {
+          "type": "string",
+          "enum": [
+            "PASS",
+            "HONEST_FAIL",
+            "FAIL",
+            "IN_PROGRESS",
+            "NOT_VERIFIED"
+          ]
+        },
+        "reference_values": {
+          "type": "object",
+          "additionalProperties": {
+            "type": "object",
+            "properties": {
+              "value": {
+                "type": "number"
+              },
+              "tolerance": {
+                "type": "number"
+              },
+              "source": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "relative_error_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "report_body_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "sha256 of the pinned anchor bytes (canonical form: sha256(markdown.encode('utf-8')))"
+        },
+        "anchor_type": {
+          "type": "string",
+          "enum": [
+            "platform_report",
+            "repo_file",
+            "none"
+          ]
+        },
+        "anchor_path": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "anchor_title": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "anchor_fetched_at": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "quote_match": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "regex that must verbatim-hit a line of the anchored text (E7)"
+        },
+        "quote_line_sha256": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "sha256 of the matched line, first 16 hex chars"
+        },
+        "tolerance_pct": {
+          "type": [
+            "number",
+            "null"
+          ]
+        },
+        "gap_reason": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "required when anchor_type=none; the card must state why no evidence exists"
+        },
+        "verification_status_note": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "relative_error_source": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
       }
     },
     "failure_modes": {
       "type": "array",
-      "items": {"type": "object", "required": ["mode","symptom","mitigation"], "properties": {"mode": {"type": "string"}, "symptom": {"type": "string"}, "mitigation": {"type": "string"}, "severity": {"type": "string", "enum": ["critical","major","minor","cosmetic"]}}}
+      "items": {
+        "type": "object",
+        "required": [
+          "mode",
+          "symptom",
+          "mitigation"
+        ],
+        "properties": {
+          "mode": {
+            "type": "string"
+          },
+          "symptom": {
+            "type": "string"
+          },
+          "mitigation": {
+            "type": "string"
+          },
+          "severity": {
+            "type": "string",
+            "enum": [
+              "critical",
+              "major",
+              "minor",
+              "cosmetic"
+            ]
+          }
+        }
+      }
     },
-    "created_at": {"type": "string", "format": "date-time"},
-    "updated_at": {"type": "string", "format": "date-time"},
-    "status": {"type": "string", "enum": ["active","deprecated","experimental"]},
-    "tags": {"type": "array", "items": {"type": "string"}},
-    "notes": {"type": "string"}
+    "created_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "updated_at": {
+      "type": "string",
+      "format": "date-time"
+    },
+    "status": {
+      "type": "string",
+      "enum": [
+        "active",
+        "deprecated",
+        "experimental"
+      ]
+    },
+    "tags": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      }
+    },
+    "notes": {
+      "type": "string"
+    }
   },
   "additionalProperties": false
 }
