@@ -419,6 +419,9 @@ class TestIceResistanceUQ:
         for name, r in uq_results.items():
             assert r.n_model_evaluations <= 200, \
                 f"{name}: {r.n_model_evaluations} evaluations > 200"
+            assert r.max_level is not None and r.max_poly_order is not None
+            assert r.max_level >= r.max_poly_order + 1, (name, r.max_level, r.max_poly_order)
+            assert r.quadrature_aliasing_free is True, name
 
     def test_sobol_dominant_source(self, uq_results):
         """At least one parameter should have significant Sobol index."""
