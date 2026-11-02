@@ -1,3 +1,5 @@
+> **作废（m1610）**：优化器目标函数已改为委托正典 `backend/api/holtrop1984.py`，见 `docs/verification/optimizer-objective-physics-audit.md`。本文的 MOCK 结论仅描述 m1601 时点的旧手拟内核（现仅作 fallback）。
+
 # 优化器目标函数物理保真度复核：KCS 球鼻艏 CMA-ES 的 Ct 目标实为裸摩擦线（证据等级 MOCK）
 
 ## ① 案例介绍
