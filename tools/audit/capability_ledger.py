@@ -14,7 +14,14 @@
    （证据必须逐字可查，禁止手抄/转述），落盘命中行与 sha256 前缀；
 2. 按台账声明的 `level_rank` + `reconciliation_rules` 复算
    reconciled_level / divergence（OVERCLAIM / REVERIFY / UNVERIFIED / OK）；
-3. 跑 7 条自检 C1~C7；任何一条不过 → 退出码非 0，并打印违规项。
+3. 跑 10 条自检 C1~C10；任何一条不过 → 退出码非 0，并打印违规项。
+
+证据语料有两路（v2 起，m1811）：`reports`=在线 :8010 报告正文（id 为数字），
+`docs`=仓内已合并的复核文档（id 形如 `doc:docs/verification/xxx.md`）。
+之所以要第二路：本台账 v1 只吃在线报告，于是**已合并的复核工作对台账不可见**，
+台账把「已修复」的能力永久钉在旧判决上（m1564 稳性受证合成后仍记 MOCK）。
+新增自检：C8 证据新鲜度、C9 must_consume（已合并复核文档必须入账或显式豁免）、
+C10 仓内文档正文 sha256 与语料库一致（文档被改 → 证据失效，强制重新 curation）。
 
 用法
 ----
@@ -38,6 +45,7 @@ import re
 import sys
 import urllib.error
 import urllib.request
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -45,6 +53,7 @@ LEDGER = ROOT / "artifacts" / "capability_ledger" / "capability_ledger.json"
 FIXTURES = ROOT / "tests" / "fixtures" / "capability_ledger"
 CAP_SNAPSHOT = FIXTURES / "capabilities_snapshot.json"
 CORPUS = FIXTURES / "reports_corpus.json"
+CORPUS_V2_DOC_PREFIX = "doc:"
 OUT_DIR = ROOT / "artifacts" / "capability_ledger"
 RESOLVED = OUT_DIR / "capability_ledger_resolved.json"
 TABLE_MD = OUT_DIR / "capability_ledger_table.md"
@@ -89,10 +98,30 @@ def resolve_quote(report_md: str, pattern: str) -> dict:
 
 
 # ── 对账 ────────────────────────────────────────────────────────────────
+def _ts(value) -> datetime:
+    """as_of 解析（支持 date / ISO / Z 后缀）；不可解析 → 纪元起点（排最前，保守）。"""
+    s = str(value or "").strip().replace("Z", "+00:00")
+    try:
+        dt = datetime.fromisoformat(s)
+    except ValueError:
+        return datetime.min.replace(tzinfo=timezone.utc)
+    return dt if dt.tzinfo else dt.replace(tzinfo=timezone.utc)
+
+
+def _sort_key(ev: dict):
+    """『最新』排序键：(as_of 时间戳, 证据种类, id)。
+
+    证据种类：在线报告(1) > 仓内文档(0)。同一时间戳时**取独立在线审计**，
+    这是保守选择——仓内文档是自家写的东西，不得压过第三方口径的在线复核。
+    """
+    rid = str(ev.get("report_id", ""))
+    return (_ts(ev.get("as_of")), 1 if rid.isdigit() else 0, rid)
+
+
 def _latest(evidence: list) -> dict | None:
     if not evidence:
         return None
-    return max(evidence, key=lambda e: (e.get("as_of", ""), int(e.get("report_id", 0))))
+    return max(evidence, key=_sort_key)
 
 
 def reconcile_one(cap: dict, levels: dict) -> dict:
@@ -123,6 +152,7 @@ def reconcile_one(cap: dict, levels: dict) -> dict:
         "divergence": divergence,
         "basis": basis,
         "latest_evidence_report": (latest or {}).get("report_id"),
+        "latest_evidence_as_of": (latest or {}).get("as_of"),
         "evidence_count": len(cap["evidence"]),
     }
 
@@ -131,7 +161,12 @@ def check(ledger: dict) -> tuple[dict, list]:
     """返回 (对账结果, 违规列表)。违规 = 字符串列表（C 编号 + 说明）。"""
     levels = _rank_map(ledger)
     snapshot = _load(CAP_SNAPSHOT)
-    corpus = _load(CORPUS)["reports"]
+    corpus_raw = _load(CORPUS)
+    corpus = {}
+    for rid, rec in (corpus_raw.get("reports") or {}).items():
+        corpus[str(rid)] = {**rec, "_kind": "report"}
+    for rid, rec in (corpus_raw.get("docs") or {}).items():
+        corpus[str(rid)] = {**rec, "_kind": "doc"}
     violations: list[str] = []
 
     # C1 快照与台账逐项对齐
@@ -173,7 +208,7 @@ def check(ledger: dict) -> tuple[dict, list]:
             evidence_rows.append(
                 {
                     "capability": cap["id"],
-                    "report_id": int(rid),
+                    "report_id": int(rid) if rid.isdigit() else rid,
                     "stance": ev["stance"],
                     "asserted_level": ev["asserted_level"],
                     "line_sha256": q["line_sha256"],
@@ -215,6 +250,49 @@ def check(ledger: dict) -> tuple[dict, list]:
     tally = {"OVERCLAIM": 0, "REVERIFY": 0, "UNVERIFIED": 0, "OK": 0}
     for row in resolved_caps:
         tally[row["divergence"]] += 1
+
+    # C8 证据新鲜度（防腐朽）：带分歧的能力若最新证据早于 as_of − max_evidence_age_days，
+    #    说明台账在用陈旧证据裁决当下能力 → 必须重新 curation（不是把日期改一改就能过）。
+    curation = ledger.get("curation", {})
+    max_age = curation.get("max_evidence_age_days")
+    as_of = curation.get("as_of")
+    if max_age is not None and as_of:
+        cutoff = _ts(as_of) - timedelta(days=int(max_age))
+        for row in resolved_caps:
+            if row["divergence"] not in ("OVERCLAIM", "REVERIFY"):
+                continue
+            ts = _ts(row.get("latest_evidence_as_of"))
+            if ts < cutoff:
+                violations.append(
+                    f"C8 {row['id']} 最新证据 {row['latest_evidence_report']} "
+                    f"({row.get('latest_evidence_as_of')}) 已超过 {max_age} 天（as_of={as_of}），须重新 curation"
+                )
+
+    # C9 must_consume：凡记入 curation.must_consume 的已合并复核文档，必须被 ≥1 条证据引用，
+    #    或显式写 waiver+理由。防「复核做完了但台账不知道」。
+    cited = {str(e["report_id"]) for c in resolved_caps for e in c["evidence"]}
+    cited |= {str(e["report_id"]) for g in resolved_gaps for e in g["evidence"]}
+    for item in curation.get("must_consume", []):
+        key = "doc:" + item["path"]
+        if item.get("waiver"):
+            if len(item["waiver"]) < 8:
+                violations.append(f"C9 waiver 理由过短（须写清为何不入账）: {item['path']}")
+            continue
+        if key not in cited:
+            violations.append(f"C9 已合并复核文档未入账（须引用或给 waiver）: {item['path']}")
+
+    # C10 仓内文档证据的正文一致性：语料库里记的 sha256 必须等于工作树里该文件的 sha256。
+    #    文档被后续单改写 → 旧引文失效 → 强制重新 curation（禁止引文与正文脱钩）。
+    for rid, rec in corpus.items():
+        if rec.get("_kind") != "doc":
+            continue
+        path = ROOT / rec["path"]
+        if not path.exists():
+            violations.append(f"C10 语料库声明的仓内文档不存在: {rec['path']}")
+            continue
+        digest = hashlib.sha256(path.read_bytes()).hexdigest()
+        if digest != rec.get("sha256"):
+            violations.append(f"C10 仓内文档正文已变（sha256 不符，证据引文可能失效）: {rec['path']}")
 
     result = {
         "schema_version": ledger["schema_version"],
@@ -363,7 +441,7 @@ def main(argv: list[str] | None = None) -> int:
     if violations:
         print(f"FAIL: {len(violations)} 项违规", file=sys.stderr)
         return 1
-    print("PASS: C1~C7 全部通过")
+    print("PASS: C1~C10 全部通过")
     return 0
 
 

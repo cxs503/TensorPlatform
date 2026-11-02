@@ -63,7 +63,8 @@ def test_snapshot_coverage_is_exact(tool, ledger):
 
 def test_every_evidence_quote_is_verbatim(tool, ledger):
     """证据必须逐字可查：命中行非空、sha256 前缀长度固定、且 report_id 在语料库内。"""
-    corpus = json.loads(CORPUS.read_text(encoding="utf-8"))["reports"]
+    raw = json.loads(CORPUS.read_text(encoding="utf-8"))
+    corpus = {**raw["reports"], **{k: v for k, v in raw.get("docs", {}).items()}}
     n_rows = 0
     for cap in ledger["capabilities"]:
         for ev in cap["evidence"]:
@@ -78,7 +79,7 @@ def test_every_evidence_quote_is_verbatim(tool, ledger):
         for ev in gap["evidence"]:
             assert tool.resolve_quote(corpus[str(ev["report_id"])]["markdown"], ev["quote_match"])["hit"]
             n_rows += 1
-    assert n_rows == 11, f"证据行数 {n_rows} 与预期不符"
+    assert n_rows == 16, f"证据行数 {n_rows} 与预期不符"
 
 
 def test_divergence_findings_are_the_documented_ones(tool, ledger):
@@ -86,17 +87,19 @@ def test_divergence_findings_are_the_documented_ones(tool, ledger):
     result, _ = tool.check(ledger)
     assert result["summary"]["divergence_tally"] == {
         "OVERCLAIM": 2,
-        "REVERIFY": 1,
+        "REVERIFY": 0,
         "UNVERIFIED": 15,
-        "OK": 3,
+        "OK": 4,
     }
     by_id = {c["id"]: c for c in result["capabilities"]}
+    # v2 重裁（m1811）：敞水仍 MOCK（m1584 硬判据），稳性升 REAL（m1564 受证合成），
+    # 阻力由 REVERIFY 升格为 OVERCLAIM（inline 审计 FAIL 8/10，绝对精度不可判据）。
     assert by_id["propeller.open_water"]["reconciled_level"] == "MOCK"
     assert by_id["propeller.open_water"]["divergence"] == "OVERCLAIM"
-    assert by_id["calc.stability"]["reconciled_level"] == "MOCK"
-    assert by_id["calc.stability"]["divergence"] == "OVERCLAIM"
+    assert by_id["calc.stability"]["reconciled_level"] == "REAL"
+    assert by_id["calc.stability"]["divergence"] == "OK"
     assert by_id["calc.resistance"]["reconciled_level"] == "WITHHELD"
-    assert by_id["calc.resistance"]["divergence"] == "REVERIFY"
+    assert by_id["calc.resistance"]["divergence"] == "OVERCLAIM"
     # 无证据不得被抬成 REAL
     for c in result["capabilities"]:
         if c["evidence_count"] == 0:
@@ -107,6 +110,8 @@ def test_divergence_findings_are_the_documented_ones(tool, ledger):
         "耐波",
         "绿色航行",
         "基准参照数据",
+        "结构",
+        "振动噪声",
     }
 
 
@@ -166,7 +171,7 @@ def test_mutant_claim_flip_trips_c5(tool, ledger):
 def test_mutant_divergence_without_action_trips_c4(tool, ledger):
     bad = copy.deepcopy(ledger)
     for cap in bad["capabilities"]:
-        if cap["id"] == "calc.stability":
+        if cap["id"] == "calc.resistance":  # v2 后 calc.stability 已裁决为 OK（无需 action）
             cap.pop("action", None)
     _, violations = tool.check(bad)
     assert "C4" in _violation_codes(violations)
@@ -196,3 +201,68 @@ def test_mutant_cli_exit_one_on_bad_ledger(tool, tmp_path, monkeypatch):
     p.write_text(json.dumps(bad, ensure_ascii=False), encoding="utf-8")
     monkeypatch.setattr(tool, "LEDGER", p)
     assert tool.main(["--check"]) == 1
+
+# ── v2 新增：防腐朽三判据（C8/C9/C10） ──────────────────────────────────
+def test_corpus_docs_and_ledger_are_reproducible():
+    """语料库 docs 段与台账 curation 段必须由仓内脚本可复现（防手改漂移）。"""
+    for script, args in (
+        ("tools/audit/build_capability_corpus_docs.py", ["--check"]),
+        ("tools/audit/curate_capability_ledger_m1811.py", ["--check"]),
+    ):
+        proc = subprocess.run([sys.executable, str(ROOT / script), *args],
+                              capture_output=True, text=True, timeout=120)
+        assert proc.returncode == 0, f"{script} 产物与仓内不一致: {proc.stdout}{proc.stderr}"
+
+
+def test_every_must_consume_doc_is_cited(tool, ledger):
+    """已合并复核文档必须全部入账（否则台账再次对已合并工作失明）。"""
+    result, violations = tool.check(ledger)
+    assert violations == []
+    cited = {str(e["report_id"]) for c in ledger["capabilities"] for e in c["evidence"]}
+    cited |= {str(e["report_id"]) for g in ledger["unregistered_domains"] for e in g["evidence"]}
+    must = ledger["curation"]["must_consume"]
+    assert len(must) >= 5
+    for item in must:
+        assert not item.get("waiver"), item["path"]
+        assert "doc:" + item["path"] in cited, item["path"]
+
+
+def test_every_doc_evidence_has_provenance(tool, ledger):
+    """文档证据必须带 path + sha256 + blob，且 sha256 与工作树正文一致（C10 正例）。"""
+    raw = json.loads(CORPUS.read_text(encoding="utf-8"))
+    assert raw["docs"], "corpus 里没有 docs 段"
+    for rid, rec in raw["docs"].items():
+        assert rid.startswith("doc:")
+        assert rec["sha256"] and rec["blob"] and rec["as_of"]
+        import hashlib
+        assert hashlib.sha256((ROOT / rec["path"]).read_bytes()).hexdigest() == rec["sha256"]
+
+
+def test_mutant_stale_evidence_trips_c8(tool, ledger):
+    """证据过期（把容忍窗口压到 1 天）必须被 C8 拦下，而不是静默沿用旧判决。"""
+    bad = copy.deepcopy(ledger)
+    bad["curation"]["max_evidence_age_days"] = 1
+    bad["curation"]["as_of"] = "2026-12-31T00:00:00+00:00"
+    _, violations = tool.check(bad)
+    assert "C8" in _violation_codes(violations)
+
+
+def test_mutant_unconsumed_doc_trips_c9(tool, ledger):
+    """把一篇从未被引用的复核文档写进 must_consume → C9 必须报违规。"""
+    bad = copy.deepcopy(ledger)
+    bad["curation"]["must_consume"].append(
+        {"path": "docs/reports/m1590_structure_verification_debt.md", "why": "已合并但假设未引用"})
+    bad["curation"]["must_consume"][-1]["path"] = "docs/papers/PAPER_TRACEABILITY_GATE.md"
+    _, violations = tool.check(bad)
+    assert "C9" in _violation_codes(violations)
+
+
+def test_mutant_doc_sha_mismatch_trips_c10(tool, ledger, tmp_path, monkeypatch):
+    """语料库里的文档 sha256 被篡改（=引文可能已失效）必须被 C10 拦下。"""
+    raw = json.loads(CORPUS.read_text(encoding="utf-8"))
+    raw["docs"][sorted(raw["docs"])[0]]["sha256"] = "0" * 64
+    p = tmp_path / "corpus.json"
+    p.write_text(json.dumps(raw), encoding="utf-8")
+    monkeypatch.setattr(tool, "CORPUS", p)
+    _, violations = tool.check(ledger)
+    assert "C10" in _violation_codes(violations)
