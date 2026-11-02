@@ -132,27 +132,49 @@ class PolynomialChaos:
         y = self.predict_matrix(x)[0]
         return {name: float(y[i]) for i, name in enumerate(self.output_names)}
 
-    def predict_std(self, values: Mapping[str, float], sigma_input: Sequence[float] | None = None) -> Dict[str, float]:
-        """First-order coefficient-of-variation propagation on the surrogate.
+    def predict_std(
+        self,
+        values: Mapping[str, float],
+        sigma_input: Sequence[float] | None = None,
+        rel_step: float = 1e-6,
+    ) -> Dict[str, float]:
+        """First-order (delta-method) propagation of input std onto the outputs.
 
-        Returns the standard deviation of each output for input std ``sigma_input``
-        (default: 1 % of the input range), by Monte-Carlo-free linearisation via
-        the basis gradient.
+        ``sigma_input`` is the **absolute** standard deviation of each input in the
+        same units as ``lower`` / ``upper`` (default: 1 % of the corresponding input
+        range).  The result lives in the **fitted output space**: if the model was
+        fitted on ``log10(y)`` the returned std is in decades and must be converted
+        before it can be reported next to a physical mean -- see
+        :meth:`PCESurrogate.predict_with_uncertainty`.
+
+        The finite-difference step is scaled by the input range (``rel_step``) and
+        clipped to the design box, so the estimate does not depend on the absolute
+        magnitude of the input units and never extrapolates outside the surrogate
+        domain.
         """
-        h = 1e-4
-        base = self.predict(values)
-        out: Dict[str, float] = {}
-        for name in self.output_names:
-            var = 0.0
-            for j, pname in enumerate(self.names):
-                scale = (sigma_input[j] if sigma_input is not None
-                         else 0.01 * (self.upper[j] - self.lower[j]))
-                lo = dict(values); lo[pname] = values[pname] - h
-                hi = dict(values); hi[pname] = values[pname] + h
-                d = (self.predict(hi)[name] - self.predict(lo)[name]) / (2 * h)
-                var += (d * scale) ** 2
-            out[name] = float(np.sqrt(var))
-        return out
+        base = self.predict(values)  # validates the input key set
+        sig = (np.asarray(sigma_input, dtype=float) if sigma_input is not None
+               else 0.01 * (self.upper - self.lower))
+        if sig.size != len(self.names):
+            raise ValueError("sigma_input length must match the number of inputs")
+        grad = np.zeros((len(self.names), len(self.output_names)))
+        for j, pname in enumerate(self.names):
+            h = abs(rel_step) * (self.upper[j] - self.lower[j])
+            if h <= 0.0:
+                continue
+            lo_v = min(max(values[pname] - h, self.lower[j]), self.upper[j])
+            hi_v = min(max(values[pname] + h, self.lower[j]), self.upper[j])
+            span = hi_v - lo_v
+            if span <= 0.0:
+                continue
+            lo = dict(values); lo[pname] = lo_v
+            hi = dict(values); hi[pname] = hi_v
+            d_lo, d_hi = self.predict(lo), self.predict(hi)
+            for i, name in enumerate(self.output_names):
+                grad[j, i] = (d_hi[name] - d_lo[name]) / span
+        var = (grad * sig[:, None]) ** 2
+        return {name: float(np.sqrt(np.sum(var[:, i])))
+                for i, name in enumerate(self.output_names)}
 
     def to_dict(self) -> Dict[str, object]:
         return {
