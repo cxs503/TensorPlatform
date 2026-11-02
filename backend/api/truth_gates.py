@@ -21,6 +21,7 @@ from typing import Any
 from fastapi import APIRouter, Depends, HTTPException, Request
 from pydantic import BaseModel, Field
 from sqlalchemy import text
+from sqlalchemy.exc import IntegrityError
 from sqlalchemy.orm import Session
 
 from database.config import get_db
@@ -93,38 +94,75 @@ def submit_vote(
         reasoning=req.reasoning,
         is_blind=req.is_blind,
     )
+    # One ballot per (vote_group_id, voter_model): uq_vote_group_voter enforces it in
+    # the DB, but an IntegrityError used to surface as a 500. Re-voting is a *review*
+    # action, not a silent second ballot (m2038 defect D4 / API contract).
+    duplicate = db.execute(
+        text("SELECT id, verdict FROM repro_verdict_votes "
+             "WHERE vote_group_id = :vgid AND voter_model = :voter"),
+        {"vgid": req.vote_group_id, "voter": req.voter_model},
+    ).fetchone()
+    if duplicate is not None:
+        raise HTTPException(
+            409,
+            f"Voter '{req.voter_model}' already voted in group '{req.vote_group_id}' "
+            f"(vote_id={duplicate[0]}, verdict={duplicate[1]}); a second ballot would "
+            f"fake independence.",
+        )
+
     db.add(vote)
-    db.commit()
+    try:
+        db.commit()
+    except IntegrityError:
+        db.rollback()
+        raise HTTPException(409, f"Duplicate ballot for voter '{req.voter_model}'")
     db.refresh(vote)
 
-    # Fetch all votes in this group and aggregate
+    # Fetch all votes in this group and aggregate. evidence_hash MUST take part in
+    # the aggregation, otherwise the submit-path tally and the GET re-computation
+    # disagree (m2038 defect D7: correlated evidence was invisible here).
     rows = db.execute(
-        text("SELECT voter_model, verdict, confidence FROM repro_verdict_votes WHERE vote_group_id = :vgid"),
+        text("SELECT voter_model, verdict, confidence, evidence_hash "
+             "FROM repro_verdict_votes WHERE vote_group_id = :vgid"),
         {"vgid": req.vote_group_id},
     ).fetchall()
 
-    votes_list = [{"voter_model": r[0], "verdict": r[1], "confidence": r[2]} for r in rows]
+    votes_list = [
+        {"voter_model": r[0], "verdict": r[1], "confidence": r[2], "evidence_hash": r[3]}
+        for r in rows
+    ]
     aggregation = aggregate_votes(votes_list)
 
-    # If split verdict, record event
-    if aggregation["is_split"] and len(votes_list) >= 3:
-        split_event = SplitVerdictEvent(
-            vote_group_id=req.vote_group_id,
-            mission_id=req.mission_id,
-            vote_tally=aggregation["tally"],
-            resolution="unresolved",
-            notes=f"Split verdict: {aggregation['tally']}",
-        )
-        db.add(split_event)
-        db.commit()
+    # If split verdict, record the event once (re-submissions must not spam it)
+    split_recorded = False
+    if aggregation["is_split"] and aggregation["total_voters"] >= 3:
+        existing = db.execute(
+            text("SELECT id FROM split_verdict_events "
+                 "WHERE vote_group_id = :vgid AND resolution = 'unresolved'"),
+            {"vgid": req.vote_group_id},
+        ).fetchone()
+        if existing is None:
+            split_event = SplitVerdictEvent(
+                vote_group_id=req.vote_group_id,
+                mission_id=req.mission_id,
+                vote_tally=aggregation["tally"],
+                resolution="unresolved",
+                notes=f"Split verdict: {aggregation['tally']}",
+            )
+            db.add(split_event)
+            db.commit()
+            split_recorded = True
 
-    # If confirmed cheat (>=2 cheat votes), mark as strike
-    strike_confirmed = aggregation["is_confirmed_cheat"]
+    # A strike additionally requires independent evidence (§aggregate_votes).
+    strike_confirmed = aggregation["is_confirmed_cheat_independent"]
 
     return {
         "vote": vote.to_dict(),
         "aggregation": aggregation,
+        "cheat_majority": aggregation["is_confirmed_cheat"],
         "strike_confirmed": strike_confirmed,
+        "confirmation_blocks": aggregation["independence_blocks"],
+        "split_event_recorded": split_recorded,
     }
 
 
