@@ -8,6 +8,13 @@ Interface contract (m546):
 - Input: 8-dimensional parameter vector in normalized space [-1, 1]
 - Output: geometry dict with verification flags (watertight, displacement)
 - Constraints: geometric validity checks (watertight, displacement bounds)
+
+m1610: besides the verification flags the geometry now carries the *hull
+particulars* the canonical Holtrop-1984 kernel needs (``cm``, ``cwp``,
+``lcb_pct``, ``vol``, ``abt``, ``hb``, ``at``) so that the resistance objective
+can be evaluated by the canonical kernel instead of by hand-fitted multipliers.
+``cm``/``cwp`` are taken from the canonical kernel's own estimates
+(:mod:`optimizer.interfaces.canonical_bridge`) - never re-derived here.
 """
 import numpy as np
 from typing import Dict, Any, Tuple
@@ -64,6 +71,68 @@ def decode_parameters(params_normalized: np.ndarray) -> Dict[str, float]:
     }
 
 
+# --- Hull particulars for the canonical Holtrop-1984 kernel (m1610) ---------
+#: Bulb transverse area at FP as a fraction of the midship section area
+#: (KCS-class container bow, Abt/Am ~ 0.09).
+BULB_AREA_RATIO = 0.09
+#: Bulb centre height above the keel as a fraction of the draft.
+BULB_HEIGHT_RATIO = 0.45
+#: KCS published LCB, percent of L aft of midship (negative = forward).
+LCB_BASELINE_PCT = -0.7
+
+#: Bow-parameter -> hull-particular mapping.  Only pathways that actually exist in
+#: Holtrop-1984 are mapped; anything else is left inert and documented, instead of
+#: being faked with an ad-hoc resistance multiplier (the m1601 finding).
+PARAMETER_PATHWAYS = {
+    "bow_entrance_angle": "Cwp x (1 + 0.020 p0): blunter entrance -> fuller waterplane",
+    "forward_shoulder_curvature": "Cwp x (1 + 0.010 p1)",
+    "waterline_flare_fp": "Cwp x (1 + 0.015 p2)",
+    "deck_camber_bow": "no calm-water resistance pathway in Holtrop-1984 (inert)",
+    "bulb_volume_scale": "Abt = Abt0 x (1 + 0.30 p4)^(2/3): area ~ volume^(2/3)",
+    "bulb_vertical_pos": "hb = T x (0.45 + 0.08 p5)",
+    "stem_rake_angle": "lcb_pct -= 0.25 p6 (rake shifts the waterline entry)",
+    "forward_body_length_frac": "lcb_pct -= 1.5 p7 (longer forebody -> LCB forward)",
+}
+
+
+def holtrop_particulars(params_normalized: np.ndarray, Cb: float) -> Dict[str, Any]:
+    """Hull particulars accepted by the canonical Holtrop-1984 kernel.
+
+    ``cm`` / ``cwp`` come from the canonical kernel's own estimates through
+    :mod:`optimizer.interfaces.canonical_bridge` (single source of truth); the bow
+    parameters act through the pathways listed in :data:`PARAMETER_PATHWAYS`.
+
+    The immersed transom area is 0: the KCS transom is above the waterline at the
+    design Froude number, so no transom resistance term applies.
+    """
+    from .canonical_bridge import estimate_cm, estimate_cwp
+
+    L = KCS_BASELINE["L"]
+    B = KCS_BASELINE["B"]
+    T = KCS_BASELINE["T"]
+    p = np.asarray(params_normalized, dtype=float)
+
+    cm = float(np.clip(estimate_cm(Cb), 0.85, 0.999))
+    cwp_baseline = float(estimate_cwp(Cb))
+    cwp = cwp_baseline * (1.0 + 0.020 * p[0] + 0.010 * p[1] + 0.015 * p[2])
+    cwp = float(np.clip(cwp, 0.60, 0.90))
+    lcb_pct = LCB_BASELINE_PCT - 0.25 * p[6] - 1.5 * p[7]
+
+    am = B * T * cm
+    abt_baseline = BULB_AREA_RATIO * am
+    abt = abt_baseline * (1.0 + 0.30 * p[4]) ** (2.0 / 3.0)
+    hb = T * (BULB_HEIGHT_RATIO + 0.08 * p[5])
+
+    return {
+        "L": L, "B": B, "T": T,
+        "Cb": float(Cb), "Cm": cm, "Cwp": cwp, "Cp": float(Cb / cm),
+        "lcb_pct": float(lcb_pct),
+        "vol": float(Cb * L * B * T),
+        "abt": float(abt), "hb": float(hb), "at": 0.0,
+        "cwp_baseline": cwp_baseline, "abt_baseline": float(abt_baseline),
+    }
+
+
 def generate_geometry(params_normalized: np.ndarray, seed: int = None) -> Dict[str, Any]:
     """
     Generate hull geometry from parameters (m546 interface).
@@ -111,6 +180,8 @@ def generate_geometry(params_normalized: np.ndarray, seed: int = None) -> Dict[s
     # Block coefficient (mock: slight variation from baseline)
     Cb = KCS_BASELINE["Cb"] * (1.0 + 0.03 * params_normalized[4])
     
+    parts = holtrop_particulars(params_normalized, Cb)
+
     return {
         "params": phys_params,
         "params_normalized": params_normalized.tolist(),
@@ -121,6 +192,11 @@ def generate_geometry(params_normalized: np.ndarray, seed: int = None) -> Dict[s
         "L": KCS_BASELINE["L"],
         "B": KCS_BASELINE["B"],
         "T": KCS_BASELINE["T"],
+        # canonical Holtrop-1984 hull particulars (m1610)
+        "Cm": parts["Cm"], "Cwp": parts["Cwp"], "Cp": parts["Cp"],
+        "lcb_pct": parts["lcb_pct"], "vol": parts["vol"],
+        "abt": parts["abt"], "hb": parts["hb"], "at": parts["at"],
+        "holtrop_particulars": parts,
     }
 
 

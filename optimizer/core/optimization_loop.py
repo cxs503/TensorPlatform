@@ -101,6 +101,8 @@ def run_optimization(seed: int = 42, max_evals: int = 300,
     print(f"\nBaseline Ct: {baseline_Ct:.6f}")
     print(f"Baseline valid: {baseline['valid']}")
     print(f"Baseline in Holtrop domain: {baseline['in_holtrop_domain']}")
+    print(f"Objective physics: {baseline.get('objective_evidence_level')} <- "
+          f"{baseline.get('objective_physics_source')}")
     
     # Run optimization
     print("\nStarting optimization...")
@@ -144,13 +146,18 @@ def run_optimization(seed: int = 42, max_evals: int = 300,
             "total_evaluations": int(result["evaluations"]),
             "generations": int(result["generations"]),
             "converged": bool(result["converged"]),
-            "convergence_reason": str(result["convergence_reason"])
+            "convergence_reason": str(result["convergence_reason"]),
+            # m1610: provenance of the objective physics actually used
+            "objective_evidence_level": baseline.get("objective_evidence_level", "WITHHELD"),
+            "objective_physics_source": baseline.get("objective_physics_source", "unknown"),
         },
         "baseline": {
             "Ct": float(baseline["Ct"]),
             "valid": bool(baseline["valid"]),
             "in_holtrop_domain": bool(baseline["in_holtrop_domain"])
         },
+        "objective_evidence_level": baseline.get("objective_evidence_level", "WITHHELD"),
+        "objective_physics_source": baseline.get("objective_physics_source", "unknown"),
         "best_params": result["best_params"].tolist(),
         "best_params_named": dict(zip(get_parameter_names(), result["best_params"].tolist())),
         "top5_candidates": top5,
@@ -211,6 +218,8 @@ def extract_top5_candidates(history: List[Dict], seed: int) -> List[Dict]:
                 "Cb": float(geom["Cb"]),
                 "watertight": bool(geom["watertight"])
             },
+            "objective_evidence_level": eval_result.get("objective_evidence_level", "WITHHELD"),
+            "objective_physics_source": eval_result.get("objective_physics_source", "unknown"),
             "generation": int(entry["generation"]),
             "eval_count": int(entry["eval_count"])
         })
