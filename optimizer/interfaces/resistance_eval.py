@@ -18,6 +18,16 @@ from typing import Dict, Any, Tuple
 # Physical constants
 RHO_WATER = 1025.0  # Seawater density [kg/m³]
 NU_WATER = 1.19e-6  # Kinematic viscosity [m²/s] (15°C seawater)
+
+# 证据等级（m1601 复核：本实现等价于裸 ITTC-57 摩擦线，见
+# docs/verification/optimizer-objective-mock-audit.md）。下游消费者必须读这两个字段，
+# 不得把本目标函数的结果当 REAL 引用。
+EVIDENCE = {
+    "level": "MOCK",
+    "source": "optimizer/interfaces/resistance_eval.py (m547 mock): ITTC-57 friction line only; "
+              "residuary/wave terms are exponential-floored to ~0, 相关补贴 Ca 量纲错误; "
+              "audit artifact artifacts/optimizer_objective_audit/optimizer_objective_audit.json",
+}
 G = 9.81  # Gravity [m/s²]
 
 # Holtrop calibration domain (validity limits)
@@ -198,6 +208,8 @@ def evaluate_resistance(geom: Dict[str, Any], Fn_design: float = None,
             "components": {},
             "in_holtrop_domain": False,
             "valid": False,
+            "evidence_level": EVIDENCE["level"],
+            "physics_source": EVIDENCE["source"],
             "reason": f"Geometry invalid"
         }
     
@@ -207,6 +219,8 @@ def evaluate_resistance(geom: Dict[str, Any], Fn_design: float = None,
             "components": {},
             "in_holtrop_domain": False,
             "valid": False,
+            "evidence_level": EVIDENCE["level"],
+            "physics_source": EVIDENCE["source"],
             "reason": f"Outside Holtrop domain: {domain_reason}"
         }
     
@@ -231,6 +245,8 @@ def evaluate_resistance(geom: Dict[str, Any], Fn_design: float = None,
         "Re": result["Re"],
         "in_holtrop_domain": True,
         "valid": True,
+        "evidence_level": EVIDENCE["level"],
+        "physics_source": EVIDENCE["source"],
         "reason": "OK"
     }
 
