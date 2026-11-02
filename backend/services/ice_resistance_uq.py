@@ -122,15 +122,15 @@ SHIP_TRIAL_DATA: Dict[str, Dict[str, Any]] = {
 }
 
 
-def _lindqvist_raw(
+def lindqvist_terms(
     ship: ShipIceParams,
     ice_thickness_h: float,
     ice_strength_sigma_c: float,
     friction_coeff_mu: float,
     ship_speed_V: float,
-) -> float:
+) -> Dict[str, float]:
     """
-    Compute level-ice resistance using Lindqvist (1989) formulation (raw, uncalibrated).
+    Lindqvist (1989) level-ice resistance, decomposed into its components.
 
     The total resistance is decomposed into:
       R = (R_crushing + R_bending) * (1 + 1.4 V / sqrt(g h))
@@ -142,23 +142,25 @@ def _lindqvist_raw(
     restored in task m1720 after the audit in
     docs/m1720_ice_resistance_validation_debt.md.
 
-    Parameters
-    ----------
-    ship : ShipIceParams
-        Ship geometric and mass parameters.
-    ice_thickness_h : float
-        Level ice thickness (m).
-    ice_strength_sigma_c : float
-        Uniaxial compressive strength of ice (MPa).
-    friction_coeff_mu : float
-        Ice-ship friction coefficient (dimensionless).
-    ship_speed_V : float
-        Ship speed (m/s).
-
     Returns
     -------
-    float
-        Total ice resistance in kN.
+    Dict[str, float]
+        Component resistances in kN, keys ``crushing``, ``bending``,
+        ``submersion``, ``speed``, plus the dimensionless
+        ``velocity_multiplier`` (the m1720-restored Lindqvist factor
+        ``1 + 1.4 V / sqrt(g h)``). The raw (uncalibrated) total is
+        reconstructed exactly as
+        ``(crushing + bending) * velocity_multiplier + submersion + speed``
+        and equals :func:`_lindqvist_raw`.
+
+    Notes
+    -----
+    The decomposition is exposed so that the *term structure* of the prediction
+    can be audited (see ``tools/verify_ice_resistance_evidence.py``): the
+    ``submersion`` component carries an engineering length scale
+    ``0.3 * L`` and the ``speed`` component a factor ``0.1``; neither constant
+    can be sourced to the published formulation, so they must be visible to
+    any accuracy claim built on top of this model.
     """
     L = ship.length_m
     B = ship.beam_m
@@ -206,9 +208,57 @@ def _lindqvist_raw(
     # --- 5. Speed-dependent hydrodynamic drag on broken ice ---
     C_speed = 0.5 * rho_w * B * h * V**2 * 0.1
 
-    # --- Total ---
-    R_total = (F_crushing + F_bending) * speed_factor + F_submersion + C_speed
-    return R_total / 1000.0  # Pa·m → kN
+    return {
+        "crushing": F_crushing / 1000.0,
+        "bending": F_bending / 1000.0,
+        "submersion": F_submersion / 1000.0,
+        "speed": C_speed / 1000.0,
+        "velocity_multiplier": speed_factor,
+    }
+
+
+def _lindqvist_raw(
+    ship: ShipIceParams,
+    ice_thickness_h: float,
+    ice_strength_sigma_c: float,
+    friction_coeff_mu: float,
+    ship_speed_V: float,
+) -> float:
+    """
+    Raw (uncalibrated) Lindqvist total resistance in kN (m1720 corrected physics).
+
+    R = (R_crushing + R_bending) * (1 + 1.4 V / sqrt(g h)) + R_submersion + R_drag
+
+    This is the formula's own prediction; ``calibration_factor`` is ignored.
+    Use :func:`lindqvist_ice_resistance_uncalibrated` as the public entry point.
+    """
+    t = lindqvist_terms(
+        ship, ice_thickness_h, ice_strength_sigma_c, friction_coeff_mu, ship_speed_V
+    )
+    return (
+        (t["crushing"] + t["bending"]) * t["velocity_multiplier"]
+        + t["submersion"]
+        + t["speed"]
+    )
+
+
+def lindqvist_ice_resistance_uncalibrated(
+    ship: ShipIceParams,
+    ice_thickness_h: float,
+    ice_strength_sigma_c: float,
+    friction_coeff_mu: float,
+    ship_speed_V: float,
+) -> float:
+    """
+    Lindqvist (1989) resistance **without** the per-ship trial calibration.
+
+    This is the only value that can be compared against full-scale trial means
+    without circularity; the calibrated variant reproduces the trial mean at
+    nominal conditions by construction.
+    """
+    return _lindqvist_raw(
+        ship, ice_thickness_h, ice_strength_sigma_c, friction_coeff_mu, ship_speed_V
+    )
 
 
 def _calibrate_ship(ship_name: str) -> ShipIceParams:
@@ -253,11 +303,21 @@ def lindqvist_ice_resistance(
     ship_speed_V: float,
 ) -> float:
     """
-    Compute calibrated level-ice resistance using Lindqvist (1989) formulation.
+    Calibrated level-ice resistance in kN: ``R_raw * ship.calibration_factor``.
 
-    The calibration factor ensures the model matches full-scale trial data
-    at nominal conditions, accounting for simplifications in the analytical
-    formulation (3D effects, ice failure patterns, etc.).
+    The factor is fixed once per ship as
+    ``R_trial_nominal / R_raw_nominal`` (:func:`_calibrate_ship`), i.e. it is an
+    *anchor* that makes the model reproduce the platform-recorded full-scale
+    trial mean at nominal conditions. Consequences that any downstream accuracy
+    claim must respect:
+
+    * The residual at nominal conditions is **zero by construction** (measured
+      ``|R_cal - R_trial| / R_trial`` ~ 1e-14, not a validation result).
+    * The factor is a single scalar, so it cannot repair the thickness / speed
+      *scaling* of the formula: away from nominal conditions the calibrated
+      model carries the same relative error as the raw model.
+    * Use :func:`lindqvist_ice_resistance_uncalibrated` for an honest,
+      non-circular comparison against trial data.
     """
     R_raw = _lindqvist_raw(ship, ice_thickness_h, ice_strength_sigma_c,
                            friction_coeff_mu, ship_speed_V)
