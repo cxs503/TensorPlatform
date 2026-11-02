@@ -26,6 +26,7 @@ engine（需要 psycopg2 / DB 环境），因此任何门禁单测都只能靠
 
 from __future__ import annotations
 
+import os
 import re
 from typing import Any, Iterable
 
@@ -229,4 +230,128 @@ def check_report_quality(markdown: str | None, figures: list | None) -> dict[str
             "verdict_word": has_verdict,
             "no_baseline_declared": no_baseline,
         },
+    }
+
+# ─────────────────────────── v1 档案（keyword-only 生产门禁的逐字复刻） ───────────
+# 动机：v1 判据原本内联在 ``api/tensor_reports.py`` 里，无法被纯函数测试直接引用，
+# 于是出现了两份实现（生产 / 手抄副本）与一次「v1 仍在生产、v2 只在审计里」的欠账
+# （docs/reports/report_gate_audit_2026-11-01.json：v1 误放行率 35.84%）。
+# 这里把 v1 逐字保存为可 import 的档案实现，供 (a) 迁移期兼容，
+# (b) 审计工具作为 v1 真身参与对账，(c) 单测钉死「共享 v1 ≡ 历史 v1」。
+REQUIRED_SECTIONS_V1: dict[str, list[str]] = {
+    "physics_statement": [
+        r"(?i)(物理|背景|problem|background|物理背景|案例介绍)",
+        r"(?i)(几何|参数|geometry|parameter|参数表)",
+    ],
+    "traceable_criteria": [
+        r"(?i)(方法|method|流程|procedure|工具链|toolchain)",
+        r"(?i)(验证|validation|对标|benchmark|参考|reference|文献|误差|error)",
+    ],
+    "figures": [
+        r"(?i)(图|figure|云图|contour|曲线|curve|比较|comparison)",
+    ],
+    "limitations": [
+        r"(?i)(局限|limitation|注意|note|适用|scope|范围|展望|outlook|future)",
+    ],
+}
+
+
+def check_report_quality_v1(markdown: str | None, figures: list | None) -> dict[str, Any]:
+    """v1（keyword-only）门禁：与 2026-11-01 前的生产实现逐字等价。
+
+    已知失效模式（审计量化，勿再引入新代码）：
+      * ① 要素把组间 AND 拍平成组内 OR（只写「参数表」即过）；
+      * ④ 只要正文出现「图」字即算有图（figures 为空也过）；
+      * 完全没有第 ⑥ 要素（误差判定）检查。
+    保留它的唯一理由：``warn`` 迁移期需要与线上历史判决逐位同构。
+    """
+    md = markdown or ""
+    figs = figures or []
+    issues: list[str] = []
+
+    physics_found = any(
+        re.search(pattern, md) for pattern in REQUIRED_SECTIONS_V1["physics_statement"]
+    )
+    if not physics_found:
+        issues.append("missing_physics_statement: 缺少物理背景/案例介绍（需包含物理问题描述、几何参数）")
+
+    method_found = any(re.search(p, md) for p in REQUIRED_SECTIONS_V1["traceable_criteria"][:1])
+    validation_found = any(re.search(p, md) for p in REQUIRED_SECTIONS_V1["traceable_criteria"][1:])
+    if not method_found:
+        issues.append("missing_method: 缺少方法/流程描述（需包含计算方法、关键设置、工具链）")
+    if not validation_found:
+        issues.append("missing_validation: 缺少验证/对标（需包含与基准/文献/解析解的比较，或声明无基准原因）")
+
+    figure_word = any(re.search(p, md) for p in REQUIRED_SECTIONS_V1["figures"])
+    if not figure_word and not figs:
+        issues.append("missing_figures: 缺少图表（需包含场量云图/比较曲线，或纯文档任务需写明无图理由）")
+
+    limitations_found = any(re.search(p, md) for p in REQUIRED_SECTIONS_V1["limitations"])
+    if not limitations_found:
+        issues.append("missing_limitations: 缺少局限与展望（需包含踩过的坑、适用范围、后续改进方向）")
+
+    return {
+        "passed": not issues,
+        "issues": issues,
+        "checks": {
+            "physics_statement": physics_found,
+            "method": method_found,
+            "validation": validation_found,
+            "figures": figure_word or bool(figs),
+            "limitations": limitations_found,
+        },
+    }
+
+
+# ─────────────────────────── 灰度开关与统一判决 ────────────────────────────────
+GATE_MODE_ENV = "TP_REPORT_GATE_MODE"
+GATE_MODES: tuple[str, ...] = ("off", "warn", "enforce")
+DEFAULT_GATE_MODE = "warn"
+
+
+def gate_mode(explicit: str | None = None) -> str:
+    """解析灰度模式。显式入参非法 → ValueError（API 层转 422）；环境变量非法 → 回落默认。
+
+    off     ：完全保持 v1 判决（等价于灰度上线前的线上行为）。
+    warn    ：v1 判决不变（**不改 qa_status**），v2 六要素判决作为 advisory 一并返回并落库取证。
+    enforce ：由 v2 六要素判决决定 qa_status。
+    """
+    if explicit is not None:
+        candidate = str(explicit).strip().lower()
+        if candidate not in GATE_MODES:
+            raise ValueError(f"invalid report gate mode: {explicit!r} (allowed: {', '.join(GATE_MODES)})")
+        return candidate
+    raw = str(os.environ.get(GATE_MODE_ENV, DEFAULT_GATE_MODE)).strip().lower()
+    return raw if raw in GATE_MODES else DEFAULT_GATE_MODE
+
+
+def evaluate_report(markdown: str | None, figures: list | None = None, mode: str | None = None) -> dict[str, Any]:
+    """一次算两个判决（v1 + v2 六要素），按灰度模式决定谁有权写 qa_status。
+
+    返回结构刻意把「谁判决的」(decided_by)、「两版是否分歧」(diverges)、
+    「warn 期本可翻盘」(would_flip) 都显式化，便于对账与后续 enforce 决策。
+    """
+    resolved = gate_mode(mode)
+    v1 = check_report_quality_v1(markdown, figures)
+    v2 = check_report_quality(markdown, figures)
+    decided_by = "v1" if resolved in ("off", "warn") else "v2"
+    decision = v1 if decided_by == "v1" else v2
+    return {
+        "mode": resolved,
+        "decided_by": decided_by,
+        "passed": decision["passed"],
+        "issues": decision["issues"],
+        "checks": decision["checks"],
+        "v1": {"passed": v1["passed"], "issues": v1["issues"], "checks": v1["checks"]},
+        "v2": {
+            "passed": v2["passed"],
+            "issues": v2["issues"],
+            "issue_codes": v2["issue_codes"],
+            "checks": v2["checks"],
+            "details": v2["details"],
+        },
+        # warn 期：v2 只做 advisory，绝不改 qa_status；这些是「将来 enforce 会打回」的候选
+        "v2_advisory_issues": v2["issues"] if decided_by == "v1" else [],
+        "diverges": v1["passed"] != v2["passed"],
+        "would_flip": decided_by == "v1" and v1["passed"] and not v2["passed"],
     }

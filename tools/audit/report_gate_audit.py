@@ -59,6 +59,19 @@ def load_v2():
     return report_gate
 
 
+def load_v1():
+    """v1 真身：优先共享档案实现（services.report_gate.check_report_quality_v1）；
+    仅当共享档案缺失时才回落到 git 历史里的内联版本。"""
+    sys.path.insert(0, str(BACKEND))
+    try:
+        from services import report_gate  # noqa: WPS433
+        if hasattr(report_gate, "check_report_quality_v1"):
+            return report_gate.check_report_quality_v1
+    except Exception:  # noqa: BLE001 —— 环境不满足时回落到 git 归档
+        pass
+    return load_v1_from_git()["_check_report_quality"]
+
+
 def fetch_reports() -> list[dict]:
     """psql 只读导出（不依赖 psycopg2）。"""
     sql = (
@@ -91,7 +104,7 @@ def main() -> int:
     ap.add_argument("--figure", default="docs/reports/figs/report_gate_false_accept.png")
     args = ap.parse_args()
 
-    v1 = load_v1_from_git()["_check_report_quality"]
+    v1 = load_v1()
     rg = load_v2()
     v2 = rg.check_report_quality
     standalone = load_standalone()
