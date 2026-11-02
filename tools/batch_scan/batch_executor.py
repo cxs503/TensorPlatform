@@ -88,6 +88,20 @@ class BatchReport:
     config: Dict[str, Any]
 
 # ── 模拟计算引擎 ──────────────────────────────────────────────────────
+def _open_water_model():
+    """Lazy import of the verified open-water model (``backend/services``).
+
+    Kept lazy so the batch executor stays importable in a bare tools-only
+    environment (the tools tree is consumed standalone by some operators).
+    """
+    backend_dir = Path(__file__).resolve().parents[2] / "backend"
+    if str(backend_dir) not in sys.path:
+        sys.path.insert(0, str(backend_dir))
+    from services.propeller_open_water import PropellerGeometry, open_water_point
+
+    return PropellerGeometry, open_water_point
+
+
 class ShipCalculationEngine:
     """批量工况计算引擎（逐方法溯源，参见 ``PROVENANCE``）。
 
