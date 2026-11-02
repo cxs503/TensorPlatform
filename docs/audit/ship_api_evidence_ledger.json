@@ -2,22 +2,26 @@
   "generated_by": "tools/audit/ship_api_evidence_census.py",
   "schema": "ship_api_evidence_ledger/v1",
   "totals": {
-    "api_routes_all": 1427,
-    "ship_domain": 44,
+    "api_routes_all": 1449,
+    "ship_domain": 57,
     "curated_capabilities_in_audit_tool": 21
   },
   "grades": {
-    "ANCHORED": 30,
+    "ANCHORED": 43,
     "WITHHELD": 14,
     "MOCK_RISK": 0
   },
   "evidence": {
-    "ANCHORED": 30,
-    "SMOKE": 2,
-    "UNCOVERED": 12
+    "ANCHORED": 43,
+    "SMOKE": 4,
+    "UNCOVERED": 10
   },
-  "coverage_pct": 68.18,
+  "coverage_pct": 75.44,
   "unacknowledged_mock_risk": [],
+  "withheld_override": {
+    "GET /polar/acceptance/channel": "m1862 独立复核：判据 (b) hold-out 残差是混合密度比恒等式（判别力 2/8），且仅在单一 brash 层厚 0.8 m 上成立，厚度 hold-out 最大偏差 69.98% -> 不得记为 ANCHORED（docs/verification_debt/polar_channel/REPORT.md）",
+    "GET /polar/acceptance/route": "m1862 仅文档覆盖、未做独立复核（判据 (e) 仍是优化器与自身基线族对比）；下一张自找活首选线索"
+  },
   "endpoints": [
     {
       "endpoint": "POST /ice-uq/resistance",
@@ -32,7 +36,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "GET /ice-uq/ships",
@@ -47,7 +52,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ice-uq/uq",
@@ -62,7 +68,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ice-uq/uq/all",
@@ -77,7 +84,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "GET /ice_optimization/constraints",
@@ -92,7 +100,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "GET /ice_optimization/health",
@@ -110,7 +119,8 @@
       "evidence_files": [
         "backend/tests/test_abtest_unit.py",
         "backend/tests/test_advanced_features_unit.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ice_optimization/run",
@@ -125,14 +135,15 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "GET /polar/acceptance/channel",
       "handler": "acceptance_channel",
       "module": "backend/api/domain/polar.py",
       "lineno": 504,
-      "evidence": "UNCOVERED",
+      "evidence": "SMOKE",
       "grade": "WITHHELD",
       "acknowledged": false,
       "static": {
@@ -140,14 +151,19 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [
+        "tests/test_m1862_polar_channel_acceptance_audit.py",
+        "tools/verifier/gen_polar_channel_report.py",
+        "tools/verifier/polar_channel_acceptance_audit.py"
+      ],
+      "override_reason": "m1862 独立复核：判据 (b) hold-out 残差是混合密度比恒等式（判别力 2/8），且仅在单一 brash 层厚 0.8 m 上成立，厚度 hold-out 最大偏差 69.98% -> 不得记为 ANCHORED（docs/verification_debt/polar_channel/REPORT.md）"
     },
     {
       "endpoint": "GET /polar/acceptance/route",
       "handler": "acceptance_route",
       "module": "backend/api/domain/polar.py",
       "lineno": 495,
-      "evidence": "UNCOVERED",
+      "evidence": "SMOKE",
       "grade": "WITHHELD",
       "acknowledged": false,
       "static": {
@@ -155,7 +171,11 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [
+        "tests/test_m1862_polar_channel_acceptance_audit.py",
+        "tools/verifier/gen_polar_channel_report.py"
+      ],
+      "override_reason": "m1862 仅文档覆盖、未做独立复核（判据 (e) 仍是优化器与自身基线族对比）；下一张自找活首选线索"
     },
     {
       "endpoint": "GET /reports/quick/energy-consumption",
@@ -170,7 +190,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/batch_sweep",
@@ -187,8 +208,10 @@
       },
       "evidence_files": [
         "backend/tests/feat/test_ship_batch.py",
+        "backend/tests/test_ship_domain_routers.py",
         "backend/tests/test_ship_proxy.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/benchmark_validate",
@@ -203,7 +226,8 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "GET /ship/samples",
@@ -218,7 +242,8 @@
         "uses_random": false,
         "has_binop": true
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/samples/bulk",
@@ -233,13 +258,32 @@
         "uses_random": false,
         "has_binop": false
       },
-      "evidence_files": []
+      "evidence_files": [],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/green/cii",
+      "handler": "calc_cii",
+      "module": "backend/api/domain/ship_green.py",
+      "lineno": 159,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tests/test_green_navigation.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/hydrostatics",
       "handler": "calc_hydrostatics",
       "module": "backend/api/calculations.py",
-      "lineno": 610,
+      "lineno": 680,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -251,7 +295,8 @@
       "evidence_files": [
         "backend/tests/test_ship_hydrostatics.py",
         "tools/build_hydrostatics_report.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/ice-load-inversion",
@@ -268,7 +313,8 @@
       },
       "evidence_files": [
         "tests/test_ice_load_inversion.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /calculations/ice-load-inversion/info",
@@ -285,13 +331,104 @@
       },
       "evidence_files": [
         "tests/test_ice_load_inversion.py"
-      ]
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/maneuvering/mmg",
+      "handler": "calc_maneuvering_mmg",
+      "module": "backend/api/calculations.py",
+      "lineno": 760,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "tests/test_mmg_input_schema.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/manoeuvring",
+      "handler": "calculate_manoeuvring",
+      "module": "backend/api/domain/manoeuvring.py",
+      "lineno": 84,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_manoeuvring.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "GET /calculations/manoeuvring/limits",
+      "handler": "manoeuvring_limits",
+      "module": "backend/api/domain/manoeuvring.py",
+      "lineno": 70,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_manoeuvring.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/noise/levels",
+      "handler": "api_levels",
+      "module": "backend/api/domain/ship_vibration.py",
+      "lineno": 704,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_vibration.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/noise/panel_tl",
+      "handler": "api_panel_tl",
+      "module": "backend/api/domain/ship_vibration.py",
+      "lineno": 687,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_vibration.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/propulsion/actuator_disk",
       "handler": "calc_actuator_disk",
       "module": "backend/api/calculations.py",
-      "lineno": 531,
+      "lineno": 601,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -303,13 +440,14 @@
       "evidence_files": [
         "backend/tests/test_propulsion_api.py",
         "tools/verify_propulsion.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/propulsion/self_propulsion",
       "handler": "calc_self_propulsion",
       "module": "backend/api/calculations.py",
-      "lineno": 560,
+      "lineno": 630,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -321,13 +459,14 @@
       "evidence_files": [
         "backend/tests/test_propulsion_api.py",
         "tools/verify_propulsion.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/resistance",
       "handler": "calc_resistance",
       "module": "backend/api/calculations.py",
-      "lineno": 253,
+      "lineno": 323,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -338,15 +477,16 @@
       },
       "evidence_files": [
         "backend/tests/feat/test_benchmark_chain_m1388.py",
-        "backend/tests/test_benchmark_audit_endpoint.py",
-        "backend/tests/test_propulsion.py"
-      ]
+        "backend/tests/feat/test_benchmark_integrity_audit.py",
+        "backend/tests/feat/test_hull_geometry_validation.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/seakeeping_rao",
       "handler": "seakeeping_rao",
       "module": "backend/api/domain/ship_seakeeping.py",
-      "lineno": 92,
+      "lineno": 96,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -356,14 +496,16 @@
         "has_binop": false
       },
       "evidence_files": [
-        "backend/tests/feat/test_ship_seakeeping.py"
-      ]
+        "backend/tests/feat/test_ship_seakeeping.py",
+        "tests/test_seakeeping_anchor_independence.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/seakeeping_response",
       "handler": "seakeeping_response",
       "module": "backend/api/domain/ship_seakeeping.py",
-      "lineno": 145,
+      "lineno": 149,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -373,14 +515,16 @@
         "has_binop": false
       },
       "evidence_files": [
-        "backend/tests/feat/test_ship_seakeeping.py"
-      ]
+        "backend/tests/feat/test_ship_seakeeping.py",
+        "tests/test_seakeeping_anchor_independence.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/seakeeping_spectrum",
       "handler": "seakeeping_spectrum",
       "module": "backend/api/domain/ship_seakeeping.py",
-      "lineno": 120,
+      "lineno": 124,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -390,14 +534,16 @@
         "has_binop": true
       },
       "evidence_files": [
-        "backend/tests/feat/test_ship_seakeeping.py"
-      ]
+        "backend/tests/feat/test_ship_seakeeping.py",
+        "tests/test_seakeeping_anchor_independence.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /calculations/stability",
       "handler": "calc_stability",
       "module": "backend/api/calculations.py",
-      "lineno": 335,
+      "lineno": 405,
       "evidence": "ANCHORED",
       "grade": "ANCHORED",
       "acknowledged": false,
@@ -407,10 +553,83 @@
         "has_binop": true
       },
       "evidence_files": [
-        "backend/tests/test_propulsion_api.py",
-        "tests/test_m1386_stability_gz_validation.py",
-        "tests/test_m1564_stability_canon.py"
-      ]
+        "backend/tests/feat/test_hull_geometry_validation.py",
+        "backend/tests/test_box_hydrostatics.py",
+        "backend/tests/test_propulsion_api.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/vibration/beam_natural",
+      "handler": "api_beam_natural",
+      "module": "backend/api/domain/ship_vibration.py",
+      "lineno": 617,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_vibration.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/vibration/excitation",
+      "handler": "api_excitation",
+      "module": "backend/api/domain/ship_vibration.py",
+      "lineno": 660,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_vibration.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/vibration/isolation",
+      "handler": "api_isolation",
+      "module": "backend/api/domain/ship_vibration.py",
+      "lineno": 679,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_vibration.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /calculations/vibration/plate_natural",
+      "handler": "api_plate_natural",
+      "module": "backend/api/domain/ship_vibration.py",
+      "lineno": 640,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_vibration.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /polar/acceptance",
@@ -426,10 +645,11 @@
         "has_binop": false
       },
       "evidence_files": [
+        "backend/tests/feat/test_ship_benchmark_verification.py",
         "tests/physics/test_marine_icing.py",
-        "tests/test_clock_sync.py",
-        "tests/test_ice_load_inversion.py"
-      ]
+        "tests/test_clock_sync.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /polar/capabilities",
@@ -446,9 +666,10 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py",
-        "tools/audit/ship_api_evidence_census.py",
-        "tools/benchmarks/propulsion_anchors.py"
-      ]
+        "tools/analytic_bench/stability_audit.py",
+        "tools/audit/ship_api_evidence_census.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/cii",
@@ -467,7 +688,8 @@
         "backend/tests/polar/test_polar_api.py",
         "backend/tests/polar/test_polar_physics.py",
         "tests/e2e1_b1/build_cases.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/convoy/curve",
@@ -484,7 +706,8 @@
       },
       "evidence_files": [
         "tools/audit/ship_api_evidence_census.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/convoy/spacing",
@@ -501,7 +724,8 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /polar/ice-field/scenario",
@@ -518,7 +742,8 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/ice-field/summary",
@@ -537,7 +762,8 @@
         "backend/tests/polar/test_polar_api.py",
         "backend/tests/polar/test_polar_physics.py",
         "tools/polar/render_report.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/resistance/channel",
@@ -556,7 +782,8 @@
         "backend/tests/polar/test_polar_api.py",
         "backend/tests/polar/test_polar_physics.py",
         "backend/tests/test_digital_twin_estimator_predictor.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/resistance/level-ice",
@@ -574,8 +801,9 @@
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py",
         "backend/tests/polar/test_polar_physics.py",
-        "tools/polar/run_acceptance.py"
-      ]
+        "backend/tests/test_ice_resistance_crosscheck.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/resistance/level-ice/grid",
@@ -592,7 +820,8 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/route/optimize",
@@ -609,7 +838,8 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /polar/ships",
@@ -628,7 +858,8 @@
         "backend/tests/polar/test_polar_api.py",
         "backend/tests/polar/test_polar_physics.py",
         "backend/tests/test_digital_twin_physics.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/ships/validate",
@@ -645,7 +876,8 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /polar/voyage/optimize",
@@ -662,7 +894,68 @@
       },
       "evidence_files": [
         "backend/tests/polar/test_polar_api.py"
-      ]
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /seakeeping-advanced/strip-theory",
+      "handler": "strip_theory_endpoint",
+      "module": "backend/api/seakeeping_physical_api.py",
+      "lineno": 144,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tools/audit_seakeeping_endpoints.py",
+        "tools/seakeeping_audit/render_md.py",
+        "tools/verif/wave_spectrum/verify_chain.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /seakeeping/motion",
+      "handler": "predict_motion",
+      "module": "backend/api/seakeeping_physical_api.py",
+      "lineno": 120,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tests/test_seakeeping_prod_gap.py",
+        "tools/audit_seakeeping_endpoints.py",
+        "tools/verifier/tp_ver_sea_man.py"
+      ],
+      "override_reason": null
+    },
+    {
+      "endpoint": "POST /seakeeping/rao",
+      "handler": "calculate_rao",
+      "module": "backend/api/seakeeping_physical_api.py",
+      "lineno": 89,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "tests/test_seakeeping_verification_anchors.py",
+        "tests/verifier/test_seakeeping_strip_verdict.py",
+        "tools/audit_seakeeping_endpoints.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/icing/accumulate",
@@ -679,7 +972,8 @@
       },
       "evidence_files": [
         "tools/m796_report_gen.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/icing/benchmark",
@@ -696,9 +990,10 @@
       },
       "evidence_files": [
         "backend/tests/feat/test_benchmark_chain_m1388.py",
-        "backend/tests/test_benchmark_audit_endpoint.py",
-        "backend/tests/test_benchmark_reference_integrity.py"
-      ]
+        "backend/tests/feat/test_benchmark_dataset_integrity.py",
+        "backend/tests/feat/test_benchmark_integrity_audit.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /ship/icing/capability",
@@ -714,10 +1009,11 @@
         "has_binop": false
       },
       "evidence_files": [
-        "tests/test_m1386_stability_gz_validation.py",
-        "tests/test_propeller_open_water.py",
-        "tools/audit/ship_api_evidence_census.py"
-      ]
+        "tests/test_capability_card_evidence.py",
+        "tests/test_eval_baseline_integrity.py",
+        "tests/test_geometry_hydrostatics_anchors.py"
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/icing/heat_balance",
@@ -736,7 +1032,8 @@
         "tests/physics/test_marine_icing.py",
         "tools/m796_marine_icing_validation.py",
         "tools/m796_report_gen.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "POST /ship/icing/spray",
@@ -755,7 +1052,8 @@
         "tests/physics/test_marine_icing.py",
         "tools/m796_marine_icing_validation.py",
         "tools/m796_report_gen.py"
-      ]
+      ],
+      "override_reason": null
     },
     {
       "endpoint": "GET /ship/timing_baseline",
@@ -772,7 +1070,8 @@
       },
       "evidence_files": [
         "backend/tests/test_ship_hydrostatics.py"
-      ]
+      ],
+      "override_reason": null
     }
   ]
 }
