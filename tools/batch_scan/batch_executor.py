@@ -175,6 +175,12 @@ class ShipCalculationEngine:
         if Ae_A0 <= 0 or Z < 2:
             raise ValueError(f"Invalid blade geometry: Ae/A0={Ae_A0}, Z={Z}")
 
+        geom = PropellerGeometry(
+            diameter_m=D,
+            pitch_ratio=P_D,
+            blade_area_ratio=Ae_A0,
+            blade_count=int(Z),
+        )
         n = rpm / 60.0
         J = Va / (n * D) if n * D > 0 else 0.0
         geom = PropellerGeometry(
