@@ -5,6 +5,7 @@
 """
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 os.environ.setdefault("DATABASE_URL", "sqlite+pysqlite:///:memory:")
@@ -63,6 +64,21 @@ with engine.begin() as db:
         "'published','2026-10-22T03:10:00+00:00'),"
         "(6,1,'草稿','s',NULL,NULL,'m','[]','draft','2026-10-22T03:11:00+00:00'),"
         "(7,2,'他租户报告','s',NULL,NULL,'m','[]','published','2026-10-22T03:12:00+00:00')"))
+
+
+def _shift_fixture_clock():
+    """24h 窗口类断言必须相对『现在』：把 m160 的完成时间挪到 now-1h。
+
+    夹具字面量保持原样用于展示；否则夹具日期一过，succeeded_24h 永远为 0。
+    """
+    with engine.begin() as db:
+        db.execute(
+            text("UPDATE tensor_dev_missions SET created_at=:_t, finished_at=:_t WHERE id=160"),
+            {"_t": (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()},
+        )
+
+
+_shift_fixture_clock()
 
 
 def test_overview_counts_and_tenant_scope():
