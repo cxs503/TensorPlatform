@@ -5,7 +5,24 @@ Implements:
   - Calibrated Lindqvist (1989) level-ice resistance model for ship bow
   - Polynomial Chaos Expansion (PCE) surrogate with Smolyak sparse-grid quadrature
   - Sobol sensitivity indices from PCE coefficients
-  - Validation against MV Arctic, Polarstern, and Terry Fox full-scale trial data
+  - In-sample calibration against MV Arctic, Polarstern and Terry Fox trial means
+
+Validation status (audited 2026-11-01, task m1720)
+--------------------------------------------------
+The scalar ``calibration_factor`` of each ship is fitted as
+``R_ref / R_raw`` *on that same trial point*, so the reported agreement with the
+trial mean is an identity, not a validation (in-sample error = 1.9e-16, and it
+stays zero for any arbitrarily tampered reference value).  The only information
+carrying check available with three ships x one nominal point is
+leave-one-out: fit one global constant on the other two ships and predict the
+held-out ship.  That gives +11.8 % (MV Arctic), +16.5 % (Polarstern) and
+-23.2 % (Terry Fox) -- i.e. **out of sample the model misses the 15 %
+acceptance band**.  Consequently level-ice resistance is graded WITHHELD, not
+REAL; see ``VALIDATION_STATUS`` and ``level_ice_validation_report()``.
+A second, independently named Lindqvist implementation lives in
+``services/digital_twin/models/resistance.py`` and differs from this one by up
+to 2.2x at identical ship/ice conditions (documented in
+docs/m1720_ice_resistance_validation_debt.md).
 
 References:
   - Lindqvist, G. (1989). "A straightforward method for calculation of ice
@@ -116,7 +133,14 @@ def _lindqvist_raw(
     Compute level-ice resistance using Lindqvist (1989) formulation (raw, uncalibrated).
 
     The total resistance is decomposed into:
-      R = R_crushing + R_bending + R_submersion + R_speed
+      R = (R_crushing + R_bending) * (1 + 1.4 V / sqrt(g h))
+          + R_submersion + R_drag
+
+    The velocity multiplier of Lindqvist (1989) on the crushing + bending terms was
+    missing in the original implementation (only an empirical quadratic drag term
+    was present, so R changed by <2 % from 0 to 5 m/s, which no ice trial shows);
+    restored in task m1720 after the audit in
+    docs/m1720_ice_resistance_validation_debt.md.
 
     Parameters
     ----------
@@ -162,7 +186,12 @@ def _lindqvist_raw(
     F_bend_per_w = sigma_f * h**2 / (6.0 * l_c) * (1.0 + mu * math.pi * l_c / (4.0 * h))
     F_bending = F_bend_per_w * B
 
-    # --- 3. Submersion resistance (Lindqvist Eq. 12) ---
+    # --- 3. Submersion resistance ---
+    # NOTE (m1720): this is NOT Lindqvist Eq. 12 verbatim.  Lindqvist closes the
+    # submersion term on B and T only, R_s = rho g h B T (B+T)/(B+2T); the
+    # implementation below multiplies a per-unit-length force by 0.3 L, i.e. it
+    # introduces an explicit hull-length scaling.  Kept as-is (the per-ship
+    # calibration absorbs it), documented instead of silently relabelled.
     rho_ice = 917.0  # ice density (kg/m³)
     if phi > 0.01:
         F_sub_per_l = (rho_w - rho_ice) * g * h * B * (1.0 + mu * math.cos(phi) / math.sin(phi))
@@ -170,11 +199,15 @@ def _lindqvist_raw(
         F_sub_per_l = (rho_w - rho_ice) * g * h * B
     F_submersion = F_sub_per_l * 0.3 * L
 
-    # --- 4. Speed-dependent hydrodynamic drag on broken ice ---
+    # --- 4. Lindqvist velocity multiplier on the structural terms ---
+    g = 9.81
+    speed_factor = 1.0 + 1.4 * V / math.sqrt(g * h) if h > 0 else 1.0
+
+    # --- 5. Speed-dependent hydrodynamic drag on broken ice ---
     C_speed = 0.5 * rho_w * B * h * V**2 * 0.1
 
     # --- Total ---
-    R_total = F_crushing + F_bending + F_submersion + C_speed
+    R_total = (F_crushing + F_bending) * speed_factor + F_submersion + C_speed
     return R_total / 1000.0  # Pa·m → kN
 
 
@@ -858,3 +891,123 @@ def run_all_ships_uq(
     for ship_name in SHIP_TRIAL_DATA:
         results[ship_name] = run_ice_resistance_uq(ship_name, max_level, max_poly_order)
     return results
+
+
+# =====================================================================
+# 5. Validation-status surface (task m1720)
+# =====================================================================
+#
+# The PCE/UQ machinery above is validated against a Monte-Carlo reference and
+# that part is sound.  What was *not* validated is the underlying physical
+# model: every ship carries a scalar fitted on its own trial point, so any
+# "model vs trial" number computed here is an identity.  Rather than deleting
+# the fit (which the UQ studies rely on for realistic magnitudes), the debt is
+# exposed machine-readably below and pinned by
+# tests/test_m1720_ice_resistance_validation_audit.py.
+
+VALIDATION_STATUS: Dict[str, Any] = {
+    "capability": "ice level-ice (Lindqvist) resistance",
+    "evidence_grade": "WITHHELD",
+    "in_sample_protocol": "calibration_factor = R_trial / R_raw (same point)",
+    "in_sample_rel_err": 1.9e-16,
+    "out_of_sample_method": "leave-one-out with one global constant (3 ships)",
+    "out_of_sample_rel_err": {
+        "MV_Arctic": 0.0320,
+        "Polarstern": 0.2294,
+        "Terry_Fox": -0.2118,
+    },
+    "out_of_sample_max_abs_rel_err": 0.2294,
+    "meets_15pct_band_out_of_sample": False,
+    "fixed_in_m1720": "Lindqvist velocity multiplier (1 + 1.4 V/sqrt(g h)) was missing "
+                      "on the crushing+bending terms (R changed <2 % from 0 to 5 m/s); "
+                      "restored - MV Arctic out-of-sample error 11.8 % -> 3.2 %, "
+                      "Polarstern/Terry Fox still outside the 15 % band",
+    "reference_provenance": "trial means hard-coded in SHIP_TRIAL_DATA; originals not "
+                            "digitised inside this worktree - unverifiable offline",
+    "known_conflict": "services/digital_twin/models/resistance.py implements a second "
+                      "Lindqvist variant (SUBMERSION_COEFF=0.55, no per-ship fit) that "
+                      "returns 0.46-0.67x of this module at identical conditions",
+    "audit_artifacts": "artifacts/m1720/audit_ice_resistance.json",
+    "audit_doc": "docs/m1720_ice_resistance_validation_debt.md",
+}
+
+
+def level_ice_validation_report() -> Dict[str, Any]:
+    """Return the validation state of the level-ice resistance model.
+
+    Machine-readable twin of ``VALIDATION_STATUS``: recomputes the in-sample
+    identity residual, the leave-one-out (single constant) errors and the
+    disagreement with the digital-twin implementation.  Cheap (pure formula
+    evaluation), safe to call from tests or an API diagnostics endpoint.
+    """
+    names = list(SHIP_TRIAL_DATA)
+    per_ship = []
+    for name in names:
+        trial = SHIP_TRIAL_DATA[name]
+        ship = trial["params"]
+        raw = _lindqvist_raw(
+            ship,
+            trial["nominal_ice_thickness_m"],
+            trial["nominal_ice_strength_MPa"],
+            trial["nominal_friction_coeff"],
+            trial["nominal_speed_ms"],
+        )
+        ref = trial["mean_resistance_kN"]
+        per_ship.append(
+            {
+                "ship": name,
+                "raw_kN": raw,
+                "reference_kN": ref,
+                "calibration_factor": ship.calibration_factor,
+                "in_sample_rel_err": abs(raw * ship.calibration_factor - ref) / ref,
+            }
+        )
+
+    raw_by_name = {row["ship"]: row["raw_kN"] for row in per_ship}
+    ref_by_name = {row["ship"]: row["reference_kN"] for row in per_ship}
+    loo = []
+    for held in names:
+        others = [n for n in names if n != held]
+        logs = [math.log(ref_by_name[n] / raw_by_name[n]) for n in others]
+        k = math.exp(sum(logs) / len(logs))
+        pred = k * raw_by_name[held]
+        loo.append(
+            {
+                "held_out": held,
+                "global_k": k,
+                "predicted_kN": pred,
+                "reference_kN": ref_by_name[held],
+                "rel_err": (pred - ref_by_name[held]) / ref_by_name[held],
+            }
+        )
+
+    divergence = []
+    try:  # local import keeps the services package free of an import cycle
+        from services.digital_twin.models.resistance import (
+            lindqvist_ice_resistance as _dt_ice,
+        )
+
+        for name in names:
+            trial = SHIP_TRIAL_DATA[name]
+            ship = trial["params"]
+            here = raw_by_name[name] * ship.calibration_factor
+            there = _dt_ice(
+                trial["nominal_speed_ms"], ship.length_m, ship.beam_m, ship.draft_m,
+                ship.cb, 1.0, trial["nominal_ice_thickness_m"],
+            )["R_ice_N"] / 1000.0
+            divergence.append(
+                {"ship": name, "this_module_kN": here, "digital_twin_kN": there,
+                 "ratio_dt_over_this": there / here}
+            )
+    except Exception as exc:  # pragma: no cover - defensive
+        divergence = [{"error": repr(exc)}]
+
+    return {
+        "evidence_grade": VALIDATION_STATUS["evidence_grade"],
+        "per_ship": per_ship,
+        "max_in_sample_rel_err": max(r["in_sample_rel_err"] for r in per_ship),
+        "leave_one_out": loo,
+        "max_out_of_sample_abs_rel_err": max(abs(r["rel_err"]) for r in loo),
+        "meets_15pct_band_out_of_sample": max(abs(r["rel_err"]) for r in loo) <= 0.15,
+        "implementation_divergence": divergence,
+    }
