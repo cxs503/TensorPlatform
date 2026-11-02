@@ -407,10 +407,21 @@ class TestIceResistanceUQ:
         assert r.sobol_sum_total_order >= r.sobol_sum_first_order - 0.01
 
     def test_model_evaluations_reasonable(self, uq_results):
-        """Smolyak grid should use ≤ 100 model evaluations per ship."""
+        """Smolyak grid should use <= 200 model evaluations per ship.
+
+        The shipped default used to be max_level=3 (45 nodes in 4-D), which
+        cannot resolve an order-3 basis -- the quadrature is exact to total
+        degree 5 while <psi_3, psi_3> needs degree 6, so cubic content aliases
+        into unrelated coefficients (defect located by m1882, fixed by m1892).
+        The aliasing-free level 4 needs 165 nodes in 4-D, so the budget follows
+        the quadrature requirement rather than the other way round.
+        """
         for name, r in uq_results.items():
-            assert r.n_model_evaluations <= 100, \
-                f"{name}: {r.n_model_evaluations} evaluations > 100"
+            assert r.n_model_evaluations <= 200, \
+                f"{name}: {r.n_model_evaluations} evaluations > 200"
+            assert r.max_level is not None and r.max_poly_order is not None
+            assert r.max_level >= r.max_poly_order + 1, (name, r.max_level, r.max_poly_order)
+            assert r.quadrature_aliasing_free is True, name
 
     def test_sobol_dominant_source(self, uq_results):
         """At least one parameter should have significant Sobol index."""
