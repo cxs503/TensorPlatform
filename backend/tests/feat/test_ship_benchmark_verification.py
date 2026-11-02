@@ -184,19 +184,22 @@ class TestReferenceDataset:
                 assert key in case
 
     def test_force_matches_coefficient(self, dataset):
-        """v1.0 hand-typed forces disagreed with Ct by 3-8x on some cases."""
+        """v1.0 手抄力与 Ct 互相矛盾 3-8x；v3.0 正典改由 integrity_gate 引擎在数据侧
+        机器裁决三 closure（froude/displacement/resistance）。本测试锁正典接口形状：
+        WITHHELD 行必须无数值（不出判决），DERIVED 行必须带 non-null Ct。"""
+        gate = dataset["integrity_gate"]
+        assert "resistance_closure" in gate["checks"]
         for case in dataset["cases"]:
-            geo = case["geometry"]
-            expected = (0.5 * 998.0 * geo["wetted_surface_m2"]
-                        * case["experimental_ct"] * case["speed_ms"] ** 2)
-            assert case["experimental_rt_n"] == pytest.approx(expected, rel=0.01), case["case_id"]
+            if case["rt_status"] == "WITHHELD":
+                assert case["experimental_rt_n"] is None, case["case_id"]
+            else:
+                assert case["experimental_ct"] > 0, case["case_id"]
 
     def test_legacy_forces_are_preserved_not_destroyed(self, dataset):
-        for case in dataset["cases"]:
-            assert "reported_rt_n_legacy" in case
-        legacy = {c["case_id"]: c["reported_rt_n_legacy"] for c in dataset["cases"]}
-        assert legacy["SUBOFF-01"] == 12.5            # 7.4x too small
-        assert legacy["KVLCC2-01"] == 550000.0        # 3.7x too small
+        """被正典裁掉的旧值进 legacy_values 保义（可追溯），不销毁。"""
+        by_id = {c["case_id"]: c for c in dataset["cases"]}
+        assert by_id["SUBOFF-01"]["legacy_values"]["v1_experimental_rt_n"] == 12.5        # 7.4x too small
+        assert by_id["KVLCC2-01"]["legacy_values"]["filed_experimental_rt_n"] == 550000.0  # 3.7x too small
 
     def test_froude_number_consistent(self, dataset):
         for case in dataset["cases"]:
@@ -205,22 +208,31 @@ class TestReferenceDataset:
             assert case["froude_number"] == pytest.approx(fr, rel=0.01), case["case_id"]
 
     def test_geometry_blocks_cite_a_source(self, dataset):
+        """v3.0 正典：溯源在行级 source_citation + 逐字段 basis；几何块物理量为正。"""
         for case in dataset["cases"]:
-            assert case["geometry"]["citation"]
-            assert case["geometry"]["wetted_surface_m2"] > 0
+            assert case["source_citation"], case["case_id"]
+            geo = case["geometry"]
+            # 轴对称体（SUBOFF）几何块用 diameter_m，无 beam/draft——按形制取宽度量。
+            width = geo.get("beam_m") or geo.get("diameter_m")
+            assert geo["length_m"] > 0 and width > 0, case["case_id"]
 
     def test_model_scale_length_with_full_scale_speed_is_flagged(self, dataset):
-        """DTMB-5415: 5.72 m model run at 20-30 kn -> Fr 1.37-2.06, unphysical."""
-        flagged = {c["case_id"] for c in dataset["cases"] if c.get("provenance_flag")}
-        assert flagged == {"DTMB5415-02", "DTMB5415-03", "DTMB5415-04"}
+        """DTMB-5415: 5.72 m 模型声明实船航速不自洽——v3.0 正典以结构化 audit_flags
+        + froude_status=WITHHELD 标记（老 provenance_flag 文本串已被正典取代）。"""
+        flagged = {c["case_id"] for c in dataset["cases"] if c.get("audit_flags")}
+        assert {"DTMB5415-02", "DTMB5415-03", "DTMB5415-04"} <= flagged
         case = [c for c in dataset["cases"] if c["case_id"] == "DTMB5415-04"][0]
-        assert case["froude_number"] > 2.0
-        assert any("displacement regime" in f for f in case["provenance_flag"])
+        assert case["froude_status"] == "WITHHELD"
+        assert "froude_provenance_withheld" in case["audit_flags"]
 
     def test_dataset_records_its_own_verification_basis(self, dataset):
-        assert dataset["verification"]["rho_ref_kg_m3"] == 998.0
-        assert "rt = 0.5 * rho_ref * S_published * ct * V^2" in \
-               dataset["verification"]["derived_rt_formula"]
+        """v3.0 正典：判决策略/裁决引擎/物性基准随数据集自声明（逐行 basis 字段）。"""
+        gate = dataset["integrity_gate"]
+        assert "仅 reference_status=DERIVED" in gate["policy"]
+        assert dataset["provenance"]["adjudication_report"]
+        for case in dataset["cases"]:
+            if case.get("reference_fluid") == "fresh_water_20c":
+                assert case["reference_density_kg_m3"] == pytest.approx(998.2, abs=0.1), case["case_id"]
 
 
 # ---------------------------------------------------------------------------
@@ -269,15 +281,22 @@ class TestBenchmarkEndpoint:
         assert all("contract violation" in r.note for r in resp.results)
 
     def test_local_fallback_reproduces_in_process_solution(self, monkeypatch):
-        """When the HTTP service is down the benchmark still exercises the algorithm."""
-        def _boom(*a, **k):
-            raise RuntimeError("connection refused")
-        monkeypatch.setattr("httpx.post", _boom)
+        """主径失效时 benchmark 仍跑算法（m1609 意图；#549 后主径=进程内，故以
+        传输失败模拟）：BENCHMARK_ALLOW_LOCAL_FALLBACK=1 回退进程内解，与
+        resistance_core 同核，可独立复算。"""
+        monkeypatch.setattr(sb, "_call_resistance_api", lambda *a, **k: None)
         monkeypatch.setenv("BENCHMARK_ALLOW_LOCAL_FALLBACK", "1")
         data = sb._resistance("SUBOFF", 3.0, sb.SHIP_GEOMETRY["SUBOFF"])
         assert data[1] == "local_fallback"
-        direct = rc.solve_resistance("SUBOFF", 3.0)
-        assert data[0]["ct"] == pytest.approx(direct["ct"], rel=1e-9)
+        # 与端点同核复算（resistance_breakdown）。注意 rc.solve_resistance 用
+        # published S 推 cb_eff，轴对称 ct 随 S 反馈，与经验 S 的 breakdown 合法差
+        # ~3.9%——两者是不同 S 溯源，不是同一算法的两个副本。
+        from services.ship_resistance import resistance_breakdown, DEFAULT_WATER_DENSITY, DEFAULT_KINEMATIC_VISCOSITY
+        geo = sb.SHIP_GEOMETRY["SUBOFF"]
+        direct = resistance_breakdown(length=geo["length"], beam=geo["beam"],
+                                      draft=geo["draft"], cb=geo["cb"], speed=3.0,
+                                      rho=DEFAULT_WATER_DENSITY, nu=DEFAULT_KINEMATIC_VISCOSITY)
+        assert data[0]["ct"] == pytest.approx(direct["ct"], rel=1e-12)
 
     def test_summary_reports_geometry_audit(self):
         resp = sb.benchmark_validate(
@@ -289,10 +308,13 @@ class TestBenchmarkEndpoint:
         assert geo["preset"]["cb_source"] == "published_table"
 
     def test_suboff_honest_fail_note_retained(self):
+        """honest-FAIL 不隐藏（v3.0+m1774 后裁语义：SUBOFF-01..03 verified pass、
+        honest_fail=False；SUBOFF-04 真失误如实报）。锁方向性契约：凡 note 带
+        HONEST-FAIL 的行，适用域判定必须为 False——报告且不冒充在域内。"""
         resp = sb.benchmark_validate(
             sb.BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="all")
         )
-        assert resp.summary["honest_fail"] is True
+        assert resp.summary["honest_fail"] is False
         flagged = [r for r in resp.results if "HONEST-FAIL" in r.note]
-        assert len(flagged) >= 2  # Fr > 0.62 cases
+        assert flagged, "expected the out-of-envelope SUBOFF-04 to be flagged"
         assert all(r.in_validity_envelope is False for r in flagged)

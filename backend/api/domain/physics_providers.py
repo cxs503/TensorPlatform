@@ -15,7 +15,17 @@ DOMAIN = "ship_resistance"
 
 
 def register_ship_resistance_providers() -> None:
-    from api.domain import resistance_model as rm
+    try:
+        from api.domain import resistance_model as rm
+    except Exception:  # spec-load 语境（核心测试按路径加载模块，无 api 包重依赖）
+        import importlib.util as _ilu
+        import sys as _sys
+        from pathlib import Path as _Path
+        _spec = _ilu.spec_from_file_location(
+            "resistance_model", _Path(__file__).resolve().parent / "resistance_model.py")
+        rm = _ilu.module_from_spec(_spec)
+        _sys.modules.setdefault("resistance_model", rm)
+        _spec.loader.exec_module(rm)
 
     register_provider(DOMAIN, "constant:g_m_s2", rm.G)
     register_provider(DOMAIN, "constant:rho_sea_water_kg_m3", rm.RHO_SEA_WATER)

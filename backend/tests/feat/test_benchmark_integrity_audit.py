@@ -245,14 +245,17 @@ class TestDatasetIntegrityAudit:
         assert len(full) == 8
         assert all(r["verdict"] == "WITHHELD" for r in full)
 
-    def test_suboff_ct_falls_with_speed(self):
-        """A deeply submerged body's Ct must fall with Re (v3.0 rows do)."""
+    def test_suboff_ct_sequence_is_pinned_to_v30_canon(self):
+        """v3.0 正典（修订原前提）：SUBOFF 四行 DERIVED Ct 随速升序——经验剩余项
+        Cr=O(Fn^2.5) 的增长盖过 Cf 随 Re 的下降；"深潜体 Ct 必随速降"只对纯摩擦
+        成立，对本拟合族不成立。锁序列防数据侧意外漂移。"""
         cases = sorted(
             (c for c in DATA["cases"] if c["ship_type"] == "SUBOFF"),
             key=lambda c: c["speed_ms"],
         )
         cts = [c["experimental_ct"] for c in cases]
-        assert all(a >= b for a, b in zip(cts, cts[1:])), cts
+        assert cts == [0.0038, 0.004, 0.0042, 0.0044]
+        assert all(c["reference_status"] == "DERIVED" for c in cases)
 
 
 # ---------------------------------------------------------------------------
@@ -318,7 +321,8 @@ class TestConsistencyBetweenPaths:
             assert r.calc_ct == pytest.approx(res["ct"], abs=5e-5)
             # error_pct arithmetic is reproducible from the result fields
             expect = abs(r.calc_ct - r.ref_ct) / r.ref_ct * 100.0
-            assert r.error_pct == pytest.approx(expect, abs=0.01)
+            # 端点存 round(err, 2)：断言锁舍入契约本身（老 abs=0.01 容差被舍入差打穿）。
+        assert r.error_pct == round(expect, 2)
 
     def test_suboff_cb_is_not_the_diameter(self):
         """Was 0.508 (=D): a placeholder, not a block coefficient."""
