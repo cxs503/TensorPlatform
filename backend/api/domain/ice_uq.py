@@ -18,6 +18,8 @@ from services.ice_resistance_uq import (
     run_ice_resistance_uq,
     run_all_ships_uq,
     lindqvist_ice_resistance,
+    lindqvist_ice_resistance_uncalibrated,
+    lindqvist_terms,
     ShipIceParams,
 )
 
@@ -38,13 +40,28 @@ class IceResistanceRequest(BaseModel):
 
 
 class IceResistanceResponse(BaseModel):
-    """Deterministic ice resistance response."""
+    """Deterministic ice resistance response.
+
+    ``total_resistance_kN`` is the *trial-anchored* value
+    (``raw_resistance_kN * calibration_factor``); the factor is fixed per ship
+    so that the nominal-condition point equals the platform-recorded full-scale
+    trial mean. The residual at nominal conditions is therefore zero by
+    construction and is **not** a validation result. Use
+    ``raw_resistance_kN`` (formula-only) for a non-circular comparison.
+    """
     ship_name: str
     ice_thickness_m: float
     ice_strength_MPa: float
     friction_coeff: float
     ship_speed_ms: float
     total_resistance_kN: float
+    raw_resistance_kN: Optional[float] = Field(
+        default=None, description="Uncalibrated Lindqvist total (formula only)")
+    calibration_factor: Optional[float] = Field(
+        default=None, description="Per-ship anchor: trial_nominal / raw_nominal")
+    terms_kN: Optional[Dict[str, float]] = Field(
+        default=None,
+        description="Component breakdown (crushing/bending/submersion/speed), uncalibrated")
 
 
 class UQRequest(BaseModel):
@@ -102,6 +119,14 @@ async def calc_ice_resistance(req: IceResistanceRequest):
         ship, req.ice_thickness_m, req.ice_strength_MPa,
         req.friction_coeff, req.ship_speed_ms
     )
+    R_raw = lindqvist_ice_resistance_uncalibrated(
+        ship, req.ice_thickness_m, req.ice_strength_MPa,
+        req.friction_coeff, req.ship_speed_ms
+    )
+    terms = lindqvist_terms(
+        ship, req.ice_thickness_m, req.ice_strength_MPa,
+        req.friction_coeff, req.ship_speed_ms
+    )
 
     return IceResistanceResponse(
         ship_name=req.ship_name,
@@ -110,6 +135,9 @@ async def calc_ice_resistance(req: IceResistanceRequest):
         friction_coeff=req.friction_coeff,
         ship_speed_ms=req.ship_speed_ms,
         total_resistance_kN=round(R, 4),
+        raw_resistance_kN=round(R_raw, 4),
+        calibration_factor=round(ship.calibration_factor, 6),
+        terms_kN={k: round(v, 4) for k, v in terms.items()},
     )
 
 
