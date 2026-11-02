@@ -24,9 +24,24 @@ Deliberate, documented simplifications (kept explicit so the audit cannot over-c
 1. ``rhow`` (wave-resistance hull-form factor) is taken as 1.0, i.e. results are
    restricted to Fn <= 0.4.  ``ResistanceResult.fn_in_rhow_domain`` reports whether
    the evaluated point stays inside that range.
-2. ``LR`` (length of the run) is approximated by ``L``.  For the benchmark hulls used
-   here LR/B > 4 and the published coefficient is a weak function of LR/B.
-3. The low-length correction term of Ca (validity L < 50 m) is not implemented.
+2. The low-length correction term of Ca (validity L < 50 m) is not implemented.
+3. The m4 (wave-resistance Froude-dependence) model form of Holtrop (1984),
+   m4 = c15 0.4 exp(-0.034 Fn^-3.29), is used.  The earlier Holtrop & Mennen (1982)
+   variant m2 = c15 Cp^2 exp(-0.1 Fn^-2) is *not* implemented here; the two forms
+   differ by <=3% on Rw and <=0.6% on Rt over Fn = 0.10-0.35 (see
+   tests/test_resistance_published_parity.py), so this is a documented model-form
+   uncertainty, not a numerical defect.
+4. rhow (wave-resistance hull-form factor) is 1.0 as stated above.
+
+Earlier versions of this module additionally approximated the length of run by
+``LR ~ L`` ("valid because LR/B > 4 for the benchmark hulls").  That validity claim
+was machine-checkably false (published regression gives LR/B = 0.62 for KVLCC2 and
+1.85 for KCS) and the approximation biased Rw by +70-77%, because iE -> c1 enters
+the wave-resistance exponential.  LR now follows the published regression
+``length_of_run()``; see docs/reports/m1826/.  The same defect made the (1+k)
+regression degenerate: the published factor (L/LR)^0.121563 is a function of the
+run length, whereas the old code used (L/nabla^(1/3))^0.121563, i.e. a second power
+of the single variable (L^3/nabla) already present as (L^3/nabla)^0.36486.
 
 All quantities in SI: m, m/s, m^3, N, W.
 
@@ -105,22 +120,33 @@ def wetted_surface_denny_mumford(l: float, b: float, t: float, cb: float) -> flo
 
 
 def form_factor_1pk(
-    l: float, b: float, t: float, cb: float, cm: float, vol: float, cstern: float = 0.0
+    l: float,
+    b: float,
+    t: float,
+    cb: float,
+    cm: float,
+    vol: float,
+    cstern: float = 0.0,
+    lcb_pct: float = 0.0,
 ) -> float:
     """Holtrop (1984) form factor (1+k), returned as a *full multiplier*.
 
-    (1+k) = 0.93 + 0.487118 c14 (B/L)^1.06806 (T/L)^0.46106 (L/vol^(1/3))^0.121563
+    (1+k) = 0.93 + 0.487118 c14 (B/L)^1.06806 (T/L)^0.46106 (L/LR)^0.121563
             (L^3/vol)^0.36486 (1 - Cp)^-0.604247
+
+    LR is the published length of the run (:func:`length_of_run`); ``lcb_pct`` feeds
+    that regression (default 0.0 = LCB at 0.5 L, the L-independent special case).
     """
     c14 = 1.0 + 0.011 * cstern
     cp = cb / cm
     l3v = l ** 3 / vol
+    lr = length_of_run(l, cp, lcb_pct)
     return (
         0.93
         + 0.487118 * c14
         * (b / l) ** 1.06806
         * (t / l) ** 0.46106
-        * (l / vol ** (1.0 / 3.0)) ** 0.121563
+        * (l / lr) ** 0.121563
         * l3v ** 0.36486
         * (1.0 - cp) ** (-0.604247)
     )
@@ -134,6 +160,27 @@ def c7_coefficient(b: float, l: float) -> float:
     if bl < 0.25:
         return bl
     return 0.5 - 0.0625 * (l / b)
+
+
+def length_of_run(l: float, cp: float, lcb_pct: float) -> float:
+    """Holtrop (1984) length of the run [m]: LR = L (1 - Cp + 0.06 Cp lcb / (4 Cp - 1)).
+
+    ``lcb_pct`` is the LCB position in percent of L, positive forward of 0.5 L
+    (Holtrop's sign convention).  LR enters the iE (half-angle of entrance)
+    correlation, which drives c1 and therefore the whole wave-resistance term:
+    a relative error of 10% on LR can move Rw by tens of percent, so LR must not be
+    approximated by L.
+    """
+    denom = 4.0 * cp - 1.0
+    if denom <= 0.0:
+        raise ValueError(f"prismatic coefficient out of range for LR regression: Cp={cp}")
+    lr = l * (1.0 - cp + 0.06 * cp * lcb_pct / denom)
+    if lr <= 0.0:
+        raise ValueError(
+            f"LR regression returned a non-positive run length (LR={lr}): "
+            f"L={l}, Cp={cp}, lcb%={lcb_pct}"
+        )
+    return lr
 
 
 def iE_coefficient(
@@ -263,10 +310,10 @@ def holtrop1984_resistance(
     re = speed_ms * l / nu
     cf = cf_ittc1957(re)
     rf = 0.5 * rho * speed_ms ** 2 * s * cf
-    one_plus_k = form_factor_1pk(l, b, t, cb, cm, vol, geom.cstern)
+    one_plus_k = form_factor_1pk(l, b, t, cb, cm, vol, geom.cstern, geom.lcb_pct)
 
     # --- wave resistance -------------------------------------------------
-    lr = l  # documented simplification: LR ~ L
+    lr = length_of_run(l, cp, geom.lcb_pct)
     ie = iE_coefficient(l, b, cwp, cp, geom.lcb_pct, vol, lr)
     if cp < 0.8:
         c16 = 8.07981 * cp - 13.8673 * cp ** 2 + 6.984388 * cp ** 3
