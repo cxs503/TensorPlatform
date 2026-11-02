@@ -44,6 +44,18 @@ which reduces to ``R = r**-p`` (i.e. ``p = ln(1/R)/ln(r)``) when
 solves it by bisection -- no iteration that can
 diverge, and it degrades to the textbook formula exactly in the constant-ratio
 limit (pinned by ``tests/test_gci_verification.py``).
+
+What the asymptotic-range indicator can and cannot do
+-----------------------------------------------------
+The textbook check ``e32/(r21**p * e21) ~ 1`` is **algebraically satisfied by
+construction** when ``p`` is estimated from the same triplet: substituting
+Eq. A shows the ratio reduces to ``r21**p / r21**p``.  Neither this module nor
+the backend kernel can therefore *test* the asymptotic range from three points
+alone.  What is falsifiable is the **order of accuracy**: if the discretisation
+has a known formal order ``p_expected``, a large ``|p - p_expected|/p_expected``
+proves the grids are pre-asymptotic and the GCI band must not be published as a
+certificate.  Hence the ``p_expected`` / ``order_tol`` arguments and the
+``order_ok`` / ``asym_ratio_tautological`` fields.
 """
 
 from __future__ import annotations
@@ -105,6 +117,16 @@ class GCIResult:
     fs: float
     asymptotic: bool
     notes: list
+    # -- asymptotic-range / order-of-accuracy diagnostics -------------------
+    # ``asym_ratio`` is e32/(r21**p * e21), the classical range indicator.  With
+    # ``p`` estimated from the *same* triplet it is an algebraic identity
+    # (== 1, see docs/verification_debt/gci_asymptotic_gate/REPORT.md), so it
+    # carries information only when ``p_expected`` supplies an independent order.
+    asym_ratio: Optional[float] = None
+    asym_ratio_tautological: bool = True
+    p_expected: Optional[float] = None
+    order_rel_dev: Optional[float] = None
+    order_ok: Optional[bool] = None
 
     def as_dict(self) -> dict:
         d = asdict(self)
@@ -195,6 +217,8 @@ def gci(
     fs: float = FS_THREE_GRIDS,
     p_assumed: Optional[float] = None,
     r_min: float = R_MIN_RECOMMENDED,
+    p_expected: Optional[float] = None,
+    order_tol: float = 0.10,
 ) -> GCIResult:
     """Three-grid GCI study.
 
@@ -206,6 +230,12 @@ def gci(
     p_assumed : if given, skip the order estimate and use this ``p`` (the
         classical two-grid/post-hoc usage; pass ``fs=FS_TWO_GRIDS`` in that case).
     r_min : minimum acceptable refinement ratio (warning only, never fatal).
+    p_expected : formal (design) order of accuracy.  When supplied, ``p`` is
+        compared against it and ``asymptotic`` additionally requires
+        ``|p - p_expected|/p_expected <= order_tol``.  This is the *only*
+        non-tautological asymptotic-range test available from three grids --
+        without it the platform has to report the range check as WITHHELD.
+    order_tol : relative tolerance for the order-of-accuracy test.
     """
     if len(h) != 3 or len(phi) != 3:
         raise ValueError("gci() needs exactly three grid levels (h, phi each length 3)")
@@ -264,6 +294,10 @@ def gci(
             e_a21=None, e_ext21=None,
             gci_fine=u, gci_fine_pct=pct, fs=fs,
             asymptotic=False, notes=notes,
+            asym_ratio=None, asym_ratio_tautological=True,
+            p_expected=p_expected,
+            order_rel_dev=None,
+            order_ok=(False if p_expected is not None else None),
         )
 
     phi_ext = richardson_extrapolate(phi1, phi2, r21, p)
@@ -272,7 +306,32 @@ def gci(
     denom = r21 ** p - 1.0
     gci_fine = fs * e_a21 / denom if denom != 0.0 else math.inf
 
-    asymptotic = refinement_ratio_ok(r21, r_min) and refinement_ratio_ok(r32, r_min)
+    # Classical range indicator (Celik 2008): e32 / (r21**p * e21).
+    a1 = abs(eps21) / denom if denom != 0.0 else math.inf
+    a2 = (abs(eps32) / (r32 ** p - 1.0)) if (r32 ** p - 1.0) > 0.0 else math.inf
+    asym_ratio = (a2 / (r21 ** p * a1)) if (a1 > 0.0 and math.isfinite(a2)) else None
+    tautological = p_assumed is None
+    if tautological:
+        notes.append(
+            "asym_ratio is an algebraic identity (==1) when p is estimated from "
+            "the same triplet: it is NOT an asymptotic-range test; pass "
+            "p_expected for a falsifiable check"
+        )
+
+    order_rel_dev = None
+    order_ok = None
+    if p_expected is not None and p_expected > 0.0:
+        order_rel_dev = abs(p - p_expected) / p_expected
+        order_ok = order_rel_dev <= order_tol
+        if not order_ok:
+            notes.append(
+                "observed order p=%.4g deviates %.1f%% from the formal order "
+                "%.4g (> %.0f%%): grids are pre-asymptotic, GCI band is not a "
+                "certificate" % (p, 100 * order_rel_dev, p_expected, 100 * order_tol)
+            )
+
+    ratio_ok = refinement_ratio_ok(r21, r_min) and refinement_ratio_ok(r32, r_min)
+    asymptotic = ratio_ok and (order_ok if order_ok is not None else True)
     if p_cr is not None and p > 0:
         rel = abs(p_cr - p) / p
         if rel > 0.10:
@@ -288,4 +347,6 @@ def gci(
         e_a21=e_a21, e_ext21=e_ext21,
         gci_fine=gci_fine, gci_fine_pct=100.0 * gci_fine, fs=fs,
         asymptotic=asymptotic, notes=notes,
+        asym_ratio=asym_ratio, asym_ratio_tautological=tautological,
+        p_expected=p_expected, order_rel_dev=order_rel_dev, order_ok=order_ok,
     )
