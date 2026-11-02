@@ -1,0 +1,191 @@
+{
+  "mission": 1855,
+  "repo": "TensorPlatform",
+  "module_under_test": "backend/services/polar/{channel,optimizer}.py",
+  "endpoints": [
+    "GET /polar/acceptance/channel",
+    "GET /polar/acceptance/route"
+  ],
+  "ship": "handysize_bulker",
+  "conditions": {
+    "v_kn": 6.0,
+    "h_b_m": 0.8,
+    "anchor_c": 0.4
+  },
+  "A_analytic_law": {
+    "law": "rel_error_brash(c) = rho_b(c)/rho_b(c_anchor) - 1, 与 n / C_VEL / mu_b / B / T / h 无关",
+    "max_abs_diff": 8.326672684688674e-17,
+    "rows": [
+      {
+        "concentration": 0.1,
+        "measured_rel_brash": 0.033000611122428275,
+        "closed_form_density_ratio": 0.03300061112242836,
+        "abs_diff": 8.326672684688674e-17
+      },
+      {
+        "concentration": 0.2,
+        "measured_rel_brash": 0.022000407414952187,
+        "closed_form_density_ratio": 0.02200040741495224,
+        "abs_diff": 5.204170427930421e-17
+      },
+      {
+        "concentration": 0.3,
+        "measured_rel_brash": 0.011000203707476086,
+        "closed_form_density_ratio": 0.01100020370747612,
+        "abs_diff": 3.2959746043559335e-17
+      },
+      {
+        "concentration": 0.4,
+        "measured_rel_brash": 0.0,
+        "closed_form_density_ratio": 0.0,
+        "abs_diff": 0.0
+      },
+      {
+        "concentration": 0.5,
+        "measured_rel_brash": -0.011000203707476005,
+        "closed_form_density_ratio": -0.011000203707476008,
+        "abs_diff": 3.469446951953614e-18
+      },
+      {
+        "concentration": 0.6,
+        "measured_rel_brash": -0.022000407414952208,
+        "closed_form_density_ratio": -0.022000407414952128,
+        "abs_diff": 7.979727989493313e-17
+      },
+      {
+        "concentration": 0.7,
+        "measured_rel_brash": -0.03300061112242806,
+        "closed_form_density_ratio": -0.033000611122428025,
+        "abs_diff": 3.469446951953614e-17
+      }
+    ]
+  },
+  "B_mutation_battery": {
+    "criterion": "b",
+    "nominal": {
+      "pass": true,
+      "max_abs_rel_error_pct": 2.9358,
+      "threshold_pct": 10.0,
+      "k_cal": 3.101115
+    },
+    "mutations": [
+      {
+        "id": "M1_packing_exp_x1.3",
+        "attr": "C_PACKING_EXP",
+        "factor": 1.3,
+        "physics": "浓度堆积指数 n: 1.50 → 1.95（brash 阻力对浓度的非线性）",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 2.9358,
+        "abs_err_delta_vs_base": 0.0,
+        "brash_at_c020_shift_pct": -43.09251664397486
+      },
+      {
+        "id": "M2_packing_exp_x0.7",
+        "attr": "C_PACKING_EXP",
+        "factor": 0.7,
+        "physics": "浓度堆积指数 n: 1.50 → 1.05",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 2.9358,
+        "abs_err_delta_vs_base": 0.0,
+        "brash_at_c020_shift_pct": 75.72381364042941
+      },
+      {
+        "id": "M3_velocity_factor_x2",
+        "attr": "C_VEL",
+        "factor": 2.0,
+        "physics": "速度动力因子系数 C_VEL（v/√(gh) 项权重翻倍）",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 3.0233,
+        "abs_err_delta_vs_base": 0.08749999999999991,
+        "brash_at_c020_shift_pct": 35.52168419901545
+      },
+      {
+        "id": "M4_friction_x1.5",
+        "attr": "MU_BRASH",
+        "factor": 1.5,
+        "physics": "brash/hull 摩擦系数 μ_b: 0.15 → 0.225",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 3.0089,
+        "abs_err_delta_vs_base": 0.07310000000000016,
+        "brash_at_c020_shift_pct": 28.208140013195933
+      },
+      {
+        "id": "M5_max_packing_x0.85",
+        "attr": "C_MAX_PACKING",
+        "factor": 0.85,
+        "physics": "最大堆积率 c_max: 0.70 → 0.595",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 3.0076,
+        "abs_err_delta_vs_base": 0.07180000000000009,
+        "brash_at_c020_shift_pct": 27.606151658033017
+      },
+      {
+        "id": "G1_beam_x1.3",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 2.9542,
+        "abs_err_delta_vs_base": 0.018400000000000194,
+        "brash_at_c020_shift_pct": 30.00000000000001
+      },
+      {
+        "id": "G2_draft_x1.2",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 2.9897,
+        "abs_err_delta_vs_base": 0.05390000000000006,
+        "brash_at_c020_shift_pct": 30.275501010139983
+      },
+      {
+        "id": "G3_length_x1.15",
+        "criterion_pass": true,
+        "criterion_max_abs_err_pct": 2.8869,
+        "abs_err_delta_vs_base": 0.048900000000000166,
+        "brash_at_c020_shift_pct": -5.6226286667009875
+      }
+    ],
+    "survived": 8,
+    "total": 8,
+    "survival_rate": 1.0,
+    "max_physics_shift_pct": 75.72381364042941,
+    "verdict": "判据 (b) 对生产模型的物理参数无判别力（全部变异存活）"
+  },
+  "C_route_controls": {
+    "criterion": "e",
+    "nominal": {
+      "pass": true,
+      "saving_vs_best_experience_pct": 9.009,
+      "saving_vs_best_rule_based_pct": 40.708,
+      "threshold_pct": 5.0,
+      "best_baseline_label": "lead_aware_pilot",
+      "optimized_time_h": 30.003,
+      "optimized_distance_km": 473.798,
+      "deadline_h": 30.0,
+      "n_baselines": 16,
+      "deadline_slack_h": 0.0030000000000001137
+    },
+    "feasibility_note": "优化方案的 time_h 允许超出 deadline 的量级见 deadline_slack_h；基线经验航线被精确缩放到 ETA，若优化解超时则等 ETA 前提不严格成立",
+    "controls": [
+      {
+        "id": "N1_optimizer_replaced_by_best_experience_route",
+        "saving_pct": 0.0,
+        "criterion_pass": false,
+        "expected": "FAIL(≈0%)"
+      },
+      {
+        "id": "N2_optimizer_fuel_raised_to_3pct_saving",
+        "saving_pct": 3.0,
+        "criterion_pass": false,
+        "expected": "FAIL(<5%)"
+      },
+      {
+        "id": "N3_optimizer_fuel_at_exact_5pct_threshold",
+        "saving_pct": 5.0,
+        "criterion_pass": false,
+        "expected": "FAIL(boundary: saving > 5.0 strict)"
+      }
+    ],
+    "negative_controls_all_fail": true
+  },
+  "verdict": {
+    "criterion_b": "redundant as a physics check: hold-out residual is a pure density ratio; no discriminating power over n / C_VEL / mu_b / B / T / h",
+    "criterion_e": "has discriminating power: negative controls (N1, N2) both flip to FAIL"
+  }
+}
