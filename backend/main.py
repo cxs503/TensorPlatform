@@ -412,6 +412,13 @@ app.include_router(misc.router, prefix="/api/v1")
 # ── 科研运行台（HPC + AI agent 操作面）──
 app.include_router(tensor.router, prefix="/api/v1")
 
+# 船舶总体性能·耐波域（m1433 交付的 calculations/seakeeping_* 三个端点，m1649 复算发现
+# 该域模块从未被 import/挂载 → 线上 404；此处接线，证据见
+# docs/audit/m1649_seakeeping_verification_debt.md 与 docs/audits/seakeeping_verification_m1433.md）
+from api.domain import ship_seakeeping  # noqa: E402
+
+app.include_router(ship_seakeeping.router, prefix="/api/v1")
+
 # ── 智能体协作平台（常驻 agent / 战役 / 模型）──────────────────────
 # LOCAL PATCH: 这三个 router 存在于 api/ 但 main.py 未挂载，导致
 # /api/v1/tensor/factory/* 全部 404（前端 frontend-factory 的智能体页面依赖它们）。
