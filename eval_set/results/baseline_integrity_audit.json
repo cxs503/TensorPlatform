@@ -1,0 +1,555 @@
+{
+  "audit_version": "1.0.0",
+  "generator": "eval_set/scripts/audit_baseline_integrity.py",
+  "inputs": {
+    "eval_set": "eval_set/eval_set.json",
+    "report": "eval_set/results/baseline_report.json",
+    "table": "eval_set/results/baseline_table.json",
+    "results": "eval_set/results/eval_results_20261030T194201Z.json",
+    "verified": "eval_set/results/eval_results_20261030T194201Z_verified.json",
+    "mapping_source": "eval_set/scripts/generate_baseline.py"
+  },
+  "source_timestamps": {
+    "baseline_generated_at": "2026-10-30T19:43:24.562507+00:00",
+    "eval_run_at": "2026-10-30T19:42:01.711926+00:00",
+    "verified_at": "2026-10-30T19:45:01.529835+00:00"
+  },
+  "headline": {
+    "artifact": "eval_set fleet capability baseline (mission m538)",
+    "checks_total": 21,
+    "verdicts": {
+      "FAIL": 7,
+      "STUB": 1,
+      "WARN": 3,
+      "PASS": 7,
+      "INFO": 3
+    },
+    "baseline_evidence_level": "MOCK",
+    "baseline_evidence_reason": "pass rates are derived from a hand-typed HISTORICAL_MAPPING inside generate_baseline.py ('cannot run live evaluations in this environment'); the only executed artifact is a dry run with every cell status='dry_run', every verification failed and every weighted score a constant 0.25"
+  },
+  "per_model": {
+    "qwen3.7-plus": {
+      "claimed_total": 6,
+      "claimed_passed": 2,
+      "claimed_rate": 0.333,
+      "claimed_ci95": [
+        0.097,
+        0.7
+      ],
+      "mapping_total": 6,
+      "mapping_passed": 2,
+      "mapping_rate": 0.3333,
+      "mapping_ci95": [
+        0.0968,
+        0.7
+      ],
+      "verified_passed": 0,
+      "table_passed": 0
+    },
+    "glm-5.2": {
+      "claimed_total": 7,
+      "claimed_passed": 3,
+      "claimed_rate": 0.429,
+      "claimed_ci95": [
+        0.158,
+        0.75
+      ],
+      "mapping_total": 1,
+      "mapping_passed": 1,
+      "mapping_rate": 1.0,
+      "mapping_ci95": [
+        0.2065,
+        1.0
+      ],
+      "verified_passed": 0,
+      "table_passed": 0
+    },
+    "deepseek-v4-flash": {
+      "claimed_total": 11,
+      "claimed_passed": 5,
+      "claimed_rate": 0.455,
+      "claimed_ci95": [
+        0.213,
+        0.72
+      ],
+      "mapping_total": 11,
+      "mapping_passed": 5,
+      "mapping_rate": 0.4545,
+      "mapping_ci95": [
+        0.2127,
+        0.7199
+      ],
+      "verified_passed": 0,
+      "table_passed": 0
+    },
+    "qwen3.6-plus": {
+      "claimed_total": 7,
+      "claimed_passed": 3,
+      "claimed_rate": 0.429,
+      "claimed_ci95": [
+        0.158,
+        0.75
+      ],
+      "mapping_total": 4,
+      "mapping_passed": 2,
+      "mapping_rate": 0.5,
+      "mapping_ci95": [
+        0.15,
+        0.85
+      ],
+      "verified_passed": 0,
+      "table_passed": 0
+    },
+    "glm-5.1": {
+      "claimed_total": 7,
+      "claimed_passed": 3,
+      "claimed_rate": 0.429,
+      "claimed_ci95": [
+        0.158,
+        0.75
+      ],
+      "mapping_total": 1,
+      "mapping_passed": 0,
+      "mapping_rate": 0.0,
+      "mapping_ci95": [
+        0.0,
+        0.7935
+      ],
+      "verified_passed": 0,
+      "table_passed": 0
+    }
+  },
+  "checks": [
+    {
+      "id": "A1_run_provenance",
+      "group": "provenance",
+      "verdict": "FAIL",
+      "detail": "eval run artifact is a dry run: meta.dry_run=True, 100/100 dispatched cells have status='dry_run' -> the per-model pass rates in baseline_report.json are NOT produced by executing the eval set",
+      "evidence": "REAL",
+      "numbers": {
+        "dry_run_rows": 100,
+        "dispatched_rows": 100,
+        "meta_dry_run": true
+      }
+    },
+    {
+      "id": "A2_mapping_closure",
+      "group": "provenance",
+      "verdict": "FAIL",
+      "detail": "the report's denominators do not close on its own source: 15 of 38 per-model task slots are imputed (estimated_total=3 per empty difficulty bucket) rather than present in HISTORICAL_MAPPING",
+      "evidence": "REAL",
+      "numbers": {
+        "per_model": {
+          "qwen3.7-plus": {
+            "claimed_total": 6,
+            "mapping_rows": 6,
+            "imputed_rows": 0,
+            "claimed_passed": 2,
+            "mapping_passed": 2
+          },
+          "glm-5.2": {
+            "claimed_total": 7,
+            "mapping_rows": 1,
+            "imputed_rows": 6,
+            "claimed_passed": 3,
+            "mapping_passed": 1
+          },
+          "deepseek-v4-flash": {
+            "claimed_total": 11,
+            "mapping_rows": 11,
+            "imputed_rows": 0,
+            "claimed_passed": 5,
+            "mapping_passed": 5
+          },
+          "qwen3.6-plus": {
+            "claimed_total": 7,
+            "mapping_rows": 4,
+            "imputed_rows": 3,
+            "claimed_passed": 3,
+            "mapping_passed": 2
+          },
+          "glm-5.1": {
+            "claimed_total": 7,
+            "mapping_rows": 1,
+            "imputed_rows": 6,
+            "claimed_passed": 3,
+            "mapping_passed": 0
+          }
+        },
+        "imputed_rows": 15
+      }
+    },
+    {
+      "id": "A3_estimate_flag",
+      "group": "provenance",
+      "verdict": "FAIL",
+      "detail": "generate_baseline.py sets baseline[model][diff]['estimated']=True for imputed buckets and the .md table renders it as '*', but baseline_report.json contains 0 'estimated' keys -> a JSON consumer cannot tell measured from imputed cells",
+      "evidence": "REAL",
+      "numbers": {
+        "estimated_keys_in_json": 0
+      }
+    },
+    {
+      "id": "A4_ci_block",
+      "group": "provenance",
+      "verdict": "STUB",
+      "detail": "baseline_report.json['confidence_intervals'] is an empty object while the .md/JSON present per-model ci_95 -> the declared CI container is a stub",
+      "evidence": "REAL"
+    },
+    {
+      "id": "A5_repo_claim",
+      "group": "provenance",
+      "verdict": "WARN",
+      "detail": "summary text claims 5 repos, report eval_set.repos lists 7, tasks actually cover 7 (TensorBEM, TensorCAD, TensorDEM, TensorLBM, TensorPhysics, TensorPlatform, TensorSPH)",
+      "evidence": "REAL",
+      "numbers": {
+        "claimed": 5,
+        "listed": 7,
+        "actual": 7
+      }
+    },
+    {
+      "id": "A6_report_vs_verified",
+      "group": "cross_artifact",
+      "verdict": "FAIL",
+      "detail": "verified artifact reports 0/100 passed (pass_rate 0.0) while baseline_report reports 16/38 passed -> two 'same baseline' artifacts disagree on the headline",
+      "evidence": "REAL",
+      "numbers": {
+        "verified_passed": 0,
+        "verified_total": 100,
+        "report_passed": 16,
+        "report_total": 38
+      }
+    },
+    {
+      "id": "A7_verified_score_floor",
+      "group": "cross_artifact",
+      "verdict": "FAIL",
+      "detail": "all 100 verification scores take the single value 0.25 -> the weighted score is a constant, i.e. no criterion moved it (dry-run floor, not a measurement)",
+      "evidence": "MOCK",
+      "numbers": {
+        "n_scores": 100,
+        "distinct_values": 1
+      }
+    },
+    {
+      "id": "A8_table_vs_report",
+      "group": "cross_artifact",
+      "verdict": "FAIL",
+      "detail": "baseline_table.json and baseline_report.json disagree for 5/5 models on (passed, total)",
+      "evidence": "REAL",
+      "numbers": {
+        "disagreeing": 5,
+        "rows": [
+          {
+            "model": "qwen3.7-plus",
+            "table": [
+              0,
+              20
+            ],
+            "report": [
+              2,
+              6
+            ]
+          },
+          {
+            "model": "glm-5.2",
+            "table": [
+              0,
+              20
+            ],
+            "report": [
+              3,
+              7
+            ]
+          },
+          {
+            "model": "deepseek-v4-flash",
+            "table": [
+              0,
+              20
+            ],
+            "report": [
+              5,
+              11
+            ]
+          },
+          {
+            "model": "qwen3.6-plus",
+            "table": [
+              0,
+              20
+            ],
+            "report": [
+              3,
+              7
+            ]
+          },
+          {
+            "model": "glm-5.1",
+            "table": [
+              0,
+              20
+            ],
+            "report": [
+              3,
+              7
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "B1_difficulty_closure",
+      "group": "arithmetic",
+      "verdict": "PASS",
+      "detail": "per-model by_difficulty totals sum to total_tasks for 5/5 models",
+      "evidence": "REAL",
+      "numbers": {
+        "failures": []
+      }
+    },
+    {
+      "id": "B2_rate_arithmetic",
+      "group": "arithmetic",
+      "verdict": "PASS",
+      "detail": "claimed pass_rate equals passed/total (tol 0.0005) in all 20 buckets",
+      "evidence": "REAL",
+      "numbers": {
+        "failures": []
+      }
+    },
+    {
+      "id": "B3_wilson_recompute",
+      "group": "arithmetic",
+      "verdict": "PASS",
+      "detail": "per-model Wilson 95% CI recomputed independently (z=1.96); max deviation 0.00047, 0/5 models outside tolerance 0.002",
+      "evidence": "REAL",
+      "numbers": {
+        "max_abs_dev": 0.00047,
+        "failures": []
+      }
+    },
+    {
+      "id": "B4_wall_hours",
+      "group": "arithmetic",
+      "verdict": "PASS",
+      "detail": "wall_hours_total equals wall_seconds_total/3600 (tol 0.06) for 5/5 models",
+      "evidence": "REAL",
+      "numbers": {
+        "failures": []
+      }
+    },
+    {
+      "id": "B5_cell_coverage",
+      "group": "arithmetic",
+      "verdict": "INFO",
+      "detail": "HISTORICAL_MAPPING observes 21 of 100 (task, model) cells = 21.0%; the rest of the matrix is imputed",
+      "evidence": "REAL",
+      "numbers": {
+        "observed_cells": 21,
+        "total_cells": 100
+      }
+    },
+    {
+      "id": "D1_difficulty_dist",
+      "group": "evalset",
+      "verdict": "PASS",
+      "detail": "recomputed difficulty distribution {'easy': 5, 'medium': 9, 'hard': 6} over 20 tasks (meta declares the levels, not the counts)",
+      "evidence": "REAL",
+      "numbers": {
+        "distribution": {
+          "easy": 5,
+          "medium": 9,
+          "hard": 6
+        },
+        "declared_levels": 3
+      }
+    },
+    {
+      "id": "D2_source_balance",
+      "group": "evalset",
+      "verdict": "INFO",
+      "detail": "source mission outcomes: {'succeeded': 10, 'failed': 10} (balance is a design choice, not a defect)",
+      "evidence": "REAL",
+      "numbers": {
+        "succeeded": 10,
+        "failed": 10
+      }
+    },
+    {
+      "id": "D3_id_integrity",
+      "group": "evalset",
+      "verdict": "PASS",
+      "detail": "20 tasks, 20 unique ids, duplicates=none",
+      "evidence": "REAL",
+      "numbers": {
+        "n_tasks": 20,
+        "n_unique": 20
+      }
+    },
+    {
+      "id": "D4_criteria_verifiability",
+      "group": "evalset",
+      "verdict": "FAIL",
+      "detail": "100 acceptance criteria: 49 measured (numeric tolerance), 21 decidable (observable anchor: endpoint/status/return/test/file), 30 subjective (30.0%, needs a human judge -> not machine-decidable; FAIL >25%, WARN >10%). Classifier calibrated on a 20-criterion hand-labelled sample, agreement 100%",
+      "evidence": "REAL",
+      "numbers": {
+        "n_criteria": 100,
+        "tiers": {
+          "measured": 49,
+          "decidable": 21,
+          "subjective": 30
+        },
+        "subjective_fraction": 0.3,
+        "calibration": {
+          "n_sample": 20,
+          "agreement": 1.0,
+          "labels": {
+            "0": "D",
+            "5": "M",
+            "10": "M",
+            "15": "M",
+            "20": "M",
+            "25": "M",
+            "30": "M",
+            "35": "D",
+            "40": "M",
+            "45": "M",
+            "50": "D",
+            "55": "M",
+            "60": "D",
+            "65": "M",
+            "70": "D",
+            "75": "M",
+            "80": "M",
+            "85": "D",
+            "90": "M",
+            "95": "D"
+          },
+          "note": "sample = every 5th acceptance criterion; labels assigned by the auditor (single rater, no second annotator -> agreement is an internal-consistency check, not inter-rater reliability)"
+        },
+        "examples": [
+          {
+            "task": "EVAL-001",
+            "index": 4,
+            "criterion": "Input deck documented with Reynolds number, Froude number, mesh stats"
+          },
+          {
+            "task": "EVAL-002",
+            "index": 4,
+            "criterion": "Documentation explains boundary conditions and non-dimensionalization"
+          },
+          {
+            "task": "EVAL-004",
+            "index": 4,
+            "criterion": "Tutorial includes parameter study (viscosity ratio, surface tension)"
+          },
+          {
+            "task": "EVAL-005",
+            "index": 3,
+            "criterion": "Condition number report for test geometries (sphere, cube, cylinder)"
+          },
+          {
+            "task": "EVAL-005",
+            "index": 4,
+            "criterion": "Compatibility matrix: which upstream versions are supported"
+          },
+          {
+            "task": "EVAL-006",
+            "index": 2,
+            "criterion": "No mission terminates with budget_exceeded when warning system is active"
+          },
+          {
+            "task": "EVAL-006",
+            "index": 3,
+            "criterion": "Budget consumption rate estimated from recent trajectory"
+          },
+          {
+            "task": "EVAL-007",
+            "index": 2,
+            "criterion": "Heartbeat thread starts before git operations"
+          },
+          {
+            "task": "EVAL-007",
+            "index": 3,
+            "criterion": "No mission classified as agent_lost due to git timeout"
+          },
+          {
+            "task": "EVAL-008",
+            "index": 2,
+            "criterion": "Gate integrated into mission completion workflow"
+          },
+          {
+            "task": "EVAL-008",
+            "index": 3,
+            "criterion": "Failed gate produces diagnostic report (which parameter out of range)"
+          },
+          {
+            "task": "EVAL-008",
+            "index": 4,
+            "criterion": "Gate can be bypassed with explicit owner approval flag"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D5_hint_leakage",
+      "group": "evalset",
+      "verdict": "WARN",
+      "detail": "run_eval.py renders solution_hints into the dispatched goal, so the model sees the intended solution: 4 hints name a concrete file/test path, 0 carry the numeric acceptance magnitude",
+      "evidence": "REAL",
+      "numbers": {
+        "hints_with_paths": 4,
+        "hints_with_numbers": 0,
+        "examples": [
+          {
+            "task": "EVAL-007",
+            "hint": "Move heartbeat start to before git fetch in tensor_agent.py"
+          },
+          {
+            "task": "EVAL-015",
+            "hint": "Change llm_gateway_state.json structure: {agent_id: {endpoint: {blocked_until, reason}}}"
+          },
+          {
+            "task": "EVAL-015",
+            "hint": "Update cooldown check logic in llm_gateway.py"
+          },
+          {
+            "task": "EVAL-020",
+            "hint": "In tutorial_wave/dispatch.py, add 'queued' to ACTIVE_STATUSES"
+          }
+        ]
+      }
+    },
+    {
+      "id": "D6_field_completeness",
+      "group": "evalset",
+      "verdict": "PASS",
+      "detail": "all tasks carry non-empty repo/title/description (empty=0)",
+      "evidence": "REAL",
+      "numbers": {
+        "empties": []
+      }
+    },
+    {
+      "id": "E1_reproducibility_stamp",
+      "group": "reproducibility",
+      "verdict": "WARN",
+      "detail": "baseline_report.json records no digest of HISTORICAL_MAPPING and no seed, so the reader cannot tell which mapping revision produced the numbers",
+      "evidence": "REAL"
+    },
+    {
+      "id": "E2_timestamp_drift",
+      "group": "reproducibility",
+      "verdict": "INFO",
+      "detail": "baseline generated_at=2026-10-30T19:43:24.562507+00:00, eval run_at=2026-10-30T19:42:01.711926+00:00 -- regenerating rewrites these fields, so byte-identical reproduction is impossible by construction",
+      "evidence": "REAL"
+    }
+  ],
+  "figures": [
+    "docs/audit/figures/claimed_vs_observed_rate.png",
+    "docs/audit/figures/cell_coverage.png",
+    "docs/audit/figures/artifact_matrix.png"
+  ]
+}
