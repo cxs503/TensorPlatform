@@ -34,7 +34,7 @@ D_p=9.86 m / A_R=112.5 m² / U=7.97 m/s（Fn=0.142）/ δ=35°。
    n=105 rpm, J=0.277）从一阶原理实现，作为"对理论而非对自身"的标尺。
 5. **判据工程**（`tools/verifier/maneuvering_audit.py`）：每条判据配**正向对照**
    （物理自洽的假想响应必须判 PASS），防止判据退化为恒真否决器。
-6. **回归测试**：`tests/verifier/test_maneuvering_reference.py` 13 例全绿。
+6. **回归测试**：`tests/verifier/test_maneuvering_audit_contract.py` 13 例全绿。
 
 ## ③ 计算结果
 
