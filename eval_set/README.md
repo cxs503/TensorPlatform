@@ -114,3 +114,32 @@ python3 scripts/generate_baseline.py
 ## Version History
 
 - v1.0.0 (2026-10-31): Initial evaluation set from m186-m325
+
+## Baseline Integrity Audit (evidence grade)
+
+The three artifacts under `results/` describe "the same" baseline and must agree
+before any number from them is quoted as a capability claim. The audit is
+machine-checked, read-only and deterministic:
+
+```bash
+# 1) recompute every claimed number from the artifact it claims to come from
+python3 scripts/audit_baseline_integrity.py \
+    --json results/baseline_integrity_audit.json \
+    --md   ../docs/audit/eval_baseline_integrity_ledger.md
+# 2) figures + paper-grade doc page (numbers injected from the ledger)
+python3 scripts/plot_baseline_integrity.py
+python3 scripts/gen_baseline_integrity_doc.py
+# 3) regression tests (logic on synthetic artifacts + ledger reproduction)
+python3 -m pytest ../tests/test_eval_baseline_integrity.py -q
+```
+
+Current verdict (`eval_set/results/baseline_integrity_audit.json`, 21 checks):
+the baseline's evidence grade is **MOCK** — `baseline_report.json` pass rates are
+derived from a hand-typed `HISTORICAL_MAPPING` (23 rows, 21 of the 5x20
+(task, model) cells observed), the only executed artifact is a dry run in which
+all 100 dispatched cells have `status='dry_run'` and all 100 verification scores
+are the constant 0.25, and `baseline_table.json` reports `passed=0` for every
+model while the report reports non-zero. Quote these numbers as historical
+context only, never as an evaluation result. See
+`docs/audit/eval_baseline_integrity.md` for the six-element write-up.
+
