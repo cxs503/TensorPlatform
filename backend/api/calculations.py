@@ -37,7 +37,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
-from services.ship_resistance import MODEL_ID as RESISTANCE_MODEL_ID, resistance_breakdown
+from services.ship_resistance import resistance_breakdown
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -79,7 +79,7 @@ class ResistanceRequest(BaseModel):
     wetted_surface_m2: Optional[float] = Field(
         default=None,
         gt=0,
-        description="Geometry-validated wetted surface area (m²). Overrides the empirical estimate.",
+        description="Caller-supplied wetted surface area (m²). Overrides the empirical estimate; this endpoint does not independently validate its provenance.",
     )
     form_factor: float = Field(
         default=1.0,
@@ -360,7 +360,7 @@ async def calc_resistance(req: ResistanceRequest):
         froude_number=round(float(result["froude_number"]), 6),
         wetted_surface_m2=round(float(result["wetted_surface_m2"]), 6),
         wetted_surface_source=(
-            "input_validated" if req.wetted_surface_m2 is not None
+            "caller_supplied_unverified" if req.wetted_surface_m2 is not None
             else "empirical_formula"
         ),
         form_factor=req.form_factor,
