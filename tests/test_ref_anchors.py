@@ -347,6 +347,20 @@ def test_probe_artifact_records_pre_fix_failures():
     assert res[0]["rel_err"] > 1.0
 
 
+def _bem_rao_response(length, beam, draft, speed, cb, n=20):
+    """A hull-dependent 1-DOF RAO table: what a repaired advanced/bem should return."""
+    wn = 0.55 * (length / 320.0) ** -0.5 * (cb / 0.82) ** 0.5
+    zeta = 0.15 + 0.1 * (1.0 - cb)
+    freqs = [round(0.1 + 1.9 * i / (n - 1), 6) for i in range(n)]
+    heave, pitch = [], []
+    for w in freqs:
+        r = w / wn
+        amp = 1.0 / math.sqrt((1.0 - r * r) ** 2 + (2.0 * zeta * r) ** 2)
+        heave.append(round(amp, 6))
+        pitch.append(round(amp * (0.4 + 0.3 * cb) * (draft / 20.8), 6))
+    return {"frequencies": freqs, "heave": heave, "pitch": pitch}
+
+
 class _FakeTransport:
     """Deterministic stand-in for the platform, used to test the probe logic."""
 
@@ -357,6 +371,13 @@ class _FakeTransport:
     def __call__(self, path, body=None, method=None):
         self.calls.append((path, body))
         if self.mode == "pre_fix":
+            if "maneuvering-mmg" in path:
+                return 500, "Internal Server Error"
+            if "advanced/bem" in path:
+                return 200, json.dumps({"rao": {
+                    "frequencies": [0.3, 0.5, 0.7, 0.9, 1.1, 1.3],
+                    "heave": [0.8, 1.2, 1.5, 1.3, 1.0, 0.8],
+                    "pitch": [0.5, 0.8, 1.2, 1.0, 0.7, 0.5]}})
             if "wave-spectrum" in path:
                 return 500, "Internal Server Error"
             if "wageningen-b" in path:
@@ -366,6 +387,17 @@ class _FakeTransport:
                                         "eta0": 0.6366})
             return 200, json.dumps({"rt": 5939.14})
         if self.mode == "anchor_consistent":
+            if "maneuvering-mmg" in path:
+                if "displacement" not in (body or {}):
+                    return 422, json.dumps({"detail": [{"type": "missing",
+                                                        "loc": ["body", "displacement"],
+                                                        "msg": "Field required"}]})
+                return 200, json.dumps({"tactical_diameter": 1400.0, "advance": 1100.0,
+                                        "transfer": 640.0, "K": 0.12, "T": 45.0})
+            if "advanced/bem" in path:
+                return 200, json.dumps({"rao": _bem_rao_response(
+                    body["length"], body["beam"], body["draft"],
+                    body["speed"], body["cb"])})
             if "wave-spectrum" in path:
                 A, B = L.ittc78_ab(5.0, 9.5)
                 omegas = [0.05 + 0.0025 * i for i in range(1400)]
