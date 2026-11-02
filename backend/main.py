@@ -424,6 +424,17 @@ from api.domain import ship_seakeeping  # noqa: E402
 
 app.include_router(ship_seakeeping.router, prefix="/api/v1")
 
+# 船舶总体性能·振动噪声域（m1849 接线）：m1820 已实锤该模块 6 条
+# ``calculations/{vibration,noise}/*`` 端点从未被 import/挂载 → 线上 404，
+# 该域因此被判 NOT_SUPPORTED（"代码 REAL、能力不可达"）。此处补接线；
+# 证据见 docs/audit/m1849_vibration_wiring.md 与 artifacts/wiring_census/census.json。
+# 用 try/except 包住：任何 import 失败都不得阻断整个 app 启动（部署安全）。
+try:
+    from api.domain import ship_vibration as _ship_vibration  # noqa: E402
+    app.include_router(_ship_vibration.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("ship_vibration router 接线跳过: %s", _exc)
+
 # ── 智能体协作平台（常驻 agent / 战役 / 模型）──────────────────────
 # LOCAL PATCH: 这三个 router 存在于 api/ 但 main.py 未挂载，导致
 # /api/v1/tensor/factory/* 全部 404（前端 frontend-factory 的智能体页面依赖它们）。
