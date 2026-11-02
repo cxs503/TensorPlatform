@@ -124,6 +124,12 @@ def create_mission(
     org_id = resolved_org(body.organization_id, user, db)
     validate_projects(body.repo, body.co_repos)
     validate_base_ref(body.base_ref)
+    _create_repos = [body.repo.strip()] + [r.strip() for r in (body.co_repos or [])]
+    for r in _create_repos:
+        if r not in (get_factory_profile().project_names if get_factory_profile() else REPO_WHITELIST):
+            raise HTTPException(422, f"repo 不在白名单: {r}")
+        if not _repo_resolvable(r):
+            raise HTTPException(422, f"repo 无法解析到本地 git 仓（worker 将无法建树）: {r}")
     if len(body.goal.strip()) < 10:
         raise HTTPException(422, "goal must contain at least 10 non-padding characters")
     if body.agent_session_id:
@@ -212,7 +218,24 @@ def create_mission(
 REPO_WHITELIST = (
     "TensorLBM", "TensorPhysics", "TensorDEM", "TensorFEM", "TensorFVM",
     "TensorPlatform",
+    "TensorSPH", "TensorDG", "TensorCAD", "TensorBEM", "TensorPapers",
+    # owner 2026-11-01 裁定：船舶业务留本地私有仓（不上 GitHub），经共性平台派发落此仓
+    "ship-performance-platform",
 )
+
+# ── 仓可解析性门（fail-fast）：worker 侧 tp_worker.prepare_worktree 的同款解析，
+# 防止 dispatch 放行 worker 无法建树的仓名（2026-11-01 ship-performance-platform 12 连败根因）。
+# TODO: 单一真源——迁移到 services/repo_registry.py 供两侧共用。
+_REPO_ALIASES = {
+    "ship-platform": "/srv/tensor/ship-workspace/ship-performance-platform",
+    "ship-performance-platform": "/srv/tensor/ship-workspace/ship-performance-platform",
+}
+
+def _repo_resolvable(name: str) -> bool:
+    import os
+    path = _REPO_ALIASES.get(name, f"/srv/tensor/workspace/{name}")
+    return os.path.isdir(os.path.join(path, ".git"))
+
 DISPATCH_MAX_CHILDREN = 8          # per orchestrator mission
 DISPATCH_DAILY_CAP = 24            # agent-originated missions per 24h (global)
 DISPATCH_BUDGET_CAPS = {"max_tool_calls": 80, "max_wall_seconds": 7200,
@@ -257,7 +280,9 @@ def dispatch_mission(
     repos = [body.repo.strip()] + [r.strip() for r in (body.co_repos or [])]
     for r in repos:
         if r not in (get_factory_profile().project_names if get_factory_profile() else REPO_WHITELIST):
-            raise HTTPException(status_code=422, detail=f"repo {r!r} is outside the dispatch whitelist")
+            raise HTTPException(422, f"repo 不在白名单: {r}")
+        if not _repo_resolvable(r):
+            raise HTTPException(422, f"repo 无法解析到本地 git 仓（worker 将无法建树）: {r}")
     if len(set(repos)) != len(repos):
         raise HTTPException(status_code=422, detail="repo list contains duplicates")
     if not body.model:
