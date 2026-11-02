@@ -44,10 +44,72 @@ except ImportError:
     nn = None
     TORCH_AVAILABLE = False
 
-from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
-from sklearn.metrics import r2_score, mean_squared_error, accuracy_score, f1_score
-from sklearn.model_selection import train_test_split
-from sklearn.preprocessing import StandardScaler
+from services.training_metrics import (
+    DEFAULT_SEED,
+    DEFAULT_TEST_SIZE,
+    evaluate_classification,
+    evaluate_regression,
+    holdout_split,
+)
+
+# scikit-learn 只在 sklearn 通道内部需要：宽松导入，使本模块（含 numpy-only 的
+# 切分/评估契约）在无 sklearn 环境下仍可导入与独立复核。
+try:
+    from sklearn.ensemble import RandomForestClassifier, RandomForestRegressor
+    from sklearn.preprocessing import StandardScaler
+
+    SKLEARN_AVAILABLE = True
+except ImportError:  # pragma: no cover - 生产镜像已装 scikit-learn
+    RandomForestClassifier = None  # type: ignore[assignment]
+    RandomForestRegressor = None  # type: ignore[assignment]
+    StandardScaler = None  # type: ignore[assignment]
+    SKLEARN_AVAILABLE = False
+
+
+def _persist_model(model: Any, prefix: str) -> str:
+    """序列化模型产物。joblib 缺失不影响评估契约，此时显式降级为 None。"""
+    try:
+        import joblib
+    except ImportError:  # pragma: no cover - 生产镜像随 scikit-learn 一起装
+        logger.warning("joblib 未安装，跳过模型持久化（评估契约不受影响）")
+        return ""
+    path = MODEL_DIR / f"{prefix}_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
+    joblib.dump(model, path)
+    return str(path)
+
+
+def _sklearn_model_factory(model_type: str, config: Dict) -> Callable[[int], Any]:
+    """构造 ``create_model(seed)`` 闭包；sklearn 缺失时显式报错而非静默回退。"""
+    if not SKLEARN_AVAILABLE:
+        raise RuntimeError("scikit-learn 未安装，无法训练 sklearn 系模型")
+
+    task_type = config.get("task_type", "regression")
+    n_estimators = config.get("n_estimators", 100)
+    max_depth = config.get("max_depth", 6)
+
+    if model_type == "lightgbm" and LIGHTGBM_AVAILABLE:
+        def _make(seed: int = DEFAULT_SEED):
+            if task_type == "classification":
+                return lgb.LGBMClassifier(
+                    n_estimators=n_estimators, max_depth=max_depth,
+                    random_state=seed, verbose=-1,
+                )
+            return lgb.LGBMRegressor(
+                n_estimators=n_estimators, max_depth=max_depth,
+                random_state=seed, verbose=-1,
+            )
+        return _make
+
+    def _make(seed: int = DEFAULT_SEED):
+        if task_type == "classification":
+            return RandomForestClassifier(
+                n_estimators=n_estimators, max_depth=max_depth, random_state=seed,
+            )
+        return RandomForestRegressor(
+            n_estimators=n_estimators, max_depth=max_depth, random_state=seed,
+        )
+
+    return _make
 
 # 分布式训练任务存储
 _distributed_jobs: Dict[str, Dict] = {}
@@ -137,145 +199,114 @@ class RayDistributedTrainer:
 
     @staticmethod
     def _train_sklearn_parallel(X: np.ndarray, y: np.ndarray, model_type: str,
-                                 config: Dict) -> Dict:
+                                 config: Dict, model_factory: Optional[Callable] = None) -> Dict:
         """
-        使用Ray并行训练sklearn模型
-        通过数据分片在多个worker上并行训练，然后集成
+        使用Ray并行训练sklearn模型（数据分片并行 + 分片预测取平均集成）。
+
+        评估契约（2026-11 修复，见 docs/reports/RAY_TRAINER_HOLDOUT_AUDIT.md）：
+          1. **先划分留出折**，再标准化、再分片 —— 留出折既不参与拟合，也不参与
+             scaler 的均值/方差估计（旧实现在全量数据上 fit scaler，特征统计量泄漏）；
+          2. 上报指标一律在**留出折**上计算。旧实现取 ``X_scaled[:100]``，
+             而分片训练覆盖了全部行，等于拿训练行当验证集（样本内泄漏）；
+          3. 退化留出折（单类/常量目标/样本不足）不再返回伪造的
+             ``accuracy=1.0/f1=1.0``，改报 ``metrics_valid=False`` + ``status``。
         """
-        n_workers = config.get("n_workers", min(4, os.cpu_count() or 2))
+        n_workers = max(1, int(config.get("n_workers", min(4, os.cpu_count() or 2))))
+        task_type = config.get("task_type", "regression")
+        split_seed = int(config.get("split_seed", DEFAULT_SEED))
 
-        # 标准化
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
+        train_idx, val_idx = holdout_split(
+            len(X),
+            test_size=float(config.get("test_size", DEFAULT_TEST_SIZE)),
+            seed=split_seed,
+            strategy=config.get("split_strategy", "random"),
+        )
+        y_arr = np.asarray(y)
 
-        # 创建模型工厂函数
-        def create_model(seed: int = 42):
-            n_estimators = config.get("n_estimators", 100)
-            max_depth = config.get("max_depth", 6)
-            task_type = config.get("task_type", "regression")
+        if SKLEARN_AVAILABLE:
+            scaler = StandardScaler()
+            X_train_scaled = scaler.fit_transform(np.asarray(X, dtype=float)[train_idx])
+            X_val_scaled = scaler.transform(np.asarray(X, dtype=float)[val_idx])
+        else:
+            scaler = None
+            X_train_scaled = np.asarray(X, dtype=float)[train_idx]
+            X_val_scaled = np.asarray(X, dtype=float)[val_idx]
+        y_train, y_val = y_arr[train_idx], y_arr[val_idx]
 
-            if model_type == "lightgbm" and LIGHTGBM_AVAILABLE:
-                if task_type == "classification":
-                    return lgb.LGBMClassifier(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed, verbose=-1,
-                    )
-                else:
-                    return lgb.LGBMRegressor(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed, verbose=-1,
-                    )
-            elif model_type == "random_forest":
-                if task_type == "classification":
-                    return RandomForestClassifier(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed,
-                    )
-                else:
-                    return RandomForestRegressor(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed,
-                    )
-            else:
-                # Fallback to RandomForest
-                if task_type == "classification":
-                    return RandomForestClassifier(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed,
-                    )
-                else:
-                    return RandomForestRegressor(
-                        n_estimators=n_estimators, max_depth=max_depth,
-                        random_state=seed,
-                    )
+        create_model = model_factory or _sklearn_model_factory(model_type, config)
 
-        # 数据分片
+        # 数据分片（只切训练折）
         data_splits = []
-        indices = np.arange(len(X_scaled))
-        np.random.shuffle(indices)
-        chunk_size = len(indices) // n_workers
+        indices = np.arange(len(X_train_scaled))
+        np.random.RandomState(split_seed).shuffle(indices)
+        chunk_size = max(1, len(indices) // n_workers)
         for i in range(n_workers):
-            start = i * chunk_size
-            end = start + chunk_size if i < n_workers - 1 else len(indices)
-            chunk_indices = indices[start:end]
-            data_splits.append((X_scaled[chunk_indices], y[chunk_indices]))
+            start_i = i * chunk_size
+            if start_i >= len(indices):
+                break
+            end_i = start_i + chunk_size if i < n_workers - 1 else len(indices)
+            chunk_indices = indices[start_i:end_i]
+            data_splits.append((X_train_scaled[chunk_indices], y_train[chunk_indices]))
 
-        # Ray并行训练
         @ray.remote
         def train_on_shard(X_shard, y_shard, seed, cfg):
             model = create_model(seed)
             model.fit(X_shard, y_shard)
             return model
 
+        split_info = {
+            "strategy": config.get("split_strategy", "random"),
+            "n_train": int(train_idx.size),
+            "n_val": int(val_idx.size),
+            "split_seed": split_seed,
+        }
+
+        def _evaluate(preds) -> Dict:
+            preds = np.asarray(preds).reshape(-1)
+            if task_type == "classification":
+                return evaluate_classification(y_val, preds)
+            return evaluate_regression(y_val, preds)
+
         try:
-            futures = [train_on_shard.remote(X_s, y_s, 42 + i, config)
+            futures = [train_on_shard.remote(X_s, y_s, DEFAULT_SEED + i, config)
                        for i, (X_s, y_s) in enumerate(data_splits)]
             models = ray.get(futures)
 
-            # 简单集成: 取平均预测
-            X_val_split = X_scaled[:min(100, len(X_scaled))]
             if len(models) > 1:
-                all_preds = np.column_stack([m.predict(X_val_split) for m in models])
+                all_preds = np.column_stack([m.predict(X_val_scaled) for m in models])
                 y_pred = np.mean(all_preds, axis=1)
             else:
-                y_pred = models[0].predict(X_val_split)
+                y_pred = models[0].predict(X_val_scaled)
 
-            # 评估指标
-            if config.get("task_type") == "classification":
-                y_val_sample = y[:len(y_pred)]
-                if len(np.unique(y_val_sample)) > 1:
-                    metrics = {
-                        "accuracy": float(accuracy_score(y_val_sample, np.round(y_pred).astype(int))),
-                        "f1": float(f1_score(y_val_sample, np.round(y_pred).astype(int), average="weighted")),
-                    }
-                else:
-                    metrics = {"accuracy": 1.0, "f1": 1.0}
-            else:
-                y_val_sample = y[:len(y_pred)]
-                metrics = {
-                    "r2": float(r2_score(y_val_sample, y_pred)),
-                    "rmse": float(np.sqrt(mean_squared_error(y_val_sample, y_pred))),
-                }
+            evaluation = _evaluate(y_pred)
 
             # 保存一个模型 (使用第一个分片训练的模型)
-            model_path = MODEL_DIR / f"distributed_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
-            import joblib
-            joblib.dump(models[0], model_path)
+            model_path = _persist_model(models[0], "distributed")
 
             return {
-                "metrics": metrics,
-                "model_path": str(model_path),
+                "metrics": evaluation["metrics"] or {},
+                "metrics_valid": evaluation["metrics_valid"],
+                "evaluation": evaluation,
+                "split": split_info,
+                "model_path": model_path if isinstance(model_path, str) else str(model_path),
                 "n_workers": n_workers,
                 "backend": "ray_parallel",
             }
         except Exception as e:
             logger.error(f"Ray parallel training failed: {e}, falling back to single-process")
-            # Fallback: 单进程训练
-            model = create_model(42)
-            model.fit(X_scaled, y)
+            # Fallback: 单进程训练（同一留出折，禁止对全量数据拟合后再评估）
+            model = create_model(DEFAULT_SEED)
+            model.fit(X_train_scaled, y_train)
+            evaluation = _evaluate(model.predict(X_val_scaled))
 
-            X_train, X_val, y_train, y_val = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
-            model.fit(X_train, y_train)
-            y_pred = model.predict(X_val)
-
-            if config.get("task_type") == "classification":
-                metrics = {
-                    "accuracy": float(accuracy_score(y_val, y_pred)),
-                    "f1": float(f1_score(y_val, y_pred, average="weighted")),
-                }
-            else:
-                metrics = {
-                    "r2": float(r2_score(y_val, y_pred)),
-                    "rmse": float(np.sqrt(mean_squared_error(y_val, y_pred))),
-                }
-
-            model_path = MODEL_DIR / f"distributed_fallback_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
-            import joblib
-            joblib.dump(model, model_path)
+            model_path = _persist_model(model, "distributed_fallback")
 
             return {
-                "metrics": metrics,
-                "model_path": str(model_path),
+                "metrics": evaluation["metrics"] or {},
+                "metrics_valid": evaluation["metrics_valid"],
+                "evaluation": evaluation,
+                "split": split_info,
+                "model_path": model_path if isinstance(model_path, str) else str(model_path),
                 "n_workers": 1,
                 "backend": "fallback_single_process",
             }
@@ -289,13 +320,17 @@ class RayDistributedTrainer:
         if not TORCH_AVAILABLE:
             raise RuntimeError("PyTorch is not available")
 
-        # 标准化
-        scaler = StandardScaler()
-        X_scaled = scaler.fit_transform(X)
-
-        X_train, X_val, y_train, y_val = train_test_split(
-            X_scaled, y, test_size=0.2, random_state=42
+        # 先划分留出折，再在训练折上拟合 scaler（旧实现先在全量数据上 fit）
+        train_idx, val_idx = holdout_split(
+            len(X),
+            test_size=float(config.get("test_size", DEFAULT_TEST_SIZE)),
+            seed=int(config.get("split_seed", DEFAULT_SEED)),
+            strategy=config.get("split_strategy", "random"),
         )
+        scaler = StandardScaler()
+        X_train = scaler.fit_transform(np.asarray(X, dtype=float)[train_idx])
+        X_val = scaler.transform(np.asarray(X, dtype=float)[val_idx])
+        y_train, y_val = np.asarray(y)[train_idx], np.asarray(y)[val_idx]
 
         X_train_tensor = torch.FloatTensor(X_train)
         y_train_tensor = torch.FloatTensor(y_train).reshape(-1, 1)
@@ -389,15 +424,22 @@ class RayDistributedTrainer:
                 val_outputs = model(X_val_tensor)
                 val_preds = val_outputs.numpy().flatten()
 
-            r2 = r2_score(y_val, val_preds)
-            rmse = float(np.sqrt(mean_squared_error(y_val, val_preds)))
+            # 注意：这里评估的是刚 create_torch_model(...) 出来的**未训练**网络
+            # （Ray Train 的 checkpoint 权重尚未回灌），因此指标不得作为模型质量
+            # 证据 —— 显式标记 metrics_valid=False，而不是把一个随机初始化网络的
+            # R² 当成绩上报。
+            evaluation = evaluate_regression(y_val, val_preds)
+            evaluation["status"] = "ray_train_checkpoint_not_reloaded"
+            evaluation["metrics_valid"] = False
 
             model_path = MODEL_DIR / f"distributed_torch_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
             torch.save(model.state_dict(), model_path)
 
             return {
-                "metrics": {"r2": float(r2), "rmse": rmse},
-                "model_path": str(model_path),
+                "metrics": evaluation["metrics"] or {},
+                "metrics_valid": False,
+                "evaluation": evaluation,
+                "model_path": model_path if isinstance(model_path, str) else str(model_path),
                 "n_workers": config.get("n_workers", 2),
                 "backend": "ray_train",
                 "ray_result": str(result),
@@ -431,15 +473,16 @@ class RayDistributedTrainer:
                 val_outputs = model(X_val_tensor)
                 val_preds = val_outputs.numpy().flatten()
 
-            r2 = r2_score(y_val, val_preds)
-            rmse = float(np.sqrt(mean_squared_error(y_val, val_preds)))
+            evaluation = evaluate_regression(y_val, val_preds)
 
             model_path = MODEL_DIR / f"distributed_fallback_torch_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pt"
             torch.save(model.state_dict(), model_path)
 
             return {
-                "metrics": {"r2": float(r2), "rmse": rmse},
-                "model_path": str(model_path),
+                "metrics": evaluation["metrics"] or {},
+                "metrics_valid": evaluation["metrics_valid"],
+                "evaluation": evaluation,
+                "model_path": model_path if isinstance(model_path, str) else str(model_path),
                 "n_workers": 1,
                 "backend": "fallback_single_process",
             }
@@ -510,35 +553,45 @@ class RayDistributedTrainer:
                 return RayDistributedTrainer._train_sklearn_parallel(X, y, model_type, config)
             else:
                 logger.warning(f"Ray not available for {model_type}, using single process")
-                # 单进程回退
+                task_type = config.get("task_type", "regression")
+                # 单进程回退：同一留出折契约（先切分，再在训练折上 fit scaler）
+                train_idx, val_idx = holdout_split(
+                    len(X),
+                    test_size=float(config.get("test_size", DEFAULT_TEST_SIZE)),
+                    seed=int(config.get("split_seed", DEFAULT_SEED)),
+                    strategy=config.get("split_strategy", "random"),
+                )
+                if not SKLEARN_AVAILABLE:
+                    raise RuntimeError("scikit-learn 未安装，无法进行 sklearn 系模型训练")
                 scaler = StandardScaler()
-                X_scaled = scaler.fit_transform(X)
+                X_train = scaler.fit_transform(np.asarray(X, dtype=float)[train_idx])
+                X_val = scaler.transform(np.asarray(X, dtype=float)[val_idx])
+                y_train, y_val = np.asarray(y)[train_idx], np.asarray(y)[val_idx]
 
-                if model_type == "lightgbm" and LIGHTGBM_AVAILABLE:
-                    model = lgb.LGBMRegressor(n_estimators=config.get("n_estimators", 100),
-                                              max_depth=config.get("max_depth", 6),
-                                              random_state=42, verbose=-1)
-                else:
-                    model = RandomForestRegressor(n_estimators=config.get("n_estimators", 100),
-                                                  max_depth=config.get("max_depth", 6),
-                                                  random_state=42)
-
-                X_train, X_val, y_train, y_val = train_test_split(X_scaled, y, test_size=0.2, random_state=42)
+                model = _sklearn_model_factory(model_type, config)(DEFAULT_SEED)
                 model.fit(X_train, y_train)
                 y_pred = model.predict(X_val)
 
-                metrics = {
-                    "r2": float(r2_score(y_val, y_pred)),
-                    "rmse": float(np.sqrt(mean_squared_error(y_val, y_pred))),
-                }
+                # 分类任务不再上报 r2（旧实现无视 task_type 一律算回归指标）
+                evaluation = (
+                    evaluate_classification(y_val, y_pred)
+                    if task_type == "classification"
+                    else evaluate_regression(y_val, y_pred)
+                )
 
-                model_path = MODEL_DIR / f"distributed_local_{datetime.now().strftime('%Y%m%d_%H%M%S')}.pkl"
-                import joblib
-                joblib.dump(model, model_path)
+                model_path = _persist_model(model, "distributed_local")
 
                 return {
-                    "metrics": metrics,
-                    "model_path": str(model_path),
+                    "metrics": evaluation["metrics"] or {},
+                    "metrics_valid": evaluation["metrics_valid"],
+                    "evaluation": evaluation,
+                    "split": {
+                        "strategy": config.get("split_strategy", "random"),
+                        "n_train": int(train_idx.size),
+                        "n_val": int(val_idx.size),
+                        "split_seed": int(config.get("split_seed", DEFAULT_SEED)),
+                    },
+                    "model_path": model_path if isinstance(model_path, str) else str(model_path),
                     "n_workers": 1,
                     "backend": "single_process",
                 }

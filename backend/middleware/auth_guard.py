@@ -236,6 +236,15 @@ async def auth_guard_middleware(request: Request, call_next):
             headers={"WWW-Authenticate": "Bearer"},
         )
 
+    # 公开 auto-login 只读（2026-11-02）：auto 标记令牌仅发给公网匿名访客，
+    # 非安全方法一律 403（/papers 免密直入的 GET 浏览不受影响）。
+    if payload.get("auto") and request.method.upper() not in _SAFE_METHODS:
+        logger.warning(f"public auto-login write attempt: {request.method} {path}")
+        return JSONResponse(
+            status_code=403,
+            content={"detail": "公开免登令牌为只读", "error_code": "FORBIDDEN", "status_code": 403},
+        )
+
     # 注入 current_user 到 request.state
     request.state.current_user = {
         "user_id": payload.get("user_id"),

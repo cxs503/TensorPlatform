@@ -1,0 +1,352 @@
+{
+  "limit": 100,
+  "reports_returned": 100,
+  "id_min": 1646,
+  "id_max": 1781,
+  "reports_missing_markdown": [],
+  "fetch_seconds": [
+    5.06,
+    3.78
+  ],
+  "stats": {
+    "reports_scanned": 100,
+    "reports_with_debt_section": 97,
+    "items_total": 518,
+    "clusters_total": 486,
+    "recurrent_clusters_ge2": 28
+  },
+  "by_severity": {
+    "ASSUMPTION": 34,
+    "LIMIT": 379,
+    "MOCK": 17,
+    "STUB": 16,
+    "WITHHELD": 72
+  },
+  "by_domain": {
+    "平台治理": 92,
+    "阻力": 49,
+    "振动噪声": 27,
+    "稳性": 24,
+    "结构": 23,
+    "操纵": 21,
+    "冰区航行": 19,
+    "耐波": 14,
+    "推进": 12,
+    "绿色航行": 6
+  },
+  "by_capability_top": {
+    "calc.resistance": 33,
+    "calc.stability": 16,
+    "stdmodels.lookup": 14,
+    "propeller.open_water": 10,
+    "methods.computation": 6,
+    "misc.stubs": 2,
+    "ai.predict": 2,
+    "geometry.generate": 1
+  },
+  "items_without_domain": 289,
+  "artifact_refs_total": 70,
+  "artifact_refs_missing": 26,
+  "parity_api_vs_json": {
+    "reports_scanned": [
+      100,
+      100
+    ],
+    "reports_with_debt_section": [
+      97,
+      97
+    ],
+    "items_total": [
+      518,
+      518
+    ],
+    "clusters_total": [
+      486,
+      486
+    ],
+    "recurrent_clusters_ge2": [
+      28,
+      28
+    ]
+  },
+  "determinism_run1_vs_run2": {
+    "reports_scanned": [
+      100,
+      100
+    ],
+    "reports_with_debt_section": [
+      97,
+      97
+    ],
+    "items_total": [
+      518,
+      518
+    ],
+    "clusters_total": [
+      486,
+      486
+    ],
+    "recurrent_clusters_ge2": [
+      28,
+      28
+    ]
+  },
+  "parity_ok": true,
+  "determinism_ok": true,
+  "recurrent_clusters": [
+    {
+      "cluster_id": 1,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "**D1 分布声明被静默忽略。** `UncertainInput(distribution=\"uniform\", lower=-1, upper=1)` 被原样接受，实际仍按 `normal(mean=nominal, std=nominal×std_relative)` 积分：X~U(−1,1) 时 E[X²] 应"
+    },
+    {
+      "cluster_id": 2,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "**D2 混叠静默出数。** 生产默认 `(max_level=3, max_poly_order=3)` 已经越界（需 level ≥ 4）：level 3 精确到 5 阶，而 3 阶投影要 6 阶。真实模型上`(3,5)` 配置的标准差为 2097.56 kN，比收敛值 1117.04 kN 高 87.8%，引擎不"
+    },
+    {
+      "cluster_id": 3,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "**D3 相对标准差参数化退化。** `std = nominal × std_relative`，因此 `nominal=0` 时 输入标准差为 0.0——PCE 退化成确定性模型并返回全零系数，无异常；同时无法声明「绝对标准差」，零均值输入无法表达。"
+    },
+    {
+      "cluster_id": 4,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "**D4 MC 与 PCE 解不同测度**（引擎 MC 截断输入、PCE 不截断）：实测两套 MC 的均值/标准差相对差见 3.5 节，本例截断阈值在 3σ 之外，影响 0.04% / 0.61%（可忽略但不自洽）。 **局限（诚实声明）**"
+    },
+    {
+      "cluster_id": 5,
+      "n_reports": 2,
+      "report_ids": [
+        1764,
+        1765
+      ],
+      "representative": "**Holzer 数值**：共振附近振幅指数增长，必须归一化；长链（n=640）扫描代价 O(n·n_scan·细分)，本单最重的一步也仅秒级。"
+    },
+    {
+      "cluster_id": 6,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "**三处静默缺陷（本次审计实测，均已用 `xfail(strict=True)` 钉死，修好即翻红提醒摘标）**"
+    },
+    {
+      "cluster_id": 7,
+      "n_reports": 2,
+      "report_ids": [
+        1764,
+        1765
+      ],
+      "representative": "**两个真缺陷是锚点抓出来的，不是自检出来的**：(a) 初版用 `θ_1 = 0` 钉住刚性转动，把二盘系统变成 `ω = sqrt(k/J_2)` 的单自由度——共振点整体偏移（锚点 T-A6 差 979 %、T-A8 差 90 %），改为 M-正交投影后 误差降到 3e-12 / 2e-16；(b) 初版 Ger"
+    },
+    {
+      "cluster_id": 8,
+      "n_reports": 2,
+      "report_ids": [
+        1652,
+        1653
+      ],
+      "representative": "**坑：`--quick` 不能砍预算**。首版把预算压到 30% 后\"到达 1e-12\"类判据不可达，门禁自己 变红（假 FAIL）。现 `--quick` 只减少旋转统计的种子数，预算不变。"
+    },
+    {
+      "cluster_id": 9,
+      "n_reports": 2,
+      "report_ids": [
+        1652,
+        1653
+      ],
+      "representative": "**坑：正交等变不能按\"逐样本重合\"判**。`chol(RᵀCR) ≠ Rᵀchol(C)`（三角因子随基变换而变）， 同一高斯 z 抽样在旋转后的基下给出不同样本，故逐代完全重合不成立（首版判据实测残差 3.66，会误判内核失败）。正确做法是统计量判据或改用对称平方根采样。"
+    },
+    {
+      "cluster_id": 10,
+      "n_reports": 2,
+      "report_ids": [
+        1652,
+        1653
+      ],
+      "representative": "**局限 1**：只覆盖无噪声确定性目标。真实船型优化的目标含 CFD 数值噪声/代理误差， CMA-ES 的噪声处理（大种群、σ 不塌缩）未被本单验证——属于 WITHHELD。"
+    },
+    {
+      "cluster_id": 11,
+      "n_reports": 2,
+      "report_ids": [
+        1652,
+        1653
+      ],
+      "representative": "**局限 2**：紧箱算例只到\"最优在界内且距界 0.15\"；最优贴界（裁剪主导）的情形未验证， 内核用逐样本裁剪而非重采样/罚函数，理论上会产生分布偏差，建议后续单测贴界收敛。"
+    },
+    {
+      "cluster_id": 12,
+      "n_reports": 2,
+      "report_ids": [
+        1652,
+        1653
+      ],
+      "representative": "**局限 3**：算例维数 5–10，未覆盖真实优化器的 8 变量 + 昂贵评估时序（wall-clock/预算 截断策略）。"
+    },
+    {
+      "cluster_id": 13,
+      "n_reports": 2,
+      "report_ids": [
+        1764,
+        1765
+      ],
+      "representative": "**局限（honest）**：只支持**单链**（分支式齿轮双桨需分支 Holzer，未实现）；阻尼为单参数 K-比例， 螺旋桨频变阻尼/材料滞回未建模；激励幅值（燃气/螺旋桨谐波）是**输入**，本单不合成，因此**不宣称绝对应力精度**； 冰区冲击扭矩（IACS UR M）未建模 = WITHHELD；许用应力是平"
+    },
+    {
+      "cluster_id": 14,
+      "n_reports": 2,
+      "report_ids": [
+        1761,
+        1763
+      ],
+      "representative": "**引用过的冰区 HV 绝对值作废**（中位高报 +24%，最坏 +186%）；`max_hv_change_rate_last_5` 这类比值判据受影响小 （代际误差部分抵消），但曲线形状/斜率变。历史数字未回填，本单不追溯改数（honest 说明）。"
+    },
+    {
+      "cluster_id": 15,
+      "n_reports": 2,
+      "report_ids": [
+        1764,
+        1765
+      ],
+      "representative": "**未接线到 HTTP 端点**：本单只交付内核+门禁（:8001 端点接线属 ship-platform 仓，不在本分支）。"
+    },
+    {
+      "cluster_id": 16,
+      "n_reports": 2,
+      "report_ids": [
+        1652,
+        1653
+      ],
+      "representative": "**浮点底**：f 已到 1e-22 量级时，x 空间 1e-16 的扰动经 f=‖x−s‖² 放大成相对残差 2ε/√f，故等变比较截止在 f ≥ 1e-12；更小的 f 不作判据。"
+    },
+    {
+      "cluster_id": 17,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "D1：`build_pce` 按 `distribution` 选择 Askey 对应（Xiu & Karniadakis 2002）——uniform → Gauss–Legendre 节点 + Legendre 基 + 范数 `1/(2n+1)`；或至少 `raise ValueError`，禁止静默。"
+    },
+    {
+      "cluster_id": 18,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "D2：`build_pce` 入口强制 `max_level ≥ max_poly_order + 1`（或自动抬层并回报 `effective_level`）。"
+    },
+    {
+      "cluster_id": 19,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "D3：`UncertainInput` 增加绝对 `std` 字段并与 `std_relative` 互斥。"
+    },
+    {
+      "cluster_id": 20,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "D4：MC 参考与 PCE 使用同一（不截断）测度，截断如需保留则同时施加于 PCE 映射。"
+    },
+    {
+      "cluster_id": 21,
+      "n_reports": 2,
+      "report_ids": [
+        1761,
+        1763
+      ],
+      "representative": "M≥4 前沿 >14 点仍是统计量（10000 样本），只配\"带误差棒\"的资格。"
+    },
+    {
+      "cluster_id": 22,
+      "n_reports": 2,
+      "report_ids": [
+        1761,
+        1763
+      ],
+      "representative": "ZDT 只到 2 目标/6 变量/120 代，IGD 阈值按实测留 2–4 倍余量，用于防\"排序/拥挤距离彻底坏掉\"，不宣称收敛速度。"
+    },
+    {
+      "cluster_id": 23,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "`ci_coverage` 是「输出分布落在 ±1.96σ 带内的质量」，不是频率派置信区间的覆盖率；本例 94.99% 只因输出近似对称，不可当作普适保证。 **修复处方（不在本单范围：被测件属船舶产品代码，按 owner 仓规则不在 TensorPlatform 落改）**"
+    },
+    {
+      "cluster_id": 24,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "参考层用**全张量** Gauss 而非稀疏网格：它能给出无混叠真值，但不构成对稀疏网格节点数优势的评价。"
+    },
+    {
+      "cluster_id": 25,
+      "n_reports": 2,
+      "report_ids": [
+        1761,
+        1763
+      ],
+      "representative": "参考点 n_obj==3 仍是硬编码物理猜测 `[3000,8000,0]`，跨问题/跨版本比较绝对 HV 不安全；应由可行域推导（后续单）。"
+    },
+    {
+      "cluster_id": 26,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "因此本报告的 3% 判据只对「同一模型的 UQ 统计量」成立，不能外推成「冰阻力预测精度」。"
+    },
+    {
+      "cluster_id": 27,
+      "n_reports": 2,
+      "report_ids": [
+        1761,
+        1763
+      ],
+      "representative": "本单只动 TensorPlatform 侧优化器/工具/测试/文档，未触碰船舶求解器代码。"
+    },
+    {
+      "cluster_id": 28,
+      "n_reports": 2,
+      "report_ids": [
+        1707,
+        1713
+      ],
+      "representative": "本参考层验证的是**数值机器（谱投影 + 稀疏网格 + 统计量）**，不是 Lindqvist 物理模型本身；后者证据级仍为 WITHHELD（m1720：留一法最大误差 22.9%，仅 MV Arctic 进入 15% 带）。"
+    }
+  ],
+  "recurrent_count": 28,
+  "figure": "docs/verification_debt/ledger_api_source/artifacts/fig1_ledger_api_census.png"
+}

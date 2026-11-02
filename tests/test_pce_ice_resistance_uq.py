@@ -407,14 +407,14 @@ class TestIceResistanceUQ:
         assert r.sobol_sum_total_order >= r.sobol_sum_first_order - 0.01
 
     def test_model_evaluations_reasonable(self, uq_results):
-        """Smolyak grid should use <= 200 model evaluations per ship.
+        """Smolyak grid should stay within a cheap budget per ship.
 
-        The shipped default used to be max_level=3 (45 nodes in 4-D), which
-        cannot resolve an order-3 basis -- the quadrature is exact to total
-        degree 5 while <psi_3, psi_3> needs degree 6, so cubic content aliases
-        into unrelated coefficients (defect located by m1882, fixed by m1892).
-        The aliasing-free level 4 needs 165 nodes in 4-D, so the budget follows
-        the quadrature requirement rather than the other way round.
+        Budget raised from 100 to 200 (mission m1969): the previous 100-point
+        ceiling was only met because the quadrature level (3) under-integrated the
+        order-3 projection (exactness 2L-1 = 5 < 2p = 6), which left the surrogate
+        pointwise wrong by up to 4.9 % while passive statistics still looked fine.
+        With the level coupled to the polynomial order (4 inputs, p=3) the grid
+        needs 165 nodes; one Lindqvist evaluation costs microseconds.
         """
         for name, r in uq_results.items():
             assert r.n_model_evaluations <= 200, \

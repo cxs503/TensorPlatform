@@ -73,6 +73,7 @@ class CMAES:
         # Tracking
         self.evaluation_count = 0
         self.history = []
+        self.psd_repairs = 0   # number of eigen-clamps applied to C (diagnostics)
         
     def sample_population(self) -> np.ndarray:
         """Sample population from current distribution."""
@@ -80,8 +81,10 @@ class CMAES:
         try:
             L = np.linalg.cholesky(self.C)
         except np.linalg.LinAlgError:
-            # Fallback if C is not positive definite
-            L = np.eye(self.dim) * np.sqrt(np.diag(self.C).mean())
+            # C lost positive definiteness (round-off).  Repair by eigen-clamp
+            # instead of silently replacing it with an isotropic matrix, which
+            # would discard the whole adaptation state.
+            L = np.linalg.cholesky(self._ensure_spd())
         
         # Generate samples
         pop = np.zeros((self.lambda_, self.dim))
@@ -106,9 +109,11 @@ class CMAES:
         indices = np.argsort(fitnesses)
         selected = population[indices[:self.mu]]
         
-        # Update mean
+        # Update mean (kept inside the box: the search distribution is centred
+        # in the feasible region, otherwise clipping biases every sample)
         old_mean = self.mean.copy()
         self.mean = np.sum(self.weights[:, None] * selected, axis=0)
+        self.mean = np.clip(self.mean, self.bounds[:, 0], self.bounds[:, 1])
         
         # Update evolution paths
         y = (self.mean - old_mean) / self.sigma
@@ -126,10 +131,10 @@ class CMAES:
         try:
             C_old = self.C.copy()
             
-            # Rank-one update
-            self.C = (1 - self.c1 - self.cmu) * self.C
-            self.C += self.c1 * (np.outer(self.pc, self.pc) + 
-                                 (1 - hsig) * self.cc * (2 - self.cc) * self.C)
+            # Rank-one update (Hansen 2016 eq. 47: hsig correction uses C_old)
+            self.C = (1 - self.c1 - self.cmu) * C_old
+            self.C += self.c1 * (np.outer(self.pc, self.pc) +
+                                 (1 - hsig) * self.cc * (2 - self.cc) * C_old)
             
             # Rank-mu update
             for i in range(self.mu):
@@ -151,6 +156,18 @@ class CMAES:
         
         self.evaluation_count += self.lambda_
     
+    def _ensure_spd(self) -> np.ndarray:
+        """Clamp C back to positive definiteness (eigen-value floor) and return it."""
+        self.C = (self.C + self.C.T) / 2
+        w, V = np.linalg.eigh(self.C)
+        if w.min() <= 0.0:
+            floor = max(1e-20, 1e-14 * float(np.max(w)))
+            w = np.maximum(w, floor)
+            self.C = (V * w) @ V.T
+            self.C = (self.C + self.C.T) / 2
+            self.psd_repairs += 1
+        return self.C
+
     def check_convergence(self, recent_fitnesses: List[float], 
                          patience: int = 20, rel_tol: float = 1e-5) -> Tuple[bool, str]:
         """
@@ -208,7 +225,8 @@ def optimize(objective_fn: Callable, dim: int, bounds: np.ndarray,
         Optimization result dictionary
     """
     optimizer = CMAES(dim, bounds, sigma0, seed)
-    
+
+    converged, reason = False, "Max evaluations reached"
     best_fitness = np.inf
     best_params = None
     generation = 0
@@ -240,7 +258,7 @@ def optimize(objective_fn: Callable, dim: int, bounds: np.ndarray,
             "best_params": gen_best_params.tolist()
         })
         
-        if verbose and (generation % 5 == 0 or gen_best_fitness < best_fitness * 0.99999):
+        if verbose and (generation % 5 == 0 or gen_best_fitness <= best_fitness):
             print(f"Gen {generation:3d} | Eval {optimizer.evaluation_count:4d} | "
                   f"Best {gen_best_fitness:.8f} | σ={optimizer.sigma:.4f}")
         
@@ -262,6 +280,7 @@ def optimize(objective_fn: Callable, dim: int, bounds: np.ndarray,
         "evaluations": optimizer.evaluation_count,
         "generations": generation + 1,
         "history": optimizer.history,
-        "converged": converged if 'converged' in locals() else False,
-        "convergence_reason": reason if 'reason' in locals() else "Max evaluations reached"
+        "converged": converged,
+        "convergence_reason": reason,
+        "psd_repairs": optimizer.psd_repairs
     }

@@ -40,7 +40,7 @@ Latency: surrogate 1.108 ms vs reference 0.04 ms (0.0x). Hold-out: 192 points.
 
 Worst p95 point (`P_D_kW`): inputs `{'V': 1.164469, 'ice_concentration': 0.752444, 'ice_thickness': 0.162649}`, reference 389.46, surrogate 362.97.
 
-### `seakeeping` — reference `2dof_modal_strip + gerritsma_added_resistance`
+### `seakeeping` — reference `2dof_modal_strip + raw_empirical_hs_only_v1`
 
 Latency: surrogate 1.581 ms vs reference 3.18 ms (2.0x). Hold-out: 64 points.
 
@@ -97,7 +97,7 @@ Worst p95 point (`damage_per_day`): inputs `{'Hs': 7.94517, 'Tp': 4.340134, 'ice
 ## Notes / limitations
 
 * The reference model *is* the ground truth here: this audit measures surrogate-vs-model fidelity, **not** physical accuracy against model tests (that remains WITHHELD — no tank data is bundled).
-* The reference models are the platform's own `holtrop_mennen_1982 + lindqvist_1989`, `2dof_modal_strip + gerritsma`, `mmg_3dof_crossflow_lift`, `numerical_kn_gz_hydrostatics` and `spectral_miner_dnv_c203_curveF` implementations, so a shared modelling error would be invisible.
+* The reference models are the platform's own `holtrop_mennen_1982 + lindqvist_1989`, `2dof_modal_strip + raw_empirical_hs_only_v1`, `mmg_3dof_crossflow_lift`, `numerical_kn_gz_hydrostatics` and `spectral_miner_dnv_c203_curveF` implementations, so a shared modelling error would be invisible.
 * Relative error is undefined where the reference crosses zero (`GZ_m` near 0 deg heel); those points are excluded from J1/J2 and the range-normalised absolute error J6 is used instead.
 * The hold-out is uniform over the declared input box; it therefore weights rare combinations (e.g. 8 m seas with 3 s peak period) equally with realistic ones.  Error at the box corners is the price of a domain-wide guarantee; a sea-state-weighted study is left open.
 

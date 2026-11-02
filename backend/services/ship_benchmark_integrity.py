@@ -29,11 +29,20 @@ import re
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Tuple
 
-from services import resistance_model as rm
+from services.validation_providers import friction_line, physical_constant
 
-G = rm.G
-RHO_REF = rm.RHO_SEA_WATER
-NU_REF = rm.NU_SEA_WATER_15C
+
+def _g() -> float:
+    return physical_constant("ship_resistance", "g_m_s2")
+
+
+def _rho_ref() -> float:
+    return physical_constant("ship_resistance", "rho_sea_water_kg_m3")
+
+
+def _nu_ref() -> float:
+    return physical_constant("ship_resistance", "nu_sea_water_15c_m2_s")
+
 
 DATASET_PATH = Path(__file__).resolve().parent.parent / "data" / "benchmark_reference.json"
 
@@ -114,7 +123,7 @@ def check_froude_identity(case: Dict[str, Any]) -> Dict[str, Any]:
     if length is None or speed is None or claimed is None:
         return _check("fn_identity", SEVERITY_CRITICAL, STATUS_WITHHELD,
                       "缺 length_m/speed_ms/froude_number，无法校验", {})
-    fn = float(speed) / math.sqrt(G * float(length))
+    fn = float(speed) / math.sqrt(_g() * float(length))
     dev = _rel_dev(float(claimed), fn)
     status = STATUS_PASS if dev <= TOL_IDENTITY else STATUS_FAIL
     detail = ("弗劳德数与 V/√(gL) 自洽" if status == STATUS_PASS else
@@ -132,7 +141,7 @@ def check_block_coefficient_identity(case: Dict[str, Any]) -> Dict[str, Any]:
     if None in (L, B, T, cb) or disp_t is None:
         return _check("cb_identity", SEVERITY_WARN, STATUS_WITHHELD,
                       "缺 L/B/T/Cb 或排水量，无法校验 Cb", {})
-    volume = disp_t * 1000.0 / RHO_REF
+    volume = disp_t * 1000.0 / _rho_ref()
     cb_derived = volume / (float(L) * float(B) * float(T))
     dev = _rel_dev(float(cb), cb_derived)
     status = STATUS_PASS if dev <= TOL_IDENTITY else STATUS_FAIL
@@ -152,7 +161,7 @@ def check_ct_rt_identity(case: Dict[str, Any]) -> Dict[str, Any]:
     if surface is None or speed is None or ct is None or rt is None:
         return _check("ct_rt_identity", SEVERITY_WARN, STATUS_WITHHELD,
                       "缺湿表面积，无法核算 Ct 与 Rt 是否同源", {})
-    q = 0.5 * RHO_REF * surface * float(speed) ** 2
+    q = 0.5 * _rho_ref() * surface * float(speed) ** 2
     ct_from_rt = float(rt) / q
     dev = _rel_dev(ct_from_rt, float(ct))
     status = STATUS_PASS if dev <= TOL_IDENTITY else STATUS_FAIL
@@ -169,10 +178,10 @@ def _cf_at(case: Dict[str, Any], geometry_length: Optional[float] = None) -> Opt
     speed = case.get("speed_ms")
     if length is None or speed is None:
         return None
-    re = float(speed) * float(length) / NU_REF
+    re = float(speed) * float(length) / _nu_ref()
     try:
-        return rm.ittc57_cf(re)
-    except rm.ResistanceInputError:
+        return friction_line("ship_resistance", "ittc1957", re)
+    except ValueError:
         return None
 
 
@@ -202,7 +211,7 @@ def check_rt_friction_floor(case: Dict[str, Any]) -> Dict[str, Any]:
     if surface is None or cf is None or speed is None or rt is None:
         return _check("rt_friction_floor", SEVERITY_CRITICAL, STATUS_WITHHELD,
                       "缺湿表面积/速度/Rt，无法施加摩擦下界", {})
-    rf = 0.5 * RHO_REF * surface * cf * float(speed) ** 2
+    rf = 0.5 * _rho_ref() * surface * cf * float(speed) ** 2
     floor = FLOOR_MARGIN * rf
     ok = float(rt) >= floor
     return _check(
@@ -302,7 +311,7 @@ def audit_dataset(data: Dict[str, Any], dataset_path: Path = DATASET_PATH) -> Di
         "n_cases": len(adjudicated),
         "duplicate_case_ids": duplicates,
         "tolerances": {"identity_rel_dev": TOL_IDENTITY, "friction_floor_margin": FLOOR_MARGIN},
-        "reference_fluid": {"rho_kg_m3": RHO_REF, "nu_m2_s": NU_REF},
+        "reference_fluid": {"rho_kg_m3": _rho_ref(), "nu_m2_s": _nu_ref()},
         "cases": adjudicated,
         "admission": admission,
         "excluded": excluded,

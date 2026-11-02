@@ -1,0 +1,24 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "m2059 (tp-infra-1, collectability audit)",
+  "artifacts": [
+    {
+      "artifact": "artifacts/verif_vibration",
+      "kind": "dir",
+      "consumers": [
+        "tests/test_vibration_analytic_bench.py"
+      ],
+      "provenance": "m2022 振动/噪声验证欠账清偿（ref_vibration.py: 梁特征值/板 Rayleigh/辐射效率独立算路）",
+      "recover": "python3 artifacts/verif_vibration/verify.py（生成 ref_vibration.py + results.json）"
+    },
+    {
+      "artifact": "artifacts/verif/seakeeping_section",
+      "kind": "dir",
+      "consumers": [
+        "tests/verif/test_seakeeping_section_analytic.py"
+      ],
+      "provenance": "m1797 耐波 2D 剖面附加质量复核（lewis_reference.py: Lewis 保角映射 + 半椭圆闭式）",
+      "recover": "python3 artifacts/verif/seakeeping_section/probe.py（生成 lewis_reference.py + evidence.json）"
+    }
+  ]
+}
