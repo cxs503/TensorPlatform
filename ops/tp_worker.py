@@ -299,20 +299,76 @@ def _tool_ship_api(args: dict) -> str:
             continue
 
 
-def _tool_audit_caps() -> str:
-    """审计船舶平台能力清单。"""
-    cap_path = "/root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json"
-    try:
-        d = json.load(open(cap_path))
-        caps = d.get("capabilities", {})
-        lines = []
+CAP_SNAPSHOT_REL = pathlib.Path("artifacts/capability_ledger/capability_ledger_resolved.json")
+CAP_LEDGER_REL = pathlib.Path("artifacts/capability_ledger/capability_ledger.json")
+CAP_HARNESS_DEFAULT = pathlib.Path(
+    "/root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json")
+
+
+def _cap_sources() -> list[pathlib.Path]:
+    """能力清单候选真值文件（按优先级）。
+
+    2026-11-02 m2031：此前本工具只认一条硬编码路径（船舶 harness 的
+    capabilities.json），该文件在 incoming 树里只剩 .pyc，工具对全部 agent 恒返回
+    「读取能力清单失败」，证据分级仪整月不可用。改为多候选 + 仓内台账优先：
+    仓内 artifacts/capability_ledger/ 是 C1~C10 签过字的单一真值（含对账等级）。
+    """
+    root = pathlib.Path(__file__).resolve().parents[1]
+    cands: list[pathlib.Path] = []
+    if os.environ.get("TP_CAP_LEDGER"):
+        cands.append(pathlib.Path(os.environ["TP_CAP_LEDGER"]))
+    cands.append(root / CAP_SNAPSHOT_REL)
+    if os.environ.get("TP_SHIP_HARNESS_DIR"):
+        cands.append(pathlib.Path(os.environ["TP_SHIP_HARNESS_DIR"]) / "backend/platform_harness/capabilities.json")
+    cands.append(CAP_HARNESS_DEFAULT)
+    cands.append(root / CAP_LEDGER_REL)
+    return [p for p in cands if p.is_file()]
+
+
+def _render_caps(d: dict) -> str:
+    """两种 schema：台账对账结果（capabilities=list）/ 平台 harness 清单（capabilities=dict）。"""
+    caps = d.get("capabilities")
+    lines: list[str] = []
+    if isinstance(caps, list):  # 台账对账结果：自述 vs 对账双列，防止把自述当事实
+        summ = d.get("summary") or {}
+        tally = summ.get("divergence_tally") or {}
+        lines.append(
+            f"能力清单 ({len(caps)} 个；证据行 {summ.get('evidence_rows', '?')}；"
+            f"分歧 OVERCLAIM {tally.get('OVERCLAIM', '?')} / REVERIFY {tally.get('REVERIFY', '?')} / "
+            f"UNVERIFIED {tally.get('UNVERIFIED', '?')} / OK {tally.get('OK', '?')}):"
+        )
+        for c in sorted(caps, key=lambda x: str(x.get("id"))):
+            lines.append(
+                f"{str(c.get('id', '?')):26s} 自述 {str(c.get('claimed_level', '?')):13s} "
+                f"对账 {str(c.get('reconciled_level', '?')):13s} {str(c.get('divergence', '?')):10s} "
+                f"域 {c.get('domain', '?')}"
+            )
+        gaps = d.get("unregistered_domains") or []
+        if gaps:
+            lines.append(f"注册表覆盖缺口 ({len(gaps)} 个): " + "；".join(str(g.get("domain")) for g in gaps))
+        if d.get("violations"):
+            lines.append(f"自检违规 {len(d['violations'])} 项：" + "；".join(str(v) for v in d["violations"]))
+        return "\n".join(lines)
+    if isinstance(caps, dict):
+        lines.append(f"能力清单 ({len(caps)} 个):")
         for k, v in sorted(caps.items()):
             ev = v.get("evidence", "?") if isinstance(v, dict) else str(v)
-            summ = v.get("summary", "")[:50] if isinstance(v, dict) else ""
+            summ = (v.get("summary", "") or "")[:50] if isinstance(v, dict) else ""
             lines.append(f"{k:30s} {ev:15s} {summ}")
-        return f"能力清单 ({len(caps)} 个):\n" + "\n".join(lines)
-    except Exception as e:
-        return f"读取能力清单失败: {e}"
+        return "\n".join(lines)
+    raise ValueError("能力清单 schema 不可识别（缺 capabilities 段）")
+
+
+def _tool_audit_caps() -> str:
+    """审计船舶平台能力清单。"""
+    tried: list[str] = []
+    for path in _cap_sources():
+        try:
+            d = json.loads(path.read_text(encoding="utf-8"))
+            return _render_caps(d) + f"\n[真值来源] {path}"
+        except Exception as exc:  # 坏文件继续试下一个候选，最终如实报出全部尝试
+            tried.append(f"{path}: {exc}")
+    return "读取能力清单失败：无可用真值来源。已尝试：\n" + ("\n".join(tried) or "(无候选文件存在)")
 
 
 def call_llm(messages, tools):

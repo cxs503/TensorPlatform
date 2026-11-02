@@ -37,6 +37,9 @@ from datetime import datetime, timedelta, timezone
 
 ORG_ID = int(os.environ.get("GUIDE_KPI_ORG_ID", "1"))
 DASH_PATH = pathlib.Path(os.environ.get("GUIDE_DASH_PATH", "/root/tp-agent/guide_dashboard.json"))
+REGISTRY_PATH = pathlib.Path(os.environ.get("GUIDE_REGISTRY_PATH",
+                                           str(pathlib.Path(__file__).resolve().parent.parent
+                                               / "artifacts" / "benchmark_settlement" / "audit.json")))
 LEDGER_PATH = pathlib.Path(os.environ.get("GUIDE_LEDGER_PATH",
                                            str(pathlib.Path(__file__).resolve().parent.parent
                                                / "docs" / "kpi" / "literal_ledger.json")))
@@ -122,13 +125,14 @@ KPI_SPECS = [
          formula="ship_samples 行数（报告 ≠ 样本，不可混算）",
          sql="SELECT count(*) AS samples FROM ship_samples",
          nums=("samples",), how="identity"),
-    dict(key="benchmark_cases", label="对标算例 ≥10（SUBOFF/DTMB/KVLCC2）", kind="ledger",
-         numeric=True, target=10.0, unit="count", ledger_field="benchmark_cases",
-         formula="台账：已完成的独立对标算例数（KVLCC2@15kn 真算=1）"),
-    dict(key="resistance_accuracy", label="静水阻力 ≤5%/冰区 ≤10%", kind="ledger",
-         numeric=False, target=None, unit="ratio",
-         ledger_field="resistance_accuracy",
-         formula="台账（定性）：需 SUBOFF/DTMB 实测对标；当前未实测"),
+    dict(key="benchmark_cases", label="对标算例 ≥10（SUBOFF/DTMB/KVLCC2）", kind="registry",
+         numeric=True, target=10.0, unit="count", registry_field="benchmark_cases",
+         formula="registry：正典 reference_status=DERIVED 且 |误差|≤15% 的已决算算例数"
+                 "（tools/benchmark_settlement.py 复算，WITHHELD 行不计）"),
+    dict(key="resistance_accuracy", label="静水阻力 ≤5%/冰区 ≤10%", kind="registry",
+         numeric=True, target=1.0, unit="ratio", registry_field="resistance_accuracy",
+         formula="registry：可判决（DERIVED）已决算算例中 |误差|≤5% 的比例；"
+                 "无样本 → None（未实测，不塞 0）"),
     dict(key="cycle_reduction", label="周期 −50%/试验 −30%", kind="ledger", numeric=False,
          target=None, unit="ratio", ledger_field="cycle_reduction",
          formula="台账（定性）：无计时基线，指标不可算"),
@@ -153,8 +157,13 @@ def merge_rows(spec: dict, row: dict) -> float | None:
     return float(vals[0])
 
 
-def build_records(db_metrics: dict, ledger: dict, specs=KPI_SPECS, now: datetime | None = None):
-    """合并 DB 与台账 → 统一记录列表。DB 优先（同 key 不会双写，规格表内互斥）。"""
+def build_records(db_metrics: dict, ledger: dict, specs=KPI_SPECS, now: datetime | None = None,
+                  registry: dict | None = None):
+    """合并 DB / 台账 / registry 工件 → 统一记录列表。三类 kind 互斥（规格表内不相交）。
+
+    registry = tools/benchmark_settlement.py 落盘的决算工件；缺失 → 该 KPI 记 None
+    （未实测），并标 stale=True，绝不退回手写字面量冒充证据。
+    """
     now = now or datetime.now(timezone.utc)
     out = []
     for s in specs:
@@ -166,6 +175,20 @@ def build_records(db_metrics: dict, ledger: dict, specs=KPI_SPECS, now: datetime
             rec["source"] = "db:" + re.sub(r"\s+", " ", s["sql"]).strip()
             rec["provenance"] = "live SQL（零手抄）"
             rec["stale"] = False
+        elif s["kind"] == "registry":
+            fld = s["registry_field"]
+            rec["source"] = f"registry:{fld}"
+            kpi_block = (registry or {}).get("kpi") or {}
+            rec["value"] = kpi_block.get(fld)
+            rec["provenance"] = ("registry 决算工件（零手抄复算）" if registry
+                                 else "registry 工件缺失 → 未实测")
+            recs_summary = (registry or {}).get("summary") or {}
+            rec["status_text"] = (f"{int(recs_summary.get('qualified_cases', 0))} 合格 / "
+                                  f"{recs_summary.get('settled_admissible', 0)} 已决算 / "
+                                  f"{recs_summary.get('policy_violations', 0)} 越权判决"
+                                  if registry else "无决算工件")
+            rec["stale"] = registry is None
+            rec["age_days"] = 0 if registry else None
         else:
             fld = s["ledger_field"]
             if fld not in ledger.get("values", {}):
@@ -368,6 +391,11 @@ def load_ledger(path: pathlib.Path = LEDGER_PATH) -> dict:
     return json.loads(path.read_text(encoding="utf-8"))
 
 
+def load_registry(path: pathlib.Path = REGISTRY_PATH) -> dict | None:
+    """读决算工件（tools/benchmark_settlement.py 产出）。不存在 → None。"""
+    return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
+
+
 def load_dashboard(path: pathlib.Path = DASH_PATH) -> dict:
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else {"kpis": []}
 
@@ -393,7 +421,7 @@ def run(persist_rows: bool = False, do_reconcile: bool = True, json_out: str | N
     bucket = hour_bucket(now)
     ledger = load_ledger()
     metrics, db_raw = fetch_metrics()
-    records = build_records(metrics, ledger, now=now)
+    records = build_records(metrics, ledger, now=now, registry=load_registry())
     drift = reconcile(records, load_dashboard()) if do_reconcile else []
     rows = snapshot_rows(records, bucket=bucket)
     written = persist(rows) if persist_rows else 0

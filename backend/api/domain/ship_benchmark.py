@@ -61,6 +61,32 @@ from services.ship_resistance import (
     resistance_breakdown,
 )
 
+# m1609 几何/适用域锚：先走包导入；spec_from_file_location 加载（测试绕开 api 包重依赖）
+# 时退回按路径加载，两条路取同一份域模块。
+try:  # pragma: no cover - app 内包导入路径
+    from api.domain.hull_geometry import PUBLISHED_GEOMETRY as _PUBLISHED_GEOMETRY
+    from api.domain.hull_geometry import validate_hull_geometry as _validate_hull_geometry
+    from api.domain.resistance_core import validity_verdict as _validity_verdict
+except Exception:  # pragma: no cover - spec-load 路径（tests/_load 同款）
+    import importlib.util as _ilu
+    import sys as _sys
+    _DOMAIN_DIR = Path(__file__).resolve().parent
+
+    def _path_load(name: str):
+        if name in _sys.modules:
+            return _sys.modules[name]
+        spec = _ilu.spec_from_file_location(name, _DOMAIN_DIR / (name + ".py"))
+        mod = _ilu.module_from_spec(spec)
+        _sys.modules[name] = mod
+        spec.loader.exec_module(mod)
+        return mod
+
+    _hg = _path_load("hull_geometry")
+    _rc = _path_load("resistance_core")
+    _PUBLISHED_GEOMETRY = _hg.PUBLISHED_GEOMETRY
+    _validate_hull_geometry = _hg.validate_hull_geometry
+    _validity_verdict = _rc.validity_verdict
+
 logger = logging.getLogger(__name__)
 
 router = APIRouter(tags=["船舶基准验证"])
@@ -135,6 +161,8 @@ class BenchmarkResult(BaseModel):
     dataset_status: str = ""
     withheld: bool = False
     dataset_checks_failed: List[str] = Field(default_factory=list)
+    # m1609：每行随发模型适用域判定（None=传输层无数据，不冒充在域内）。
+    in_validity_envelope: Optional[bool] = None
 
 
 class BenchmarkValidateResponse(BaseModel):
@@ -234,9 +262,51 @@ def _call_resistance_api(ship_type: str, speed_ms: float, geometry: Dict[str, An
         "ct": res["ct"],
         "rt_n": res["rt_n"],
         "wetted_surface_m2": res["wetted_surface_m2"],
+        "froude_number": res["froude_number"],
         "method": MODEL_NAME,
         "transport": "in_process",
     }
+
+
+def _resistance(ship_type: str, speed_ms: float, geometry: Dict[str, Any]):
+    """m1609 传输契约（随 #549 in-process 主径设计收敛）：
+
+    1. 主径 = :func:`_call_resistance_api`（默认进程内物理；``SHIP_BENCHMARK_REMOTE=1``
+       时 HTTP）。
+    2. 主径响应缺 ``ct`` = **契约违规**：原样上报（``contract_violations``），绝不
+       静默按 0 参与精度判决——这正是历史上"恒 0.0 / 误差 999%"病灶的反向锁。
+    3. ``BENCHMARK_ALLOW_LOCAL_FALLBACK=1`` 且主径失效（返回 None/抛异常）时回退
+       进程内解，传输标记 ``local_fallback``，与 resistance_core 同核可独立复算。
+
+    Returns ``(data, transport_tag)``。
+    """
+    try:
+        data = _call_resistance_api(ship_type, speed_ms, geometry)
+    except Exception as e:  # pragma: no cover - defensive
+        logger.error("resistance transport failed: %s", e)
+        data = None
+    if data is not None and data.get("ct") is not None:
+        return data, data.get("transport", "in_process")
+    tag = "contract_violation" if data is not None else "unavailable"
+    if os.getenv("BENCHMARK_ALLOW_LOCAL_FALLBACK", "0") == "1":
+        res = resistance_breakdown(
+            length=geometry["length"],
+            beam=geometry["beam"],
+            draft=geometry["draft"],
+            cb=geometry["cb"],
+            speed=speed_ms,
+            rho=DEFAULT_WATER_DENSITY,
+            nu=DEFAULT_KINEMATIC_VISCOSITY,
+        )
+        return {
+            "ct": res["ct"],
+            "rt_n": res["rt_n"],
+            "wetted_surface_m2": res["wetted_surface_m2"],
+            "froude_number": res["froude_number"],
+            "method": MODEL_NAME,
+            "transport": "local_fallback",
+        }, "local_fallback"
+    return (data if data is not None else {}), tag
 
 
 # ---------------------------------------------------------------------------
@@ -279,6 +349,9 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
     results: List[BenchmarkResult] = []
     transport: Optional[str] = None
     withheld_cases: List[str] = []
+    contract_violations: List[str] = []
+    pub = _PUBLISHED_GEOMETRY.get(req.ship_type, {})
+    gate = _validate_hull_geometry(req.ship_type) if _validate_hull_geometry else {}
 
     for case in matched:
         case_id = case["case_id"]
@@ -290,9 +363,30 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
         checks_failed = row.get("failed_checks", [])
         withheld = status != CONSISTENT
 
-        calc_data = _call_resistance_api(req.ship_type, speed_ms, geometry)
+        calc_data, transport_tag = _resistance(req.ship_type, speed_ms, geometry)
 
-        if calc_data is None:
+        if transport_tag == "contract_violation":
+            contract_violations.append(case_id)
+            results.append(BenchmarkResult(
+                case_id=case_id,
+                ship_type=req.ship_type,
+                speed_ms=speed_ms,
+                calc_ct=0.0,
+                ref_ct=ref_ct,
+                error_pct=999.0,
+                pass_=False,
+                method=str(calc_data.get("method") or "Unknown"),
+                note=(
+                    "contract violation: resistance transport returned no 'ct' "
+                    f"(fields: {sorted(calc_data)}); error_pct not usable as an accuracy claim."
+                ),
+                dataset_status=status,
+                withheld=withheld,
+                dataset_checks_failed=checks_failed,
+            ))
+            continue
+
+        if transport_tag == "unavailable":
             results.append(BenchmarkResult(
                 case_id=case_id,
                 ship_type=req.ship_type,
@@ -309,14 +403,21 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
             ))
             continue
 
-        calc_ct = calc_data.get("ct") or 0.0
-        transport = calc_data.get("transport", transport)
+        # m1609 契约修订：先舍入到上报精度再算误差——error_pct 可由响应字段
+        # (calc_ct, ref_ct) 精确复算，杜绝"内部全精度 vs 上报舍入"的暗差。
+        calc_ct = round(calc_data.get("ct") or 0.0, 6)
+        transport = transport_tag or transport
         method = calc_data.get("method", "Unknown")
 
-        error_pct = abs(calc_ct - ref_ct) / ref_ct * 100.0 if ref_ct > 0 else 999.0
+        error_pct = round(abs(calc_ct - ref_ct) / ref_ct * 100.0, 2) if ref_ct > 0 else 999.0
 
         # m1388: a pass needs physical numerics AND a usable reference row.
         passed = (error_pct <= 15.0) and not withheld
+
+        # m1609：适用域判定随行下发（报告不隐藏；None=无判定数据）。
+        fr = float(calc_data.get("froude_number") or case.get("froude_number") or 0.0)
+        verdict = _validity_verdict(req.ship_type, fr) if _validity_verdict else {}
+        in_envelope = bool(verdict.get("in_envelope")) if verdict else None
 
         notes: List[str] = []
         if withheld:
@@ -341,9 +442,9 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
             case_id=case_id,
             ship_type=req.ship_type,
             speed_ms=speed_ms,
-            calc_ct=round(calc_ct, 6),
+            calc_ct=calc_ct,
             ref_ct=ref_ct,
-            error_pct=round(error_pct, 2),
+            error_pct=error_pct,
             pass_=passed,
             method=method,
             note=" ".join(notes),
@@ -351,6 +452,7 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
             dataset_status=status,
             withheld=withheld,
             dataset_checks_failed=checks_failed,
+            in_validity_envelope=in_envelope,
         ))
 
     # Summary
@@ -374,6 +476,17 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
         "transport": transport or "unavailable",
         "model": MODEL_NAME,
         "algorithm_upgrade_recommended": all_verified_failed,
+        # m1609：契约违规逐 case 上报（空表=无违规）。
+        "contract_violations": contract_violations,
+        # m1609：published 几何锚 + gate 判定随 summary 下发。
+        "geometry": {
+            "gate_ok": (gate or {}).get("ok"),
+            "preset": {
+                "wetted_surface_m2": pub.get("s_ref_m2"),
+                "cb_source": "published_table",
+                "citation": pub.get("source"),
+            },
+        },
     }
     if total > 0 and verified_total == 0:
         summary["recommendation"] = (

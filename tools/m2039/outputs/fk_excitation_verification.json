@@ -1,0 +1,600 @@
+{
+  "mission": 2039,
+  "title": "heave FK excitation finite-frequency kernel verification",
+  "constants": {
+    "rho_verification": 1025.0,
+    "g_verification": 9.81,
+    "rho_platform": 1025.9,
+    "g_platform": 9.80665
+  },
+  "anchors": {
+    "A1_rect_2d_sinc_vs_perimeter_quadrature": [
+      {
+        "period_s": 6.0,
+        "closed_N": 1759.5686779660934,
+        "quad_N": 1759.568870588787,
+        "rel": 1.0947154031992449e-07
+      },
+      {
+        "period_s": 8.0,
+        "closed_N": 83729.896482962,
+        "quad_N": 83729.89938315442,
+        "rel": 3.4637477753726714e-08
+      },
+      {
+        "period_s": 10.0,
+        "closed_N": 198975.79692768096,
+        "quad_N": 198975.7997506526,
+        "rel": 1.418751267461559e-08
+      },
+      {
+        "period_s": 14.0,
+        "closed_N": 358405.2987288513,
+        "quad_N": 358405.3000524863,
+        "rel": 3.6931233888472198e-09
+      }
+    ],
+    "A2_semicircle_series_vs_perimeter_quadrature": [
+      {
+        "period_s": 4.0,
+        "ka": 2.515189704660896,
+        "series_N": 4582.55335659446,
+        "quad_N": 4582.553360680196,
+        "rel": 8.915851869603503e-10
+      },
+      {
+        "period_s": 6.0,
+        "ka": 1.1178620909603982,
+        "series_N": 65568.53873660429,
+        "quad_N": 65568.53905635329,
+        "rel": 4.876561330224646e-09
+      },
+      {
+        "period_s": 8.0,
+        "ka": 0.628797426165224,
+        "series_N": 114953.53842985052,
+        "quad_N": 114953.53870451645,
+        "rel": 2.3893647289474167e-09
+      },
+      {
+        "period_s": 10.0,
+        "ka": 0.4024303527457434,
+        "series_N": 142955.68056155107,
+        "quad_N": 142955.68076755694,
+        "rel": 1.4410471493215258e-09
+      },
+      {
+        "period_s": 14.0,
+        "ka": 0.20532160854374662,
+        "series_N": 170086.969526189,
+        "quad_N": 170086.96964505388,
+        "rel": 6.98847625730989e-10
+      },
+      {
+        "period_s": 20.0,
+        "ka": 0.10060758818643585,
+        "series_N": 185553.486317884,
+        "quad_N": 185553.48637974492,
+        "rel": 3.3338591723127666e-10
+      }
+    ],
+    "A3_hull_quadrature_vs_rect_closed": [
+      {
+        "period_s": 6.0,
+        "quad_N": 563061.9769491499,
+        "closed_N": 563061.97694915,
+        "rel": -2.0675401038036753e-16
+      },
+      {
+        "period_s": 8.0,
+        "quad_N": 26793566.87454784,
+        "closed_N": 26793566.874547843,
+        "rel": -1.3903674400293075e-16
+      },
+      {
+        "period_s": 12.0,
+        "quad_N": 93302026.60193643,
+        "closed_N": 93302026.60193643,
+        "rel": 0.0
+      },
+      {
+        "period_s": 20.0,
+        "quad_N": 149248371.75382894,
+        "closed_N": 149248371.75382897,
+        "rel": -1.9968273045451656e-16
+      }
+    ],
+    "A4_long_wave_limit": [
+      {
+        "case": "KVLCC2",
+        "lambda_over_L": 780.3884113360675,
+        "exact_N": 152900550.15096185,
+        "long_wave_N": 153034816.38132873,
+        "rel": -0.0008773574114816074
+      },
+      {
+        "case": "patrol60",
+        "lambda_over_L": 4162.071527125694,
+        "exact_N": 3365094.0636896524,
+        "long_wave_N": 3368048.785419267,
+        "rel": -0.000877279967679256
+      }
+    ]
+  },
+  "debt": {
+    "KVLCC2": {
+      "geometry": {
+        "L": 320.0,
+        "B": 58.0,
+        "T": 20.8,
+        "Cb": 0.82,
+        "A_wp_m2": 15219.199999999997
+      },
+      "rows": [
+        {
+          "period_s": 4.0,
+          "wavelength_m": 24.972429162754164,
+          "k": 0.25160489058672836,
+          "lambda_over_L": 0.07803884113360676,
+          "planform_factor": 0.0946571541097624,
+          "fk_long_wave_N": 816937.2989988982,
+          "fk_exact_N": 77328.95980935176,
+          "ratio_long_wave_over_exact": 10.564441847051745,
+          "rel_err_pct": 956.4441847051746
+        },
+        {
+          "period_s": 5.0,
+          "wavelength_m": 39.01942056680338,
+          "k": 0.16102712997550614,
+          "lambda_over_L": 0.12193568927126057,
+          "planform_factor": 0.1459942893425487,
+          "fk_long_wave_N": 5375354.300614989,
+          "fk_exact_N": 784771.0310826984,
+          "ratio_long_wave_over_exact": 6.8495829837130415,
+          "rel_err_pct": 584.9582983713042
+        },
+        {
+          "period_s": 6.0,
+          "wavelength_m": 56.187965616196884,
+          "k": 0.1118243958163237,
+          "lambda_over_L": 0.17558739255061526,
+          "planform_factor": 0.05893639766186095,
+          "fk_long_wave_N": 14957926.481256794,
+          "fk_exact_N": 881566.3032962308,
+          "ratio_long_wave_over_exact": 16.96744354375636,
+          "rel_err_pct": 1596.744354375636
+        },
+        {
+          "period_s": 7.0,
+          "wavelength_m": 76.47806431093463,
+          "k": 0.08215669896709497,
+          "lambda_over_L": 0.2389939509716707,
+          "planform_factor": 0.35890501013488074,
+          "fk_long_wave_N": 27724859.156618718,
+          "fk_exact_N": 9950590.856594382,
+          "ratio_long_wave_over_exact": 2.7862525508467777,
+          "rel_err_pct": 178.62525508467778
+        },
+        {
+          "period_s": 8.0,
+          "wavelength_m": 99.88971665101666,
+          "k": 0.06290122264668209,
+          "lambda_over_L": 0.31215536453442705,
+          "planform_factor": 0.5792184225392873,
+          "fk_long_wave_N": 41381890.62740076,
+          "fk_exact_N": 23969153.41089639,
+          "ratio_long_wave_over_exact": 1.7264644235865474,
+          "rel_err_pct": 72.64644235865474
+        },
+        {
+          "period_s": 9.0,
+          "wavelength_m": 126.42292263644296,
+          "k": 0.04969973147392165,
+          "lambda_over_L": 0.3950716332388843,
+          "planform_factor": 0.7210330152819837,
+          "fk_long_wave_N": 54458251.307790756,
+          "fk_exact_N": 39266197.1474404,
+          "ratio_long_wave_over_exact": 1.3868990445727607,
+          "rel_err_pct": 38.689904457276064
+        },
+        {
+          "period_s": 10.0,
+          "wavelength_m": 156.07768226721353,
+          "k": 0.040256782493876535,
+          "lambda_over_L": 0.4877427570850423,
+          "planform_factor": 0.8105789646370274,
+          "fk_long_wave_N": 66277317.25824459,
+          "fk_exact_N": 53722999.20210768,
+          "ratio_long_wave_over_exact": 1.2336860979951463,
+          "rel_err_pct": 23.368609799514637
+        },
+        {
+          "period_s": 12.0,
+          "wavelength_m": 224.75186246478754,
+          "k": 0.027956098954080924,
+          "lambda_over_L": 0.702349570202461,
+          "planform_factor": 0.9055036447501802,
+          "fk_long_wave_N": 85601425.28035085,
+          "fk_exact_N": 77512402.5871679,
+          "ratio_long_wave_over_exact": 1.104357785634193,
+          "rel_err_pct": 10.435778563419314
+        },
+        {
+          "period_s": 14.0,
+          "wavelength_m": 305.9122572437385,
+          "k": 0.020539174741773743,
+          "lambda_over_L": 0.9559758038866828,
+          "planform_factor": 0.9482475753150347,
+          "fk_long_wave_N": 99880448.63049379,
+          "fk_exact_N": 94711393.23524362,
+          "ratio_long_wave_over_exact": 1.0545769122243962,
+          "rel_err_pct": 5.457691222439629
+        },
+        {
+          "period_s": 16.0,
+          "wavelength_m": 399.5588666040666,
+          "k": 0.015725305661670522,
+          "lambda_over_L": 1.2486214581377082,
+          "planform_factor": 0.9694493053088785,
+          "fk_long_wave_N": 110399149.93647751,
+          "fk_exact_N": 107026379.21260884,
+          "ratio_long_wave_over_exact": 1.031513452558912,
+          "rel_err_pct": 3.151345255891194
+        },
+        {
+          "period_s": 18.0,
+          "wavelength_m": 505.69169054577185,
+          "k": 0.012424932868480412,
+          "lambda_over_L": 1.5802865329555371,
+          "planform_factor": 0.9808557524015035,
+          "fk_long_wave_N": 118243988.40427826,
+          "fk_exact_N": 115980296.21323301,
+          "ratio_long_wave_over_exact": 1.0195179031693744,
+          "rel_err_pct": 1.9517903169374504
+        },
+        {
+          "period_s": 20.0,
+          "wavelength_m": 624.3107290688541,
+          "k": 0.010064195623469134,
+          "lambda_over_L": 1.9509710283401691,
+          "planform_factor": 0.98741253777413,
+          "fk_long_wave_N": 124195075.972232,
+          "fk_exact_N": 122631775.14479247,
+          "ratio_long_wave_over_exact": 1.012747926266204,
+          "rel_err_pct": 1.2747926266204073
+        },
+        {
+          "period_s": 24.0,
+          "wavelength_m": 899.0074498591501,
+          "k": 0.006989024738520231,
+          "lambda_over_L": 2.809398280809844,
+          "planform_factor": 0.993916806810302,
+          "fk_long_wave_N": 132398601.02413683,
+          "fk_exact_N": 131593194.75606126,
+          "ratio_long_wave_over_exact": 1.0061204249168703,
+          "rel_err_pct": 0.6120424916870354
+        },
+        {
+          "period_s": 30.0,
+          "wavelength_m": 1404.699140404922,
+          "k": 0.004472975832652948,
+          "lambda_over_L": 4.389684813765381,
+          "planform_factor": 0.9975054248456081,
+          "fk_long_wave_N": 139512038.41310126,
+          "fk_exact_N": 139164015.14833736,
+          "ratio_long_wave_over_exact": 1.002500813621919,
+          "rel_err_pct": 0.25008136219189103
+        }
+      ],
+      "max_overestimate_ratio": 16.96744354375636,
+      "lambda_over_L_for_below_3pct": 1.5802865329555371,
+      "period_for_below_3pct_s": 30.0
+    },
+    "patrol60": {
+      "geometry": {
+        "L": 60.0,
+        "B": 9.0,
+        "T": 3.0,
+        "Cb": 0.62,
+        "A_wp_m2": 334.8
+      },
+      "rows": [
+        {
+          "period_s": 4.0,
+          "wavelength_m": 24.972429162754164,
+          "k": 0.25160489058672836,
+          "lambda_over_L": 0.4162071527125694,
+          "planform_factor": 0.8596970615014001,
+          "fk_long_wave_N": 1583431.600559958,
+          "fk_exact_N": 1361271.4940898546,
+          "ratio_long_wave_over_exact": 1.1632004397613862,
+          "rel_err_pct": 16.32004397613861
+        },
+        {
+          "period_s": 5.0,
+          "wavelength_m": 39.01942056680338,
+          "k": 0.16102712997550614,
+          "lambda_over_L": 0.6503236761133897,
+          "planform_factor": 0.9406489378497471,
+          "fk_long_wave_N": 2077837.4654477462,
+          "fk_exact_N": 1954515.6048978332,
+          "ratio_long_wave_over_exact": 1.0630958689922352,
+          "rel_err_pct": 6.30958689922352
+        },
+        {
+          "period_s": 6.0,
+          "wavelength_m": 56.187965616196884,
+          "k": 0.1118243958163237,
+          "lambda_over_L": 0.9364660936032814,
+          "planform_factor": 0.9710442017600605,
+          "fk_long_wave_N": 2408335.572951821,
+          "fk_exact_N": 2338600.294007359,
+          "ratio_long_wave_over_exact": 1.0298192380814961,
+          "rel_err_pct": 2.981923808149604
+        },
+        {
+          "period_s": 7.0,
+          "wavelength_m": 76.47806431093463,
+          "k": 0.08215669896709497,
+          "lambda_over_L": 1.2746344051822438,
+          "planform_factor": 0.9842925429996994,
+          "fk_long_wave_N": 2632513.1646311223,
+          "fk_exact_N": 2591163.0772949536,
+          "ratio_long_wave_over_exact": 1.0159581184598139,
+          "rel_err_pct": 1.5958118459813835
+        },
+        {
+          "period_s": 8.0,
+          "wavelength_m": 99.88971665101666,
+          "k": 0.06290122264668209,
+          "lambda_over_L": 1.6648286108502777,
+          "planform_factor": 0.9907703483869985,
+          "fk_long_wave_N": 2789062.1567340605,
+          "fk_exact_N": 2763320.0847003986,
+          "ratio_long_wave_over_exact": 1.0093156316476644,
+          "rel_err_pct": 0.9315631647664465
+        },
+        {
+          "period_s": 9.0,
+          "wavelength_m": 126.42292263644296,
+          "k": 0.04969973147392165,
+          "lambda_over_L": 2.1070487106073825,
+          "planform_factor": 0.994230574608343,
+          "fk_long_wave_N": 2901738.001392897,
+          "fk_exact_N": 2884996.640487725,
+          "ratio_long_wave_over_exact": 1.0058029048180597,
+          "rel_err_pct": 0.5802904818059712
+        },
+        {
+          "period_s": 10.0,
+          "wavelength_m": 156.07768226721353,
+          "k": 0.040256782493876535,
+          "lambda_over_L": 2.601294704453559,
+          "planform_factor": 0.9962119029456876,
+          "fk_long_wave_N": 2985116.322934841,
+          "fk_exact_N": 2973808.4125851514,
+          "ratio_long_wave_over_exact": 1.0038025012982794,
+          "rel_err_pct": 0.3802501298279462
+        },
+        {
+          "period_s": 12.0,
+          "wavelength_m": 224.75186246478754,
+          "k": 0.027956098954080924,
+          "lambda_over_L": 3.7458643744131255,
+          "planform_factor": 0.9981718546565046,
+          "fk_long_wave_N": 3097330.978190171,
+          "fk_exact_N": 3091668.6069851285,
+          "ratio_long_wave_over_exact": 1.0018314935799553,
+          "rel_err_pct": 0.18314935799552914
+        },
+        {
+          "period_s": 14.0,
+          "wavelength_m": 305.9122572437385,
+          "k": 0.020539174741773743,
+          "lambda_over_L": 5.098537620728975,
+          "planform_factor": 0.9990129061919566,
+          "fk_long_wave_N": 3167021.443647474,
+          "fk_exact_N": 3163895.296390509,
+          "ratio_long_wave_over_exact": 1.0009880691249586,
+          "rel_err_pct": 0.09880691249586263
+        },
+        {
+          "period_s": 16.0,
+          "wavelength_m": 399.5588666040666,
+          "k": 0.015725305661670522,
+          "lambda_over_L": 6.659314443401111,
+          "planform_factor": 0.9994212965164598,
+          "fk_long_wave_N": 3213090.1760561606,
+          "fk_exact_N": 3211230.7495783484,
+          "ratio_long_wave_over_exact": 1.0005790385751807,
+          "rel_err_pct": 0.0579038575180679
+        },
+        {
+          "period_s": 18.0,
+          "wavelength_m": 505.69169054577185,
+          "k": 0.012424932868480412,
+          "lambda_over_L": 8.42819484242953,
+          "planform_factor": 0.9996386892837555,
+          "fk_long_wave_N": 3245061.3763897945,
+          "fk_exact_N": 3243888.900939634,
+          "ratio_long_wave_over_exact": 1.0003614413088626,
+          "rel_err_pct": 0.036144130886258924
+        },
+        {
+          "period_s": 20.0,
+          "wavelength_m": 624.3107290688541,
+          "k": 0.010064195623469134,
+          "lambda_over_L": 10.405178817814235,
+          "planform_factor": 0.9997629331728591,
+          "fk_long_wave_N": 3268125.1630586963,
+          "fk_exact_N": 3267350.398995591,
+          "ratio_long_wave_over_exact": 1.0002371230411478,
+          "rel_err_pct": 0.023712304114784304
+        },
+        {
+          "period_s": 24.0,
+          "wavelength_m": 899.0074498591501,
+          "k": 0.006989024738520231,
+          "lambda_over_L": 14.983457497652502,
+          "planform_factor": 0.9998856686145117,
+          "fk_long_wave_N": 3298414.7969795056,
+          "fk_exact_N": 3298037.6846458516,
+          "ratio_long_wave_over_exact": 1.0001143444586487,
+          "rel_err_pct": 0.011434445864873593
+        },
+        {
+          "period_s": 30.0,
+          "wavelength_m": 1404.699140404922,
+          "k": 0.004472975832652948,
+          "lambda_over_L": 23.411652340082032,
+          "planform_factor": 0.9999531686984784,
+          "fk_long_wave_N": 3323405.9154624552,
+          "fk_exact_N": 3323250.2760379496,
+          "ratio_long_wave_over_exact": 1.0000468334947952,
+          "rel_err_pct": 0.004683349479510168
+        }
+      ],
+      "max_overestimate_ratio": 1.1632004397613862,
+      "lambda_over_L_for_below_3pct": 0.9364660936032814,
+      "period_for_below_3pct_s": 30.0
+    }
+  },
+  "rao_impact": {
+    "KVLCC2": [
+      {
+        "period_s": 4.0,
+        "wavelength_m": 24.972429162754164,
+        "lambda_over_L": 0.07803884113360676,
+        "rao_long_wave": 0.00038263320263360044,
+        "rao_exact_fk": 3.6219017125717524e-05,
+        "ratio": 0.09465727719504757,
+        "planform_factor": 0.09465727719504757
+      },
+      {
+        "period_s": 6.0,
+        "wavelength_m": 56.187965616196884,
+        "lambda_over_L": 0.17558739255061526,
+        "rao_long_wave": 0.01721985565225491,
+        "rao_exact_fk": 0.0010148825339760345,
+        "ratio": 0.05893676198401451,
+        "planform_factor": 0.0589367619840145
+      },
+      {
+        "period_s": 8.0,
+        "wavelength_m": 99.88971665101666,
+        "lambda_over_L": 0.31215536453442705,
+        "rao_long_wave": 0.09705033553875134,
+        "rao_exact_fk": 0.05621336351228622,
+        "ratio": 0.5792186415454558,
+        "planform_factor": 0.5792186415454558
+      },
+      {
+        "period_s": 10.0,
+        "wavelength_m": 156.07768226721353,
+        "lambda_over_L": 0.4877427570850423,
+        "rao_long_wave": 0.29672076807642667,
+        "rao_exact_fk": 0.2405156442920632,
+        "ratio": 0.8105790701853176,
+        "planform_factor": 0.8105790701853176
+      },
+      {
+        "period_s": 12.0,
+        "wavelength_m": 224.75186246478754,
+        "lambda_over_L": 0.702349570202461,
+        "rao_long_wave": 0.7352878013323072,
+        "rao_exact_fk": 0.6658058236789735,
+        "ratio": 0.9055036986504663,
+        "planform_factor": 0.9055036986504662
+      },
+      {
+        "period_s": 16.0,
+        "wavelength_m": 399.5588666040666,
+        "lambda_over_L": 1.2486214581377082,
+        "rao_long_wave": 2.4229843041060017,
+        "rao_exact_fk": 2.3489604932333816,
+        "ratio": 0.9694493229909996,
+        "planform_factor": 0.9694493229909995
+      },
+      {
+        "period_s": 20.0,
+        "wavelength_m": 624.3107290688541,
+        "lambda_over_L": 1.9509710283401691,
+        "rao_long_wave": 1.7413365696166725,
+        "rao_exact_fk": 1.7194175740605413,
+        "ratio": 0.9874125450883074,
+        "planform_factor": 0.9874125450883074
+      }
+    ],
+    "patrol60": [
+      {
+        "period_s": 4.0,
+        "wavelength_m": 24.972429162754164,
+        "lambda_over_L": 0.4162071527125694,
+        "rao_long_wave": 0.5706218930483292,
+        "rao_exact_fk": 0.49056197018889236,
+        "ratio": 0.8596970711520595,
+        "planform_factor": 0.8596970711520594
+      },
+      {
+        "period_s": 6.0,
+        "wavelength_m": 56.187965616196884,
+        "lambda_over_L": 0.9364660936032814,
+        "rao_long_wave": 2.0330776514919107,
+        "rao_exact_fk": 1.9742082690395126,
+        "ratio": 0.9710442036440671,
+        "planform_factor": 0.9710442036440672
+      },
+      {
+        "period_s": 8.0,
+        "wavelength_m": 99.88971665101666,
+        "lambda_over_L": 1.6648286108502777,
+        "rao_long_wave": 1.37498459910561,
+        "rao_exact_fk": 1.362293971100388,
+        "ratio": 0.9907703489817437,
+        "planform_factor": 0.9907703489817435
+      },
+      {
+        "period_s": 10.0,
+        "wavelength_m": 156.07768226721353,
+        "lambda_over_L": 2.601294704453559,
+        "rao_long_wave": 1.1957386604725129,
+        "rao_exact_fk": 1.1912090866661282,
+        "ratio": 0.9962119031891177,
+        "planform_factor": 0.9962119031891177
+      },
+      {
+        "period_s": 12.0,
+        "wavelength_m": 224.75186246478754,
+        "lambda_over_L": 3.7458643744131255,
+        "rao_long_wave": 1.1226646573585066,
+        "rao_exact_fk": 1.1206122633246158,
+        "ratio": 0.9981718547738736,
+        "planform_factor": 0.9981718547738736
+      },
+      {
+        "period_s": 16.0,
+        "wavelength_m": 399.5588666040666,
+        "lambda_over_L": 6.659314443401111,
+        "rao_long_wave": 1.0626355273443258,
+        "rao_exact_fk": 1.0620205765023822,
+        "ratio": 0.9994212965535979,
+        "planform_factor": 0.9994212965535978
+      },
+      {
+        "period_s": 20.0,
+        "wavelength_m": 624.3107290688541,
+        "lambda_over_L": 10.405178817814235,
+        "rao_long_wave": 1.0383953224521816,
+        "rao_exact_fk": 1.038149153383551,
+        "ratio": 0.9997629331880566,
+        "planform_factor": 0.9997629331880568
+      }
+    ]
+  },
+  "figures": [
+    "tools/m2039/outputs/figs/fig1_fk_excitation_vs_wavelength.png",
+    "tools/m2039/outputs/figs/fig2_debt_error_vs_wavelength.png",
+    "tools/m2039/outputs/figs/fig3_rao_impact_and_anchor_residuals.png",
+    "tools/m2039/outputs/figs/fig4_section_pressure_field.png"
+  ]
+}

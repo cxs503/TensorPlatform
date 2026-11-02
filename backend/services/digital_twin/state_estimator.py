@@ -80,8 +80,9 @@ class ExtendedKalmanFilter:
         self.x = np.array(x0 if x0 is not None else [1.5, 1.0, 1.0], dtype=float)
         self.P = np.array(P0 if P0 is not None else np.diag([0.25, 0.05, 0.09]), dtype=float)
         self.q = np.array(q if q is not None else [5e-4, 3e-4, 5e-4], dtype=float)
-        # relative variances: GM 3 %, resistance 3.2 %, damage 10 % (stress noise 3 %
-        # is amplified by ~m=3.5 through the S-N curve)
+        # relative *variances* (sigma^2 / value^2): GM 3 %, resistance 3.2 %, damage 10 %
+        # (stress noise 3 % is amplified by ~m=3.5 through the S-N curve).
+        # Every channel must consume this as a variance: R = r_rel * value^2.
         self.r_rel = np.array(r_rel if r_rel is not None else [9e-4, 1e-3, 1e-2], dtype=float)
         self.eta_D = float(eta_D)
         self.gate_sigma = float(gate_sigma)
@@ -153,10 +154,12 @@ class ExtendedKalmanFilter:
                 R[i, i] = self.r_rel[0] * max(self.x[0], 0.2) ** 2
             elif i == 1:
                 H[i, 1] = innov["models"]["R_model_kN"]
-                R[i, i] = (self.r_rel[1] * abs(z[1])) ** 2
+                # r_rel is a relative *variance* (see __init__): R = r_rel * z^2.
+                # (m1867) the historical (r_rel*z)**2 understated sigma by 1/r_rel = 1/1000
+                R[i, i] = self.r_rel[1] * z[1] ** 2
             else:
                 H[i, 2] = innov["models"]["D_model_per_day"]
-                R[i, i] = (self.r_rel[2] * abs(z[2])) ** 2
+                R[i, i] = self.r_rel[2] * z[2] ** 2
 
         Hr, Rr, zr, hr = H[idx], R[np.ix_(idx, idx)], z[idx], h[idx]
         y = zr - hr
