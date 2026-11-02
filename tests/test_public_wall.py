@@ -5,6 +5,7 @@
 """
 import os
 import sys
+from datetime import datetime, timedelta, timezone
 from pathlib import Path
 
 os.environ.setdefault("DATABASE_URL", "sqlite+pysqlite:///:memory:")
@@ -16,7 +17,19 @@ from fastapi.responses import FileResponse
 from sqlalchemy import text
 from sqlalchemy.orm import sessionmaker
 
-from database.config import engine
+from sqlalchemy import create_engine
+from sqlalchemy.pool import StaticPool
+
+# 专用内存库：不与 database.config 的共享 engine 复用。
+# 历史缺陷：模块级 DDL 直接打到共享 engine，若同批采集里别的模块先把
+# DATABASE_URL 绑到同一 sqlite 文件，则本模块建表时 "table organizations already exists"
+# 令整轮 collection 中断（依赖采集顺序 = 假绿/假红）。
+engine = create_engine(
+    "sqlite+pysqlite://",
+    connect_args={"check_same_thread": False},
+    poolclass=StaticPool,
+    future=True,
+)
 from api import public
 from api.public import (marked_js, missions, overview, report_detail,
                         reports, wall)
@@ -25,11 +38,11 @@ Session = sessionmaker(bind=engine, future=True)
 
 with engine.begin() as db:
     for ddl in (
-        "CREATE TABLE organizations (id INTEGER PRIMARY KEY, name TEXT)",
-        "CREATE TABLE tensor_dev_missions (id INTEGER PRIMARY KEY, organization_id INTEGER,"
+        "CREATE TABLE IF NOT EXISTS organizations (id INTEGER PRIMARY KEY, name TEXT)",
+        "CREATE TABLE IF NOT EXISTS tensor_dev_missions (id INTEGER PRIMARY KEY, organization_id INTEGER,"
         " goal TEXT, repo TEXT, status TEXT, model TEXT, claimed_by TEXT,"
         " created_at TEXT, finished_at TEXT, heartbeat_at TEXT)",
-        "CREATE TABLE tensor_reports (id INTEGER PRIMARY KEY, organization_id INTEGER,"
+        "CREATE TABLE IF NOT EXISTS tensor_reports (id INTEGER PRIMARY KEY, organization_id INTEGER,"
         " title TEXT, summary TEXT, tags TEXT, mission_id INTEGER, markdown TEXT,"
         " figures TEXT, status TEXT, created_at TEXT)",
     ):
@@ -48,6 +61,21 @@ with engine.begin() as db:
         "'published','2026-10-22T03:10:00+00:00'),"
         "(6,1,'草稿','s',NULL,NULL,'m','[]','draft','2026-10-22T03:11:00+00:00'),"
         "(7,2,'他租户报告','s',NULL,NULL,'m','[]','published','2026-10-22T03:12:00+00:00')"))
+
+
+def _shift_fixture_clock():
+    """24h 窗口类断言必须相对『现在』：把 m160 的完成时间挪到 now-1h。
+
+    夹具字面量保持原样用于展示；否则夹具日期一过，succeeded_24h 永远为 0。
+    """
+    with engine.begin() as db:
+        db.execute(
+            text("UPDATE tensor_dev_missions SET created_at=:_t, finished_at=:_t WHERE id=160"),
+            {"_t": (datetime.now(timezone.utc) - timedelta(hours=1)).isoformat()},
+        )
+
+
+_shift_fixture_clock()
 
 
 def test_overview_counts_and_tenant_scope():
