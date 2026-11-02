@@ -131,7 +131,6 @@ def resistance_breakdown(
         "A caller-supplied wetted surface is not independently validated by this function.",
         "Passing software checks does not establish physical validation.",
     ]
-    in_envelope = cb < 0.6 and fn <= 0.4
     if cb >= 0.6:
         validity_notes.append(f"Cb={cb:.4f} is outside the documented fine/axisymmetric-body fit range (Cb < 0.6).")
     if fn > 0.4:
@@ -140,7 +139,7 @@ def resistance_breakdown(
     return {
         "model_id": MODEL_ID,
         "method": MODEL_NAME,
-        "validity_status": "within_empirical_envelope" if in_envelope else "outside_empirical_envelope",
+        "validity_status": "unvalidated_empirical_estimate",
         "validity_notes": validity_notes,
         "surface_source": surface_source,
         "wetted_surface_m2": s_wet,
