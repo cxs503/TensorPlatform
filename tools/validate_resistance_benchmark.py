@@ -232,6 +232,319 @@ def generate_json_report(results: List[Dict]) -> Dict:
     }
 
 
+
+# ===========================================================================
+# m1608 段：简化 Holtrop 全案例验证（对标 backend/data/benchmark_reference.json）
+# 与上段 m1602 系数法并存；CLI 经 --holtrop 分发
+# ===========================================================================
+BENCHMARK_PATH = Path(__file__).resolve().parent.parent / "backend" / "data" / "benchmark_reference.json"
+
+# Physical constants
+G = 9.81
+RHO = 998.0       # water density kg/m³
+NU = 1.004e-6     # kinematic viscosity m²/s
+
+# Ship geometry presets (matching ship_benchmark.py)
+SHIP_GEOMETRY = {
+    "SUBOFF": {"length": 4.356, "beam": 0.508, "draft": 0.476, "cb": 0.542},
+    "DTMB-5415": {"length": 5.720, "beam": 0.759, "draft": 0.246, "cb": 0.508},
+    "KVLCC2": {"length": 320.0, "beam": 58.0, "draft": 20.8, "cb": 0.8098},
+}
+
+# ---------------------------------------------------------------------------
+# Resistance calculation (mirrors backend/api/calculations.py)
+# ---------------------------------------------------------------------------
+
+def calc_resistance_holtrop_simplified(ship_type: str, speed_ms: float) -> Dict[str, float]:
+    """
+    Simplified Holtrop-Mennen resistance calculation.
+    Matches the implementation in backend/api/calculations.py calc_resistance().
+    """
+    geo = SHIP_GEOMETRY[ship_type]
+    L = geo["length"]
+    B = geo["beam"]
+    Cb = geo["cb"]
+
+    # Wetted surface area (approximation for axisymmetric body)
+    S = math.pi * B * L * (0.5 + 0.25 * Cb)
+
+    # Reynolds number
+    Re = speed_ms * L / NU
+
+    # ITTC-1957 friction line
+    Cf = 0.075 / (math.log10(Re) - 2.0) ** 2
+
+    # Froude number
+    Fn = speed_ms / math.sqrt(G * L)
+
+    # Residual resistance coefficient (simplified)
+    Cr = 0.002 * (1 + 2 * Cb) * Fn ** 2.5 if Fn > 0.05 else 0.0
+
+    # Total resistance coefficient
+    Ct = Cf + Cr
+
+    # Total resistance (N)
+    Rt = 0.5 * RHO * S * Ct * speed_ms ** 2
+
+    return {
+        "S": S,
+        "Re": Re,
+        "Cf": Cf,
+        "Fn": Fn,
+        "Cr": Cr,
+        "Ct": Ct,
+        "Rt": Rt,
+    }
+
+
+# ---------------------------------------------------------------------------
+# Validation
+# ---------------------------------------------------------------------------
+
+def validate_all_cases() -> List[Dict[str, Any]]:
+    """Run validation against all benchmark cases."""
+    with open(BENCHMARK_PATH) as f:
+        data = json.load(f)
+
+    results = []
+    for case in data["cases"]:
+        cid = case["case_id"]
+        st = case["ship_type"]
+        speed = case.get("speed_ms", 0.0)
+        Ct_exp = case["experimental_ct"]
+        rt_status = case.get("rt_status", "")
+        Rt_exp = case.get("experimental_rt_n")
+
+        calc = calc_resistance_holtrop_simplified(st, speed)
+        Ct_calc = calc["Ct"]
+        Rt_calc = calc["Rt"]
+
+        error_ct = abs(Ct_calc - Ct_exp) / Ct_exp * 100 if Ct_exp > 0 else 999.0
+        if Rt_exp is None:
+            # canon v3.0：experimental_rt_n=null（rt_status=WITHHELD）→ RT 维度不判
+            error_rt = None
+            pass_rt = None
+        else:
+            error_rt = abs(Rt_calc - Rt_exp) / Rt_exp * 100 if Rt_exp > 0 else 999.0
+            pass_rt = error_rt <= 15.0
+
+        results.append({
+            "case_id": cid,
+            "ship_type": st,
+            "speed_ms": speed,
+            "Fn": calc["Fn"],
+            "Re": calc["Re"],
+            "Cf": calc["Cf"],
+            "Cr": calc["Cr"],
+            "Ct_calc": Ct_calc,
+            "Ct_exp": Ct_exp,
+            "error_ct_pct": round(error_ct, 2),
+            "Rt_calc": round(Rt_calc, 4),
+            "Rt_exp": Rt_exp,
+            "error_rt_pct": None if error_rt is None else round(error_rt, 2),
+            "pass_ct": error_ct <= 15.0,
+            "pass_rt": pass_rt,
+            "rt_status": rt_status,
+        })
+
+    return results
+
+
+# ---------------------------------------------------------------------------
+# Figure generation
+# ---------------------------------------------------------------------------
+
+def generate_figures(results: List[Dict], output_dir: Path) -> List[Dict[str, str]]:
+    """Generate Ct vs Fr comparison plots for each ship type."""
+    import matplotlib
+    matplotlib.use("Agg")
+    import matplotlib.pyplot as plt
+    import base64
+    from io import BytesIO
+
+    output_dir.mkdir(parents=True, exist_ok=True)
+    figures = []
+
+    ship_types = ["SUBOFF", "DTMB-5415", "KVLCC2"]
+    titles = {
+        "SUBOFF": "DARPA SUBOFF (L=4.356m, Cb=0.542)",
+        "DTMB-5415": "DTMB Model 5415 (L=5.72m, Cb=0.508)",
+        "KVLCC2": "KVLCC2 Tanker (L=320m, Cb=0.810)",
+    }
+
+    for st in ship_types:
+        st_results = [r for r in results if r["ship_type"] == st]
+        if not st_results:
+            continue
+
+        fig, ax = plt.subplots(figsize=(8, 5))
+
+        fn_vals = [r["Fn"] for r in st_results]
+        ct_calc = [r["Ct_calc"] for r in st_results]
+        ct_exp = [r["Ct_exp"] for r in st_results]
+
+        ax.plot(fn_vals, ct_exp, "ko-", label="Experimental (Roddy/ITTC/SIMMAN)", markersize=8, linewidth=2)
+        ax.plot(fn_vals, ct_calc, "rs--", label="Holtrop-Mennen (simplified)", markersize=8, linewidth=2)
+
+        # Add error annotations
+        for r in st_results:
+            color = "green" if r["pass_ct"] else "red"
+            ax.annotate(
+                f"{r['error_ct_pct']:.1f}%",
+                (r["Fn"], r["Ct_calc"]),
+                textcoords="offset points",
+                xytext=(8, 8),
+                fontsize=8,
+                color=color,
+                fontweight="bold",
+            )
+
+        ax.set_xlabel("Froude Number (Fr)", fontsize=12)
+        ax.set_ylabel("Total Resistance Coefficient (Ct)", fontsize=12)
+        ax.set_title(f"Ct vs Fr — {titles[st]}", fontsize=13, fontweight="bold")
+        ax.legend(loc="best", fontsize=10)
+        ax.grid(True, alpha=0.3)
+
+        buf = BytesIO()
+        plt.tight_layout()
+        fig.savefig(buf, format="png", dpi=150)
+        buf.seek(0)
+        png_base64 = base64.b64encode(buf.read()).decode("utf-8")
+        plt.close(fig)
+
+        fname = f"ct_vs_fr_{st.lower().replace('-', '_')}.png"
+        fpath = output_dir / fname
+        with open(fpath, "wb") as f:
+            f.write(base64.b64decode(png_base64))
+
+        figures.append({
+            "name": f"ct_vs_fr_{st}",
+            "caption": f"Ct vs Froude Number for {titles[st]}. Red = calculated, Black = experimental. Annotations show % error.",
+            "png_base64": png_base64,
+            "filename": fname,
+        })
+
+    # Summary bar chart: error percentages
+    fig, ax = plt.subplots(figsize=(10, 5))
+    case_ids = [r["case_id"] for r in results]
+    errors = [r["error_ct_pct"] for r in results]
+    colors = ["green" if r["pass_ct"] else "red" for r in results]
+
+    bars = ax.bar(range(len(case_ids)), errors, color=colors, edgecolor="black", linewidth=0.5)
+    ax.axhline(y=15, color="orange", linestyle="--", linewidth=2, label="15% threshold")
+    ax.set_xticks(range(len(case_ids)))
+    ax.set_xticklabels(case_ids, rotation=45, ha="right", fontsize=8)
+    ax.set_ylabel("Error in Ct (%)", fontsize=12)
+    ax.set_title("Resistance Calculation Error vs 15% Threshold", fontsize=13, fontweight="bold")
+    ax.legend(fontsize=10)
+    ax.grid(True, alpha=0.3, axis="y")
+
+    buf = BytesIO()
+    plt.tight_layout()
+    fig.savefig(buf, format="png", dpi=150)
+    buf.seek(0)
+    png_base64 = base64.b64encode(buf.read()).decode("utf-8")
+    plt.close(fig)
+
+    fname = "error_summary_bar.png"
+    fpath = output_dir / fname
+    with open(fpath, "wb") as f:
+        f.write(base64.b64decode(png_base64))
+
+    figures.append({
+        "name": "error_summary",
+        "caption": "Error percentage for each benchmark case. Green = pass (<15%), Red = fail (>15%).",
+        "png_base64": png_base64,
+        "filename": fname,
+    })
+
+    return figures
+
+
+# ---------------------------------------------------------------------------
+# Summary
+# ---------------------------------------------------------------------------
+
+def build_summary(results: List[Dict]) -> Dict[str, Any]:
+    """Build summary statistics."""
+    total = len(results)
+    passed = sum(1 for r in results if r["pass_ct"])
+    failed = total - passed
+
+    by_type: Dict[str, Dict] = {}
+    for st in ["SUBOFF", "DTMB-5415", "KVLCC2"]:
+        st_results = [r for r in results if r["ship_type"] == st]
+        if st_results:
+            errors = [r["error_ct_pct"] for r in st_results]
+            by_type[st] = {
+                "total": len(st_results),
+                "passed": sum(1 for r in st_results if r["pass_ct"]),
+                "failed": sum(1 for r in st_results if not r["pass_ct"]),
+                "mean_error_pct": round(sum(errors) / len(errors), 2),
+                "max_error_pct": round(max(errors), 2),
+                "min_error_pct": round(min(errors), 2),
+            }
+
+    return {
+        "total_cases": total,
+        "passed": passed,
+        "failed": failed,
+        "pass_rate_pct": round(passed / total * 100, 1) if total > 0 else 0,
+        "by_ship_type": by_type,
+        "overall_mean_error_pct": round(sum(r["error_ct_pct"] for r in results) / total, 2),
+        "overall_max_error_pct": round(max(r["error_ct_pct"] for r in results), 2),
+    }
+
+
+# ---------------------------------------------------------------------------
+# Main
+# ---------------------------------------------------------------------------
+
+def holtrop_summary_cli():
+    output_dir = Path("outputs/resistance_validation")
+    if "--output-dir" in sys.argv:
+        idx = sys.argv.index("--output-dir")
+        output_dir = Path(sys.argv[idx + 1])
+
+    print("=" * 60)
+    print("Resistance Calculation Benchmark Validation")
+    print("=" * 60)
+
+    results = validate_all_cases()
+    summary = build_summary(results)
+    figures = generate_figures(results, output_dir)
+
+    # Print table
+    print(f"\n{'Case':>14} {'Ship':>10} {'Fr':>6} {'Ct_calc':>9} {'Ct_exp':>8} {'Err%':>7} {'Pass':>5}")
+    print("-" * 65)
+    for r in results:
+        status = "PASS" if r["pass_ct"] else "FAIL"
+        print(f"{r['case_id']:>14} {r['ship_type']:>10} {r['Fn']:6.3f} {r['Ct_calc']:9.6f} {r['Ct_exp']:8.4f} {r['error_ct_pct']:6.1f}% {status:>5}")
+
+    print(f"\n--- Summary ---")
+    print(f"Total: {summary['total_cases']}, Passed: {summary['passed']}, Failed: {summary['failed']}")
+    print(f"Pass rate: {summary['pass_rate_pct']}%")
+    print(f"Overall mean error: {summary['overall_mean_error_pct']}%")
+    print(f"Overall max error: {summary['overall_max_error_pct']}%")
+
+    for st, stats in summary["by_ship_type"].items():
+        print(f"\n  {st}: {stats['passed']}/{stats['total']} pass, mean err={stats['mean_error_pct']}%, max err={stats['max_error_pct']}%")
+
+    # Save JSON
+    output_dir.mkdir(parents=True, exist_ok=True)
+    json_path = output_dir / "validation_results.json"
+    with open(json_path, "w") as f:
+        json.dump({"results": results, "summary": summary}, f, indent=2)
+    print(f"\nResults saved to: {json_path}")
+
+    fig_paths = [output_dir / fig["filename"] for fig in figures]
+    print(f"Figures saved to: {output_dir}/")
+    for fp in fig_paths:
+        print(f"  {fp}")
+
+    return results, summary, figures
+
+
 # ---------------------------------------------------------------------------
 # Main
 # ---------------------------------------------------------------------------
@@ -240,11 +553,18 @@ if __name__ == "__main__":
     import argparse
 
     parser = argparse.ArgumentParser(description="Ship resistance benchmark validation")
+    parser.add_argument("--holtrop", action="store_true",
+                        help="Run the m1608 simplified-Holtrop full-case validation "
+                             "against backend/data/benchmark_reference.json (canon)")
     parser.add_argument("--plot", action="store_true", help="Generate comparison plot")
     parser.add_argument("--json", action="store_true", help="Output JSON report")
     parser.add_argument("--ship-type", choices=["SUBOFF", "DTMB-5415", "KVLCC2", "all"],
                         default="all", help="Filter by ship type")
     args = parser.parse_args()
+
+    if args.holtrop:
+        holtrop_summary_cli()
+        raise SystemExit(0)
 
     # Filter cases
     if args.ship_type != "all":
