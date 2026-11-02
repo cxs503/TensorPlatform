@@ -144,3 +144,26 @@ CD0 从 0.008 增到 0.020，eta_max 由 0.769 降到 0.652，KT(J=0) 仅由 0.4
 python3 -m pytest tests/test_propeller_open_water.py -q          # 29 passed
 python3 tools/verification/open_water_benchmark.py               # 重生成 outputs/propeller_open_water/*
 ```
+
+---
+
+## 8. 后续取证与更正（m1650，2026-11-01）
+
+本节为**追加**内容，上文（§1–§7）保持原样留痕。§5/§6 那条「绝对精度对文献值 WITHHELD」的欠账已在仓内结清，
+证据与数字见 `docs/reports/m1650-propeller-bem-vs-bseries-verification.md`（报告 id 1240）、
+`artifacts/m1650/propeller_bem_vs_bseries/audit.json`、脚本 `tools/verify/propeller_open_water/bem_vs_bseries.py`。
+
+1. **§5.4 / §6 关于 J0 的结论方向错误，本次更正**：上文写「真实 B 系列 J0 一般在 0.85–0.9×(P/D)，本模型 J0 偏高 10–15%」。
+   该「0.85–0.9」是口头经验、非图谱点值。正典 Oosterveld & van Oossanen 表给出 J0/(P/D) = 1.055–1.113
+   （B4-70 1.062、B4-55 1.098、B4-40 1.113、B5-80 1.055、B3-50 1.080），而本模型恒为 0.993×(P/D)：
+   **J0 实为偏低 6.5–10.7%（均值 8.1%），方向与上文相反**。
+2. **绝对精度已可判定、但未达 3%/15%**：对正典表，载荷带内 KT 均值误差 18.0%、KQ 16.4%（均超平台 15% 可接受门），
+   eta0 12.0%（门内）；积分量 eta_max 3.8%（最大 6.8%）、J_opt 4.6%、J0 8.1%。
+   对 KP505 实测试验：本模型 KT 22.6%、KQ 9.9%，正典表 KT 13.9%、KQ 15.5%（后者为「换桨型/尺度」固有带）。
+3. **根因定位**：载荷带内 dKT/dJ 比正典表陡 108–156%（即推力-进速斜率过陡），故低 J 推力偏高、J0 偏低、效率在
+   eta_max 处反而接近；与 §5.2「剖面无弯度、无三维有限展弦比修正」的判断一致。
+4. **图表外的一处文档漂移（已登记未改代码）**：`blade_element_section` 的 docstring 写 `Cd = 0.008 + 0.9α²`
+   夹紧 `[0.006, 0.08]`，代码实际为 `CD0 + 1.0α²` 夹紧 `[0.008, 0.10]`。改常数会移动 m1393 全部已发表数字，
+   故留待「模型改进」单处理（审计字段 `section_docstring_drift`）。
+5. **能力项口径建议**：`propeller.open_water` 应注为「REAL 实现，KT/KQ ±15–20%、效率 ±4%」，
+   而不是「REAL 且精度未定」。未作任何调参，本模型未针对上述基准拟合。
