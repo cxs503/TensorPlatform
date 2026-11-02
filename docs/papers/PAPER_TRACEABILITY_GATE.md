@@ -79,7 +79,7 @@ python3 -m pytest --noconftest backend/tests/test_paper_traceability_gate.py -q 
 
 1. **只判溯源，不判物理**：门不检查公式是否正确、网格是否收敛、对标基准是否恰当；
    H1 类「coth 色散式物理错」这类判决仍需审稿人/verifier 席。
-2. **图内数据合成不可静态判定**（见 §2 第 5 条）；下一步应做 `generate_figures.py` 沙箱执行 + 与工件数值 diff。
+2. **图内数据合成不可静态判定**（见 §2 第 5 条）——该缺口已由配套门 `tools/paper_gate/figure_provenance.py`（PG9，沙箱执行 + 与工件数值 diff）承接，见 `docs/papers/FIGURE_PROVENANCE_GATE.md`；本门只判文本，不与 PG9 重复计票。
 3. **报告正文需离线落地**：PG8 依赖 `--report-text-dir` 的 `<id>.md` 转储；未提供时降级为 WARN，
    绝不把「没核验」写成「通过」。
 4. **台账口径**：`--report-ids` 只认报告行存在与否，不校验报告作者/机构归属。
