@@ -191,6 +191,7 @@ class ShipCalculationEngine:
         )
         pt = open_water_point(geom, J, rho=1025.0, n_rps=n)
         return {
+            "model": "bem-v1",  # Identifies the model version
             "advance_coefficient": round(J, 4),
             "thrust_coefficient": round(pt["KT"], 4),
             "torque_coefficient": round(pt["KQ"], 4),
@@ -381,88 +382,3 @@ class BatchScanExecutor:
 
         total_duration = time.time() - t0
         finished_at = datetime.now(timezone.utc).isoformat()
-
-        # 统计
-        success_count = sum(1 for r in self.results if r.status == CaseStatus.SUCCESS)
-        failed_count = sum(1 for r in self.results if r.status == CaseStatus.FAILED)
-        skipped_count = sum(1 for r in self.results if r.status == CaseStatus.SKIPPED)
-        timeout_count = sum(1 for r in self.results if r.status == CaseStatus.TIMEOUT)
-
-        durations = [r.duration_s for r in self.results if r.duration_s > 0]
-        avg_dur = sum(durations) / len(durations) if durations else 0
-        max_dur = max(durations) if durations else 0
-        min_dur = min(durations) if durations else 0
-
-        # 按类别统计
-        summary_by_cat: Dict[str, Dict[str, int]] = {}
-        for r in self.results:
-            cat = r.category
-            if cat not in summary_by_cat:
-                summary_by_cat[cat] = {"success": 0, "failed": 0, "timeout": 0, "skipped": 0}
-            if r.status == CaseStatus.SUCCESS:
-                summary_by_cat[cat]["success"] += 1
-            elif r.status == CaseStatus.FAILED:
-                summary_by_cat[cat]["failed"] += 1
-            elif r.status == CaseStatus.TIMEOUT:
-                summary_by_cat[cat]["timeout"] += 1
-            elif r.status == CaseStatus.SKIPPED:
-                summary_by_cat[cat]["skipped"] += 1
-
-        report = BatchReport(
-            batch_id=batch_id,
-            started_at=started_at,
-            finished_at=finished_at,
-            total_cases=len(self.cases),
-            success_count=success_count,
-            failed_count=failed_count,
-            skipped_count=skipped_count,
-            timeout_count=timeout_count,
-            total_duration_s=round(total_duration, 2),
-            avg_duration_s=round(avg_dur, 4),
-            max_duration_s=round(max_dur, 4),
-            min_duration_s=round(min_dur, 4),
-            cases=self.results,
-            summary_by_category=summary_by_cat,
-            config=self.config,
-        )
-
-        # 保存报告
-        report_path = self.output_dir / "batch_report.json"
-        with open(report_path, "w", encoding="utf-8") as f:
-            json.dump(asdict(report), f, indent=2, ensure_ascii=False, default=str)
-
-        print(f"\n[BatchScan] Batch complete: {batch_id}")
-        print(f"[BatchScan] Total: {len(self.cases)} | "
-              f"Success: {success_count} | Failed: {failed_count} | "
-              f"Timeout: {timeout_count} | Skipped: {skipped_count}")
-        print(f"[BatchScan] Duration: {total_duration:.2f}s")
-        print(f"[BatchScan] Report saved to: {report_path}")
-
-        return report
-
-
-def main():
-    """CLI entry point."""
-    case_list_path = sys.argv[1] if len(sys.argv) > 1 else str(Path(__file__).parent / "case_list.yaml")
-    output_dir = sys.argv[2] if len(sys.argv) > 2 else "artifacts/m642"
-
-    executor = BatchScanExecutor(case_list_path, output_dir)
-    report = executor.run()
-
-    # 验证机器判据
-    total = report.total_cases
-    all_status_queryable = all(r.status is not None for r in report.cases)
-    failure_not_blocking = report.success_count > 0 and report.failed_count > 0
-
-    print(f"\n{'='*60}")
-    print("机器判据验证:")
-    print(f"  ≥100 工况冒烟批: {total} cases {'✓ PASS' if total >= 100 else '✗ FAIL'}")
-    print(f"  全状态可查: {'✓ PASS' if all_status_queryable else '✗ FAIL'}")
-    print(f"  失败不阻塞: {'✓ PASS' if failure_not_blocking else '✗ FAIL (no failures to test)'}")
-    print(f"{'='*60}")
-
-    return report
-
-
-if __name__ == "__main__":
-    main()
