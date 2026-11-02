@@ -166,10 +166,18 @@ class RoutePlanner:
         self.nodes: List[Tuple[int, int]] = []       # (iy, ix) on the field grid
         self.index_of: Dict[Tuple[int, int], int] = {}
         h_list, sig_list, uc_list, vc_list, uw_list, vw_list = [], [], [], [], [], []
+        vmax_list: List[float] = []
         for iy in range(0, field.ny, self.stride):
             for ix in range(0, field.nx, self.stride):
                 s = field.sample(*field.cell_center(iy, ix))
                 if s["land"] or s["h_m"] > self.h_max + 1e-9:
+                    continue
+                # A cell whose ice is too heavy to hold even V_MIN_MS is not
+                # navigable: admitting it let edge_option fall back to V_MIN_MS
+                # and route straight through ice the ship cannot sail at all
+                # (verifier judgment R9 in tools/verifier/tp_ver_polar_route.py).
+                vmax = max_sustainable_speed_ms(ship, s["h_m"], s["sigma_mpa"])
+                if vmax <= 0.0:
                     continue
                 self.index_of[(iy, ix)] = len(self.nodes)
                 self.nodes.append((iy, ix))
@@ -179,9 +187,13 @@ class RoutePlanner:
                 vc_list.append(s["v_current_ms"])
                 uw_list.append(s["u_wind_ms"])
                 vw_list.append(s["v_wind_ms"])
+                vmax_list.append(vmax)
 
         if not self.nodes:
-            raise ValueError("no navigable ice-field nodes for this ship/ice class")
+            raise ValueError(
+                "no navigable ice-field nodes for this ship/ice class "
+                "(every cell is land, thicker than the hull's ice limit, or too "
+                "heavy to sustain the minimum speed)")
 
         self.h = np.asarray(h_list)
         self.sigma = np.asarray(sig_list)
@@ -195,13 +207,12 @@ class RoutePlanner:
         # pre-computed resistance and sustainable speed per node / speed level
         n = len(self.nodes)
         self.r_table = np.zeros((n, len(self.v_levels)))
-        self.v_max_node = np.zeros(n)
+        self.v_max_node = np.asarray(vmax_list, dtype=float)
         for k in range(n):
             for j, v in enumerate(self.v_levels):
                 self.r_table[k, j] = holtrop_open_water_resistance(ship, float(v))[
                     "total"
                 ] + ice_components(ship, float(v), self.h[k], self.sigma[k])["total"]
-            self.v_max_node[k] = max_sustainable_speed_ms(ship, self.h[k], self.sigma[k])
 
         self.dx_km = field.dx_km * self.stride
         self.dy_km = field.dy_km * self.stride
@@ -273,22 +284,48 @@ class RoutePlanner:
             best = (fuel + lam * time_h, fuel, time_h, v)
         return best
 
+    def _leg_resistance(self, a: int, b: int, v_water_ms: float) -> float:
+        """Total resistance [N] on edge a->b at the *sailed* speed ``v_water_ms``.
+
+        Mirrors :meth:`edge_option`'s resistance build-up (node ice + wind along
+        the track).  Using ``r_table[a, 0]`` here instead -- the slowest speed
+        level -- silently under-reports the brake energy of every faster leg
+        (verifier judgment R4 in ``tools/verifier/tp_ver_polar_route.py``).
+        """
+        _, ux, uy = self._edge_geometry(a, b)
+        cur_along = self.u_cur[a] * ux + self.v_cur[a] * uy
+        wind_along = self.u_wind[a] * ux + self.v_wind[a] * uy
+        j = int(np.argmin(np.abs(self.v_levels - v_water_ms)))
+        v_g = max(v_water_ms + cur_along, V_MIN_MS)
+        return float(self.r_table[a, j] + wind_resistance(self.ship, v_g, wind_along))
+
     # -- search --------------------------------------------------------------
     def _search(self, start: int, goal: int, lam: float) -> Dict[str, Any]:
         gx, gy = self.node_xy(goal)
         lam_safe = max(lam, 0.0)
 
-        # admissible lower bound on cost per metre
+        # Lower bound on cost per metre [kg/m].  It must be *admissible*: a
+        # favourable current (ground speed up, time down) or a following wind
+        # (thrust up, fuel down) anywhere in the field can beat every sampled
+        # node, so the bound is built from the best case over the whole field.
+        # Ignoring those two terms made h over-estimate the remaining cost and
+        # A* could then return a sub-optimal passage (verifier judgment R2).
+        step = max(1, len(self.nodes) // 200)
+        c_max = float(max(np.abs(self.u_cur).max(), np.abs(self.v_cur).max())) \
+            if len(self.nodes) else 0.0
+        w_max = float(max(np.abs(self.u_wind).max(), np.abs(self.v_wind).max())) \
+            if len(self.nodes) else 0.0
+        v_hi = float(self.v_levels.max()) + c_max
+        # largest favourable wind thrust anywhere in the field, at the highest
+        # groundspeed the grid can produce
+        w_drag = abs(wind_resistance(self.ship, v_hi, w_max)) if w_max > 0.0 else 0.0
         c_floor = math.inf
-        for k in range(0, len(self.nodes), max(1, len(self.nodes) // 200)):
-            v_cap = min(self.ship.design_speed_ms, self.v_max_node[k])
+        for k in range(0, len(self.nodes), step):
             for j, v in enumerate(self.v_levels):
                 v = float(v)
-                if v > v_cap:
-                    continue
-                v_g = max(v, V_MIN_MS)
-                rate = fuel_rate_kg_per_h(self.ship, self.r_table[k, j], v)
-                per_m = rate / (v_g * 3600.0) + lam_safe / (v_g * 3600.0)
+                r_lb = float(self.r_table[k, j]) - w_drag
+                rate_lb = brake_power_kw(self.ship, r_lb, v) * self.ship.sfoc_g_kwh / 1000.0
+                per_m = (rate_lb + lam_safe) / ((v + c_max) * 3600.0)
                 c_floor = min(c_floor, per_m)
         if not math.isfinite(c_floor):
             c_floor = 0.0
@@ -331,7 +368,7 @@ class RoutePlanner:
             fuel += f
             time_h += t
             dist_m += d * 1000.0
-            energy += brake_power_kw(self.ship, self.r_table[a, 0], v) * t * 3.6
+            energy += brake_power_kw(self.ship, self._leg_resistance(a, b, v), v) * t * 3.6
             speeds.append(v)
         return {
             "path": path,
