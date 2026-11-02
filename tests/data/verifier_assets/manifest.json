@@ -1,0 +1,73 @@
+{
+  "purpose": "验证资产（参考实现 + 平台探针存档）版本化存放地。放在 artifacts/ 下的同名文件会被合并门禁滤除，导致验证测试静默失效（2026-11-01 实测 12 项验证测试因缺文件而 FAIL/ERROR）。",
+  "rule": "禁止在此目录之外引用不可再生证据；新增资产必须登记 sha256。",
+  "generated_by": "docs/verification/verifier_asset_restoration_m1802.md",
+  "files": {
+    "maneuvering/mmg_ref.py": {
+      "sha256": "eaaf817587b53aa2e18c65cc80834d38c99e9941744e7488b38ab95761de6ba8",
+      "bytes": 14336,
+      "origin_commit": "c9655951",
+      "description": "MMG 操纵性参考模型（kvlcc2 参数）"
+    },
+    "maneuvering/results.json": {
+      "sha256": "5f251508e975bb6b9808ba2a82e3e38c82316942ef88d7c2d16b9edf867a50b2",
+      "bytes": 12335,
+      "origin_commit": "c9655951",
+      "description": "平台操纵性探针结果存档（判定平台侧指标）"
+    },
+    "maneuvering/calibration.json": {
+      "sha256": "8a67abe86d6ac066211fc62f824b896d514204b35624c94f0ddc42a625c97d92",
+      "bytes": 2192,
+      "origin_commit": "c9655951",
+      "description": "参考模型标定记录"
+    },
+    "damage_stability/solas_reference.py": {
+      "sha256": "47f39b301b41871358acc2c8f6d75e0bac4c76ace04949ef30031930c0a1c513",
+      "bytes": 4836,
+      "origin_commit": "654c9d10",
+      "description": "SOLAS 2009 分舱指数/破舱稳性参考实现"
+    },
+    "damage_stability/verdict.json": {
+      "sha256": "ba70b0e7738c9920a96b47579ede2cb6c9a6cbcd9563156544e1e9e8bb1581c2",
+      "bytes": 2749,
+      "origin_commit": "654c9d10",
+      "description": "破舱稳性判决工件（J1..J8）"
+    },
+    "damage_stability/evidence.json": {
+      "sha256": "761e8f874971aad4de9e3c04a54c5417c8a70ecd0fae53fd5c24a1de946c7b1c",
+      "bytes": 25264,
+      "origin_commit": "654c9d10",
+      "description": "平台破舱稳性探针证据"
+    },
+    "damage_stability/fig_R_vs_solas.png": {
+      "sha256": "3fc05b429eaa846c673475aa2dfb1c83e978c66ff0629e3874056ebe17e7ba2a",
+      "bytes": 75912,
+      "origin_commit": "6acd24c4",
+      "description": "R vs SOLAS 要求指数图"
+    },
+    "damage_stability/fig_gz_heuristic.png": {
+      "sha256": "5975af18088b51756406d51027b5c2b221be0b3de22809abf34182693cd6d7a7",
+      "bytes": 82026,
+      "origin_commit": "b702bfdd",
+      "description": "GZ 残余稳性图"
+    },
+    "damage_stability/fig_deviation.png": {
+      "sha256": "420225ad47a976d3f013626267d62d918fa4f5b030eb0bbe510d31385625bff8",
+      "bytes": 48985,
+      "origin_commit": "42cb7586",
+      "description": "偏差分析图"
+    },
+    "hydrostatics/hydro_curves_kcs_snapshot.json": {
+      "sha256": "6f7c14e76e193c2502b60f41273df3afae54dfba241e32da597a6b8002148a10",
+      "bytes": 859,
+      "origin_commit": "4be8340f",
+      "description": "KCS 水曲线平台探针存档（5 吃水）"
+    },
+    "propulsion/prop_openwater_fixture.json": {
+      "sha256": "a9e866861dea90226a1b25740c45199b34611f7402966b5a9bd386d8f2873300",
+      "bytes": 19844,
+      "origin_commit": "67d4bc0b",
+      "description": "Wageningen B 系列 + 推进链平台探针存档（m1584）"
+    }
+  }
+}

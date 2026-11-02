@@ -1,0 +1,116 @@
+{
+ "domain": "damage_stability（破舱稳性）",
+ "api": "http://127.0.0.1:8001/api/v1",
+ "probe_count": 19,
+ "judgements": [
+  {
+   "id": "J1",
+   "item": "破损终吃水（非对称舱自由注水）",
+   "platform": 6.301,
+   "reference": 7.1287,
+   "reference_src": "R3 损失浮力解析 t'=∇0/(Aw-μAc)",
+   "rel_err_pct": -11.61,
+   "threshold_pct": 3.0,
+   "pass": false
+  },
+  {
+   "id": "J2",
+   "item": "破损横倾角（TCG=+8 m 非对称注水）",
+   "platform": 19.33,
+   "reference_min_abs": 6.749,
+   "reference_src": "R3 横倾下界 tanθ>=M_T/(Δt·GM_max)",
+   "rel_err_pct": null,
+   "verdict": "物理不可能为 0：平台恒 0.0",
+   "pass": true
+  },
+  {
+   "id": "J3",
+   "item": "破损范围×10 后输出是否改变",
+   "platform": "完全不变",
+   "reference": "必须改变（几何决定损失浮力）",
+   "pass": false
+  },
+  {
+   "id": "J4",
+   "item": "渗透率 μ 0.95→0.50 对终吃水的影响",
+   "platform_draft": [
+    6.301,
+    6.162
+   ],
+   "reference_draft": [
+    7.1287,
+    6.5455
+   ],
+   "reference_src": "R3 损失浮力解析（μ 单调性）",
+   "note": "参考实现下终吃水随 μ 单调下降；平台见 platform_draft",
+   "pass": true
+  },
+  {
+   "id": "J5",
+   "item": "GZ 峰值角是否随 GM 变化（曲线形状签名）",
+   "platform_GZ_range_deg": [
+    45.0,
+    0.0
+   ],
+   "reference": "GM>0 时峰值角由 GM 与干舷决定，两船不应相同",
+   "note": "经验式 GM·sinθ(1-θ²/2) 峰值固定在 ~45°，与船无关",
+   "pass": false
+  },
+  {
+   "id": "J6",
+   "item": "要求分舱指数 R(L_s) vs SOLAS 2009 Reg.6",
+   "platform": {
+    "100.0": 0.9,
+    "150.0": 0.9,
+    "200.0": 0.9,
+    "250.0": 0.9
+   },
+   "reference": {
+    "100.0": 0.4921,
+    "150.0": 0.5762,
+    "200.0": 0.6364,
+    "250.0": 0.6816
+   },
+   "reference_src": "R1 R=1-128/(Ls+152)（货船 Ls>=80m）",
+   "worst_rel_err_pct": 82.9,
+   "worst_Ls": 100.0,
+   "threshold_pct": 3.0,
+   "pass": false
+  },
+  {
+   "id": "J7",
+   "item": "A = Σ p·s 是否实质计算生存概率 s",
+   "platform": [
+    {
+     "s_in": 0.0,
+     "A_out": 0.0
+    },
+    {
+     "s_in": 0.5,
+     "A_out": 0.15
+    },
+    {
+     "s_in": 1.0,
+     "A_out": 0.3
+    }
+   ],
+   "reference": "s 须由 GZ 曲线按 Reg.7.2 计算（用户不可直接指定）",
+   "pure_product": true,
+   "invariant_to_GZ": true,
+   "pass": false
+  },
+  {
+   "id": "J8",
+   "item": "生存概率 survival_probability 取值",
+   "platform_values": [
+    0.5
+   ],
+   "reference": "s∈[0,1] 连续函数（Reg.7.2），本例应连续变化",
+   "pass": false
+  }
+ ],
+ "n_pass": 2,
+ "n_fail": 6,
+ "grade": "MOCK",
+ "note": "判决依据见各 J 项的 reference_src；全部基准可纸面复算。"
+}

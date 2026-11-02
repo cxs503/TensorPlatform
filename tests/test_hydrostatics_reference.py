@@ -20,6 +20,26 @@ HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.dirname(HERE)
 sys.path.insert(0, os.path.join(ROOT, "tools", "verifier", "geometry"))
 
+# The KCS hydro-curve capture used to live in artifacts/verifier/, which the
+# merge gate strips; it now ships (versioned, checksummed) under tests/data/
+# with the legacy location kept as a fallback for already-restored trees.
+SNAP_CANDIDATES = [
+    os.path.join(ROOT, "tests", "data", "verifier_assets", "hydrostatics"),
+    os.path.join(ROOT, "artifacts", "verifier"),
+]
+
+
+def _load_snapshot():
+    for d in SNAP_CANDIDATES:
+        path = os.path.join(d, "hydro_curves_kcs_snapshot.json")
+        if os.path.exists(path):
+            with open(path) as f:
+                return json.load(f)
+    pytest.fail(
+        "hydro_curves_kcs_snapshot.json 缺失（候选: %s）。该文件是平台水曲线探针的"
+        "存档证据，属版本化验证资产，不得删除；重采集: "
+        "python3 tools/verifier/geometry/audit_hydro_curves.py --live" % SNAP_CANDIDATES)
+
 from hydrostatics_reference import (  # noqa: E402
     Box, ParabolicWallSided, closed_form_box, closed_form_parabolic, hydrostatics,
 )
@@ -92,8 +112,7 @@ def test_fixed_hull_gives_draft_dependent_Cb():
     assert all(b > a for a, b in zip(cb, cb[1:])), cb      # Cb must grow with draft
     assert cb[-1] < 1.0
     # ... whereas the platform's curves are draft-invariant (bug signature)
-    snap = json.load(open(os.path.join(ROOT, "artifacts", "verifier",
-                                       "hydro_curves_kcs_snapshot.json")))
+    snap = _load_snapshot()
     cbp = np.asarray(snap["curves"]["Cb"], float)
     assert np.ptp(cbp) < 1e-3, "endpoint Cb is exactly draft-invariant"
 
@@ -135,8 +154,7 @@ def test_criteria_pass_on_a_physically_correct_table():
 
 
 def test_platform_snapshot_fails_the_identities():
-    snap = json.load(open(os.path.join(ROOT, "artifacts", "verifier",
-                                       "hydro_curves_kcs_snapshot.json")))
+    snap = _load_snapshot()
     res = A.audit(snap)
     verdict = {c["id"]: c["pass"] for c in res["criteria"]}
     assert res["verdict"] == "FAIL"
@@ -149,8 +167,7 @@ def test_platform_snapshot_fails_the_identities():
 
 
 def test_snapshot_displacement_error_exceeds_gate():
-    snap = json.load(open(os.path.join(ROOT, "artifacts", "verifier",
-                                       "hydro_curves_kcs_snapshot.json")))
+    snap = _load_snapshot()
     res = A.audit(snap)
     b1 = [c for c in res["criteria"] if c["id"] == "B1"][0]
     assert b1["rel_err"] > 0.15 and b1["rel_err"] < 3.0   # gross, but a bug not noise

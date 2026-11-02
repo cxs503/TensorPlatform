@@ -35,7 +35,13 @@ from hydrostatics_reference import KCS_PARTICULARS  # noqa: E402
 API = "http://127.0.0.1:8001/api/v1"
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", "..", ".."))
 ART = os.path.join(ROOT, "artifacts", "verifier")
-SNAP = os.path.join(ART, "hydro_curves_kcs_snapshot.json")
+# Evidence capture lives in the versioned (non-gated) asset dir; artifacts/ is
+# only a legacy fallback for already-restored trees. See
+# tests/data/verifier_assets/README.md.
+SNAP_VER = os.path.join(ROOT, "tests", "data", "verifier_assets", "hydrostatics",
+                        "hydro_curves_kcs_snapshot.json")
+SNAP = SNAP_VER if os.path.exists(SNAP_VER) else os.path.join(
+    ART, "hydro_curves_kcs_snapshot.json")
 OUT = os.path.join(ART, "hydro_curves_audit.json")
 FIG = os.path.join(ART, "fig_hydro_curves_kcs.png")
 
@@ -188,7 +194,7 @@ def main() -> int:
     os.makedirs(ART, exist_ok=True)
     if args.live:
         snap = fetch_live()
-        with open(SNAP, "w") as fh:
+        with open(SNAP_VER, "w") as fh:
             json.dump(snap, fh, indent=1)
     else:
         with open(SNAP) as fh:
