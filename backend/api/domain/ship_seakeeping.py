@@ -79,6 +79,10 @@ class ResponseRequest(BaseModel):
     omega_min: float = Field(0.05, gt=0)
     omega_max: float = Field(2.5, gt=0)
     n_points: int = Field(201, ge=3, le=4001)
+    mask_invalid: bool = Field(
+        False,
+        description="exclude the following-sea band with omega_e <= 0 from the response moments",
+    )
 
 
 def _model(hull: HullCondition) -> SeakeepingModel:
@@ -150,7 +154,10 @@ def seakeeping_response(req: ResponseRequest) -> Dict[str, object]:
         spec = spectrum(req.kind, req.Hs, req.Tp, omegas, gamma=req.gamma)
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
-    stats = response_statistics(model, spec, heading_deg=req.heading_deg, speed=req.speed_ms)
+    stats = response_statistics(
+        model, spec, heading_deg=req.heading_deg, speed=req.speed_ms,
+        mask_invalid=req.mask_invalid,
+    )
     return {
         "sea_state": {"kind": req.kind, "Hs_m": req.Hs, "Tp_s": req.Tp, "gamma": req.gamma},
         "heading_deg": req.heading_deg,
