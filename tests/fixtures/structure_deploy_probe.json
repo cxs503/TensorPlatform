@@ -1,0 +1,253 @@
+{
+ "api": "http://127.0.0.1:8001/api/v1",
+ "endpoints": {
+  "/structure/analyze": {
+   "base": {
+    "max_stress": 6634808.9,
+    "allowable_stress": 141.0,
+    "utilization": 47055.382,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   },
+   "t_x2": {
+    "max_stress": 6634808.9,
+    "allowable_stress": 141.0,
+    "utilization": 47055.382,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   },
+   "D_x1.5": {
+    "max_stress": 2948803.9,
+    "allowable_stress": 141.0,
+    "utilization": 20913.503,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   },
+   "disp_x2": {
+    "max_stress": 13026772.8,
+    "allowable_stress": 141.0,
+    "utilization": 92388.46,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   },
+   "ys355": {
+    "max_stress": 6634808.9,
+    "allowable_stress": 213.0,
+    "utilization": 31149.337,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   },
+   "fs_x2": {
+    "max_stress": 6634808.9,
+    "allowable_stress": 141.0,
+    "utilization": 47055.382,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   },
+   "L_x0.5": {
+    "max_stress": 3438826.9,
+    "allowable_stress": 141.0,
+    "utilization": 24388.843,
+    "fatigue_life": 0.0,
+    "status": "需校核"
+   }
+  },
+  "/structure/plate": {
+   "base": {
+    "location": "船底板",
+    "critical_stress": 51.5,
+    "actual_stress": 117.5,
+    "safety_factor": 0.44,
+    "status": "需加强"
+   },
+   "t_x2": {
+    "location": "船底板",
+    "critical_stress": 206.0,
+    "actual_stress": 117.5,
+    "safety_factor": 1.75,
+    "status": "合格"
+   },
+   "D_x1.5": {
+    "location": "船底板",
+    "critical_stress": 51.5,
+    "actual_stress": 117.5,
+    "safety_factor": 0.44,
+    "status": "需加强"
+   },
+   "disp_x2": {
+    "location": "船底板",
+    "critical_stress": 51.5,
+    "actual_stress": 117.5,
+    "safety_factor": 0.44,
+    "status": "需加强"
+   },
+   "ys355": {
+    "location": "船底板",
+    "critical_stress": 51.5,
+    "actual_stress": 177.5,
+    "safety_factor": 0.29,
+    "status": "需加强"
+   },
+   "fs_x2": {
+    "location": "船底板",
+    "critical_stress": 12.9,
+    "actual_stress": 117.5,
+    "safety_factor": 0.11,
+    "status": "需加强"
+   },
+   "L_x0.5": {
+    "location": "船底板",
+    "critical_stress": 51.5,
+    "actual_stress": 117.5,
+    "safety_factor": 0.44,
+    "status": "需加强"
+   }
+  },
+  "/structure/fatigue": {
+   "base": {
+    "stress_range": 70.5,
+    "design_life": 25,
+    "calculated_life": 28.5,
+    "s_n_curve": "DNV-C",
+    "status": "合格"
+   },
+   "t_x2": {
+    "stress_range": 70.5,
+    "design_life": 25,
+    "calculated_life": 28.5,
+    "s_n_curve": "DNV-C",
+    "status": "合格"
+   },
+   "D_x1.5": {
+    "stress_range": 70.5,
+    "design_life": 25,
+    "calculated_life": 28.5,
+    "s_n_curve": "DNV-C",
+    "status": "合格"
+   },
+   "disp_x2": {
+    "stress_range": 70.5,
+    "design_life": 25,
+    "calculated_life": 28.5,
+    "s_n_curve": "DNV-C",
+    "status": "合格"
+   },
+   "ys355": {
+    "stress_range": 106.5,
+    "design_life": 25,
+    "calculated_life": 8.3,
+    "s_n_curve": "DNV-C",
+    "status": "需详细分析"
+   },
+   "fs_x2": {
+    "stress_range": 70.5,
+    "design_life": 25,
+    "calculated_life": 28.5,
+    "s_n_curve": "DNV-C",
+    "status": "合格"
+   },
+   "L_x0.5": {
+    "stress_range": 70.5,
+    "design_life": 25,
+    "calculated_life": 28.5,
+    "s_n_curve": "DNV-C",
+    "status": "合格"
+   }
+  }
+ },
+ "variants": {
+  "base": {
+   "L": 230.0,
+   "B": 32.2,
+   "T": 10.8,
+   "D": 19.5,
+   "displacement": 52030.0,
+   "Cb": 0.651,
+   "frame_spacing": 0.6,
+   "plate_thickness": 0.015,
+   "yield_stress": 235.0
+  },
+  "t_x2": {
+   "L": 230.0,
+   "B": 32.2,
+   "T": 10.8,
+   "D": 19.5,
+   "displacement": 52030.0,
+   "Cb": 0.651,
+   "frame_spacing": 0.6,
+   "plate_thickness": 0.03,
+   "yield_stress": 235.0
+  },
+  "D_x1.5": {
+   "L": 230.0,
+   "B": 32.2,
+   "T": 10.8,
+   "D": 29.25,
+   "displacement": 52030.0,
+   "Cb": 0.651,
+   "frame_spacing": 0.6,
+   "plate_thickness": 0.015,
+   "yield_stress": 235.0
+  },
+  "disp_x2": {
+   "L": 230.0,
+   "B": 32.2,
+   "T": 10.8,
+   "D": 19.5,
+   "displacement": 104060.0,
+   "Cb": 0.651,
+   "frame_spacing": 0.6,
+   "plate_thickness": 0.015,
+   "yield_stress": 235.0
+  },
+  "ys355": {
+   "L": 230.0,
+   "B": 32.2,
+   "T": 10.8,
+   "D": 19.5,
+   "displacement": 52030.0,
+   "Cb": 0.651,
+   "frame_spacing": 0.6,
+   "plate_thickness": 0.015,
+   "yield_stress": 355.0
+  },
+  "fs_x2": {
+   "L": 230.0,
+   "B": 32.2,
+   "T": 10.8,
+   "D": 19.5,
+   "displacement": 52030.0,
+   "Cb": 0.651,
+   "frame_spacing": 1.2,
+   "plate_thickness": 0.015,
+   "yield_stress": 235.0
+  },
+  "L_x0.5": {
+   "L": 115.0,
+   "B": 16.1,
+   "T": 5.4,
+   "D": 9.75,
+   "displacement": 6503.75,
+   "Cb": 0.651,
+   "frame_spacing": 0.3,
+   "plate_thickness": 0.0075,
+   "yield_stress": 235.0
+  }
+ },
+ "deploy": {
+  "live": {
+   "path": "/srv/tensor/ship-workspace/ship-performance-platform/backend/api/structure.py",
+   "exists": true,
+   "bytes": 3583,
+   "md5": "4fafb7b6a43336aeff3d9e6bc20fff26",
+   "mtime": 1773880069.0
+  },
+  "fixed_branch": {
+   "path": "/srv/tensor/agent/work/m1623/backend/api/structure.py",
+   "exists": true,
+   "bytes": 6660,
+   "md5": "f14d74c246419d6add11cfa6aaecf018",
+   "mtime": 1793522201.58
+  }
+ }
+}
