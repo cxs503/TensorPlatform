@@ -373,7 +373,7 @@ def main(argv: List[str] | None = None) -> int:
         "surrogate-vs-model fidelity, **not** physical accuracy against model "
         "tests (that remains WITHHELD — no tank data is bundled).\n"
         "* The reference models are the platform's own `holtrop_mennen_1982 + "
-        "lindqvist_1989`, `2dof_modal_strip + gerritsma`, `mmg_3dof_crossflow_lift`, "
+        "lindqvist_1989`, `2dof_modal_strip + raw_empirical_hs_only_v1`, `mmg_3dof_crossflow_lift`, "
         "`numerical_kn_gz_hydrostatics` and `spectral_miner_dnv_c203_curveF` "
         "implementations, so a shared modelling error would be invisible.\n"
         "* Relative error is undefined where the reference crosses zero "

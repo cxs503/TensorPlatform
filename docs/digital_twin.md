@@ -48,7 +48,7 @@ surrogate.predict({"V": 6.0, "ice_concentration": 0.5, "ice_thickness": 0.5})
 | 代理 | 输入 | 输出 | 参考模型 | 基函数 | R²(holdout) |
 |---|---|---|---|---|---|
 | resistance | V, ice_conc, ice_h | R_calm/R_ice/R_total/P_D | Holtrop 1982 + Lindqvist 1989 | 20 | 0.9995 |
-| seakeeping | Hs, Tp, heading, V | heave_rms, pitch_rms, R_aw | 2DOF modal + Gerritsma | 35 | 0.98 |
+| seakeeping | Hs, Tp, heading, V | heave_rms, pitch_rms, R_aw | 2DOF modal + `raw_empirical_hs_only_v1` (R_aw: Hs-only, no Tp) | 35 | 0.98 |
 | manoeuvring | V, rudder | D/L, advance/L, speed loss, r_ss | MMG 3DOF | 6 | 0.99 |
 | stability | heel, KG | GZ, KN, GM | 数值稳性 | 6 | 1.00 |
 | fatigue | Hs, Tp, ice_conc, ice_h | damage/day, life, σ_rms | 谱疲劳 Miner | 35 | 0.99 |

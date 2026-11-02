@@ -305,8 +305,8 @@ def _make_seakeeping(hull: HullForm, kg: float, n_samples: int = 320) -> PCESurr
 
     return PCESurrogate(
         name="seakeeping",
-        description="Heave/pitch RMS and added resistance in a JONSWAP sea state",
-        reference_model="2dof_modal_strip + gerritsma_added_resistance",
+        description="Heave/pitch RMS and added resistance in a JONSWAP sea state (R_aw is an H_s-only empirical law: no period dependence)",
+        reference_model="2dof_modal_strip + raw_empirical_hs_only_v1",
         hull=hull, input_fields=fields, output_names=names,
         reference_fn=ref, reference_scalar=scalar, degree=4, n_samples=n_samples,
         output_units={"heave_rms_m": "m", "pitch_rms_deg": "deg", "R_aw_kN": "kN"},
