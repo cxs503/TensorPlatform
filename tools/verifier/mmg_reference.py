@@ -209,12 +209,25 @@ def turning_indices(run: dict, L: float, U: float = 1.0) -> dict:
 
     Column order of ``run['hist']`` is (u', v', r', x', y', psi).
 
-    advance  : longitudinal distance when heading has changed 90 deg
-    transfer : transverse distance at the same instant
-    T_d      : 2 * |y| when heading has changed 180 deg -- the *same* definition
-               the platform endpoints use, so the comparison is like-for-like.
+    Calibers (single source of truth: ``docs/verification_debt/turning_caliber``):
+
+    advance / transfer : longitudinal / transverse path coordinate at the instant
+        the heading change first reaches 90 deg (ITTC 7.5-02-06-01 wording).
+    tactical_diameter  : transverse offset ``|y|`` from the approach line at the
+        instant the heading change first reaches 180 deg.  For a steady circular
+        path this offset **is** the diameter of that circle, so a correct
+        implementation must satisfy ``tactical_diameter == 2*V/Omega`` exactly;
+        ``tests/test_turning_caliber.py`` asserts that identity on an exact
+        synthetic circle.  (Revisions before m1867 returned ``2*|y|`` here --
+        a factor-2 caliber error, see
+        ``docs/verification_debt/turning_caliber/REPORT.md``.)
+    steady_diameter    : ``2*V/|r|`` with ``V = hypot(u', v')`` the *total* path
+        speed; the surge-only variant ``2*u'/|r|`` under-reports the radius by
+        ``cos(drift)`` and is returned separately as
+        ``steady_diameter_surge_only`` for auditing, never for judgement.
     """
     h = run["hist"]
+    step = float(run.get("tau_step", STEP))
     u, v, r, x, y, psi = (h[:, 0], h[:, 1], h[:, 2], h[:, 3], h[:, 4], h[:, 5])
     deg = np.degrees(psi)
     adv = trans = td = float("nan")
@@ -223,14 +236,29 @@ def turning_indices(run: dict, L: float, U: float = 1.0) -> dict:
     if i90 is not None:
         adv, trans = float(x[i90]), float(abs(y[i90]))
     if i180 is not None:
-        td = float(2.0 * abs(y[i180]))
+        td = float(abs(y[i180]))          # diameter of the steady circle, not 2x
     r_end = float(r[-1])
-    R = float(u[-1] / r_end) if abs(r_end) > 1e-9 else float("inf")
-    return dict(advance=adv * L, transfer=trans * L, tactical_diameter=td * L,
-                steady_diameter=2.0 * R * L,
-                steady_rate_deg_s=float(math.degrees(r_end * U / L)) if r_end == r_end else float("nan"),
-                u_end=float(u[-1]), r_end_p=r_end,
-                tau_end=float(h[-1, 0]), psi_end_deg=float(deg[-1]))
+    u_end = float(u[-1])
+    v_end = float(v[-1])
+    v_path = math.hypot(u_end, v_end)     # total path speed (u'^2 + v'^2)^0.5
+    if abs(r_end) > 1e-12:
+        R_total = v_path / abs(r_end)
+        R_surge = u_end / abs(r_end)
+    else:                                 # straight run: no circle exists
+        R_total = R_surge = float("inf")
+    return dict(
+        advance=adv * L, transfer=trans * L,
+        tactical_diameter=td * L,
+        tactical_diameter_at_180_raw=td * L,
+        steady_diameter=2.0 * R_total * L,
+        steady_diameter_surge_only=2.0 * R_surge * L,
+        steady_radius_over_L=R_total,
+        steady_rate_deg_s=(float(math.degrees(r_end * U / L))
+                           if r_end == r_end else float("nan")),
+        u_end=u_end, v_end_p=v_end, r_end_p=r_end,
+        drift_angle_deg=float(math.degrees(math.atan2(-v_end, u_end))),
+        tau_end=float((len(h) - 1) * step),
+        psi_end_deg=float(deg[-1]))
 
 
 def zigzag_indices(prm: MMGParams, n_p: float, delta_deg: float = 20.0,
