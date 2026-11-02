@@ -407,10 +407,18 @@ class TestIceResistanceUQ:
         assert r.sobol_sum_total_order >= r.sobol_sum_first_order - 0.01
 
     def test_model_evaluations_reasonable(self, uq_results):
-        """Smolyak grid should use ≤ 100 model evaluations per ship."""
+        """Smolyak grid should stay within a cheap budget per ship.
+
+        Budget raised from 100 to 200 (mission m1969): the previous 100-point
+        ceiling was only met because the quadrature level (3) under-integrated the
+        order-3 projection (exactness 2L-1 = 5 < 2p = 6), which left the surrogate
+        pointwise wrong by up to 4.9 % while passive statistics still looked fine.
+        With the level coupled to the polynomial order (4 inputs, p=3) the grid
+        needs 165 nodes; one Lindqvist evaluation costs microseconds.
+        """
         for name, r in uq_results.items():
-            assert r.n_model_evaluations <= 100, \
-                f"{name}: {r.n_model_evaluations} evaluations > 100"
+            assert r.n_model_evaluations <= 200, \
+                f"{name}: {r.n_model_evaluations} evaluations > 200"
 
     def test_sobol_dominant_source(self, uq_results):
         """At least one parameter should have significant Sobol index."""
