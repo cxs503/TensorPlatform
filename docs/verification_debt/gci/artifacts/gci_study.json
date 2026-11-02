@@ -1,0 +1,578 @@
+{
+ "mmg_timestep": {
+  "case": "KVLCC2 35 deg turning circle at self-propulsion, RK4 fixed dtau",
+  "L_m": 320.0,
+  "rudder_deg": 35.0,
+  "self_propulsion_n": 70.23901564618984,
+  "tau_sample": 40.0,
+  "production_step": 0.01,
+  "levels": [
+   {
+    "dtau": 0.16,
+    "n_steps": 309,
+    "x_at_tau40_m": 1154.6927357867478,
+    "y_at_tau40_m": 32.76205263994535,
+    "psi_at_tau40_deg": 453.22357792996473,
+    "tactical_diameter_m": 1894.7858610548583
+   },
+   {
+    "dtau": 0.08,
+    "n_steps": 616,
+    "x_at_tau40_m": 1154.6920878781777,
+    "y_at_tau40_m": 32.76219069203574,
+    "psi_at_tau40_deg": 453.22361762040964,
+    "tactical_diameter_m": 1894.843148863714
+   },
+   {
+    "dtau": 0.04,
+    "n_steps": 1230,
+    "x_at_tau40_m": 1154.6920492841334,
+    "y_at_tau40_m": 32.7622008603328,
+    "psi_at_tau40_deg": 453.2236201995169,
+    "tactical_diameter_m": 1894.8721629699028
+   },
+   {
+    "dtau": 0.02,
+    "n_steps": 2458,
+    "x_at_tau40_m": 1154.6920469219183,
+    "y_at_tau40_m": 32.7622015421385,
+    "psi_at_tau40_deg": 453.22362036347965,
+    "tactical_diameter_m": 1894.8741228199422
+   },
+   {
+    "dtau": 0.01,
+    "n_steps": 4915,
+    "x_at_tau40_m": 1154.6920467757193,
+    "y_at_tau40_m": 32.76220158618125,
+    "psi_at_tau40_deg": 453.22362037381066,
+    "tactical_diameter_m": 1894.8751031505026
+   }
+  ],
+  "studies": {
+   "x_at_tau40_m": {
+    "finest_triplet": {
+     "n_levels": 3,
+     "steps": [
+      0.04,
+      0.08,
+      0.16
+     ],
+     "values": [
+      1154.6920492841334,
+      1154.6920878781777,
+      1154.6927357867478
+     ],
+     "refinement_ratios": [
+      2.0,
+      2.0
+     ],
+     "observed_order": 4.069340101764954,
+     "assumed_order": null,
+     "extrapolated": 1154.6920468395826,
+     "gci_fine_pct": 2.6463232266118493e-07,
+     "gci_medium_pct": 4.4425907422749885e-06,
+     "asymptotic_ratio": 0.9999999665763716,
+     "regime": "monotone",
+     "safety_factor": 1.25,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": true,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 3.3423648673345874e-06,
+     "messages": []
+    },
+    "per_triplet": [
+     {
+      "dtau_triplet": [
+       0.16,
+       0.08,
+       0.04
+      ],
+      "observed_order": 4.069340101764954,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.08,
+       0.04,
+       0.02
+      ],
+      "observed_order": 4.030165971515654,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.04,
+       0.02,
+       0.01
+      ],
+      "observed_order": 4.014135013103006,
+      "regime": "monotone",
+      "messages": []
+     }
+    ],
+    "production_step": {
+     "n_levels": 2,
+     "steps": [
+      0.01,
+      0.02
+     ],
+     "values": [
+      1154.6920467757193,
+      1154.6920469219183
+     ],
+     "refinement_ratios": [
+      2.0
+     ],
+     "observed_order": null,
+     "assumed_order": 4.0,
+     "extrapolated": 1154.6920467659727,
+     "gci_fine_pct": 2.5322595748620523e-09,
+     "gci_medium_pct": null,
+     "asymptotic_ratio": null,
+     "regime": "assumed_order",
+     "safety_factor": 3.0,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": false,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 1.2661297872707176e-08,
+     "messages": [
+      "asymptotic range not assessable without a 3-level triplet; GCI quoted with Fs = 3.00"
+     ]
+    }
+   },
+   "y_at_tau40_m": {
+    "finest_triplet": {
+     "n_levels": 3,
+     "steps": [
+      0.04,
+      0.08,
+      0.16
+     ],
+     "values": [
+      32.7622008603328,
+      32.76219069203574,
+      32.76205263994535
+     ],
+     "refinement_ratios": [
+      2.0,
+      2.0
+     ],
+     "observed_order": 3.763062744903898,
+     "assumed_order": null,
+     "extrapolated": 32.7622016688345,
+     "gci_fine_pct": 3.0847351707692594e-06,
+     "gci_medium_pct": 4.188058907894371e-05,
+     "asymptotic_ratio": 1.0000003103670547,
+     "regime": "monotone",
+     "safety_factor": 1.25,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": true,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 3.1036672727858716e-05,
+     "messages": []
+    },
+    "per_triplet": [
+     {
+      "dtau_triplet": [
+       0.16,
+       0.08,
+       0.04
+      ],
+      "observed_order": 3.763062744903898,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.08,
+       0.04,
+       0.02
+      ],
+      "observed_order": 3.8985736089185496,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.04,
+       0.02,
+       0.01
+      ],
+      "observed_order": 3.952384210029415,
+      "regime": "monotone",
+      "messages": []
+     }
+    ],
+    "production_step": {
+     "n_levels": 2,
+     "steps": [
+      0.01,
+      0.02
+     ],
+     "values": [
+      32.76220158618125,
+      32.7622015421385
+     ],
+     "refinement_ratios": [
+      2.0
+     ],
+     "observed_order": null,
+     "assumed_order": 4.0,
+     "extrapolated": 32.76220158911743,
+     "gci_fine_pct": 2.688631884258744e-08,
+     "gci_medium_pct": null,
+     "asymptotic_ratio": null,
+     "regime": "assumed_order",
+     "safety_factor": 3.0,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": false,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 1.344315942129372e-07,
+     "messages": [
+      "asymptotic range not assessable without a 3-level triplet; GCI quoted with Fs = 3.00"
+     ]
+    }
+   },
+   "psi_at_tau40_deg": {
+    "finest_triplet": {
+     "n_levels": 3,
+     "steps": [
+      0.04,
+      0.08,
+      0.16
+     ],
+     "values": [
+      453.2236201995169,
+      453.22361762040964,
+      453.22357792996473
+     ],
+     "refinement_ratios": [
+      2.0,
+      2.0
+     ],
+     "observed_order": 3.9438480478289777,
+     "assumed_order": null,
+     "extrapolated": 453.2236203787558,
+     "gci_fine_pct": 4.943444720572655e-08,
+     "gci_medium_pct": 7.607575047327998e-07,
+     "asymptotic_ratio": 1.0000000056904923,
+     "regime": "monotone",
+     "safety_factor": 1.25,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": true,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 5.690584425583908e-07,
+     "messages": []
+    },
+    "per_triplet": [
+     {
+      "dtau_triplet": [
+       0.16,
+       0.08,
+       0.04
+      ],
+      "observed_order": 3.9438480478289777,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.08,
+       0.04,
+       0.02
+      ],
+      "observed_order": 3.975431885067779,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.04,
+       0.02,
+       0.01
+      ],
+      "observed_order": 3.988315177857077,
+      "regime": "monotone",
+      "messages": []
+     }
+    ],
+    "production_step": {
+     "n_levels": 2,
+     "steps": [
+      0.01,
+      0.02
+     ],
+     "values": [
+      453.22362037381066,
+      453.22362036347965
+     ],
+     "refinement_ratios": [
+      2.0
+     ],
+     "observed_order": null,
+     "assumed_order": 4.0,
+     "extrapolated": 453.2236203744994,
+     "gci_fine_pct": 4.5589005940761535e-10,
+     "gci_medium_pct": null,
+     "asymptotic_ratio": null,
+     "regime": "assumed_order",
+     "safety_factor": 3.0,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": false,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 2.279450297038077e-09,
+     "messages": [
+      "asymptotic range not assessable without a 3-level triplet; GCI quoted with Fs = 3.00"
+     ]
+    }
+   },
+   "tactical_diameter_m": {
+    "finest_triplet": {
+     "n_levels": 3,
+     "steps": [
+      0.04,
+      0.08,
+      0.16
+     ],
+     "values": [
+      1894.8721629699028,
+      1894.843148863714,
+      1894.7858610548583
+     ],
+     "refinement_ratios": [
+      2.0,
+      2.0
+     ],
+     "observed_order": 0.9814736728469925,
+     "assumed_order": null,
+     "extrapolated": 1894.901936868562,
+     "gci_fine_pct": 0.001964109983315087,
+     "gci_medium_pct": 0.0038781577305699523,
+     "asymptotic_ratio": 1.0000153121415376,
+     "regime": "monotone",
+     "safety_factor": 1.25,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": true,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 0.001531190692211245,
+     "messages": []
+    },
+    "per_triplet": [
+     {
+      "dtau_triplet": [
+       0.16,
+       0.08,
+       0.04
+      ],
+      "observed_order": 0.9814736728469925,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.08,
+       0.04,
+       0.02
+      ],
+      "observed_order": 3.8879393118911945,
+      "regime": "monotone",
+      "messages": []
+     },
+     {
+      "dtau_triplet": [
+       0.04,
+       0.02,
+       0.01
+      ],
+      "observed_order": 0.9994030659915424,
+      "regime": "monotone",
+      "messages": []
+     }
+    ],
+    "production_step": {
+     "n_levels": 2,
+     "steps": [
+      0.01,
+      0.02
+     ],
+     "values": [
+      1894.8751031505026,
+      1894.8741228199422
+     ],
+     "refinement_ratios": [
+      2.0
+     ],
+     "observed_order": null,
+     "assumed_order": 4.0,
+     "extrapolated": 1894.8751685058733,
+     "gci_fine_pct": 1.0347178648278617e-05,
+     "gci_medium_pct": null,
+     "asymptotic_ratio": null,
+     "regime": "assumed_order",
+     "safety_factor": 3.0,
+     "roundoff_dominated": false,
+     "oscillatory": false,
+     "asymptotic_range": false,
+     "converged": true,
+     "tolerance_pct": 5.0,
+     "relative_increment_pct": 5.173589324139308e-05,
+     "messages": [
+      "asymptotic range not assessable without a 3-level triplet; GCI quoted with Fs = 3.00"
+     ]
+    }
+   }
+  }
+ },
+ "michell_quadrature": {
+  "case": "Michell thin-ship Rw for the Wigley hull, theta Gauss-Legendre refinement",
+  "Fn": 0.3,
+  "U_ms": 9.396275858019495,
+  "reference_n_theta": 1600,
+  "Rw_reference_N": 288169.6555510191,
+  "rows": [
+   {
+    "n_theta": 4,
+    "Rw_N": 398640.7942606702,
+    "rel_err_vs_dense": 0.3833545155835905
+   },
+   {
+    "n_theta": 8,
+    "Rw_N": 301772.27387789445,
+    "rel_err_vs_dense": 0.047203506909377003
+   },
+   {
+    "n_theta": 16,
+    "Rw_N": 272897.4472517913,
+    "rel_err_vs_dense": 0.05299728130647656
+   },
+   {
+    "n_theta": 32,
+    "Rw_N": 290239.81829192303,
+    "rel_err_vs_dense": 0.007183833207370419
+   },
+   {
+    "n_theta": 64,
+    "Rw_N": 288169.65529876907,
+    "rel_err_vs_dense": 8.753526030645639e-10
+   },
+   {
+    "n_theta": 100,
+    "Rw_N": 288169.65555100853,
+    "rel_err_vs_dense": 3.676235190688037e-14
+   },
+   {
+    "n_theta": 200,
+    "Rw_N": 288169.65555100964,
+    "rel_err_vs_dense": 3.29245239605577e-14
+   },
+   {
+    "n_theta": 400,
+    "Rw_N": 288169.6555510111,
+    "rel_err_vs_dense": 2.7874750346975227e-14
+   }
+  ],
+  "decay_factors": [
+   {
+    "from_n": 4,
+    "to_n": 8,
+    "error_ratio": 8.121314298100105
+   },
+   {
+    "from_n": 8,
+    "to_n": 16,
+    "error_ratio": 0.8906778941433827
+   },
+   {
+    "from_n": 16,
+    "to_n": 32,
+    "error_ratio": 7.377298411118841
+   },
+   {
+    "from_n": 32,
+    "to_n": 64,
+    "error_ratio": 8206787.9643245395
+   },
+   {
+    "from_n": 64,
+    "to_n": 100,
+    "error_ratio": 23811.115384615387
+   },
+   {
+    "from_n": 100,
+    "to_n": 200,
+    "error_ratio": 1.1165644171779139
+   },
+   {
+    "from_n": 200,
+    "to_n": 400,
+    "error_ratio": 1.1811594202898552
+   }
+  ],
+  "effective_order_pair": [
+   32,
+   64
+  ],
+  "effective_order": 22.968386248737154,
+  "assumed_order_in_repo": 4.0,
+  "assumed_p_is_conservative": true,
+  "richardson_check": {
+   "Rw_n400_N": 288169.6555510111,
+   "Rw_n800_N": 288169.65555100935,
+   "increment_rel": 6.059728336299168e-15,
+   "Rw_richardson_p4_N": 288169.65555100923,
+   "correction_rel": 4.039818890866112e-16
+  },
+  "production_triplet_gci": {
+   "n_levels": 3,
+   "steps": [
+    0.0025,
+    0.005,
+    0.01
+   ],
+   "values": [
+    288169.65555100853,
+    288169.65555100935,
+    288169.6555510111
+   ],
+   "refinement_ratios": [
+    2.0,
+    2.0
+   ],
+   "observed_order": null,
+   "assumed_order": null,
+   "extrapolated": 288169.65555100853,
+   "gci_fine_pct": 0.0,
+   "gci_medium_pct": null,
+   "asymptotic_ratio": null,
+   "regime": "roundoff",
+   "safety_factor": 1.25,
+   "roundoff_dominated": true,
+   "oscillatory": false,
+   "asymptotic_range": true,
+   "converged": true,
+   "tolerance_pct": 5.0,
+   "relative_increment_pct": 2.827873223606261e-13,
+   "messages": [
+    "refinement increments below 1e-12 of the quantity -> round-off floor",
+    "sequence is converged to the double-precision floor; reported GCI = 0 %%"
+   ]
+  },
+  "note": ""
+ }
+}

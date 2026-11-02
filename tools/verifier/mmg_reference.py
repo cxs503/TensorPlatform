@@ -33,8 +33,11 @@ derived indices below are B-class (literature-reproducing) evidence, while the
 internal consistency checks (delta=0 straight run, port/starboard mirror,
 time-step convergence, steady-turn equilibrium residual) are A-class.
 
-Integration: classical RK4 on the 5-state system, fixed step dtau = 0.01
-(t' = t U/L), i.e. ~1 s of model time per step at KVLCC2 speed.
+Integration: classical RK4 on the 6-state system (u', v', r', x', y', psi),
+fixed step dtau = 0.01 (t' = t U/L), i.e. ~1 s of model time per step at KVLCC2
+speed.  The A-class time-step convergence check claimed above is quantified in
+``src/ship_verification/gci_studies.py`` (observed order p on the 0.16/0.08/0.04
+triplet and the GCI at the shipped step); see docs/verification_debt/gci/.
 """
 
 from __future__ import annotations
@@ -230,7 +233,8 @@ def turning_indices(run: dict, L: float, U: float = 1.0) -> dict:
                 steady_diameter=2.0 * R * L,
                 steady_rate_deg_s=float(math.degrees(r_end * U / L)) if r_end == r_end else float("nan"),
                 u_end=float(u[-1]), r_end_p=r_end,
-                tau_end=float(h[-1, 0]), psi_end_deg=float(deg[-1]))
+                tau_end=float((len(h) - 1) * run["tau_step"]),
+                psi_end_deg=float(deg[-1]))
 
 
 def zigzag_indices(prm: MMGParams, n_p: float, delta_deg: float = 20.0,
