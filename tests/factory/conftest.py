@@ -12,6 +12,14 @@ except ModuleNotFoundError:  # 可选重依赖，缺失时整目录显式 skip
     pgserver = None
 import pytest
 
+try:
+    import pgserver
+except ModuleNotFoundError:  # 环境缺依赖 -> 显式 WITHHELD 跳过整个目录，而非 collection ERROR
+    pytest.skip(
+        "WITHHELD: pgserver 未安装，真实 PostgreSQL 工厂夹具整目录跳过",
+        allow_module_level=True,
+    )
+
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "backend"))
 
