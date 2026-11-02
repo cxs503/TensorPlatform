@@ -1,0 +1,43 @@
+{
+  "source": "Wageningen B-Series propeller data (Oosterveld & van Oossanen, 1975)",
+  "ship_name": "Wageningen B4-70 (Standard Series)",
+  "propeller_type": "B-series_4_blade",
+  "principal_particulars": {
+    "blade_count": 4,
+    "area_ratio_Ae_A0": 0.70,
+    "pitch_ratio_P_D": 1.0,
+    "diameter_D_m": 1.0,
+    "hub_ratio": 0.18
+  },
+  "conditions": {
+    "water_density_kg_m3": 1025.0,
+    "Reynolds_number": "2e6 (standard test condition)",
+    "cavitation_number": "non-cavitating"
+  },
+  "data_points": {
+    "description": "Open water characteristics: thrust coefficient KT and torque coefficient KQ vs advance ratio J",
+    "J": [0.0, 0.2, 0.4, 0.6, 0.8, 1.0, 1.2],
+    "KT": [0.40, 0.35, 0.28, 0.18, 0.10, 0.03, 0.00],
+    "KQ": [0.040, 0.038, 0.034, 0.027, 0.018, 0.008, 0.000],
+    "eta_0": [0.000, 0.294, 0.524, 0.637, 0.566, 0.597, 0.000],
+    "notes": [
+      "KT = T / (rho * n² * D⁴)",
+      "KQ = Q / (rho * n² * D⁵)",
+      "eta_0 = (J / 2π) × (KT / KQ)",
+      "J = Va / (n * D)",
+      "Values are approximate for B4-70 with P/D=1.0",
+      "Polynomial regression coefficients available in Oosterveld & van Oossanen (1975)"
+    ]
+  },
+  "units": {
+    "J": "dimensionless (advance ratio)",
+    "KT": "dimensionless (thrust coefficient)",
+    "KQ": "dimensionless (torque coefficient)",
+    "eta_0": "dimensionless (open water efficiency)"
+  },
+  "references": [
+    "Oosterveld, M.W.C., van Oossanen, P. (1975) - Further computer-analyzed data of Wageningen B-screw series",
+    "Bernitsas, M.M., Ray, D., Kinley, P. (1981) - K-T, K-Q and eta-0 curves of Wageningen B-series propellers",
+    "Kuiper, G. (1992) - The Wageningen Propeller Series"
+  ]
+}
