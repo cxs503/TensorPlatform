@@ -69,12 +69,23 @@ def main(argv=None) -> int:
     data = load_study(args.study)
     fs = float(data.get("fs", FS_THREE_GRIDS))
     res = gci(data["h"], data["phi"], fs=fs,
-              p_assumed=data.get("p_assumed"))
+              p_assumed=data.get("p_assumed"),
+              p_expected=data.get("p_expected"),
+              order_tol=float(data.get("order_tol", 0.10)))
     out = {
         "quantity": data.get("quantity", "unspecified"),
         "source": os.path.basename(args.study),
         "result": res.as_dict(),
         "verification_status": "PASS" if res.asymptotic else "UNVERIFIED",
+        # Honest three-state: PASS needs a *falsifiable* asymptotic-range test,
+        # which only exists when the formal order is supplied (see the module
+        # docstring of src/verification/gci.py).  Without it the range check is
+        # reported as WITHHELD instead of silently passing.
+        "asymptotic_check": (
+            "PASS" if (res.order_ok is True)
+            else "FAIL" if (res.order_ok is False)
+            else "WITHHELD"
+        ),
     }
     print(f"quantity          : {out['quantity']}")
     print(f"h (finest first)  : {res.h}")
@@ -88,6 +99,12 @@ def main(argv=None) -> int:
         lo = res.phi[0] - res.gci_fine * abs(res.phi[0])
         hi = res.phi[0] + res.gci_fine * abs(res.phi[0])
         print(f"band on fine value: [{lo!r}, {hi!r}]")
+    print(f"asym ratio        : {'n/a' if res.asym_ratio is None else '%.6f' % res.asym_ratio}"
+          f"  (tautological={res.asym_ratio_tautological})")
+    if res.p_expected is not None:
+        print(f"order check       : p={res.p:.4f} vs formal {res.p_expected:.4f}"
+              f" -> dev {100.0 * (res.order_rel_dev or 0.0):.2f}%  ok={res.order_ok}")
+    print(f"asymptotic gate   : {out['asymptotic_check']}")
     for n in res.notes:
         print(f"note: {n}")
     if args.out:
