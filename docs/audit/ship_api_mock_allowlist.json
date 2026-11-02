@@ -1,0 +1,11 @@
+{
+  "schema": "ship_api_mock_allowlist/v1",
+  "note": "由 tools/audit/ship_api_evidence_census.py 消费。acknowledged = 非物理端点（元数据/健康检查），永久可接受；known_debt = 物理端点但无带容差判据，属登记在案的验证欠账，只能减少不能新增（ratchet）。新增项必须由本文件显式申报，否则 tests/capability/test_ship_api_evidence_census.py 打红。",
+  "acknowledged": [
+    "GET /ice_optimization/health",
+    "GET /ice_optimization/constraints"
+  ],
+  "known_debt": [
+    "POST /polar/convoy/curve"
+  ]
+}

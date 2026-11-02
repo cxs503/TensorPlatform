@@ -1,0 +1,778 @@
+{
+  "generated_by": "tools/audit/ship_api_evidence_census.py",
+  "schema": "ship_api_evidence_ledger/v1",
+  "totals": {
+    "api_routes_all": 1427,
+    "ship_domain": 44,
+    "curated_capabilities_in_audit_tool": 21
+  },
+  "grades": {
+    "ANCHORED": 30,
+    "WITHHELD": 14,
+    "MOCK_RISK": 0
+  },
+  "evidence": {
+    "ANCHORED": 30,
+    "SMOKE": 2,
+    "UNCOVERED": 12
+  },
+  "coverage_pct": 68.18,
+  "unacknowledged_mock_risk": [],
+  "endpoints": [
+    {
+      "endpoint": "POST /ice-uq/resistance",
+      "handler": "calc_ice_resistance",
+      "module": "backend/api/domain/ice_uq.py",
+      "lineno": 90,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /ice-uq/ships",
+      "handler": "list_available_ships",
+      "module": "backend/api/domain/ice_uq.py",
+      "lineno": 201,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "POST /ice-uq/uq",
+      "handler": "run_uq_analysis",
+      "module": "backend/api/domain/ice_uq.py",
+      "lineno": 117,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "POST /ice-uq/uq/all",
+      "handler": "run_all_ships_uq_analysis",
+      "module": "backend/api/domain/ice_uq.py",
+      "lineno": 158,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /ice_optimization/constraints",
+      "handler": "get_optimization_constraints",
+      "module": "backend/api/ice_optimization.py",
+      "lineno": 72,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": true,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /ice_optimization/health",
+      "handler": "health_check",
+      "module": "backend/api/ice_optimization.py",
+      "lineno": 90,
+      "evidence": "SMOKE",
+      "grade": "WITHHELD",
+      "acknowledged": true,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/test_abtest_unit.py",
+        "backend/tests/test_advanced_features_unit.py"
+      ]
+    },
+    {
+      "endpoint": "POST /ice_optimization/run",
+      "handler": "run_ice_optimization",
+      "module": "backend/api/ice_optimization.py",
+      "lineno": 37,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /polar/acceptance/channel",
+      "handler": "acceptance_channel",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 504,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /polar/acceptance/route",
+      "handler": "acceptance_route",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 495,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /reports/quick/energy-consumption",
+      "handler": "quick_energy_report",
+      "module": "backend/api/report.py",
+      "lineno": 159,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "POST /ship/batch_sweep",
+      "handler": "batch_sweep",
+      "module": "backend/api/domain/ship_samples.py",
+      "lineno": 114,
+      "evidence": "SMOKE",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_batch.py",
+        "backend/tests/test_ship_proxy.py"
+      ]
+    },
+    {
+      "endpoint": "POST /ship/benchmark_validate",
+      "handler": "benchmark_validate_endpoint",
+      "module": "backend/api/domain/ship_samples.py",
+      "lineno": 155,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "GET /ship/samples",
+      "handler": "list_samples",
+      "module": "backend/api/domain/ship_samples.py",
+      "lineno": 217,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "POST /ship/samples/bulk",
+      "handler": "bulk_insert_samples",
+      "module": "backend/api/domain/ship_samples.py",
+      "lineno": 189,
+      "evidence": "UNCOVERED",
+      "grade": "WITHHELD",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": []
+    },
+    {
+      "endpoint": "POST /calculations/hydrostatics",
+      "handler": "calc_hydrostatics",
+      "module": "backend/api/calculations.py",
+      "lineno": 610,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/test_ship_hydrostatics.py",
+        "tools/build_hydrostatics_report.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/ice-load-inversion",
+      "handler": "ice_load_inversion",
+      "module": "backend/api/ship_ice_inversion.py",
+      "lineno": 142,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "tests/test_ice_load_inversion.py"
+      ]
+    },
+    {
+      "endpoint": "GET /calculations/ice-load-inversion/info",
+      "handler": "ice_load_inversion_info",
+      "module": "backend/api/ship_ice_inversion.py",
+      "lineno": 288,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tests/test_ice_load_inversion.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/propulsion/actuator_disk",
+      "handler": "calc_actuator_disk",
+      "module": "backend/api/calculations.py",
+      "lineno": 531,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/test_propulsion_api.py",
+        "tools/verify_propulsion.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/propulsion/self_propulsion",
+      "handler": "calc_self_propulsion",
+      "module": "backend/api/calculations.py",
+      "lineno": 560,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/test_propulsion_api.py",
+        "tools/verify_propulsion.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/resistance",
+      "handler": "calc_resistance",
+      "module": "backend/api/calculations.py",
+      "lineno": 253,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_benchmark_chain_m1388.py",
+        "backend/tests/test_benchmark_audit_endpoint.py",
+        "backend/tests/test_propulsion.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/seakeeping_rao",
+      "handler": "seakeeping_rao",
+      "module": "backend/api/domain/ship_seakeeping.py",
+      "lineno": 92,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_seakeeping.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/seakeeping_response",
+      "handler": "seakeeping_response",
+      "module": "backend/api/domain/ship_seakeeping.py",
+      "lineno": 145,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_seakeeping.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/seakeeping_spectrum",
+      "handler": "seakeeping_spectrum",
+      "module": "backend/api/domain/ship_seakeeping.py",
+      "lineno": 120,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_ship_seakeeping.py"
+      ]
+    },
+    {
+      "endpoint": "POST /calculations/stability",
+      "handler": "calc_stability",
+      "module": "backend/api/calculations.py",
+      "lineno": 335,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/test_propulsion_api.py",
+        "tests/test_m1386_stability_gz_validation.py",
+        "tests/test_m1564_stability_canon.py"
+      ]
+    },
+    {
+      "endpoint": "GET /polar/acceptance",
+      "handler": "acceptance",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 477,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tests/physics/test_marine_icing.py",
+        "tests/test_clock_sync.py",
+        "tests/test_ice_load_inversion.py"
+      ]
+    },
+    {
+      "endpoint": "GET /polar/capabilities",
+      "handler": "capabilities",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 187,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py",
+        "tools/audit/ship_api_evidence_census.py",
+        "tools/benchmarks/propulsion_anchors.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/cii",
+      "handler": "cii",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 373,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py",
+        "backend/tests/polar/test_polar_physics.py",
+        "tests/e2e1_b1/build_cases.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/convoy/curve",
+      "handler": "convoy_curve",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 353,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tools/audit/ship_api_evidence_census.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/convoy/spacing",
+      "handler": "convoy_spacing",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 336,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py"
+      ]
+    },
+    {
+      "endpoint": "GET /polar/ice-field/scenario",
+      "handler": "ice_field_scenario",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 230,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/ice-field/summary",
+      "handler": "ice_field_summary",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 239,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py",
+        "backend/tests/polar/test_polar_physics.py",
+        "tools/polar/render_report.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/resistance/channel",
+      "handler": "channel",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 300,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py",
+        "backend/tests/polar/test_polar_physics.py",
+        "backend/tests/test_digital_twin_estimator_predictor.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/resistance/level-ice",
+      "handler": "level_ice",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 252,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py",
+        "backend/tests/polar/test_polar_physics.py",
+        "tools/polar/run_acceptance.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/resistance/level-ice/grid",
+      "handler": "level_ice_grid",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 284,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/route/optimize",
+      "handler": "route_optimize",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 422,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py"
+      ]
+    },
+    {
+      "endpoint": "GET /polar/ships",
+      "handler": "ships",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 215,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py",
+        "backend/tests/polar/test_polar_physics.py",
+        "backend/tests/test_digital_twin_physics.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/ships/validate",
+      "handler": "ships_validate",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 220,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py"
+      ]
+    },
+    {
+      "endpoint": "POST /polar/voyage/optimize",
+      "handler": "voyage_optimize",
+      "module": "backend/api/domain/polar.py",
+      "lineno": 444,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/polar/test_polar_api.py"
+      ]
+    },
+    {
+      "endpoint": "POST /ship/icing/accumulate",
+      "handler": "accumulate",
+      "module": "backend/api/domain/ship_icing.py",
+      "lineno": 181,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tools/m796_report_gen.py"
+      ]
+    },
+    {
+      "endpoint": "POST /ship/icing/benchmark",
+      "handler": "benchmark",
+      "module": "backend/api/domain/ship_icing.py",
+      "lineno": 213,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "backend/tests/feat/test_benchmark_chain_m1388.py",
+        "backend/tests/test_benchmark_audit_endpoint.py",
+        "backend/tests/test_benchmark_reference_integrity.py"
+      ]
+    },
+    {
+      "endpoint": "GET /ship/icing/capability",
+      "handler": "capability",
+      "module": "backend/api/domain/ship_icing.py",
+      "lineno": 93,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tests/test_m1386_stability_gz_validation.py",
+        "tests/test_propeller_open_water.py",
+        "tools/audit/ship_api_evidence_census.py"
+      ]
+    },
+    {
+      "endpoint": "POST /ship/icing/heat_balance",
+      "handler": "heat_balance",
+      "module": "backend/api/domain/ship_icing.py",
+      "lineno": 136,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": true
+      },
+      "evidence_files": [
+        "tests/physics/test_marine_icing.py",
+        "tools/m796_marine_icing_validation.py",
+        "tools/m796_report_gen.py"
+      ]
+    },
+    {
+      "endpoint": "POST /ship/icing/spray",
+      "handler": "spray",
+      "module": "backend/api/domain/ship_icing.py",
+      "lineno": 161,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": true,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "tests/physics/test_marine_icing.py",
+        "tools/m796_marine_icing_validation.py",
+        "tools/m796_report_gen.py"
+      ]
+    },
+    {
+      "endpoint": "GET /ship/timing_baseline",
+      "handler": "timing_baseline",
+      "module": "backend/api/domain/ship_samples.py",
+      "lineno": 251,
+      "evidence": "ANCHORED",
+      "grade": "ANCHORED",
+      "acknowledged": false,
+      "static": {
+        "constant_return": false,
+        "uses_random": false,
+        "has_binop": false
+      },
+      "evidence_files": [
+        "backend/tests/test_ship_hydrostatics.py"
+      ]
+    }
+  ]
+}
