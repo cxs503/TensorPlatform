@@ -119,7 +119,13 @@ def test_f1_required_index_via_api_and_legacy_formula_removed():
 # ============================ F3: 破损几何进入计算 ============================
 
 def test_f3_final_draft_matches_lost_buoyancy_analytic():
-    """F3: 全破口时终吃水 = nabla0/(Aw - mu*Ac)，偏差 < 3%（并要求 < 0.1%）。"""
+    """F3: 终吃水对损失浮力闭式解的复核（闭式解仅在破损空间直达龙骨时适用）。
+
+    闭式 t' = ∇0/(Aw − μ·Ac) 假定破损空间自龙骨向上连续；舱底 z_b>0（舱柜/双层底）
+    或水线追及舱顶 z_t 时该式高报终吃水（m2043 实测：本工况 +2.5%），实现改解
+    A_bar(d)·L = ∇0。故本测试：闭式解作上界（<3%）、反算排水体积作几何自洽判据，
+    只有 z_b=0 的子工况才要求与闭式解逐位吻合。
+    """
     L, B, T, Cb = 100.0, 20.0, 6.0, 1.0
     Vc, Hc, mu = 2000.0, 6.0, 0.95
     out = _analyze(_barge(), [_tank(mu=mu)],
@@ -127,8 +133,27 @@ def test_f3_final_draft_matches_lost_buoyancy_analytic():
     ref = _analytic_draft(L, B, T, Cb, Vc, Hc, mu)
     rel = abs(out.final_draft - ref) / ref
     assert rel < 0.03, f"终吃水 {out.final_draft} vs 解析 {ref:.4f}，偏差 {rel:.2%}"
-    assert rel < 1e-3                                  # 壁式截面积分 + 闭式解应逐位吻合
-    assert out.final_draft == pytest.approx(7.1287, abs=2e-3)
+
+    # 几何自洽：终吃水代回截面模型，反算浮力体积必须回到 ∇0
+    calc = ds.DamageStabilityCalculator()
+    ship = _ship(_barge(), [_tank(mu=mu)])
+    damage = ds.DamageScenario(damaged_compartments=["C1"], damage_location="side",
+                               damage_extent={"length": 16.6667, "width": 20.0,
+                                              "height": 6.0})
+    g = calc._intact_geometry(ship)
+    flood = calc._flooding_state(ship, damage)
+    A_bar = calc._section_integrals(ship, g, out.final_draft, 0.0, flood)[0]
+    assert A_bar * ship.L == pytest.approx(g["nabla_ws"], rel=1e-6)
+
+    # z_b = 0（舱底贴龙骨，VCG = Hc/2）⇒ 水线追及舱顶（t' > z_t），破口被舱容截断为
+    # μ·Ac·(z_t − z_b) = 1900 m³；此时**饱和闭式** d = (B·T + α·b·(z_t−z_b))/B，α = μ·l/L，
+    # 要求逐位吻合，并验证未饱和闭式解（7.1287 m）在此几何下确实高报。
+    out0 = _analyze(_barge(), [_tank(mu=mu, vcg=Hc / 2.0)],
+                    ["C1"], {"length": 16.6667, "width": 20.0, "height": 6.0})
+    alpha = mu * 16.6667 / L
+    d_saturated = (B * T + alpha * 20.0 * (Hc - 0.0)) / B
+    assert abs(out0.final_draft - d_saturated) / d_saturated < 1e-6
+    assert out0.final_draft < ref
 
 
 def test_f3_final_draft_scales_with_permeability():
