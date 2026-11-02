@@ -4,6 +4,31 @@ from __future__ import annotations
 from pathlib import Path
 from sqlalchemy import text
 
+MIGRATIONS_DIR = Path(__file__).resolve().parents[1] / "migrations"
+# The console base schema the factory development database is built from.
+BASE_MIGRATION = "084_tensor_eco_console.sql"
+# Numbered files at or below this prefix are platform-schema migrations; the
+# factory development database starts from the console base instead.
+BASE_PREFIX = 84
+# Exceptions to the "apply every later numbered migration" rule. Only files that
+# genuinely need the production platform schema belong here, with a reason;
+# everything else is picked up automatically so API/model code can never depend
+# on a column whose migration the test database skipped (m1625 CI red:
+# tensor_dev_missions.report_id / .fail_stage existed in prod, not in tests).
+PRODUCTION_ONLY: dict[str, str] = {}
+
+
+def factory_migration_files() -> list[Path]:
+    """Every numbered migration after the console base, in filename order.
+
+    Same ordering rule as ``backend/migrations/run_migration.py`` (lexicographic
+    on the zero-padded number), minus ``PRODUCTION_ONLY``.
+    """
+    files = sorted(MIGRATIONS_DIR.glob("[0-9][0-9][0-9]_*.sql"), key=lambda path: path.name)
+    return [path for path in files
+            if int(path.name.split("_", 1)[0]) > BASE_PREFIX
+            and path.name not in PRODUCTION_ONLY]
+
 
 def bootstrap_development_database(engine) -> None:
     with engine.begin() as db:
@@ -19,16 +44,12 @@ def bootstrap_development_database(engine) -> None:
                 features JSONB NOT NULL DEFAULT '[]'::jsonb
             );
         """))
-        migrations = Path(__file__).resolve().parents[1] / "migrations"
         # Schema-only reuse: omit the upstream scientific scenario seed query.
-        base = (migrations / "084_tensor_eco_console.sql").read_text()
+        base = (MIGRATIONS_DIR / BASE_MIGRATION).read_text()
         base = base[:base.index("-- ============================================================")]
         db.exec_driver_sql(base, execution_options={"no_parameters": True})
-        for name in ("086_tensor_dev_missions.sql", "087_mission_runner_origin_gc_indexes.sql",
-                     "088_mission_model.sql", "089_mission_tree_codispatch.sql",
-                     "090_factory_claim_principal.sql", "091_factory_residents.sql",
-                     "092_factory_strategy.sql", "093_factory_discussion.sql"):
-            db.exec_driver_sql((migrations / name).read_text(), execution_options={"no_parameters": True})
+        for path in factory_migration_files():
+            db.exec_driver_sql(path.read_text(), execution_options={"no_parameters": True})
     # Soul 迁移走带版本+校验和的登记器：重复应用幂等，文件内容变动会报错而不是静默覆盖。
     from services.soul_migrations import apply_soul_migrations
     apply_soul_migrations(engine)

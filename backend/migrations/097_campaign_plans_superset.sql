@@ -18,10 +18,24 @@ ALTER TABLE campaign_plans
   ADD COLUMN IF NOT EXISTS updated_at    TIMESTAMPTZ DEFAULT now();
 
 -- 回填：name 取既有 title；时间戳锚既有 created_utc
-UPDATE campaign_plans SET name = COALESCE(name, title) WHERE name IS NULL;
-UPDATE campaign_plans SET created_at = COALESCE(created_at, created_utc) WHERE created_utc IS NOT NULL;
-UPDATE campaign_plans SET sir_master_ref = COALESCE(sir_master_ref, 'm611:' || source_mission_id::text)
-  WHERE sir_master_ref IS NULL AND source_mission_id IS NOT NULL;
+-- 仅当库中确实存在 m611 旧列（title/created_utc/source_mission_id）时才回填：
+-- 全新安装走 095_campaign_plans.sql 建表，没有这些旧列，无条件 UPDATE 会直接报
+-- column "title" does not exist，导致整条迁移链在空库上断裂（m1625 修）。
+DO $$
+BEGIN
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'campaign_plans' AND column_name = 'title') THEN
+    EXECUTE 'UPDATE campaign_plans SET name = COALESCE(name, title) WHERE name IS NULL';
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'campaign_plans' AND column_name = 'created_utc') THEN
+    EXECUTE 'UPDATE campaign_plans SET created_at = COALESCE(created_at, created_utc) WHERE created_utc IS NOT NULL';
+  END IF;
+  IF EXISTS (SELECT 1 FROM information_schema.columns
+             WHERE table_name = 'campaign_plans' AND column_name = 'source_mission_id') THEN
+    EXECUTE 'UPDATE campaign_plans SET sir_master_ref = COALESCE(sir_master_ref, ''m611:'' || source_mission_id::text) WHERE sir_master_ref IS NULL AND source_mission_id IS NOT NULL';
+  END IF;
+END $$;
 
 ALTER TABLE campaign_plans
   ALTER COLUMN name SET NOT NULL,
