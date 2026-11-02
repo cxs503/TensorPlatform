@@ -37,7 +37,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
-from services.ship_resistance import ct_from_rt
+from services.ship_resistance import resistance_breakdown, wetted_surface_axisym
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -49,8 +49,6 @@ from services.ship_hydrostatics import (
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
 
 #: 阻力模型的来源标签，随响应下发，便于对标链记录"哪个模型给的数"。
-RESISTANCE_METHOD = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
-
 # Conservative upper heel limit of the wall-sided identity when neither the hull
 # geometry (beam/draft/depth) nor an explicit caller limit is supplied.
 DEFAULT_WALL_SIDED_LIMIT_DEG = 25.0
@@ -79,7 +77,7 @@ class ResistanceRequest(BaseModel):
     wetted_surface_m2: Optional[float] = Field(
         default=None,
         gt=0,
-        description="Geometry-validated wetted surface area (m²). Overrides the empirical estimate.",
+        description="Caller-supplied wetted surface area (m²). Overrides the empirical estimate; this endpoint does not independently validate its provenance.",
     )
     form_factor: float = Field(
         default=1.0,
@@ -107,6 +105,9 @@ class ResistanceResponse(BaseModel):
     # 系数与模型来源，避免消费侧自己猜字段/自己反推。
     total_resistance_coefficient: float = 0.0
     method: str = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
+    model_id: str = "suboff_axisymmetric_empirical_v1"
+    validity_status: str = "unvalidated_empirical_estimate"
+    validity_notes: List[str] = Field(default_factory=list)
     computation_time_ms: float
 
 
@@ -307,91 +308,62 @@ class MMGResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
-    """Legacy wetted-surface estimate for an axisymmetric body.
+    """Backward-compatible alias for the shared axisymmetric surface estimate.
 
-    Kept for backward compatibility. Measured bias against closed-form shapes
-    (``tools/verif/verify_ship_calcs.py``):
-        cylinder (Cb = pi/4)        : -30.4 %
-        prolate spheroid (b/a=0.25) : -8.7 %
-    Prefer passing ``wetted_surface_m2`` when the geometry has been validated.
+    The bias against analytic shapes is documented in
+    tools/verif/verify_ship_calcs.py. This helper remains for older verification
+    scripts; the API endpoint itself calls the canonical pure-function kernel.
     """
-    return math.pi * beam * length * (0.5 + 0.25 * cb)
-
+    return wetted_surface_axisym(beam, length, cb)
 
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
 async def calc_resistance(req: ResistanceRequest):
-    """
-    Compute total resistance for a given hull at specified speed.
+    """Compute resistance through the shared pure-function empirical kernel.
 
-    Uses a simplified Holtrop-Mennen formulation calibrated for the
-    SUBOFF axisymmetric body (DARPA SUBOFF model).
+    This endpoint does not claim a general merchant-ship model. Geometry and
+    wetted-surface provenance remain caller responsibilities; the response
+    includes an applicability status so downstream benchmark/reporting code
+    cannot mistake a computed number for a validated physical result.
     """
     t0 = time.perf_counter()
-
-    L = req.length
-    B = req.beam
-    T = req.draft
-    Cb = req.cb
-    V = req.speed_ms
-    rho = req.water_density
-    nu = req.kinematic_viscosity
-
-    # Geometric sanity check
-    if not (0.3 < Cb < 1.0):
-        raise HTTPException(status_code=400, detail=f"Cb={Cb} out of physical range [0.3, 1.0]")
-    if L <= 0 or B <= 0 or T <= 0:
-        raise HTTPException(status_code=400, detail="Dimensions must be positive")
-
-    # Wetted surface area: geometry-validated input wins over the empirical fit
-    if req.wetted_surface_m2 is not None:
-        S = float(req.wetted_surface_m2)
-        S_source = "input_validated"
-    else:
-        S = _empirical_wetted_surface(L, B, Cb)
-        S_source = "empirical_formula"
-
-    # Reynolds number
-    Re = V * L / nu
-
-    # ITTC-1957 friction line
-    Cf = 0.075 / (math.log10(Re) - 2.0) ** 2
-
-    # Frictional resistance (bare flat plate, ITTC-1957)
-    Rf = 0.5 * rho * S * Cf * V ** 2
-
-    # Viscous form resistance from the (1+k) form factor
-    k = req.form_factor - 1.0
-    Rform = k * Rf
-
-    # Residual resistance (simplified: function of Fn and Cb)
-    g = 9.81
-    Fn = V / math.sqrt(g * L)
-
-    # Empirical residual resistance coefficient for SUBOFF-like bodies.
-    # NOTE: curve fit, no published provenance -- see module docstring.
-    Cr = 0.002 * (1 + 2.0 * Cb) * Fn ** 2.5 if Fn > 0.05 else 0.0
-    Rr = 0.5 * rho * S * Cr * V ** 2
-
-    Rt = Rf + Rform + Rr
+    try:
+        result = resistance_breakdown(
+            length=req.length,
+            beam=req.beam,
+            draft=req.draft,
+            cb=req.cb,
+            speed=req.speed_ms,
+            rho=req.water_density,
+            nu=req.kinematic_viscosity,
+            wetted_surface_m2=req.wetted_surface_m2,
+            form_factor=req.form_factor,
+        )
+    except ValueError as exc:
+        raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     elapsed_ms = (time.perf_counter() - t0) * 1000
-
     return ResistanceResponse(
         ship_type=req.ship_type,
-        speed_ms=V,
-        total_resistance_n=round(Rt, 4),
-        frictional_resistance_n=round(Rf, 4),
-        form_resistance_n=round(Rform, 4),
-        residual_resistance_n=round(Rr, 4),
-        reynolds_number=round(Re, 2),
-        friction_coefficient_cf=round(Cf, 10),
-        froude_number=round(Fn, 6),
-        wetted_surface_m2=round(S, 6),
-        wetted_surface_source=S_source,
+        speed_ms=req.speed_ms,
+        total_resistance_n=round(float(result["total_resistance_n"]), 4),
+        frictional_resistance_n=round(float(result["frictional_resistance_n"]), 4),
+        form_resistance_n=round(float(result["form_resistance_n"]), 4),
+        residual_resistance_n=round(float(result["residual_resistance_n"]), 4),
+        reynolds_number=round(float(result["reynolds_number"]), 2),
+        friction_coefficient_cf=round(float(result["cf"]), 10),
+        froude_number=round(float(result["froude_number"]), 6),
+        wetted_surface_m2=round(float(result["wetted_surface_m2"]), 6),
+        wetted_surface_source=(
+            "caller_supplied_unverified" if req.wetted_surface_m2 is not None
+            else "empirical_formula"
+        ),
         form_factor=req.form_factor,
-        total_resistance_coefficient=round(ct_from_rt(Rt, rho, S, V), 8),
-        method=RESISTANCE_METHOD,
+        total_resistance_coefficient=round(float(result["ct"]), 8),
+        method=str(result["method"]),
+        model_id=str(result["model_id"]),
+        validity_status=str(result["validity_status"]),
+        validity_notes=list(result["validity_notes"]),
         computation_time_ms=round(elapsed_ms, 3),
     )
 
