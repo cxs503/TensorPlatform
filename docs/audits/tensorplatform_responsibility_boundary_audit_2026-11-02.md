@@ -133,3 +133,14 @@ Run API compatibility tests, TensorPhysics registration/readback, tenant isolati
 - [Ship verification package](https://github.com/cxs503/TensorPlatform/tree/main/src/ship_verification)
 - [Ecosystem integration contract](https://github.com/cxs503/TensorPlatform/blob/main/docs/ecosystem-integration.md)
 - [Research-loop integration contract](https://github.com/cxs503/TensorPlatform/blob/main/docs/research-loop-integration-contract.md)
+
+
+## Addendum: route reachability check (same audit pass)
+
+A targeted follow-up search confirms that at least some ship-specific code is not merely dead code:
+- `backend/api/domain/misc.py` is documented by the repository's own router-wiring audit as registering `ship_batch_router`, `ship_benchmark_router` and `ship_samples_router`; `backend/tests/test_ship_domain_routers.py` checks these router objects.
+- `backend/main.py` directly mounts `api.domain.ship_vibration.router` under `/api/v1` inside a try/except fallback. The repository's `docs/audit/m1849_vibration_wiring.md` documents that it was previously unwired and was explicitly connected.
+- `src/ship_perf/` is described by its package documentation as a reference implementation and conformance specification for ship-performance APIs; its own documentation says the live :8001 service source is outside this working tree. Therefore, treat this package as a verified/reference candidate with consumers to inventory—not as proof that the deployed API executes these exact functions.
+- The repo's historical audits report multiple route/verification gaps and fixes. That history reinforces the need to trace each route from API registration through implementation and test, rather than infer production behavior from filenames or green unit tests.
+
+This narrows the finding: **ship-specific APIs are actively wired in at least several places, while the live usage status of each numerical package still needs route-to-implementation and deployment verification.** The report deliberately does not claim every ship module is mounted or used in production.
