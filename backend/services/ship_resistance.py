@@ -1,57 +1,42 @@
 """
-Ship resistance core — pure functions, single source of truth.
+Canonical pure-function resistance kernel shared by the public API and benchmark validator.
 
-Extracted from :mod:`api.calculations` (mission m1388) so that the same physics
-serves both the public endpoint ``POST /api/v1/calculations/resistance`` and the
-in-process benchmark validation chain
-(``POST /api/v1/calculations/benchmark_validate``).
+Model ID: suboff_axisymmetric_empirical_v1
 
-Before m1388 the benchmark chain reached the resistance model over HTTP to
-``localhost:8002`` with a payload/response schema that did not match the actual
-endpoint (``speed`` vs ``speed_ms``, response fields ``ct``/``method`` that the
-endpoint never returned).  Whenever that hop was unavailable every benchmark
-case degraded to ``calc_ct = 0.0`` / ``error_pct = 999`` — i.e. the "对标算例"
-capability was silently MOCK.  The physics now lives here and is importable.
+This is deliberately a small empirical model, NOT a general merchant-ship
+resistance method. It combines an optional supplied wetted surface (otherwise
+an axisymmetric-body estimate), ITTC-1957 friction, an empirical SUBOFF-like
+residual coefficient, and an optional viscous form factor (1+k).
 
-Model basis (unchanged from the merged endpoint, so endpoint outputs are
-bit-identical for the documented inputs):
-
-* wetted surface — axisymmetric-body approximation ``S = pi*B*L*(0.5 + 0.25*Cb)``
-* friction       — ITTC-1957 correlation line ``Cf = 0.075 / (log10(Re) - 2)^2``
-* residual       — empirical fit ``Cr = 0.002*(1 + 2*Cb)*Fn^2.5`` (Fn > 0.05)
-
-Applicability warning: the geometry and residual-resistance fits were calibrated
-on SUBOFF-like axisymmetric bodies.  They are *not* a general merchant-ship
-resistance method (no Holtrop wave/ bulb/ transom terms, no form factor).  See
-``docs/reports/m1388_benchmark_chain_audit.md``.
+A geometry value supplied by a caller is not automatically verified here.
+The returned validity status is an applicability warning, not proof of
+experimental validation.
 """
 from __future__ import annotations
 
 import math
-from typing import Dict
+from typing import Dict, List, Optional
 
 G = 9.81
 DEFAULT_WATER_DENSITY = 998.0
 DEFAULT_KINEMATIC_VISCOSITY = 1.004e-6
+MODEL_ID = "suboff_axisymmetric_empirical_v1"
+MODEL_NAME = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
 
-
-# ---------------------------------------------------------------------------
-# Non-dimensional quantities
-# ---------------------------------------------------------------------------
 
 def reynolds_number(speed: float, length: float, nu: float = DEFAULT_KINEMATIC_VISCOSITY) -> float:
     """Re = V * L / nu."""
+    if speed <= 0 or length <= 0 or nu <= 0:
+        raise ValueError("speed, length and kinematic viscosity must be positive")
     return speed * length / nu
 
 
 def froude_number(speed: float, length: float, g: float = G) -> float:
     """Fn = V / sqrt(g * L)."""
+    if speed <= 0 or length <= 0 or g <= 0:
+        raise ValueError("speed, length and gravity must be positive")
     return speed / math.sqrt(g * length)
 
-
-# ---------------------------------------------------------------------------
-# Friction lines
-# ---------------------------------------------------------------------------
 
 def ittc57_cf(re: float) -> float:
     """ITTC-1957 correlation line Cf = 0.075 / (log10(Re) - 2)^2."""
@@ -64,13 +49,7 @@ def ittc57_cf(re: float) -> float:
 
 
 def schoenherr_cf(re: float, tol: float = 1e-14, max_iter: int = 100) -> float:
-    """Schoenherr (1932) average friction line, solved for Cf.
-
-    ``0.242 / sqrt(Cf) = log10(Re * Cf)`` is implicit in Cf; solved here by
-    bisection on the monotone residual, which keeps the helper dependency-free
-    and deterministic.  Used only as an *independent* cross-check of the
-    ITTC-1957 line (two distinct historical correlations, not a tautology).
-    """
+    """Schoenherr (1932) average friction line, solved by deterministic bisection."""
     if re <= 0:
         raise ValueError("Reynolds number must be positive")
 
@@ -91,18 +70,16 @@ def schoenherr_cf(re: float, tol: float = 1e-14, max_iter: int = 100) -> float:
     return 0.5 * (lo + hi)
 
 
-# ---------------------------------------------------------------------------
-# Resistance model
-# ---------------------------------------------------------------------------
-
 def wetted_surface_axisym(beam: float, length: float, cb: float) -> float:
-    """Axisymmetric-body wetted-surface approximation used by the endpoint."""
+    """Legacy axisymmetric-body wetted-surface estimate; not suitable for all hulls."""
+    if beam <= 0 or length <= 0 or not (0.0 < cb <= 1.0):
+        raise ValueError("beam and length must be positive and Cb must be in (0, 1]")
     return math.pi * beam * length * (0.5 + 0.25 * cb)
 
 
-def residual_coefficient(fr: float, cb: float, fn_floor: float = 0.05) -> float:
-    """Empirical residual-resistance coefficient (SUBOFF-calibrated fit)."""
-    return 0.002 * (1.0 + 2.0 * cb) * fr ** 2.5 if fr > fn_floor else 0.0
+def residual_coefficient(fn: float, cb: float, fn_floor: float = 0.05) -> float:
+    """Empirical residual-resistance coefficient; SUBOFF-like fit without published provenance."""
+    return 0.002 * (1.0 + 2.0 * cb) * fn ** 2.5 if fn > fn_floor else 0.0
 
 
 def resistance_breakdown(
@@ -113,42 +90,91 @@ def resistance_breakdown(
     speed: float,
     rho: float = DEFAULT_WATER_DENSITY,
     nu: float = DEFAULT_KINEMATIC_VISCOSITY,
-) -> Dict[str, float]:
-    """Full resistance breakdown: S, Re, Fn, Cf, Cr, Rf, Rr, Rt, Ct."""
-    s_wet = wetted_surface_axisym(beam, length, cb)
+    wetted_surface_m2: Optional[float] = None,
+    form_factor: float = 1.0,
+) -> Dict[str, object]:
+    """Compute the canonical resistance breakdown used by API and benchmark paths.
+
+    wetted_surface_m2 should only be supplied when its geometry/provenance has
+    been checked by the caller. form_factor is the conventional (1+k) factor.
+    """
+    if min(length, beam, draft, speed, rho, nu) <= 0:
+        raise ValueError("speed, dimensions, density and viscosity must be positive")
+    if not (0.3 < cb < 1.0):
+        raise ValueError(f"Cb={cb} out of physical range (0.3, 1.0)")
+    if not (1.0 <= form_factor <= 1.5):
+        raise ValueError("form_factor must be in [1.0, 1.5]")
+    if wetted_surface_m2 is not None and wetted_surface_m2 <= 0:
+        raise ValueError("wetted_surface_m2 must be positive when supplied")
+
+    if wetted_surface_m2 is None:
+        s_wet = wetted_surface_axisym(beam, length, cb)
+        surface_source = "empirical_axisymmetric_estimate"
+    else:
+        s_wet = float(wetted_surface_m2)
+        surface_source = "caller_supplied_geometry_value"
+
     re = reynolds_number(speed, length, nu)
     fn = froude_number(speed, length)
     cf = ittc57_cf(re)
     cr = residual_coefficient(fn, cb)
     q = 0.5 * rho * s_wet * speed ** 2
+
     rf = q * cf
+    rform = (form_factor - 1.0) * rf
     rr = q * cr
+    rt = rf + rform + rr
+    ct = rt / q
+
+    validity_notes: List[str] = [
+        "Empirical residual fit is SUBOFF-like and has no published provenance in this repository.",
+        "A caller-supplied wetted surface is not independently validated by this function.",
+        "Passing software checks does not establish physical validation.",
+    ]
+    in_envelope = cb < 0.6 and fn <= 0.4
+    if cb >= 0.6:
+        validity_notes.append(f"Cb={cb:.4f} is outside the documented fine/axisymmetric-body fit range (Cb < 0.6).")
+    if fn > 0.4:
+        validity_notes.append(f"Fn={fn:.4f} exceeds the documented empirical-fit range (Fn <= 0.4).")
+
     return {
+        "model_id": MODEL_ID,
+        "method": MODEL_NAME,
+        "validity_status": "within_empirical_envelope" if in_envelope else "outside_empirical_envelope",
+        "validity_notes": validity_notes,
+        "surface_source": surface_source,
         "wetted_surface_m2": s_wet,
         "reynolds": re,
+        "reynolds_number": re,
         "froude": fn,
+        "froude_number": fn,
         "cf": cf,
         "cr": cr,
-        "ct": cf + cr,
+        "ct": ct,
+        "form_factor": form_factor,
         "rf_n": rf,
+        "frictional_resistance_n": rf,
+        "form_resistance_n": rform,
         "rr_n": rr,
-        "rt_n": rf + rr,
+        "residual_resistance_n": rr,
+        "rt_n": rt,
+        "total_resistance_n": rt,
     }
 
 
 def ct_from_rt(rt: float, rho: float, s_wet: float, speed: float) -> float:
-    """Ct = Rt / (0.5 * rho * S * V^2) — the identity used to audit datasets."""
+    """Ct = Rt / (0.5 * rho * S * V^2) — the coefficient identity used for audits."""
     q = 0.5 * rho * s_wet * speed ** 2
     if q <= 0:
         raise ValueError("Dynamic pressure must be positive")
     return rt / q
 
 
-# ---------------------------------------------------------------------------
-# Derived geometry helpers
-# ---------------------------------------------------------------------------
-
 def displacement_from_cb(length: float, beam: float, draft: float, cb: float,
                          rho: float = DEFAULT_WATER_DENSITY) -> float:
     """Displacement in tonnes from the block coefficient (nabla = Cb * L * B * T)."""
+    if min(length, beam, draft, rho) <= 0:
+        raise ValueError("dimensions and density must be positive")
+    if not (0.0 < cb <= 1.0):
+        raise ValueError("cb must be in (0, 1]")
     return cb * length * beam * draft * rho / 1000.0
