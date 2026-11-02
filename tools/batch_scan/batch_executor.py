@@ -31,6 +31,21 @@ from typing import Any, Dict, List, Optional
 
 import yaml
 
+# ── 真实推进模型接入 ──────────────────────────────────────────────────
+# 批量执行器原先自带 KT = max(0.05, 0.5-0.3J) / KQ = max(0.01, 0.05+0.02J)
+# 的硬编码代理（MOCK 级），与平台宣称的 propeller.open_water=REAL 不符。
+# 这里改为直接调用 backend/services/propeller_open_water.py 的
+# 叶片元-动量（BEM）模型，返回里带 model 溯源字段。
+_REPO_ROOT = Path(__file__).resolve().parents[2]
+_BACKEND_DIR = _REPO_ROOT / "backend"
+if str(_BACKEND_DIR) not in sys.path:
+    sys.path.insert(0, str(_BACKEND_DIR))
+
+from services.propeller_open_water import (  # noqa: E402
+    PropellerGeometry,
+    open_water_point,
+)
+
 # ── 状态枚举 ──────────────────────────────────────────────────────────
 class CaseStatus(str, Enum):
     PENDING   = "pending"
@@ -74,10 +89,15 @@ class BatchReport:
 
 # ── 模拟计算引擎 ──────────────────────────────────────────────────────
 class ShipCalculationEngine:
-    """模拟船舶性能计算引擎。
+    """批量工况计算引擎（逐方法溯源，参见 ``PROVENANCE``）。
 
-    实际平台 API 在 :8001，此处用确定性伪随机模拟，
-    保证相同参数 → 相同结果（可复现）。
+    * ``calc_propeller``  —— **REAL**：直接调用
+      ``backend/services/propeller_open_water.py`` 的叶片元-动量 (BEM) 模型
+      （``model = "bem_blade_element_momentum_v1"``），输出与服务平台同源。
+    * ``calc_resistance`` / ``calc_stability`` / ``calc_geometry`` ——
+      **SURROGATE（MOCK 级）**：解析闭式代理（ITTC-57 摩擦线 + 箱形水动力），
+      只保证量级与单调趋势，不得作为对实验/文献精度的证据；返回值统一带
+      ``model`` 溯源字段，使批量报告可人工识别代理项。
     """
 
     @staticmethod
@@ -105,6 +125,7 @@ class ShipCalculationEngine:
             "wetted_surface_m2": round(wetted, 1),
             "friction_coefficient": round(cf, 6),
             "ship_type": params.get("ship_type", "unknown"),
+            "model": "surrogate_ittc57_friction_v0",
         }
 
     @classmethod
@@ -132,33 +153,47 @@ class ShipCalculationEngine:
             "righting_moment_knm": round(righting / 1000, 2),
             "kb_m": round(kb, 2),
             "bm_m": round(bm, 2),
+            "model": "surrogate_box_hydrostatics_v0",
         }
 
     @classmethod
     def calc_propeller(cls, params: dict) -> dict:
-        rng = random.Random(cls._seed_from_params(params))
-        D = params.get("diameter_m", 5)
-        P_D = params.get("pitch_ratio", 1.0)
-        Ae_A0 = params.get("blade_area_ratio", 0.5)
-        Z = params.get("blade_count", 5)
-        rpm = params.get("rpm", 100)
-        Va = params.get("advance_speed_kn", 12) * 0.5144
+        """Open-water point from the REAL blade-element/momentum model.
+
+        Same physics as the platform service ``propeller.open_water``; the only
+        difference is unit bookkeeping (rpm -> n [rps], kn -> m/s).
+        """
+        D = float(params.get("diameter_m", 5))
+        P_D = float(params.get("pitch_ratio", 1.0))
+        Ae_A0 = float(params.get("blade_area_ratio", 0.55))
+        Z = int(params.get("blade_count", 4))
+        rpm = float(params.get("rpm", 100))
+        Va = float(params.get("advance_speed_kn", 12)) * 0.5144  # kn -> m/s
 
         if D <= 0 or rpm <= 0:
             raise ValueError(f"Invalid parameters: D={D}, rpm={rpm}")
+        if Ae_A0 <= 0 or Z < 2:
+            raise ValueError(f"Invalid blade geometry: Ae/A0={Ae_A0}, Z={Z}")
 
         n = rpm / 60.0
-        J = Va / (n * D) if n * D > 0 else 0
-        KT = max(0.05, 0.5 - 0.3 * J)
-        KQ = max(0.01, 0.05 + 0.02 * J)
-        eta0 = (J * KT) / (2 * 3.14159 * KQ) if KQ > 0 else 0
-        eta0 = min(0.85, max(0.3, eta0))
+        J = Va / (n * D) if n * D > 0 else 0.0
+        geom = PropellerGeometry(
+            diameter_m=D,
+            pitch_ratio=P_D,
+            blade_area_ratio=Ae_A0,
+            blade_count=Z,
+        )
+        pt = open_water_point(geom, J, rho=1025.0, n_rps=n)
         return {
             "advance_coefficient": round(J, 4),
-            "thrust_coefficient": round(KT, 4),
-            "torque_coefficient": round(KQ, 4),
-            "efficiency": round(eta0, 4),
-            "thrust_kn": round(KT * 1025 * n**2 * D**4 / 1000, 2),
+            "thrust_coefficient": round(pt["KT"], 4),
+            "torque_coefficient": round(pt["KQ"], 4),
+            "efficiency": round(pt["eta0"], 4),
+            "thrust_kn": round(pt["thrust_n"] / 1000.0, 2),
+            "torque_knm": round(pt["torque_nm"] / 1000.0, 4),
+            "eta_ideal": round(pt["eta_ideal"], 4),
+            "induction_converged": bool(pt["induction_converged"]),
+            "model": "bem_blade_element_momentum_v1",
         }
 
     @classmethod
@@ -180,6 +215,7 @@ class ShipCalculationEngine:
             "prismatic_coefficient": round(Cb / 0.98, 4),
             "waterplane_area_m2": round(L * B * 0.85, 1),
             "length_beam_ratio": round(L / B, 2),
+            "model": "surrogate_parametric_geometry_v0",
         }
 
 # ── 工况执行器 ────────────────────────────────────────────────────────
