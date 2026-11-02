@@ -1,6 +1,6 @@
 {
   "red_team_demo": "Capability Card Validation Gate",
-  "description": "Two red team demonstrations: (1) missing validation_evidence field \u2192 RED; (2) fake report_id not in tensor_reports \u2192 RED",
+  "description": "Three red team demonstrations: (1) missing validation_evidence → RED; (2) fake report_id not resolvable in the pinned evidence snapshot → RED; (3) fabricated digest + hallucinated quote on real-looking report id → RED.",
   "tests": [
     {
       "test_id": "RT-001",
@@ -30,7 +30,8 @@
       "expected_result": "REJECTED",
       "rejection_reason": "Missing required field: validation_evidence (must contain report_id, report_md5, verification_status)",
       "actual_result": "REJECTED",
-      "verdict": "PASS"
+      "verdict": "PASS",
+      "rejection_reason_observed": "schema: Missing required field: validation_evidence"
     },
     {
       "test_id": "RT-002",
@@ -65,6 +66,50 @@
       "expected_result": "REJECTED",
       "rejection_reason": "report_id 'nonexistent_report_xyz_99999' not found in tensor_reports table",
       "actual_result": "REJECTED",
+      "verdict": "PASS",
+      "rejection_reason_observed": "E2 CAP-FAKE-002 anchor unresolvable (unknown anchor_type=None); E3 CAP-FAKE-002 digest not verifiable: anchor unresolvable (unknown anchor_type=None); E7 CAP-FAKE-002 missing quote_match (claim without a verbatim quote); E5 CAP-FAKE-002 OVERCLAIM: status=PASS but evidence anchor E2/E3/E7 not green"
+    },
+    {
+      "test_id": "RT-003",
+      "name": "Fabricated digest / hallucinated quote on a real-looking report id",
+      "rationale": "复刻 mission 1819 前的真实缺陷：32 位十六进制 md5 语法合法但内容是伪造的，引文在报告正文中不存在。旧的格式闸（re.fullmatch hex32）会放行，E3/E7 必须判负。",
+      "input_card": {
+        "card_id": "CAP-FAKE-003",
+        "name": "Fake Capability With Fabricated Digest",
+        "version": "1.0.0",
+        "repo": "TensorLBM",
+        "interface": {
+          "input": {},
+          "output": {},
+          "format": "JSON"
+        },
+        "applicability": {
+          "parameter_domain": {},
+          "regime": "test"
+        },
+        "dependencies": {
+          "code_version": "test"
+        },
+        "resource_requirements": {},
+        "validation_evidence": {
+          "report_id": "1375",
+          "report_md5": "0123456789abcdef0123456789abcdef",
+          "report_body_sha256": "0000000000000000000000000000000000000000000000000000000000000000",
+          "anchor_type": "platform_report",
+          "verification_status": "PASS",
+          "quote_match": "误差是否 <3%：是",
+          "quote_line_sha256": "deadbeefdeadbeef",
+          "relative_error_pct": 0.1,
+          "tolerance_pct": 5.0
+        },
+        "failure_modes": [],
+        "created_at": "2026-11-01T00:00:00Z",
+        "status": "active"
+      },
+      "expected_result": "REJECTED",
+      "rejection_reason": "E3 digest mismatch: card(sha=0…) != recomputed(...); E7 quote_match does not hit anchored text",
+      "actual_result": "REJECTED",
+      "rejection_reason_observed": "E3 CAP-FAKE-003 digest mismatch: card(sha=000000000000,md5=0123456789ab) != recomputed(sha=b4da14a77c2d,md5=1fb5fb22bdce); E4 CAP-FAKE-003 sentinel digest in report_body_sha256; E7 CAP-FAKE-003 quote_match='误差是否 <3%：是' does not hit anchored text; E5 CAP-FAKE-003 OVERCLAIM: status=PASS but evidence anchor E2/E3/E7 not green",
       "verdict": "PASS"
     }
   ],

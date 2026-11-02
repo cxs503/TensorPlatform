@@ -1,239 +1,155 @@
 #!/usr/bin/env python3
-"""Capability card validation gate.
+"""Capability card validation gate (schema + evidence anchor).
 
-Validates capability cards against the schema and checks that
-validation_evidence.report_id exists in tensor_reports table.
+mission 1819 rewrote the evidence half of this gate.  Before:
+
+    def validate_report_id_exists(report_id, known_reports=None):
+        # "In production, this queries the database"
+        valid_ids = {"e2e1", "suboff_sail", "wave10_multiphase",
+                     "dtmb5415_geometry", "report_gate_v1", "m597"}
+
+That is a *hardcoded whitelist of the very five labels the cards invented* — the
+gate could not distinguish a real platform report from a fabricated one, and it
+rejected genuine report ids (e.g. "1375") that were not in the list.  The
+red-team demo built on it was tautological for the same reason.
+
+Now every card's evidence must resolve through
+`tools/audit/capability_card_evidence.py` against the pinned report snapshot
+(E2/E3/E4/E5/E7): a numeric report id that exists in the snapshot, digests
+recomputed from the pinned bytes, a verbatim quote that hits, and no PASS on top
+of a failure quote.
 
 Usage:
-    python3 validate_capability_card.py <card.json>
-    python3 validate_capability_card.py --red-team  # run red team demo
+    python3 scripts/validate_capability_card.py <card.json>
+    python3 scripts/validate_capability_card.py --batch
+    python3 scripts/validate_capability_card.py --red-team
 """
+from __future__ import annotations
+
+import importlib.util
 import json
 import sys
-import hashlib
-import os
 from pathlib import Path
-from datetime import datetime
 
-SCHEMA_PATH = Path(__file__).parent.parent / "docs" / "capability_card.schema.json"
-WORK_DIR = Path(__file__).parent.parent
+WORK_DIR = Path(__file__).resolve().parents[1]
+SCHEMA_PATH = WORK_DIR / "docs" / "capability_card.schema.json"
 CARDS_DIR = WORK_DIR / "docs" / "capability_registry" / "cards"
+RED_TEAM_PATH = WORK_DIR / "docs" / "capability_registry" / "red_team" / "red_team_demo.json"
+EVIDENCE_TOOL = WORK_DIR / "tools" / "audit" / "capability_card_evidence.py"
+SNAPSHOT = WORK_DIR / "tests" / "fixtures" / "capability_evidence" / "reports_snapshot.json"
 
-REQUIRED_FIELDS = [
-    "card_id", "name", "version", "repo", "interface",
-    "applicability", "dependencies", "resource_requirements",
-    "validation_evidence", "failure_modes", "created_at", "status"
-]
 
-VALIDATION_EVIDENCE_REQUIRED = ["report_id", "report_md5", "verification_status"]
+def _evidence():
+    spec = importlib.util.spec_from_file_location("capability_card_evidence", EVIDENCE_TOOL)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["capability_card_evidence"] = mod
+    spec.loader.exec_module(mod)
+    return mod
 
 
 def load_schema():
-    with open(SCHEMA_PATH) as f:
-        return json.load(f)
+    return json.loads(SCHEMA_PATH.read_text(encoding="utf-8"))
 
 
 def validate_schema(card, schema):
-    """Basic schema validation (required fields, types, patterns)."""
+    """Structural validation (required fields, basic patterns)."""
+    import re
+
     errors = []
-    
-    # Check required fields
     for field in schema.get("required", []):
         if field not in card:
             errors.append(f"Missing required field: {field}")
-    
-    # Check card_id pattern
-    if "card_id" in card:
-        import re
-        if not re.match(r"^CAP-[A-Za-z0-9_-]+$", card["card_id"]):
-            errors.append(f"Invalid card_id format: {card['card_id']} (expected CAP-XXX)")
-    
-    # Check version pattern
-    if "version" in card:
-        import re
-        if not re.match(r"^[0-9]+\.[0-9]+\.[0-9]+$", card["version"]):
-            errors.append(f"Invalid version format: {card['version']} (expected semver)")
-    
-    # Check repo enum
-    if "repo" in card:
-        valid_repos = schema["properties"]["repo"]["enum"]
-        if card["repo"] not in valid_repos:
-            errors.append(f"Invalid repo: {card['repo']} (expected one of {valid_repos})")
-    
-    # Check validation_evidence required sub-fields
-    if "validation_evidence" in card:
-        ve = card["validation_evidence"]
-        for field in VALIDATION_EVIDENCE_REQUIRED:
+    if "card_id" in card and not re.match(r"^CAP-[A-Za-z0-9_-]+$", card["card_id"]):
+        errors.append(f"Invalid card_id format: {card['card_id']} (expected CAP-XXX)")
+    ve = card.get("validation_evidence")
+    if isinstance(ve, dict):
+        for field in (schema["properties"]["validation_evidence"].get("required") or []):
             if field not in ve:
-                errors.append(f"Missing validation_evidence.{field}")
-        
-        # Check report_md5 pattern
-        if "report_md5" in ve:
-            import re
-            if not re.match(r"^[a-fA-F0-9]{32}$", ve["report_md5"]):
-                errors.append(f"Invalid report_md5 format (expected 32-char hex)")
-    
-    # Check interface required sub-fields
-    if "interface" in card:
-        iface = card["interface"]
-        for field in ["input", "output", "format"]:
-            if field not in iface:
-                errors.append(f"Missing interface.{field}")
-    
-    # Check applicability required sub-fields
-    if "applicability" in card:
-        app = card["applicability"]
-        for field in ["parameter_domain", "regime"]:
-            if field not in app:
-                errors.append(f"Missing applicability.{field}")
-    
-    # Check dependencies required sub-fields
-    if "dependencies" in card:
-        deps = card["dependencies"]
-        if "code_version" not in deps:
-            errors.append("Missing dependencies.code_version")
-    
+                errors.append(f"Missing required field: validation_evidence.{field}")
     return errors
 
 
-def validate_report_id_exists(report_id, known_reports=None):
-    """Check if report_id exists in tensor_reports.
-    
-    In production, this queries the database. For offline validation,
-    we check against a known list of valid report IDs.
-    """
-    # Known valid report IDs from platform artifacts
-    valid_ids = {
-        "e2e1", "suboff_sail", "wave10_multiphase", 
-        "dtmb5415_geometry", "report_gate_v1", "m597"
-    }
-    
-    if known_reports:
-        valid_ids.update(known_reports)
-    
-    if report_id not in valid_ids:
-        return False, f"report_id '{report_id}' not found in tensor_reports table"
-    return True, None
+def validate_evidence(card, snapshot=None):
+    """Evidence-anchor validation (E2-E7 minus the registry-wide E1)."""
+    tool = _evidence()
+    snap = snapshot if snapshot is not None else json.loads(SNAPSHOT.read_text(encoding="utf-8"))
+    cid = card.get("card_id", "CAP-?")
+    _, violations = tool.check({cid: card}, {"cards": [], "total_cards": 1}, snap, root=WORK_DIR)
+    return [v for v in violations if not v.startswith("E1")]
 
 
-def validate_card(card_path, known_reports=None):
-    """Full validation of a capability card."""
-    with open(card_path) as f:
-        card = json.load(f)
-    
-    schema = load_schema()
-    
-    # Schema validation
-    schema_errors = validate_schema(card, schema)
-    if schema_errors:
-        return False, f"Schema validation failed: {'; '.join(schema_errors)}"
-    
-    # Report ID validation
-    report_id = card.get("validation_evidence", {}).get("report_id")
-    if report_id:
-        exists, error = validate_report_id_exists(report_id, known_reports)
-        if not exists:
-            return False, error
-    
+def validate_card(card_path, snapshot=None):
+    card = json.loads(Path(card_path).read_text(encoding="utf-8"))
+    errors = validate_schema(card, load_schema())
+    if errors:
+        return False, f"Schema validation failed: {'; '.join(errors)}"
+    violations = validate_evidence(card, snapshot)
+    if violations:
+        return False, "; ".join(violations)
     return True, "PASS"
 
 
-def run_red_team():
-    """Run red team demonstrations."""
-    red_team_path = WORK_DIR / "docs" / "capability_registry" / "red_team" / "red_team_demo.json"
-    
-    with open(red_team_path) as f:
-        demo = json.load(f)
-    
+def _judge(card, snapshot):
+    """Return (accepted: bool, reason: str) for a red-team input card."""
+    errors = validate_schema(card, load_schema())
+    if errors:
+        return False, f"schema: {'; '.join(errors)}"
+    violations = validate_evidence(card, snapshot)
+    if violations:
+        return False, "; ".join(violations)
+    return True, "evidence anchor resolves (E2/E3/E4/E5/E7 green)"
+
+
+def run_red_team(update_file: bool = True):
+    demo = json.loads(RED_TEAM_PATH.read_text(encoding="utf-8"))
+    snapshot = json.loads(SNAPSHOT.read_text(encoding="utf-8"))
     print("=" * 60)
     print("RED TEAM DEMO: Capability Card Validation Gate")
     print("=" * 60)
-    
     all_pass = True
     for test in demo["tests"]:
         print(f"\nTest: {test['test_id']} - {test['name']}")
-        
-        # Validate the test card
-        errors = validate_schema(test["input_card"], load_schema())
-        
-        if test["test_id"] == "RT-001":
-            # Missing validation_evidence
-            if errors:
-                print(f"  Result: REJECTED (correct)")
-                print(f"  Reason: {'; '.join(errors)}")
-                test["actual_result"] = "REJECTED"
-            else:
-                print(f"  Result: ACCEPTED (WRONG - should be rejected)")
-                test["actual_result"] = "ACCEPTED"
-                all_pass = False
-        
-        elif test["test_id"] == "RT-002":
-            # Fake report_id
-            schema_ok = len(errors) == 0
-            if schema_ok:
-                report_id = test["input_card"]["validation_evidence"]["report_id"]
-                exists, error = validate_report_id_exists(report_id)
-                if not exists:
-                    print(f"  Result: REJECTED (correct)")
-                    print(f"  Reason: {error}")
-                    test["actual_result"] = "REJECTED"
-                else:
-                    print(f"  Result: ACCEPTED (WRONG - should be rejected)")
-                    test["actual_result"] = "ACCEPTED"
-                    all_pass = False
-            else:
-                print(f"  Result: REJECTED (correct - schema error)")
-                print(f"  Reason: {'; '.join(errors)}")
-                test["actual_result"] = "REJECTED"
-        
-        test["verdict"] = "PASS" if test["actual_result"] == test["expected_result"] else "FAIL"
+        accepted, reason = _judge(test["input_card"], snapshot)
+        actual = "ACCEPTED" if accepted else "REJECTED"
+        test["actual_result"] = actual
+        test["rejection_reason_observed"] = reason
+        test["verdict"] = "PASS" if actual == test["expected_result"] else "FAIL"
+        all_pass &= test["verdict"] == "PASS"
+        print(f"  Result: {actual} (expected {test['expected_result']})")
+        print(f"  Reason: {reason}")
         print(f"  Verdict: {test['verdict']}")
-    
-    # Update the demo file with actual results
-    with open(red_team_path, "w") as f:
-        json.dump(demo, f, indent=2)
-    
-    print(f"\n{'=' * 60}")
-    print(f"Overall: {'ALL PASS' if all_pass else 'SOME FAILED'}")
-    print(f"{'=' * 60}")
-    
+    if update_file:
+        RED_TEAM_PATH.write_text(json.dumps(demo, ensure_ascii=False, indent=2) + "\n", encoding="utf-8")
+    print(f"\n{'=' * 60}\nOverall: {'ALL PASS' if all_pass else 'SOME FAILED'}\n{'=' * 60}")
     return all_pass
 
 
-def main():
-    if len(sys.argv) < 2:
-        print("Usage: python3 validate_capability_card.py <card.json>")
-        print("       python3 validate_capability_card.py --red-team")
-        print("       python3 validate_capability_card.py --batch")
-        sys.exit(1)
-    
-    if sys.argv[1] == "--red-team":
-        success = run_red_team()
-        sys.exit(0 if success else 1)
-    
-    if sys.argv[1] == "--batch":
-        print("Batch validation of all cards in cards/ directory:")
+def main(argv=None):
+    argv = argv if argv is not None else sys.argv[1:]
+    if not argv:
+        print(__doc__)
+        return 1
+    if argv[0] == "--red-team":
+        return 0 if run_red_team() else 1
+    if argv[0] == "--batch":
+        print("Batch validation of all cards in " + str(CARDS_DIR.relative_to(WORK_DIR)))
         print("=" * 60)
-        all_pass = True
-        for card_file in sorted(CARDS_DIR.glob("*.json")):
-            success, msg = validate_card(card_file)
-            status = "PASS" if success else "FAIL"
-            print(f"  {card_file.name}: {status} - {msg}")
-            if not success:
-                all_pass = False
-        print(f"\nOverall: {'ALL PASS' if all_pass else 'SOME FAILED'}")
-        sys.exit(0 if all_pass else 1)
-    
-    card_path = Path(sys.argv[1])
-    if not card_path.exists():
-        print(f"Error: File not found: {card_path}")
-        sys.exit(1)
-    
-    success, msg = validate_card(card_path)
-    print(f"Validation: {'PASS' if success else 'FAIL'}")
+        ok_all = True
+        for f in sorted(CARDS_DIR.glob("*.json")):
+            ok, msg = validate_card(f)
+            print(f"  {f.name}: {'PASS' if ok else 'FAIL'} - {msg}")
+            ok_all &= ok
+        print(f"\nOverall: {'ALL PASS' if ok_all else 'SOME FAILED'}")
+        return 0 if ok_all else 1
+    p = Path(argv[0])
+    if not p.exists():
+        print(f"Error: File not found: {p}")
+        return 1
+    ok, msg = validate_card(p)
+    print(f"Validation: {'PASS' if ok else 'FAIL'}")
     print(f"Message: {msg}")
-    sys.exit(0 if success else 1)
+    return 0 if ok else 1
 
 
 if __name__ == "__main__":
-    main()
+    sys.exit(main())

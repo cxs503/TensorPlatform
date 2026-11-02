@@ -95,10 +95,10 @@
     "storage_gb": 5
   },
   "validation_evidence": {
-    "report_id": "e2e1",
-    "report_md5": "96f84c5fa931467b9052e52a97fb5e2a",
+    "report_id": "1296",
+    "report_md5": "d356b92948bfa2845e64c044d5c0539c",
     "prereg_md5": "af20c79970712132604371186f10e93b",
-    "verification_status": "IN_PROGRESS",
+    "verification_status": "NOT_VERIFIED",
     "reference_values": {
       "C_D_mean": {
         "value": 1.33,
@@ -112,7 +112,14 @@
       }
     },
     "relative_error_pct": null,
-    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+    "report_body_sha256": "01615d61b84b3c377836fa8bd084c86b5f232ed9f5e03be6d62c9e57c454a641",
+    "anchor_type": "platform_report",
+    "anchor_title": "SDAA 圆柱绕流 Re=20 验证报告（mission 487 补报）",
+    "anchor_fetched_at": "2026-11-02T00:05:51Z",
+    "quote_match": "Re≥100 涡脱落：需额外验证",
+    "quote_line_sha256": "85bbc97289331d6e",
+    "tolerance_pct": null,
+    "gap_reason": "卡片声明 2D 圆柱 Re=100 的 C_D/St 基准（Braza1986 等）；平台内唯一可复算的圆柱证据是报告 1296，其口径为 Schäfer-Turek 2D-1 Re=20 定常层流，报告原文明确 \"Re≥100 涡脱落：需额外验证\"。Re=100 的 C_D=1.33 / St=0.165 两个参考值在本锚点中无对应实测，故不得判 PASS。"
   },
   "failure_modes": [
     {
@@ -135,7 +142,7 @@
     }
   ],
   "created_at": "2026-11-01T00:00:00Z",
-  "updated_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-02T00:00:00Z",
   "status": "active",
   "tags": [
     "benchmark",

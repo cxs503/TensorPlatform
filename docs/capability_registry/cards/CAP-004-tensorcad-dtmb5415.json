@@ -91,10 +91,10 @@
     "storage_gb": 2
   },
   "validation_evidence": {
-    "report_id": "dtmb5415_geometry",
-    "report_md5": "7fcb2df603f56da19c6f11b290eb251b",
+    "report_id": "1313",
+    "report_md5": "f418d838e5a839888588a6acba40fca0",
     "prereg_md5": null,
-    "verification_status": "PASS",
+    "verification_status": "NOT_VERIFIED",
     "reference_values": {
       "deviation_mean": {
         "value": 0.236,
@@ -107,8 +107,15 @@
         "source": "0.236m / L_pp = 0.17% (L_pp = 142.0m for DTMB 5415)"
       }
     },
-    "relative_error_pct": 0.17,
-    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+    "relative_error_pct": null,
+    "report_body_sha256": "4b325d5e7791fbe07d28af770276faf3689cada7c5057b274d38dc89bb1b71f7",
+    "anchor_type": "platform_report",
+    "anchor_title": "Mission 542 补报：DTMB 5415 参数化变形族生成器",
+    "anchor_fetched_at": "2026-11-02T00:05:51Z",
+    "quote_match": "需修复 `export_variant` 中门禁判定逻辑",
+    "quote_line_sha256": "0e55b69cbb2f8d80",
+    "tolerance_pct": null,
+    "gap_reason": "卡片声明 DTMB 5415 几何偏差 0.236 m / 0.17%L 为 PASS；平台内 5415 相关唯一可复算报告 1313 是\"参数化变形族生成器\"，其注意点明确记录门禁判定逻辑缺陷未修复（gates.json 与 result 判定不一致），且 1313 正文未给出 0.236 m 偏差的实测对账。故原 PASS 不成立，降为 NOT_VERIFIED。"
   },
   "failure_modes": [
     {
@@ -131,7 +138,7 @@
     }
   ],
   "created_at": "2026-11-01T00:00:00Z",
-  "updated_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-02T00:00:00Z",
   "status": "active",
   "tags": [
     "DTMB5415",

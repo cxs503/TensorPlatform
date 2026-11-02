@@ -92,10 +92,10 @@
     "storage_gb": 20
   },
   "validation_evidence": {
-    "report_id": "suboff_sail",
-    "report_md5": "7a3504622026f3c4afa649e1486e7c36",
+    "report_id": "1375",
+    "report_md5": "1fb5fb22bdceb25a3aa71c582d0ea8fb",
     "prereg_md5": null,
-    "verification_status": "PASS",
+    "verification_status": "HONEST_FAIL",
     "reference_values": {
       "C_T_ballast": {
         "value": 1.1290741584063078,
@@ -103,8 +103,16 @@
         "source": "Four-tree md5 anchor (PR #275 tau staircase scan)"
       }
     },
-    "relative_error_pct": null,
-    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+    "relative_error_pct": 34.6,
+    "report_body_sha256": "b4da14a77c2dcc54bcd2030f4a56f73acfff55d7e4ceed75f58b50ec0c6e2902",
+    "anchor_type": "platform_report",
+    "anchor_title": "M1775 — SUBOFF 阻力计算全面验证",
+    "anchor_fetched_at": "2026-11-02T00:05:51Z",
+    "quote_match": "是否 <3%：否",
+    "quote_line_sha256": "34f003f1f47ebd3d",
+    "tolerance_pct": 15.0,
+    "relative_error_source": "pinned report 1375: max |SUBOFF-0x Ct error| (%)",
+    "verification_status_note": "锚点报告 1375 原文：\"是否 <3%：否。4 例中仅 1 例 <3%…\"，且 SUBOFF-04 (Fn=0.918) 达 +34.6% > 15% 不可接受线；诚实判 HONEST_FAIL，不判 PASS。"
   },
   "failure_modes": [
     {
@@ -127,7 +135,7 @@
     }
   ],
   "created_at": "2026-11-01T00:00:00Z",
-  "updated_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-02T00:00:00Z",
   "status": "active",
   "tags": [
     "SUBOFF",

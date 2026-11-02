@@ -74,7 +74,10 @@ class TestCapabilityCards:
         assert card["repo"] == "TensorLBM"
         assert card["discipline"] == "resistance"
         assert "tau" in card["interface"]["input"]
-        assert card["validation_evidence"]["verification_status"] == "PASS"
+        # mission 1819: the old PASS here was unsupported (placeholder md5 + non-existent
+        # report_id).  The only real evidence, report 1375, answers "是否 <3%：否" and has one
+        # case above the 15% acceptance line, so the card honestly records HONEST_FAIL.
+        assert card["validation_evidence"]["verification_status"] == "HONEST_FAIL"
         # Check four-tree anchor value
         ref = card["validation_evidence"]["reference_values"]["C_T_ballast"]
         assert abs(ref["value"] - 1.1290741584063078) < 1e-10
@@ -84,7 +87,9 @@ class TestCapabilityCards:
         assert card["card_id"] == "CAP-003"
         assert card["repo"] == "TensorLBM"
         assert card["discipline"] == "seakeeping"
-        assert card["validation_evidence"]["verification_status"] == "HONEST_FAIL"
+        # mission 1819: no reproducible platform evidence exists for wave-10, so the card is
+        # NOT_VERIFIED (declared-empty anchor) rather than HONEST_FAIL (which needs evidence).
+        assert card["validation_evidence"]["verification_status"] == "NOT_VERIFIED"
         # Check honest fail note about droplet water entry
         notes = card.get("notes", "")
         assert "HONEST FAIL" in notes or "droplet" in notes.lower()
@@ -124,7 +129,13 @@ class TestValidationEvidence:
         for card_file in CARDS_DIR.glob("*.json"):
             with open(card_file) as f:
                 card = json.load(f)
-            md5 = card["validation_evidence"]["report_md5"]
+            ve = card["validation_evidence"]
+            if ve.get("anchor_type") == "none":
+                # declared-empty anchor: there are no anchor bytes, so no digest at all
+                assert ve.get("report_md5") is None, f"{card_file.name} invents a digest for an empty anchor"
+                assert ve.get("gap_reason"), f"{card_file.name} empty anchor without gap_reason"
+                continue
+            md5 = ve["report_md5"]
             assert re.match(r"^[a-fA-F0-9]{32}$", md5), f"{card_file.name} has invalid md5: {md5}"
     
     def test_verification_status_valid(self):

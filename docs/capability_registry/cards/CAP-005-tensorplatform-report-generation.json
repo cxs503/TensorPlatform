@@ -137,13 +137,24 @@
     "storage_gb": 1
   },
   "validation_evidence": {
-    "report_id": "report_gate_v1",
-    "report_md5": "f68d161c22f91dbfadaba3a7478b212e",
-    "prereg_md5": null,
+    "report_id": "docs/REPORT_GATE.md",
+    "report_md5": "d7619e04460833499d5719c012fa0d6a",
+    "report_body_sha256": "1ade3b841f6b7f2dcc2bb8ee44962cff78cfee49e709af07e1e4f3d2dc622109",
+    "anchor_type": "repo_file",
+    "anchor_path": "docs/REPORT_GATE.md",
+    "anchor_title": "Report Gate policy (repo file)",
     "verification_status": "PASS",
-    "reference_values": {},
+    "quote_match": "六要素=①案例介绍",
+    "quote_line_sha256": "d30135a20b4d5d7f",
+    "reference_values": {
+      "gate_fields_required": {
+        "value": 6,
+        "tolerance": 0,
+        "source": "docs/REPORT_GATE.md: 六要素=①案例介绍…⑥误差判定"
+      }
+    },
     "relative_error_pct": null,
-    "report_md5_note": "Placeholder: report not yet frozen. Replace with actual freeze gate md5 when report is published."
+    "tolerance_pct": null
   },
   "failure_modes": [
     {
@@ -172,7 +183,7 @@
     }
   ],
   "created_at": "2026-11-01T00:00:00Z",
-  "updated_at": "2026-11-01T00:00:00Z",
+  "updated_at": "2026-11-02T00:00:00Z",
   "status": "active",
   "tags": [
     "reporting",
