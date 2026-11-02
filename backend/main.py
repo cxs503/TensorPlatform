@@ -71,6 +71,12 @@ from api.domain import (
     tensor,                           # 科研运行台（场景/执行/审批/会话/健康）
 )
 
+# 域物理供应商注册：核心审计层经 services.validation_providers 消费域物理，不直接
+# import 域实现（边界终裁 2026-11-02，迁移清单见 docs/architecture/platform_physics_boundary_audit.md）
+from api.domain.physics_providers import register_ship_resistance_providers  # noqa: E402
+
+register_ship_resistance_providers()
+
 # Prometheus 监控指标 (router 已在 observability 域中聚合；保留为独立导入用於 /metrics 空前缀端点)
 from api import metrics_api
 from api.dashboard_proxy import router as dashboard_router
