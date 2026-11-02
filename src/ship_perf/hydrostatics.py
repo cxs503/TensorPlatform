@@ -99,40 +99,6 @@ def section_polygon(b: float, t: float, d: float, cb: float) -> Poly:
     ]
 
 
-def section_polygon_bilge_rounded(
-    b: float, t: float, d: float, r_bilge: float, n_arc: int = 24
-) -> Poly:
-    """圆舭剖面（垂直舷侧 + 平底 + 两个等半径舭圆弧），逆时针多边形。
-
-    底部平段半宽 ``B/2 - r``，舭圆与平底、舷侧相切（圆弧半径 ``r=r_bilge``，
-    圆心 ``(±(B/2-r), r)``），舷侧垂直至甲板 ``D``。``r=0`` 退化为矩形剖面
-    ``section_polygon(b, t, d, 1.0)``（矩形浮箱极限）。剖面积由裁角精确给出::
-
-        A = B·T - (2 - π/2)·r²        （T > r，两个 1/4 角各裁 r²(1-π/4)）
-
-    有效方形系数 ``Cb_eff = A/(B·T)`` 小于 1：圆舭是从矩形箱体上裁角，
-    因此与 ``section_polygon`` 的同主尺度梯形族**不可混用**，等体积水线
-    须以 ``section_area`` 求得的面积为目标（见 ``gz_curve_polygon``）。
-    """
-    if r_bilge < 0.0:
-        raise ValueError("r_bilge 必须非负")
-    r = min(r_bilge, b / 2.0, t)
-    dd = max(d, t)
-    yb = b / 2.0 - r  # 底部平段半宽
-    poly: Poly = [(yb, 0.0)]
-    for i in range(1, n_arc + 1):  # 右舷舭圆弧：圆心 (yb, r)，从 φ=0 到 φ=90°
-        ph = 0.5 * math.pi * i / n_arc
-        poly.append((yb + r * math.sin(ph), r - r * math.cos(ph)))
-    poly.append((b / 2.0, dd))
-    poly.append((-b / 2.0, dd))
-    poly.append((-b / 2.0, r))
-    for i in range(n_arc, 0, -1):  # 左舷舭圆弧：镜像，从舷侧 (φ=90°) 绕回平底
-        ph = 0.5 * math.pi * i / n_arc
-        poly.append((-(yb + r * math.sin(ph)), r - r * math.cos(ph)))
-    poly.append((-yb, 0.0))
-    return poly
-
-
 def _clip(poly: Poly, theta: float, h: float) -> Poly:
     """Sutherland-Hodgman：保留 y·sinθ + z·cosθ <= h 的部分。"""
     s, c = math.sin(theta), math.cos(theta)
@@ -204,43 +170,6 @@ def immersed_section(
     return area, y_b, z_b
 
 
-def gz_curve_polygon(
-    poly: Poly,
-    area_target: float,
-    kg: float,
-    angles: Optional[Sequence[float]] = None,
-) -> List[float]:
-    """通用剖面的大倾角 GZ 曲线（m）：GZ = -y_B·cosθ + (z_B - KG)·sinθ。
-
-    剖面以 z=0 为基线（龙骨）的任意简单多边形给出，浸没面积由等体积条件
-    ``immersed_section`` 求解，因而圆舭/曲面剖面（真实船体型线）与
-    ``section_polygon`` 的直边梯形族共用同一物理模型。浸没侧为 -y
-    （水线半平面 y·sinθ+z·cosθ<=h），浮心 y_B<0，故 GZ 取 -y_B。
-    """
-    if angles is None:
-        angles = [float(a) for a in range(0, 91, 5)]
-    out: List[float] = []
-    for a in angles:
-        th = math.radians(a)
-        _, y_b, z_b = immersed_section(poly, th, area_target)
-        out.append(-y_b * math.cos(th) + (z_b - kg) * math.sin(th))
-    return out
-
-
-def section_area(poly: Poly) -> float:
-    """多边形剖面全高面积（m²，每米船长），含甲板以上封顶部分。"""
-    return _area_centroid(poly)[0]
-
-
-def submerged_section_area(poly: Poly, draft: float) -> float:
-    """吃水 ``draft`` 以下的剖面积（m²），并给出等体积 GZ 求解的面积目标。
-
-    对 ``section_polygon_bilge_rounded`` 等非梯形剖面，``Cb·B·T`` 不再是浸没
-    面积的正确替身（圆舭是从矩形箱体裁角），必须由几何求得。
-    """
-    return _area_centroid(_clip(poly, 0.0, draft))[0]
-
-
 def gz_curve(
     b: float,
     t: float,
@@ -249,9 +178,19 @@ def gz_curve(
     kg: float,
     angles: Optional[Sequence[float]] = None,
 ) -> List[float]:
-    """大倾角 GZ 曲线（m）：直边梯形族，等价于 ``gz_curve_polygon`` 的特例。"""
+    """大倾角 GZ 曲线（m）：GZ = y_B·cosθ - (z_B - KG)·sinθ。"""
+    if angles is None:
+        angles = [float(a) for a in range(0, 91, 5)]
     poly = section_polygon(b, t, d, cb)
-    return gz_curve_polygon(poly, cb * b * t, kg, angles)
+    a_target = cb * b * t
+    out: List[float] = []
+    for a in angles:
+        th = math.radians(a)
+        _, y_b, z_b = immersed_section(poly, th, a_target)
+        # 浸没侧为 -y（水线面向量式 y·sinθ+z·cosθ<=h），浮心 y_B<0；
+        # 右倾等效臂 GZ = -y_B·cosθ + (z_B-KG)·sinθ，小角度回退到 GM·sinθ。
+        out.append(-y_b * math.cos(th) + (z_b - kg) * math.sin(th))
+    return out
 
 
 # ---------------------------------------------------------------- 曲线特征

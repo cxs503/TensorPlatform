@@ -255,22 +255,8 @@ def _c16(cp: float) -> float:
 
 
 def _c15(h: HullForm) -> float:
-    """Holtrop (1984) c15 as a function of **L^3/nabla** (not L/nabla^(1/3)).
-
-    c15 = -1.69385                          for L^3/nabla < 512
-          -1.69385 + (L/nabla^(1/3)-8)/2.36  for 512 <= L^3/nabla <= 1727
-          0                                  for L^3/nabla > 1727
-
-    m1543/m1826: the previous code switched branches on L/nabla^(1/3) < 12, so full
-    hulls (KVLCC2: L^3/nabla=105, L/nabla^(1/3)=4.7) fell into the interpolation
-    branch and got c15=-3.09 instead of -1.69385 -> m2 too negative -> Rw +1-2%.
-    """
-    l3v = h.lpp ** 3 / h.displacement
-    if l3v < 512.0:
-        return -1.69385
-    if l3v > 1727.0:
-        return 0.0
-    return -1.69385 + (h.lpp / h.displacement ** (1.0 / 3.0) - 8.0) / 2.36
+    ratio = h.lpp / h.displacement ** (1.0 / 3.0)
+    return -1.69385 + (ratio - 8.0) / 2.36 if ratio < 12.0 else -1.69385
 
 
 def _lr(h: HullForm) -> float:
@@ -291,27 +277,8 @@ def _half_entrance_angle(h: HullForm) -> float:
     return 1.0 + 89.0 * math.exp(-expo)
 
 
-def m4_wave_froude_factor(h: HullForm, fn: float, model: str = "holtrop1984") -> float:
-    """兴波阻力的 Froude 数相关项 m4（Holtrop 1984 发表式 vs 1982 变体）。
-
-    holtrop1984（默认，发表式）: m4 = c15 · 0.4 · exp(-0.034 · Fn^-3.29)
-    holtrop1982（早期变体）    : m2 = c15 · Cp² · exp(-0.1 · Fn^-2)
-
-    两式在 Fn=0.10–0.17（设计域）差异 ≤2.3%（Rw）/≤0.25%（Rt），Fn>0.19 时可达
-    7%（Rw）；这是**模型形式不确定度**，不是数值缺陷（见 m1826 报告）。
-    """
-    if model not in ("holtrop1984", "holtrop1982"):
-        raise ValueError(f"未知 m4 模型形式: {model}")
-    c15 = _c15(h)
-    if model == "holtrop1984":
-        return c15 * 0.4 * math.exp(-0.034 * fn ** (-3.29))
-    return c15 * h.cp ** 2 * math.exp(-0.1 * fn ** (-2.0))
-
-
-def holtrop_wave_resistance(
-    h: HullForm, fn: float, rho: float = RHO_SEA, m4_model: str = "holtrop1984"
-) -> float:
-    """Rw = c1·c2·c5·∇·ρ·g·exp(m1·Fn^d + m4·cos(λ·Fn^-2))（不含球鼻/艉封板）。"""
+def holtrop_wave_resistance(h: HullForm, fn: float, rho: float = RHO_SEA) -> float:
+    """Rw = c1·c2·c5·∇·ρ·g·exp(m1·Fn^d + m2·cos(λ·Fn^-2))（不含球鼻/艉封板）。"""
     cp = h.cp
     lb = h.lwl / h.b
     c7 = _c7(h)
@@ -327,9 +294,9 @@ def holtrop_wave_resistance(
     c5 = 1.0 - 0.8 * h.transom_area / (h.b * h.t * h.cm)
     lam = 1.446 * cp - 0.03 * lb if lb < 12.0 else 1.446 * cp - 0.36
     m1 = 0.0140407 * h.lwl / h.t - 1.75254 * h.displacement ** (1 / 3) / h.lwl - 4.79323 * h.b / h.lwl - _c16(cp)
-    m4 = m4_wave_froude_factor(h, fn, m4_model)
+    m2 = _c15(h) * cp ** 2 * math.exp(-0.1 * fn ** (-2))
     d = -0.9
-    rw = c1 * c2 * c5 * h.displacement * rho * G * math.exp(m1 * fn ** d + m4 * math.cos(lam * fn ** (-2)))
+    rw = c1 * c2 * c5 * h.displacement * rho * G * math.exp(m1 * fn ** d + m2 * math.cos(lam * fn ** (-2)))
     return max(0.0, rw)
 
 
@@ -340,7 +307,6 @@ def holtrop_surface_resistance(
     nu: float = NU_SEA,
     appendage_area: float = 0.0,
     appendage_factor: float = 1.5,
-    m4_model: str = "holtrop1984",
 ) -> ResistancePoint:
     """水面船 Holtrop-Mennen 1984 总阻力 (N)：含 (1+k)、Ca、Rw、Rb、Rtr、Rapp。"""
     why = holtrop_domain(h, target="surface")
@@ -356,7 +322,7 @@ def holtrop_surface_resistance(
     rf = q * s * cf
     r_form = q * s * (ff - 1.0) * cf
     r_rough = q * s * ca
-    rw = holtrop_wave_resistance(h, fn, rho, m4_model=m4_model)
+    rw = holtrop_wave_resistance(h, fn, rho)
 
     tf = h.t
     rb = 0.0
@@ -365,14 +331,10 @@ def holtrop_surface_resistance(
         fni = speed_ms / math.sqrt(
             G * (tf - h.bulb_height - 0.25 * math.sqrt(h.bulb_area)) + 0.15 * speed_ms ** 2
         )
-        # 发表式 Rb = 0.11·exp(-3·PB²)·Fni³·ABT^1.5·ρg/(1+Fni²)：指数为 -3·PB²
-        # （m1826 前为 pb**(-2)，对 PB≈0.6 的球鼻把 Rb 压低 3 个量级）
-        rb = 0.11 * math.exp(-3.0 * pb ** 2) * fni ** 3 * h.bulb_area ** 1.5 * rho * G / (1.0 + fni ** 2)
+        rb = 0.11 * math.exp(-3.0 * pb ** (-2)) * fni ** 3 * h.bulb_area ** 1.5 * rho * G / (1.0 + fni ** 2)
     rtr = 0.0
     if h.transom_area > 0.0:
-        # 发表式 FnT = V / sqrt(2·g·AT/(B + B·Cwp))（m1826 前分母用 g·AT/B，缺 2 与
-        # Cwp 项，把 FnT 高估 → c6 偏小 → Rtr 偏低）
-        fnt = speed_ms / math.sqrt(2.0 * G * h.transom_area / (h.b * (1.0 + h.cwp_eff)))
+        fnt = speed_ms / math.sqrt(G * h.transom_area / h.b)
         c6 = 0.2 * (1.0 - 0.2 * fnt) if fnt < 5.0 else 0.0
         rtr = 0.5 * rho * speed_ms ** 2 * h.transom_area * c6
     rapp = q * appendage_area * appendage_factor * cf
