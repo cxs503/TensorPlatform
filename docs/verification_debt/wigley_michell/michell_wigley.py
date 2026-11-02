@@ -147,6 +147,15 @@ def _i_theta(hull: Wigley, U: float, theta: float) -> complex:
 def rw_theta_integral(hull: Wigley, U: float, n_theta: int = 400) -> float:
     """Michell wave resistance with closed-form inner integrals.
 
+    Prefactor convention (m1817): the source strength of the symmetric thin body is
+    sigma = 2 U dy/dx on the CENTREPLANE, and eq. (Michell 1898; Wehausen &
+    Laitone 1960) reads
+        Rw = 4 rho g^2/(pi U^2) Int_0^{pi/2} |I(theta)|^2 sec^3 theta dtheta,
+        I(theta) = Int_{one side} (dy/dx) exp(-k0 z sec^2 theta) exp(i k0 x sec theta) dx dz,
+    i.e. the integral already covers both sides of the hull through sigma.  The
+    earlier revision of this module doubled the prefactor to 8 rho g^2/(pi U^2),
+    which is a factor-of-two over-prediction (found and fixed in m1817).
+
     The theta integrand |I|^2 sec^3 theta decays like exp(-2 k0 T sec^2 theta),
     so the upper limit is truncated where the exponent reaches ~-60 and a
     Gauss-Legendre rule is applied on the remaining smooth interval.
@@ -162,7 +171,7 @@ def rw_theta_integral(hull: Wigley, U: float, n_theta: int = 400) -> float:
     for th, w in zip(thetas, weights):
         i_th = _i_theta(hull, U, float(th))
         acc += w * abs(i_th) ** 2 / math.cos(th) ** 3
-    return 8.0 * hull.rho * hull.g**2 / (math.pi * U**2) * acc  # 4 rho g^2/(pi U^2), both hull sides
+    return 4.0 * hull.rho * hull.g**2 / (math.pi * U**2) * acc  # 4 rho g^2/(pi U^2), one-side integral
 
 
 # ---------------------------------------------------------------------------
@@ -199,15 +208,12 @@ def rw_double_quad(
         th = float(th)
         sec = 1.0 / math.cos(th)
         # phase factor per surface point; factor 2 for the mirrored side
-        phase = math.cos(k0 * sec) * X + math.sin(k0 * sec) * X  # placeholder
         # complex phase exp(i k0 x sec)
         ang = k0 * X * sec
         kern = np.exp(-k0 * Z * sec**2) * (np.cos(ang) + 1j * np.sin(ang))
-        i_th = float(np.sum(dA * dydx * kern))
-        i_th = 2.0 * i_th  # two sides of the hull
+        i_th = complex(np.sum(dA * dydx * kern))
         acc += w * abs(i_th) ** 2 / math.cos(th) ** 3
-        del phase
-    return 8.0 * hull.rho * hull.g**2 / (math.pi * U**2) * acc  # 4 rho g^2/(pi U^2), both hull sides
+    return 4.0 * hull.rho * hull.g**2 / (math.pi * U**2) * acc  # 4 rho g^2/(pi U^2), one-side integral
 
 
 # ---------------------------------------------------------------------------
