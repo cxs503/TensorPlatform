@@ -258,6 +258,7 @@ class DamageStabilityCalculator:
         V = mass = A_loss = 0.0
         mx = my = mz = 0.0
         i_x_free = 0.0
+        l_sum = lb_sum = mu_lb_sum = 0.0
         y_sum = 0.0
         muA_x = 0.0
         z_low, z_high = math.inf, -math.inf
@@ -288,6 +289,9 @@ class DamageStabilityCalculator:
             l_eff = geo["l"] * fl
             b_eff = geo["b"] * fb
             i_x_free += mu * l_eff * b_eff ** 3 / 12.0      # 自由液面惯性矩
+            l_sum += l_eff                                   # 破口沿船长长度
+            lb_sum += l_eff * b_eff                          # 几何（未折减）面积
+            mu_lb_sum += mu * l_eff * b_eff                  # 渗透率加权面积
             y_sum += mu * A_breach * comp.TCG
             muA_x += mu * A_breach * comp.LCG
             z_low = min(z_low, geo["z_b"])
@@ -301,6 +305,9 @@ class DamageStabilityCalculator:
             cg = (ship.LCG, 0.0, 0.0)
         return {
             "volume": V, "mass": mass, "A_loss": A_loss, "i_x_free": i_x_free,
+            "b_geom": (lb_sum / l_sum if l_sum > 0 else 0.0),
+            "l_gap": l_sum,
+            "mu_area": (mu_lb_sum / lb_sum if lb_sum > 0 else 0.0),
             "cg": cg, "y_flood": (y_sum / A_loss if A_loss > 0 else 0.0),
             "muA_x": muA_x, "x_flood": (muA_x / A_loss if A_loss > 0 else ship.LCG),
             "z_b": (z_low if z_low is not math.inf else 0.0),
@@ -308,17 +315,42 @@ class DamageStabilityCalculator:
             "detail": detail,
         }
 
-    # ---------- 平衡吃水 / 纵倾 ----------
     @staticmethod
-    def _parallel_sinkage_keel_draft(ship: ShipData, g: Dict[str, float],
+    def _free_surface_correction(flood: Dict[str, float], g: Dict[str, float]) -> float:
+        """破损自由液面修正 GG0（m）。
+
+        本模块的破损舱与海连通（液面即海面），其自由液面效应已由损失浮力法的
+        水线面/截面惯性矩扣除（``A_loss`` 与 ``i_x_free`` 同时进入 BM_d 与截面矩）
+        计入。若再按 ``GG0 = Σi_x/∇`` 扣一次，等于把同一个自由液面效应计入两次，
+        使 GM_d 与 GZ 曲线系统性偏小（本域验收基准上偏差量级 = 一次 FSC）。
+
+        因此：**破损舱不再产生额外修正，返回 0**；未破损的 slack 舱自由液面需按
+        ``Σi_x/∇`` 另行给出（当前输入模型无该字段，故为 0，属显式已知范围）。
+        """
+        return 0.0
+
+    # ---------- 平衡吃水 / 纵倾 ----------
+    def _parallel_sinkage_keel_draft(self, ship: ShipData, g: Dict[str, float],
                                      flood: Dict[str, float]) -> float:
-        """F3：损失浮力平行下沉终吃水 t' = nabla0 / (Aw - sum(mu*A_breach))"""
-        Aw_eff = g["Aw"] - flood["A_loss"]
-        if Aw_eff <= 0.0:
+        """F3：损失浮力法终吃水——解 A_bar(d)·L = ∇0（单调二分）。
+
+        闭式 t' = ∇0/(Aw − Σμ·A_breach) 只在「破损空间直达龙骨且未被舱顶截断」时成立；
+        舱底 z_b > 0（双层底/舱柜）或水线追及舱顶 z_t 时该式高报终吃水，进而高报甲板边
+        浸没角、压低 GZmax/Range，甚至把仍有残存稳性的船判成 s = 0。故改用截面模型本身
+        求根（与 GZ 曲线同一水线面判据，几何自洽）。
+        """
+        if g["Aw"] - flood["A_loss"] <= 0.0:
             raise HTTPException(status_code=422,
                                 detail="破损水线面损失超过水线面积，船已倾覆/无法平衡")
-        # nabla_ws = Aw*T（壁式等效体积）；Cb=1 驳船时即 nabla0，与解析解逐位一致
-        return g["nabla_ws"] / Aw_eff
+        target = g["nabla_ws"] / max(ship.L, 1e-9)
+        lo, hi = 0.0, 4.0 * ship.D
+        for _ in range(80):
+            mid = 0.5 * (lo + hi)
+            if self._section_integrals(ship, g, mid, 0.0, flood)[0] < target:
+                lo = mid
+            else:
+                hi = mid
+        return 0.5 * (lo + hi)
 
     @staticmethod
     def _trim(ship: ShipData, g: Dict[str, float], flood: Dict[str, float],
@@ -352,22 +384,31 @@ class DamageStabilityCalculator:
         h = np.clip(z_w, 0.0, ship.D)
         A_loss = flood["A_loss"]
         if A_loss > 0.0:
-            # 2D 等效：沿船长平均的破损宽度 b_f = mu*A_breach / L，横向位于损失面积形心
-            b_f = min(A_loss / ship.L, g["B_wp"] * 0.98)
+            # 破口按其**几何**横向宽度 b_geom 布置在损失面积形心；渗透率以线性因子
+            # alpha = μ·l/L（= A_loss/(b_geom·L)）作用在移除量上，而不是把带宽压缩成
+            # 沿船长平均带宽 b_f = A_loss/L。两者对面积/一阶矩等价（终吃水与横倾不变），
+            # 但对**二阶矩**不等价：旧写法把自由液面惯性矩少算了 ~(l/L)² 倍，
+            # 与新写法 α·b³/12 = μ·l·b³/(12L)（= i_x_free/L，精确）不符。
+            b_geom = float(flood.get("b_geom") or 0.0)
+            if b_geom <= 0.0:
+                b_geom = min(A_loss / ship.L, g["B_wp"] * 0.98)
+            b_geom = min(b_geom, g["B_wp"])
+            alpha = min(1.0, A_loss / max(b_geom * ship.L, 1e-9))
             half = g["B_wp"] / 2.0
-            y_f = float(np.clip(flood["y_flood"], -(half - b_f / 2.0), half - b_f / 2.0))
+            y_f = float(np.clip(flood["y_flood"], -(half - b_geom / 2.0), half - b_geom / 2.0))
             z_b = flood["z_b"]
             z_t = flood["z_t"]
-            mask = (y >= y_f - b_f / 2.0) & (y <= y_f + b_f / 2.0)
+            mask = (y >= y_f - b_geom / 2.0) & (y <= y_f + b_geom / 2.0)
             g_depth = np.clip(np.minimum(h, z_t) - z_b, 0.0, None) if mask.any() else np.zeros_like(h)
             g_depth = np.where(mask, g_depth, 0.0)
         else:
             z_b = 0.0
             g_depth = np.zeros_like(h)
-        hh = h - g_depth
+            alpha = 0.0
+        hh = h - alpha * g_depth
         A = _trapz(hh, y)
         My = _trapz(y * hh, y)
-        Mz = _trapz(0.5 * h * h - (z_b * g_depth + 0.5 * g_depth * g_depth), y)
+        Mz = _trapz(0.5 * h * h - alpha * (z_b * g_depth + 0.5 * g_depth * g_depth), y)
         return A, My, Mz
 
     def _solve_waterline(self, ship: ShipData, g: Dict[str, float], theta: float,
@@ -493,9 +534,9 @@ class DamageStabilityCalculator:
         t_prime = self._parallel_sinkage_keel_draft(ship, g, flood)
         trim = self._trim(ship, g, flood, t_prime)
 
-        # KG 保持船自身（损失浮力法：重量不变），自由液面另计
+        # KG 保持船自身（损失浮力法：重量不变）
         KG = ship.VCG
-        GG0 = flood["i_x_free"] / g["nabla_ws"] if g["nabla_ws"] > 0 else 0.0
+        GG0 = self._free_surface_correction(flood, g)
 
         # --- F3: 横倾（GZ 平衡根）---
         heel = self._find_heel(ship, g, KG, GG0, flood)
@@ -509,11 +550,12 @@ class DamageStabilityCalculator:
 
         # --- 初稳性（损失浮力法：水线面惯性矩扣除破损区）---
         A_loss = flood["A_loss"]
-        b_f_local = A_loss / ship.L
         y_f = flood["y_flood"]
-        I_T_d = g["I_T0"] - (A_loss * y_f ** 2 + ship.L * b_f_local ** 3 / 12.0)
+        # 水线面惯性矩损失 = 一阶矩项 A_loss·y_f² + 自由液面惯性矩 Σμ·l·b³/12
+        # （旧写法用沿船长平均带宽 b_f = A_loss/L 的 b_f³/12，比真值小 ~(l/L)² 倍）
+        I_T_d = g["I_T0"] - (A_loss * y_f ** 2 + flood["i_x_free"])
         BM_d = max(I_T_d, 0.0) / g["nabla_ws"] if g["nabla_ws"] > 0 else 0.0
-        KB = ship.T / 2.0
+        KB = t_prime / 2.0          # 损失浮力法：浮心随终吃水抬升（旧写法误用完整船 T/2）
         GM_d = KB + BM_d - KG - GG0
 
         # --- F5: Reg.7.2 衡准集 ---
@@ -556,7 +598,7 @@ class DamageStabilityCalculator:
                     "source": "NON-SOLAS 参考项（旧实现的 freeboard>0.3 m，不参与合规判定）",
                 },
                 "GM_damage": {"value": round(GM_d, 3), "source": "损失浮力法初稳性高（诊断量）"},
-                "GG0_free_surface": {"value": round(GG0, 4), "source": "自由液面修正量"},
+                "GG0_free_surface": {"value": round(GG0, 4), "source": "破损舱自由液面效应已计入损失浮力（水面惯性矩），此处不重复扣减；未破损 slack 舱另加"},
                 "damage_geometry": {
                     "lost_waterplane_area": round(A_loss, 3),
                     "effective_waterplane_area": round(g["Aw"] - A_loss, 3),
@@ -612,12 +654,22 @@ class ProbabilisticDamageStability:
             raise HTTPException(status_code=422, detail="damage_zones 不能为空")
 
         A = 0.0
+        p_sum = 0.0
         ignored = False
         contribs: List[Dict] = []
         for i, zone in enumerate(input_data.damage_zones):
             if "survival" in zone:
                 ignored = True          # F2：请求体直传 s 一律忽略
-            p = float(zone.get("probability", 0.1))
+            if "probability" not in zone:
+                raise HTTPException(
+                    status_code=422,
+                    detail="damage_zone 缺少 probability：SOLAS Reg.7-1 的 p_i 必须显式给出，"
+                           "不设静默默认（默认 0.1 会让 A 与真实分舱概率无关）")
+            p = float(zone["probability"])
+            if not (0.0 <= p <= 1.0):
+                raise HTTPException(status_code=422,
+                                    detail=f"probability 必须在 [0,1] 内：{p}")
+            p_sum += p
 
             # 由该区的破损几何重算 s（不允许直传）
             comps = list(zone.get("damaged_compartments") or [])
@@ -651,6 +703,12 @@ class ProbabilisticDamageStability:
                 "heel": res.final_heel,
                 "final_draft": res.final_draft,
             })
+
+        if p_sum > 1.0 + 1e-9:
+            raise HTTPException(
+                status_code=422,
+                detail=f"Σp_i = {p_sum:.4f} > 1：SOLAS 2009 Reg.7-1 的分舱概率之和不得超过 1，"
+                       f"否则达到指数 A 可 >1（非物理）")
 
         Ls = ship.L
         R = solas2009_required_index(Ls, "cargo")
