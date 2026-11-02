@@ -86,15 +86,27 @@ def generate_propeller_cases(n: int = 30) -> List[Dict[str, Any]]:
                 "blade_area_ratio": round(random.uniform(0.3, 0.8), 2),
                 "blade_count": random.choice([4, 5, 6, 7]),
                 "rpm": round(random.uniform(60, 150), 0),
-                "advance_speed_kn": round(random.uniform(8, 18), 1),
+                # m1664：航速由目标进速系数 J 反推，而不是独立均匀采样。
+                # 旧写法 D∈[3,8]m、n∈[1,2.5]rps、Va∈[8,18]kn 可生成 J 高达 3，
+                # 远超零推力进速（J0≈0.8~1.2）与 B 系列有效域（J≤1.5），
+                # 工况本身无物理意义（"工况生成器的假域"掩盖了旧 clamp 替代式）。
+                "advance_speed_kn": None,  # 下面按 J 目标填充
             },
             "expected_status": "success",
             "criteria": {
-                "thrust_coefficient": {"min": 0.0, "max": 1.0},
-                "torque_coefficient": {"min": 0.0, "max": 0.5},
+                # 允许负值：J > J0 的"风车/涡轮"状态真实存在（KT<0, KQ<0），
+                # 旧判据 min=0.0 是为 clamp 替代式量身定的，物理上不成立。
+                "thrust_coefficient": {"min": -1.5, "max": 1.5},
+                "torque_coefficient": {"min": -0.3, "max": 0.5},
                 "efficiency": {"min": 0.0, "max": 1.0},
             }
         }
+        # 由目标 J∈[0.15, 1.10] 反推航速：J = Va/(nD) ⇒ Va = J·n·D
+        _p = case["parameters"]
+        _j = random.uniform(0.15, 1.10)
+        _n = _p["rpm"] / 60.0
+        _p["advance_speed_kn"] = round(_j * _n * _p["diameter_m"] / 0.5144, 2)
+        _p["target_advance_coefficient"] = round(_j, 3)
         cases.append(case)
     return cases
 
