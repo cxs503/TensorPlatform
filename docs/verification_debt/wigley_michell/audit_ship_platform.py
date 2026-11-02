@@ -132,12 +132,14 @@ def audit_resistance(res):
     rec["implied_S_vs_analytic_rel_err"] = ref.rel_error(rec["implied_S_mean"],
                                                          rec["analytic_wetted_surface_m2"])
     # Froude invariance of the residual coefficient Cw (not Ct: Ct carries Cf(Re))
+    # NOTE: m1792 - the half-scale speed used to be U/sqrt(0.5) (Fn=0.40, not 0.20),
+    # which produced a spurious +166.6% "Froude scaling error". Fixed here.
     Fn_t = 0.20
     U = Fn_t * math.sqrt(ref.G * L)
     full = post("resistance/predict", {**common, "speeds": [U / ref.KNOT]})
     half = post("resistance/predict", {**{**common, "Lwl": L / 2, "Lpp": L / 2, "B": B / 2,
                                           "T": T / 2, "displacement": disp / 8},
-                                      "speeds": [U / ref.KNOT / math.sqrt(0.5)]})
+                                      "speeds": [U * math.sqrt(0.5) / ref.KNOT]}  # Fn must stay equal: U_half = Fn*sqrt(g*L/2))
     try:
         f, h = full[1][0], half[1][0]
         Uf, Uh = f["speed"] * ref.KNOT, h["speed"] * ref.KNOT
