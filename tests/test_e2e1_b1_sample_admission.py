@@ -1,8 +1,9 @@
 """E2E-1 修复 · 门缺陷 B1：样本库准入三门回归（先红后绿）。
 
-红（修复前）：`tools/sample_db/backfill.py::backfill_file()` 无门 ——
-    `test_legacy_ungated_backfill_still_admits` 以 `xfail(strict=True)` 钉住，
-    现在一定红；接线后 XPASS → strict 报错，强制同步台账与判决表。
+红→绿（B1 已于 m2060 收口）：`tools/sample_db/backfill.py::backfill_file()` 原为无门裸入口，
+    m2060 起在 INSERT 前调用 `src.sample_db.admission.admit_sample()`，未过三门即抛
+    `AdmissionRejected`（含审计留痕）。`test_legacy_backfill_entry_is_now_gated`
+    由 `xfail(strict=True)` 转正为常规回归用例。
 绿（修复后）：`src.sample_db.ingest.ingest_artifact()` 三门全过才 INSERT ——
     B 类 11 个负用例全部 REJECTED + 结构化错误码 + 审计留痕，1 个正对照 ADMITTED。
 
@@ -301,27 +302,33 @@ def test_inspect_mode_does_not_short_circuit(cases):
 
 
 # --------------------------------------------------------------------------- 缺口钉死
-@pytest.mark.xfail(
-    strict=True,
-    reason=(
-        "缺口：tools/sample_db/backfill.py 不在本单 EDIT_WHITELIST（src/, tests/, docs/, outputs/），"
-        "旧的裸入口 backfill_file() 仍可接受未验证产物；本单提供 src/sample_db/ingest.py 作为"
-        "带门入口。接线后此用例 XPASS → 必须删掉 xfail 并同步 DEFECTS/VERDICTS 台账。"
-    ),
-)
-def test_legacy_ungated_backfill_still_admits(cases, tmp_path):
-    """若这条变绿，说明 tools/ 的裸入口已被接线（缺口收口），台账要更新。"""
+def test_legacy_backfill_entry_is_now_gated(cases, tmp_path):
+    """B1 收口回归（原 xfail(strict=True) 钉住的缺口，m2060 接线后转正）。
+
+    历史：``tools/sample_db/backfill.py::backfill_file()`` 曾是无门裸入口，
+    直接 ``INSERT`` 未验证产物（本用例原先以 ``xfail(strict=True)`` 钉住）。
+    现在 ``backfill_file()`` 在 INSERT 前调用 ``src/sample_db/admission.admit_sample()``，
+    未过三门即 ``AdmissionRejected``，samples 表一行都不落。
+
+    判据（可失败）：裸入口对 B1 坏产物**必须**抛 ``AdmissionRejected`` 且 ``samples`` 行数 == 0。
+    """
     case = next(c for c in cases if c["name"] == "B1_repro_m810_unverified_ingest")
     backfill = load_backfill()
     conn = sqlite3.connect(tmp_path / "legacy.sqlite")
     try:
         conn.executescript(backfill.SCHEMA_SQL)
-        backfill.backfill_file(conn, str(case["artifact"]))
+        with pytest.raises(AdmissionRejected):
+            backfill.backfill_file(conn, str(case["artifact"]), audit_log=tmp_path / "audit.jsonl")
         conn.commit()
         rows = conn.execute("SELECT COUNT(*) FROM samples").fetchone()[0]
     finally:
         conn.close()
-    assert rows == 0, f"裸入口放行了 {rows} 行未验证样本（门缺陷仍然在 tools/ 一侧）"
+        conn_rows = rows
+    assert conn_rows == 0, f"裸入口放行了 {conn_rows} 行未验证样本（门缺陷 B1 仍开着）"
+    audit = tmp_path / "audit.jsonl"
+    assert audit.exists(), "拒绝未留痕：裸入口必须写审计行"
+    lines = [json.loads(x) for x in audit.read_text().splitlines() if x.strip()]
+    assert any(r.get("decision") == "rejected" and r.get("code") for r in lines), lines
 
 
 # --------------------------------------------------------------------------- 真实 mission 状态源
