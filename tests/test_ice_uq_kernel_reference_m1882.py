@@ -5,8 +5,13 @@ Two layers are pinned:
 1. the reference layer (``tools/validation/ice_uq_reference_m1882.py``) -- it must
    itself be correct, otherwise the verdicts mean nothing;
 2. the audited behaviour -- the properties that must keep holding, and the
-   aliasing defect that must be *detected* (``xfail(strict=True)``: fixing the
-   defect turns the test red on purpose, forcing the evidence to be re-issued).
+   aliasing defect.  The xfail(strict=True) repro of m1882 was **promoted to a
+   hard assertion by m1892**: ``build_pce`` now raises the sparse-grid level to
+   ``max_poly_order + 1`` (or raises ``PCEQuadratureAliasingError``) instead of
+   projecting in the aliasing regime, so the counter-example passes and the raw
+   aliased numbers are only reachable through the documented
+   ``quadrature_policy='allow_aliasing'`` bypass, which is pinned below as the
+   m1882 evidence.
 
 Run: python3 -m pytest tests/test_ice_uq_kernel_reference_m1882.py -q
 """
@@ -119,13 +124,14 @@ def test_v3_pce_exact_for_polynomials_when_level_rule_holds(aud):
     assert aud.pce_statistics(pce)["variance"] == pytest.approx(an["variance"], rel=1e-12)
 
 
-@pytest.mark.xfail(
-    strict=True,
-    reason="m1882 defect: shipped default (max_level=3, max_poly_order=3) aliases "
-    "cubic responses, inventing Sobol mass for an input with zero influence; "
-    "fixing the default turns this XPASS -> the evidence must be re-issued",
-)
 def test_v3_defect_default_config_admits_no_spurious_sensitivity(aud):
+    """m1882 xfail promoted to a hard lock by m1892 (defect fixed at the source).
+
+    The shipped configuration is still *requested* as max_level=3 with
+    max_poly_order=3 -- exactly what the API default sends -- but ``build_pce``
+    now refuses the aliasing regime and raises the level, so the inert input
+    keeps a zero total-order index and the variance is the analytic 15.
+    """
     U = aud.UncertainInput
     pce = aud.build_pce(
         lambda *x: (x[0] - 1.0) ** 3,
@@ -133,22 +139,41 @@ def test_v3_defect_default_config_admits_no_spurious_sensitivity(aud):
         max_level=3,
         max_poly_order=3,
     )
+    assert pce["max_level_requested"] == 3
+    assert pce["max_level"] == 4
+    assert pce["quadrature_raised"] is True
+    assert pce["aliasing_free"] is True
     st = list(aud.sobol_indices(pce)["total_order"].values())
     assert st[1] <= 1e-6  # xi_1 has zero influence by construction
+    assert aud.pce_statistics(pce)["variance"] == pytest.approx(15.0, abs=1e-9)
 
 
 def test_v3_defect_is_detected_and_pinned(aud):
-    """The defect must be *observable* -- pinned so a silent regression is caught."""
+    """The defect stays *observable* but is no longer the default (m1882 evidence).
+
+    The raw aliased numbers are reproducible only through the explicit
+    ``quadrature_policy='allow_aliasing'`` bypass, and the same call with
+    ``quadrature_policy='error'`` must raise -- so neither a silent regression to
+    the aliasing default nor a silent loss of the evidence can slip through.
+    """
     U = aud.UncertainInput
-    pce = aud.build_pce(
-        lambda *x: (x[0] - 1.0) ** 3,
-        [U("x0", 1.0, 1.0), U("x1", 1.0, 1.0)],
-        max_level=3,
-        max_poly_order=3,
+    model = lambda *x: (x[0] - 1.0) ** 3  # noqa: E731
+    inputs = [U("x0", 1.0, 1.0), U("x1", 1.0, 1.0)]
+
+    raw = aud.build_pce(
+        model, inputs, max_level=3, max_poly_order=3,
+        quadrature_policy="allow_aliasing",
     )
-    st = list(aud.sobol_indices(pce)["total_order"].values())
+    st = list(aud.sobol_indices(raw)["total_order"].values())
     assert st[1] == pytest.approx(0.1818, abs=1e-3)  # spurious, deterministic
-    assert aud.pce_statistics(pce)["variance"] == pytest.approx(11.0, abs=1e-6)  # true 15
+    assert aud.pce_statistics(raw)["variance"] == pytest.approx(11.0, abs=1e-6)  # true 15
+    assert raw["aliasing_free"] is False
+
+    with pytest.raises(aud.PCEQuadratureAliasingError):
+        aud.build_pce(
+            model, inputs, max_level=3, max_poly_order=3,
+            quadrature_policy="error",
+        )
 
 
 def test_v3_raising_level_alone_repairs_the_response_variance(aud):

@@ -544,11 +544,85 @@ def _evaluate_pce_basis(x: np.ndarray, alpha: Tuple[int, ...]) -> float:
     return result
 
 
+# ---------------------------------------------------------------------
+# Quadrature-aliasing guard (task m1892, defect located by task m1882)
+# ---------------------------------------------------------------------
+#
+# A total-order PCE of degree p is obtained by projection,
+#     c_alpha = <f, psi_alpha> / <psi_alpha, psi_alpha>,
+# evaluated with a Smolyak sparse grid of level L (1-based; the 1-D Gauss-Hermite
+# rule at level k carries k points).  That rule integrates polynomials of total
+# degree <= 2L - 1 exactly, so resolving the basis Gram matrix <psi_a, psi_b>
+# (and hence the variance / Sobol split) of an order-p expansion requires
+#     2L - 1 >= 2p   <=>   L >= p + 1 = max_poly_order + 1.
+# The previously shipped default (max_level=3, max_poly_order=3) is exact only to
+# total degree 5, while a *cubic* response already needs degree 6 in the psi_3
+# column: the unresolved content aliases into unrelated coefficients.  Measured on
+# the pure cubic response y = xi_0^3 with an inert second input xi_1
+# (analytic: S_T(xi_1) = 0, Var = E[xi^6] = 15):
+#     max_level = 3  ->  S_T(xi_1) = 0.1818 (2/11), Var = 11   (WRONG)
+#     max_level = 4  ->  S_T(xi_1) = 0.0,           Var = 15   (exact)
+# i.e. 18.2 % of the total-order sensitivity was handed to an input that cannot
+# influence the response at all.  build_pce() now refuses/repairs that
+# configuration by default; the raw behaviour stays reachable through
+# quadrature_policy="allow_aliasing" for evidence only.
+
+PCE_DEFAULT_MAX_POLY_ORDER: int = 3
+#: Level that keeps the projection free of quadrature aliasing at the default
+#: polynomial order; every entry point of this module defaults to it.
+PCE_DEFAULT_MAX_LEVEL: int = PCE_DEFAULT_MAX_POLY_ORDER + 1
+
+
+class PCEQuadratureAliasingError(ValueError):
+    """Sparse-grid level too low to integrate two PCE basis functions exactly.
+
+    The level-``L`` Smolyak rule integrates total degree ``2L - 1``; an
+    order-``p`` expansion needs ``2L - 1 >= 2p`` for ``<psi_a, psi_b>``.  Below
+    ``L = p + 1`` the response's higher-order content aliases into low-order
+    coefficients and fabricates variance / Sobol mass for inputs with zero
+    influence (tasks m1882, m1892).
+    """
+
+
+def required_quadrature_level(max_poly_order: int) -> int:
+    """Smallest Smolyak level with ``2*level - 1 >= 2*max_poly_order``."""
+    if max_poly_order < 0:
+        raise ValueError(f"max_poly_order must be >= 0, got {max_poly_order}")
+    return int(max_poly_order) + 1
+
+
+def _resolve_quadrature_level(
+    max_level: Optional[int], max_poly_order: int, quadrature_policy: str
+) -> Tuple[int, int, bool]:
+    """Return ``(level_requested, level_used, raised_to_required)``."""
+    required = required_quadrature_level(max_poly_order)
+    requested = required if max_level is None else int(max_level)
+    if requested >= required:
+        return requested, requested, False
+    if quadrature_policy == "auto_raise":
+        return requested, required, True
+    if quadrature_policy in ("error", "strict"):
+        raise PCEQuadratureAliasingError(
+            f"max_level={requested} cannot resolve the order-{max_poly_order} "
+            f"basis: the level-{requested} rule is exact only for total degree "
+            f"{2 * requested - 1}, but <psi_a, psi_b> needs {2 * max_poly_order}. "
+            f"Use max_level >= max_poly_order + 1 = {required} (the default "
+            f"quadrature_policy='auto_raise' raises it automatically)."
+        )
+    if quadrature_policy == "allow_aliasing":
+        return requested, requested, False
+    raise ValueError(
+        "quadrature_policy must be one of 'auto_raise', 'error', 'allow_aliasing'; "
+        f"got {quadrature_policy!r}"
+    )
+
+
 def build_pce(
     model_func,
     uncertain_inputs: List[UncertainInput],
-    max_level: int = 3,
-    max_poly_order: int = 3,
+    max_level: Optional[int] = None,
+    max_poly_order: int = PCE_DEFAULT_MAX_POLY_ORDER,
+    quadrature_policy: str = "auto_raise",
 ) -> Dict[str, Any]:
     """
     Build a Polynomial Chaos Expansion surrogate model.
@@ -565,17 +639,39 @@ def build_pce(
         Physical model f(x1, x2, ..., xd) → scalar.
     uncertain_inputs : list of UncertainInput
         Uncertain parameter definitions.
-    max_level : int
-        Smolyak sparse grid level (controls number of quadrature points).
+    max_level : int or None
+        Smolyak sparse grid level (controls the number of quadrature nodes).
+        ``None`` selects the aliasing-free default ``max_poly_order + 1``.
+        A level below ``max_poly_order + 1`` is handled by ``quadrature_policy``.
     max_poly_order : int
         Maximum total polynomial order.
+    quadrature_policy : {'auto_raise', 'error', 'allow_aliasing'}
+        What to do when ``max_level < max_poly_order + 1`` (aliasing regime):
+
+        * ``'auto_raise'`` (default) - raise the level to
+          ``max_poly_order + 1`` and record it in the result
+          (``max_level_requested`` / ``max_level`` / ``quadrature_raised``);
+        * ``'error'`` - raise :class:`PCEQuadratureAliasingError`;
+        * ``'allow_aliasing'`` - keep the requested level.  Evidence use only:
+          the resulting coefficients mix unresolved high-order content into
+          low-order terms (task m1882).
 
     Returns
     -------
     dict with keys: coefficients, multi_indices, nodes, weights,
-                    model_values, n_evaluations, uncertain_inputs
+                    model_values, n_evaluations, uncertain_inputs,
+                    max_level, max_level_requested, max_poly_order,
+                    quadrature_raised, aliasing_free, quadrature_exactness_degree,
+                    required_exactness_degree, quadrature_policy
     """
     dim = len(uncertain_inputs)
+    if dim < 1:
+        raise ValueError("build_pce needs at least one uncertain input")
+
+    level_requested, level_used, level_raised = _resolve_quadrature_level(
+        max_level, max_poly_order, quadrature_policy
+    )
+    max_level = level_used
 
     # Step 1: Smolyak sparse grid in standard normal space
     nodes_std, weights = smolyak_sparse_grid(max_level, dim)
@@ -621,6 +717,12 @@ def build_pce(
         "uncertain_inputs": uncertain_inputs,
         "max_poly_order": max_poly_order,
         "max_level": max_level,
+        "max_level_requested": level_requested,
+        "quadrature_raised": bool(level_raised),
+        "aliasing_free": bool(max_level >= required_quadrature_level(max_poly_order)),
+        "quadrature_exactness_degree": 2 * max_level - 1,
+        "required_exactness_degree": 2 * max_poly_order,
+        "quadrature_policy": quadrature_policy,
         "dim": dim,
     }
 
@@ -776,42 +878,194 @@ def sobol_indices(pce_result: Dict[str, Any]) -> Dict[str, Any]:
 # 7. Monte Carlo Reference Computation
 # =====================================================================
 
+# ---------------------------------------------------------------------
+# Declared sampling support (task m1892)
+# ---------------------------------------------------------------------
+#
+# The Monte-Carlo reference used to clip every draw against four bounds that were
+# hard-coded and selected by the *position* of the input in the list
+# (``if d == 0: ... elif d == 3: ...``).  That is neither visible to the caller
+# nor transferable to another input list, and it silently turned a Gaussian into
+# a mixed distribution with atoms on the bounds.  The support is now a value the
+# caller declares (:class:`TruncationSpec`), the sampling law is reported back
+# (``monte_carlo_reference(...)["truncation"]``) and the pipeline level states
+# the bounds it uses (``ICE_INPUT_TRUNCATION``), so the API response can say
+# "truncated normal" instead of pretending the quadrature and the sampler draw
+# from the same law.
+
+@dataclass(frozen=True)
+class TruncationSpec:
+    """Declared support ``[lower, upper]`` of one uncertain input."""
+    input_name: str
+    lower: float = -math.inf
+    upper: float = math.inf
+    rationale: str = ""
+
+    def is_bounded(self) -> bool:
+        return math.isfinite(self.lower) or math.isfinite(self.upper)
+
+    def mass_outside(self, inp: UncertainInput) -> float:
+        """Probability mass of N(inp.mean, inp.std) outside the declared support."""
+        sd = inp.std
+        if sd <= 0.0 or not self.is_bounded():
+            return 0.0
+        below = _standard_normal_cdf((self.lower - inp.mean) / sd) if math.isfinite(self.lower) else 0.0
+        above = 1.0 - _standard_normal_cdf((self.upper - inp.mean) / sd) if math.isfinite(self.upper) else 0.0
+        return float(min(1.0, max(0.0, below + above)))
+
+    def as_dict(self) -> Dict[str, Any]:
+        return {
+            "input": self.input_name,
+            "lower": None if not math.isfinite(self.lower) else float(self.lower),
+            "upper": None if not math.isfinite(self.upper) else float(self.upper),
+            "rationale": self.rationale,
+        }
+
+
+def _standard_normal_cdf(z: float) -> float:
+    return 0.5 * (1.0 + math.erf(z / math.sqrt(2.0)))
+
+
+def _resolve_truncation(
+    uncertain_inputs: Sequence[UncertainInput],
+    truncation: Optional[Sequence[TruncationSpec]],
+) -> List[TruncationSpec]:
+    """Align declared truncation specs with ``uncertain_inputs`` (by name)."""
+    if truncation is None:
+        return [TruncationSpec(inp.name) for inp in uncertain_inputs]
+    by_name = {spec.input_name: spec for spec in truncation}
+    names = [inp.name for inp in uncertain_inputs]
+    unknown = sorted(set(by_name) - set(names))
+    if unknown:
+        raise ValueError(
+            f"truncation declared for unknown inputs {unknown}; known: {names}"
+        )
+    missing = [n for n in names if n not in by_name]
+    if missing:
+        raise ValueError(
+            f"truncation not declared for inputs {missing}; declare every input "
+            f"explicitly (use TruncationSpec(name) for unbounded support)"
+        )
+    return [by_name[n] for n in names]
+
+
+def _sample_inputs(
+    rng: np.random.Generator,
+    uncertain_inputs: Sequence[UncertainInput],
+    specs: Sequence[TruncationSpec],
+    n_samples: int,
+    mode: str = "reject",
+) -> Tuple[np.ndarray, Dict[str, Any]]:
+    """Draw ``n_samples`` input vectors honouring the declared support.
+
+    ``mode='reject'`` samples the exact truncated normal by resampling
+    (no atoms); ``mode='clip'`` clips the tails onto the bound (kept only so the
+    old behaviour stays reproducible in evidence runs).  Returns the sample
+    matrix plus a machine-readable description of the sampling law.
+    """
+    if mode not in ("reject", "clip"):
+        raise ValueError(f"truncation_mode must be 'reject' or 'clip', got {mode!r}")
+    if n_samples < 1:
+        raise ValueError(f"n_samples must be >= 1, got {n_samples}")
+    if len(specs) != len(uncertain_inputs):
+        raise ValueError("truncation specs must match the uncertain inputs")
+
+    means = np.array([i.mean for i in uncertain_inputs], dtype=float)
+    stds = np.array([i.std for i in uncertain_inputs], dtype=float)
+    lo = np.array([s.lower for s in specs], dtype=float)
+    hi = np.array([s.upper for s in specs], dtype=float)
+    bounded = np.isfinite(lo) | np.isfinite(hi)
+
+    x = means + stds * rng.standard_normal((n_samples, len(means)))
+    outside = np.zeros(len(means), dtype=int)
+    n_drawn = n_samples
+    n_redrawn = 0
+
+    if bounded.any():
+        outside += ((x < lo) | (x > hi)).sum(axis=0)
+        if mode == "clip":
+            x = np.minimum(np.maximum(x, lo), hi)
+        else:
+            bad = (x < lo) | (x > hi)
+            rounds = 0
+            while bad.any():
+                rounds += 1
+                if rounds > 1000:
+                    raise RuntimeError(
+                        "truncation rejection sampling did not converge; the "
+                        "declared support is too far in the tail of the input law"
+                    )
+                rows = np.where(bad.any(axis=1))[0]
+                fresh = means + stds * rng.standard_normal((len(rows), len(means)))
+                n_drawn += len(rows)
+                n_redrawn += len(rows)
+                outside += ((fresh < lo) | (fresh > hi)).sum(axis=0)
+                x[rows] = fresh
+                bad[rows] = (fresh < lo) | (fresh > hi)
+
+    per_input = []
+    for d, inp in enumerate(uncertain_inputs):
+        row = specs[d].as_dict()
+        row["mass_outside"] = specs[d].mass_outside(inp)
+        row["realized_outside_fraction"] = float(outside[d] / max(1, n_drawn))
+        per_input.append(row)
+
+    diagnostics = {
+        "truncated_distribution": bool(bounded.any()),
+        "truncation_mode": mode if bounded.any() else "none",
+        "per_input": per_input,
+        "max_mass_outside": float(max(r["mass_outside"] for r in per_input)),
+        "n_draws": int(n_drawn),
+        "n_redrawn": int(n_redrawn),
+    }
+    return x, diagnostics
+
+
 def monte_carlo_reference(
     model_func,
     uncertain_inputs: List[UncertainInput],
     n_samples: int = 100000,
     seed: int = 42,
-) -> Dict[str, float]:
+    truncation: Optional[Sequence[TruncationSpec]] = None,
+    truncation_mode: str = "reject",
+) -> Dict[str, Any]:
     """
     Compute reference mean and std via Monte Carlo sampling.
 
     This serves as the ground truth for validating PCE statistics.
+
+    Sampling law (task m1892)
+    -------------------------
+    The support is *declared by the caller* through ``truncation`` (one
+    :class:`TruncationSpec` per input, matched by name):
+
+    * ``truncation=None`` - plain iid normals, **nothing is clipped**.  A generic
+      Monte-Carlo reference must not invent support bounds behind the caller's
+      back (the previous implementation clipped four hard-coded bounds keyed on
+      the *position* of the input in the list);
+    * ``truncation_mode='reject'`` - exact truncated-normal draws by resampling,
+      so no probability mass is placed on the bounds;
+    * ``truncation_mode='clip'`` - tails clipped onto the bound (atoms), only for
+      reproducing the legacy behaviour in evidence runs.
+
+    The realised law is reported under the ``"truncation"`` key, so a caller (and
+    the API response) can state that the reference is a truncated normal rather
+    than the untruncated one the PCE quadrature integrates.
     """
     rng = np.random.default_rng(seed)
-    dim = len(uncertain_inputs)
+    specs = _resolve_truncation(uncertain_inputs, truncation)
+    x_phys, truncation_diag = _sample_inputs(
+        rng, uncertain_inputs, specs, n_samples, mode=truncation_mode
+    )
 
-    samples = np.zeros(n_samples)
-    for i in range(n_samples):
-        x_phys = np.zeros(dim)
-        for d in range(dim):
-            inp = uncertain_inputs[d]
-            x_phys[d] = inp.mean + inp.std * rng.standard_normal()
-            # Enforce physical bounds
-            if d == 0:  # ice strength
-                x_phys[d] = max(0.3, x_phys[d])
-            elif d == 1:  # ice thickness
-                x_phys[d] = max(0.1, x_phys[d])
-            elif d == 2:  # friction
-                x_phys[d] = max(0.02, min(0.5, x_phys[d]))
-            elif d == 3:  # speed
-                x_phys[d] = max(0.5, x_phys[d])
-        samples[i] = model_func(*x_phys)
+    samples = np.array([model_func(*row) for row in x_phys], dtype=float)
 
     return {
         "mean": float(np.mean(samples)),
         "std": float(np.std(samples)),
         "variance": float(np.var(samples)),
         "n_samples": n_samples,
+        "truncation": truncation_diag,
     }
 
 
@@ -844,14 +1098,61 @@ class IceResistanceUQResult:
     std_error: Optional[float] = None
     # CI coverage
     ci_coverage: Optional[float] = None
+    # Numerics provenance (task m1892): sparse-grid level actually used and the
+    # explicitly declared truncation of the sampled input law.
+    max_level: Optional[int] = None
+    max_poly_order: Optional[int] = None
+    quadrature_aliasing_free: Optional[bool] = None
+    distribution_truncation: Optional[Dict[str, Any]] = None
+
+    # The API response model (``api.domain.ice_uq.UQResponse``) reads the MC
+    # reference under the names ``reference_mean_kN`` / ``reference_std_kN``;
+    # those attributes did not exist on this dataclass, so ``POST /ice-uq/uq``
+    # raised AttributeError on every request.  Exposed as aliases (task m1892).
+    @property
+    def reference_mean_kN(self) -> Optional[float]:
+        return self.mc_mean_kN
+
+    @property
+    def reference_std_kN(self) -> Optional[float]:
+        return self.mc_std_kN
+
+
+#: Support bounds declared by the ice-resistance entry point (task m1892).
+#: These used to be hidden inside ``monte_carlo_reference`` (index-keyed clamps);
+#: they now live here, where the UQ study is defined, and are echoed into the
+#: result so the API can report "truncated normal".
+ICE_INPUT_TRUNCATION: Tuple[TruncationSpec, ...] = (
+    TruncationSpec(
+        "ice_strength_MPa", 0.3, math.inf,
+        "compressive strength is strictly positive; 0.3 MPa is the lower "
+        "envelope of the ice covers the model is calibrated on",
+    ),
+    TruncationSpec(
+        "ice_thickness_m", 0.1, math.inf,
+        "level-ice thickness below 0.1 m is outside the Lindqvist calibration "
+        "domain (bending term ~ h^2, crushing ~ h^2 with l_c ~ h^0.75)",
+    ),
+    TruncationSpec(
+        "friction_coeff", 0.02, 0.5,
+        "hull-ice friction support observed in full-scale trials (0.02 - 0.5)",
+    ),
+    TruncationSpec(
+        "ship_speed_ms", 0.5, math.inf,
+        "below 0.5 m/s the ship is not advancing continuously in level ice "
+        "(ramming regime, not modelled)",
+    ),
+)
 
 
 def run_ice_resistance_uq(
     ship_name: str,
-    max_level: int = 3,
-    max_poly_order: int = 3,
+    max_level: Optional[int] = PCE_DEFAULT_MAX_LEVEL,
+    max_poly_order: int = PCE_DEFAULT_MAX_POLY_ORDER,
     n_mc_validation: int = 10000,
     n_mc_reference: int = 100000,
+    truncation: Optional[Sequence[TruncationSpec]] = None,
+    truncation_mode: str = "reject",
 ) -> IceResistanceUQResult:
     """
     Run full ice resistance UQ pipeline for a given ship.
@@ -863,6 +1164,16 @@ def run_ice_resistance_uq(
       4. Compare PCE mean/std against MC reference (not trial data directly,
          since trial std includes measurement scatter not captured by parametric UQ)
       5. Validate CI coverage via MC sampling
+
+    Numbers of merit (task m1892):
+      * the PCE level is never allowed to alias: ``build_pce`` raises it to
+        ``max_poly_order + 1`` when the requested level cannot resolve the basis,
+        and the level actually used is stored on the result;
+      * both Monte-Carlo stages draw from the *declared* truncated distribution
+        (:data:`ICE_INPUT_TRUNCATION` unless ``truncation`` overrides it).  The
+        quadrature itself still integrates the untruncated normal, so the
+        removed mass is reported (``distribution_truncation``) instead of being
+        silently absorbed.
     """
     if ship_name not in SHIP_TRIAL_DATA:
         raise ValueError(f"Unknown ship: {ship_name}. Available: {list(SHIP_TRIAL_DATA.keys())}")
@@ -882,10 +1193,24 @@ def run_ice_resistance_uq(
     def ice_model(ice_strength, ice_thickness, friction, speed):
         return lindqvist_ice_resistance(ship, ice_thickness, ice_strength, friction, speed)
 
-    # Step 1: Compute MC reference
-    mc_ref = monte_carlo_reference(ice_model, uncertain_inputs, n_samples=n_mc_reference)
+    # Declared support of the sampled input law (entry-point level, task m1892).
+    # Default: the bounds this study declares for the four ice inputs; a caller
+    # may override them (or pass explicit unbounded specs) but never gets the old
+    # hidden index-keyed clipping back.
+    truncation_specs = _resolve_truncation(
+        uncertain_inputs, ICE_INPUT_TRUNCATION if truncation is None else truncation
+    )
 
-    # Step 2: Build PCE
+    # Step 1: Compute MC reference against the declared distribution
+    mc_ref = monte_carlo_reference(
+        ice_model,
+        uncertain_inputs,
+        n_samples=n_mc_reference,
+        truncation=truncation_specs,
+        truncation_mode=truncation_mode,
+    )
+
+    # Step 2: Build PCE (level auto-raised when it cannot resolve the basis)
     pce = build_pce(ice_model, uncertain_inputs, max_level=max_level, max_poly_order=max_poly_order)
 
     # Step 3: Compute PCE statistics
@@ -893,24 +1218,15 @@ def run_ice_resistance_uq(
     ci = pce_confidence_interval(pce, confidence=0.95)
     sobol = sobol_indices(pce)
 
-    # Step 4: Validate CI coverage via Monte Carlo
+    # Step 4: Validate CI coverage via Monte Carlo - same declared truncation as
+    # the reference (no index-keyed clamps any more).
     rng = np.random.default_rng(123)
-    mc_covered = 0
-    for _ in range(n_mc_validation):
-        x_phys = np.array([
-            inp.mean + inp.std * rng.standard_normal() for inp in uncertain_inputs
-        ])
-        # Enforce physical bounds
-        x_phys[0] = max(0.3, x_phys[0])
-        x_phys[1] = max(0.1, x_phys[1])
-        x_phys[2] = max(0.02, min(0.5, x_phys[2]))
-        x_phys[3] = max(0.5, x_phys[3])
-
-        y_mc = ice_model(*x_phys)
-        if ci["lower"] <= y_mc <= ci["upper"]:
-            mc_covered += 1
-
-    ci_coverage = mc_covered / n_mc_validation
+    x_cov, _ = _sample_inputs(
+        rng, uncertain_inputs, truncation_specs, n_mc_validation,
+        mode=truncation_mode,
+    )
+    y_cov = np.array([ice_model(*row) for row in x_cov], dtype=float)
+    ci_coverage = float(np.mean((y_cov >= ci["lower"]) & (y_cov <= ci["upper"])))
 
     # Step 5: Compute errors vs MC reference
     mean_error = abs(stats["mean"] - mc_ref["mean"]) / mc_ref["mean"]
@@ -939,17 +1255,31 @@ def run_ice_resistance_uq(
         mean_error=mean_error,
         std_error=std_error,
         ci_coverage=ci_coverage,
+        max_level=int(pce["max_level"]),
+        max_poly_order=int(max_poly_order),
+        quadrature_aliasing_free=bool(pce["aliasing_free"]),
+        distribution_truncation=mc_ref["truncation"],
     )
 
 
 def run_all_ships_uq(
-    max_level: int = 3,
-    max_poly_order: int = 3,
+    max_level: Optional[int] = PCE_DEFAULT_MAX_LEVEL,
+    max_poly_order: int = PCE_DEFAULT_MAX_POLY_ORDER,
+    truncation: Optional[Sequence[TruncationSpec]] = None,
 ) -> Dict[str, IceResistanceUQResult]:
-    """Run UQ for all ships in the trial database."""
+    """Run UQ for all ships in the trial database.
+
+    The default level is ``PCE_DEFAULT_MAX_LEVEL = max_poly_order + 1``, i.e. the
+    aliasing-free configuration required by the guard in :func:`build_pce`
+    (task m1892).  A caller may still ask for a lower level - it is then raised
+    back (``quadrature_aliasing_free`` on each result records the outcome) rather
+    than silently corrupting the Sobol split.
+    """
     results = {}
     for ship_name in SHIP_TRIAL_DATA:
-        results[ship_name] = run_ice_resistance_uq(ship_name, max_level, max_poly_order)
+        results[ship_name] = run_ice_resistance_uq(
+            ship_name, max_level, max_poly_order, truncation=truncation
+        )
     return results
 
 
@@ -1070,4 +1400,100 @@ def level_ice_validation_report() -> Dict[str, Any]:
         "max_out_of_sample_abs_rel_err": max(abs(r["rel_err"]) for r in loo),
         "meets_15pct_band_out_of_sample": max(abs(r["rel_err"]) for r in loo) <= 0.15,
         "implementation_divergence": divergence,
+    }
+
+
+# =====================================================================
+# 6. PCE numerics status (task m1892)
+# =====================================================================
+#
+# Machine-readable twin of the aliasing guard: it recomputes the canonical
+# counter-example (pure cubic response, one inert input) on the production code
+# path, keeps the raw aliased numbers for the record, and lists the truncation
+# mass the entry point declares.  Cheap enough for tests and diagnostics.
+
+PCE_NUMERICS_STATUS: Dict[str, Any] = {
+    "capability": "PCE surrogate + Sobol decomposition for ice-resistance UQ",
+    "evidence_grade": "REAL",
+    "guard": "build_pce raises max_level to max_poly_order + 1 "
+             "(quadrature_policy='auto_raise'); 'error' raises "
+             "PCEQuadratureAliasingError instead",
+    "fixed_by": "m1892 (defect located by m1882)",
+    "defect": "max_level=3 with max_poly_order=3 integrates total degree 5 < 6 "
+              "needed for <psi_3, psi_3>, so cubic responses alias: on y=xi0^3 "
+              "with an inert xi1 it reports S_T(xi1)=0.1818 and Var=11",
+    "counter_example": "y = xi_0^3, xi_1 inert; analytic S_T(xi_1)=0, "
+                       "Var=E[xi^6]=15",
+    "declared_truncation": "ICE_INPUT_TRUNCATION (pipeline) / "
+                           "monte_carlo_reference(truncation=..., "
+                           "truncation_mode='reject'|'clip')",
+}
+
+
+def pce_numerics_status() -> Dict[str, Any]:
+    """Recompute the aliasing / truncation evidence on the live code path."""
+    inputs = [
+        UncertainInput("xi0", nominal=1.0, std_relative=1.0),
+        UncertainInput("xi1", nominal=1.0, std_relative=1.0),
+    ]
+
+    def cubic(x0, x1):
+        return (x0 - 1.0) ** 3  # = xi0^3 in standard space; xi1 cannot matter
+
+    analytic = {"mean": 0.0, "variance": 15.0, "ST_inert": 0.0}
+
+    guarded = build_pce(cubic, inputs, max_poly_order=3)
+    g_stats = pce_statistics(guarded)
+    g_sobol = sobol_indices(guarded)
+
+    aliased = build_pce(
+        cubic, inputs, max_level=3, max_poly_order=3,
+        quadrature_policy="allow_aliasing",
+    )
+    a_stats = pce_statistics(aliased)
+    a_sobol = sobol_indices(aliased)
+
+    nominal = {
+        "ice_strength_MPa": (1.5, 0.20),
+        "ice_thickness_m": (1.0, 0.15),
+        "friction_coeff": (0.15, 0.25),
+        "ship_speed_ms": (3.0, 0.10),
+    }
+    truncation = []
+    for spec in ICE_INPUT_TRUNCATION:
+        mean, rel = nominal[spec.input_name]
+        inp = UncertainInput(spec.input_name, mean, rel)
+        truncation.append({**spec.as_dict(), "mass_outside": spec.mass_outside(inp)})
+
+    return {
+        "status": PCE_NUMERICS_STATUS,
+        "analytic": analytic,
+        "guarded": {
+            "max_level_requested": guarded["max_level_requested"],
+            "max_level": guarded["max_level"],
+            "quadrature_raised": guarded["quadrature_raised"],
+            "aliasing_free": guarded["aliasing_free"],
+            "variance": g_stats["variance"],
+            "mean": g_stats["mean"],
+            "S_T_inert": g_sobol["total_order"]["xi1"],
+            "n_evaluations": guarded["n_evaluations"],
+            "variance_rel_err": abs(g_stats["variance"] - analytic["variance"])
+            / analytic["variance"],
+            "inert_ST_abs_err": abs(g_sobol["total_order"]["xi1"]),
+        },
+        "aliased_reference": {
+            "max_level_requested": aliased["max_level_requested"],
+            "max_level": aliased["max_level"],
+            "aliasing_free": aliased["aliasing_free"],
+            "variance": a_stats["variance"],
+            "S_T_inert": a_sobol["total_order"]["xi1"],
+            "n_evaluations": aliased["n_evaluations"],
+        },
+        "declared_truncation": truncation,
+        "max_truncation_mass": max(r["mass_outside"] for r in truncation),
+        "verdict_aliasing_fixed": bool(
+            guarded["aliasing_free"]
+            and g_sobol["total_order"]["xi1"] <= 1e-6
+            and abs(g_stats["variance"] - 15.0) <= 1e-9
+        ),
     }

@@ -14,10 +14,13 @@ from services.ice_resistance_uq import (
     run_ice_resistance_uq, run_all_ships_uq, SHIP_TRIAL_DATA,
     lindqvist_ice_resistance, UncertainInput, build_pce, pce_statistics,
     sobol_indices, monte_carlo_reference, smolyak_sparse_grid,
+    ICE_INPUT_TRUNCATION, PCE_DEFAULT_MAX_LEVEL,
 )
 
-# Run UQ for all ships
-results = run_all_ships_uq(max_level=3, max_poly_order=3)
+# Run UQ for all ships.  The aliasing-free default is max_level =
+# max_poly_order + 1 (task m1892: level 3 cannot resolve an order-3 basis and
+# invented Sobol mass for inputs with zero influence).
+results = run_all_ships_uq()
 
 # =====================================================================
 # Figure 1: Sobol Sensitivity Indices (bar chart)
@@ -84,7 +87,7 @@ for idx, ship_name in enumerate(ship_names):
     def ice_model(ice_strength, ice_thickness, friction, speed):
         return lindqvist_ice_resistance(ship, ice_thickness, ice_strength, friction, speed)
 
-    pce = build_pce(ice_model, uncertain_inputs, max_level=3, max_poly_order=3)
+    pce = build_pce(ice_model, uncertain_inputs, max_poly_order=3)
 
     # MC samples
     rng = np.random.default_rng(42)
@@ -93,10 +96,10 @@ for idx, ship_name in enumerate(ship_names):
     pce_values = []
     for _ in range(n_samples):
         x_phys = np.array([inp.mean + inp.std * rng.standard_normal() for inp in uncertain_inputs])
-        x_phys[0] = max(0.3, x_phys[0])
-        x_phys[1] = max(0.1, x_phys[1])
-        x_phys[2] = max(0.02, min(0.5, x_phys[2]))
-        x_phys[3] = max(0.5, x_phys[3])
+        # declared support (task m1892): the same bounds the UQ entry point
+        # declares, instead of four index-keyed clamps
+        for d, spec in enumerate(ICE_INPUT_TRUNCATION):
+            x_phys[d] = min(max(x_phys[d], spec.lower), spec.upper)
 
         y_mc = ice_model(*x_phys)
         x_std = np.array([(x_phys[d] - uncertain_inputs[d].mean) / uncertain_inputs[d].std for d in range(4)])
@@ -161,16 +164,19 @@ for idx, ship_name in enumerate(ship_names):
         return lindqvist_ice_resistance(ship, ice_thickness, ice_strength, friction, speed)
 
     # MC histogram
-    mc_ref = monte_carlo_reference(ice_model, uncertain_inputs, n_samples=100000)
+    mc_ref = monte_carlo_reference(
+        ice_model, uncertain_inputs, n_samples=100000,
+        truncation=list(ICE_INPUT_TRUNCATION),
+    )
 
     rng = np.random.default_rng(42)
     mc_samples = []
     for _ in range(100000):
         x_phys = np.array([inp.mean + inp.std * rng.standard_normal() for inp in uncertain_inputs])
-        x_phys[0] = max(0.3, x_phys[0])
-        x_phys[1] = max(0.1, x_phys[1])
-        x_phys[2] = max(0.02, min(0.5, x_phys[2]))
-        x_phys[3] = max(0.5, x_phys[3])
+        # declared support (task m1892): the same bounds the UQ entry point
+        # declares, instead of four index-keyed clamps
+        for d, spec in enumerate(ICE_INPUT_TRUNCATION):
+            x_phys[d] = min(max(x_phys[d], spec.lower), spec.upper)
         mc_samples.append(ice_model(*x_phys))
 
     ax = axes[idx]
@@ -209,20 +215,20 @@ print("Figure 3 saved: fig3_resistance_pdf.png")
 fig, axes = plt.subplots(1, 2, figsize=(12, 5))
 
 # 2D grid
-nodes_2d, weights_2d = smolyak_sparse_grid(3, 2)
+nodes_2d, weights_2d = smolyak_sparse_grid(PCE_DEFAULT_MAX_LEVEL, 2)
 ax = axes[0]
 sizes = np.abs(weights_2d) * 500
 ax.scatter(nodes_2d[:, 0], nodes_2d[:, 1], s=sizes, c=weights_2d, cmap='RdBu_r', edgecolors='black', linewidth=0.5)
 ax.set_xlabel('$\\xi_1$ (Ice Strength)', fontsize=11)
 ax.set_ylabel('$\\xi_2$ (Ice Thickness)', fontsize=11)
-ax.set_title('2D Smolyak Sparse Grid (Level 3)', fontsize=13, fontweight='bold')
+ax.set_title(f'2D Smolyak Sparse Grid (Level {PCE_DEFAULT_MAX_LEVEL})', fontsize=13, fontweight='bold')
 ax.grid(alpha=0.3)
 ax.set_aspect('equal')
 ax.text(0.02, 0.98, f'N = {len(weights_2d)} points', transform=ax.transAxes, fontsize=10, va='top',
         bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
 
 # 4D grid projected to first 2 dims
-nodes_4d, weights_4d = smolyak_sparse_grid(3, 4)
+nodes_4d, weights_4d = smolyak_sparse_grid(PCE_DEFAULT_MAX_LEVEL, 4)
 ax = axes[1]
 sizes = np.abs(weights_4d) * 300
 sc = ax.scatter(nodes_4d[:, 0], nodes_4d[:, 1], s=sizes, c=weights_4d, cmap='RdBu_r', edgecolors='black', linewidth=0.5, alpha=0.7)

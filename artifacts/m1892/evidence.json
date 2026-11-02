@@ -1,0 +1,546 @@
+{
+ "mission": "m1892",
+ "production_grid_4d": {
+  "1": {
+   "n_nodes": 1,
+   "weight_sum": 1.0
+  },
+  "2": {
+   "n_nodes": 9,
+   "weight_sum": 0.9999999999999992
+  },
+  "3": {
+   "n_nodes": 45,
+   "weight_sum": 1.000000000000003
+  },
+  "4": {
+   "n_nodes": 165,
+   "weight_sum": 1.0000000000000027
+  },
+  "5": {
+   "n_nodes": 494,
+   "weight_sum": 0.9999999999999969
+  },
+  "6": {
+   "n_nodes": 1278,
+   "weight_sum": 0.9999999999999986
+  }
+ },
+ "defect": "PCE Smolyak projection aliases when max_level < max_poly_order+1",
+ "aliasing_map": [
+  {
+   "level": 1,
+   "n_nodes": 1,
+   "exactness_degree": 1,
+   "required_degree": 6,
+   "aliasing_free": false,
+   "variance": 0.0,
+   "variance_rel_err": 1.0,
+   "ST_inert": 0.0
+  },
+  {
+   "level": 2,
+   "n_nodes": 5,
+   "exactness_degree": 3,
+   "required_degree": 6,
+   "aliasing_free": false,
+   "variance": 2.166666666666666,
+   "variance_rel_err": 0.8555555555555556,
+   "ST_inert": 0.23076923076923073
+  },
+  {
+   "level": 3,
+   "n_nodes": 14,
+   "exactness_degree": 5,
+   "required_degree": 6,
+   "aliasing_free": false,
+   "variance": 10.999999999999979,
+   "variance_rel_err": 0.2666666666666681,
+   "ST_inert": 0.18181818181818174
+  },
+  {
+   "level": 4,
+   "n_nodes": 30,
+   "exactness_degree": 7,
+   "required_degree": 6,
+   "aliasing_free": true,
+   "variance": 15.000000000000004,
+   "variance_rel_err": 2.3684757858670006e-16,
+   "ST_inert": 3.2704858362287774e-31
+  },
+  {
+   "level": 5,
+   "n_nodes": 55,
+   "exactness_degree": 9,
+   "required_degree": 6,
+   "aliasing_free": true,
+   "variance": 15.000000000000018,
+   "variance_rel_err": 1.1842378929335002e-15,
+   "ST_inert": 3.8991093700767675e-31
+  },
+  {
+   "level": 6,
+   "n_nodes": 91,
+   "exactness_degree": 11,
+   "required_degree": 6,
+   "aliasing_free": true,
+   "variance": 15.000000000000032,
+   "variance_rel_err": 2.1316282072803005e-15,
+   "ST_inert": 7.58645204315735e-32
+  }
+ ],
+ "monomial_exactness": [
+  {
+   "order": 1,
+   "level_used": 2,
+   "n_nodes": 5,
+   "mean": 0.0,
+   "mean_analytic": 0.0,
+   "mean_rel_err": 0.0,
+   "variance": 0.9999999999999996,
+   "variance_analytic": 1.0,
+   "variance_rel_err": 4.440892098500626e-16,
+   "ST_inert": 0.0,
+   "ST_sum": 1.0
+  },
+  {
+   "order": 2,
+   "level_used": 3,
+   "n_nodes": 14,
+   "mean": 0.9999999999999993,
+   "mean_analytic": 1.0,
+   "mean_rel_err": 6.661338147750939e-16,
+   "variance": 1.9999999999999956,
+   "variance_analytic": 2.0,
+   "variance_rel_err": 2.220446049250313e-15,
+   "ST_inert": 1.9259299443872402e-32,
+   "ST_sum": 1.0
+  },
+  {
+   "order": 3,
+   "level_used": 4,
+   "n_nodes": 30,
+   "mean": 2.220446049250313e-16,
+   "mean_analytic": 0.0,
+   "mean_rel_err": 2.220446049250313e-16,
+   "variance": 15.000000000000004,
+   "variance_analytic": 15.0,
+   "variance_rel_err": 2.3684757858670006e-16,
+   "ST_inert": 3.2704858362287774e-31,
+   "ST_sum": 1.0
+  },
+  {
+   "order": 4,
+   "level_used": 5,
+   "n_nodes": 55,
+   "mean": 3.0000000000000013,
+   "mean_analytic": 3.0,
+   "mean_rel_err": 4.440892098500626e-16,
+   "variance": 96.00000000000013,
+   "variance_analytic": 96.0,
+   "variance_rel_err": 1.3322676295501878e-15,
+   "ST_inert": 7.042697822192027e-31,
+   "ST_sum": 1.0
+  }
+ ],
+ "real_ships": {
+  "MV_Arctic": {
+   "level_used": 4,
+   "n_model_evaluations": 165,
+   "aliasing_free": true,
+   "input_names": [
+    "ice_strength_MPa",
+    "ice_thickness_m",
+    "friction_coeff",
+    "ship_speed_ms"
+   ],
+   "ST_fixed": [
+    0.23908321757765078,
+    0.6726221424468913,
+    0.08396390538732502,
+    0.020455665803744166
+   ],
+   "ST_legacy_level3": [
+    0.23901184302852105,
+    0.672580053482435,
+    0.08391710935517523,
+    0.0204299068066067
+   ],
+   "ST_legacy_minus_fixed": [
+    -7.137454912972685e-05,
+    -4.20889644563438e-05,
+    -4.679603214979844e-05,
+    -2.575899713746707e-05
+   ],
+   "ST_saltelli_mc": [
+    0.24599286653090613,
+    0.6685914772928838,
+    0.08433843968736827,
+    0.02030042925843058
+   ],
+   "ST_fixed_vs_mc_max_abs": 0.006909648953255354,
+   "ST_legacy_vs_mc_max_abs": 0.006981023502385081,
+   "ST_fixed_sum": 1.0161249312156113,
+   "mean_kN": 4827.326721811575,
+   "mean_legacy_kN": 4827.326615196445,
+   "std_kN": 1117.0381374305243,
+   "std_legacy_kN": 1116.9845885929594,
+   "mc_mean_kN": 4832.577963003117,
+   "mc_std_kN": 1123.5991305728126,
+   "mean_rel_err_vs_mc": 0.0010866335177090558,
+   "std_rel_err_vs_mc": 0.005839265057942348,
+   "ci_coverage": 0.95,
+   "truncation": {
+    "truncated_distribution": true,
+    "truncation_mode": "reject",
+    "per_input": [
+     {
+      "input": "ice_strength_MPa",
+      "lower": 0.3,
+      "upper": null,
+      "rationale": "compressive strength is strictly positive; 0.3 MPa is the lower envelope of the ice covers the model is calibrated on",
+      "mass_outside": 3.167124183311998e-05,
+      "realized_outside_fraction": 1.999480135164857e-05
+     },
+     {
+      "input": "ice_thickness_m",
+      "lower": 0.1,
+      "upper": null,
+      "rationale": "level-ice thickness below 0.1 m is outside the Lindqvist calibration domain (bending term ~ h^2, crushing ~ h^2 with l_c ~ h^0.75)",
+      "mass_outside": 9.865876449133282e-10,
+      "realized_outside_fraction": 0.0
+     },
+     {
+      "input": "friction_coeff",
+      "lower": 0.02,
+      "upper": 0.5,
+      "rationale": "hull-ice friction support observed in full-scale trials (0.02 - 0.5)",
+      "mass_outside": 0.0002634774655952965,
+      "realized_outside_fraction": 0.00023993761621978285
+     },
+     {
+      "input": "ship_speed_ms",
+      "lower": 0.5,
+      "upper": null,
+      "rationale": "below 0.5 m/s the ship is not advancing continuously in level ice (ramming regime, not modelled)",
+      "mass_outside": 5.551115123125783e-17,
+      "realized_outside_fraction": 0.0
+     }
+    ],
+    "max_mass_outside": 0.0002634774655952965,
+    "n_draws": 100026,
+    "n_redrawn": 26
+   }
+  },
+  "Polarstern": {
+   "level_used": 4,
+   "n_model_evaluations": 165,
+   "aliasing_free": true,
+   "input_names": [
+    "ice_strength_MPa",
+    "ice_thickness_m",
+    "friction_coeff",
+    "ship_speed_ms"
+   ],
+   "ST_fixed": [
+    0.2987418273118712,
+    0.6535079856178604,
+    0.04255424363840557,
+    0.023900441516475832
+   ],
+   "ST_legacy_level3": [
+    0.2986820549243853,
+    0.6534461634973783,
+    0.04252805509125653,
+    0.023874220904117536
+   ],
+   "ST_legacy_minus_fixed": [
+    -5.97723874858902e-05,
+    -6.182212048211344e-05,
+    -2.618854714903779e-05,
+    -2.6220612358296425e-05
+   ],
+   "ST_saltelli_mc": [
+    0.30727625291542016,
+    0.6485573798807902,
+    0.04266822823851631,
+    0.023700910505198795
+   ],
+   "ST_fixed_vs_mc_max_abs": 0.008534425603548945,
+   "ST_legacy_vs_mc_max_abs": 0.008594197991034835,
+   "ST_fixed_sum": 1.018704498084613,
+   "mean_kN": 1813.8263864768896,
+   "mean_legacy_kN": 1813.8262700112273,
+   "std_kN": 459.55492506985496,
+   "std_legacy_kN": 459.53555993343883,
+   "mc_mean_kN": 1816.1924897688045,
+   "mc_std_kN": 462.3672551973738,
+   "mean_rel_err_vs_mc": 0.001302782224485519,
+   "std_rel_err_vs_mc": 0.00608245955115992,
+   "ci_coverage": 0.9514,
+   "truncation": {
+    "truncated_distribution": true,
+    "truncation_mode": "reject",
+    "per_input": [
+     {
+      "input": "ice_strength_MPa",
+      "lower": 0.3,
+      "upper": null,
+      "rationale": "compressive strength is strictly positive; 0.3 MPa is the lower envelope of the ice covers the model is calibrated on",
+      "mass_outside": 8.841728520081471e-05,
+      "realized_outside_fraction": 1.999000499750125e-05
+     },
+     {
+      "input": "ice_thickness_m",
+      "lower": 0.1,
+      "upper": null,
+      "rationale": "level-ice thickness below 0.1 m is outside the Lindqvist calibration domain (bending term ~ h^2, crushing ~ h^2 with l_c ~ h^0.75)",
+      "mass_outside": 2.7165437122000924e-09,
+      "realized_outside_fraction": 0.0
+     },
+     {
+      "input": "friction_coeff",
+      "lower": 0.02,
+      "upper": 0.5,
+      "rationale": "hull-ice friction support observed in full-scale trials (0.02 - 0.5)",
+      "mass_outside": 0.0004290603331968401,
+      "realized_outside_fraction": 0.00047976011994003
+     },
+     {
+      "input": "ship_speed_ms",
+      "lower": 0.5,
+      "upper": null,
+      "rationale": "below 0.5 m/s the ship is not advancing continuously in level ice (ramming regime, not modelled)",
+      "mass_outside": 6.106226635438361e-16,
+      "realized_outside_fraction": 0.0
+     }
+    ],
+    "max_mass_outside": 0.0004290603331968401,
+    "n_draws": 100050,
+    "n_redrawn": 50
+   }
+  },
+  "Terry_Fox": {
+   "level_used": 4,
+   "n_model_evaluations": 165,
+   "aliasing_free": true,
+   "input_names": [
+    "ice_strength_MPa",
+    "ice_thickness_m",
+    "friction_coeff",
+    "ship_speed_ms"
+   ],
+   "ST_fixed": [
+    0.29959352129463307,
+    0.6501765310149726,
+    0.046747902797680194,
+    0.022296211108085745
+   ],
+   "ST_legacy_level3": [
+    0.2995321931364829,
+    0.6501133535540411,
+    0.0467167098012021,
+    0.02227356035908851
+   ],
+   "ST_legacy_minus_fixed": [
+    -6.132815815018677e-05,
+    -6.317746093154053e-05,
+    -3.1192996478093815e-05,
+    -2.265074899723482e-05
+   ],
+   "ST_saltelli_mc": [
+    0.30796246633155977,
+    0.6452036724994058,
+    0.04684445032302395,
+    0.02211236977302926
+   ],
+   "ST_fixed_vs_mc_max_abs": 0.0083689450369267,
+   "ST_legacy_vs_mc_max_abs": 0.008430273195076887,
+   "ST_fixed_sum": 1.0188141662153716,
+   "mean_kN": 856.5608459078805,
+   "mean_legacy_kN": 856.5607968484583,
+   "std_kN": 217.61312268173023,
+   "std_legacy_kN": 217.60361304201297,
+   "mc_mean_kN": 857.8139118442735,
+   "mc_std_kN": 218.90238766073767,
+   "mean_rel_err_vs_mc": 0.0014607666290920214,
+   "std_rel_err_vs_mc": 0.005889679837597697,
+   "ci_coverage": 0.951,
+   "truncation": {
+    "truncated_distribution": true,
+    "truncation_mode": "reject",
+    "per_input": [
+     {
+      "input": "ice_strength_MPa",
+      "lower": 0.3,
+      "upper": null,
+      "rationale": "compressive strength is strictly positive; 0.3 MPa is the lower envelope of the ice covers the model is calibrated on",
+      "mass_outside": 0.0002326290790355401,
+      "realized_outside_fraction": 0.00020980907374289396
+     },
+     {
+      "input": "ice_thickness_m",
+      "lower": 0.1,
+      "upper": null,
+      "rationale": "level-ice thickness below 0.1 m is outside the Lindqvist calibration domain (bending term ~ h^2, crushing ~ h^2 with l_c ~ h^0.75)",
+      "mass_outside": 1.3836508938602776e-08,
+      "realized_outside_fraction": 0.0
+     },
+     {
+      "input": "friction_coeff",
+      "lower": 0.02,
+      "upper": 0.5,
+      "rationale": "hull-ice friction support observed in full-scale trials (0.02 - 0.5)",
+      "mass_outside": 0.0006871379379158604,
+      "realized_outside_fraction": 0.0006993635791429799
+     },
+     {
+      "input": "ship_speed_ms",
+      "lower": 0.5,
+      "upper": null,
+      "rationale": "below 0.5 m/s the ship is not advancing continuously in level ice (ramming regime, not modelled)",
+      "mass_outside": 3.191891195797325e-14,
+      "realized_outside_fraction": 0.0
+     }
+    ],
+    "max_mass_outside": 0.0006871379379158604,
+    "n_draws": 100091,
+    "n_redrawn": 91
+   }
+  }
+ },
+ "truncation": {
+  "declared_masses": [
+   {
+    "input": "ice_strength_MPa",
+    "lower": 0.3,
+    "upper": null,
+    "rationale": "compressive strength is strictly positive; 0.3 MPa is the lower envelope of the ice covers the model is calibrated on",
+    "mass_outside": 3.167124183311998e-05
+   },
+   {
+    "input": "ice_thickness_m",
+    "lower": 0.1,
+    "upper": null,
+    "rationale": "level-ice thickness below 0.1 m is outside the Lindqvist calibration domain (bending term ~ h^2, crushing ~ h^2 with l_c ~ h^0.75)",
+    "mass_outside": 9.865876449133282e-10
+   },
+   {
+    "input": "friction_coeff",
+    "lower": 0.02,
+    "upper": 0.5,
+    "rationale": "hull-ice friction support observed in full-scale trials (0.02 - 0.5)",
+    "mass_outside": 0.0002634774655952965
+   },
+   {
+    "input": "ship_speed_ms",
+    "lower": 0.5,
+    "upper": null,
+    "rationale": "below 0.5 m/s the ship is not advancing continuously in level ice (ramming regime, not modelled)",
+    "mass_outside": 5.551115123125783e-17
+   }
+  ],
+  "max_mass_outside": 0.0002634774655952965,
+  "reject": {
+   "mean": 4828.38810616161,
+   "std": 1117.3821208360398,
+   "n_redrawn": 27
+  },
+  "clip": {
+   "mean": 4828.092322880274,
+   "std": 1117.395431523591,
+   "mode": "clip",
+   "per_input_fraction": [
+    3e-05,
+    0.0,
+    0.00024,
+    0.0
+   ]
+  },
+  "untruncated": {
+   "mean": 4828.061249307792,
+   "std": 1117.4258312511367
+  },
+  "clip_mean_bias_rel": -6.125921836292384e-05,
+  "clip_std_bias_rel": 1.1912386374369408e-05,
+  "untruncated_mean_bias_rel": -6.769481794571053e-05,
+  "untruncated_std_bias_rel": 3.911859182446401e-05
+ },
+ "numerics_status": {
+  "status": {
+   "capability": "PCE surrogate + Sobol decomposition for ice-resistance UQ",
+   "evidence_grade": "REAL",
+   "guard": "build_pce raises max_level to max_poly_order + 1 (quadrature_policy='auto_raise'); 'error' raises PCEQuadratureAliasingError instead",
+   "fixed_by": "m1892 (defect located by m1882)",
+   "defect": "max_level=3 with max_poly_order=3 integrates total degree 5 < 6 needed for <psi_3, psi_3>, so cubic responses alias: on y=xi0^3 with an inert xi1 it reports S_T(xi1)=0.1818 and Var=11",
+   "counter_example": "y = xi_0^3, xi_1 inert; analytic S_T(xi_1)=0, Var=E[xi^6]=15",
+   "declared_truncation": "ICE_INPUT_TRUNCATION (pipeline) / monte_carlo_reference(truncation=..., truncation_mode='reject'|'clip')"
+  },
+  "analytic": {
+   "mean": 0.0,
+   "variance": 15.0,
+   "ST_inert": 0.0
+  },
+  "guarded": {
+   "max_level_requested": 4,
+   "max_level": 4,
+   "quadrature_raised": false,
+   "aliasing_free": true,
+   "variance": 15.000000000000004,
+   "mean": 2.220446049250313e-16,
+   "S_T_inert": 3.2704858362287774e-31,
+   "n_evaluations": 30,
+   "variance_rel_err": 2.3684757858670006e-16,
+   "inert_ST_abs_err": 3.2704858362287774e-31
+  },
+  "aliased_reference": {
+   "max_level_requested": 3,
+   "max_level": 3,
+   "aliasing_free": false,
+   "variance": 10.999999999999979,
+   "S_T_inert": 0.18181818181818174,
+   "n_evaluations": 14
+  },
+  "declared_truncation": [
+   {
+    "input": "ice_strength_MPa",
+    "lower": 0.3,
+    "upper": null,
+    "rationale": "compressive strength is strictly positive; 0.3 MPa is the lower envelope of the ice covers the model is calibrated on",
+    "mass_outside": 3.167124183311998e-05
+   },
+   {
+    "input": "ice_thickness_m",
+    "lower": 0.1,
+    "upper": null,
+    "rationale": "level-ice thickness below 0.1 m is outside the Lindqvist calibration domain (bending term ~ h^2, crushing ~ h^2 with l_c ~ h^0.75)",
+    "mass_outside": 9.865876449133282e-10
+   },
+   {
+    "input": "friction_coeff",
+    "lower": 0.02,
+    "upper": 0.5,
+    "rationale": "hull-ice friction support observed in full-scale trials (0.02 - 0.5)",
+    "mass_outside": 0.0002634774655952965
+   },
+   {
+    "input": "ship_speed_ms",
+    "lower": 0.5,
+    "upper": null,
+    "rationale": "below 0.5 m/s the ship is not advancing continuously in level ice (ramming regime, not modelled)",
+    "mass_outside": 5.551115123125783e-17
+   }
+  ],
+  "max_truncation_mass": 0.0002634774655952965,
+  "verdict_aliasing_fixed": true
+ },
+ "verdict": {
+  "aliasing_fixed": true,
+  "guarded_variance_rel_err": 2.3684757858670006e-16,
+  "guarded_ST_inert": 3.2704858362287774e-31,
+  "legacy_variance": 10.999999999999979,
+  "legacy_ST_inert": 0.18181818181818174,
+  "truncation_declared": true,
+  "max_truncation_mass": 0.0002634774655952965
+ }
+}

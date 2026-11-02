@@ -166,3 +166,23 @@ y = ξ₀³，ξ₁ 构造上零影响）：
 python3 tools/validation/verify_ice_uq_kernel_m1882.py
 python3 -m pytest tests/test_ice_uq_kernel_reference_m1882.py -q
 ```
+
+## ⑨ 补记（m1892，手工追加；以上 ①–⑧ 仍为生成器输出）
+
+本复核的 V3b 缺陷已被 m1892 修复，反射到上述结论的三处变化：
+
+1. **默认配置不再混叠**：`build_pce` 增加求积-混叠 guard（默认 `quadrature_policy='auto_raise'`，
+   把 `max_level` 抬到 `max_poly_order + 1`；`'error'` 抛 `PCEQuadratureAliasingError`），
+   `run_ice_resistance_uq` / `run_all_ships_uq` 的默认层数同步为 `PCE_DEFAULT_MAX_LEVEL = 4`。
+   因此上表「默认 max_level=3, order=3 → 伪 S_T = 0.1818」这一行现在**只能**通过
+   `quadrature_policy='allow_aliasing'` 显式旁路复现（作为本复核的证据保留），
+   生产默认路径给出 `Var = 15`、`S_T(ξ₁) = 3.27e-31`。
+2. **MC「真值」的裁剪改为声明式**：`monte_carlo_reference` 不再含按索引硬编码的四条裁剪
+   （即本文 §⑤ 第 3 条的隐患），支撑区间由入口层的 `ICE_INPUT_TRUNCATION` 显式声明，
+   并随结果上报（`distribution_truncation`，含各维解析截断质量与重抽次数）。
+3. **V5 的自证循环**得到补强：`tests/test_m1892_pce_aliasing.py` 用解析反例 + 独立
+   Saltelli–Jansen MC 双重锁定，`tests/test_ice_uq_kernel_reference_m1882.py` 中原
+   `xfail(strict=True)` 的反例已转正为硬断言。
+
+复核记录与误差表：`docs/verification/ice_uq_aliasing_fix_m1892.md`；
+证据工件：`artifacts/m1892/evidence.json`。物理模型（Lindqvist + 同点标定）的 WITHHELD 判决不受影响。

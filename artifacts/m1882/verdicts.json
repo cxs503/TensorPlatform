@@ -1,0 +1,1567 @@
+{
+  "audited_module": "backend/services/ice_resistance_uq.py",
+  "audited_sha256": "2822a0cb491a3d4532f2cc30147ca381c007bb5de60b6e0a35f8d567c9c9dfa2",
+  "elapsed_s": 11.29,
+  "figures": [
+    "artifacts/m1882/fig_aliasing_map.png",
+    "artifacts/m1882/fig_sobol_crosscheck.png"
+  ],
+  "mission": 1882,
+  "reference_module": "tools/validation/ice_uq_reference_m1882.py",
+  "summary": {
+    "V1": "PASS",
+    "V2": "PASS",
+    "V3a_exactness_rule": "PASS",
+    "V3b_default_config": "FAIL (aliasing, spurious S_T = 0.1818)",
+    "V4_converged_vs_MC": "PASS",
+    "V5_clipping": "informational (max clip fraction 0.0009, max std bias 0.0083)",
+    "overall": "numerics REAL under the exactness rule; shipped default config WITHHELD (aliasing)"
+  },
+  "verdicts": {
+    "V1": {
+      "basis": "Golub & Welsch (1969); analytic moments E[xi^k]=(k-1)!! (k even)",
+      "id": "V1",
+      "name": "Gauss-Hermite n-point rule exact for polynomials of degree <= 2n-1",
+      "pass": true,
+      "rows": [
+        {
+          "expected_exact_degree": 1,
+          "max_exact_degree": 1,
+          "min_weight": 1.0,
+          "n_points": 1,
+          "rel_err_at_expected_degree": 0.0,
+          "weight_sum": 1.0,
+          "weight_sum_err": 0.0
+        },
+        {
+          "expected_exact_degree": 3,
+          "max_exact_degree": 3,
+          "min_weight": 0.4999999999999999,
+          "n_points": 2,
+          "rel_err_at_expected_degree": 0.0,
+          "weight_sum": 0.9999999999999998,
+          "weight_sum_err": 2.220446049250313e-16
+        },
+        {
+          "expected_exact_degree": 5,
+          "max_exact_degree": 5,
+          "min_weight": 0.16666666666666657,
+          "n_points": 3,
+          "rel_err_at_expected_degree": 1.3322676295501878e-15,
+          "weight_sum": 1.0000000000000002,
+          "weight_sum_err": 2.220446049250313e-16
+        },
+        {
+          "expected_exact_degree": 7,
+          "max_exact_degree": 7,
+          "min_weight": 0.04587585476806847,
+          "n_points": 4,
+          "rel_err_at_expected_degree": 1.0658141036401503e-14,
+          "weight_sum": 1.0,
+          "weight_sum_err": 0.0
+        },
+        {
+          "expected_exact_degree": 9,
+          "max_exact_degree": 9,
+          "min_weight": 0.011257411327720694,
+          "n_points": 5,
+          "rel_err_at_expected_degree": 6.252776074688882e-13,
+          "weight_sum": 0.9999999999999993,
+          "weight_sum_err": 6.661338147750939e-16
+        },
+        {
+          "expected_exact_degree": 11,
+          "max_exact_degree": 11,
+          "min_weight": 0.002555784402056246,
+          "n_points": 6,
+          "rel_err_at_expected_degree": 1.000444171950221e-11,
+          "weight_sum": 0.9999999999999999,
+          "weight_sum_err": 1.1102230246251565e-16
+        },
+        {
+          "expected_exact_degree": 13,
+          "max_exact_degree": 13,
+          "min_weight": 0.000548268855972219,
+          "n_points": 7,
+          "rel_err_at_expected_degree": 2.3646862246096134e-11,
+          "weight_sum": 0.9999999999999999,
+          "weight_sum_err": 1.1102230246251565e-16
+        },
+        {
+          "expected_exact_degree": 15,
+          "max_exact_degree": 14,
+          "min_weight": 0.00011261453837536778,
+          "n_points": 8,
+          "rel_err_at_expected_degree": 7.566995918750763e-10,
+          "weight_sum": 1.0000000000000002,
+          "weight_sum_err": 2.220446049250313e-16
+        }
+      ]
+    },
+    "V2": {
+      "basis": "Smolyak (1963); analytic normal moments",
+      "id": "V2",
+      "name": "Smolyak grid reproduces analytic moments of every even monomial up to degree 2L-2",
+      "pass": true,
+      "rows": [
+        {
+          "dim": 2,
+          "exact_through_even": 2,
+          "expected_exact_through_even": 2,
+          "level": 2,
+          "min_weight": -1.0,
+          "n_points": 5,
+          "pass": true,
+          "tensor_points_same_level": 9,
+          "weight_sum_err": 4.440892098500626e-16
+        },
+        {
+          "dim": 2,
+          "exact_through_even": 4,
+          "expected_exact_through_even": 4,
+          "level": 3,
+          "min_weight": -0.4999999999999999,
+          "n_points": 14,
+          "pass": true,
+          "tensor_points_same_level": 16,
+          "weight_sum_err": 4.440892098500626e-16
+        },
+        {
+          "dim": 2,
+          "exact_through_even": 6,
+          "expected_exact_through_even": 6,
+          "level": 4,
+          "min_weight": -0.6666666666666669,
+          "n_points": 30,
+          "pass": true,
+          "tensor_points_same_level": 25,
+          "weight_sum_err": 4.440892098500626e-16
+        },
+        {
+          "dim": 2,
+          "exact_through_even": 8,
+          "expected_exact_through_even": 8,
+          "level": 5,
+          "min_weight": -0.4541241452319316,
+          "n_points": 55,
+          "pass": true,
+          "tensor_points_same_level": 36,
+          "weight_sum_err": 1.7763568394002505e-15
+        },
+        {
+          "dim": 4,
+          "exact_through_even": 4,
+          "expected_exact_through_even": 4,
+          "level": 3,
+          "min_weight": -1.4999999999999996,
+          "n_points": 45,
+          "pass": true,
+          "tensor_points_same_level": 256,
+          "weight_sum_err": 3.1086244689504383e-15
+        },
+        {
+          "dim": 4,
+          "exact_through_even": 6,
+          "expected_exact_through_even": 6,
+          "level": 4,
+          "min_weight": -2.0000000000000004,
+          "n_points": 165,
+          "pass": true,
+          "tensor_points_same_level": 625,
+          "weight_sum_err": 2.6645352591003757e-15
+        },
+        {
+          "dim": 6,
+          "exact_through_even": 4,
+          "expected_exact_through_even": 4,
+          "level": 3,
+          "min_weight": -2.4999999999999996,
+          "n_points": 91,
+          "pass": true,
+          "tensor_points_same_level": 4096,
+          "weight_sum_err": 3.774758283725532e-15
+        }
+      ]
+    },
+    "V3": {
+      "basis": "Sudret (2008) spectral Sobol decomposition; <He_a,He_b>=a! delta_ab; grid exactness from V2",
+      "exhibit": {
+        "analytic": {
+          "S_T(x0)": 1.0,
+          "S_T(x1)": 0.0,
+          "variance": 15.0
+        },
+        "default_max_level_3_order_3": {
+          "S_T": [
+            1.0,
+            0.18181818181818174
+          ],
+          "spurious_total_order_x1": 0.18181818181818174,
+          "variance": 10.999999999999979
+        },
+        "max_level_4_order_3": {
+          "S_T": [
+            1.0,
+            3.2704858362287774e-31
+          ],
+          "spurious_total_order_x1": 3.2704858362287774e-31,
+          "variance": 15.000000000000004
+        },
+        "model": "y = xi_0^3 (xi_1 has zero influence by construction)"
+      },
+      "id": "V3",
+      "name": "Projection PCE is exact iff max_level >= total_degree+1; the shipped default (3,3) aliases",
+      "pass": true,
+      "rows": [
+        {
+          "coef_max_abs_err": 1.9307472287621863e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 3,
+          "max_physical_friction": NaN,
+          "max_poly_order": 2,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 2,
+          "n_basis_terms": 6,
+          "n_grid_points": 14,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4796650363080709,
+            0.5730151688826486
+          ],
+          "sobol_total_order": [
+            0.479665036308071,
+            0.5730151688826486
+          ],
+          "variance": 3.92415940940732,
+          "variance_analytic": 3.924159409407321,
+          "variance_rel_err": 2.263359683021312e-16
+        },
+        {
+          "coef_max_abs_err": 1.9307472287621863e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 3,
+          "max_physical_friction": NaN,
+          "max_poly_order": 3,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 2,
+          "n_basis_terms": 10,
+          "n_grid_points": 14,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4796650363080709,
+            0.5730151688826486
+          ],
+          "sobol_total_order": [
+            0.479665036308071,
+            0.5730151688826486
+          ],
+          "variance": 3.92415940940732,
+          "variance_analytic": 3.924159409407321,
+          "variance_rel_err": 2.263359683021312e-16
+        },
+        {
+          "coef_max_abs_err": 6.661338147750939e-16,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": NaN,
+          "max_poly_order": 2,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 2,
+          "n_basis_terms": 6,
+          "n_grid_points": 30,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4796650363080709,
+            0.5730151688826486
+          ],
+          "sobol_total_order": [
+            0.4796650363080708,
+            0.5730151688826488
+          ],
+          "variance": 3.9241594094073156,
+          "variance_analytic": 3.924159409407321,
+          "variance_rel_err": 1.3580158098127872e-15
+        },
+        {
+          "coef_max_abs_err": 6.661338147750939e-16,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": NaN,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 2,
+          "n_basis_terms": 10,
+          "n_grid_points": 30,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4796650363080709,
+            0.5730151688826486
+          ],
+          "sobol_total_order": [
+            0.4796650363080708,
+            0.5730151688826488
+          ],
+          "variance": 3.9241594094073156,
+          "variance_analytic": 3.924159409407321,
+          "variance_rel_err": 1.3580158098127872e-15
+        },
+        {
+          "coef_max_abs_err": 2.579533808777512e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": NaN,
+          "max_poly_order": 2,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 2,
+          "n_basis_terms": 6,
+          "n_grid_points": 55,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4796650363080709,
+            0.5730151688826486
+          ],
+          "sobol_total_order": [
+            0.47966503630807084,
+            0.5730151688826487
+          ],
+          "variance": 3.924159409407316,
+          "variance_analytic": 3.924159409407321,
+          "variance_rel_err": 1.2448478256617215e-15
+        },
+        {
+          "coef_max_abs_err": 2.579533808777512e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": NaN,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 2,
+          "n_basis_terms": 10,
+          "n_grid_points": 55,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4796650363080709,
+            0.5730151688826486
+          ],
+          "sobol_total_order": [
+            0.47966503630807084,
+            0.5730151688826487
+          ],
+          "variance": 3.924159409407316,
+          "variance_analytic": 3.924159409407321,
+          "variance_rel_err": 1.2448478256617215e-15
+        },
+        {
+          "coef_max_abs_err": 0.719740345734594,
+          "dim": 2,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": NaN,
+          "max_poly_order": 3,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 3,
+          "n_basis_terms": 10,
+          "n_grid_points": 14,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5788305178657567,
+            0.8357387339833331
+          ],
+          "sobol_total_order": [
+            0.46548686316850135,
+            0.696870209317871
+          ],
+          "variance": 6.0603348921013875,
+          "variance_analytic": 10.33268585748954,
+          "variance_rel_err": 0.4134792274064331
+        },
+        {
+          "coef_max_abs_err": 0.9411191968768677,
+          "dim": 2,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": NaN,
+          "max_poly_order": 4,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 3,
+          "n_basis_terms": 15,
+          "n_grid_points": 14,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5788305178657567,
+            0.8357387339833331
+          ],
+          "sobol_total_order": [
+            0.607713625437984,
+            0.7210833110157724
+          ],
+          "variance": 14.60595613999251,
+          "variance_analytic": 10.33268585748954,
+          "variance_rel_err": 0.4135681991537113
+        },
+        {
+          "coef_max_abs_err": 9.992007221626409e-16,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": NaN,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 3,
+          "n_basis_terms": 10,
+          "n_grid_points": 30,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5788305178657567,
+            0.8357387339833331
+          ],
+          "sobol_total_order": [
+            0.5788305178657561,
+            0.8357387339833333
+          ],
+          "variance": 10.33268585748954,
+          "variance_analytic": 10.33268585748954,
+          "variance_rel_err": 0.0
+        },
+        {
+          "coef_max_abs_err": 1.1032841307212493e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": NaN,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 3,
+          "n_basis_terms": 15,
+          "n_grid_points": 30,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5788305178657567,
+            0.8357387339833331
+          ],
+          "sobol_total_order": [
+            0.5788305178657561,
+            0.8357387339833333
+          ],
+          "variance": 10.33268585748954,
+          "variance_analytic": 10.33268585748954,
+          "variance_rel_err": 0.0
+        },
+        {
+          "coef_max_abs_err": 3.4416913763379853e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": NaN,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 3,
+          "n_basis_terms": 10,
+          "n_grid_points": 55,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5788305178657567,
+            0.8357387339833331
+          ],
+          "sobol_total_order": [
+            0.5788305178657558,
+            0.8357387339833338
+          ],
+          "variance": 10.332685857489547,
+          "variance_analytic": 10.33268585748954,
+          "variance_rel_err": 6.876650907228256e-16
+        },
+        {
+          "coef_max_abs_err": 3.4416913763379853e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": NaN,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 3,
+          "n_basis_terms": 15,
+          "n_grid_points": 55,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5788305178657567,
+            0.8357387339833331
+          ],
+          "sobol_total_order": [
+            0.5788305178657558,
+            0.8357387339833338
+          ],
+          "variance": 10.332685857489547,
+          "variance_analytic": 10.33268585748954,
+          "variance_rel_err": 6.876650907228256e-16
+        },
+        {
+          "coef_max_abs_err": 1.6320045384597546,
+          "dim": 2,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": NaN,
+          "max_poly_order": 4,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 4,
+          "n_basis_terms": 15,
+          "n_grid_points": 14,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.802292097342707,
+            0.6628586336053238
+          ],
+          "sobol_total_order": [
+            0.6990425310175279,
+            0.5636683092748874
+          ],
+          "variance": 53.17879267547386,
+          "variance_analytic": 22.115190903885463,
+          "variance_rel_err": 1.404627339939931
+        },
+        {
+          "coef_max_abs_err": 1.6320045384597546,
+          "dim": 2,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": NaN,
+          "max_poly_order": 5,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 4,
+          "n_basis_terms": 21,
+          "n_grid_points": 14,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.802292097342707,
+            0.6628586336053238
+          ],
+          "sobol_total_order": [
+            0.6779137283884811,
+            0.5901578702639088
+          ],
+          "variance": 57.821145211080825,
+          "variance_analytic": 22.115190903885463,
+          "variance_rel_err": 1.6145442498044233
+        },
+        {
+          "coef_max_abs_err": 0.7962995905807845,
+          "dim": 2,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 4,
+          "max_physical_friction": NaN,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 4,
+          "n_basis_terms": 15,
+          "n_grid_points": 30,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.802292097342707,
+            0.6628586336053238
+          ],
+          "sobol_total_order": [
+            0.6949069366385086,
+            0.8874714917471118
+          ],
+          "variance": 15.181323034932298,
+          "variance_analytic": 22.115190903885463,
+          "variance_rel_err": 0.3135341629691715
+        },
+        {
+          "coef_max_abs_err": 0.7962995905807845,
+          "dim": 2,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 4,
+          "max_physical_friction": NaN,
+          "max_poly_order": 5,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 4,
+          "n_basis_terms": 21,
+          "n_grid_points": 30,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.802292097342707,
+            0.6628586336053238
+          ],
+          "sobol_total_order": [
+            0.7150180080251481,
+            0.9019944793047767
+          ],
+          "variance": 17.624795394487247,
+          "variance_analytic": 22.115190903885463,
+          "variance_rel_err": 0.2030457493635874
+        },
+        {
+          "coef_max_abs_err": 4.043640422501937e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": NaN,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 4,
+          "n_basis_terms": 15,
+          "n_grid_points": 55,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.802292097342707,
+            0.6628586336053238
+          ],
+          "sobol_total_order": [
+            0.8022920973427068,
+            0.6628586336053247
+          ],
+          "variance": 22.115190903885484,
+          "variance_analytic": 22.115190903885463,
+          "variance_rel_err": 9.638751103458892e-16
+        },
+        {
+          "coef_max_abs_err": 4.043640422501937e-15,
+          "dim": 2,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": NaN,
+          "max_poly_order": 5,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 4,
+          "n_basis_terms": 21,
+          "n_grid_points": 55,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.802292097342707,
+            0.6628586336053238
+          ],
+          "sobol_total_order": [
+            0.8022920973427068,
+            0.6628586336053247
+          ],
+          "variance": 22.115190903885484,
+          "variance_analytic": 22.115190903885463,
+          "variance_rel_err": 9.638751103458892e-16
+        },
+        {
+          "coef_max_abs_err": 2.5066754227864863e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 3,
+          "max_physical_friction": 2.7320508075688767,
+          "max_poly_order": 2,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 2,
+          "n_basis_terms": 15,
+          "n_grid_points": 45,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5691665233807954,
+            0.16889577420772614,
+            0.516282972057948,
+            0.20053196635456436
+          ],
+          "sobol_total_order": [
+            0.5691665233807957,
+            0.16889577420772633,
+            0.5162829720579475,
+            0.20053196635456413
+          ],
+          "variance": 7.200065221978615,
+          "variance_analytic": 7.20006522197862,
+          "variance_rel_err": 6.167849820227383e-16
+        },
+        {
+          "coef_max_abs_err": 2.5066754227864863e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 3,
+          "max_physical_friction": 2.7320508075688767,
+          "max_poly_order": 3,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 2,
+          "n_basis_terms": 35,
+          "n_grid_points": 45,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5691665233807954,
+            0.16889577420772614,
+            0.516282972057948,
+            0.20053196635456436
+          ],
+          "sobol_total_order": [
+            0.5691665233807957,
+            0.16889577420772633,
+            0.5162829720579475,
+            0.20053196635456413
+          ],
+          "variance": 7.200065221978615,
+          "variance_analytic": 7.20006522197862,
+          "variance_rel_err": 6.167849820227383e-16
+        },
+        {
+          "coef_max_abs_err": 2.211772431870429e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": 3.3344142183389773,
+          "max_poly_order": 2,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 2,
+          "n_basis_terms": 15,
+          "n_grid_points": 165,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5691665233807954,
+            0.16889577420772614,
+            0.516282972057948,
+            0.20053196635456436
+          ],
+          "sobol_total_order": [
+            0.569166523380795,
+            0.16889577420772559,
+            0.5162829720579484,
+            0.2005319663545646
+          ],
+          "variance": 7.200065221978611,
+          "variance_analytic": 7.20006522197862,
+          "variance_rel_err": 1.2335699640454766e-15
+        },
+        {
+          "coef_max_abs_err": 2.211772431870429e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": 3.3344142183389773,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 2,
+          "n_basis_terms": 35,
+          "n_grid_points": 165,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5691665233807954,
+            0.16889577420772614,
+            0.516282972057948,
+            0.20053196635456436
+          ],
+          "sobol_total_order": [
+            0.569166523380795,
+            0.16889577420772559,
+            0.5162829720579484,
+            0.2005319663545646
+          ],
+          "variance": 7.200065221978611,
+          "variance_analytic": 7.20006522197862,
+          "variance_rel_err": 1.2335699640454766e-15
+        },
+        {
+          "coef_max_abs_err": 3.696695727306576e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": 3.8569700138728065,
+          "max_poly_order": 2,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 2,
+          "n_basis_terms": 15,
+          "n_grid_points": 494,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5691665233807954,
+            0.16889577420772614,
+            0.516282972057948,
+            0.20053196635456436
+          ],
+          "sobol_total_order": [
+            0.5691665233807948,
+            0.16889577420772622,
+            0.5162829720579476,
+            0.2005319663545643
+          ],
+          "variance": 7.200065221978606,
+          "variance_analytic": 7.20006522197862,
+          "variance_rel_err": 1.9737119424727625e-15
+        },
+        {
+          "coef_max_abs_err": 3.696695727306576e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": 3.8569700138728065,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 2,
+          "n_basis_terms": 35,
+          "n_grid_points": 494,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.5691665233807954,
+            0.16889577420772614,
+            0.516282972057948,
+            0.20053196635456436
+          ],
+          "sobol_total_order": [
+            0.5691665233807948,
+            0.16889577420772622,
+            0.5162829720579476,
+            0.2005319663545643
+          ],
+          "variance": 7.200065221978606,
+          "variance_analytic": 7.20006522197862,
+          "variance_rel_err": 1.9737119424727625e-15
+        },
+        {
+          "coef_max_abs_err": 3.6277394870873527,
+          "dim": 4,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": 2.7320508075688767,
+          "max_poly_order": 3,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 3,
+          "n_basis_terms": 35,
+          "n_grid_points": 45,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.465256124573786,
+            0.48808540359472835,
+            0.4607270362169156,
+            0.39529630106451813
+          ],
+          "sobol_total_order": [
+            0.314388682934452,
+            0.29080889888634825,
+            0.5985804427683242,
+            0.31081495148171473
+          ],
+          "variance": 63.43810423527291,
+          "variance_analytic": 60.97565995420848,
+          "variance_rel_err": 0.04038405296332463
+        },
+        {
+          "coef_max_abs_err": 3.6277394870873527,
+          "dim": 4,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": 2.7320508075688767,
+          "max_poly_order": 4,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 3,
+          "n_basis_terms": 70,
+          "n_grid_points": 45,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.465256124573786,
+            0.48808540359472835,
+            0.4607270362169156,
+            0.39529630106451813
+          ],
+          "sobol_total_order": [
+            0.3948164938240405,
+            0.3206429595398732,
+            0.5781128121824671,
+            0.32819225000212926
+          ],
+          "variance": 83.50334727972033,
+          "variance_analytic": 60.97565995420848,
+          "variance_rel_err": 0.3694537679859422
+        },
+        {
+          "coef_max_abs_err": 7.105427357601002e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": 3.3344142183389773,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 3,
+          "n_basis_terms": 35,
+          "n_grid_points": 165,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.465256124573786,
+            0.48808540359472835,
+            0.4607270362169156,
+            0.39529630106451813
+          ],
+          "sobol_total_order": [
+            0.4652561245737857,
+            0.48808540359472863,
+            0.4607270362169155,
+            0.3952963010645184
+          ],
+          "variance": 60.975659954208496,
+          "variance_analytic": 60.97565995420848,
+          "variance_rel_err": 2.3305782546468663e-16
+        },
+        {
+          "coef_max_abs_err": 7.105427357601002e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 4,
+          "max_physical_friction": 3.3344142183389773,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 3,
+          "n_basis_terms": 70,
+          "n_grid_points": 165,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.465256124573786,
+            0.48808540359472835,
+            0.4607270362169156,
+            0.39529630106451813
+          ],
+          "sobol_total_order": [
+            0.4652561245737857,
+            0.48808540359472863,
+            0.4607270362169155,
+            0.3952963010645184
+          ],
+          "variance": 60.975659954208496,
+          "variance_analytic": 60.97565995420848,
+          "variance_rel_err": 2.3305782546468663e-16
+        },
+        {
+          "coef_max_abs_err": 6.439293542825908e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": 3.8569700138728065,
+          "max_poly_order": 3,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 3,
+          "n_basis_terms": 35,
+          "n_grid_points": 494,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.465256124573786,
+            0.48808540359472835,
+            0.4607270362169156,
+            0.39529630106451813
+          ],
+          "sobol_total_order": [
+            0.46525612457378673,
+            0.48808540359472763,
+            0.4607270362169145,
+            0.39529630106451846
+          ],
+          "variance": 60.975659954208396,
+          "variance_analytic": 60.97565995420848,
+          "variance_rel_err": 1.3983469527881199e-15
+        },
+        {
+          "coef_max_abs_err": 6.439293542825908e-15,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": 3.8569700138728065,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 3,
+          "n_basis_terms": 70,
+          "n_grid_points": 494,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.465256124573786,
+            0.48808540359472835,
+            0.4607270362169156,
+            0.39529630106451813
+          ],
+          "sobol_total_order": [
+            0.46525612457378673,
+            0.48808540359472763,
+            0.4607270362169145,
+            0.39529630106451846
+          ],
+          "variance": 60.975659954208396,
+          "variance_analytic": 60.97565995420848,
+          "variance_rel_err": 1.3983469527881199e-15
+        },
+        {
+          "coef_max_abs_err": 3.6277394870873523,
+          "dim": 4,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": 2.7320508075688767,
+          "max_poly_order": 4,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 4,
+          "n_basis_terms": 70,
+          "n_grid_points": 45,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4921061610070881,
+            0.4173980037943787,
+            0.4596646490153189,
+            0.4323421225405479
+          ],
+          "sobol_total_order": [
+            0.43639415232870965,
+            0.6211138049394203,
+            0.4558751192663112,
+            0.2810191401682262
+          ],
+          "variance": 165.64085326852685,
+          "variance_analytic": 194.30667114933607,
+          "variance_rel_err": 0.1475287374913538
+        },
+        {
+          "coef_max_abs_err": 3.6277394870873523,
+          "dim": 4,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 3,
+          "max_physical_friction": 2.7320508075688767,
+          "max_poly_order": 5,
+          "min_physical_thickness": -0.7320508075688772,
+          "model_degree": 4,
+          "n_basis_terms": 126,
+          "n_grid_points": 45,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4921061610070881,
+            0.4173980037943787,
+            0.4596646490153189,
+            0.4323421225405479
+          ],
+          "sobol_total_order": [
+            0.43132908567959966,
+            0.5209338271372318,
+            0.5926769588950043,
+            0.3706550378543279
+          ],
+          "variance": 390.1035670074467,
+          "variance_analytic": 194.30667114933607,
+          "variance_rel_err": 1.0076694469621645
+        },
+        {
+          "coef_max_abs_err": 2.000416546342423,
+          "dim": 4,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 4,
+          "max_physical_friction": 3.3344142183389773,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 4,
+          "n_basis_terms": 70,
+          "n_grid_points": 165,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4921061610070881,
+            0.4173980037943787,
+            0.4596646490153189,
+            0.4323421225405479
+          ],
+          "sobol_total_order": [
+            0.5288632834095948,
+            0.4427003046618011,
+            0.43569357573603934,
+            0.5322036888170839
+          ],
+          "variance": 139.30944978384275,
+          "variance_analytic": 194.30667114933607,
+          "variance_rel_err": 0.2830434026798016
+        },
+        {
+          "coef_max_abs_err": 2.0160790534000763,
+          "dim": 4,
+          "exact": false,
+          "level_rule_ok": false,
+          "max_level": 4,
+          "max_physical_friction": 3.3344142183389773,
+          "max_poly_order": 5,
+          "min_physical_thickness": -1.3344142183389773,
+          "model_degree": 4,
+          "n_basis_terms": 126,
+          "n_grid_points": 165,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4921061610070881,
+            0.4173980037943787,
+            0.4596646490153189,
+            0.4323421225405479
+          ],
+          "sobol_total_order": [
+            0.4907179765892387,
+            0.5875296784889484,
+            0.6213790025263483,
+            0.47989964338192664
+          ],
+          "variance": 359.49951214687377,
+          "variance_analytic": 194.30667114933607,
+          "variance_rel_err": 0.8501655657029774
+        },
+        {
+          "coef_max_abs_err": 1.1046719095020308e-14,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": 3.8569700138728065,
+          "max_poly_order": 4,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 4,
+          "n_basis_terms": 70,
+          "n_grid_points": 494,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4921061610070881,
+            0.4173980037943787,
+            0.4596646490153189,
+            0.4323421225405479
+          ],
+          "sobol_total_order": [
+            0.4921061610070885,
+            0.41739800379437875,
+            0.4596646490153195,
+            0.4323421225405484
+          ],
+          "variance": 194.30667114933567,
+          "variance_analytic": 194.30667114933607,
+          "variance_rel_err": 2.0478140543092502e-15
+        },
+        {
+          "coef_max_abs_err": 1.1046719095020308e-14,
+          "dim": 4,
+          "exact": true,
+          "level_rule_ok": true,
+          "max_level": 5,
+          "max_physical_friction": 3.8569700138728065,
+          "max_poly_order": 5,
+          "min_physical_thickness": -1.8569700138728051,
+          "model_degree": 4,
+          "n_basis_terms": 126,
+          "n_grid_points": 494,
+          "n_non_finite_model_values": 0,
+          "sobol_total_analytic": [
+            0.4921061610070881,
+            0.4173980037943787,
+            0.4596646490153189,
+            0.4323421225405479
+          ],
+          "sobol_total_order": [
+            0.4921061610070885,
+            0.41739800379437875,
+            0.4596646490153195,
+            0.4323421225405484
+          ],
+          "variance": 194.30667114933567,
+          "variance_analytic": 194.30667114933607,
+          "variance_rel_err": 2.0478140543092502e-15
+        }
+      ],
+      "v3a_exact_when_level_rule_holds": true,
+      "v3b_default_config_aliased_cases": [
+        {
+          "coef_max_abs_err": 0.719740345734594,
+          "dim": 2,
+          "model_degree": 3,
+          "variance_rel_err": 0.4134792274064331
+        },
+        {
+          "coef_max_abs_err": 3.6277394870873527,
+          "dim": 4,
+          "model_degree": 3,
+          "variance_rel_err": 0.04038405296332463
+        }
+      ]
+    },
+    "V4": {
+      "band": 0.15,
+      "basis": "Saltelli et al. (2010) / Jansen (1999) -- no polynomial basis involved",
+      "converged_max_abs_dev": 0.008534289894733205,
+      "default_max_abs_dev": 0.008594197991034835,
+      "id": "V4",
+      "name": "PCE Sobol of the real Lindqvist model vs independent Saltelli/Jansen MC",
+      "pass": true,
+      "rows": [
+        {
+          "configs": {
+            "converged(5,4)": {
+              "max_physical_friction": 0.2571363755202302,
+              "mc_total_sum": 1.0192232127695888,
+              "mean": 4827.326716631597,
+              "mean_mc": 4829.236763609556,
+              "min_physical_thickness": 0.5714544979190792,
+              "n_grid_points": 494,
+              "n_non_finite_model_values": 0,
+              "sobol_first": [
+                0.22609452226705598,
+                0.6587675853607603,
+                0.08017212067695875,
+                0.01891635624925216
+              ],
+              "sobol_first_mc": [
+                0.2527378937021638,
+                0.5723254277429636,
+                0.13153319293320673,
+                -0.002478078612769467
+              ],
+              "sobol_first_sum": 0.9839505845540272,
+              "sobol_total": [
+                0.23908338209594954,
+                0.672622222070202,
+                0.08396409781528089,
+                0.02045577692419702
+              ],
+              "sobol_total_max_abs_dev": 0.006909484434956592,
+              "sobol_total_mc": [
+                0.24599286653090613,
+                0.6685914772928838,
+                0.08433843968736827,
+                0.02030042925843058
+              ],
+              "sobol_total_sum": 1.0161254789056295,
+              "std": 1117.0382817446234,
+              "std_mc": 1114.9944739105217,
+              "std_rel_err": 0.0018330205951009174
+            },
+            "default(3,3)": {
+              "max_physical_friction": 0.21495190528383287,
+              "mc_total_sum": 1.0192232127695888,
+              "mean": 4827.326615196445,
+              "mean_mc": 4829.236763609556,
+              "min_physical_thickness": 0.7401923788646685,
+              "n_grid_points": 45,
+              "n_non_finite_model_values": 0,
+              "sobol_first": [
+                0.22612945055446795,
+                0.6588321485306058,
+                0.08018127329549163,
+                0.018918214946696942
+              ],
+              "sobol_first_mc": [
+                0.2527378937021638,
+                0.5723254277429636,
+                0.13153319293320673,
+                -0.002478078612769467
+              ],
+              "sobol_first_sum": 0.9840610873272624,
+              "sobol_total": [
+                0.23901184302852105,
+                0.672580053482435,
+                0.08391710935517523,
+                0.0204299068066067
+              ],
+              "sobol_total_max_abs_dev": 0.006981023502385081,
+              "sobol_total_mc": [
+                0.24599286653090613,
+                0.6685914772928838,
+                0.08433843968736827,
+                0.02030042925843058
+              ],
+              "sobol_total_sum": 1.015938912672738,
+              "std": 1116.9845885929594,
+              "std_mc": 1114.9944739105217,
+              "std_rel_err": 0.0017848650634634563
+            }
+          },
+          "inputs": [
+            "ice_strength_MPa",
+            "ice_thickness_m",
+            "friction_coeff",
+            "ship_speed_ms"
+          ],
+          "mc_reference": {
+            "estimator": "first=Saltelli2010, total=Jansen1999",
+            "n_base": 4096,
+            "n_model_evaluations": 24576
+          },
+          "nominal": {
+            "friction_coeff": 0.15,
+            "ice_strength_MPa": 1.5,
+            "ice_thickness_m": 1.0,
+            "ship_speed_ms": 3.0,
+            "trial_mean_kN": 4800.0
+          },
+          "ship": "MV_Arctic"
+        },
+        {
+          "configs": {
+            "converged(5,4)": {
+              "max_physical_friction": 0.20570910041618418,
+              "mc_total_sum": 1.0222027715399256,
+              "mean": 1813.8263882986073,
+              "mean_mc": 1814.841310946642,
+              "min_physical_thickness": 0.45716359833526343,
+              "n_grid_points": 494,
+              "n_non_finite_model_values": 0,
+              "sobol_first": [
+                0.28223837686368475,
+                0.6367553572922895,
+                0.04027785611948328,
+                0.022092239535211423
+              ],
+              "sobol_first_mc": [
+                0.30713741256112453,
+                0.5590548508909285,
+                0.07376042622312673,
+                0.0014350732107641974
+              ],
+              "sobol_first_sum": 0.9813638298106689,
+              "sobol_total": [
+                0.29874196302068695,
+                0.6535079662552031,
+                0.04255438994292428,
+                0.023900515186725386
+              ],
+              "sobol_total_max_abs_dev": 0.008534289894733205,
+              "sobol_total_mc": [
+                0.30727625291542016,
+                0.6485573798807902,
+                0.04266822823851631,
+                0.023700910505198795
+              ],
+              "sobol_total_sum": 1.0187048344055398,
+              "std": 459.55495653949555,
+              "std_mc": 458.987516022351,
+              "std_rel_err": 0.001236287474792546
+            },
+            "default(3,3)": {
+              "max_physical_friction": 0.1719615242270663,
+              "mc_total_sum": 1.0222027715399256,
+              "mean": 1813.8262700112273,
+              "mean_mc": 1814.841310946642,
+              "min_physical_thickness": 0.5921539030917348,
+              "n_grid_points": 45,
+              "n_non_finite_model_values": 0,
+              "sobol_first": [
+                0.2822819437672902,
+                0.6368112282036476,
+                0.040282232203047205,
+                0.02209410140887745
+              ],
+              "sobol_first_mc": [
+                0.30713741256112453,
+                0.5590548508909285,
+                0.07376042622312673,
+                0.0014350732107641974
+              ],
+              "sobol_first_sum": 0.9814695055828624,
+              "sobol_total": [
+                0.2986820549243853,
+                0.6534461634973783,
+                0.04252805509125653,
+                0.023874220904117536
+              ],
+              "sobol_total_max_abs_dev": 0.008594197991034835,
+              "sobol_total_mc": [
+                0.30727625291542016,
+                0.6485573798807902,
+                0.04266822823851631,
+                0.023700910505198795
+              ],
+              "sobol_total_sum": 1.0185304944171378,
+              "std": 459.53555993343883,
+              "std_mc": 458.987516022351,
+              "std_rel_err": 0.0011940279244134638
+            }
+          },
+          "inputs": [
+            "ice_strength_MPa",
+            "ice_thickness_m",
+            "friction_coeff",
+            "ship_speed_ms"
+          ],
+          "mc_reference": {
+            "estimator": "first=Saltelli2010, total=Jansen1999",
+            "n_base": 4096,
+            "n_model_evaluations": 24576
+          },
+          "nominal": {
+            "friction_coeff": 0.12,
+            "ice_strength_MPa": 1.2,
+            "ice_thickness_m": 0.8,
+            "ship_speed_ms": 2.5,
+            "trial_mean_kN": 1800.0
+          },
+          "ship": "Polarstern"
+        },
+        {
+          "configs": {
+            "converged(5,4)": {
+              "max_physical_friction": 0.17142425034682018,
+              "mc_total_sum": 1.0221229589270187,
+              "mean": 856.5608464931695,
+              "mean_mc": 857.0434539737303,
+              "min_physical_thickness": 0.34287269875144755,
+              "n_grid_points": 494,
+              "n_non_finite_model_values": 0,
+              "sobol_first": [
+                0.28306460935409505,
+                0.6333379358231283,
+                0.044234963907918284,
+                0.020617669193248266
+              ],
+              "sobol_first_mc": [
+                0.30775503925923187,
+                0.556013560340843,
+                0.0792773135928029,
+                0.0007049542331502382
+              ],
+              "sobol_first_sum": 0.9812551782783898,
+              "sobol_total": [
+                0.29959366433879736,
+                0.6501765302379066,
+                0.04674806412990256,
+                0.022296287040347904
+              ],
+              "sobol_total_max_abs_dev": 0.008368801992762409,
+              "sobol_total_mc": [
+                0.30796246633155977,
+                0.6452036724994058,
+                0.04684445032302395,
+                0.02211236977302926
+              ],
+              "sobol_total_sum": 1.0188145457469542,
+              "std": 217.61314048767284,
+              "std_mc": 217.33393579524252,
+              "std_rel_err": 0.0012846806064072762
+            },
+            "default(3,3)": {
+              "max_physical_friction": 0.14330127018922192,
+              "mc_total_sum": 1.0221229589270187,
+              "mean": 856.5607968484583,
+              "mean_mc": 857.0434539737303,
+              "min_physical_thickness": 0.44411542731880105,
+              "n_grid_points": 45,
+              "n_non_finite_model_values": 0,
+              "sobol_first": [
+                0.2831095197956971,
+                0.63339525121371,
+                0.044239934503083694,
+                0.02061947763669421
+              ],
+              "sobol_first_mc": [
+                0.30775503925923187,
+                0.556013560340843,
+                0.0792773135928029,
+                0.0007049542331502382
+              ],
+              "sobol_first_sum": 0.981364183149185,
+              "sobol_total": [
+                0.2995321931364829,
+                0.6501133535540411,
+                0.0467167098012021,
+                0.02227356035908851
+              ],
+              "sobol_total_max_abs_dev": 0.008430273195076887,
+              "sobol_total_mc": [
+                0.30796246633155977,
+                0.6452036724994058,
+                0.04684445032302395,
+                0.02211236977302926
+              ],
+              "sobol_total_sum": 1.0186358168508147,
+              "std": 217.60361304201297,
+              "std_mc": 217.33393579524252,
+              "std_rel_err": 0.0012408427877757381
+            }
+          },
+          "inputs": [
+            "ice_strength_MPa",
+            "ice_thickness_m",
+            "friction_coeff",
+            "ship_speed_ms"
+          ],
+          "mc_reference": {
+            "estimator": "first=Saltelli2010, total=Jansen1999",
+            "n_base": 4096,
+            "n_model_evaluations": 24576
+          },
+          "nominal": {
+            "friction_coeff": 0.1,
+            "ice_strength_MPa": 1.0,
+            "ice_thickness_m": 0.6,
+            "ship_speed_ms": 2.0,
+            "trial_mean_kN": 850.0
+          },
+          "ship": "Terry_Fox"
+        }
+      ]
+    },
+    "V5": {
+      "basis": "bounds read verbatim from ice_resistance_uq.monte_carlo_reference",
+      "id": "V5",
+      "max_clip_fraction": 0.0009333333333333333,
+      "max_std_rel_bias": 0.008297860567127288,
+      "min_acceptance_rate": 0.9990583333333334,
+      "name": "Module's MC 'reference' clips Gaussian draws at hard-coded bounds (distribution mismatch)",
+      "pass": null,
+      "rows": [
+        {
+          "acceptance_rate": 0.9997333333333334,
+          "clip_fraction": 0.0003333333333333333,
+          "mean_clipped": 4836.200205922232,
+          "mean_rejection": 4835.260193006917,
+          "mean_rel_bias": 0.00019440792796941993,
+          "n_samples": 60000,
+          "ship": "MV_Arctic",
+          "std_clipped": 1121.1146946231252,
+          "std_rejection": 1112.5819424287085,
+          "std_rel_bias": 0.007669324720289871
+        },
+        {
+          "acceptance_rate": 0.99955,
+          "clip_fraction": 0.0005166666666666667,
+          "mean_clipped": 1817.6268826161447,
+          "mean_rejection": 1816.972187577369,
+          "mean_rel_bias": 0.00036032199240689866,
+          "n_samples": 60000,
+          "ship": "Polarstern",
+          "std_clipped": 461.4314045997992,
+          "std_rejection": 457.73042820696816,
+          "std_rel_bias": 0.008085493479925664
+        },
+        {
+          "acceptance_rate": 0.9990583333333334,
+          "clip_fraction": 0.0009333333333333333,
+          "mean_clipped": 858.3600068698796,
+          "mean_rejection": 858.2495117276917,
+          "mean_rel_bias": 0.0001287447772215841,
+          "n_samples": 60000,
+          "ship": "Terry_Fox",
+          "std_clipped": 218.49861514439232,
+          "std_rejection": 216.70046490180547,
+          "std_rel_bias": 0.008297860567127288
+        }
+      ]
+    }
+  }
+}
