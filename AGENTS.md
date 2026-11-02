@@ -1,6 +1,6 @@
 # Agent instructions
 
-Before making changes, read the [Tensor ecosystem vision](https://github.com/cxs503/TensorPlatform/blob/main/docs/architecture/TENSOR_ECOSYSTEM_AI_ERA_VISION.md) and this repository's [project charter](docs/architecture/TENSOR_ECOSYSTEM_AI_ERA_VISION.md). These documents define ownership boundaries; the source code and tests define what is actually implemented.
+Before making changes, read the [Tensor ecosystem vision](https://github.com/cxs503/TensorPlatform/blob/main/docs/architecture/TENSOR_ECOSYSTEM_AI_ERA_VISION.md) and this repository's [project charter](docs/PROJECT_CHARTER.md). These documents define ownership boundaries; the source code and tests define what is actually implemented.
 
 ## Required development behavior
 
