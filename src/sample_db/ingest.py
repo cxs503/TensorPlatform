@@ -11,14 +11,10 @@ CLI：
         --mission-status 811=succeeded --audit /tmp/audit.jsonl
     退出码 0 = ADMITTED(已入库) ／ 3 = REJECTED ／ 5 = 工具故障
 
-残留（需白名单扩展才能收口，见 docs/e2e1_b1/README.md）：
-    `tools/sample_db/backfill.py::backfill_file()` 仍有旧的裸入口。把它的首两行
-    改成 `from src.sample_db.ingest import ingest_file_guarded` 会形成回环，因此
-    正确收口方式是让 backfill.py 在 INSERT 前调用
-    `src.sample_db.admission.admit_sample(...)` 并对拒绝 raise。该文件在本单
-    EDIT_WHITELIST（src/, tests/, docs/, outputs/）之外，故未改；用例
-    `test_legacy_ungated_backfill_still_admits` 以 xfail(strict=True) 钉住这段
-    缺口，一旦接线会 XPASS 报错，强制同步更新台账。
+B1 收口（m2060）：`tools/sample_db/backfill.py::backfill_file()` 现已在 INSERT 前调用
+    `src.sample_db.admission.admit_sample(...)` 并对拒绝 raise `AdmissionRejected`，
+    即**裸入口本身带门**；本模块把已判过的 decision 透传下去（`decision=...`），
+    避免重复判定与重复留痕。回归用例：`test_legacy_backfill_entry_is_now_gated`。
 """
 
 from __future__ import annotations
@@ -91,7 +87,7 @@ def ingest_artifact(
     if not decision.admitted:
         raise AdmissionRejected(decision)
     backfill = load_backfill()
-    inserted = backfill.backfill_file(conn, str(Path(artifact_path).resolve()))
+    inserted = backfill.backfill_file(conn, str(Path(artifact_path).resolve()), decision=decision)
     conn.commit()
     return decision, inserted
 
