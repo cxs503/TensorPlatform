@@ -232,6 +232,76 @@ class HydrostaticsResponse(BaseModel):
     computation_time_ms: float
 
 
+
+
+# ---------------------------------------------------------------------------
+# MMG Manoeuvring model input / output
+# ---------------------------------------------------------------------------
+
+class MMGInput(BaseModel):
+    """MMG 操纵性数学模型输入。
+
+    基于日本 MMG 标准方法（Yasukawa & Yoshimura 2015），用于回转、Z 形等
+    操纵性预报。所有几何参数必须先验证 Cb/L/B 自洽性。
+
+    **Hr（舵力臂）**：舵压力中心至船舶重心的纵向距离（单位 m），
+    正号约定：舵压力中心在重心之后为正值（x_R < 0 的船体坐标系中，
+    Hr = |x_R|，即 Hr > 0 表示舵在重心后方）。
+    物理意义：Hr 决定了舵力产生的转艏力矩臂长，直接影响回转直径
+    与航向稳定性。典型取值：Hr ≈ (0.45~0.55)·Lpp。
+    """
+    # --- 船型主尺度（必须先验证 Cb/L/B 自洽） ---
+    length: float = Field(gt=0, description="垂线间长 Lpp (m)")
+    beam: float = Field(gt=0, description="型宽 B (m)")
+    draft: float = Field(gt=0, description="吃水 T (m)")
+    cb: float = Field(gt=0, le=1, description="方形系数 Cb [-]")
+    displacement: float = Field(gt=0, description="排水量 (t)")
+
+    # --- 舵参数 ---
+    Hr: float = Field(
+        gt=0,
+        description="舵力臂 (m)：舵压力中心至重心的纵向距离。"
+                    "正号约定：舵在重心后方为正。典型值 Hr ≈ (0.45~0.55)·Lpp。"
+                    "物理意义：决定舵力产生的转艏力矩臂长，直接影响回转直径与航向稳定性。"
+    )
+    Ar: float = Field(gt=0, description="舵面积 Ar (m²)")
+    rudder_angle_deg: float = Field(
+        ge=-35.0, le=35.0,
+        description="舵角 δ (deg)，正值为右舵"
+    )
+
+    # --- 推进器参数 ---
+    D_prop: float = Field(gt=0, description="螺旋桨直径 Dp (m)")
+    n_rps: float = Field(gt=0, description="螺旋桨转速 n (rps)")
+
+    # --- 航速与环境 ---
+    speed_ms: float = Field(gt=0, description="航速 U (m/s)")
+    water_density: float = Field(default=1025.0, gt=0, description="水密度 ρ (kg/m³)")
+
+
+class MMGResponse(BaseModel):
+    """MMG 操纵性计算响应。"""
+    ship_type: str = "MMG_reference"
+    length: float
+    beam: float
+    draft: float
+    cb: float
+    Hr: float
+    Ar: float
+    rudder_angle_deg: float
+    speed_ms: float
+    # 水动力结果
+    surge_force_N: float = Field(description="纵向力 X (N)")
+    sway_force_N: float = Field(description="横向力 Y (N)")
+    yaw_moment_Nm: float = Field(description="转艏力矩 N (N·m)")
+    # 无量纲系数
+    x_prime: float = Field(description="无量纲纵向力 X'")
+    y_prime: float = Field(description="无量纲横向力 Y'")
+    n_prime: float = Field(description="无量纲转艏力矩 N'")
+    # 元数据
+    method: str = "MMG standard (Yasukawa & Yoshimura 2015)"
+    computation_time_ms: float
+
 # ---------------------------------------------------------------------------
 # Resistance calculation (Holtrop-Mennen simplified for SUBOFF)
 # ---------------------------------------------------------------------------
@@ -680,6 +750,103 @@ async def calc_hydrostatics(req: HydrostaticsRequest):
         "computation_time_ms": round(elapsed_ms, 3),
     }
     return HydrostaticsResponse(**payload)
+
+
+# ---------------------------------------------------------------------------
+# MMG manoeuvring calculation
+# ---------------------------------------------------------------------------
+
+@router.post("/maneuvering/mmg", response_model=MMGResponse)
+async def calc_maneuvering_mmg(req: MMGInput):
+    """MMG 操纵性数学模型计算端点。
+
+    基于日本 MMG 标准方法（Yasukawa & Yoshimura 2015），计算给定舵角下的
+    瞬时水动力。Hr（舵力臂）为必填参数，缺失时返回 422 错误。
+
+    **Hr 物理意义**：舵压力中心至船舶重心的纵向距离（单位 m）。
+    正号约定：舵在重心后方为正（x_R < 0 的船体坐标系中 Hr = |x_R|）。
+    典型取值：Hr ≈ (0.45~0.55)·Lpp。
+    """
+    t0 = time.perf_counter()
+
+    L = req.length
+    B = req.beam
+    T = req.draft
+    Cb = req.cb
+    U = req.speed_ms
+    rho = req.water_density
+    delta = math.radians(req.rudder_angle_deg)
+
+    # 几何自洽检查
+    vol_calc = Cb * L * B * T
+    vol_disp = req.displacement / rho  # 排水量 -> 体积
+    if abs(vol_calc - vol_disp) / vol_disp > 0.05:
+        raise HTTPException(
+            status_code=400,
+            detail=f"几何不自洽：Cb·L·B·T={vol_calc:.1f} m³ vs 排水量体积={vol_disp:.1f} m³，"
+                   f"相对偏差 {abs(vol_calc-vol_disp)/vol_disp*100:.1f}% > 5%"
+        )
+
+    # 简化 MMG 力计算（使用 KVLCC2 参考系数集的缩放版本）
+    # 无量纲化参考量
+    q_lt = 0.5 * rho * L * T * U ** 2
+    q_l2t = q_lt * L
+
+    # 舵力计算（Fujii/Ogawa 升力模型）
+    aspect_ratio = req.Ar / (req.Hr ** 2) if req.Hr > 0 else 1.0
+    f_alpha = 6.13 * aspect_ratio / (aspect_ratio + 2.25)
+
+    # 简化舵力（忽略伴流和螺旋桨尾流影响，仅计算静水舵力）
+    u_R = U * 0.8  # 简化舵处流速（考虑伴流分数 w_R ≈ 0.2）
+    alpha_R = delta  # 简化有效舵角
+    F_N = 0.5 * rho * req.Ar * f_alpha * u_R ** 2 * math.sin(alpha_R)
+
+    # 舵力分量
+    t_R = 0.35  # 舵阻力减额分数（典型值）
+    a_H = 0.3   # 舵-船体干扰因子
+    x_R_over_L = -req.Hr / L  # 舵位置（负值表示在重心后）
+
+    X_R = -(1.0 - t_R) * F_N * math.sin(delta)
+    Y_R = -(1.0 + a_H) * F_N * math.cos(delta)
+    N_R = -(x_R_over_L + a_H * (-0.45)) * L * F_N * math.cos(delta)
+
+    # 船体力（简化：仅考虑直航阻力）
+    X_H = -q_lt * 0.01  # 简化阻力系数
+    Y_H = 0.0
+    N_H = 0.0
+
+    # 螺旋桨推力（简化平衡）
+    X_P = q_lt * 0.01  # 推力平衡阻力
+
+    # 合力
+    X_total = X_H + X_P + X_R
+    Y_total = Y_H + Y_R
+    N_total = N_H + N_R
+
+    # 无量纲化
+    x_prime = X_total / q_lt if q_lt > 0 else 0.0
+    y_prime = Y_total / q_lt if q_lt > 0 else 0.0
+    n_prime = N_total / q_l2t if q_l2t > 0 else 0.0
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+
+    return MMGResponse(
+        length=L,
+        beam=B,
+        draft=T,
+        cb=Cb,
+        Hr=req.Hr,
+        Ar=req.Ar,
+        rudder_angle_deg=req.rudder_angle_deg,
+        speed_ms=U,
+        surge_force_N=round(X_total, 4),
+        sway_force_N=round(Y_total, 4),
+        yaw_moment_Nm=round(N_total, 4),
+        x_prime=round(x_prime, 6),
+        y_prime=round(y_prime, 6),
+        n_prime=round(n_prime, 6),
+        computation_time_ms=round(elapsed_ms, 3),
+    )
 
 
 # ---------------------------------------------------------------------------
