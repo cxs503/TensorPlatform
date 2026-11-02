@@ -1,0 +1,118 @@
+{
+  "mission": "m1885",
+  "title": "EEDI Fuel Carbon Factor Verification",
+  "fuel_factors": [
+    {
+      "fuel": "hfo",
+      "cf_derived": 3.110785,
+      "cf_published": 3.114,
+      "rel_err_pct": 0.103237,
+      "category": "petro",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "lfo",
+      "cf_derived": 3.147426,
+      "cf_published": 3.151,
+      "rel_err_pct": 0.113431,
+      "category": "petro",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "mdo",
+      "cf_derived": 3.202387,
+      "cf_published": 3.206,
+      "rel_err_pct": 0.112706,
+      "category": "petro",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "lpg_propane",
+      "cf_derived": 2.994013,
+      "cf_published": 3.0,
+      "rel_err_pct": 0.19956,
+      "category": "chemical",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "lpg_butane",
+      "cf_derived": 3.028628,
+      "cf_published": 3.03,
+      "rel_err_pct": 0.045266,
+      "category": "chemical",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "lng",
+      "cf_derived": 2.74319,
+      "cf_published": 2.75,
+      "rel_err_pct": 0.24763,
+      "category": "chemical",
+      "pass_02pct": false,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "methanol",
+      "cf_derived": 1.373479,
+      "cf_published": 1.375,
+      "rel_err_pct": 0.11065,
+      "category": "chemical",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    },
+    {
+      "fuel": "ethanol",
+      "cf_derived": 1.910569,
+      "cf_published": 1.913,
+      "rel_err_pct": 0.127082,
+      "category": "chemical",
+      "pass_02pct": true,
+      "pass_1pct": true,
+      "pass_3pct": true
+    }
+  ],
+  "eedi_chain": [
+    {
+      "case_name": "KVLCC2_baseline",
+      "attained_independent": 3.2283,
+      "attained_module": 3.2283,
+      "rel_err_pct": 0.0,
+      "pass_001pct": true
+    },
+    {
+      "case_name": "LNG_container",
+      "attained_independent": 9.4918,
+      "attained_module": 9.4918,
+      "rel_err_pct": 0.0,
+      "pass_001pct": true
+    },
+    {
+      "case_name": "Methanol_tanker",
+      "attained_independent": 3.6879,
+      "attained_module": 3.6879,
+      "rel_err_pct": 0.0,
+      "pass_001pct": true
+    }
+  ],
+  "summary": {
+    "chem_pass": 4,
+    "chem_total": 5,
+    "petro_pass": 3,
+    "petro_total": 3,
+    "all_pass_3pct": 8,
+    "eedi_pass": 3,
+    "all_pass": false
+  }
+}
