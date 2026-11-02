@@ -367,8 +367,27 @@ def insert_sample(conn, sample):
     return cur.lastrowid
 
 
-def backfill_file(conn, filepath):
-    """Backfill all samples from one JSON file."""
+
+def _admission_decision(filepath, decision=None, mission_resolver=None, audit_log=None):
+    """门缺陷 B1 收口：INSERT 前先过 src.sample_db 的三门准入（manifest / mission / checksum）。
+
+    返回通过的 AdmissionDecision；不通过则 raise AdmissionRejected（结构化错误码 + 审计留痕），
+    一行都不 INSERT。调用方若已在别处判过（如 ``src.sample_db.ingest``），可把 ``decision``
+    传进来复用，避免重复判定与重复留痕。
+    """
+    if decision is not None:
+        return decision
+    repo_root = os.path.abspath(os.path.join(os.path.dirname(os.path.abspath(__file__)), '..', '..'))
+    if repo_root not in sys.path:
+        sys.path.insert(0, repo_root)
+    from src.sample_db.admission import admit_sample, require_admission
+    dec = admit_sample(filepath, mission_resolver=mission_resolver, audit_log=audit_log)
+    return require_admission(dec)
+
+
+def backfill_file(conn, filepath, *, decision=None, mission_resolver=None, audit_log=None):
+    """Backfill all samples from one JSON file（**带门**：未过准入的产物一律拒收）。"""
+    _admission_decision(filepath, decision, mission_resolver, audit_log)
     with open(filepath) as f:
         data = json.load(f)
 
