@@ -33,6 +33,13 @@ import pytest
 
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "backend" / "services"))
+sys.path.insert(0, str(ROOT / "tests"))
+from support.verification_aggregate import (
+    aggregate,
+    assert_all_passed,
+    coverage_gaps,
+    format_table,
+)
 
 from seakeeping import (  # noqa: E402
     SeakeepingModel,
@@ -348,25 +355,33 @@ class TestPhasingFactors:
 # Summary
 # ---------------------------------------------------------------------------
 
+CRITERIA = {
+    "V1 long-wave": ("TestLongWaveLimit",),
+    "V2 HF decay": ("TestHighFrequencyDecay",),
+    "V3 heading": ("TestHeadingDependence",),
+    "V4 speed": ("TestSpeedDependence",),
+    "V5 resonance": ("TestResonancePeak",),
+    "V6 nat.period": ("TestNaturalPeriods",),
+    "V7 spectrum": ("TestSpectralMoments",),
+    "V8 phasing": ("TestPhasingFactors",),
+}
+
+
 def test_verification_summary(kvlcc2, s175, barge):
-    """Print verification summary."""
-    print("\n" + "=" * 80)
-    print("SEAKEEPING RAO VERIFICATION SUMMARY")
-    print("=" * 80)
-    print("\nAll 8 verification criteria PASSED:")
-    print("  V1. Long-wave limit: heave/pitch RAO → 1 ✓")
-    print("  V2. High-frequency decay: RAO → 0 ✓")
-    print("  V3. Heading dependence: roll ∝ |cos β| ✓")
-    print("  V4. Speed dependence: encounter frequency shift ✓")
-    print("  V5. Resonance peak: location ~ ω_n, height ~ 1/(2ζ) ✓")
-    print("  V6. Natural periods: match analytic formulas ✓")
-    print("  V7. Spectral moments: Hs recovery < 1% ✓")
-    print("  V8. Phasing factors: correct limits ✓")
-    print("\nEvidence grade: REAL (physics verified against analytic limits)")
-    print("Accuracy: Quantitative for λ >~ L (long-wave FK); qualitative below that.")
-    print("Limitation: No tank data bundled; absolute RAO accuracy NOT validated.")
-    print("=" * 80)
+    """Aggregate V1-V8 by re-executing each criterion.
 
-
+    Previously this test printed a fixed block of text claiming "All 8
+    verification criteria PASSED" without computing anything, so it stayed
+    green even after the physics behind a criterion broke (test-surface
+    census, tools/audit/test_surface_census.py -> assertion_free).  The
+    summary is now derived from execution and fails with the offending
+    criterion named.
+    """
+    fixtures = {"kvlcc2": kvlcc2, "s175": s175, "barge": barge}
+    gaps = coverage_gaps(globals(), CRITERIA)
+    assert not gaps, f"criterion classes not aggregated by the summary: {gaps}"
+    results = aggregate(globals(), CRITERIA, fixtures)
+    print("\n" + format_table(results, "SEAKEEPING RAO VERIFICATION SUMMARY"))
+    assert_all_passed(results, CRITERIA)
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])
