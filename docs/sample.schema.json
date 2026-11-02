@@ -1,0 +1,149 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "sample.schema.json",
+  "title": "船舶总体性能样本库 Schema",
+  "description": "G-SAMPLE 样本库 JSON Schema — 覆盖阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区航行九大学科",
+  "type": "object",
+  "properties": {
+    "sample_id": {
+      "type": "string",
+      "description": "样本唯一标识，格式: SPL-{mission}-{discipline}-{seq}",
+      "pattern": "^SPL-[a-zA-Z0-9_-]+-[a-zA-Z0-9_-]+-[0-9]+$"
+    },
+    "mission_id": {
+      "type": "integer",
+      "description": "来源任务编号",
+      "minimum": 1
+    },
+    "case_id": {
+      "type": "string",
+      "description": "工况标识",
+      "minLength": 1
+    },
+    "ship_type": {
+      "type": "string",
+      "description": "船型类别",
+      "enum": [
+        "container", "tanker", "bulk_carrier", "passenger", "naval",
+        "submarine", "fishing", "tug", "barge", "yacht",
+        "research_vessel", "icebreaker", "generic"
+      ]
+    },
+    "physics_domain": {
+      "type": "string",
+      "description": "物理学科域",
+      "enum": [
+        "resistance", "propulsion", "seakeeping", "manoeuvring",
+        "stability", "structure", "vibration_noise", "green_navigation",
+        "ice_navigation"
+      ]
+    },
+    "geometry_params": {
+      "type": "object",
+      "description": "几何参数",
+      "properties": {
+        "L_pp": {"type": "number", "description": "垂线间长 (m)", "minimum": 0},
+        "B": {"type": "number", "description": "型宽 (m)", "minimum": 0},
+        "D": {"type": "number", "description": "型深 (m)", "minimum": 0},
+        "T": {"type": "number", "description": "吃水 (m)", "minimum": 0},
+        "Cb": {"type": "number", "description": "方形系数", "minimum": 0, "maximum": 1},
+        "Cm": {"type": "number", "description": "中横剖面系数", "minimum": 0, "maximum": 1},
+        "Cw": {"type": "number", "description": "水线面系数", "minimum": 0, "maximum": 1},
+        "displacement": {"type": "number", "description": "排水量 (t)", "minimum": 0},
+        "wetted_surface": {"type": "number", "description": "湿表面积 (m²)", "minimum": 0},
+        "KG": {"type": "number", "description": "重心高 (m)", "minimum": 0},
+        "depth": {"type": "number", "description": "型深/干舷参考 (m)", "minimum": 0}
+      },
+      "required": ["Cb", "L_pp", "B"],
+      "additionalProperties": true
+    },
+    "operating_condition": {
+      "type": "object",
+      "description": "工况参数",
+      "properties": {
+        "speed_ms": {"type": "number", "description": "航速 (m/s)", "minimum": 0},
+        "speed_kn": {"type": "number", "description": "航速 (kn)", "minimum": 0},
+        "Fn": {"type": "number", "description": "弗劳德数", "minimum": 0},
+        "Re": {"type": "number", "description": "雷诺数", "minimum": 0},
+        "wave_height": {"type": "number", "description": "波高 (m)", "minimum": 0},
+        "wave_period": {"type": "number", "description": "波浪周期 (s)", "minimum": 0},
+        "wave_heading": {"type": "number", "description": "浪向角 (deg)", "minimum": -180, "maximum": 180},
+        "heel_angle": {"type": "number", "description": "横倾角 (deg)", "minimum": 0, "maximum": 90},
+        "rudder_angle": {"type": "number", "description": "舵角 (deg)", "minimum": -35, "maximum": 35},
+        "ice_thickness": {"type": "number", "description": "冰厚 (m)", "minimum": 0},
+        "water_depth": {"type": "number", "description": "水深 (m)", "minimum": 0}
+      },
+      "additionalProperties": true
+    },
+    "result_metrics": {
+      "type": "object",
+      "description": "计算结果指标",
+      "properties": {
+        "Ct": {"type": "number", "description": "总阻力系数"},
+        "Cf": {"type": "number", "description": "摩擦阻力系数"},
+        "Cr": {"type": "number", "description": "剩余阻力系数"},
+        "Cw": {"type": "number", "description": "兴波阻力系数"},
+        "Rt_kN": {"type": "number", "description": "总阻力 (kN)"},
+        "PE_kW": {"type": "number", "description": "有效功率 (kW)"},
+        "KT": {"type": "number", "description": "推力系数"},
+        "KQ": {"type": "number", "description": "扭矩系数"},
+        "eta_0": {"type": "number", "description": "敞水效率"},
+        "GM": {"type": "number", "description": "初稳性高 (m)"},
+        "GZ_max": {"type": "number", "description": "最大复原力臂 (m)"},
+        "KB": {"type": "number", "description": "浮心高 (m)"},
+        "BM": {"type": "number", "description": "横稳心半径 (m)"},
+        "RAO_heave": {"type": "number", "description": "垂荡响应幅值算子"},
+        "RAO_pitch": {"type": "number", "description": "纵摇响应幅值算子"},
+        "RAO_roll": {"type": "number", "description": "横摇响应幅值算子"},
+        "turning_diameter": {"type": "number", "description": "回转直径 (m)"},
+        "stress_max": {"type": "number", "description": "最大应力 (MPa)"},
+        "natural_freq": {"type": "number", "description": "固有频率 (Hz)"},
+        "EEDI": {"type": "number", "description": "能效设计指数 (g CO₂/t·nm)"},
+        "ice_resistance_kN": {"type": "number", "description": "冰阻力 (kN)"}
+      },
+      "additionalProperties": true
+    },
+    "reference_value": {
+      "type": "object",
+      "description": "参考值（实验/文献/解析解）",
+      "properties": {
+        "source": {"type": "string", "description": "参考来源"},
+        "values": {"type": "object", "description": "参考值键值对", "additionalProperties": {"type": "number"}}
+      },
+      "required": ["source"],
+      "additionalProperties": false
+    },
+    "error_pct": {
+      "type": "object",
+      "description": "相对误差百分比",
+      "additionalProperties": {"type": "number"}
+    },
+    "validation_status": {
+      "type": "string",
+      "description": "验证状态",
+      "enum": ["PASS", "FAIL", "HONEST_FAIL", "UNKNOWN", "NOT_VALIDATED"]
+    },
+    "evidence_level": {
+      "type": "string",
+      "description": "证据等级",
+      "enum": ["REAL", "MOCK", "STUB", "WITHHELD", "NOT_SUPPORTED"]
+    },
+    "metadata": {
+      "type": "object",
+      "description": "元数据",
+      "properties": {
+        "extracted_from": {"type": "string", "description": "数据来源文件路径"},
+        "extraction_date": {"type": "string", "format": "date-time", "description": "提取时间"},
+        "notes": {"type": "string", "description": "备注"},
+        "tags": {"type": "array", "items": {"type": "string"}, "description": "标签"}
+      },
+      "additionalProperties": true
+    }
+  },
+  "required": [
+    "sample_id", "mission_id", "case_id", "ship_type",
+    "physics_domain", "geometry_params", "operating_condition",
+    "result_metrics", "validation_status"
+  ],
+  "additionalProperties": false
+}
