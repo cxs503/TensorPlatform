@@ -1,0 +1,56 @@
+{
+  "_doc": "指南 KPI 字面量台账（data 席 m1596 建）。凡无法用 SQL 从事实库复算的 KPI，必须在 values 里留痕：owner/as_of/evidence。as_of 超过 14 天未复核 → tools/guide_kpi_ledger.py 标 [STALE]。修改本文件须同时更新 as_of 与 evidence（证据指针：报告 id / 任务单号 / 工件路径）。",
+  "as_of_default": "2026-11-01",
+  "values": {
+    "tool_categories": {
+      "value": 4,
+      "target": 5,
+      "status_text": "4/5",
+      "owner": "guide_tracker（源自 owner 2026-10-31 KPI 定义）",
+      "as_of": "2026-11-01",
+      "evidence": "guide_dashboard.json KPI#2 note：CFD(LBM/FVM/SPH/DG)/FEA(FEM)/DEM、势流·切片(BEM+Lewis)、经验公式(Holtrop/ITTC/MMG)、规范(IMO) 已真实实现；缺第 5 类=优化库。唯一定量依据是各仓实现 + 审计报告（API 1134/1140/1156 等），无机器枚举表 → 台账类。",
+      "note": "升级路径：把「工具类」建成 registry（键→实现文件→验证报告 id），即可从 DB 复算，脱离台账。"
+    },
+    "gate_coverage": {
+      "value": null,
+      "target": null,
+      "status_text": "新线全接，存量单未回填",
+      "owner": "guide_tracker（owner 2026-10-31 口径）",
+      "as_of": "2026-11-01",
+      "evidence": "guide_dashboard.json KPI#7 note。定性：无「有门单/终态单」枚举字段（tensor_dev_missions 无 has_gate_predicate 列）→ 不可算比率，故不入库（metric_value 塞 0 等于说谎）。"
+    },
+    "benchmark_cases": {
+      "value": 1,
+      "target": 10,
+      "status_text": "1 完成 + 2 在飞",
+      "owner": "guide_tracker / KVLCC2@15kn 网关真算",
+      "as_of": "2026-11-01",
+      "evidence": "guide_dashboard.json KPI#9：KVLCC2@15kn 网关真算 ✅（1 例完成）；SUBOFF S0=m369 在飞；DTMB 5415=G-DTMB 单已派。计数口径=已完成独立对标算例数，在飞不计入。",
+      "note": "升级路径：benchmark registry（算例名/参考源/相对误差/报告 id）→ 可 SQL 复算。"
+    },
+    "resistance_accuracy": {
+      "value": null,
+      "target": null,
+      "status_text": "未实测",
+      "owner": "guide_tracker",
+      "as_of": "2026-11-01",
+      "evidence": "guide_dashboard.json KPI#10：SUBOFF S0 在飞（verification 档）；冰区线未开。无实测对标样本 → 比率不可算。"
+    },
+    "cycle_reduction": {
+      "value": null,
+      "target": null,
+      "status_text": "无基线",
+      "owner": "guide_tracker",
+      "as_of": "2026-11-01",
+      "evidence": "guide_dashboard.json KPI#11：需先建计时基线（P3 候选）。tensor_dev_missions 有 started_at/finished_at 但无「人工工时」对照列 → 无法算 −50%。"
+    },
+    "ip_assets": {
+      "value": 1,
+      "target": 5,
+      "status_text": "论文骨架 1",
+      "owner": "guide_tracker / 5090 线论文骨架",
+      "as_of": "2026-11-01",
+      "evidence": "guide_dashboard.json KPI#12：5090 线 arXiv 骨架在写；标准/专利/软著未启动。计数口径=已立项件数。"
+    }
+  }
+}
