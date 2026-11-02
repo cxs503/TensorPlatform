@@ -332,9 +332,10 @@ class SeakeepingModel:
         speed: float = 0.0,
     ) -> Dict[str, List[float]]:
         """RAO curves over a frequency grid (per unit wave amplitude / wave slope)."""
-        out: Dict[str, List[float]] = {
+        out: Dict[str, List[object]] = {
             "omega": [],
             "omega_e": [],
+            "encounter_valid": [],
             "heave_rao_m_per_m": [],
             "pitch_rao_deg_per_m": [],
             "pitch_rao_rad_per_rad": [],
@@ -345,6 +346,7 @@ class SeakeepingModel:
             row = self.rao_at(w, heading_deg=heading_deg, speed=speed)
             out["omega"].append(w)
             out["omega_e"].append(row["omega_e"])
+            out["encounter_valid"].append(bool(row["encounter_valid"]))
             out["heave_rao_m_per_m"].append(row["heave_rao_m_per_m"])
             out["pitch_rao_deg_per_m"].append(row["pitch_rao_deg_per_m"])
             out["pitch_rao_rad_per_rad"].append(row["pitch_rao_rad_per_rad"])
@@ -491,18 +493,54 @@ def response_statistics(
     spec: Dict[str, object],
     heading_deg: float = 180.0,
     speed: float = 0.0,
-) -> Dict[str, float]:
-    """Spectral moments of the response: sigma = sqrt(int RAO^2 S dw), significant = 2 sigma."""
+    mask_invalid: bool = False,
+) -> Dict[str, object]:
+    """Spectral moments of the response: sigma = sqrt(int RAO^2 S dw), significant = 2 sigma.
+
+    Encounter-frequency integrity
+    ----------------------------
+    In following seas the encounter frequency ``omega_e = omega - k*U*cos(beta)`` turns
+    non-positive above the cut-off ``omega >= g / (U cos beta)`` (the ship overtakes the
+    waves). Inside that band the SDOF transfer is evaluated at a non-positive argument
+    and the response has no physical meaning; it is *not* an error to have some of the
+    sea there, but the resulting moments must not be reported as if they were sound.
+    Every call therefore returns
+
+    * ``encounter_invalid``                   - True when the grid enters the band,
+    * ``omega_e_first_invalid_rad_s``         - first grid frequency with omega_e <= 0,
+    * ``encounter_invalid_energy_fraction``   - share of the incident m0 in the band,
+    * ``mask_invalid_band``                   - whether the band was excluded from sigma.
+
+    With ``mask_invalid=True`` the band is zeroed before integrating the response, so
+    ``sigma_*``/``significant_*`` cover only the physically defined part of the sea.
+    The default (``False``) reproduces the historical numbers exactly.
+    """
     omegas = spec["omega"]
     S = spec["S"]
     curve = model.rao_curve(omegas, heading_deg=heading_deg, speed=speed)
-    out: Dict[str, float] = {}
+    valid = curve.get("encounter_valid") or [True] * len(omegas)
+    invalid = [not ok for ok in valid]
+
+    m0_incident = _integrate(S, omegas)
+    m0_invalid = _integrate([0.0 if not bad else s for s, bad in zip(S, invalid)], omegas)
+    frac_invalid = (m0_invalid / m0_incident) if m0_incident > 0 else 0.0
+    S_eff = [0.0 if (mask_invalid and bad) else s for s, bad in zip(S, invalid)]
+
+    out: Dict[str, object] = {
+        "mask_invalid_band": bool(mask_invalid),
+        "encounter_invalid": any(invalid),
+        "omega_e_first_invalid_rad_s": next(
+            (w for w, bad in zip(omegas, invalid) if bad), float("nan")
+        ),
+        "encounter_invalid_energy_fraction": frac_invalid,
+        "m0_incident_m2": m0_incident,
+    }
     for key, name, scale in (
         ("heave_rao_m_per_m", "heave", 1.0),
         ("pitch_rao_rad_per_rad", "pitch", 180.0 / math.pi),
         ("roll_rao_rad_per_rad", "roll", 180.0 / math.pi),
     ):
-        dens = [r * r * s for r, s in zip(curve[key], S)]
+        dens = [r * r * s for r, s in zip(curve[key], S_eff)]
         m0 = _integrate(dens, omegas)
         m2 = _integrate([d * w * w for d, w in zip(dens, omegas)], omegas)
         sigma = math.sqrt(max(m0, 0.0))
@@ -512,7 +550,7 @@ def response_statistics(
     # vertical acceleration at the centre of gravity (linear, small-angle)
     dens_acc = [
         (w_e ** 4) * (r * r) * s
-        for w_e, r, s in zip(curve["omega_e"], curve["heave_rao_m_per_m"], S)
+        for w_e, r, s in zip(curve["omega_e"], curve["heave_rao_m_per_m"], S_eff)
     ]
     out["sigma_vertical_acc_m_s2"] = math.sqrt(max(_integrate(dens_acc, omegas), 0.0))
     return out
