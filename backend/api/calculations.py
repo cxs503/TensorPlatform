@@ -108,7 +108,7 @@ class ResistanceResponse(BaseModel):
     total_resistance_coefficient: float = 0.0
     method: str = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
     model_id: str = "suboff_axisymmetric_empirical_v1"
-    validity_status: str = "outside_empirical_envelope"
+    validity_status: str = "unvalidated_empirical_estimate"
     validity_notes: List[str] = Field(default_factory=list)
     computation_time_ms: float
 
