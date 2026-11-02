@@ -202,3 +202,81 @@ python3 generate_benchmark_figure.py
 2. ITTC (2010). "Verification and Validation Workshop for CFD in Ship Hydrodynamics"
 3. SIMMAN (2008). "Workshop on Verification and Validation of Ship Manoeuvring Simulation Methods"
 4. Holtrop, J. & Mennen, G.G.J. (1984). "An Approximate Power Prediction Method", ISSC
+
+---
+
+# 附录：m1608 简化 Holtrop 全案例验证（honest-FAIL 存档）
+
+## 阻力计算基准验证报告（m1608 简化 Holtrop 版）
+
+## 1. 案例介绍
+
+平台 `backend/api/calculations.py` 中的阻力计算采用简化 Holtrop-Mennen 公式。
+本验证对标 3 型船 12 工况实验数据（SUBOFF/DTMB-5415/KVLCC2）。
+
+| 船型 | L(m) | B(m) | Cb | 来源 |
+|------|------|------|-----|------|
+| SUBOFF | 4.356 | 0.508 | 0.542 | Roddy 1990 |
+| DTMB-5415 | 5.720 | 0.759 | 0.508 | ITTC V&V 2010 |
+| KVLCC2 | 320.0 | 58.0 | 0.810 | SIMMAN 2008 |
+
+## 2. 方法
+
+- S = pi*B*L*(0.5+0.25*Cb), Cf = 0.075/(log10(Re)-2)^2, Cr = 0.002*(1+2*Cb)*Fn^2.5
+- Ct = Cf + Cr, error = |Ct_calc - Ct_exp|/Ct_exp * 100%
+- 阈值: 15%
+
+## 3. 计算结果
+
+| 工况 | 船型 | Fr | Ct_calc | Ct_exp | 误差% | 判定 |
+|------|------|-----|---------|--------|-------|------|
+| SUBOFF-01 | SUBOFF | 0.459 | 0.003462 | 0.0038 | 8.9% | PASS |
+| SUBOFF-02 | SUBOFF | 0.612 | 0.003953 | 0.0040 | 1.2% | PASS |
+| SUBOFF-03 | SUBOFF | 0.765 | 0.004766 | 0.0042 | 13.5% | PASS |
+| SUBOFF-04 | SUBOFF | 0.918 | 0.005921 | 0.0044 | 34.6% | FAIL |
+| DTMB5415-01 | DTMB-5415 | 0.343 | 0.003089 | 0.0045 | 31.4% | FAIL |
+| DTMB5415-02 | DTMB-5415 | 0.687 | 0.004085 | 0.0038 | 7.5% | PASS |
+| DTMB5415-03 | DTMB-5415 | 1.374 | 0.011169 | 0.0035 | 219.1% | FAIL |
+| DTMB5415-04 | DTMB-5415 | 2.060 | 0.026688 | 0.0038 | 602.3% | FAIL |
+| KVLCC2-01 | KVLCC2 | 0.129 | 0.001415 | 0.0028 | 49.5% | FAIL |
+| KVLCC2-02 | KVLCC2 | 0.138 | 0.001410 | 0.0030 | 53.0% | FAIL |
+| KVLCC2-03 | KVLCC2 | 0.142 | 0.001408 | 0.0031 | 54.6% | FAIL |
+| KVLCC2-04 | KVLCC2 | 0.147 | 0.001406 | 0.0032 | 56.1% | FAIL |
+
+**汇总**: 4/12 pass, 通过率 33.3%, 平均误差 94.3%
+
+## 4. 结果图
+
+(见 figures 字段)
+
+## 5. 注意点
+
+- SUBOFF: Fr<0.8 可用, Fr>0.9 误差 34.6% FAIL
+- DTMB-5415: 仅 1/4 通过, 高 Fr 时 Cr~Fn^2.5 爆炸
+- KVLCC2: 0/4 通过, 湿表面积公式 S=pi*B*L*(0.5+0.25*Cb) 严重低估肥大船型
+- 建议: 引入完整 Holtrop-Mennen 或 CFD
+
+## 6. 误差判定
+
+| 工况 | 误差% | 是否<15% |
+|------|-------|---------|
+| SUBOFF-01 | 8.9% | 是 |
+| SUBOFF-02 | 1.2% | 是 |
+| SUBOFF-03 | 13.5% | 是 |
+| SUBOFF-04 | 34.6% | 否 |
+| DTMB5415-01 | 31.4% | 否 |
+| DTMB5415-02 | 7.5% | 是 |
+| DTMB5415-03 | 219.1% | 否 |
+| DTMB5415-04 | 602.3% | 否 |
+| KVLCC2-01 | 49.5% | 否 |
+| KVLCC2-02 | 53.0% | 否 |
+| KVLCC2-03 | 54.6% | 否 |
+| KVLCC2-04 | 56.1% | 否 |
+
+**结论**: 33.3% 通过率。简化公式不满足工程精度，需算法升级。Honest-FAIL 如实报告。
+
+## 7. canon v3.0 复核（合并解冲时重跑）
+
+正典 v3.0 对 DTMB5415-01/03 的速度重裁定（speed_basis）使两工况转入 15% 带内：
+6/12 pass（50.0%），KVLCC2 仍 0/4 全败，SUBOFF-04 高 Fr 仍 34.6% 败。
+honest-FAIL 结论维持：简化公式不满足肥大船型工程精度。上表为原始跑批存档（旧速度数据）。
