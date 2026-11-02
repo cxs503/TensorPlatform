@@ -1,6 +1,7 @@
 """样本库入库三门准入（门缺陷 B1 修复）。
 
-攻击面：`tools/sample_db/backfill.py::backfill_file()`（samples 表批量入库）。
+攻击面：`tools/sample_db/backfill.py::backfill_file()`（samples 表批量入库）——
+m2060 起该入口已接线到本模块的 `admit_sample()`，未过三门即抛 `AdmissionRejected`。
 历史行为：只做字段抽取 + INSERT，全程不读 RunManifest、不复算哈希、不看来源
 mission 终态。m810 实测（`B1_sample_db_unverified_ingest`）：一个伪造
 `verdict="PASS"` 且 τ=0.4（ν<0 非物理）的裸 JSON 入库成功 1 行 → 判决 FAIL。

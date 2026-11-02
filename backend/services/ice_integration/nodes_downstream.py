@@ -12,6 +12,13 @@ from .reference_nodes import G, STEEL, NodeResult, slosh_pendulum_length
 # N03 滚-液晃 2-DOF 耦合 (Lagrange) + 稳性 (GZ 数值积分 + IMO IS 2008)
 # ===========================================================================
 def two_dof_eigen(I: float, C: float, m: float, l: float) -> Dict[str, float]:
+    """.. warning:: 已知缺口（VERIFICATION DEBT D2，见 docs/verification_debt/sloshing_fsc/D2）。
+
+    本函数的 K 阵只耦合 φ 方程，故根恒等于 ``sqrt(C/I)`` 与 ``sqrt(g/l)``（解耦）；
+    与 ``simulate_2dof`` 的单摆方程缺少船体横摇加速度激励项（``(l+z_p)φ̈``）是同一缺陷的
+    两个表现。静态液晃反作用力矩因此恒为 0，而解析恒等式要求 ``ρ_l g i_FS φ``。
+    量化与正确的耦合系统见 ``tools/audit/sloshing_fsc_audit.py``。
+    """
     """2-DOF (滚 + 单摆等效液晃) 本征值: det(K - w^2 M) = 0.
 
     M = [[I, m l^2], [m l^2, m l^2]], K = [[C, 0], [0, m g l]].
@@ -339,7 +346,10 @@ def run_node03(
     phis = list(np.arange(0.0, 61.0, 2.5))
     curve = gz_curve(p["beam"], p["draft"], p["kg_height"], phis)
     i_free = p["tank_length"] * p["tank_width"] ** 3 / 12.0
-    displacement_volume = p["ship_mass"] / 1.025          # 海水密度取 1.025 t/m^3
+    # ship_mass 以 kg 计：先 kg -> t（/1000）再除以海水密度 1.025 t/m^3 得 m^3。
+    # 旧式 ``ship_mass / 1.025`` 把 kg 直接当 t，∇ 虚高 1000 倍，使 GG0 低报 1000 倍
+    # （tools/audit/sloshing_fsc_audit.py 的 A2 判据；默认工况 0.000627 m vs 0.6267 m）。
+    displacement_volume = p["ship_mass"] / 1000.0 / 1.025
     fsc = p["liquid_density"] * i_free / (1025.0 * displacement_volume)
     gm_corr = curve["GM0"] - fsc
     imo = imo_criteria(curve, gm_corr)
