@@ -37,7 +37,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
-from services.ship_resistance import resistance_breakdown
+from services.ship_resistance import resistance_breakdown, wetted_surface_axisym
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -49,8 +49,6 @@ from services.ship_hydrostatics import (
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
 
 #: 阻力模型的来源标签，随响应下发，便于对标链记录"哪个模型给的数"。
-RESISTANCE_METHOD = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
-
 # Conservative upper heel limit of the wall-sided identity when neither the hull
 # geometry (beam/draft/depth) nor an explicit caller limit is supplied.
 DEFAULT_WALL_SIDED_LIMIT_DEG = 25.0
@@ -310,16 +308,13 @@ class MMGResponse(BaseModel):
 # ---------------------------------------------------------------------------
 
 def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
-    """Legacy wetted-surface estimate for an axisymmetric body.
+    """Backward-compatible alias for the shared axisymmetric surface estimate.
 
-    Kept for backward compatibility. Measured bias against closed-form shapes
-    (``tools/verif/verify_ship_calcs.py``):
-        cylinder (Cb = pi/4)        : -30.4 %
-        prolate spheroid (b/a=0.25) : -8.7 %
-    Prefer passing ``wetted_surface_m2`` when the geometry has been validated.
+    The bias against analytic shapes is documented in
+    tools/verif/verify_ship_calcs.py. This helper remains for older verification
+    scripts; the API endpoint itself calls the canonical pure-function kernel.
     """
-    return math.pi * beam * length * (0.5 + 0.25 * cb)
-
+    return wetted_surface_axisym(beam, length, cb)
 
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
