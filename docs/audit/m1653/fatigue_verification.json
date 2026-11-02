@@ -1,0 +1,263 @@
+{
+  "mission": 1653,
+  "module": "backend/services/digital_twin/models/fatigue.py",
+  "astm_canonical": {
+    "n_full_cycles": 3.0,
+    "n_half_cycles": 2.0,
+    "n_cycle_equivalents": 4.0,
+    "full_ranges_MPa": [
+      3.0,
+      4.0,
+      8.0
+    ],
+    "half_ranges_MPa": [
+      8.0,
+      6.0
+    ],
+    "damage_astm": 8.00182677964687e-11,
+    "damage_full_weighted": 1.0988790384283499e-10,
+    "bias_before_fix_pct": 37.32852118511426,
+    "damage_module": 8.00182677964687e-11,
+    "rel_err_module_vs_astm": 0.0
+  },
+  "analytic_families": {
+    "n3": {
+      "expand_full_cycles": 3.0,
+      "expand_expected": 3,
+      "expand_damage_rel_err": 0.0,
+      "contract_full_cycles": 1.0,
+      "contract_half_cycles": 5.0,
+      "contract_half_expected": 5,
+      "contract_damage_rel_err": 0.0
+    },
+    "n5": {
+      "expand_full_cycles": 5.0,
+      "expand_expected": 5,
+      "expand_damage_rel_err": 0.0,
+      "contract_full_cycles": 1.0,
+      "contract_half_cycles": 9.0,
+      "contract_half_expected": 9,
+      "contract_damage_rel_err": 0.0
+    },
+    "n9": {
+      "expand_full_cycles": 9.0,
+      "expand_expected": 9,
+      "expand_damage_rel_err": 0.0,
+      "contract_full_cycles": 1.0,
+      "contract_half_cycles": 17.0,
+      "contract_half_expected": 17,
+      "contract_damage_rel_err": 0.0
+    },
+    "n15": {
+      "expand_full_cycles": 15.0,
+      "expand_expected": 15,
+      "expand_damage_rel_err": 0.0,
+      "contract_full_cycles": 1.0,
+      "contract_half_cycles": 29.0,
+      "contract_half_expected": 29,
+      "contract_damage_rel_err": 0.0
+    }
+  },
+  "sine": {
+    "periods50_amp10.0": {
+      "cycles_counted": 50.5,
+      "cycles_exact": 50,
+      "damage": 2.3124600927863854e-07,
+      "damage_exact": 2.35750876451194e-07,
+      "rel_err_pct": 1.9108591409576663
+    },
+    "periods120_amp6.0": {
+      "cycles_counted": 120.5,
+      "cycles_exact": 120,
+      "damage": 4.364647309548966e-08,
+      "damage_exact": 4.399677156682763e-08,
+      "rel_err_pct": 0.7961913087324941
+    },
+    "periods400_amp3.0": {
+      "cycles_counted": 400.5,
+      "cycles_exact": 400,
+      "damage": 4.572050210981914e-09,
+      "damage_exact": 4.582997038211211e-09,
+      "rel_err_pct": 0.23885739261941888
+    }
+  },
+  "block": {
+    "damage": 2.9468859556399246e-10,
+    "exact": 2.9468859556399246e-10,
+    "rel_err": 0.0
+  },
+  "sn_curve": {
+    "S_knee_MPa": 36.841163153163166,
+    "N_at_knee": 10000000.000000007,
+    "N_at_100MPa": 500034.5349769783,
+    "N_at_50MPa": 4000276.2798158266,
+    "N_100_reference": 500000.0,
+    "N_100_rel_err": 6.906995395664126e-05
+  },
+  "rayleigh": {
+    "sigma3.0": {
+      "closed_form": 2.1539752152381242e-10,
+      "numeric_integral": 2.1539752148094758e-10,
+      "pdf_integral": 0.9999999999916401,
+      "rel_err": 1.990033826290487e-10
+    },
+    "sigma5.0": {
+      "closed_form": 2.745289408868505e-09,
+      "numeric_integral": 2.7452852492442537e-09,
+      "pdf_integral": 0.999999999991649,
+      "rel_err": 1.5151883587338605e-06
+    },
+    "sigma12.0": {
+      "closed_form": 9.67267043776452e-08,
+      "numeric_integral": 9.672623183570148e-08,
+      "pdf_integral": 0.9999999999916531,
+      "rel_err": 4.8853546214609175e-06
+    },
+    "sigma30.0": {
+      "closed_form": 1.622241201965984e-06,
+      "numeric_integral": 1.6222406934546073e-06,
+      "pdf_integral": 0.999999999991654,
+      "rel_err": 3.134623480107373e-07
+    },
+    "sigma60.0": {
+      "closed_form": 1.2992938810443043e-05,
+      "numeric_integral": 1.2992938517568326e-05,
+      "pdf_integral": 0.9999999999916539,
+      "rel_err": 2.254106843634635e-08
+    }
+  },
+  "spectra": {
+    "narrow_mono (Hs5,Tp8)": {
+      "bandwidth_eps": 0.6831184574791008,
+      "lambda_WL": 0.8375010530213354,
+      "damage_rainflow": 0.00017676112540191354,
+      "damage_narrowband": 0.00019461085138128877,
+      "damage_wideband": 0.00016298679296120795,
+      "ratio_narrowband": 1.1009821924294108,
+      "ratio_wideband": 0.92207374551737,
+      "err_narrowband_pct": 10.098219242941076,
+      "err_wideband_pct": -7.792625448263002,
+      "n_full_cycles": 4774.0,
+      "n_half_cycles": 3.0
+    },
+    "broad_mono (Hs5,Tp4)": {
+      "bandwidth_eps": 0.42069550688067336,
+      "lambda_WL": 0.8727101996138497,
+      "damage_rainflow": 0.0003503589985448302,
+      "damage_narrowband": 0.00035585950453712143,
+      "damage_wideband": 0.0003105622192390769,
+      "ratio_narrowband": 1.015699628138957,
+      "ratio_wideband": 0.886411425220862,
+      "err_narrowband_pct": 1.5699628138956978,
+      "err_wideband_pct": -11.358857477913798,
+      "n_full_cycles": 7593.0,
+      "n_half_cycles": 18.0
+    },
+    "bimodal sep3 50/50 (Hs5-8 + Hs2-12)": {
+      "bandwidth_eps": 0.6966615744262424,
+      "lambda_WL": 0.8364402864692274,
+      "damage_rainflow": 0.00016591954387644184,
+      "damage_narrowband": 0.000187195523960289,
+      "damage_wideband": 0.00015657787768710125,
+      "ratio_narrowband": 1.1282307049957363,
+      "ratio_wideband": 0.9436976140900121,
+      "err_narrowband_pct": 12.82307049957363,
+      "err_wideband_pct": -5.630238590998793,
+      "n_full_cycles": 4698.0,
+      "n_half_cycles": 5.0
+    },
+    "bimodal sep3 90/10 (Hs5-8 + Hs1.6-12)": {
+      "bandwidth_eps": 0.69165513949749,
+      "lambda_WL": 0.8368246618568385,
+      "damage_rainflow": 0.00016875905932378272,
+      "damage_narrowband": 0.0001896446581805059,
+      "damage_wideband": 0.00015869932695485758,
+      "ratio_narrowband": 1.1237598677096907,
+      "ratio_wideband": 0.9403899713044475,
+      "err_narrowband_pct": 12.375986770969071,
+      "err_wideband_pct": -5.961002869555254,
+      "n_full_cycles": 4721.0,
+      "n_half_cycles": 5.0
+    },
+    "bimodal close (Hs5-6 + Hs3-9)": {
+      "bandwidth_eps": 0.6520520697682112,
+      "lambda_WL": 0.8401903968716727,
+      "damage_rainflow": 0.00021922668810045004,
+      "damage_narrowband": 0.00023480226299064623,
+      "damage_wideband": 0.00019727860652847795,
+      "ratio_narrowband": 1.0710478045586285,
+      "ratio_wideband": 0.899884079980648,
+      "err_narrowband_pct": 7.104780455862847,
+      "err_wideband_pct": -10.011592001935199,
+      "n_full_cycles": 5881.0,
+      "n_half_cycles": 7.0
+    }
+  },
+  "module_reference_record": {
+    "damage_rainflow": 0.00017915215277554354,
+    "damage_spectral_narrowband": 0.00018027433203913028,
+    "damage_spectral_wl": 0.0001532412229133303,
+    "ratio_narrowband": 1.0062638335414964,
+    "ratio_wl": 0.855369140360392,
+    "rel_error_wl": 0.14463085963960798,
+    "bandwidth_eps": 0.562574942339658,
+    "wideband_factor": 0.8500446024676869,
+    "nu0_Hz": 0.1442002701630234,
+    "n_cycles_rainflow": 4389.0
+  },
+  "twin": {
+    "Hs2.0": {
+      "damage_wave_reported": 2.6705847311039653e-07,
+      "damage_wave_wideband": 2.2399921931449284e-07,
+      "ratio_reported_over_wl": 1.1922294815476517,
+      "life_years": 10251.87763280714,
+      "life_years_wl": 12222.590755051626,
+      "bandwidth_eps": 0.668,
+      "wideband_factor": 0.8387646971301904,
+      "sigma_rms_MPa": 1.819214932950921
+    },
+    "Hs4.0": {
+      "damage_wave_reported": 0.00023275741453064486,
+      "damage_wave_wideband": 0.00019522870230360252,
+      "ratio_reported_over_wl": 1.1922294815476517,
+      "life_years": 11.762679150964859,
+      "life_years_wl": 14.023812865766205,
+      "bandwidth_eps": 0.668,
+      "wideband_factor": 0.8387646971301904,
+      "sigma_rms_MPa": 7.276859731803684
+    },
+    "Hs6.0": {
+      "damage_wave_reported": 0.003914468307837545,
+      "damage_wave_wideband": 0.0032833178246490877,
+      "ratio_reported_over_wl": 1.1922294815476517,
+      "life_years": 0.6994183045626857,
+      "life_years_wl": 0.8338671226337083,
+      "bandwidth_eps": 0.668,
+      "wideband_factor": 0.8387646971301904,
+      "sigma_rms_MPa": 16.37293439655829
+    },
+    "Hs8.0": {
+      "damage_wave_reported": 0.022399305786407732,
+      "damage_wave_wideband": 0.018787746933862804,
+      "ratio_reported_over_wl": 1.1922294815476515,
+      "life_years": 0.12222926965859246,
+      "life_years_wl": 0.1457253387950118,
+      "bandwidth_eps": 0.668,
+      "wideband_factor": 0.8387646971301904,
+      "sigma_rms_MPa": 29.107438927214737
+    }
+  },
+  "twin_ice": {
+    "damage_wave": 0.00023275741453064486,
+    "damage_ice": 8.536945637583808e-08,
+    "damage_total": 0.0002328427839870207,
+    "ice_cycles": 2986.647552,
+    "ice_share_pct": 0.036663990575115615
+  },
+  "figures": [
+    "fig1_astm_cycles.png",
+    "fig2_spectra_ratio.png",
+    "fig3_sn_rayleigh.png",
+    "fig4_twin_damage.png"
+  ]
+}

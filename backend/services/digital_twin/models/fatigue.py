@@ -17,9 +17,16 @@ Physics chain
 
        D = (nu0 * T_sec / a) * (2 sqrt(2) sigma_rms)^m * Gamma(1 + m/2)
 
-   corrected for spectral width with the Wirsching-Light factor, and validated
-   in the test-suite against rain-flow counting of a synthesised bimodal stress
-   record (the correction reduces the narrow-band over-prediction to a few %).
+   compared in the test-suite against rain-flow counting (ASTM E1049-85) of a
+   synthesised bimodal stress record.  Measured 2026-11-01 on four spectra with
+   known PSD (see ``docs/audit/m1653_fatigue_astm_verification.md``): the
+   narrow-band value is +0.9 % .. +12 % above rain-flow (conservative, inside
+   the platform's 15 % bar) while the Wirsching-Light factor overshoots to
+   -6 % .. -12 % (and -16 % on the default reference record) because the
+   spectral-moment bandwidth ``eps`` over-states the damage-relevant width of a
+   bimodal sea state.  The recognised damage is therefore the narrow-band value
+   and the Wirsching-Light result is reported as the diagnostic
+   ``damage_wave_wideband`` (``apply_wideband=True`` restores the old path).
 
 4. Ice-induced cycling is added through an encounter-rate model (number of
    load cycles per hour proportional to concentration, thickness and speed with
@@ -133,6 +140,7 @@ def spectral_fatigue(
     ice_thickness: float = 0.6,
     exposure_s: float = 86400.0,
     sigma_rms_mpa: float | None = None,
+    apply_wideband: bool = False,
 ) -> Dict[str, float]:
     """Damage accumulated during ``exposure_s`` seconds of the given condition."""
     Hs = max(float(Hs), 0.0)
@@ -145,7 +153,12 @@ def spectral_fatigue(
     lam = wirsching_light_factor(SN_M, eps)
     mom = rayleigh_bilinear_moment(sigma_proc)
     d_nb = nu0 * exposure_s * (mom["inv_life_m3"] + mom["inv_life_m5"])
-    d_wave = d_nb * lam
+    d_nb_wl = d_nb * lam
+    # Verified 2026-11-01 (m1653): narrow-band is +0.9..+12 % vs rain-flow while
+    # the Wirsching-Light factor overshoots to -6..-16 %; the conservative
+    # narrow-band value is reported (DNV-RP-C203 practice) and WL stays a
+    # diagnostic unless apply_wideband=True.
+    d_wave = d_nb_wl if apply_wideband else d_nb
 
     # ice-induced cycling (encounter-rate model)
     V = max(U_knots, 0.0) * 0.5144
@@ -165,6 +178,9 @@ def spectral_fatigue(
         "wideband_factor": float(lam),
         "damage_narrowband": float(d_nb),
         "damage_wave": float(d_wave),
+        "damage_wave_narrowband": float(d_nb),
+        "damage_wave_wideband": float(d_nb_wl),
+        "wideband_applied": 1.0 if apply_wideband else 0.0,
         "damage_ice": float(d_ice),
         "damage_total": float(damage),
         "damage_per_day": float(per_day),
@@ -179,16 +195,25 @@ def spectral_fatigue(
 # ---------------------------------------------------------------------------
 
 def rainflow_damage(stress_mpa: np.ndarray) -> Dict[str, float]:
-    """ASTM E1049 three-point rain-flow damage of a stress *range* record."""
+    """ASTM E1049-85 rain-flow cycle counting + Palmgren-Miner damage.
+
+    Three-point rule (ASTM E1049-85 §5.4, identical to BS 5400 Annex A):
+    turning points are pushed onto a stack; when the newest range
+    ``r2 = |z-y|`` is not smaller than the preceding range ``r1 = |y-x|`` the
+    pair ``x, y`` has been fully unloaded by the subsequent excursion and hence
+    forms a *closed* cycle of range ``r1``.  Turning points still on the stack
+    at the end are *residues* which, per ASTM E1049-85 §5.4.4, count as **half**
+    cycles (weight 0.5 in the Miner sum), not as full cycles.
+    """
     s = np.asarray(stress_mpa, dtype=float)
-    # extract local extrema
+    # extract local extrema (turning points)
     ext = [s[0]]
     for i in range(1, len(s) - 1):
         if (s[i] - s[i - 1]) * (s[i + 1] - s[i]) < 0:
             ext.append(s[i])
     ext.append(s[-1])
     stack: list[float] = []
-    ranges: list[float] = []
+    full: list[float] = []
     for x in ext:
         stack.append(x)
         while len(stack) >= 3:
@@ -196,18 +221,23 @@ def rainflow_damage(stress_mpa: np.ndarray) -> Dict[str, float]:
             r2 = abs(stack[-1] - stack[-2])
             if r2 < r1:
                 break
-            ranges.append(r1)
+            full.append(r1)
             stack.pop(-3)                       # remove the two interior points
             stack.pop(-2)
-    # residual half-cycles
-    for i in range(len(stack) - 1):
-        ranges.append(abs(stack[i + 1] - stack[i]))
-    ranges = np.asarray(ranges, dtype=float)
-    if ranges.size == 0:
-        return {"damage": 0.0, "n_cycles": 0.0, "max_range_MPa": 0.0}
-    n = np.array([sn_cycles(r) for r in ranges])
-    return {"damage": float(np.sum(1.0 / n)), "n_cycles": float(ranges.size),
-            "max_range_MPa": float(ranges.max()),
+    half = [abs(stack[i + 1] - stack[i]) for i in range(len(stack) - 1)]
+    if not full and not half:
+        return {"damage": 0.0, "n_cycles": 0.0, "n_full_cycles": 0.0,
+                "n_half_cycles": 0.0, "max_range_MPa": 0.0,
+                "max_full_range_MPa": 0.0, "rms_MPa": float(np.std(stress_mpa))}
+    dmg = sum(1.0 / sn_cycles(r) for r in full)
+    dmg += 0.5 * sum(1.0 / sn_cycles(r) for r in half)     # ASTM half cycles
+    allr = np.asarray(full + half, dtype=float)
+    return {"damage": float(dmg),
+            "n_cycles": float(len(full) + 0.5 * len(half)),
+            "n_full_cycles": float(len(full)),
+            "n_half_cycles": float(len(half)),
+            "max_range_MPa": float(allr.max()),
+            "max_full_range_MPa": float(max(full)) if full else 0.0,
             "rms_MPa": float(np.std(stress_mpa))}
 
 
