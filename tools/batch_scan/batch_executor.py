@@ -156,6 +156,50 @@ class ShipCalculationEngine:
             "model": "surrogate_box_hydrostatics_v0",
         }
 
+    # ── 敞水性能：BEM（叶元 + 动量）真实模型，src: services/propeller_open_water.py ──
+    #
+    # 历史（m1393 / m1413 判据 J1–J7）：此处曾是硬编码线性代理
+    #   KT = max(0.05, 0.5 - 0.3 J), KQ = max(0.01, 0.05 + 0.02 J), eta0 = clip(..., 0.3, 0.85)
+    # 三项反物理特征：KQ 随 J **上升**、η0 被 0.85 钳位饱和、K_T/K_Q 与 P/D、Z、Ae/A0
+    # 完全无关，且 K_Q/K_T ≡ 0.1 恒定。该代理已于 m1393 被真实模型取代，但**接线未落地**，
+    # 批量链路仍在调用代理。本方法改为调用 BEM 模型，并**失败即报错**（绝不回落到代理）。
+    _BEM_CACHE: Dict[tuple, Any] = {}
+    _BEM_MODULE: Optional[Any] = None
+
+    @classmethod
+    def _bem(cls):
+        """Lazily import the verified open-water model (repo ``backend/services``)."""
+        if cls._BEM_MODULE is None:
+            root = Path(__file__).resolve().parents[2]
+            backend = str(root / "backend")
+            if backend not in sys.path:
+                sys.path.insert(0, backend)
+            try:
+                import importlib
+                bem = importlib.import_module("services.propeller_open_water")
+            except Exception as exc:  # pragma: no cover - import environment broken
+                raise RuntimeError(
+                    "open-water BEM model (backend/services/propeller_open_water.py) "
+                    f"is not importable: {exc!r}. Refusing to fall back to the "
+                    "retired MOCK propeller surrogate."
+                ) from exc
+            cls._BEM_MODULE = bem
+        return cls._BEM_MODULE
+
+    @classmethod
+    def _geometry(cls, D: float, P_D: float, Ae_A0: float, Z: int,
+                  hub_ratio: float, sections: int):
+        key = (D, P_D, Ae_A0, int(Z), hub_ratio, int(sections))
+        geom = cls._BEM_CACHE.get(key)
+        if geom is None:
+            bem = cls._bem()
+            geom = bem.PropellerGeometry(
+                diameter_m=D, pitch_ratio=P_D, blade_area_ratio=Ae_A0,
+                blade_count=int(Z), hub_ratio=hub_ratio, sections=int(sections),
+            )
+            cls._BEM_CACHE[key] = geom
+        return geom
+
     @classmethod
     def calc_propeller(cls, params: dict) -> dict:
         """Open-water point from the REAL blade-element/momentum model.
@@ -191,6 +235,7 @@ class ShipCalculationEngine:
         )
         pt = open_water_point(geom, J, rho=1025.0, n_rps=n)
         return {
+            "model": "bem-momentum-v1 (blade-element + Prandtl loss)",
             "advance_coefficient": round(J, 4),
             "thrust_coefficient": round(pt["KT"], 4),
             "torque_coefficient": round(pt["KQ"], 4),
