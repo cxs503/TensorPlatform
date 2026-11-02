@@ -6,6 +6,66 @@
 
 ---
 
+<!-- M1610-BANNER-START -->
+
+## 0. m1610 修订：目标函数物理内核改为委托正典 Holtrop-1984（重跑）
+
+**m1601 复核结论（本文件 §3/§9 的旧数字）作废**：彼时目标函数 `evaluate_resistance`
+的 Ct 恒等于 ITTC-57 Cf（Cr/Cf≈3e-5 vs 正典 0.335），相关补贴 Ca 以 [m²] 量加到 [N]，
+Ct 相对正典 Holtrop-1984 误差 41.18%，证据等级 MOCK。m1610 起物理内核委托
+`backend/api/holtrop1984.py`（agent/m1553 落地），旧手拟链条仅作 fallback 且继续标注 MOCK。
+复核见 `docs/verification/optimizer-objective-physics-audit.md`。
+
+### 重跑设置（与 §2 相同，仅物理内核更换）
+
+| 项 | 值 |
+|---|---|
+| 目标函数证据等级 | **REAL** |
+| 物理来源 | `backend/api/holtrop1984.py::holtrop1984_resistance (Holtrop-Mennen 1984, worktree, sha256=7449b33090984ef9)` |
+| seed / 预算 / patience | 42 / 300 / 20 |
+| 设计 Fn | 0.26 |
+| 实际评估次数 / 代数 | 300 / 31 |
+| 收敛 | False（Still improving） |
+| 结果文件 | `optimizer/runs/opt_run_holtrop1984/optimization_result.json` |
+
+### 重跑结果
+
+| 量 | 旧（MOCK 手拟链） | 新（正典 Holtrop-1984） |
+|---|---|---|
+| Baseline Ct | 0.00285303（= 裸 ITTC-57 Cf） | 0.00485084 |
+| Best Ct | 0.00285299 | 0.00478403 |
+| 改善 | 1.4e-05（0.0014%，人工乘子读数） | 1.377% |
+| Ct 相对误差 vs 正典 | 41.18% | 0% |
+
+最优设计点（归一化参数）与阻力分解：
+
+| 参数 | 值 |
+|---|---|
+| bow_entrance_angle | 0.8596 |
+| forward_shoulder_curvature | -0.3704 |
+| waterline_flare_fp | 0.2276 |
+| deck_camber_bow | -0.4895 |
+| bulb_volume_scale | -0.8082 |
+| bulb_vertical_pos | 1 |
+| stem_rake_angle | 0.6661 |
+| forward_body_length_frac | 1 |
+
+| 分量（设计点） | 值 |
+|---|---|
+| Cf（ITTC-57） | 0.00285179 |
+| (1+k)Rf / Rf | 75.235 / 63.69 N |
+| Rw / Rb / Rtr | 13.934 / 0.038273 / 0 N |
+| Ra（相关补贴） | 17.636 N |
+| Rt | 106.84 N |
+| Ct = Rt/(½ρV²S) | 0.00478403 |
+| 湿面积 S / (1+k) | 9.0288 m² / 1.1813 |
+
+**解读**：改善幅度从 0.0014% 变为 1.38% 不是回归——旧值来自人工乘子（`bow_factor` /`bulb_factor` / `stem_factor` 的线性折扣），新值来自 Cwp / Abt / hb / LCB 四个真实
+水动力通路；deck camber 与肩部曲率在 Holtrop-1984 中没有静水阻力通路，故被最优解自由
+取值。该改善应读作"型线微调量级"，不得当作可获利的节能百分比。
+
+<!-- M1610-BANNER-END -->
+
 ## 1. Case Introduction
 
 ### Physical Background
@@ -80,6 +140,8 @@ The KCS (Kriso Container Ship) is a standard test case for ship hydrodynamic opt
 - **Convergence check**: Relative improvement over last N generations
 
 ---
+
+> ⚠ **旧结论作废（m1610）**：下表的 Ct 来自旧手拟链条（MOCK），见 §0 的重跑结果。
 
 ## 3. Computational Results
 
