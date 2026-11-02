@@ -125,3 +125,46 @@ jobs:
         # cleared.
         continue-on-error: true
         run: npm run type-check
+
+  boundary-gates:
+    name: boundary gates G1-G3 (baseline, non-blocking)
+    # P2 migration campaign, audit report section 7: the ship-domain payload is
+    # moving out of the TensorPlatform core surface.  These three gates make
+    # "migration done" machine-checkable: G1 = no ship-domain imports in the
+    # core surface (AST), G2 = no ship vocabulary in the live OpenAPI paths,
+    # G3 = no hard-coded hydrodynamics constants in the core surface.
+    #
+    # The job runs in *baseline* mode on purpose: it records the violation
+    # inventory instead of blocking the existing PR flow.  Promote it to a real
+    # gate by appending --enforce to the script call below once the payload has
+    # moved out.
+    runs-on: ubuntu-latest
+    continue-on-error: true
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: python -m pip install --upgrade pip && pip install pytest
+      - name: Gate logic unit tests (red and green fixtures)
+        run: python -m pytest -q tests/test_boundary_gates.py
+      - name: Boundary gate baseline snapshot
+        # No API container runs in this job, so the G2 endpoint-vocabulary gate
+        # reports WITHHELD; that is written into the JSON baseline rather than
+        # silently dropped (and it turns red under --enforce, never green).
+        continue-on-error: true
+        run: |
+          python tools/audit/boundary_gates.py \
+            --json artifacts/boundary_gates/baseline.ci.json \
+            --report docs/audit/boundary_gates_baseline.ci.md \
+            --timeout 3
+      - name: Upload baseline artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: boundary-gates-baseline
+          path: |
+            artifacts/boundary_gates/
+            docs/audit/boundary_gates_baseline.ci.md
+          if-no-files-found: warn
