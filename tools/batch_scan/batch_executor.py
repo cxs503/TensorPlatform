@@ -175,12 +175,6 @@ class ShipCalculationEngine:
         if Ae_A0 <= 0 or Z < 2:
             raise ValueError(f"Invalid blade geometry: Ae/A0={Ae_A0}, Z={Z}")
 
-        geom = model["PropellerGeometry"](
-            diameter_m=float(D),
-            pitch_ratio=float(P_D),
-            blade_area_ratio=float(Ae_A0),
-            blade_count=Z,
-        )
         n = rpm / 60.0
         J = Va / (n * D) if n * D > 0 else 0.0
         geom = PropellerGeometry(
@@ -191,7 +185,6 @@ class ShipCalculationEngine:
         )
         pt = open_water_point(geom, J, rho=1025.0, n_rps=n)
         return {
-            "model": "bem-v1",  # Identifies the model version
             "advance_coefficient": round(J, 4),
             "thrust_coefficient": round(pt["KT"], 4),
             "torque_coefficient": round(pt["KQ"], 4),
