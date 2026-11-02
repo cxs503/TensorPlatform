@@ -27,10 +27,12 @@ ENGINE = create_engine(
 )
 Session = sessionmaker(bind=ENGINE, future=True)
 with ENGINE.begin() as db:
-    db.execute(text("CREATE TABLE organizations (id INTEGER PRIMARY KEY, name TEXT)"))
+    db.execute(text("CREATE TABLE IF NOT EXISTS organizations (id INTEGER PRIMARY KEY, name TEXT)"))
     db.execute(text(
-        "CREATE TABLE users (id INTEGER PRIMARY KEY, username TEXT,"
+        "CREATE TABLE IF NOT EXISTS users (id INTEGER PRIMARY KEY, username TEXT,"
         " role TEXT, organization_id INTEGER)"))
+    for _t in ("organizations", "users"):
+        db.execute(text("DELETE FROM " + _t))
 
 AGENT = {"id": 4, "username": "tensor_agent", "role": "VIEWER",
          "organization_id": None}
