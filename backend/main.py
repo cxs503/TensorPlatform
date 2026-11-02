@@ -302,10 +302,15 @@ def _auto_login():
     if not row:
         raise HTTPException(status_code=404, detail=f"auto-login user {username} not found")
     uid, uname, email, role, features = row
-    tokens = _pair({"sub": uname, "user_id": uid, "role": role})
+    # 安全收敛（2026-11-02 公网实探：匿名可换 ADMIN 令牌）：auto-login 签发角色
+    # 默认钳到 VIEWER；演示需提权时设 TP_AUTO_LOGIN_ROLE 显式指定，置
+    # __DB__ 恢复签 DB 原角色（旧行为）。
+    _clamp = os.getenv("TP_AUTO_LOGIN_ROLE", "VIEWER")
+    issued = role if _clamp == "__DB__" else _clamp
+    tokens = _pair({"sub": uname, "user_id": uid, "role": issued})
     return {
         **tokens,
-        "user": {"id": uid, "username": uname, "email": email, "role": role,
+        "user": {"id": uid, "username": uname, "email": email, "role": issued,
                  "features": features, "is_admin": str(role).split(".")[-1].lower() == "admin"},
         "auto": True,
     }
@@ -347,7 +352,7 @@ def _factory_config(user: dict = Depends(_require_auth)):
             {"id": "documenter", "name": "文档者", "model_configured": True},
         ],
         "execution": {
-            "acceptance_required": os.getenv("TP_AUTO_APPROVE_ALL", "1") != "1",
+            "acceptance_required": os.getenv("TP_AUTO_APPROVE_ALL", "0") != "1",
             "isolation": "host-process",
             "autonomous_llm_configured": True,
         },
