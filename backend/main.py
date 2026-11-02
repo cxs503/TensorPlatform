@@ -71,6 +71,12 @@ from api.domain import (
     tensor,                           # 科研运行台（场景/执行/审批/会话/健康）
 )
 
+# 域物理供应商注册：核心审计层经 services.validation_providers 消费域物理，不直接
+# import 域实现（边界终裁 2026-11-02，迁移清单见 docs/architecture/platform_physics_boundary_audit.md）
+from api.domain.physics_providers import register_ship_resistance_providers  # noqa: E402
+
+register_ship_resistance_providers()
+
 # Prometheus 监控指标 (router 已在 observability 域中聚合；保留为独立导入用於 /metrics 空前缀端点)
 from api import metrics_api
 from api.dashboard_proxy import router as dashboard_router
@@ -307,11 +313,11 @@ def _auto_login():
     # __DB__ 恢复签 DB 原角色（旧行为）。
     _clamp = os.getenv("TP_AUTO_LOGIN_ROLE", "VIEWER")
     issued = role if _clamp == "__DB__" else _clamp
-    tokens = _pair({"sub": uname, "user_id": uid, "role": issued})
+    tokens = _pair({"sub": uname, "user_id": uid, "role": issued, "auto": True})
     return {
         **tokens,
         "user": {"id": uid, "username": uname, "email": email, "role": issued,
-                 "features": features, "is_admin": str(role).split(".")[-1].lower() == "admin"},
+                 "features": features, "is_admin": str(issued).split(".")[-1].lower() == "admin"},
         "auto": True,
     }
 
@@ -423,6 +429,17 @@ app.include_router(tensor.router, prefix="/api/v1")
 from api.domain import ship_seakeeping  # noqa: E402
 
 app.include_router(ship_seakeeping.router, prefix="/api/v1")
+
+# 船舶总体性能·振动噪声域（m1849 接线）：m1820 已实锤该模块 6 条
+# ``calculations/{vibration,noise}/*`` 端点从未被 import/挂载 → 线上 404，
+# 该域因此被判 NOT_SUPPORTED（"代码 REAL、能力不可达"）。此处补接线；
+# 证据见 docs/audit/m1849_vibration_wiring.md 与 artifacts/wiring_census/census.json。
+# 用 try/except 包住：任何 import 失败都不得阻断整个 app 启动（部署安全）。
+try:
+    from api.domain import ship_vibration as _ship_vibration  # noqa: E402
+    app.include_router(_ship_vibration.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("ship_vibration router 接线跳过: %s", _exc)
 
 # ── 智能体协作平台（常驻 agent / 战役 / 模型）──────────────────────
 # LOCAL PATCH: 这三个 router 存在于 api/ 但 main.py 未挂载，导致

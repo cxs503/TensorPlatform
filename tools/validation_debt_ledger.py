@@ -123,11 +123,26 @@ SEVERITY_ORDER = {"STUB": 0, "MOCK": 1, "WITHHELD": 2, "ASSUMPTION": 3, "LIMIT":
 ARTIFACT_RE = re.compile(
     r"(?<![\w/])((?:[\w.\-]+/)*[\w.\-]+\.(?:py|json|md|csv|npz|npy|png|yaml|yml|sh|toml))"
 )
-CLOSED_HINTS_RE = re.compile(r"已关闭|已清偿|已修复|已闭合|clos(?:ed|ure)\b|resolved", re.I)
+CLOSED_HINTS_RE = re.compile(
+    r"已关闭|已清偿|已修复|已闭合|已改为|已修正|已纠正|已重跑|已回填"
+    r"|clos(?:ed|ure)\b|resolved|already fixed", re.I)
 # 正向自证句不是欠账：抽检（m1705）里"证明…正确 ✓""全程无 NaN""全部 PASS"曾被误收。
-POSITIVE_HINTS_RE = re.compile(r"[✓✔]|全程无|无 NaN|全部 ?PASS|证明.{0,12}(?:正确|一致|通过)", re.I)
+# m1860 抽检补入 ✅(U+2705) 与「未改写测试」类英文自证句：两者都只声明"已达标"，不含待办。
+POSITIVE_HINTS_RE = re.compile(
+    r"[✓✔✅]|全程无|无 NaN|全部 ?PASS|证明.{0,12}(?:正确|一致|通过)"
+    r"|no test (?:was|is) (?:rewritten|modified|xfailed)|nothing was xfailed", re.I)
 # 纯表格残片（如 "网格/收敛性 | 273 | 42.1%"）不构成可判条目。
 TABLE_FRAGMENT_RE = re.compile(r"^[^。；;]{0,40}\|\s*[\d.]+%?\s*(?:\|\s*[\d.]+%?\s*)*$")
+# 数值表格行（≥3 列且至少一格是纯数字/百分比/科学计数）：逐行抽会把数据表每行
+# 都变成一条假欠账（m1860 抽检实例："ship-scale accounting (CA added) | +15.5 | 56.39 | 0"）。
+TABLE_ROW_CELLS_RE = re.compile(r"\s*\|\s*")
+NUMERIC_CELL_RE = re.compile(r"^[+\-−]?\d+(?:\.\d+)?(?:%|e[-+]?\d+)?$", re.I)
+# 欠账指标词：同时用于"文字表格行 vs 表头行"的判别（见 table_row_kind）。
+DEBT_MARKER_RE = re.compile(
+    r"局限|限制|未|缺|待|风险|假设|近似|误差|偏差|不适用|仅适用|不可|无法|无法确认|TODO", re.I)
+# 守卫：正向/闭合判据只在条目里没有"仍然欠着"的活口时生效，防止
+# "✅ 已可用，但 X 尚未验证" 这类复合句被整条丢掉（m1860 抽检识别的风险）。
+LIVE_DEBT_GUARD_RE = re.compile(r"尚未|仍未|仍需|未覆盖|未验证|未实现|未标定|待办|TODO|须补|应补")
 
 MIN_ITEM_CHARS = 10
 CLUSTER_JACCARD = 0.5
@@ -167,14 +182,67 @@ def split_sections(markdown: str) -> List[Tuple[str, str]]:
     return sections
 
 
-def extract_items(body: str) -> List[str]:
-    """把节正文切成条目：列表项 / 表格行 / 段落；续行并入上一条。"""
+def is_numeric_table_row(line: str) -> bool:
+    """数据表行判定：≥3 列且至少一格是纯数字/百分比/科学计数。
+
+    这类行（如 ``ship-scale accounting (CA added) | +15.5 | 56.39 | 0``）逐行抽出来
+    只有数字没有命题，是可判性最差的一类假欠账；而"风险登记表"式的文字行
+    （``R11 | 根目录级 figures 写入 | LOW | LIKELY | ...``）仍是真实欠账，必须保留。
+    区别只在"有没有数值格"，不用"有没有竖线"，这是本判定唯一的分界线。
+    """
+    if line.count("|") < 2:
+        return False
+    cells = [c.strip() for c in TABLE_ROW_CELLS_RE.split(line.strip().strip("|")) if c.strip()]
+    if len(cells) < 3:
+        return False
+    return any(NUMERIC_CELL_RE.match(c) for c in cells[1:])
+
+
+def table_row_kind(line: str) -> Optional[str]:
+    """把"带竖线的行"分三类，决定它是数据、表头还是承载命题的文字行。
+
+    * ``numeric``：≥3 列且至少一格是纯数字 → 数据行，丢弃（逐行抽只会产出数字碎片）。
+    * ``header``：各格都很短且无句读/指标词 → 表头行，丢弃。
+    * ``text``：长句或含指标词的表格行（风险登记表 ``R11 | ... | LOW | LIKELY``）
+      → **保留**，但必须自成一条，不能与上一行续接（否则会拼出"表头+正文"的怪条目，
+      m1860 抽检的 after 阶段冒出过这样一条）。
+    * ``None``：不是表格行（竖线 <2 或列数 <3）。
+    """
+    if line.count("|") < 2:
+        return None
+    cells = [c.strip() for c in TABLE_ROW_CELLS_RE.split(line.strip().strip("|")) if c.strip()]
+    if len(cells) < 3:
+        return None
+    if any(NUMERIC_CELL_RE.match(c) for c in cells[1:]):
+        return "numeric"
+    longest = max(len(c) for c in cells)
+    # 判据只看"句读 / 长句"，不看指标词："Ct 误差 (%)" 这类表头格也含指标词，
+    # 用指标词会把表头误判成欠账行（m1860 测试 test_header_row_is_dropped 抓到的假阴性）。
+    has_prose = any(re.search(r"[。；;，,：:]", c) for c in cells)
+    return "text" if (has_prose or longest > 20) else "header"
+
+
+def extract_items_diag(body: str) -> Tuple[List[str], Dict[str, int]]:
+    """把节正文切成条目，并返回丢弃统计（供台账 stats 记账，不吞证据）。
+
+    丢弃分三类，逐类计数：``table_rows``（数值表行）、``closed``（已闭合/已修好）、
+    ``positive``（正向自证句）。三者都只在条目里没有"仍然欠着"的活口时生效。
+    """
+    diag = {"table_rows": 0, "table_headers": 0, "closed": 0, "positive": 0}
     items: List[str] = []
     for raw in (body or "").splitlines():
         line = raw.rstrip()
         if not line.strip():
             continue
         if TABLE_SEP_RE.match(line):
+            continue
+        kind = table_row_kind(line)
+        if kind in ("numeric", "header"):
+            diag["table_rows" if kind == "numeric" else "table_headers"] += 1
+            continue
+        if kind == "text":
+            cells = [c.strip() for c in TABLE_ROW_CELLS_RE.split(line.strip().strip("|")) if c.strip()]
+            items.append(" ".join(cells))
             continue
         if LIST_ITEM_RE.match(line):
             text = re.sub(r"^\s*(?:[-*+]\s+|\d+[\.\)]\s+|\|\s*)", "", line).strip()
@@ -189,10 +257,24 @@ def extract_items(body: str) -> List[str]:
     out: List[str] = []
     for it in items:
         it = re.sub(r"\s+", " ", it).strip(" |")
-        if (len(it) >= MIN_ITEM_CHARS and not CLOSED_HINTS_RE.search(it)
-                and not POSITIVE_HINTS_RE.search(it) and not TABLE_FRAGMENT_RE.match(it)):
-            out.append(it)
-    return out
+        if len(it) < MIN_ITEM_CHARS:
+            continue
+        guarded = bool(LIVE_DEBT_GUARD_RE.search(it))
+        if not guarded and CLOSED_HINTS_RE.search(it):
+            diag["closed"] += 1
+            continue
+        if not guarded and POSITIVE_HINTS_RE.search(it):
+            diag["positive"] += 1
+            continue
+        if TABLE_FRAGMENT_RE.match(it):
+            continue
+        out.append(it)
+    return out, diag
+
+
+def extract_items(body: str) -> List[str]:
+    """把节正文切成条目：列表项 / 表格行 / 段落；续行并入上一条。"""
+    return extract_items_diag(body)[0]
 
 
 def map_tags(text: str, rules: Sequence[Tuple[str, ...]]) -> List[str]:
@@ -306,6 +388,7 @@ def build_ledger(reports: List[Dict[str, Any]], repo_root: str = ".",
                  search_roots: Sequence[str] = ()) -> Dict[str, Any]:
     """reports: [{id, title, markdown, mission_id?, scenario_key?}] → 台账 dict。"""
     items: List[Dict[str, Any]] = []
+    dropped = {"table_rows": 0, "table_headers": 0, "closed": 0, "positive": 0}
     n_with = 0
     for rep in reports:
         rid = rep.get("id")
@@ -315,7 +398,10 @@ def build_ledger(reports: List[Dict[str, Any]], repo_root: str = ".",
             if not is_debt_section(_norm_title(title)):
                 continue
             found_any = True
-            for text in extract_items(body):
+            extracted, diag = extract_items_diag(body)
+            for k in dropped:
+                dropped[k] += diag[k]
+            for text in extracted:
                 sev, why = severity_of(text)
                 items.append({
                     "report_id": rid,
@@ -346,6 +432,11 @@ def build_ledger(reports: List[Dict[str, Any]], repo_root: str = ".",
         "items_total": len(items),
         "clusters_total": len(clusters),
         "items_per_report": round(len(items) / max(n_with, 1), 2),
+        # 丢弃记账：可判性审计（m1860）要求"丢了什么"必须可见，不能只报剩多少。
+        "dropped_table_rows": dropped["table_rows"],
+        "dropped_table_headers": dropped["table_headers"],
+        "dropped_closed_statements": dropped["closed"],
+        "dropped_positive_statements": dropped["positive"],
         "by_severity": dict(sorted(Counter(it["severity"] for it in items).items())),
         "by_domain": dict(sorted(Counter(d for it in items for d in it["domains"]).items(), key=lambda kv: -kv[1])),
         "by_capability": dict(sorted(Counter(c for it in items for c in it["capabilities"]).items(), key=lambda kv: -kv[1])),

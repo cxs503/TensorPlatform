@@ -1,0 +1,1 @@
+"""Independent verification harnesses for optimizer kernels (literature benchmarks)."""

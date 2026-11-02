@@ -1,0 +1,112 @@
+{
+  "schema": "experimental-reference/v1",
+  "dataset_id": "martin_moyce_1952_dambreak_front",
+  "title": "2-D dam-break front position vs non-dimensional time (Martin & Moyce 1952)",
+  "quantity": "leading-edge front position of a collapsing water column, non-dimensionalised by the column half-width",
+  "independent_variable": {
+    "name": "T",
+    "definition": "t*sqrt(2g/a)",
+    "units": "dimensionless",
+    "note": "sqrt(2) 因子是 Martin & Moyce 原图横轴口径；缺了这一项会把误差整体抬高到 +50~80%（TensorLBM 曾因此retract过一次结论）"
+  },
+  "dependent_variable": {
+    "name": "X",
+    "definition": "x_front/a",
+    "units": "dimensionless",
+    "note": "X=1 表示前沿仍位于初始液柱外缘"
+  },
+  "y_scale": {
+    "value": 3.67,
+    "why": "参考表最小非零 X=1.0，最大 3.67；y_scale 仅供近零点正则化，不参与容差判定"
+  },
+  "tolerance": {
+    "gate": 0.15,
+    "why": "平台精度标准：对标实验/参考误差 >15% 不可接受，判决只用 PASS/FAIL 两态，不设 WARN 缓冲带"
+  },
+  "points": [
+    [
+      0.0,
+      1.0,
+      0.01
+    ],
+    [
+      0.41,
+      1.11,
+      0.01
+    ],
+    [
+      0.84,
+      1.23,
+      0.01
+    ],
+    [
+      1.19,
+      1.44,
+      0.01
+    ],
+    [
+      1.43,
+      1.67,
+      0.01
+    ],
+    [
+      1.63,
+      1.89,
+      0.01
+    ],
+    [
+      1.82,
+      2.11,
+      0.01
+    ],
+    [
+      1.97,
+      2.33,
+      0.01
+    ],
+    [
+      2.2,
+      2.56,
+      0.01
+    ],
+    [
+      2.32,
+      2.78,
+      0.01
+    ],
+    [
+      2.5,
+      3.0,
+      0.01
+    ],
+    [
+      2.64,
+      3.22,
+      0.01
+    ],
+    [
+      2.82,
+      3.44,
+      0.01
+    ],
+    [
+      2.96,
+      3.67,
+      0.01
+    ]
+  ],
+  "provenance": {
+    "citation": "Martin, J.C.; Moyce, W.J. (1952) An experimental study of the collapse of liquid columns on a rigid horizontal plane. Phil. Trans. R. Soc. A 244, 312-324",
+    "doi": "10.1098/rsta.1952.0006",
+    "digitised_by": "Lethe (CFD-DEM) benchmark suite digitisation, re-used by TensorLBM (JSON key reference_digitisation_lethe); this registry re-registers the table verbatim, it does not re-digitise the figure",
+    "retrieved_from": "TensorLBM/benchmarks/pending/dam_break_sc/result.json#/reference_digitisation_lethe",
+    "retrieved_repo_commit": "0d41766351ae67153544403727859843c981aaf6",
+    "retrieved_sha256": "cdff3318f3fbc4528ad683bb97ba398a181fafeee260a74bd53c9ece4513e6fa",
+    "digitisation_uncertainty": 0.01,
+    "license_note": "数字化表按原文献引用；再分发前核对 Royal Society 条款。不确定度 0.01 是图读精度量级（±1% 满量程），非原文献给的误差棒"
+  },
+  "notes": [
+    "该表在 TensorLBM 里曾被两张错表污染（table_1 把 M&M 的 T=3 值 2.7 错映射到 T=2；table_2 为粗数字化），历史上因此产出过 +50~82% 的假误差并已 retract；登记册钉住 sha256 就是为了防止这类静默替换。",
+    "本条目只登记参考数据本身，不含任何仿真结论。"
+  ]
+}

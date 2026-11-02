@@ -29,7 +29,17 @@ import numpy as np
 import pytest
 
 ROOT = pathlib.Path(__file__).resolve().parents[1]
-VDIR = ROOT / "artifacts" / "verif_vibration"
+#: 参考核与判据账本属**版本化验证资产**（artifacts/ 会被合并门禁滤除，见
+#: docs/verification/verifier_asset_restoration_m1802.md）：版本化路径优先，artifacts 仅作兜底。
+VDIR_CANDIDATES = [
+    ROOT / "tests" / "data" / "verifier_assets" / "verif_vibration",
+    ROOT / "artifacts" / "verif_vibration",
+]
+VDIR = next((d for d in VDIR_CANDIDATES if (d / "ref_vibration.py").exists()), None)
+if VDIR is None:
+    raise RuntimeError(
+        "ref_vibration.py 缺失（候选: %s）。该文件是版本化验证资产，不得删除。" % VDIR_CANDIDATES
+    )
 sys.path.insert(0, str(VDIR))
 
 import ref_vibration as R  # noqa: E402

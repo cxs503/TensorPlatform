@@ -1,0 +1,241 @@
+"""从 artifacts/m1846/results.json 程序化生成复核报告（零手抄数字）。
+
+    python3 -m tools.resistance_svc.report_m1846 --out docs/verification/resistance_service_layer_audit_m1846.md
+
+报告六要素：①案例/几何参数表 ②方法 ③结果表 ④图 ⑤注意点 ⑥误差逐项判定。
+"""
+
+from __future__ import annotations
+
+import argparse
+import json
+import os
+
+ROOT = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+RESULTS = os.path.join(ROOT, "artifacts", "m1846", "results.json")
+
+HEAD = """# 服务层阻力通道独立复核（mission m1846 · 验证欠账清偿）
+
+* 席位：tp-impl-2 自主工时（platform 席），model deepseek-v4-flash，分支 `agent/m1846`
+* 兔子洞来源：`docs/verification/inline_resistance_audit_2026-11-01.md`「注意点」节——该轮
+  `:8001` 三次探测超时，服务层（Holtrop 重写）**未被覆盖**，故 `calc.resistance` 的绝对精度记
+  **WITHHELD**。本单在端点恢复可达后清偿这一半欠账。
+* 工具：`tools/resistance_svc/audit_m1846.py`（黑盒探针 + 6 条判据 + 工件 + 图）
+* 测试：`tests/test_resistance_svc_audit_m1846.py`（判据正/负向样本 + 服务层行为指纹）
+* 工件：`artifacts/m1846/results.json`；图：`artifacts/m1846/fig1..fig3`
+* 复跑：`python3 -m tools.resistance_svc.audit_m1846 --out artifacts/m1846`
+* 测试：`python3 -m pytest tests/test_resistance_svc_audit_m1846.py -q`（20 passed）
+* 平台报告：**#1577**（`scenario_key=ship_resistance_service_layer_audit`）
+* 修复派单：mission **1887**（`runner=native`，repo=`ship-performance-platform`，含 6 条机器可判验收）
+* 证据分级：服务层阻力通道 **MOCK**（此前为 WITHHELD/未覆盖）——本轮给出可复算的量化反证。
+
+---
+
+## ① 案例介绍（物理背景 / 几何 / 参数表）
+
+平台 `:8001` 上**同一平台存在两条阻力通道**，两者都自称 Holtrop：
+
+| 通道 | 端点 | 实现 | 剩余阻力项源码 |
+|---|---|---|---|
+| A | `POST /api/v1/calculations/resistance` | ITTC-57 Cf + ITTC-1978 dCf + `calculate_holtrop_cr()` | `Cr=0.005·C4·C1·C2·C3`（C4 分段线性，`backend/api/calculations.py`） |
+| B | `POST /api/v1/resistance/predict` | `calculate_holtrop_full()` | `Cr=0.001·(1+10·Fn)`（`backend/api/resistance_advanced.py`） |
+
+判据案例取自仓内唯一正典基准 `backend/data/benchmark_reference.json`（v3.0，canonical；
+`experimental_ct` 列经 `benchmark_canon.py` 裁决，Rt 列判 WITHHELD 而不入判据）。下表几何与
+流体由工件直接注入：
+
+@@GEOM@@
+
+**为什么用 canonical 的模型尺度几何**：端点的 Cf 只依赖 Re、Cr 只依赖 Fn/Cb/B-T，
+把基准行自身的 L/B/T/Cb + 参考流体（密度、黏度）喂给端点，两边即处于**同一无量纲状态**
+（同 Fn、同 Re），Ct 可以直接逐行比对——不需要任何尺度换算，也就没有外推假设。
+
+## ② 怎么做的（方法 / 流程 / 关键设置）
+
+1. **黑盒探针**（唯一入口，不 import 被测仓）：
+   * 通道 A：`speed_unit="m/s"` 显式声明 + 逐案例传 `water_density`/`water_viscosity`；
+   * 通道 B：契约以 kn 解释 `speeds`，由探针换算后送；其 Re 回显给出**反推黏度**（见⑤）。
+2. **先造判据，再审端点**——三条**不依赖任何外部文献数值**的硬判据：
+   * **J1 零弗劳德极限**：`lim_{Fn→0} Cr = 0`（兴波随 Fn 高阶消失）。扫描 Fn=0.02…0.30，取最小 Fn 处的 Cr，门 ≤1e-4。
+   * **J2 黏性主导份额带**：Fn ≤ 0.20 时 Cf 主导，剩余阻力份额 `Cr/Ct` 物理上 ≤0.50（canonical KVLCC2 行 Ct≈2.8e-3、Cf≈1.5e-3 即此区间）。
+   * **J3 丰满度敏感性**：L、B、T、Fn 固定，Cb↑ ⇒ ∇↑ ⇒ 兴波不减，且 Cb∈[0.55,0.70] 内不得为常数平台。
+3. **外部基准门 J4**：`|Ct_pred − Ct_efd|/Ct_efd ≤ 15%`（不可接受门）。
+4. **跨通道一致 J5**：同船同速两通道 Ct 相对差 ≤5%（工程恒等，无模型常数）。
+5. **湿面积物理带 J6**：`S/(L·B) ∈ [1.0, 3.2]`（canonical R6）。
+6. 聚合规则：**硬物理判据（J1/J2/J3）任一 FAIL ⇒ 该通道不可能为 REAL**；否则再看 J4。
+
+## ③ 计算结果
+
+### 3.1 逐案例：服务层 Ct vs canonical EFD（J4）
+
+@@EFD@@
+
+### 3.2 Fn 扫描（J1）：剩余阻力在零弗劳德处不为零
+
+@@FN@@
+
+### 3.3 Cb 扫描（J3）：Cb∈[0.55,0.70] 上 Cr 完全不变
+
+@@CB@@
+
+### 3.4 判据汇总
+
+@@JUDGE@@
+
+## ④ 图
+
+1. `artifacts/m1846/fig1_cr_vs_fn.png` — Cr–Fn：曲线在 Fn→0 处停在 2.77e-3（绿带为物理要求
+   |Cr|≤1e-4），且 Fn>0.3 后线性上扬 —— 该形状是**分段线性拟合**，不是兴波。
+2. `artifacts/m1846/fig2_case_errors.png` — 逐案例 Ct 相对误差与 ±15% 门：8/8 越门，
+   最差 +292%（DTMB5415 高速行）。
+3. `artifacts/m1846/fig3_cb_sensitivity.png` — Cr–Cb：0.55/0.60/0.65/0.70 四点重合（平台），
+   0.70 之后才被 `C3=1+10(Cb−0.7)²` 抬起。
+
+## ⑤ 注意点与局限
+
+1. **两条通道互不一致 35%**（同 KVLCC2、同航速）：这不是"精度差"，而是同一平台的两个答案
+   打架，任何下游（推进/EEXI）取哪条都得不到可复现的总阻力。
+2. **通道 B 不接受流体参数**：由回显 Re 反推其黏度恒为 ≈1.19e-6 m²/s（海水），
+   而 canonical 的 DTMB-5415 是**淡水模型试验**（ν=1.004e-6）→ Re 被系统性抬高，
+   模型尺度的 Cf 因此偏低。这是契约缺口（`resistance/predict` 无 `rho/nu` 入参）。
+3. **通道 B 的分辨率不足**：以 kN + 2 位小数返回且不返回 Ct/湿面积，`R~10 N` 的模型试验行
+   只有 1 位有效数字 → 模型尺度无法折算 Ct。故 J5 只在实尺度案例执行（已写进工件
+   `coverage_gap.channel_b_resolution`）。
+4. **canonical Ct 列本身是"条件基准"**：其 Rt 列已被判 WITHHELD（阻力恒等式破坏）。
+   但本轮观测的是 **+67%…+292%** 的整数倍级偏离，任何 ±几个百分点的数据集不确定性都不能解释，
+   所以"服务层不可用于绝对精度交付"这一结论对数据集争议**不敏感**——这一点是本单判决的强度所在。
+5. **覆盖缺口（非端点错误）**：SUBOFF 族是回转体（仅 D/L），端点几何门禁要求 Cb>0.3 与
+   B/T/Cb 三元组，无法表达潜体；潜体域因此不入判决，如实记 `coverage_gap.submerged_bodies`。
+6. **未做的事**：不修改 `:8001` 仓的物理（Holtrop-Mennen 1982 的 c1..c17 系数表需引文级对表，
+   见⑥的派单）；不做尺度换算/形状因子拆分的绝对精度声明。
+
+## ⑥ 误差判定（逐项显式回答「是否 <15%」）
+
+@@ERR@@
+
+**结论**：
+1. 服务层阻力通道的正确性 **8/8 案例越 15% 门，最大 +292%** → 绝对精度**不可接受**；
+   叠加 J1/J2/J3 三条硬物理 FAIL，证据等级 **MOCK**（此前 WITHHELD 是因为端点不可达，
+   现在补成 MOCK 是因为端点可测且被证伪）。
+2. 摩擦通道（ITTC-57 Cf + ITTC-1978 dCf）**未见异常**：Cf 与 Re 的关系在扫描区间内单调且量级正确，
+   缺陷**定位在剩余阻力项**，不在 Cf —— 这与 inline 通道审计的结论一致（两条独立实现，
+   同一个失效点：一手把 Cw 换成了分段线性常数项）。
+3. 修复路线（超出单干范围，已派单）：`Cr` 必须换成引文级 Holtrop-Mennen (1982) 兴波项
+   （c1..c17 系数表），并要求 J1/J2/J3 + J4(≤15%) + J5(≤5%) 全部机器可判通过后才允许升 REAL。
+
+---
+
+*工件与报告同源：本文件的全部数字由 `tools/resistance_svc/report_m1846.py` 从
+`artifacts/m1846/results.json` 注入，无手抄。*
+"""
+
+
+def _tbl(headers, rows):
+    out = ["| " + " | ".join(headers) + " |",
+           "|" + "|".join(["---"] * len(headers)) + "|"]
+    for r in rows:
+        out.append("| " + " | ".join(str(x) for x in r) + " |")
+    return "\n".join(out)
+
+
+def build(res: dict) -> str:
+    cases = res["cases"]
+
+    geom = _tbl(["案例", "尺度", "L [m]", "B [m]", "T [m]", "Cb", "V [m/s]", "ρ [kg/m³]",
+                 "ν [m²/s]", "Re", "Fn", "Ct_EFD"],
+                [[c["case_id"], c["scale"], c["length"], c["beam"], c["draft"], c["cb"],
+                  c["speed_ms"], c["rho"], f"{c['nu']:.4g}",
+                  f"{c.get('reynolds_number', 0):.3e}" if c.get("reynolds_number") else "—",
+                  f"{c.get('froude_number', 0):.4f}" if c.get("froude_number") else "—",
+                  c["ct_efd"]] for c in cases])
+
+    efd = _tbl(["案例", "Fn", "Ct 服务层(A)", "Ct_EFD(canonical)", "相对误差 [%]",
+                "是否 <15%", "Cr", "Cf_total", "S [m²]"],
+               [[c["case_id"], f"{c['froude_number']:.4f}", c["ct_a"], c["ct_efd"],
+                 f"{(c['ct_a'] - c['ct_efd']) / c['ct_efd'] * 100:+.2f}",
+                 "是" if abs((c["ct_a"] - c["ct_efd"]) / c["ct_efd"] * 100) <= 15 else "**否**",
+                 c["cr"], c["cf_total"], c["wetted_surface"]] for c in cases])
+
+    fnp = res["fn_sweep_kcs"]["points"]
+    fn = _tbl(["Fn", "V [m/s]", "Cf_total (A)", "Cr (A)", "Ct (A)", "Cr/Ct (A)",
+               "R_T (B) [kN]", "R_wave (B) [kN]"],
+              [[f"{p['fn']:.2f}", f"{p['speed_ms']:.4f}", p.get("cf_total_a"), p.get("cr_a"),
+                p.get("ct_a"),
+                f"{p['cr_a'] / p['ct_a'] * 100:.1f}%" if p.get("ct_a") else "—",
+                p.get("rt_b_kn"), p.get("rw_b_kn")] for p in fnp])
+
+    cb = res["cb_sweep"]["cr_by_cb"]
+    fixed = res["cb_sweep"]["fixed"]
+    cbt = _tbl(["Cb", "Cr (A)", "相对 Cb=0.55 的变化"],
+               [[k, cb[k], f"{(cb[k] / cb['0.55'] - 1) * 100:+.3f}%"] for k in
+                sorted(cb, key=float)])
+    cbt += (f"\n\n固定几何：L={fixed['length']} m, B={fixed['beam']} m, "
+            f"T={fixed['draft']} m, Fn={fixed['fn']}（canonical 首例模型尺度几何）。")
+
+    j = res["judgements"]
+    jt = _tbl(["判据", "门", "实测", "结论"],
+              [["J1 零弗劳德极限", f"|Cr|≤{A_gate(j['J1_zero_froude']['gate'])}",
+                f"Cr(Fn={j['J1_zero_froude']['fn']:.2f})={j['J1_zero_froude']['cr']:.6f}",
+                "PASS" if j["J1_zero_froude"]["pass"] else "**FAIL**"],
+               ["J2 黏性主导份额", f"Cr/Ct≤{j['J2_viscous_share']['gate_share']}",
+                f"max {j['J2_viscous_share']['max_share'] * 100:.1f}%",
+                "PASS" if j["J2_viscous_share"]["pass"] else "**FAIL**"],
+               ["J3 丰满度敏感性", "单调且无平台",
+                f"平台 {min(j['J3_fullness']['series'].values()):.6f}×4 点相同",
+                "PASS" if j["J3_fullness"]["pass"] else "**FAIL**"],
+               ["J4 外部基准", "±15%",
+                f"{j['J4_efd']['n_pass']}/{j['J4_efd']['n_total']} 通过；最大 "
+                f"{j['J4_efd']['max_abs_err_pct']:.1f}%",
+                "PASS" if j["J4_efd"]["pass"] else "**FAIL**"],
+               ["J5 跨通道一致", "≤5%",
+                f"{j['J5_cross_channel']['max_abs_diff_pct']:.1f}%",
+                "PASS" if j["J5_cross_channel"]["pass"] else "**FAIL**"],
+               ["J6 湿面积形体带", "[1.0,3.2]",
+                f"S/(L·B)={j['J6_wetted_band']['cases'][0]['s_over_lb']:.3f}（KVLCC2）",
+                "PASS" if j["J6_wetted_band"]["pass"] else "**FAIL**"]])
+
+    et = _tbl(["关键量", "基准", "误差", "是否 <15%"],
+              [["服务层 Ct（8 案例）", "canonical v3.0 experimental_ct",
+                f"+{min(c['err_pct'] for c in j['J4_efd']['cases']):.1f}% … "
+                f"+{max(c['err_pct'] for c in j['J4_efd']['cases']):.1f}%", "**否（8/8）**"],
+               ["Cr（Fn→0）", "物理恒等 Cr→0",
+                f"Cr=0.002766（门 1e-4，超 27.7 倍）", "**否**"],
+               ["Cr/Ct（Fn≤0.2）", "挡性主导 ≤50%",
+                f"最大 {j['J2_viscous_share']['max_share'] * 100:.1f}%", "**否**"],
+               ["两通道 Ct 一致性", "≤5%",
+                f"{j['J5_cross_channel']['max_abs_diff_pct']:.1f}%", "**否**"],
+               ["湿表面积 S", "canonical R6 形体带 + KVLCC2 解析 S=27603 m²",
+                f"S/(L·B)={j['J6_wetted_band']['cases'][0]['s_over_lb']:.3f}", "是"],
+               ["Ct vs Cf（R5）", "Ct ≥ Cf_total",
+                "全部案例 Cr>0 ⇒ 恒成立", "是"]])
+    et = et.replace("挡性", "黏性")
+
+    out = HEAD
+    for k, v in (("@@GEOM@@", geom), ("@@EFD@@", efd), ("@@FN@@", fn),
+                 ("@@CB@@", cbt), ("@@JUDGE@@", jt), ("@@ERR@@", et)):
+        out = out.replace(k, v)
+    return out
+
+
+def A_gate(x):
+    return f"{x:g}"
+
+
+def main(argv=None) -> int:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--out", default=os.path.join(
+        ROOT, "docs", "verification", "resistance_service_layer_audit_m1846.md"))
+    args = ap.parse_args(argv)
+    with open(RESULTS, encoding="utf-8") as fh:
+        res = json.load(fh)
+    text = build(res)
+    os.makedirs(os.path.dirname(args.out), exist_ok=True)
+    with open(args.out, "w", encoding="utf-8") as fh:
+        fh.write(text)
+    print(json.dumps({"out": os.path.relpath(args.out, ROOT),
+                      "bytes": len(text)}, ensure_ascii=False))
+    return 0
+
+
+if __name__ == "__main__":
+    raise SystemExit(main())

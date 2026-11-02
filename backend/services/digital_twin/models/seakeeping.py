@@ -22,13 +22,19 @@ Because of that construction the long-wave limits ``RAO_heave -> 1`` and
 resonant band is *not* calibrated against model tests (absolute RAO carries
 ~15-30 % uncertainty there) - declared in the report.
 
-Added resistance in waves is an *empirical* law (declared, not first-principles)::
+Added resistance in waves is an *empirical* law (declared, not first-principles); the
+implementation is exactly ``RAW_LAW["formula"]``::
 
-    R_AW = c_aw * cos^2(beta/2) * rho g H_s^2 B^2 / L * (0.5 + 0.5 Fn/0.2)
+    R_AW = c_aw * cos^2((180-|heading|)/2) * rho g H_s^2 B^2 / L
+           * (0.5 + 0.5 * min(Fn/0.20, 1.5))
 
-with ``c_aw = 0.055`` chosen so that head seas at ``Hs = 4 m`` give 5-15 % of the
-calm-water resistance, the published full-scale band for full-form ships.  Its
-absolute accuracy is therefore *not* claimed to 3 %.
+with ``c_aw = 0.055`` intended to give 5-15 % of the calm-water resistance at
+``Hs = 4 m`` in head seas for full-form ships.  Declared limitations (verified by
+``tools/verifier/raw_added_resistance_gate.py``): there is **no wavelength / peak-period
+dependence** (identical ``R_AW`` for ``Tp = 3 s`` and ``Tp = 14 s`` at equal ``H_s``), no
+relative-motion term, and the speed factor is an offset law that keeps half its value at
+zero speed.  The law is therefore *not* Gerritsma-Beukelman (a spectral method) and its
+absolute accuracy is **not** claimed to 3 % (evidence: WITHHELD, no tank data bundled).
 """
 from __future__ import annotations
 
@@ -43,6 +49,27 @@ G = 9.80665
 ZETA_HEAVE = 0.20
 ZETA_PITCH = 0.12
 C_AW = 0.055
+
+#: Machine-readable declaration of the added-resistance law **actually implemented**.
+#: Downstream consumers (digital-twin surrogate, speed loss / green-ship models) must
+#: read ``tp_dependent`` / ``literature_method`` here instead of assuming a spectral
+#: (Gerritsma-Beukelman class) method.  Evidence trail:
+#: ``docs/verification_debt/added_resistance_speed_loss/REPORT.md``.
+RAW_LAW = {
+    "name": "raw_empirical_hs_only_v1",
+    "formula": "R_AW = c_aw * cos^2((180-|heading|)/2) * rho*g*Hs^2*B^2/L"
+               " * (0.5 + 0.5*min(Fn/0.20, 1.5))",
+    "c_aw": C_AW,
+    "fn_ref": 0.20,             # Fn at which the speed factor reaches 1.0
+    "fn_cap": 1.5,              # speed factor saturates at Fn = 0.30 -> 1.25
+    "zero_speed_fraction": 0.5,  # speed_fac at Fn = 0 (offset, not physics)
+    "hs_exponent": 2.0,         # exact quadratic law (structural, not fitted)
+    "tp_dependent": False,      # NO wavelength / encounter-frequency dependence
+    "relative_motion_dependent": False,
+    "literature_method": None,  # Gerritsma-Beukelman is NOT implemented
+    "absolute_accuracy_claimed": False,
+    "declared_band": "5-15% of calm-water resistance at Hs=4 m head seas (full-form ships)",
+}
 
 
 def _sections(hull: HullForm, n: int = 41):
@@ -149,10 +176,15 @@ def added_resistance(
     U: float,
     c_aw: float = C_AW,
 ) -> float:
-    """Empirical added resistance in irregular waves [N]."""
+    """Empirical added resistance in irregular waves [N] -- see :data:`RAW_LAW`.
+
+    ``Fn``- and ``H_s``-resolved only: no dependence on the wave period, on the wave
+    spectrum shape, or on the relative-motion RAO.  Returned value is therefore a
+    magnitude proxy, not a spectral integral (``RAW_LAW["tp_dependent"] is False``).
+    """
     Fn = U / math.sqrt(G * hull.L)
     head = math.cos(math.radians(0.5 * (180.0 - abs(heading_deg)))) ** 2
-    speed_fac = 0.5 + 0.5 * min(Fn / 0.20, 1.5)
+    speed_fac = 0.5 + 0.5 * min(Fn / RAW_LAW["fn_ref"], RAW_LAW["fn_cap"])
     return float(c_aw * head * speed_fac * hull.rho * G * Hs ** 2 * hull.B ** 2 / hull.L)
 
 
@@ -195,6 +227,9 @@ def irregular_seastate(
         "encounter_frequency_applied": bool(use_encounter_frequency),
         "R_aw_N": R_aw,
         "R_aw_kN": R_aw / 1e3,
+        "R_aw_model": RAW_LAW["name"],
+        "R_aw_tp_dependent": RAW_LAW["tp_dependent"],
+        "R_aw_absolute_accuracy": "WITHHELD",
         "Hs": Hs,
         "Tp": Tp,
         "heading_deg": float(heading_deg),

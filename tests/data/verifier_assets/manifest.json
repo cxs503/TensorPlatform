@@ -39,24 +39,6 @@
       "origin_commit": "654c9d10",
       "description": "平台破舱稳性探针证据"
     },
-    "damage_stability/fig_R_vs_solas.png": {
-      "sha256": "3fc05b429eaa846c673475aa2dfb1c83e978c66ff0629e3874056ebe17e7ba2a",
-      "bytes": 75912,
-      "origin_commit": "6acd24c4",
-      "description": "R vs SOLAS 要求指数图"
-    },
-    "damage_stability/fig_gz_heuristic.png": {
-      "sha256": "5975af18088b51756406d51027b5c2b221be0b3de22809abf34182693cd6d7a7",
-      "bytes": 82026,
-      "origin_commit": "b702bfdd",
-      "description": "GZ 残余稳性图"
-    },
-    "damage_stability/fig_deviation.png": {
-      "sha256": "420225ad47a976d3f013626267d62d918fa4f5b030eb0bbe510d31385625bff8",
-      "bytes": 48985,
-      "origin_commit": "42cb7586",
-      "description": "偏差分析图"
-    },
     "hydrostatics/hydro_curves_kcs_snapshot.json": {
       "sha256": "6f7c14e76e193c2502b60f41273df3afae54dfba241e32da597a6b8002148a10",
       "bytes": 859,
@@ -68,6 +50,54 @@
       "bytes": 19844,
       "origin_commit": "67d4bc0b",
       "description": "Wageningen B 系列 + 推进链平台探针存档（m1584）"
+    },
+    "seakeeping_section/lewis_reference.py": {
+      "sha256": "d42025535610215da96e93773e0e1f6920e32ac75aef22bd5d9d9aef1d6d903e",
+      "bytes": 4380,
+      "origin_commit": "a5b8e8f4",
+      "description": "Lewis 保角映射剖面水动力参考核（m1797；半椭圆闭式解/自由面镜像法）"
+    },
+    "seakeeping_section/evidence.json": {
+      "sha256": "153554c0ea970a87ebac9f74c18460937acaecef0e2ebebb8ac4064ea4c3e340",
+      "bytes": 48579,
+      "origin_commit": "a5b8e8f4",
+      "description": "切片内核 vs 解析参考的三船/剖面族/RAO 极限证据工件（m1797 探针产出）"
+    },
+    "verif_vibration/ref_vibration.py": {
+      "sha256": "0760d4d399d32d0e8c6bf329672be2e868b9a149f5dd94dae2a4aa562b218cf4",
+      "bytes": 11941,
+      "origin_commit": "4a049a54",
+      "description": "振动噪声独立参考核（等价方程+Brent 求根+扩散场积分+Gauss–Legendre Rayleigh 商）"
+    },
+    "verif_vibration/results.json": {
+      "sha256": "388de88ff7e89ba0c142273b6a46caaef1a713da6603e287bbf40baec7560c0d",
+      "bytes": 41621,
+      "origin_commit": "4a049a54",
+      "description": "振动噪声判据账本（verify.py 产出，107 项检查判定）"
     }
-  }
+  },
+  "derived": {
+    "damage_stability/fig_R_vs_solas.png": {
+      "sha256": "3fc05b429eaa846c673475aa2dfb1c83e978c66ff0629e3874056ebe17e7ba2a",
+      "bytes": 75912,
+      "origin_commit": "6acd24c4",
+      "description": "R vs SOLAS 要求指数图",
+      "regenerator": "artifacts/verif/damage_stability/verdict.json（R 曲线 vs SOLAS 限值）"
+    },
+    "damage_stability/fig_gz_heuristic.png": {
+      "sha256": "5975af18088b51756406d51027b5c2b221be0b3de22809abf34182693cd6d7a7",
+      "bytes": 82026,
+      "origin_commit": "b702bfdd",
+      "description": "GZ 残余稳性图",
+      "regenerator": "artifacts/verif/damage_stability/evidence.json（GZ 曲线与经验式对比）"
+    },
+    "damage_stability/fig_deviation.png": {
+      "sha256": "420225ad47a976d3f013626267d62d918fa4f5b030eb0bbe510d31385625bff8",
+      "bytes": 48985,
+      "origin_commit": "42cb7586",
+      "description": "偏差分析图",
+      "regenerator": "artifacts/verif/damage_stability/evidence.json（逐工况偏差条）"
+    }
+  },
+  "transport_note": "fork 事实：tp_pusher v5.4 推送黑名单 _EXCLUDE/._EXCLUDE2 会滤除 ^(artifacts?/|runs/|results[-/]) 与 *.db/*.sqlite3/*.png/*.log——凡此类文件本地存在也会在推送时被 strip。故：判据数值/参考核(.py)/证据(.json)=files（必须存在且校验和一致）；图(.png)=derived（在场则校验，缺失合法，凭 regenerator 从 files 重建）。"
 }

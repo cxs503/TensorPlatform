@@ -34,7 +34,12 @@ def _load(name: str, rel_path: str):
     return module
 
 
-rm = _load("resistance_model", "services/resistance_model.py")
+# R2 迁移（#577）：阻力模型移入 api/domain 域载荷区，旧 services/ 路径已移除。
+rm = _load("resistance_model", "api/domain/resistance_model.py")
+# R2 缝（#577）：核心审计走 require_provider；spec-load 语境无 main.py 接线，
+# 此处镜像 main.py 的域适配器注册（幂等，同对象重复注册无副作用）。
+_pp = _load("physics_providers", "api/domain/physics_providers.py")
+_pp.register_ship_resistance_providers()
 integ = _load("ship_benchmark_integrity", "services/ship_benchmark_integrity.py")
 bench = _load("ship_benchmark", "api/domain/ship_benchmark.py")
 

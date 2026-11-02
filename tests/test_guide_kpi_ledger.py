@@ -79,15 +79,18 @@ def test_twelve_kpis_unique_keys():
 def test_specs_are_self_describing():
     for s in kpi.KPI_SPECS:
         assert s["formula"].strip(), s["key"]
-        assert s["kind"] in ("db", "ledger"), s["key"]
+        assert s["kind"] in ("db", "ledger", "registry"), s["key"]
         if s["kind"] == "db":
             assert s["sql"].strip().upper().startswith("SELECT"), s["key"]
             assert s["nums"] and all(isinstance(n, str) for n in s["nums"]), s["key"]
             assert s["how"] in ("ratio", "identity"), s["key"]
             if s["how"] == "ratio":
                 assert len(s["nums"]) == 2, s["key"]
-        else:
+        elif s["kind"] == "ledger":
             assert s["ledger_field"] in LEDGER["values"], s["key"]
+        else:  # registry：可复算工件口径（m2054 把 KPI#9/#10 从字面量降级）
+            assert s["registry_field"], s["key"]
+            assert s["registry_field"] in ("benchmark_cases", "resistance_accuracy"), s["key"]
         if s["numeric"]:
             assert s["target"] is not None and s["target"] > 0, s["key"]
         else:
@@ -95,10 +98,11 @@ def test_specs_are_self_describing():
 
 
 def test_db_and_ledger_kinds_are_disjoint_and_counts():
+    """m2054：benchmark_cases / resistance_accuracy 由 ledger 降级为 registry（6/4/2）。"""
     kinds = [s["kind"] for s in kpi.KPI_SPECS]
-    assert kinds.count("db") == 6 and kinds.count("ledger") == 6
-    assert sum(1 for s in kpi.KPI_SPECS if s["numeric"]) == 9
-    assert sum(1 for s in kpi.KPI_SPECS if not s["numeric"]) == 3
+    assert kinds.count("db") == 6 and kinds.count("ledger") == 4 and kinds.count("registry") == 2
+    assert sum(1 for s in kpi.KPI_SPECS if s["numeric"]) == 10
+    assert sum(1 for s in kpi.KPI_SPECS if not s["numeric"]) == 2
 
 
 # ── 台账完整性（字面量必须留痕） ──────────────────────────────────────────
@@ -205,9 +209,11 @@ def test_reconcile_lineage_ratio_from_fraction_string():
 
 
 def test_reconcile_count_mode():
-    recs = kpi.build_records({}, LEDGER)
+    # m2054：benchmark_cases 走 registry 口径，喂一个与看板同值的工件验证对账链路
+    reg = {"kpi": {"benchmark_cases": 1.0, "resistance_accuracy": 0.0}, "summary": {}}
+    recs = kpi.build_records({}, LEDGER, registry=reg)
     rows = kpi.reconcile(recs, _dash([("对标算例 ≥10（SUBOFF/DTMB/KVLCC2）", "1 完成+2 在飞")]))
-    assert rows[0]["status"] == "ok" and rows[0]["dash_in_unit"] == 1.0   # 台账=1 与看板一致
+    assert rows[0]["status"] == "ok" and rows[0]["dash_in_unit"] == 1.0   # registry=1 与看板一致
     rows = kpi.reconcile(recs, _dash([("工具接入 ≥5 类", "4/5")]))
     assert rows[0]["status"] == "ok"
 
@@ -248,8 +254,9 @@ def test_reconcile_unmapped_kpi_flagged():
 
 # ── 落库渲染 ─────────────────────────────────────────────────────────────
 def test_snapshot_rows_excludes_qualitative():
+    now = datetime(2026, 11, 1, 7, 30, tzinfo=timezone.utc)
     recs = kpi.build_records({"repro_rate": None, "success_rate": 0.8, "lineage_coverage": 0.82},
-                             LEDGER, now=datetime(2026, 11, 1, 7, 30, tzinfo=timezone.utc))
+                             LEDGER, now=now)
     rows = kpi.snapshot_rows(recs, org_id=1, bucket=kpi.hour_bucket(datetime(2026, 11, 1, 7, 5)))
     keys = [r["key"] for r in rows]
     assert "guide.repro_rate" not in keys          # 未实测 → 不入库
@@ -257,8 +264,18 @@ def test_snapshot_rows_excludes_qualitative():
     assert "guide.success_rate" in keys
     assert all(r["key"].startswith("guide.") for r in rows)
     assert all(r["snap"].endswith("07:00:00+00:00") for r in rows)
-    # 9 numeric 中：3 项 DB 未取到值 + repro_rate 未实测 → 只落 5 行（宁可缺行不填 0）
-    assert len(rows) == 5
+    # m2054：registry 工件缺失 → KPI#9/#10 记 None（未实测，不落库）；DB 未取到值 3 项
+    assert "guide.benchmark_cases" not in keys
+    assert "guide.resistance_accuracy" not in keys
+    assert len(rows) == 4
+    # 工件在位时两项恢复数值行（0.0 是实测值，不是「塞 0 说谎」）
+    reg = {"kpi": {"benchmark_cases": 0.0, "resistance_accuracy": 0.0},
+           "summary": {"qualified_cases": 0, "settled_admissible": 4, "policy_violations": 8}}
+    recs2 = kpi.build_records({"repro_rate": None, "success_rate": 0.8, "lineage_coverage": 0.82},
+                              LEDGER, now=now, registry=reg)
+    keys2 = [r["key"] for r in kpi.snapshot_rows(recs2, org_id=1,
+                                                 bucket=kpi.hour_bucket(now))]
+    assert "guide.benchmark_cases" in keys2 and "guide.resistance_accuracy" in keys2
 
 
 def test_render_upsert_is_idempotent_and_escaped():

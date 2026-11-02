@@ -1,0 +1,102 @@
+{
+  "rows": [
+    {
+      "key": "box",
+      "name": "矩形浮箱 (box)",
+      "note": "控制算例：棱柱 + 矩形水线面，平台式应精确",
+      "cb_exact": 1.0,
+      "cb_numeric": 1.000000000000032,
+      "cb_numeric_err_pct": 3.197442310920451e-12,
+      "kb_exact": 0.5,
+      "kb_numeric": 0.5000000000000105,
+      "kb_numeric_err_pct": 2.1094237467877974e-12,
+      "kb_platform": 0.5,
+      "kb_platform_err_pct": 0.0,
+      "bm_exact": 0.08333333333333333,
+      "bm_numeric": 0.08333333333333288,
+      "bm_numeric_err_pct": -5.329070518200751e-13,
+      "bm_platform": 0.08333333333333333,
+      "bm_platform_err_pct": 0.0,
+      "km_exact": 0.5833333333333334,
+      "km_platform": 0.5833333333333334,
+      "km_platform_err_pct": 0.0
+    },
+    {
+      "key": "triangular_prism",
+      "name": "三角棱柱 (triangle)",
+      "note": "控制算例：梯形族的 Cb=1/2 端点，平台式应精确",
+      "cb_exact": 0.5,
+      "cb_numeric": 0.5000000000000264,
+      "cb_numeric_err_pct": 5.284661597215745e-12,
+      "kb_exact": 0.6666666666666666,
+      "kb_numeric": 0.6666666666666665,
+      "kb_numeric_err_pct": -1.6653345369377348e-14,
+      "kb_platform": 0.6666666666666666,
+      "kb_platform_err_pct": 0.0,
+      "bm_exact": 0.16666666666666666,
+      "bm_numeric": 0.1666666666666623,
+      "bm_numeric_err_pct": -2.6145752229922437e-12,
+      "bm_platform": 0.16666666666666666,
+      "bm_platform_err_pct": 0.0,
+      "km_exact": 0.8333333333333333,
+      "km_platform": 0.8333333333333333,
+      "km_platform_err_pct": 0.0
+    },
+    {
+      "key": "semi_ellipsoid",
+      "name": "半椭球体 (half-ellipsoid)",
+      "note": "曲剖面 + 椭圆水线面；BM 的「矩形水线面」假设被打破",
+      "cb_exact": 0.5235987755982988,
+      "cb_numeric": 0.5235983068357613,
+      "cb_numeric_err_pct": -8.952704998759757e-05,
+      "kb_exact": 0.625,
+      "kb_numeric": 0.6250002164836198,
+      "kb_numeric_err_pct": 3.463737916931109e-05,
+      "kb_platform": 0.651643219517124,
+      "kb_platform_err_pct": 4.262915122739841,
+      "bm_exact": 0.09375,
+      "bm_numeric": 0.09375008393168692,
+      "bm_numeric_err_pct": 8.952713271466925e-05,
+      "bm_platform": 0.15915494309189535,
+      "bm_platform_err_pct": 69.76527263135503,
+      "km_exact": 0.71875,
+      "km_platform": 0.8107981626090194,
+      "km_platform_err_pct": 12.80670088473313
+    },
+    {
+      "key": "wigley",
+      "name": "Wigley 型数学船 (Wigley)",
+      "note": "薄船经典算例（Cb=4/9），平台 Cb 被截断到 0.5 后偏差最大",
+      "cb_exact": 0.4444444444444444,
+      "cb_numeric": 0.44444444444446807,
+      "cb_numeric_err_pct": 5.320743845516063e-12,
+      "kb_exact": 0.625,
+      "kb_numeric": 0.6250000000000007,
+      "kb_numeric_err_pct": 1.0658141036401503e-13,
+      "kb_platform": 0.6666666666666666,
+      "kb_platform_err_pct": 6.666666666666661,
+      "bm_exact": 0.0857142857142857,
+      "bm_numeric": 0.08571428571428336,
+      "bm_numeric_err_pct": -2.736237162774084e-12,
+      "bm_platform": 0.1875,
+      "bm_platform_err_pct": 118.75000000000004,
+      "km_exact": 0.7107142857142857,
+      "km_platform": 0.8541666666666666,
+      "km_platform_err_pct": 20.184254606365148
+    }
+  ],
+  "verdict": {
+    "anchor_self_consistent": true,
+    "trapezoid_controls_exact": true,
+    "tolerance_pct": 15.0,
+    "platform_fail_cases": [
+      "semi_ellipsoid",
+      "wigley"
+    ],
+    "capability_verdict": "REAL_but_domain_limited"
+  },
+  "formulas_platform": {
+    "kb_over_t": "(1 + 1/(2*max(Cb,0.5)))/3",
+    "bm": "B^2/(12*T*Cb)"
+  }
+}

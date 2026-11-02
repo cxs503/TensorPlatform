@@ -243,6 +243,39 @@ def classify(endpoints: list[Endpoint], corpus) -> list[Endpoint]:
     return endpoints
 
 
+def load_withheld_override(repo_root: Path = REPO_ROOT) -> dict:
+    """显式降级申报（append-only 诚实台账）。
+
+    覆盖度扫描按"路径名 + 容差标记"机械判 ANCHORED：一份**复核欠账文档**（例如
+    docs/verification_debt/*/REPORT.md 或其审计脚本）只要同时出现端点路径和
+    ``pytest.approx``/``rel_err`` 之类标记，就会把该端点"升级"成 ANCHORED —— 哪怕
+    复核结论恰恰是"证据不足"。本函数让这类端点被显式钉回 WITHHELD：
+
+        docs/audit/ship_api_mock_allowlist.json :: withheld_override = {endpoint: reason}
+
+    语义：只降不升（ANCHORED -> WITHHELD），且必须给出理由；撤除理由 = 真的拿到
+    独立基准后再删条目。
+    """
+    p = repo_root / "docs" / "audit" / "ship_api_mock_allowlist.json"
+    if not p.exists():
+        return {}
+    data = json.loads(p.read_text(encoding="utf-8"))
+    return {str(k): str(v) for k, v in data.get("withheld_override", {}).items()}
+
+
+def apply_withheld_override(endpoints, over: dict):
+    for ep in endpoints:
+        reason = over.get(ep.key)
+        if reason:
+            # 只降不升：既降等级也把"覆盖度"证据降为 SMOKE（保持 A2 单调性：
+            # evidence=ANCHORED ⇒ grade=ANCHORED 不得被打破）
+            ep.grade = "WITHHELD"
+            if ep.evidence == "ANCHORED":
+                ep.evidence = "SMOKE"
+            ep.override_reason = reason
+    return endpoints
+
+
 def load_allowlist(repo_root: Path = REPO_ROOT) -> set[str]:
     p = repo_root / "docs" / "audit" / "ship_api_mock_allowlist.json"
     if not p.exists():
@@ -256,6 +289,8 @@ def census(repo_root: Path = REPO_ROOT) -> dict:
     corpus = _evidence_corpus(repo_root)
     eps = classify(eps, corpus)
     ship = [e for e in eps if e.ships_domain]
+    over = load_withheld_override(repo_root)
+    apply_withheld_override(ship, over)
     allow = load_allowlist(repo_root)
 
     grades = {"ANCHORED": 0, "WITHHELD": 0, "MOCK_RISK": 0}
@@ -283,6 +318,7 @@ def census(repo_root: Path = REPO_ROOT) -> dict:
                 "has_binop": e.has_binop,
             },
             "evidence_files": e.evidence_files,
+            "override_reason": getattr(e, "override_reason", None),
         })
 
     return {
@@ -297,6 +333,7 @@ def census(repo_root: Path = REPO_ROOT) -> dict:
         "evidence": evidence,
         "coverage_pct": round(100.0 * grades["ANCHORED"] / len(ship), 2) if ship else 0.0,
         "unacknowledged_mock_risk": unack_mock,
+        "withheld_override": over,
         "endpoints": rows,
     }
 

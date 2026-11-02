@@ -1,0 +1,157 @@
+{
+  "mission": "m1866",
+  "method": "COCO/BBOB-style multi-seed statistics (Hansen et al. 2021)",
+  "kernel": "optimizer/core/cmaes.py",
+  "multiseed": [
+    {
+      "benchmark": "sphere_n8",
+      "dim": 8,
+      "seeds": 5,
+      "max_evals": 6000,
+      "target_eps": 1e-08,
+      "success_rate": 1.0,
+      "ert_evals": 682.0,
+      "median_err_norm": 9.515205966382372e-27,
+      "q25_err_norm": 8.503978874784877e-27,
+      "q75_err_norm": 2.0615211024467776e-26,
+      "min_err_norm": 7.046404048281354e-27,
+      "max_err_norm": 2.835784025501702e-26,
+      "sigma_final_median": 1e-10
+    },
+    {
+      "benchmark": "ellipsoid_n8_cond1e6",
+      "dim": 8,
+      "seeds": 5,
+      "max_evals": 6000,
+      "target_eps": 1e-08,
+      "success_rate": 1.0,
+      "ert_evals": 4052.0,
+      "median_err_norm": 1.9837800076153836e-21,
+      "q25_err_norm": 7.381040998952413e-22,
+      "q75_err_norm": 2.217788788436454e-21,
+      "min_err_norm": 3.263830740443074e-22,
+      "max_err_norm": 9.588861475545795e-21,
+      "sigma_final_median": 1e-10
+    },
+    {
+      "benchmark": "cigar_n8_cond1e6",
+      "dim": 8,
+      "seeds": 5,
+      "max_evals": 6000,
+      "target_eps": 1e-08,
+      "success_rate": 1.0,
+      "ert_evals": 5200.0,
+      "median_err_norm": 2.337194415076646e-18,
+      "q25_err_norm": 3.4967029966406173e-19,
+      "q75_err_norm": 2.9625517534537397e-17,
+      "min_err_norm": 3.2916618737448923e-20,
+      "max_err_norm": 1.1510238625771637e-16,
+      "sigma_final_median": 2.7582924083787093e-10
+    },
+    {
+      "benchmark": "rot_ellipsoid_n8_cond1e4",
+      "dim": 8,
+      "seeds": 5,
+      "max_evals": 6000,
+      "target_eps": 1e-08,
+      "success_rate": 1.0,
+      "ert_evals": 2544.0,
+      "median_err_norm": 2.0553448287043484e-23,
+      "q25_err_norm": 1.2442762174825423e-23,
+      "q75_err_norm": 2.4173457300226793e-23,
+      "min_err_norm": 6.1350555097233445e-24,
+      "max_err_norm": 2.456833461862286e-22,
+      "sigma_final_median": 1e-10
+    },
+    {
+      "benchmark": "rosenbrock_n4",
+      "dim": 4,
+      "seeds": 5,
+      "max_evals": 6000,
+      "target_eps": 1e-06,
+      "success_rate": 1.0,
+      "ert_evals": 1332.8,
+      "median_err_norm": 4.683861624749758e-31,
+      "q25_err_norm": 0.0,
+      "q75_err_norm": 1.2449211160519093e-30,
+      "min_err_norm": 0.0,
+      "max_err_norm": 1.988586865244634e-30,
+      "sigma_final_median": 1e-10
+    },
+    {
+      "benchmark": "rastrigin_n10",
+      "dim": 10,
+      "seeds": 5,
+      "max_evals": 6000,
+      "target_eps": 0.0001,
+      "success_rate": 0.8,
+      "ert_evals": 2202.5,
+      "median_err_norm": 0.0,
+      "q25_err_norm": 0.0,
+      "q75_err_norm": 2.842170943040401e-14,
+      "min_err_norm": 0.0,
+      "max_err_norm": 0.9949590570932969,
+      "sigma_final_median": 1e-10
+    }
+  ],
+  "budget_noise_floor_sphere_n8": [
+    {
+      "max_evals": 100,
+      "median_err_norm": 0.03094574670396808,
+      "q25": 0.02628176751531654,
+      "q75": 0.035829677654077824,
+      "success_eps_1e-6": 0.0
+    },
+    {
+      "max_evals": 200,
+      "median_err_norm": 0.004004969681297215,
+      "q25": 0.003975690799301384,
+      "q75": 0.00401642474009825,
+      "success_eps_1e-6": 0.0
+    },
+    {
+      "max_evals": 300,
+      "median_err_norm": 0.00036292569825209986,
+      "q25": 0.0002104874668154893,
+      "q75": 0.0005124897273846522,
+      "success_eps_1e-6": 0.0
+    },
+    {
+      "max_evals": 600,
+      "median_err_norm": 7.882224652398737e-08,
+      "q25": 3.4780922299389507e-08,
+      "q75": 1.76068515385149e-07,
+      "success_eps_1e-6": 0.8
+    },
+    {
+      "max_evals": 1200,
+      "median_err_norm": 6.191499293036871e-16,
+      "q25": 1.2793173983596522e-16,
+      "q75": 1.4438520311789082e-14,
+      "success_eps_1e-6": 1.0
+    },
+    {
+      "max_evals": 2400,
+      "median_err_norm": 2.5724156503898477e-22,
+      "q25": 1.678336129511256e-22,
+      "q75": 2.8703152275616797e-22,
+      "success_eps_1e-6": 1.0
+    },
+    {
+      "max_evals": 4800,
+      "median_err_norm": 2.9416648447335817e-25,
+      "q25": 2.1147158737286326e-25,
+      "q75": 4.09431435523535e-25,
+      "success_eps_1e-6": 1.0
+    }
+  ],
+  "convergence_rate_sphere_n8": {
+    "slope_dex_per_eval": -0.011447162252971904,
+    "r2_linear_fit": 0.9924413728163463,
+    "window": [
+      20,
+      590
+    ],
+    "decades_reduced": 6.559958132032199
+  }
+}

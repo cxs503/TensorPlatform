@@ -13,8 +13,21 @@ References:
 - Groves, Huang & Su (1989) DARPA SUBOFF experimental data
 """
 import math
+import sys
+from pathlib import Path
+
 import pytest
 from typing import Dict, Any
+
+ROOT = Path(__file__).resolve().parents[1]
+sys.path.insert(0, str(ROOT / "tests"))
+
+from support.verification_aggregate import (  # noqa: E402
+    aggregate,
+    assert_all_passed,
+    coverage_gaps,
+    format_table,
+)
 
 
 # ============================================================================
@@ -434,54 +447,28 @@ class TestEdgeCases:
 # Summary Report
 # ============================================================================
 
+CRITERIA = {
+    "C1 ITTC-1957": ("TestITTCCorrelation",),
+    "C2 wall-sided": ("TestWallSidedFormula",),
+    "C3 SUBOFF/Groves": ("TestSUBOFFResistance",),
+    "C4 consistency": ("TestPhysicalConsistency",),
+    "C5 edge cases": ("TestEdgeCases",),
+}
+
+
 def test_verification_summary():
-    """Print a summary of verification results."""
-    print("\n" + "="*80)
-    print("SHIP PERFORMANCE CALCULATION VERIFICATION SUMMARY")
-    print("="*80)
-    
-    print("\n1. ITTC-1957 Friction Line:")
-    print("   ✓ Formula correctly implemented")
-    print("   ✓ Monotonic decrease with Re verified")
-    print("   ✓ Validated against published values (< 0.1% error)")
-    
-    print("\n2. Wall-Sided Formula (Stability):")
-    print("   ✓ Zero heel gives zero GZ")
-    print("   ✓ Small angle linear approximation valid")
-    print("   ✓ Positive GM gives positive stability")
-    print("   ✓ GM sensitivity correct")
-    
-    print("\n3. SUBOFF Resistance (Groves 1989):")
-    print("   Low Fn (0.05-0.25):")
-    print("     - Platform overpredicts by 3-18%")
-    print("     - Friction dominates, wave-making negligible")
-    print("     - Accuracy: GOOD (< 20% error)")
-    print("   High Fn (0.30-0.45):")
-    print("     - Platform underpredicts by 3-35%")
-    print("     - Wave-making resistance not fully captured")
-    print("     - Accuracy: FAIR (known limitation of simplified method)")
-    
-    print("\n4. Physical Consistency:")
-    print("   ✓ Resistance increases with speed")
-    print("   ✓ Resistance scales with ship size")
-    print("   ✓ Froude number in physical range")
-    print("   ✓ Friction dominates at low speed")
-    
-    print("\n5. Limitations:")
-    print("   - Holtrop-Mennen simplified for SUBOFF (axisymmetric body)")
-    print("   - Wave-making resistance underestimated at high Fn")
-    print("   - No viscous pressure drag (form drag) component")
-    print("   - Wall-sided formula valid only for small angles (< 15°)")
-    
-    print("\n6. Recommendations:")
-    print("   - For SUBOFF: use dedicated axisymmetric body methods")
-    print("   - For high Fn: add wave-making correction (e.g., Holtrop full method)")
-    print("   - For large angles: implement cross curves or numerical GZ")
-    
-    print("\n" + "="*80)
-    print("VERIFICATION STATUS: PASSED (with documented limitations)")
-    print("="*80)
+    """Aggregate C1-C5 by re-executing each criterion.
 
-
+    Previously this test printed hand-typed claims ("validated against
+    published values (< 0.1% error)") without computing them, so the printed
+    numbers were un-traceable to any run (test-surface census:
+    tools/audit/test_surface_census.py -> assertion_free).  Now every verdict
+    printed comes from executing the criterion methods themselves.
+    """
+    gaps = coverage_gaps(globals(), CRITERIA)
+    assert not gaps, f"criterion classes not aggregated by the summary: {gaps}"
+    results = aggregate(globals(), CRITERIA, {})
+    print("\n" + format_table(results, "SHIP PERFORMANCE CALCULATION VERIFICATION SUMMARY"))
+    assert_all_passed(results, CRITERIA)
 if __name__ == "__main__":
     pytest.main([__file__, "-v", "-s"])

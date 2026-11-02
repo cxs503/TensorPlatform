@@ -33,7 +33,14 @@ import pytest
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 ROOT = os.path.abspath(os.path.join(HERE, "..", ".."))
-VDIR = os.path.join(ROOT, "artifacts", "verif", "seakeeping_section")
+#: 参考核与证据工件属**版本化验证资产**（artifacts/ 会被合并门禁滤除）：版本化路径优先。
+VDIR_CANDIDATES = [
+    os.path.join(ROOT, "tests", "data", "verifier_assets", "seakeeping_section"),
+    os.path.join(ROOT, "artifacts", "verif", "seakeeping_section"),
+]
+VDIR = next((d for d in VDIR_CANDIDATES
+             if os.path.exists(os.path.join(d, "lewis_reference.py"))), None)
+assert VDIR is not None, "lewis_reference.py 缺失（候选: %s）——版本化验证资产不得删除" % VDIR_CANDIDATES
 sys.path.insert(0, VDIR)
 
 import lewis_reference as ref  # noqa: E402

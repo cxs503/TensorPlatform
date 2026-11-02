@@ -1,0 +1,1398 @@
+{
+  "generated_by": "tools/verif/dynstab/analyze_audit.py",
+  "api": "http://127.0.0.1:8001/api/v1/dynamic-stability",
+  "cases": {
+    "S1_bulk_50k": {
+      "ship": {
+        "L": 190.0,
+        "B": 32.0,
+        "T": 12.0,
+        "D": 17.5,
+        "Cb": 0.82,
+        "displacement": 50000.0,
+        "GM_true": 1.6,
+        "theta_deck": 25.0,
+        "theta_vanish": 70.0,
+        "wind_area": 731.5,
+        "wind_lever": 8.75
+      },
+      "gz_curve_deg": [
+        {
+          "heel": 0.0,
+          "GZ": 0.0
+        },
+        {
+          "heel": 5.0,
+          "GZ": 0.139449
+        },
+        {
+          "heel": 10.0,
+          "GZ": 0.277837
+        },
+        {
+          "heel": 15.0,
+          "GZ": 0.41411
+        },
+        {
+          "heel": 20.0,
+          "GZ": 0.547232
+        },
+        {
+          "heel": 25.0,
+          "GZ": 0.676189
+        },
+        {
+          "heel": 30.0,
+          "GZ": 0.711111
+        },
+        {
+          "heel": 35.0,
+          "GZ": 0.713784
+        },
+        {
+          "heel": 40.0,
+          "GZ": 0.68564
+        },
+        {
+          "heel": 45.0,
+          "GZ": 0.628539
+        },
+        {
+          "heel": 50.0,
+          "GZ": 0.544743
+        },
+        {
+          "heel": 55.0,
+          "GZ": 0.436881
+        },
+        {
+          "heel": 60.0,
+          "GZ": 0.30792
+        },
+        {
+          "heel": 65.0,
+          "GZ": 0.161121
+        },
+        {
+          "heel": 70.0,
+          "GZ": 0.0
+        }
+      ],
+      "live": {
+        "canonical_from_0deg": {
+          "status": 500,
+          "data": null,
+          "detail": "Internal Server Error"
+        },
+        "shifted_from_5deg": {
+          "status": 200,
+          "data": {
+            "wind_heeling_moment": 2.65,
+            "wind_heel_angle": 0.19,
+            "wave_roll_angle": 0.01,
+            "wave_excitation_moment": 0.106,
+            "dynamic_stability_curve": [
+              {
+                "heel": 5.0,
+                "dynamic_stability": 0
+              },
+              {
+                "heel": 10.0,
+                "dynamic_stability": 0.0182
+              },
+              {
+                "heel": 15.0,
+                "dynamic_stability": 0.0484
+              },
+              {
+                "heel": 20.0,
+                "dynamic_stability": 0.0903
+              },
+              {
+                "heel": 25.0,
+                "dynamic_stability": 0.1437
+              },
+              {
+                "heel": 30.0,
+                "dynamic_stability": 0.2043
+              },
+              {
+                "heel": 35.0,
+                "dynamic_stability": 0.2664
+              },
+              {
+                "heel": 40.0,
+                "dynamic_stability": 0.3275
+              },
+              {
+                "heel": 45.0,
+                "dynamic_stability": 0.3848
+              },
+              {
+                "heel": 50.0,
+                "dynamic_stability": 0.436
+              },
+              {
+                "heel": 55.0,
+                "dynamic_stability": 0.4789
+              },
+              {
+                "heel": 60.0,
+                "dynamic_stability": 0.5114
+              },
+              {
+                "heel": 65.0,
+                "dynamic_stability": 0.5318
+              },
+              {
+                "heel": 70.0,
+                "dynamic_stability": 0.5389
+              }
+            ],
+            "maximum_heel": 0.2,
+            "angle_of_downflooding": 50.0,
+            "area_under_GZ": 0.5389,
+            "area_under_wind": 0.0,
+            "area_ratio": 28397.25,
+            "stability_assessment": "稳性良好",
+            "safety_factor": 28397.25,
+            "method": "动稳性分析"
+          }
+        }
+      },
+      "reference": {
+        "lw1": 0.006579035654377387,
+        "lw2": 0.00986855348156608,
+        "theta0": 0.2355950241053506,
+        "theta_f": 50.0,
+        "a": 2.705237601542388e-05,
+        "b": 0.4432709902533137,
+        "ratio": 16385.65832445118,
+        "has_steady_heel": 1.0
+      },
+      "platform_P504": {
+        "gm_est": 1.5999978383954157,
+        "wind_pressure": 504.0,
+        "wind_moment_MNm": 3.225915,
+        "wind_heel_deg": 0.23551488885283003,
+        "Tr_analyze": 40.59996246034632,
+        "rao": 0.05162327319637723,
+        "wave_roll_deg": 0.007743490979456586,
+        "max_heel_deg": 0.24325837983228663,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.5388557021543012,
+        "area_wind": 2.7922807718180725e-05,
+        "ratio": 19298.04866304504,
+        "assessment": "good"
+      },
+      "platform_std": {
+        "gm_est": 1.5999978383954157,
+        "wind_pressure": 414.05,
+        "wind_moment_MNm": 2.65017878125,
+        "wind_heel_deg": 0.19348184614406558,
+        "Tr_analyze": 40.59996246034632,
+        "rao": 0.05162327319637723,
+        "wave_roll_deg": 0.007743490979456586,
+        "max_heel_deg": 0.20122533712352217,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.5388557021543012,
+        "area_wind": 1.897562949342534e-05,
+        "ratio": 28397.25039640996,
+        "assessment": "good"
+      },
+      "replica_selfcheck": {
+        "area_ratio_abs_dev": 0.0003964099596487358,
+        "area_gz_abs_dev": 4.429784569881523e-05,
+        "wind_moment_MNm_live": 2.65,
+        "wind_moment_MNm_replica": 2.65
+      },
+      "roll": {
+        "Tr_platform_analyze_0.8B": 40.59996246034632,
+        "Tr_platform_rollmotion_0.4B": 20.299981230173156,
+        "Tr_reference_0.35B": 17.765517193340347,
+        "Tr_ref_band_0.30_0.45B": [
+          15.227586165720297,
+          22.841379248580445
+        ],
+        "Tr_analyze_vs_ref_rel": 1.2853239800733627,
+        "Tr_analyze_vs_sibling_ratio": 2.0000000000000004,
+        "roll_amp_platform_deg": 0.007743490979456586,
+        "roll_amp_linear_theory_deg": 1.4611764469754336,
+        "roll_amp_rel": -0.9947005093084513,
+        "wave_slope_rad": 0.07454959721088247
+      },
+      "deviation": {
+        "a_iso_rel": 0.032175794919476565,
+        "a_std_rel": -0.298559598513402,
+        "b_iso_rel": 0.21563493664758948,
+        "ratio_iso_rel": 0.17774020920770106,
+        "ratio_std_rel": 0.7330552019405114,
+        "wind_pressure_std_vs_code_rel": -0.1784722222222222,
+        "verdict_ref": "PASS",
+        "verdict_platform": "PASS",
+        "verdict_platform_iso": "PASS"
+      }
+    },
+    "S2_tanker_300k": {
+      "ship": {
+        "L": 330.0,
+        "B": 60.0,
+        "T": 21.0,
+        "D": 28.0,
+        "Cb": 0.82,
+        "displacement": 300000.0,
+        "GM_true": 2.0,
+        "theta_deck": 30.0,
+        "theta_vanish": 65.0,
+        "wind_area": 1617.0,
+        "wind_lever": 14.0
+      },
+      "gz_curve_deg": [
+        {
+          "heel": 0.0,
+          "GZ": 0.0
+        },
+        {
+          "heel": 5.0,
+          "GZ": 0.174311
+        },
+        {
+          "heel": 10.0,
+          "GZ": 0.347296
+        },
+        {
+          "heel": 15.0,
+          "GZ": 0.517638
+        },
+        {
+          "heel": 20.0,
+          "GZ": 0.68404
+        },
+        {
+          "heel": 25.0,
+          "GZ": 0.845237
+        },
+        {
+          "heel": 30.0,
+          "GZ": 1.0
+        },
+        {
+          "heel": 35.0,
+          "GZ": 0.983274
+        },
+        {
+          "heel": 40.0,
+          "GZ": 0.918268
+        },
+        {
+          "heel": 45.0,
+          "GZ": 0.808122
+        },
+        {
+          "heel": 50.0,
+          "GZ": 0.65661
+        },
+        {
+          "heel": 55.0,
+          "GZ": 0.468087
+        },
+        {
+          "heel": 60.0,
+          "GZ": 0.247436
+        },
+        {
+          "heel": 65.0,
+          "GZ": 0.0
+        }
+      ],
+      "live": {
+        "canonical_from_0deg": {
+          "status": 500,
+          "data": null,
+          "detail": "Internal Server Error"
+        },
+        "shifted_from_5deg": {
+          "status": 200,
+          "data": {
+            "wind_heeling_moment": 9.373,
+            "wind_heel_angle": 0.09,
+            "wave_roll_angle": 0.0,
+            "wave_excitation_moment": 0.274,
+            "dynamic_stability_curve": [
+              {
+                "heel": 5.0,
+                "dynamic_stability": 0
+              },
+              {
+                "heel": 10.0,
+                "dynamic_stability": 0.0228
+              },
+              {
+                "heel": 15.0,
+                "dynamic_stability": 0.0605
+              },
+              {
+                "heel": 20.0,
+                "dynamic_stability": 0.1129
+              },
+              {
+                "heel": 25.0,
+                "dynamic_stability": 0.1797
+              },
+              {
+                "heel": 30.0,
+                "dynamic_stability": 0.2602
+              },
+              {
+                "heel": 35.0,
+                "dynamic_stability": 0.3467
+              },
+              {
+                "heel": 40.0,
+                "dynamic_stability": 0.4297
+              },
+              {
+                "heel": 45.0,
+                "dynamic_stability": 0.505
+              },
+              {
+                "heel": 50.0,
+                "dynamic_stability": 0.5689
+              },
+              {
+                "heel": 55.0,
+                "dynamic_stability": 0.618
+              },
+              {
+                "heel": 60.0,
+                "dynamic_stability": 0.6492
+              },
+              {
+                "heel": 65.0,
+                "dynamic_stability": 0.66
+              }
+            ],
+            "maximum_heel": 0.09,
+            "angle_of_downflooding": 50.0,
+            "area_under_GZ": 0.66,
+            "area_under_wind": 0.0,
+            "area_ratio": 126435.352,
+            "stability_assessment": "稳性良好",
+            "safety_factor": 126435.35,
+            "method": "动稳性分析"
+          }
+        }
+      },
+      "reference": {
+        "lw1": 0.003878168385738249,
+        "lw2": 0.005817252578607374,
+        "theta0": 0.11110141001154261,
+        "theta_f": 50.0,
+        "a": 7.52009854907567e-06,
+        "b": 0.5779940736965872,
+        "ratio": 76859.9068116775,
+        "has_steady_heel": 1.0
+      },
+      "platform_P504": {
+        "gm_est": 1.9999944295659582,
+        "wind_pressure": 504.0,
+        "wind_moment_MNm": 11.409552,
+        "wind_heel_deg": 0.1110637794569237,
+        "Tr_analyze": 68.08825578560908,
+        "rao": 0.017776181733353092,
+        "wave_roll_deg": 0.0026664272600029643,
+        "max_heel_deg": 0.11373020671692666,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.6600105247082908,
+        "area_wind": 7.695405795154398e-06,
+        "ratio": 85766.82533413413,
+        "assessment": "good"
+      },
+      "platform_std": {
+        "gm_est": 1.9999944295659582,
+        "wind_pressure": 414.05,
+        "wind_moment_MNm": 9.3732639,
+        "wind_heel_deg": 0.09124196135294511,
+        "Tr_analyze": 68.08825578560908,
+        "rao": 0.017776181733353092,
+        "wave_roll_deg": 0.0026664272600029643,
+        "max_heel_deg": 0.09390838861294808,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.6600105247082908,
+        "area_wind": 5.220142259186064e-06,
+        "ratio": 126435.35212988642,
+        "assessment": "good"
+      },
+      "replica_selfcheck": {
+        "area_ratio_abs_dev": 0.00012988642265554518,
+        "area_gz_abs_dev": 1.0524708290771123e-05,
+        "wind_moment_MNm_live": 9.373,
+        "wind_moment_MNm_replica": 9.373
+      },
+      "roll": {
+        "Tr_platform_analyze_0.8B": 68.08825578560908,
+        "Tr_platform_rollmotion_0.4B": 34.04412789280454,
+        "Tr_reference_0.35B": 29.793699440121987,
+        "Tr_ref_band_0.30_0.45B": [
+          25.537456662961702,
+          38.30618499444255
+        ],
+        "Tr_analyze_vs_ref_rel": 1.2853239800733622,
+        "Tr_analyze_vs_sibling_ratio": 2.0,
+        "roll_amp_platform_deg": 0.0026664272600029643,
+        "roll_amp_linear_theory_deg": 0.4279591825110731,
+        "roll_amp_rel": -0.993769435570099,
+        "wave_slope_rad": 0.07454959721088247
+      },
+      "deviation": {
+        "a_iso_rel": 0.023311828287180654,
+        "a_std_rel": -0.3058412432869386,
+        "b_iso_rel": 0.14189842897032443,
+        "ratio_iso_rel": 0.11588510696845372,
+        "ratio_std_rel": 0.6450104791263787,
+        "wind_pressure_std_vs_code_rel": -0.1784722222222222,
+        "verdict_ref": "PASS",
+        "verdict_platform": "PASS",
+        "verdict_platform_iso": "PASS"
+      }
+    },
+    "S3_container_150k": {
+      "ship": {
+        "L": 366.0,
+        "B": 51.0,
+        "T": 14.0,
+        "D": 24.0,
+        "Cb": 0.65,
+        "displacement": 150000.0,
+        "GM_true": 1.2,
+        "theta_deck": 18.0,
+        "theta_vanish": 55.0,
+        "wind_area": 2562.0,
+        "wind_lever": 12.0
+      },
+      "gz_curve_deg": [
+        {
+          "heel": 0.0,
+          "GZ": 0.0
+        },
+        {
+          "heel": 5.0,
+          "GZ": 0.104587
+        },
+        {
+          "heel": 10.0,
+          "GZ": 0.208378
+        },
+        {
+          "heel": 15.0,
+          "GZ": 0.310583
+        },
+        {
+          "heel": 20.0,
+          "GZ": 0.388239
+        },
+        {
+          "heel": 25.0,
+          "GZ": 0.411196
+        },
+        {
+          "heel": 30.0,
+          "GZ": 0.405405
+        },
+        {
+          "heel": 35.0,
+          "GZ": 0.37205
+        },
+        {
+          "heel": 40.0,
+          "GZ": 0.312707
+        },
+        {
+          "heel": 45.0,
+          "GZ": 0.229332
+        },
+        {
+          "heel": 50.0,
+          "GZ": 0.124223
+        },
+        {
+          "heel": 55.0,
+          "GZ": 0.0
+        }
+      ],
+      "live": {
+        "canonical_from_0deg": {
+          "status": 500,
+          "data": null,
+          "detail": "Internal Server Error"
+        },
+        "shifted_from_5deg": {
+          "status": 200,
+          "data": {
+            "wind_heeling_moment": 12.73,
+            "wind_heel_angle": 0.41,
+            "wave_roll_angle": 0.0,
+            "wave_excitation_moment": 0.068,
+            "dynamic_stability_curve": [
+              {
+                "heel": 5.0,
+                "dynamic_stability": 0
+              },
+              {
+                "heel": 10.0,
+                "dynamic_stability": 0.0137
+              },
+              {
+                "heel": 15.0,
+                "dynamic_stability": 0.0363
+              },
+              {
+                "heel": 20.0,
+                "dynamic_stability": 0.0668
+              },
+              {
+                "heel": 25.0,
+                "dynamic_stability": 0.1017
+              },
+              {
+                "heel": 30.0,
+                "dynamic_stability": 0.1373
+              },
+              {
+                "heel": 35.0,
+                "dynamic_stability": 0.1712
+              },
+              {
+                "heel": 40.0,
+                "dynamic_stability": 0.2011
+              },
+              {
+                "heel": 45.0,
+                "dynamic_stability": 0.2248
+              },
+              {
+                "heel": 50.0,
+                "dynamic_stability": 0.2402
+              },
+              {
+                "heel": 55.0,
+                "dynamic_stability": 0.2456
+              }
+            ],
+            "maximum_heel": 0.42,
+            "angle_of_downflooding": 50.0,
+            "area_under_GZ": 0.2456,
+            "area_under_wind": 0.0001,
+            "area_ratio": 3917.339,
+            "stability_assessment": "稳性良好",
+            "safety_factor": 3917.34,
+            "method": "动稳性分析"
+          }
+        }
+      },
+      "reference": {
+        "lw1": 0.010533652164602591,
+        "lw2": 0.015800478246903886,
+        "theta0": 0.502951302445581,
+        "theta_f": 50.0,
+        "a": 9.246574722950786e-05,
+        "b": 0.2464505668948427,
+        "ratio": 2665.317420548513,
+        "has_steady_heel": 1.0
+      },
+      "platform_P504": {
+        "gm_est": 1.2000012472248733,
+        "wind_pressure": 504.0,
+        "wind_moment_MNm": 15.494976,
+        "wind_heel_deg": 0.502779023493351,
+        "Tr_analyze": 74.71618332788779,
+        "rao": 0.014718838412144079,
+        "wave_roll_deg": 0.002207825761821612,
+        "max_heel_deg": 0.5049868492551727,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.24560329957264898,
+        "area_wind": 9.280856923997448e-05,
+        "ratio": 2646.342914064263,
+        "assessment": "good"
+      },
+      "platform_std": {
+        "gm_est": 1.2000012472248733,
+        "wind_pressure": 414.05,
+        "wind_moment_MNm": 12.729553200000002,
+        "wind_heel_deg": 0.41304521053927534,
+        "Tr_analyze": 74.71618332788779,
+        "rao": 0.014718838412144079,
+        "wave_roll_deg": 0.002207825761821612,
+        "max_heel_deg": 0.41525303630109694,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.24560329957264898,
+        "area_wind": 6.26964683864746e-05,
+        "ratio": 3917.338661863649,
+        "assessment": "good"
+      },
+      "replica_selfcheck": {
+        "area_ratio_abs_dev": 0.0003381363508196955,
+        "area_gz_abs_dev": 3.2995726489681854e-06,
+        "wind_moment_MNm_live": 12.73,
+        "wind_moment_MNm_replica": 12.73
+      },
+      "roll": {
+        "Tr_platform_analyze_0.8B": 74.71618332788779,
+        "Tr_platform_rollmotion_0.4B": 37.3580916639439,
+        "Tr_reference_0.35B": 32.693912976614065,
+        "Tr_ref_band_0.30_0.45B": [
+          28.023353979954912,
+          42.03503096993237
+        ],
+        "Tr_analyze_vs_ref_rel": 1.285323980073362,
+        "Tr_analyze_vs_sibling_ratio": 1.9999999999999996,
+        "roll_amp_platform_deg": 0.002207825761821612,
+        "roll_amp_linear_theory_deg": 0.3496023136949244,
+        "roll_amp_rel": -0.9936847507143554,
+        "wave_slope_rad": 0.07454959721088247
+      },
+      "deviation": {
+        "a_iso_rel": 0.003707556806043031,
+        "a_std_rel": -0.3219492594283955,
+        "b_iso_rel": -0.003437879380310969,
+        "ratio_iso_rel": -0.007119041933979153,
+        "ratio_std_rel": 0.46974564142438036,
+        "wind_pressure_std_vs_code_rel": -0.1784722222222222,
+        "verdict_ref": "PASS",
+        "verdict_platform": "PASS",
+        "verdict_platform_iso": "PASS"
+      }
+    },
+    "S4_coaster_3k": {
+      "ship": {
+        "L": 90.0,
+        "B": 15.0,
+        "T": 5.5,
+        "D": 8.5,
+        "Cb": 0.75,
+        "displacement": 3000.0,
+        "GM_true": 0.8,
+        "theta_deck": 22.0,
+        "theta_vanish": 60.0,
+        "wind_area": 189.0,
+        "wind_lever": 4.25
+      },
+      "gz_curve_deg": [
+        {
+          "heel": 0.0,
+          "GZ": 0.0
+        },
+        {
+          "heel": 5.0,
+          "GZ": 0.069725
+        },
+        {
+          "heel": 10.0,
+          "GZ": 0.138919
+        },
+        {
+          "heel": 15.0,
+          "GZ": 0.207055
+        },
+        {
+          "heel": 20.0,
+          "GZ": 0.273616
+        },
+        {
+          "heel": 25.0,
+          "GZ": 0.311403
+        },
+        {
+          "heel": 30.0,
+          "GZ": 0.315789
+        },
+        {
+          "heel": 35.0,
+          "GZ": 0.301882
+        },
+        {
+          "heel": 40.0,
+          "GZ": 0.270647
+        },
+        {
+          "heel": 45.0,
+          "GZ": 0.223297
+        },
+        {
+          "heel": 50.0,
+          "GZ": 0.161273
+        },
+        {
+          "heel": 55.0,
+          "GZ": 0.086227
+        },
+        {
+          "heel": 60.0,
+          "GZ": 0.0
+        }
+      ],
+      "live": {
+        "canonical_from_0deg": {
+          "status": 500,
+          "data": null,
+          "detail": "Internal Server Error"
+        },
+        "shifted_from_5deg": {
+          "status": 200,
+          "data": {
+            "wind_heeling_moment": 0.333,
+            "wind_heel_angle": 0.81,
+            "wave_roll_angle": 0.02,
+            "wave_excitation_moment": 0.008,
+            "dynamic_stability_curve": [
+              {
+                "heel": 5.0,
+                "dynamic_stability": 0
+              },
+              {
+                "heel": 10.0,
+                "dynamic_stability": 0.0091
+              },
+              {
+                "heel": 15.0,
+                "dynamic_stability": 0.0242
+              },
+              {
+                "heel": 20.0,
+                "dynamic_stability": 0.0452
+              },
+              {
+                "heel": 25.0,
+                "dynamic_stability": 0.0707
+              },
+              {
+                "heel": 30.0,
+                "dynamic_stability": 0.0981
+              },
+              {
+                "heel": 35.0,
+                "dynamic_stability": 0.125
+              },
+              {
+                "heel": 40.0,
+                "dynamic_stability": 0.15
+              },
+              {
+                "heel": 45.0,
+                "dynamic_stability": 0.1716
+              },
+              {
+                "heel": 50.0,
+                "dynamic_stability": 0.1883
+              },
+              {
+                "heel": 55.0,
+                "dynamic_stability": 0.1991
+              },
+              {
+                "heel": 60.0,
+                "dynamic_stability": 0.2029
+              }
+            ],
+            "maximum_heel": 0.83,
+            "angle_of_downflooding": 50.0,
+            "area_under_GZ": 0.2029,
+            "area_under_wind": 0.0002,
+            "area_ratio": 1242.017,
+            "stability_assessment": "稳性良好",
+            "safety_factor": 1242.02,
+            "method": "动稳性分析"
+          }
+        }
+      },
+      "reference": {
+        "lw1": 0.01376066240765195,
+        "lw2": 0.020640993611477927,
+        "theta0": 0.9855834536465409,
+        "theta_f": 50.0,
+        "a": 0.00023670354222141436,
+        "b": 0.19239505778771024,
+        "ratio": 812.8102181408944,
+        "has_steady_heel": 1.0
+      },
+      "platform_P504": {
+        "gm_est": 0.8000046560543307,
+        "wind_pressure": 504.0,
+        "wind_moment_MNm": 0.404838,
+        "wind_heel_deg": 0.9852411205526137,
+        "Tr_analyze": 26.91413047187861,
+        "rao": 0.12554406339998614,
+        "wave_roll_deg": 0.01883160950999792,
+        "max_heel_deg": 1.0040727300626116,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.2028919511836941,
+        "area_wind": 0.00024106466035394298,
+        "ratio": 841.6495013653108,
+        "assessment": "good"
+      },
+      "platform_std": {
+        "gm_est": 0.8000046560543307,
+        "wind_pressure": 414.05,
+        "wind_moment_MNm": 0.3325856625,
+        "wind_heel_deg": 0.8093899797655214,
+        "Tr_analyze": 26.91413047187861,
+        "rao": 0.12554406339998614,
+        "wave_roll_deg": 0.01883160950999792,
+        "max_heel_deg": 0.8282215892755194,
+        "downflooding_deg": 50.0,
+        "area_gz": 0.2028919511836941,
+        "area_wind": 0.00016335678433422333,
+        "ratio": 1242.0172936838849,
+        "assessment": "good"
+      },
+      "replica_selfcheck": {
+        "area_ratio_abs_dev": 0.0002936838848199841,
+        "area_gz_abs_dev": 8.04881630589449e-06,
+        "wind_moment_MNm_live": 0.333,
+        "wind_moment_MNm_replica": 0.333
+      },
+      "roll": {
+        "Tr_platform_analyze_0.8B": 26.91413047187861,
+        "Tr_platform_rollmotion_0.4B": 13.457065235939305,
+        "Tr_reference_0.35B": 11.77694309715099,
+        "Tr_ref_band_0.30_0.45B": [
+          10.09452265470085,
+          15.141783982051273
+        ],
+        "Tr_analyze_vs_ref_rel": 1.2853239800733622,
+        "Tr_analyze_vs_sibling_ratio": 2.0,
+        "roll_amp_platform_deg": 0.01883160950999792,
+        "roll_amp_linear_theory_deg": 5.628693904337082,
+        "roll_amp_rel": -0.9966543553744347,
+        "wave_slope_rad": 0.07454959721088247
+      },
+      "deviation": {
+        "a_iso_rel": 0.01842438897027232,
+        "a_std_rel": -0.30986759724356766,
+        "b_iso_rel": 0.054559059451340965,
+        "ratio_iso_rel": 0.035480955554888574,
+        "ratio_std_rel": 0.5280532478106601,
+        "wind_pressure_std_vs_code_rel": -0.1784722222222222,
+        "verdict_ref": "PASS",
+        "verdict_platform": "PASS",
+        "verdict_platform_iso": "PASS"
+      }
+    }
+  },
+  "checks": [
+    {
+      "id": "K1",
+      "criterion": "canonical GZ 曲线（0° 起）可用性",
+      "reference": "HTTP 200 + 数值场",
+      "observed": "{\"S1_bulk_50k\": 500, \"S2_tanker_300k\": 500, \"S3_container_150k\": 500, \"S4_coaster_3k\": 500}",
+      "verdict": "FAIL",
+      "note": "GM=GZ[0]/sin(heel0)，首点 heel=0 → 除零"
+    },
+    {
+      "id": "K2",
+      "criterion": "roll-motion 端点可用性",
+      "reference": "HTTP 200 + 横摇要素",
+      "observed": "HTTP 500",
+      "verdict": "FAIL",
+      "note": "RollMotionAnalyzer 引用 self.g 与 input_data.g，两者均不存在"
+    },
+    {
+      "id": "K3",
+      "criterion": "风倾面积 a 的规范定义（lw2=1.5·lw1；区间 0→θ0；被积函数 lw2−GZ）",
+      "reference": "IS Code 2008 §2.3.3/§2.3.4；同风压 P=504 Pa",
+      "observed": "a 相对误差 +0.4% … +3.2%",
+      "verdict": "FAIL",
+      "note": "平台取 lw1·(0…wind_heel+wave_roll)，无 1.5 倍率、不减 GZ、上限非 θ0"
+    },
+    {
+      "id": "K3b",
+      "criterion": "定常风压取值",
+      "reference": "P = 504 Pa（IS Code 2008 §2.3.1）",
+      "observed": "平台 P=0.5ρV²=414.05 Pa @V=26 m/s（-17.8%）",
+      "verdict": "FAIL",
+      "note": "IS Code 的 504 Pa 对应 V≈28.68 m/s；以 V 为输入时须声明等效风压口径"
+    },
+    {
+      "id": "K4",
+      "criterion": "GZ 面积 b 的积分区间（θ0→θf，θf=min(进水角,50°)）",
+      "reference": "IS Code 2008 §2.3.4",
+      "observed": "b 相对误差 -0.3% … +21.6%",
+      "verdict": "FAIL",
+      "note": "平台自 0° 起积分整条曲线，进水角硬编码 50°（无进水角计算）"
+    },
+    {
+      "id": "K5",
+      "criterion": "b/a 数值可比性（隔离风压误差后）",
+      "reference": "IS Code b/a",
+      "observed": "ratio 相对误差 -0.7% … +17.8%",
+      "verdict": "FAIL",
+      "note": "定义式不同 → 比值不可与规范值对照；「稳性良好/临界/不足」阈值(2/1.5/1)无规范依据"
+    },
+    {
+      "id": "K6",
+      "criterion": "合规判决一致性（b/a≥1）",
+      "reference": "规范判决 vs 平台判决（36 组 GM×受风面积扫描 + 4 工况）",
+      "observed": "翻转 1/36：GM=0.50,A×40: FAIL→PASS (0.731 vs 1.74)",
+      "verdict": "FAIL",
+      "note": "翻转方向全为 false PASS（平台判满足、规范判不满足）"
+    },
+    {
+      "id": "K7",
+      "criterion": "横摇固有周期系数 k/B",
+      "reference": "T_r=2πk/√(g·GM)，k≈0.35B（文献带 0.30–0.45B）",
+      "observed": "analyze 用 0.8B（vs 0.35B：+128.5%；越文献带上界 +100.0%）；兄弟端点 roll-motion 用 0.4B（自相矛盾 2.000×）",
+      "verdict": "FAIL",
+      "note": "k=0.35B 为 CONF_MED 文献取值；0.8B 无法用横摇回转半径解释"
+    },
+    {
+      "id": "K8",
+      "criterion": "横摇幅值量纲/量级",
+      "reference": "φ_a=(k_w·H/2)·|H_θ|，k_w=ω²/g（线性横摇理论）",
+      "observed": "幅值相对误差 -99.7% … -99.4%",
+      "verdict": "FAIL",
+      "note": "平台 (H/2)·RAO·0.1：把波幅[m]直接乘 0.1 当角度标度，系数无来源"
+    }
+  ],
+  "integration_selfcheck": [
+    {
+      "case": "S1_bulk_50k",
+      "int_0_5_rel": -1.586000674492867e-12,
+      "int_5_25_rel": -2.538507380637707e-11,
+      "int_0_25_rel": -3.966736934787523e-11
+    },
+    {
+      "case": "S2_tanker_300k",
+      "int_0_5_rel": -1.5913286566383836e-12,
+      "int_5_30_rel": -3.9659749104639335e-11,
+      "int_0_30_rel": -5.711295318241417e-11
+    },
+    {
+      "case": "S3_container_150k",
+      "int_0_5_rel": -1.5794000549008286e-12,
+      "int_5_18_rel": -1.0735170794867361e-11,
+      "int_0_18_rel": -2.056059826209128e-11
+    },
+    {
+      "case": "S4_coaster_3k",
+      "int_0_5_rel": -1.586000674492867e-12,
+      "int_5_22_rel": -1.8338676174001274e-11,
+      "int_0_22_rel": -3.071911931629675e-11
+    }
+  ],
+  "sweep": [
+    {
+      "GM": 0.15,
+      "area_scale": 1.0,
+      "lw1": 0.006579035654377387,
+      "theta0": 2.5138129270544596,
+      "has_steady_heel": true,
+      "ratio_ref": 143.48450377864313,
+      "ratio_platform": 259.425255003197,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.15,
+      "area_scale": 2.0,
+      "lw1": 0.013158071308754774,
+      "theta0": 5.032481201988048,
+      "has_steady_heel": true,
+      "ratio_ref": 35.46963065689837,
+      "ratio_platform": 64.82505339421989,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.15,
+      "area_scale": 4.0,
+      "lw1": 0.026316142617509548,
+      "theta0": 10.10431973222694,
+      "has_steady_heel": true,
+      "ratio_ref": 8.464322859023907,
+      "ratio_platform": 16.165219377428755,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.15,
+      "area_scale": 8.0,
+      "lw1": 0.052632285235019095,
+      "theta0": 20.54126563675709,
+      "has_steady_heel": true,
+      "ratio_ref": 1.7062357762626132,
+      "ratio_platform": 3.9980815628854662,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.15,
+      "area_scale": 16.0,
+      "lw1": 0.10526457047003819,
+      "theta0": 25.0,
+      "has_steady_heel": false,
+      "ratio_ref": 0.5015181403950935,
+      "ratio_platform": 0.9513549237618291,
+      "verdict_ref": "FAIL",
+      "verdict_platform": "FAIL"
+    },
+    {
+      "GM": 0.15,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 25.0,
+      "has_steady_heel": false,
+      "ratio_ref": 0.17387303249480485,
+      "ratio_platform": 0.14880787544267274,
+      "verdict_ref": "FAIL",
+      "verdict_platform": "FAIL"
+    },
+    {
+      "GM": 0.25,
+      "area_scale": 1.0,
+      "lw1": 0.006579035654377387,
+      "theta0": 1.5079779949246586,
+      "has_steady_heel": true,
+      "ratio_ref": 399.5188576916322,
+      "ratio_platform": 720.3131982346009,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.25,
+      "area_scale": 2.0,
+      "lw1": 0.013158071308754774,
+      "theta0": 3.0170018333137705,
+      "has_steady_heel": true,
+      "ratio_ref": 99.47855340054373,
+      "ratio_platform": 180.12054720224558,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.25,
+      "area_scale": 4.0,
+      "lw1": 0.026316142617509548,
+      "theta0": 6.042409805786519,
+      "has_steady_heel": true,
+      "ratio_ref": 24.46791225967936,
+      "ratio_platform": 44.9984908986571,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.25,
+      "area_scale": 8.0,
+      "lw1": 0.052632285235019095,
+      "theta0": 12.153363049174004,
+      "has_steady_heel": true,
+      "ratio_ref": 5.712942997709304,
+      "ratio_platform": 11.20839763293244,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.25,
+      "area_scale": 16.0,
+      "lw1": 0.10526457047003819,
+      "theta0": 24.901419289790283,
+      "has_steady_heel": true,
+      "ratio_ref": 1.014088691598751,
+      "ratio_platform": 2.7582623024567376,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.25,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 25.0,
+      "has_steady_heel": false,
+      "ratio_ref": 0.30803304567210293,
+      "ratio_platform": 0.3731128807567623,
+      "verdict_ref": "FAIL",
+      "verdict_platform": "FAIL"
+    },
+    {
+      "GM": 0.35,
+      "area_scale": 1.0,
+      "lw1": 0.006579035654377387,
+      "theta0": 1.077066223433576,
+      "has_steady_heel": true,
+      "ratio_ref": 783.5702796148016,
+      "ratio_platform": 1410.6099848715799,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.35,
+      "area_scale": 2.0,
+      "lw1": 0.013158071308754774,
+      "theta0": 2.1545132939991163,
+      "has_steady_heel": true,
+      "ratio_ref": 195.4915006805489,
+      "ratio_platform": 352.93502205107256,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.35,
+      "area_scale": 4.0,
+      "lw1": 0.026316142617509548,
+      "theta0": 4.312080657882689,
+      "has_steady_heel": true,
+      "ratio_ref": 48.47151865855602,
+      "ratio_platform": 88.23225624044579,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.35,
+      "area_scale": 8.0,
+      "lw1": 0.052632285235019095,
+      "theta0": 8.648830394895413,
+      "has_steady_heel": true,
+      "ratio_ref": 11.715361433660098,
+      "ratio_platform": 22.020832485494044,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.35,
+      "area_scale": 16.0,
+      "lw1": 0.10526457047003819,
+      "theta0": 17.50301081597172,
+      "has_steady_heel": true,
+      "ratio_ref": 2.521464410419549,
+      "ratio_platform": 5.462812040701211,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.35,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 25.0,
+      "has_steady_heel": false,
+      "ratio_ref": 0.4602211207616464,
+      "ratio_platform": 0.8194782071518946,
+      "verdict_ref": "FAIL",
+      "verdict_platform": "FAIL"
+    },
+    {
+      "GM": 0.5,
+      "area_scale": 1.0,
+      "lw1": 0.006579035654377387,
+      "theta0": 0.7539237086803041,
+      "has_steady_heel": true,
+      "ratio_ref": 1599.6795124833777,
+      "ratio_platform": 2873.2669125928205,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.5,
+      "area_scale": 2.0,
+      "lw1": 0.013158071308754774,
+      "theta0": 1.5079779949246586,
+      "has_steady_heel": true,
+      "ratio_ref": 399.5188576916322,
+      "ratio_platform": 719.6288197602436,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.5,
+      "area_scale": 4.0,
+      "lw1": 0.026316142617509548,
+      "theta0": 3.0170018333137705,
+      "has_steady_heel": true,
+      "ratio_ref": 99.47855340054373,
+      "ratio_platform": 180.03487246276774,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.5,
+      "area_scale": 8.0,
+      "lw1": 0.052632285235019095,
+      "theta0": 6.042409805786519,
+      "has_steady_heel": true,
+      "ratio_ref": 24.46791225967936,
+      "ratio_platform": 44.98778239511722,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.5,
+      "area_scale": 16.0,
+      "lw1": 0.10526457047003819,
+      "theta0": 12.153363049174004,
+      "has_steady_heel": true,
+      "ratio_ref": 5.712942997709304,
+      "ratio_platform": 11.207065789610198,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.5,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 25.0,
+      "has_steady_heel": false,
+      "ratio_ref": 0.7311457991764865,
+      "ratio_platform": 1.7430244935302472,
+      "verdict_ref": "FAIL",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.8,
+      "area_scale": 1.0,
+      "lw1": 0.006579035654377387,
+      "theta0": 0.47119403166107077,
+      "has_steady_heel": true,
+      "ratio_ref": 4096.013603947848,
+      "ratio_platform": 7312.098010287181,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.8,
+      "area_scale": 2.0,
+      "lw1": 0.013158071308754774,
+      "theta0": 0.9424199349723494,
+      "has_steady_heel": true,
+      "ratio_ref": 1023.6024091121858,
+      "ratio_platform": 1836.8594030627733,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.8,
+      "area_scale": 4.0,
+      "lw1": 0.026316142617509548,
+      "theta0": 1.885094960243805,
+      "has_steady_heel": true,
+      "ratio_ref": 255.49955544230295,
+      "ratio_platform": 460.2905715911013,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.8,
+      "area_scale": 8.0,
+      "lw1": 0.052632285235019095,
+      "theta0": 3.7722343790392188,
+      "has_steady_heel": true,
+      "ratio_ref": 63.473622279999034,
+      "ratio_platform": 115.17079220780641,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.8,
+      "area_scale": 16.0,
+      "lw1": 0.10526457047003819,
+      "theta0": 7.560945232262384,
+      "has_steady_heel": true,
+      "ratio_ref": 15.466252529642032,
+      "ratio_platform": 28.76801916629525,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 0.8,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 19.20516532295551,
+      "has_steady_heel": true,
+      "ratio_ref": 2.01748432053374,
+      "ratio_platform": 4.5562612131362465,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 1.2,
+      "area_scale": 1.0,
+      "lw1": 0.006579035654377387,
+      "theta0": 0.31412738721883215,
+      "has_steady_heel": true,
+      "ratio_ref": 9216.698906844274,
+      "ratio_platform": 16251.464192475172,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 1.2,
+      "area_scale": 2.0,
+      "lw1": 0.013158071308754774,
+      "theta0": 0.6282642171299813,
+      "has_steady_heel": true,
+      "ratio_ref": 2303.7737448206926,
+      "ratio_platform": 4107.490538771753,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 1.2,
+      "area_scale": 4.0,
+      "lw1": 0.026316142617509548,
+      "theta0": 1.2566039910325344,
+      "has_steady_heel": true,
+      "ratio_ref": 575.5424300530932,
+      "ratio_platform": 1032.5066689912394,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 1.2,
+      "area_scale": 8.0,
+      "lw1": 0.052632285235019095,
+      "theta0": 2.5138129270544596,
+      "has_steady_heel": true,
+      "ratio_ref": 143.48450377864313,
+      "ratio_platform": 258.800082483664,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 1.2,
+      "area_scale": 16.0,
+      "lw1": 0.10526457047003819,
+      "theta0": 5.032481201988048,
+      "has_steady_heel": true,
+      "ratio_ref": 35.46963065689837,
+      "ratio_platform": 64.74771739611597,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    },
+    {
+      "GM": 1.2,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 12.667991758416974,
+      "has_steady_heel": true,
+      "ratio_ref": 5.222593289644806,
+      "ratio_platform": 10.320650773915476,
+      "verdict_ref": "PASS",
+      "verdict_platform": "PASS"
+    }
+  ],
+  "flips": [
+    {
+      "GM": 0.5,
+      "area_scale": 40.0,
+      "lw1": 0.26316142617509547,
+      "theta0": 25.0,
+      "has_steady_heel": false,
+      "ratio_ref": 0.7311457991764865,
+      "ratio_platform": 1.7430244935302472,
+      "verdict_ref": "FAIL",
+      "verdict_platform": "PASS"
+    }
+  ],
+  "rollmotion_probe": {
+    "status": 500,
+    "data": null,
+    "detail": "Internal Server Error"
+  }
+}

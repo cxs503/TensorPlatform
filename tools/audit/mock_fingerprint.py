@@ -26,6 +26,12 @@ mission 1547 靠人眼发现 /calculations/seakeeping 的垂荡 RAO 恒为 1.260
   DIRECTION_VIOLATION 声明了单调查方向（inc/dec）而实测符号相反。
   RESPONSIVE   其余 ⇒ 至少对物理输入有真实响应（**不足以**证明精度达标）。
 
+m2035 加固（探测器自身的验证欠账，见 docs/verification_debt/mock_gate_selfaudit/）：
+  INVARIANT_QUANTIZED / RIGID_RATIO_QUANTIZED
+               输出在**端点自身打印分辨率 q** 的 3 个量子内恒定（且相对展布 <1e-4）
+               ⇒ 仍是零响应，只是被 round(x, n) 掩盖（按 1e-9 判会漏判成 RESPONSIVE）。
+  尾部夹紧扩展到方向约束量（d==0 不构成方向违背，但截断指纹仍在），尾部为物理零位则豁免。
+
 端点级判决：
      MOCK        任一必须响应量 INVARIANT / RIGID_RATIO / FLAT / DIRECTION_VIOLATION
      PARTIAL     有响应但存在 COARSE_LATTICE / PLATEAU
@@ -61,7 +67,48 @@ SCORE_PATH = os.path.join(OUT_DIR, "scoreboard.json")
 
 INVARIANT_TOL = 1e-9
 LATTICE_MIN_RATIO = 1e-2
-PLATEAU_MIN_TAIL = 1   # 尾部 >=1 对相邻点严格相等 ⇒ 视为夹紧（前置：序列整体非恒定）
+PLATEAU_MIN_TAIL = 1   # 尾部 >=1 对相邻点相等（在探测分辨率内）⇒ 视为夹紧（前置：序列整体非恒定）
+
+# ── 分辨率/口径加固开关（m2035：探测器自身的验证欠账）────────────────────────
+# 三个开关都可在运行时回到 m1791 的 legacy 口径，便于 A/B 复现旧判决：
+#   ACCEPT_NUMERIC_STRINGS=True   接受字符串编码的数值（"1.234"），否则整条被判据静默丢弃
+#   ECHO_KEYS 非空                 find_key DFS 跳过回显/元信息分支（API 回显请求体会伪装出"响应"）
+#   QUANTUM_MAX_SPREAD>0           在端点输出打印分辨率 q 的 QR 个量子内恒定即判恒定（浮点精确 1e-9 太紧）
+#   PLATEAU_ON_DIRECTION_KEYS     方向约束量同样做尾部夹紧检查（d==0 逃过方向违背）
+LEGACY_FLAGS = {
+    "ACCEPT_NUMERIC_STRINGS": False,
+    "ECHO_KEYS": (),
+    "QUANTUM_MAX_SPREAD": 0,
+    "PLATEAU_ON_DIRECTION_KEYS": False,
+}
+ACCEPT_NUMERIC_STRINGS = True
+ECHO_KEYS = ("input", "inputs", "request", "requests", "echo", "payload",
+             "params", "parameters", "meta", "debug", "query")
+QUANTUM_MAX_SPREAD = 3      # 网格量子口径：展布 <= max(3, 1.5*(n-1)) 个量子 ⇒ 分辨率内恒定
+QUANTUM_MAX_QUANTA_PER_STEP = 1.5
+QUANTUM_DECIMAL_MAX = 2     # 十进制打印口径：展布 <= 2 个末位单位 ⇒ 分辨率内恒定
+QUANTUM_RATIO_BAND = 1.0    # 比值口径：相对展布 <= 1.0 × 平均相对分辨率 ⇒ 恒比被分辨率掩盖
+QUANTUM_MAX_REL_SPREAD = 1e-4
+PLATEAU_ZERO_FLOOR = 1e-12  # 尾部为物理零位（K_T=max(0,·)）不算夹紧
+PLATEAU_ON_DIRECTION_KEYS = True
+
+
+def set_detector_profile(profile: str) -> None:
+    """准入口径切换：'legacy'=m1791 原口径，'hardened'=默认（本单加固后）。"""
+    global ACCEPT_NUMERIC_STRINGS, ECHO_KEYS, QUANTUM_MAX_SPREAD, PLATEAU_ON_DIRECTION_KEYS
+    if profile == "legacy":
+        ACCEPT_NUMERIC_STRINGS = LEGACY_FLAGS["ACCEPT_NUMERIC_STRINGS"]
+        ECHO_KEYS = LEGACY_FLAGS["ECHO_KEYS"]
+        QUANTUM_MAX_SPREAD = LEGACY_FLAGS["QUANTUM_MAX_SPREAD"]
+        PLATEAU_ON_DIRECTION_KEYS = LEGACY_FLAGS["PLATEAU_ON_DIRECTION_KEYS"]
+    elif profile == "hardened":
+        ACCEPT_NUMERIC_STRINGS = True
+        ECHO_KEYS = ("input", "inputs", "request", "requests", "echo", "payload",
+                     "params", "parameters", "meta", "debug", "query")
+        QUANTUM_MAX_SPREAD = 3
+        PLATEAU_ON_DIRECTION_KEYS = True
+    else:
+        raise ValueError(f"unknown detector profile: {profile}")
 
 # ──────────────────────────────────────────────────────────────────────────────
 # 探针规格
@@ -237,7 +284,12 @@ SPECS: List[Dict[str, Any]] = [
 # 数值内核（纯函数、无 I/O ⇒ 可离线单测、可在旧回执上重算）
 # ──────────────────────────────────────────────────────────────────────────────
 def find_key(obj: Any, key: str) -> Any:
-    """在嵌套响应里取 key 的数值或数值列表；支持 'a.b' 路径。"""
+    """在嵌套响应里取 key 的数值或数值列表；支持 'a.b' 路径。
+
+    两遍搜索：先跳过回显/元信息分支（ECHO_KEYS），全树无果才回落到含回显的旧路径
+    ——回显请求体的 `input.speed` 会随扫参变化，若被当成输出量，恒定输出可伪装成有响应。
+    显式路径（含 '.'）不做跳过：作者点名即权威。
+    """
     if "." in key:
         cur = obj
         for part in key.split("."):
@@ -245,32 +297,64 @@ def find_key(obj: Any, key: str) -> Any:
                 cur = cur[part]
             else:
                 return None
-        return cur if isinstance(cur, (int, float, list)) else None
+        return cur if isinstance(cur, (int, float, str, list)) else None
+    for skip_echo in (True, False):
+        got = _search_key(obj, key, skip_echo and bool(ECHO_KEYS))
+        if got is not None:
+            return got
+    return None
+
+
+def _search_key(obj: Any, key: str, skip_echo: bool,
+                _depth: int = 0) -> Any:
+    if _depth > 24:
+        return None
     if isinstance(obj, dict):
         if key in obj:
             return obj[key]
-        for v in obj.values():
-            got = find_key(v, key)
+        for k, v in obj.items():
+            if skip_echo and str(k).lower() in ECHO_KEYS:
+                continue
+            got = _search_key(v, key, skip_echo, _depth + 1)
             if got is not None:
                 return got
     elif isinstance(obj, (list, tuple)):
         for v in obj:
-            got = find_key(v, key)
+            got = _search_key(v, key, skip_echo, _depth + 1)
             if got is not None:
                 return got
+    return None
+
+
+def _coerce(x: Any) -> Optional[float]:
+    """单值取 float；字符串编码的数值（"1.234" / "1,234"? 不算）在加固口径下可解析。"""
+    if isinstance(x, bool) or x is None:
+        return None
+    if isinstance(x, (int, float)):
+        return float(x)
+    if ACCEPT_NUMERIC_STRINGS and isinstance(x, str):
+        s = x.strip()
+        if not s:
+            return None
+        try:
+            val = float(s)
+        except ValueError:
+            return None
+        return val if math.isfinite(val) else None
     return None
 
 
 def as_floats(v: Any) -> Optional[List[float]]:
     """标量 -> [v]；数值列表 -> 列表；其余 -> None。"""
-    if isinstance(v, bool):
-        return None
-    if isinstance(v, (int, float)):
-        return [float(v)]
-    if isinstance(v, (list, tuple)) and v and all(
-            isinstance(x, (int, float)) and not isinstance(x, bool) for x in v):
-        return [float(x) for x in v]
-    return None
+    if isinstance(v, (list, tuple)):
+        if not v:
+            return None
+        out = [_coerce(x) for x in v]
+        if any(o is None for o in out):
+            return None
+        return [float(o) for o in out]
+    one = _coerce(v)
+    return None if one is None else [one]
 
 
 def relative_spread(vals: Sequence[float]) -> float:
@@ -300,14 +384,94 @@ def lattice_step(vals: Sequence[float]) -> Optional[float]:
     return h
 
 
-def direction_violation(vals: Sequence[float], expect: Optional[str]) -> Optional[bool]:
+def quantum(vals: Sequence[float]) -> Optional[float]:
+    """估计序列的量化/打印分辨率 q：全部相邻差都是同一个 q 的整数倍时返回 q。
+
+    用于把「浮点精确恒定（1e-9）」放宽到「端点自己的输出分辨率内恒定」：
+    返回 round(x, 4) 的端点其 MOCK 指纹落在 1e-4 量级，按 1e-9 判据会被判成 RESPONSIVE。
+    """
+    vs = [float(v) for v in vals]
+    if len(vs) < 3:
+        return None
+    uniq = sorted(set(vs))
+    if len(uniq) < 3:
+        return None
+    deltas = [b - a for a, b in zip(uniq, uniq[1:]) if b - a > 0]
+    if not deltas:
+        return None
+    q = min(deltas)
+    if q <= 0:
+        return None
+    for d in deltas:
+        k = d / q
+        if abs(k - round(k)) > 1e-3 * max(1.0, abs(k)):
+            return None
+    return q
+
+
+def decimal_digits(vals: Sequence[float], max_d: int = 9) -> Optional[int]:
+    """若序列全部值在 d 位小数内精确表示，返回最小 d（端点打印分辨率），否则 None。
+
+    用于识别 round(x, n) 的端点：其输出只带 n 位有效小数，MOCK 指纹被压在 10^-n 量级。
+    """
+    vs = [float(v) for v in vals]
+    for d in range(0, max_d + 1):
+        if all(abs(v - round(v, d)) <= 1e-12 * max(1.0, abs(v)) for v in vs):
+            return d
+    return None
+
+
+def resolution(vals: Sequence[float]) -> Tuple[Optional[float], Optional[str]]:
+    """端点输出分辨率估计：优先"打印位数"（round(x,n)），退回"等距网格"（伪抖动）。"""
+    d = decimal_digits(vals)
+    if d is not None:
+        return 10.0 ** (-d), "decimal"
+    if QUANTUM_MAX_SPREAD <= 0:
+        return None, None
+    q = quantum(vals)
+    return (q, "grid") if q is not None else (None, None)
+
+
+def quantized_invariance(vals: Sequence[float], n: Optional[int] = None) -> Dict[str, Any]:
+    """在端点输出分辨率内恒定？返回分辨率/展布取证，供 INVARIANT_QUANTIZED 归因。"""
+    out: Dict[str, Any] = {"quantum": None, "resolution_kind": None,
+                           "spread_over_resolution": None, "within_resolution": False}
+    if QUANTUM_MAX_SPREAD <= 0:
+        return out
+    vs = [float(v) for v in vals]
+    spread = relative_spread(vs)
+    if spread <= INVARIANT_TOL or spread >= QUANTUM_MAX_REL_SPREAD:
+        return out            # 精确恒定（INVARIANT 已覆盖）或变化远超分辨率
+    q, kind = resolution(vs)
+    if q is None:
+        return out
+    scale = max(abs(min(vs)), abs(max(vs)))
+    if scale <= 0:
+        return out
+    abs_spread = max(vs) - min(vs)
+    k = len(vs) if n is None else n
+    allow = (max(QUANTUM_MAX_SPREAD, QUANTUM_MAX_QUANTA_PER_STEP * (k - 1))
+             if kind == "grid" else QUANTUM_DECIMAL_MAX)
+    out.update(quantum=q, resolution_kind=kind, quantum_relative=q / scale,
+               spread_over_resolution=abs_spread / q,
+               within_resolution=bool(abs_spread <= allow * q))
+    return out
+
+
+def direction_violation(vals: Sequence[float], expect: Optional[str],
+                        mag_floor: float = 0.0) -> Optional[bool]:
+    """方向违背：符号相反**且**违背幅度超过 mag_floor（默认 0 ⇒ legacy 口径）。
+
+    无幅度下限时，1e-13 级浮点噪声的符号翻转就会被判 DIRECTION_VIOLATION，
+    把一条真实单调曲线误杀成 MOCK——这是原判据的假阳性通道。
+    """
     if not expect or len(vals) < 2:
         return None
     diffs = [b - a for a, b in zip(vals, vals[1:])]
     if expect == "inc":
-        return any(d < 0 for d in diffs)
+        return any(d < -mag_floor for d in diffs)
     if expect == "dec":
-        return any(d > 0 for d in diffs)
+        return any(d > mag_floor for d in diffs)
     return None
 
 
@@ -328,8 +492,18 @@ def classify_series(vals: Sequence[float], expect: Optional[str] = None,
         out["verdict"] = "INVARIANT"
         return out
 
-    viol = direction_violation(vs, expect)
+    qi = quantized_invariance(vs)
+    out.update(qi)
+    if qi["within_resolution"]:
+        out["verdict"] = "INVARIANT_QUANTIZED"   # 在端点输出分辨率内恒定 = 仍是零响应
+        return out
+
+    q_dir, _kind_dir = (resolution(vs) if QUANTUM_MAX_SPREAD > 0 else (None, None))
+    mag_floor = (max(tol * scale, 0.5 * q_dir) if q_dir is not None
+                 else (tol * scale if QUANTUM_MAX_SPREAD > 0 else 0.0))
+    viol = direction_violation(vs, expect, mag_floor=mag_floor)
     out["direction_violation"] = viol
+    out["direction_mag_floor"] = mag_floor
 
     h = lattice_step(vs)
     ratio = (h / scale) if (h is not None and scale > 0) else None
@@ -337,10 +511,17 @@ def classify_series(vals: Sequence[float], expect: Optional[str] = None,
 
     if viol:
         out["verdict"] = "DIRECTION_VIOLATION"
-    elif h is not None and ratio is not None and ratio >= LATTICE_MIN_RATIO:
+        return out
+    if h is not None and ratio is not None and ratio >= LATTICE_MIN_RATIO:
         out["verdict"] = "COARSE_LATTICE"
-    else:
-        out["verdict"] = "RESPONSIVE"
+        return out
+    if PLATEAU_ON_DIRECTION_KEYS and expect:
+        pt = plateau_tail(vs)
+        out["plateau"] = pt
+        if pt["verdict"] == "PLATEAU":
+            out["verdict"] = "PLATEAU"           # d==0 不构成方向违背，但夹紧仍是截断指纹
+            return out
+    out["verdict"] = "RESPONSIVE"
     return out
 
 
@@ -393,20 +574,62 @@ def classify_ratio(num: Sequence[float], den: Sequence[float],
         return out
     sp = relative_spread(ratios)
     out["relative_spread"] = sp
-    out["verdict"] = "RIGID_RATIO" if sp <= tol else "RESPONSIVE"
+    if sp <= tol:
+        out["verdict"] = "RIGID_RATIO"
+        return out
+    qi = quantized_invariance(ratios)
+    out.update(qi)
+    if qi["within_resolution"]:
+        out["verdict"] = "RIGID_RATIO_QUANTIZED"   # 恒比被输出分辨率掩盖
+        return out
+    # 比值的量子不被单序列估计器识别（两端各自 round(x,n) ⇒ 比值落在一条带内）：
+    # 用分子/分母各自的分辨率做一阶误差传播 eps = |A/B|*(q_A/|A| + q_B/|B|)。
+    if QUANTUM_MAX_SPREAD <= 0:      # legacy 口径：不做分辨率补偿
+        out["verdict"] = "RESPONSIVE"
+        return out
+    qa, ka = resolution([float(a) for a in num])
+    qb, kb = resolution([float(b) for b in den])
+    if qa is not None and qb is not None:
+        rel_band = []
+        for a, b in zip([float(x) for x in num], [float(x) for x in den]):
+            if a == 0 or b == 0:
+                continue
+            rel_band.append(qa / abs(a) + qb / abs(b))
+        if rel_band:
+            band_rel = sum(rel_band) / len(rel_band)
+            out.update(ratio_rel_band=band_rel, resolution_kind=f"{ka}/{kb}")
+            if sp <= QUANTUM_RATIO_BAND * band_rel:
+                out["verdict"] = "RIGID_RATIO_QUANTIZED"
+                return out
+    out["verdict"] = "RESPONSIVE"
     return out
 
 
 def plateau_tail(vals: Sequence[float], tol: float = INVARIANT_TOL) -> Dict[str, Any]:
-    """序列尾部是否被夹紧（尾部 >=2 点严格相等而前段不等）。"""
+    """序列尾部是否被夹紧（尾部 >=1 对相邻点相等而前段不等）。
+
+    相等判定取「浮点容差」与「端点输出分辨率 q 的一半」中较宽的：
+    夹紧值经过 round(x, n) 后与前一采样点只差 1 个量子，按 1e-9 判会漏。
+    尾部落在物理零位（K_T = max(0, ·)、η₀ 无推力即 0）不算夹紧——那是物理下限不是截断。
+    """
     vs = [float(v) for v in vals]
     out: Dict[str, Any] = {"kind": "plateau", "values": vs}
     if len(vs) < 3:
         out["verdict"] = "NOT_APPLICABLE"
         return out
+    q = quantum(vs)
+    scale = max(abs(min(vs)), abs(max(vs)))
+    out["quantum"] = q
+    if scale > 0 and abs(vs[-1]) <= PLATEAU_ZERO_FLOOR:
+        out["zero_floor_exempt"] = True
+        out["verdict"] = "RESPONSIVE"
+        return out
     k = 0
-    for i in range(len(vs) - 1, len(vs) - 1 - PLATEAU_MIN_TAIL, -1):
-        if abs(vs[i] - vs[i - 1]) <= tol * max(1.0, abs(vs[i])):
+    for i in range(len(vs) - 1, len(vs) - 1 - max(PLATEAU_MIN_TAIL, 1), -1):
+        eq = abs(vs[i] - vs[i - 1]) <= tol * max(1.0, abs(vs[i]))
+        if not eq and q is not None:
+            eq = abs(vs[i] - vs[i - 1]) <= 0.5 * q
+        if eq:
             k += 1
         else:
             break
@@ -415,7 +638,8 @@ def plateau_tail(vals: Sequence[float], tol: float = INVARIANT_TOL) -> Dict[str,
     return out
 
 
-MOCK_LEVEL = {"INVARIANT", "RIGID_RATIO", "FLAT", "DIRECTION_VIOLATION"}
+MOCK_LEVEL = {"INVARIANT", "INVARIANT_QUANTIZED", "RIGID_RATIO",
+              "RIGID_RATIO_QUANTIZED", "FLAT", "DIRECTION_VIOLATION"}
 PARTIAL_LEVEL = {"COARSE_LATTICE", "PLATEAU"}
 
 

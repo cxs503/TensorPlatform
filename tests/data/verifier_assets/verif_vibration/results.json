@@ -1,0 +1,1666 @@
+{
+  "summary": {
+    "module": "backend/api/domain/ship_vibration.py",
+    "module_sha_lines": 713,
+    "checks": 109,
+    "pass": 108,
+    "fail": 0,
+    "info": 1,
+    "worst_relative_error": {
+      "label": "SSSS 板 Rayleigh vs Gauss 积分 (4,3)",
+      "rel_err": 0.0009244137487562316
+    },
+    "gate_policy": "精确恒等式/解析闭式 1e-9~1e-12；独立数值算路 3%；A 计权表值 ±0.1 dB；场入射约定 ±3 dB"
+  },
+  "rows": [
+    {
+      "check": "V1",
+      "label": "梁特征值 λ1 (cc)",
+      "platform": 4.730040744862931,
+      "reference": 4.730040744862704,
+      "rel_err": 4.8070130408534546e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ5 (cc)",
+      "platform": 17.278759657399227,
+      "reference": 17.27875965739948,
+      "rel_err": 1.4598424666831616e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ1 (cc)",
+      "platform": 4.730040744862704,
+      "reference": 4.730040744862704,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ2 (cc)",
+      "platform": 7.853204624095838,
+      "reference": 7.853204624095838,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ3 (cc)",
+      "platform": 10.995607838001671,
+      "reference": 10.995607838001671,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ4 (cc)",
+      "platform": 14.137165491257464,
+      "reference": 14.137165491257464,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ1 (cf)",
+      "platform": 1.875104068711809,
+      "reference": 1.875104068711961,
+      "rel_err": 8.099737625392131e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ5 (cf)",
+      "platform": 14.137168391046302,
+      "reference": 14.13716839104647,
+      "rel_err": 1.1936895358047877e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ1 (cf)",
+      "platform": 1.875104068711961,
+      "reference": 1.875104068711961,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ2 (cf)",
+      "platform": 4.694091132974175,
+      "reference": 4.694091132974175,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ3 (cf)",
+      "platform": 7.854757438237613,
+      "reference": 7.854757438237613,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ4 (cf)",
+      "platform": 10.995540734875467,
+      "reference": 10.995540734875467,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ1 (cp)",
+      "platform": 3.9266023120479105,
+      "reference": 3.9266023120479185,
+      "rel_err": 2.0357563975283414e-15,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ5 (cp)",
+      "platform": 16.493361431346585,
+      "reference": 16.493361431346408,
+      "rel_err": 1.0770132254691278e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ1 (cp)",
+      "platform": 3.9266023120479185,
+      "reference": 3.926602312047919,
+      "rel_err": 1.130975776404634e-16,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ2 (cp)",
+      "platform": 7.068582745628732,
+      "reference": 7.068582745628732,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ3 (cp)",
+      "platform": 10.210176122813031,
+      "reference": 10.210176124166829,
+      "rel_err": 1.3259292082527043e-10,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ4 (cp)",
+      "platform": 13.351768777754094,
+      "reference": 13.351768777756623,
+      "rel_err": 1.8945296173193398e-13,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ1 (pp)",
+      "platform": 3.141592653589793,
+      "reference": 3.141592653589793,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ5 (pp)",
+      "platform": 15.707963267948966,
+      "reference": 15.707963267948966,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ1 (pp)",
+      "platform": 3.141592653589793,
+      "reference": 3.141592653589793,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ2 (pp)",
+      "platform": 6.283185307179586,
+      "reference": 6.283185307179586,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ3 (pp)",
+      "platform": 9.42477796076938,
+      "reference": 9.42477796076938,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ4 (pp)",
+      "platform": 12.566370614359172,
+      "reference": 12.566370614359172,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ1 (ff)",
+      "platform": 4.730040744862931,
+      "reference": 4.730040744862704,
+      "rel_err": 4.8070130408534546e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1",
+      "label": "梁特征值 λ5 (ff)",
+      "platform": 17.278759657399227,
+      "reference": 17.27875965739948,
+      "rel_err": 1.4598424666831616e-14,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ1 (ff)",
+      "platform": 4.730040744862704,
+      "reference": 4.730040744862704,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ2 (ff)",
+      "platform": 7.853204624095838,
+      "reference": 7.853204624095838,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ3 (ff)",
+      "platform": 10.995607838001671,
+      "reference": 10.995607838001671,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V1b",
+      "label": "ref 求根 vs 手册 λ4 (ff)",
+      "platform": 14.137165491257464,
+      "reference": 14.137165491257464,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "梁固有频率 f1 (C-C)",
+      "platform": 0.44305010636054004,
+      "reference": 0.4430501063604974,
+      "rel_err": 9.622515271651259e-14,
+      "gate": 1e-09,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "梁固有频率 f2 (C-C)",
+      "platform": 1.2212846787575304,
+      "reference": 1.221284678757445,
+      "rel_err": 6.99977444923923e-14,
+      "gate": 1e-09,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "梁固有频率 f3 (C-C)",
+      "platform": 2.3942062817908343,
+      "reference": 2.3942062817907988,
+      "rel_err": 1.4838795244255945e-14,
+      "gate": 1e-09,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "标度律 f1(L/2)/f1(L) 应=4",
+      "platform": 4.0,
+      "reference": 4.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "标度律 f1(L/2)/f1(L) 应=4",
+      "platform": 4.0,
+      "reference": 4.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "标度律 f1(L/2)/f1(L) 应=4",
+      "platform": 4.0,
+      "reference": 4.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V2",
+      "label": "标度律 f(E→4E)/f(E) 应=2",
+      "platform": 2.0,
+      "reference": 2.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V3",
+      "label": "FEM 最细网格相对误差 cc",
+      "platform": 2.031800790264313e-08,
+      "reference": 0.0,
+      "abs_err": 2.031800790264313e-08,
+      "gate_abs": 0.03,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": "解析基准 f1=0.4431 Hz；门 3%"
+    },
+    {
+      "check": "V3",
+      "label": "FEM 最细网格相对误差 cf",
+      "platform": 4.655526730918169e-09,
+      "reference": 0.0,
+      "abs_err": 4.655526730918169e-09,
+      "gate_abs": 0.03,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": "解析基准 f1=0.0696 Hz；门 3%"
+    },
+    {
+      "check": "V3",
+      "label": "FEM 最细网格相对误差 pp",
+      "platform": 1.2780639856188145e-09,
+      "reference": 0.0,
+      "abs_err": 1.2780639856188145e-09,
+      "gate_abs": 0.03,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": "解析基准 f1=0.1954 Hz；门 3%"
+    },
+    {
+      "check": "V4",
+      "label": "板弯曲刚度 D",
+      "platform": 9846.153846153846,
+      "reference": 9846.153846153846,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "N·m",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 f(1,1) 闭式 vs Navier",
+      "platform": 68.29373673610935,
+      "reference": 68.29373673610935,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 Rayleigh vs Gauss 积分 (1,1)",
+      "platform": 68.28807793608168,
+      "reference": 68.29373673610937,
+      "rel_err": 8.285972181541084e-05,
+      "gate": 0.03,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": "平台 np.gradient+梯形"
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 f(2,1) 闭式 vs Navier",
+      "platform": 109.26997877777495,
+      "reference": 109.26997877777495,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 Rayleigh vs Gauss 积分 (2,1)",
+      "platform": 109.24732998508638,
+      "reference": 109.26997877777485,
+      "rel_err": 0.00020727369897758431,
+      "gate": 0.03,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": "平台 np.gradient+梯形"
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 f(1,2) 闭式 vs Navier",
+      "platform": 232.1987049027718,
+      "reference": 232.1987049027718,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 Rayleigh vs Gauss 积分 (1,2)",
+      "platform": 232.12521652956505,
+      "reference": 232.19870490277225,
+      "rel_err": 0.0003164891606004837,
+      "gate": 0.03,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": "平台 np.gradient+梯形"
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 f(3,2) 闭式 vs Navier",
+      "platform": 341.46868368054675,
+      "reference": 341.46868368054675,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 Rayleigh vs Gauss 积分 (3,2)",
+      "platform": 341.3044882873872,
+      "reference": 341.4686836805466,
+      "rel_err": 0.00048085051721169915,
+      "gate": 0.03,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": "平台 np.gradient+梯形"
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 f(4,3) 闭式 vs Navier",
+      "platform": 710.2548620555372,
+      "reference": 710.2548620555372,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V5",
+      "label": "SSSS 板 Rayleigh vs Gauss 积分 (4,3)",
+      "platform": 709.5982926959334,
+      "reference": 710.2548620555385,
+      "rel_err": 0.0009244137487562316,
+      "gate": 0.03,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": "平台 np.gradient+梯形"
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=31.5Hz",
+      "platform": -39.52886548324546,
+      "reference": -39.52886548324546,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=31.5Hz",
+      "platform": -39.52886548324546,
+      "reference": -39.4,
+      "abs_err": 0.12886548324546254,
+      "gate_abs": 0.2,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "带外频点：标准解析式与其圆整表固有差 ~0.13 dB，门放宽至 0.2 dB"
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=63Hz",
+      "platform": -26.222825281137034,
+      "reference": -26.222825281137034,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=63Hz",
+      "platform": -26.222825281137034,
+      "reference": -26.2,
+      "abs_err": 0.022825281137034636,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=125Hz",
+      "platform": -16.189653372521796,
+      "reference": -16.189653372521796,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=125Hz",
+      "platform": -16.189653372521796,
+      "reference": -16.1,
+      "abs_err": 0.08965337252179495,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=250Hz",
+      "platform": -8.67482728928772,
+      "reference": -8.67482728928772,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=250Hz",
+      "platform": -8.67482728928772,
+      "reference": -8.6,
+      "abs_err": 0.07482728928771998,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=500Hz",
+      "platform": -3.2478075093781316,
+      "reference": -3.2478075093781316,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=500Hz",
+      "platform": -3.2478075093781316,
+      "reference": -3.2,
+      "abs_err": 0.047807509378131385,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=1000Hz",
+      "platform": 0.00014152769487951744,
+      "reference": 0.00014152769487951744,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=1000Hz",
+      "platform": 0.00014152769487951744,
+      "reference": 0.0,
+      "abs_err": 0.00014152769487951744,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=2000Hz",
+      "platform": 1.201674176077685,
+      "reference": 1.201674176077685,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=2000Hz",
+      "platform": 1.201674176077685,
+      "reference": 1.2,
+      "abs_err": 0.0016741760776850523,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=4000Hz",
+      "platform": 0.9635979052450729,
+      "reference": 0.9635979052450718,
+      "rel_err": 1.1521642155737082e-15,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=4000Hz",
+      "platform": 0.9635979052450729,
+      "reference": 1.0,
+      "abs_err": 0.03640209475492706,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=8000Hz",
+      "platform": -1.1468793432843185,
+      "reference": -1.1468793432843185,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=8000Hz",
+      "platform": -1.1468793432843185,
+      "reference": -1.1,
+      "abs_err": 0.04687934328431842,
+      "gate_abs": 0.1,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 解析式一致性 f=16000Hz",
+      "platform": -6.7061184127130495,
+      "reference": -6.7061184127130495,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V6b",
+      "label": "A 计权 vs IEC 表值 f=16000Hz",
+      "platform": -6.7061184127130495,
+      "reference": -6.6,
+      "abs_err": 0.10611841271304989,
+      "gate_abs": 0.2,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "带外频点：标准解析式与其圆整表固有差 ~0.13 dB，门放宽至 0.2 dB"
+    },
+    {
+      "check": "V6",
+      "label": "A 计权 1 kHz 处必须为 0 dB",
+      "platform": 0.00014152769487951744,
+      "reference": 0.0,
+      "abs_err": 0.00014152769487951744,
+      "gate_abs": 0.001,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V7",
+      "label": "吻合频率 f_c (h=8mm 钢)",
+      "platform": 1495.3914214736174,
+      "reference": 1495.3914214736174,
+      "rel_err": 0.0,
+      "gate": 1e-09,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V7",
+      "label": "标度律 f_c(h/2)/f_c(h) 应=2",
+      "platform": 2.0,
+      "reference": 2.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "正入射 TL f=63Hz m''=20",
+      "platform": 19.53046379328564,
+      "reference": 19.53046379328564,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "正入射 TL f=125Hz m''=20",
+      "platform": 25.445605522415647,
+      "reference": 25.445605522415647,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "正入射 TL f=250Hz m''=20",
+      "platform": 31.456899710451324,
+      "reference": 31.456899710451324,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "正入射 TL f=500Hz m''=47.1",
+      "platform": 44.91435158187141,
+      "reference": 44.91435158187141,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "正入射 TL f=1000Hz m''=47.1",
+      "platform": 50.93484644040693,
+      "reference": 50.93484644040693,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "正入射 TL f=2000Hz m''=78.5",
+      "platform": 61.39238947890563,
+      "reference": 61.39238947890563,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V8",
+      "label": "质量定律频率倍频斜率 应=6.02 dB",
+      "platform": 6.020573649196521,
+      "reference": 6.0206,
+      "abs_err": 2.6350803478791818e-05,
+      "gate_abs": 0.15,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V9",
+      "label": "场入射 -5dB 约定 vs 扩散场积分 f=125Hz",
+      "platform": 20.445605522415647,
+      "reference": 20.35572909914415,
+      "abs_err": 0.08987642327149814,
+      "gate_abs": 3.0,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "偏差 >3 dB 即为约定失效带"
+    },
+    {
+      "check": "V9",
+      "label": "场入射 -5dB 约定 vs 扩散场积分 f=250Hz",
+      "platform": 33.89417186215757,
+      "reference": 33.73457066928182,
+      "abs_err": 0.1596011928757477,
+      "gate_abs": 3.0,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "偏差 >3 dB 即为约定失效带"
+    },
+    {
+      "check": "V9",
+      "label": "场入射 -5dB 约定 vs 扩散场积分 f=500Hz",
+      "platform": 39.91435158187141,
+      "reference": 39.752213720476504,
+      "abs_err": 0.16213786139490338,
+      "gate_abs": 3.0,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "偏差 >3 dB 即为约定失效带"
+    },
+    {
+      "check": "V9",
+      "label": "场入射 -5dB 约定 vs 扩散场积分 f=1000Hz",
+      "platform": 45.93484644040693,
+      "reference": 45.77207365507522,
+      "abs_err": 0.16277278533171113,
+      "gate_abs": 3.0,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "偏差 >3 dB 即为约定失效带"
+    },
+    {
+      "check": "V9",
+      "label": "场入射 -5dB 约定 vs 扩散场积分 f=2000Hz",
+      "platform": 56.39238947890563,
+      "reference": 56.229424040033074,
+      "abs_err": 0.1629654388725541,
+      "gate_abs": 3.0,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "偏差 >3 dB 即为约定失效带"
+    },
+    {
+      "check": "V9",
+      "label": "场入射 -5dB 约定 vs 扩散场积分 f=4000Hz",
+      "platform": 62.41298702840693,
+      "reference": 62.250007298187064,
+      "abs_err": 0.16297973021986678,
+      "gate_abs": 3.0,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": "偏差 >3 dB 即为约定失效带"
+    },
+    {
+      "check": "V10",
+      "label": "T(r=√2)=1 与 ζ=0.0 无关",
+      "platform": 0.9999999999999996,
+      "reference": 1.0,
+      "rel_err": 4.440892098500626e-16,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "T(r=√2)=1 与 ζ=0.05 无关",
+      "platform": 0.9999999999999996,
+      "reference": 1.0,
+      "rel_err": 4.440892098500626e-16,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "T(r=√2)=1 与 ζ=0.2 无关",
+      "platform": 0.9999999999999997,
+      "reference": 1.0,
+      "rel_err": 3.3306690738754696e-16,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "T(r=√2)=1 与 ζ=0.5 无关",
+      "platform": 0.9999999999999998,
+      "reference": 1.0,
+      "rel_err": 2.220446049250313e-16,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "T(r=1)=sqrt(1+(2ζ)²)/(2ζ) (ζ=0.05)",
+      "platform": 10.04987562112089,
+      "reference": 10.049875621120888,
+      "rel_err": 1.7675411182871224e-16,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "T(r=1)=sqrt(1+(2ζ)²)/(2ζ) (ζ=0.2)",
+      "platform": 2.692582403567252,
+      "reference": 2.6925824035672523,
+      "rel_err": 1.6493059200777423e-16,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "T(r=1)=sqrt(1+(2ζ)²)/(2ζ) (ζ=0.5)",
+      "platform": 1.4142135623730951,
+      "reference": 1.4142135623730951,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "隔振区 r>√2 严格单调递减（0/1 判定）",
+      "platform": 1.0,
+      "reference": 1.0,
+      "rel_err": 0.0,
+      "gate": 0.0,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V10",
+      "label": "隔振区 max(T) 应<1（距 1 的余量）",
+      "platform": 0.8031876555915418,
+      "reference": 1.0,
+      "abs_err": 0.19681234440845818,
+      "gate_abs": 0.2,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": "0.2 门=至少 1.6 dB 隔振"
+    },
+    {
+      "check": "V11",
+      "label": "2×60dB 叠加 应=60+10log10N",
+      "platform": 63.01029995663981,
+      "reference": 63.01029995663981,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V11",
+      "label": "4×60dB 叠加 应=60+10log10N",
+      "platform": 66.02059991327963,
+      "reference": 66.02059991327963,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V11",
+      "label": "10×60dB 叠加 应=60+10log10N",
+      "platform": 70.0,
+      "reference": 70.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V11",
+      "label": "非相干叠加顺序无关",
+      "platform": 71.3895954437267,
+      "reference": 71.38959544372669,
+      "rel_err": 1.9906058616628247e-16,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V11",
+      "label": "倍频程分配能量守恒（Σ=total）",
+      "platform": 90.0,
+      "reference": 90.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V11",
+      "label": "required_tl 算术",
+      "platform": 55.0,
+      "reference": 55.0,
+      "rel_err": 0.0,
+      "gate": 1e-15,
+      "unit": "dB",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V12",
+      "label": "轴频 = rpm/60",
+      "platform": 2.0,
+      "reference": 2.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V12",
+      "label": "叶频 = n_blade·rpm/60",
+      "platform": 10.0,
+      "reference": 10.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V12",
+      "label": "3 阶叶频 = 3·BPF",
+      "platform": 30.0,
+      "reference": 30.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V12",
+      "label": "四冲程点火频 = (n_cyl/2)·rpm/60",
+      "platform": 45.0,
+      "reference": 45.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V12",
+      "label": "二冲程点火频 = n_cyl·rpm/60",
+      "platform": 90.0,
+      "reference": 90.0,
+      "rel_err": 0.0,
+      "gate": 1e-12,
+      "unit": "Hz",
+      "verdict": "PASS",
+      "note": ""
+    },
+    {
+      "check": "V12",
+      "label": "裕度边界 |15%| 判通过（判据 |m|>=tol）",
+      "platform": 0.0,
+      "reference": 1.0,
+      "abs_err": 1.0,
+      "gate_abs": 0.0,
+      "unit": "-",
+      "verdict": "INFO",
+      "note": "(1.15-1)/1=0.14999999999999991 二进制舍入 <0.15 → 边界判不通过；属边界语义鲁棒性，非物理误差"
+    },
+    {
+      "check": "V12",
+      "label": "裕度 14.9% 应判不通过",
+      "platform": 0.0,
+      "reference": 0.0,
+      "rel_err": 0.0,
+      "gate": 0.0,
+      "unit": "-",
+      "verdict": "PASS",
+      "note": ""
+    }
+  ],
+  "detail": {
+    "beam_lambda": {
+      "cc": {
+        "platform": [
+          4.730040744862931,
+          7.853204624096113,
+          10.995607838001753,
+          14.137165491257626,
+          17.278759657399227
+        ],
+        "ref": [
+          4.730040744862704,
+          7.853204624095838,
+          10.995607838001671,
+          14.137165491257464,
+          17.27875965739948
+        ]
+      },
+      "cf": {
+        "platform": [
+          1.875104068711809,
+          4.694091132974432,
+          7.854757438237728,
+          10.99554073487555,
+          14.137168391046302
+        ],
+        "ref": [
+          1.875104068711961,
+          4.694091132974175,
+          7.854757438237613,
+          10.995540734875467,
+          14.13716839104647
+        ]
+      },
+      "cp": {
+        "platform": [
+          3.9266023120479105,
+          7.068582745628959,
+          10.210176122812854,
+          13.351768777754344,
+          16.493361431346585
+        ],
+        "ref": [
+          3.9266023120479185,
+          7.068582745628732,
+          10.210176122813031,
+          13.351768777754094,
+          16.493361431346408
+        ]
+      },
+      "pp": {
+        "platform": [
+          3.141592653589793,
+          6.283185307179586,
+          9.42477796076938,
+          12.566370614359172,
+          15.707963267948966
+        ],
+        "ref": [
+          3.141592653589793,
+          6.283185307179586,
+          9.42477796076938,
+          12.566370614359172,
+          15.707963267948966
+        ]
+      },
+      "ff": {
+        "platform": [
+          4.730040744862931,
+          7.853204624096113,
+          10.995607838001753,
+          14.137165491257626,
+          17.278759657399227
+        ],
+        "ref": [
+          4.730040744862704,
+          7.853204624095838,
+          10.995607838001671,
+          14.137165491257464,
+          17.27875965739948
+        ]
+      }
+    },
+    "fem_study": {
+      "cc": {
+        "analytic_hz": [
+          0.4430501063604974,
+          1.221284678757445,
+          2.3942062817907988
+        ],
+        "series": [
+          {
+            "n_elem": 4,
+            "rel_err": [
+              0.0013272892544557006,
+              0.009249747040839312,
+              0.02135727070689776
+            ]
+          },
+          {
+            "n_elem": 8,
+            "rel_err": [
+              8.440642536471489e-05,
+              0.0006318081761338798,
+              0.0023696648992509424
+            ]
+          },
+          {
+            "n_elem": 16,
+            "rel_err": [
+              5.296912943876606e-06,
+              4.009826840833643e-05,
+              0.00015320696741835817
+            ]
+          },
+          {
+            "n_elem": 32,
+            "rel_err": [
+              3.3143191096581925e-07,
+              2.515757427634496e-06,
+              9.654269491273875e-06
+            ]
+          },
+          {
+            "n_elem": 64,
+            "rel_err": [
+              2.031800790264313e-08,
+              1.5691537814601482e-07,
+              6.045724687394232e-07
+            ]
+          }
+        ],
+        "observed_order": 4.0278816511548
+      },
+      "cf": {
+        "analytic_hz": [
+          0.06962638287034002,
+          0.43634109321977216,
+          1.221767695742601
+        ],
+        "series": [
+          {
+            "n_elem": 4,
+            "rel_err": [
+              3.270807501803393e-05,
+              0.0011652069752979299,
+              0.007742296258602666
+            ]
+          },
+          {
+            "n_elem": 8,
+            "rel_err": [
+              2.083015483658019e-06,
+              7.995889795510046e-05,
+              0.0006082410486479159
+            ]
+          },
+          {
+            "n_elem": 16,
+            "rel_err": [
+              1.307949844107765e-07,
+              5.107863431986137e-06,
+              3.975377914128257e-05
+            ]
+          },
+          {
+            "n_elem": 32,
+            "rel_err": [
+              7.084592845840675e-09,
+              3.211546506058477e-07,
+              2.5118732422785355e-06
+            ]
+          },
+          {
+            "n_elem": 64,
+            "rel_err": [
+              4.655526730918169e-09,
+              2.0291124969465286e-08,
+              1.5720056863409077e-07
+            ]
+          }
+        ],
+        "observed_order": 0.6057405383420633
+      },
+      "pp": {
+        "analytic_hz": [
+          0.19544421805146983,
+          0.7817768722058793,
+          1.7589979624632284
+        ],
+        "series": [
+          {
+            "n_elem": 4,
+            "rel_err": [
+              0.00025966224780729483,
+              0.003946896917618608,
+              0.018272524094445766
+            ]
+          },
+          {
+            "n_elem": 8,
+            "rel_err": [
+              1.6442501243866132e-05,
+              0.0002596622476962408,
+              0.0012865764039631598
+            ]
+          },
+          {
+            "n_elem": 16,
+            "rel_err": [
+              1.0310074649599246e-06,
+              1.6442501961030643e-05,
+              8.278627131132053e-05
+            ]
+          },
+          {
+            "n_elem": 32,
+            "rel_err": [
+              6.472025699640951e-08,
+              1.0310309105588885e-06,
+              5.2125132289965035e-06
+            ]
+          },
+          {
+            "n_elem": 64,
+            "rel_err": [
+              1.2780639856188145e-09,
+              6.427194666827698e-08,
+              3.2636138801534567e-07
+            ]
+          }
+        ],
+        "observed_order": 5.662185365555037
+      }
+    },
+    "plate": [
+      {
+        "m": 1,
+        "n": 1,
+        "navier": 68.29373673610935,
+        "platform_rayleigh": 68.28807793608168,
+        "ref_gauss": 68.29373673610937,
+        "rayleigh_err": 8.285972181541084e-05
+      },
+      {
+        "m": 2,
+        "n": 1,
+        "navier": 109.26997877777495,
+        "platform_rayleigh": 109.24732998508638,
+        "ref_gauss": 109.26997877777485,
+        "rayleigh_err": 0.00020727369897758431
+      },
+      {
+        "m": 1,
+        "n": 2,
+        "navier": 232.1987049027718,
+        "platform_rayleigh": 232.12521652956505,
+        "ref_gauss": 232.19870490277225,
+        "rayleigh_err": 0.0003164891606004837
+      },
+      {
+        "m": 3,
+        "n": 2,
+        "navier": 341.46868368054675,
+        "platform_rayleigh": 341.3044882873872,
+        "ref_gauss": 341.4686836805466,
+        "rayleigh_err": 0.00048085051721169915
+      },
+      {
+        "m": 4,
+        "n": 3,
+        "navier": 710.2548620555372,
+        "platform_rayleigh": 709.5982926959334,
+        "ref_gauss": 710.2548620555385,
+        "rayleigh_err": 0.0009244137487562316
+      }
+    ],
+    "plate_rayleigh_grid": [
+      {
+        "n_grid": 50,
+        "rel_err": 0.001355205228451195
+      },
+      {
+        "n_grid": 100,
+        "rel_err": 0.0003338926129237559
+      },
+      {
+        "n_grid": 200,
+        "rel_err": 8.285972181520277e-05
+      },
+      {
+        "n_grid": 400,
+        "rel_err": 2.0638286749829632e-05
+      }
+    ],
+    "a_weighting": [
+      {
+        "f": 31.5,
+        "platform": -39.52886548324546,
+        "ref": -39.52886548324546,
+        "iec_table": -39.4
+      },
+      {
+        "f": 63.0,
+        "platform": -26.222825281137034,
+        "ref": -26.222825281137034,
+        "iec_table": -26.2
+      },
+      {
+        "f": 125.0,
+        "platform": -16.189653372521796,
+        "ref": -16.189653372521796,
+        "iec_table": -16.1
+      },
+      {
+        "f": 250.0,
+        "platform": -8.67482728928772,
+        "ref": -8.67482728928772,
+        "iec_table": -8.6
+      },
+      {
+        "f": 500.0,
+        "platform": -3.2478075093781316,
+        "ref": -3.2478075093781316,
+        "iec_table": -3.2
+      },
+      {
+        "f": 1000.0,
+        "platform": 0.00014152769487951744,
+        "ref": 0.00014152769487951744,
+        "iec_table": 0.0
+      },
+      {
+        "f": 2000.0,
+        "platform": 1.201674176077685,
+        "ref": 1.201674176077685,
+        "iec_table": 1.2
+      },
+      {
+        "f": 4000.0,
+        "platform": 0.9635979052450729,
+        "ref": 0.9635979052450718,
+        "iec_table": 1.0
+      },
+      {
+        "f": 8000.0,
+        "platform": -1.1468793432843185,
+        "ref": -1.1468793432843185,
+        "iec_table": -1.1
+      },
+      {
+        "f": 16000.0,
+        "platform": -6.7061184127130495,
+        "ref": -6.7061184127130495,
+        "iec_table": -6.6
+      }
+    ],
+    "mass_law": [
+      {
+        "f": 63.0,
+        "surface_density": 20.0,
+        "platform": 19.53046379328564,
+        "ref": 19.53046379328564
+      },
+      {
+        "f": 125.0,
+        "surface_density": 20.0,
+        "platform": 25.445605522415647,
+        "ref": 25.445605522415647
+      },
+      {
+        "f": 250.0,
+        "surface_density": 20.0,
+        "platform": 31.456899710451324,
+        "ref": 31.456899710451324
+      },
+      {
+        "f": 500.0,
+        "surface_density": 47.1,
+        "platform": 44.91435158187141,
+        "ref": 44.91435158187141
+      },
+      {
+        "f": 1000.0,
+        "surface_density": 47.1,
+        "platform": 50.93484644040693,
+        "ref": 50.93484644040693
+      },
+      {
+        "f": 2000.0,
+        "surface_density": 78.5,
+        "platform": 61.39238947890563,
+        "ref": 61.39238947890563
+      }
+    ],
+    "field_incidence": [
+      {
+        "f": 125.0,
+        "surface_density": 20.0,
+        "platform_field": 20.445605522415647,
+        "diffuse_exact": 20.35572909914415,
+        "bias_db": 0.08987642327149814
+      },
+      {
+        "f": 250.0,
+        "surface_density": 47.1,
+        "platform_field": 33.89417186215757,
+        "diffuse_exact": 33.73457066928182,
+        "bias_db": 0.1596011928757477
+      },
+      {
+        "f": 500.0,
+        "surface_density": 47.1,
+        "platform_field": 39.91435158187141,
+        "diffuse_exact": 39.752213720476504,
+        "bias_db": 0.16213786139490338
+      },
+      {
+        "f": 1000.0,
+        "surface_density": 47.1,
+        "platform_field": 45.93484644040693,
+        "diffuse_exact": 45.77207365507522,
+        "bias_db": 0.16277278533171113
+      },
+      {
+        "f": 2000.0,
+        "surface_density": 78.5,
+        "platform_field": 56.39238947890563,
+        "diffuse_exact": 56.229424040033074,
+        "bias_db": 0.1629654388725541
+      },
+      {
+        "f": 4000.0,
+        "surface_density": 78.5,
+        "platform_field": 62.41298702840693,
+        "diffuse_exact": 62.250007298187064,
+        "bias_db": 0.16297973021986678
+      }
+    ],
+    "coincidence": {
+      "platform": 1495.3914214736174,
+      "ref": 1495.3914214736174
+    }
+  },
+  "limitations": [
+    "船体结构阻尼比 ζ、实船设备源级、螺旋桨叶频脉动压力幅值：无公开基准，本审计不给基准（不编造）。",
+    "平台 Ao 计权为 IEC 61672-1 解析式，只核到 16 kHz；超声/次声段不适用。",
+    "V9 的扩散场积分以 78° 截断代表混响场，截断角本身是工程惯例（3 dB 判据针对该惯例）。",
+    "板模型为 Kirchhoff 薄板（h/a≈0.007，薄板假设成立）；厚板/夹层结构需 Mindlin 修正，本审计未覆盖。"
+  ]
+}

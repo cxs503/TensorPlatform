@@ -1,0 +1,194 @@
+{
+  "reference": [
+    {
+      "class": "Feeder-1000TEU",
+      "L": 145.0,
+      "B": 23.0,
+      "D": 13.0,
+      "Cb": 0.65,
+      "displacement_t": 18000.0,
+      "W_min_m3": 5.758,
+      "I_m4": 37.43,
+      "mass_per_length_kg_m": 155172.4,
+      "f2v_exact_Hz": 1.1938,
+      "f2v_fem_Hz": 1.1938,
+      "ref_selfcheck_rel_err": 4.195951881522271e-08,
+      "blade_rate_Hz": 9.333,
+      "blade_rate_rpm": 140.0,
+      "blades": 4
+    },
+    {
+      "class": "Panamax-4500TEU",
+      "L": 230.0,
+      "B": 32.2,
+      "D": 19.0,
+      "Cb": 0.62,
+      "displacement_t": 52000.0,
+      "W_min_m3": 22.854,
+      "I_m4": 217.11,
+      "mass_per_length_kg_m": 282608.7,
+      "f2v_exact_Hz": 0.8468,
+      "f2v_fem_Hz": 0.8468,
+      "ref_selfcheck_rel_err": 1.326591250678815e-08,
+      "blade_rate_Hz": 7.333,
+      "blade_rate_rpm": 110.0,
+      "blades": 4
+    },
+    {
+      "class": "PostPanamax-10000TEU",
+      "L": 300.0,
+      "B": 42.8,
+      "D": 24.0,
+      "Cb": 0.63,
+      "displacement_t": 110000.0,
+      "W_min_m3": 55.074,
+      "I_m4": 660.89,
+      "mass_per_length_kg_m": 458333.3,
+      "f2v_exact_Hz": 0.6819,
+      "f2v_fem_Hz": 0.6819,
+      "ref_selfcheck_rel_err": 3.055457781154606e-08,
+      "blade_rate_Hz": 6.0,
+      "blade_rate_rpm": 90.0,
+      "blades": 4
+    },
+    {
+      "class": "ULCS-20000TEU",
+      "L": 399.0,
+      "B": 58.6,
+      "D": 30.5,
+      "Cb": 0.66,
+      "displacement_t": 220000.0,
+      "W_min_m3": 136.393,
+      "I_m4": 2079.99,
+      "mass_per_length_kg_m": 689223.1,
+      "f2v_exact_Hz": 0.5577,
+      "f2v_fem_Hz": 0.5577,
+      "ref_selfcheck_rel_err": 6.107768564998027e-09,
+      "blade_rate_Hz": 5.333,
+      "blade_rate_rpm": 80.0,
+      "blades": 4
+    }
+  ],
+  "live": {
+    "endpoint": "http://127.0.0.1:8001/api/v1/vibration/predict",
+    "probed_at": "2026-11-02T01:29:13Z",
+    "reachable": true,
+    "responses": [
+      {
+        "ship_id": "Feeder-1000TEU",
+        "http": 200,
+        "body": {
+          "acceleration": 0.15,
+          "noise_level": 65.0,
+          "status": "合格"
+        }
+      },
+      {
+        "ship_id": "Panamax-4500TEU",
+        "http": 200,
+        "body": {
+          "acceleration": 0.15,
+          "noise_level": 65.0,
+          "status": "合格"
+        }
+      },
+      {
+        "ship_id": "PostPanamax-10000TEU",
+        "http": 200,
+        "body": {
+          "acceleration": 0.15,
+          "noise_level": 65.0,
+          "status": "合格"
+        }
+      },
+      {
+        "ship_id": "ULCS-20000TEU",
+        "http": 200,
+        "body": {
+          "acceleration": 0.15,
+          "noise_level": 65.0,
+          "status": "合格"
+        }
+      }
+    ],
+    "verdicts": {
+      "VIB-001_contract": {
+        "criterion": "合法 ship_id 必须 200；缺参必须 422 且 loc 指名 ship_id",
+        "legal": [
+          {
+            "ship_id": "Feeder-1000TEU",
+            "http": 200,
+            "pass": true
+          },
+          {
+            "ship_id": "Panamax-4500TEU",
+            "http": 200,
+            "pass": true
+          },
+          {
+            "ship_id": "PostPanamax-10000TEU",
+            "http": 200,
+            "pass": true
+          },
+          {
+            "ship_id": "ULCS-20000TEU",
+            "http": 200,
+            "pass": true
+          }
+        ],
+        "missing_param": {
+          "http": 422,
+          "loc": [
+            "query",
+            "ship_id"
+          ],
+          "pass": true
+        },
+        "pass": true
+      },
+      "VIB-002_input_dependence": {
+        "criterion": "跨船级响应必须变化：任一数值字段相对变化 >1%（4 个船型，L 145→399 m）",
+        "per_field": {
+          "acceleration": {
+            "min": 0.15,
+            "max": 0.15,
+            "rel_range": 0.0,
+            "platform_constant": true
+          },
+          "noise_level": {
+            "min": 65.0,
+            "max": 65.0,
+            "rel_range": 0.0,
+            "platform_constant": true
+          }
+        },
+        "all_fields_constant": true,
+        "pass": false
+      },
+      "VIB-003_reference_dynamic_range": {
+        "criterion": "基准量 f2v 跨船级相对变化（供对照：真实实现应能分辨）",
+        "f2v_min_Hz": 0.5577,
+        "f2v_max_Hz": 1.1938,
+        "reference_rel_range": 0.5328363209917909,
+        "platform_rel_range": {
+          "acceleration": 0.0,
+          "noise_level": 0.0
+        },
+        "pass": null,
+        "adjudication": "n/a —— 对照量（非平台判据），用于量化平台「与输入无关」的可分辨性缺口",
+        "note": "平台无任何频率类输出，共振裕度评估不可达"
+      },
+      "VIB-004_specification": {
+        "criterion": "响应须声明单位/统计量/频带/测点，否则精度判决为 WITHHELD（不得记 PASS）",
+        "response_keys": [
+          "acceleration",
+          "noise_level",
+          "status"
+        ],
+        "spec_keys_present": [],
+        "pass": false
+      }
+    },
+    "evidence_level": "MOCK"
+  }
+}

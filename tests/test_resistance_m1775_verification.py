@@ -161,6 +161,17 @@ class TestSUBOFFResistance:
         ct_exp = case["ct_exp"]
         error_pct = (ct_calc - ct_exp) / ct_exp * 100
 
+        # Oracle: the documentation this test emits must be derived, not transcribed.
+        # Pathological values (NaN/inf/negative resistance) would otherwise be
+        # silently printed and the test would stay green.
+        assert math.isfinite(ct_calc) and ct_calc > 0.0, (
+            f"{case['case_id']}: Ct must be finite and positive, got {ct_calc!r}"
+        )
+        assert math.isclose(
+            res["Fn"], case["speed_ms"] / math.sqrt(9.80665 * SUBOFF_GEOM["length"]), rel_tol=1e-3
+        ), f"{case['case_id']}: reported Fn {res['Fn']:.6f} inconsistent with V/sqrt(gL)"
+        assert abs(error_pct) < 100.0, f"{case['case_id']}: Ct error {error_pct:.1f}% out of physical range"
+
         # Log for report (captured by pytest -s)
         print(f"\n{case['case_id']}: V={case['speed_ms']} m/s, "
               f"Fn={res['Fn']:.3f}, Ct_calc={ct_calc:.6f}, "
