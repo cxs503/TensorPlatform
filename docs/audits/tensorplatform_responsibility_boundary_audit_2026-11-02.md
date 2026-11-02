@@ -144,3 +144,21 @@ A targeted follow-up search confirms that at least some ship-specific code is no
 - The repo's historical audits report multiple route/verification gaps and fixes. That history reinforces the need to trace each route from API registration through implementation and test, rather than infer production behavior from filenames or green unit tests.
 
 This narrows the finding: **ship-specific APIs are actively wired in at least several places, while the live usage status of each numerical package still needs route-to-implementation and deployment verification.** The report deliberately does not claim every ship module is mounted or used in production.
+
+
+## Addendum: quantified duplicate-physics risk
+
+A second existing audit, `docs/audits/m1873_dup_kernel_divergence.md`, gives stronger evidence than a directory-level smell:
+- Two implementations coexist for ship resistance / hull geometry: `backend/api/domain/{resistance_core,hull_geometry}.py` and `backend/services/{resistance_core,hull_geometry}.py`.
+- Its reported paired audit finds the default wetted-surface fallback overestimates published reference values by **50.62% for KVLCC2** and **75.55% for DTMB-5415**; default-path differences between the two kernel families are reported at **33.61%–43.04%** for the tested hulls.
+- The same report identifies a contract difference for low Reynolds number: one implementation raises an error while the other silently returns zero.
+- The audit says its 12 regression assertions pass, but that only establishes that the *audit's expected behavior* is pinned; it does not automatically establish that the live API uses the correct implementation.
+
+This is a **scientific integrity risk**, not merely a repository organization issue. Until the authoritative implementation and live route wiring are established, a successful API response or green tests may still be scientifically misleading.
+
+Immediate action recommended in the dependency-map phase:
+1. Identify the exact implementation called by each live resistance/stability endpoint.
+2. Lock the authoritative equation source and validity envelope.
+3. Make all public endpoints delegate to that source or a versioned adapter.
+4. Add independent reference-value tests for published hull cases and explicit out-of-domain behavior.
+5. Keep the audit non-destructive until live consumers and deployment source are confirmed.
