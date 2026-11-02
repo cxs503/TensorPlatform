@@ -77,9 +77,9 @@ def wetted_surface_axisym(beam: float, length: float, cb: float) -> float:
     return math.pi * beam * length * (0.5 + 0.25 * cb)
 
 
-def residual_coefficient(fn: float, cb: float, fn_floor: float = 0.05) -> float:
+def residual_coefficient(fr: float, cb: float, fn_floor: float = 0.05) -> float:
     """Empirical residual-resistance coefficient; SUBOFF-like fit without published provenance."""
-    return 0.002 * (1.0 + 2.0 * cb) * fn ** 2.5 if fn > fn_floor else 0.0
+    return 0.002 * (1.0 + 2.0 * cb) * fr ** 2.5 if fr > fn_floor else 0.0
 
 
 def resistance_breakdown(
