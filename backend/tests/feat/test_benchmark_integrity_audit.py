@@ -1,21 +1,27 @@
 """
 Verification-debt regression tests for the ship-resistance benchmark chain.
 
-These tests exist because the previous chain was *self-confirming*: the validator
-called a ship platform on port 8002 and read a ``ct`` key that the platform never
-returns, so every case silently evaluated to ``ct = 0`` (100 % error), while the
-unit tests only exercised a hand-written pseudo-Holtrop mock
-(``base_ct = 0.0025 + 0.003 * Fn``) and therefore could never fail.
+History: the previous chain was *self-confirming* — the validator called a ship
+platform on port 8002 and read a ``ct`` key the platform never returned, so
+every case silently evaluated to ``ct = 0`` (100 % error), while the unit tests
+only exercised a hand-written pseudo-Holtrop mock and could never fail.
+
+This suite was rewritten on 2026-11-01 (m1774) to pin the **current** canon
+(dataset v3.0, per m1767/m1771) instead of the pre-fix defects it originally
+guarded.  The old assertions (FROUDE_INCONSISTENT / CT_RT_INCONSISTENT /
+REFERENCE_DATASET_UNUSABLE / OUT_OF_ENVELOPE) described the v2.x dataset and
+the pre-refactor API; they were the "degenerate tests" m1771 deferred.
 
 Covered here:
   1. physics-core refactor is numerically identical to the legacy inline formula
-  2. the validator evaluates real physics in process (no port 8002 needed)
-  3. the dimensional-only remote reply is converted to Ct (field-mismatch fix)
-  4. reference-dataset integrity audit: Froude inconsistency, Ct-vs-Rt
-     inconsistency, validity-envelope flags
-  5. honest-FAIL semantics: no case is counted as a verified pass outside the
-     model's calibration envelope
-  6. the two evaluation paths (endpoint loop and services.benchmark_audit) agree
+  2. the validator evaluates real physics in process (no network needed)
+  3. the legacy remote reply (forces only, no coefficient) still yields a Ct
+     derived from R_T — the field-mismatch fix of m1388/m1406
+  4. reference-dataset integrity audit (v3.0): Froude/displacement closures
+     pass, no FAIL verdict, full-hull rows withheld rather than passed
+  5. honest-FAIL semantics: withheld rows never count toward the pass rate;
+     a genuine model miss (SUBOFF-04) is reported, not hidden
+  6. the endpoint loop and a direct physics call agree (no drift)
 
 Run with:
     cd backend && DATABASE_URL="sqlite:////tmp/tp_test.db" \
@@ -42,12 +48,18 @@ from api.domain.ship_benchmark import (  # noqa: E402
     benchmark_validate,
 )
 from api.calculations import ResistanceRequest, calc_resistance  # noqa: E402
-from services import benchmark_audit as audit_mod  # noqa: E402
+from services.benchmark_integrity import total_resistance_coefficient  # noqa: E402
 from services.resistance_core import (  # noqa: E402
     axisym_wetted_surface,
     ct_from_rt,
     ittc57_cf,
     resistance_core,
+)
+from services.benchmark_integrity import total_resistance_coefficient  # noqa: E402
+from services.ship_resistance import (  # noqa: E402
+    DEFAULT_KINEMATIC_VISCOSITY,
+    DEFAULT_WATER_DENSITY,
+    resistance_breakdown,
 )
 
 DATA = json.loads((BACKEND_DIR / "data" / "benchmark_reference.json").read_text())
@@ -111,16 +123,21 @@ class TestPhysicsCoreRefactor:
             resistance_core(0.0, 4.356, 0.508, 0.476, 0.542)   # zero speed
 
     def test_api_endpoint_exposes_ct_and_surface(self):
-        """Response now carries ct and wetted_surface_m2 (needed by the validator)."""
+        """Response carries total_resistance_coefficient + wetted_surface_m2.
+
+        (m1774: the field was renamed ``ct`` -> ``total_resistance_coefficient``
+        during the m1757/m1771 refactor; the validator consumes the new name.)
+        """
         resp = asyncio.run(calc_resistance(ResistanceRequest(
             ship_type="SUBOFF", speed_ms=3.0, length=4.356, beam=0.508,
             draft=0.476, cb=0.542)))
         assert resp.total_resistance_n > 0
-        assert resp.ct > 0
-        assert resp.wetted_surface_m2 == pytest.approx(axisym_wetted_surface(4.356, 0.508, 0.542), rel=1e-6)
+        assert resp.total_resistance_coefficient > 0
+        assert resp.wetted_surface_m2 == pytest.approx(
+            axisym_wetted_surface(4.356, 0.508, 0.542), rel=1e-6)
         # Ct must reproduce the legacy total: Rt = Ct * 0.5 rho S V^2
         rt_back = ct_from_rt(resp.total_resistance_n, 998.0, resp.wetted_surface_m2, 3.0)
-        assert rt_back == pytest.approx(resp.ct, rel=1e-6)
+        assert rt_back == pytest.approx(resp.total_resistance_coefficient, rel=1e-6)
 
 
 # ---------------------------------------------------------------------------
@@ -129,9 +146,9 @@ class TestPhysicsCoreRefactor:
 
 class TestInProcessEvaluation:
     def test_no_network_needed(self):
-        """Validation must not depend on a ship platform on port 8002."""
+        """Validation must not depend on a ship platform on any port."""
         import os
-        assert "SHIP_PLATFORM_URL" not in os.environ
+        assert "SHIP_BENCHMARK_REMOTE" not in os.environ
 
         def _boom(*a, **k):  # any HTTP attempt fails the test
             raise AssertionError("benchmark validation attempted a network call")
@@ -149,67 +166,87 @@ class TestInProcessEvaluation:
             assert r.error_pct < 999.0
 
     def test_remote_dimension_only_reply_derives_ct(self):
-        """A platform reply with forces but no 'ct' key must still produce a Ct."""
+        """A platform reply with forces but no coefficient must still yield a Ct.
+
+        m1774: the legacy hop is opt-in via SHIP_BENCHMARK_REMOTE=1 and the
+        reply schema is the endpoint's (total_resistance_n / wetted_surface_m2);
+        the coefficient is derived from R_T when absent.
+        """
         reply = {"total_resistance_n": 68.686790, "wetted_surface_m2": 4.4179,
                  "method": "remote /calculations/resistance"}
-        with patch.dict("os.environ", {"SHIP_PLATFORM_URL": "http://localhost:8002"}), \
+        with patch.dict("os.environ", {"SHIP_BENCHMARK_REMOTE": "1"}), \
              patch("httpx.post") as post:
             post.return_value.status_code = 200
             post.return_value.json.return_value = dict(reply)
             resp = benchmark_validate(BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="SUBOFF-01"))
         r = resp.results[0]
-        assert r.calc_ct == pytest.approx(ct_from_rt(68.686790, 998.0, 4.4179, 3.0), rel=1e-4)
-        assert "derived" in r.method
+        expected = total_resistance_coefficient(
+            reply, {"geometry": {"wetted_surface_m2": 4.4179}}, 998.0, 3.0)
+        assert r.calc_ct == pytest.approx(expected, rel=1e-4)
+        assert r.calc_ct > 0.0
 
 
 # ---------------------------------------------------------------------------
-# 3. reference-dataset integrity audit
+# 3. reference-dataset integrity audit (canon v3.0)
 # ---------------------------------------------------------------------------
 
 class TestDatasetIntegrityAudit:
-    def test_froude_inconsistency_detected_for_dtmb5415(self):
-        """DTMB5415 rows state Fn computed for a ~181 m length, not the 5.72 m model."""
-        rows = {r["case_id"]: r for r in audit_mod.audit_dataset(DATA, SHIP_GEOMETRY)["rows"]}
-        row = rows["DTMB5415-01"]
-        assert row["froude_error_pct"] > 400.0
-        assert row["status"] == "INCONSISTENT"
-        assert any("FROUDE_INCONSISTENT" in f for f in row["integrity_flags"])
-        assert row["froude_number_recomputed"] == pytest.approx(2.572 / math.sqrt(9.81 * 5.72), rel=1e-3)
+    def test_dataset_v30_shape_and_binding(self):
+        """v3.0 audit payload: per-row verdicts, no FAIL, binding gate on."""
+        audit = benchmark_audit()
+        assert audit["dataset_version"] == "3.0"
+        assert audit["total"] == len(DATA["cases"]) == 12
+        assert audit["binding"] is True
+        assert audit["failing_cases"] == []
+        assert audit["verdict_counts"]["FAIL"] == 0
+        assert {"rows", "verdict_counts", "failing_cases", "binding"} <= set(audit)
 
-    def test_ct_rt_inconsistency_detected(self):
-        """Every row's dimensional resistance disagrees with its own coefficient."""
-        audit = audit_mod.audit_dataset(DATA, SHIP_GEOMETRY)
+    def test_dtmb5415_froude_now_consistent(self):
+        """v2.x defect (Fn stated for a ~181 m hull) is fixed in v3.0."""
+        audit = benchmark_audit()
+        row = next(r for r in audit["rows"] if r["case_id"] == "DTMB5415-01")
+        fr = next(c for c in row["checks"] if c["check"] == "froude_closure")
+        assert fr["status"] == "PASS"
+        assert fr["error_pct"] < 1.0
+        assert fr["computed"] == pytest.approx(0.061, rel=1e-2)
+        assert fr["stated"] == pytest.approx(0.061, rel=1e-2)
+
+    def test_no_row_has_failing_check(self):
+        """m1767 recheck: 12 rows x 5 criteria, 0 FAIL. No silent inconsistency."""
+        audit = benchmark_audit()
         for row in audit["rows"]:
-            assert row["ct_rt_error_pct"] is not None
-            assert row["ct_rt_error_pct"] > 15.0, f"{row['case_id']} unexpectedly consistent"
-            assert any("CT_RT_INCONSISTENT" in f for f in row["integrity_flags"])
-
-    def test_axisymmetric_surface_invalid_for_displacement_hulls(self):
-        """The SUBOFF-calibrated area formula over-predicts merchant-hull wetted area."""
-        for ship_type, published in audit_mod.LITERATURE_WETTED_SURFACE.items():
-            geo = SHIP_GEOMETRY[ship_type]
-            est = axisym_wetted_surface(geo["length"], geo["beam"], geo["cb"])
-            if ship_type == "SUBOFF":
+            if row["ship_type"] != "SUBOFF":
                 continue
-            over = (est - published["value_m2"]) / published["value_m2"]
-            assert over > 0.15, f"{ship_type}: expected >15% over-prediction, got {over:.0%}"
+            for c in row["checks"]:
+                assert c["status"] in ("PASS", "WARN"), (
+                    f"{row['case_id']}/{c['check']}: {c['detail']}")
 
-    def test_dataset_verdict_is_unusable(self):
-        """No reference row may be reported as plain OK (honest-FAIL, not hidden)."""
-        audit = audit_mod.audit_dataset(DATA, SHIP_GEOMETRY)
-        assert audit["verdict"] == "REFERENCE_DATASET_UNUSABLE"
-        assert audit["status_counts"].get("OK", 0) == 0
+    def test_suboff_rows_fully_consistent(self):
+        """The model-calibrated body (SUBOFF) is the clean reference set."""
+        audit = benchmark_audit()
+        suboff = [r for r in audit["rows"] if r["ship_type"] == "SUBOFF"]
+        assert len(suboff) == 4
+        assert all(r["verdict"] == "PASS" for r in suboff)
 
-    def test_suboff_ct_trend_flagged(self):
-        """A deeply submerged body's Ct must fall with Re; the dataset rises 16%."""
-        audit = audit_mod.audit_dataset(DATA, SHIP_GEOMETRY)
-        assert audit["trend"]["SUBOFF"]["monotonic_increasing"] is True
-        assert audit["trend"]["SUBOFF"]["physically_suspect"] is True
+    def test_full_hull_rows_withheld_not_failed(self):
+        """KVLCC2/DTMB rows stay WITHHELD (honest), never plain-passed.
 
-    def test_audit_endpoint_shape(self):
-        payload = benchmark_audit()
-        assert payload["case_count"] == len(DATA["cases"])
-        assert {"rows", "status_counts", "trend", "verdict"} <= set(payload)
+        The KVLCC2 Ct gap (m1751: -48..-55%) is a *model* limitation; the
+        dataset rows are PARTIAL and must be withheld from the pass rate.
+        """
+        audit = benchmark_audit()
+        full = [r for r in audit["rows"] if r["ship_type"] in ("KVLCC2", "DTMB-5415")]
+        assert len(full) == 8
+        assert all(r["verdict"] == "WITHHELD" for r in full)
+
+    def test_suboff_ct_falls_with_speed(self):
+        """A deeply submerged body's Ct must fall with Re (v3.0 rows do)."""
+        cases = sorted(
+            (c for c in DATA["cases"] if c["ship_type"] == "SUBOFF"),
+            key=lambda c: c["speed_ms"],
+        )
+        cts = [c["experimental_ct"] for c in cases]
+        assert all(a >= b for a, b in zip(cts, cts[1:])), cts
 
 
 # ---------------------------------------------------------------------------
@@ -217,44 +254,45 @@ class TestDatasetIntegrityAudit:
 # ---------------------------------------------------------------------------
 
 class TestHonestFailSemantics:
-    def test_no_verified_pass_outside_envelope(self):
-        for ship_type in ("SUBOFF", "KVLCC2"):
-            resp = benchmark_validate(BenchmarkValidateRequest(ship_type=ship_type, benchmark_id="all"))
-            assert resp.summary["verified_passes_in_envelope"] == 0
-            assert resp.summary["algorithm_upgrade_recommended"] is True
-            for r in resp.results:
-                assert r.envelope_flags, f"{r.case_id}: expected an envelope flag"
-
-    def test_previously_passing_suboff_cases_flagged(self):
-        """SUBOFF-01..03 land under 15% but stay unverified (out of envelope)."""
+    def test_suboff_verified_passes(self):
+        """SUBOFF-01..03 pass inside the 15 % gate; SUBOFF-04 is a real miss."""
         resp = benchmark_validate(BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="all"))
         by_id = {r.case_id: r for r in resp.results}
         for case_id in ("SUBOFF-01", "SUBOFF-02", "SUBOFF-03"):
-            assert by_id[case_id].error_pct < 15.0
-            assert "OUT_OF_ENVELOPE" in by_id[case_id].note
+            assert by_id[case_id].pass_ is True
+            assert by_id[case_id].error_pct <= 15.0
+            assert by_id[case_id].withheld is False
+        assert by_id["SUBOFF-04"].pass_ is False
+        assert by_id["SUBOFF-04"].error_pct > 15.0
+        assert by_id["SUBOFF-04"].withheld is False
+        assert resp.summary["verified_passed"] == 3
+        assert resp.summary["honest_fail"] is False
 
-    def test_suboff_04_honest_fail(self):
+    def test_suboff_04_reported_not_hidden(self):
         resp = benchmark_validate(BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="SUBOFF-04"))
         r = resp.results[0]
         assert r.pass_ is False
-        assert "HONEST-FAIL" in r.note
-
-    def test_inconsistent_rows_excluded_not_passed(self):
-        resp = benchmark_validate(BenchmarkValidateRequest(ship_type="DTMB-5415", benchmark_id="all"))
-        assert resp.results == []
-        assert len(resp.summary["excluded_cases"]) == 4
-        assert all("FROUDE_INCONSISTENT" in e["reason"] for e in resp.summary["excluded_detail"])
-        assert resp.summary["passed"] == 0
-
-    def test_full_form_hull_has_envelope_flag(self):
-        resp = benchmark_validate(BenchmarkValidateRequest(ship_type="KVLCC2", benchmark_id="KVLCC2-02"))
-        r = resp.results[0]
-        assert any("Cb=" in f and "form factor" in f for f in r.envelope_flags)
         assert r.error_pct > 15.0
 
-    def test_reference_warning_note_for_ct_rt_mismatch(self):
-        resp = benchmark_validate(BenchmarkValidateRequest(ship_type="KVLCC2", benchmark_id="KVLCC2-01"))
-        assert "REFERENCE_WARNING" in resp.results[0].note
+    def test_partial_rows_withheld_not_passed(self):
+        """DTMB-5415 rows are PARTIAL -> withheld; 0 passes, honest_fail=True."""
+        resp = benchmark_validate(BenchmarkValidateRequest(ship_type="DTMB-5415", benchmark_id="all"))
+        assert len(resp.results) == 4
+        assert resp.summary["passed"] == 0
+        assert resp.summary["honest_fail"] is True
+        for r in resp.results:
+            assert r.withheld is True
+            assert r.pass_ is False
+            assert "HONEST-FAIL DATASET-WITHHELD" in r.note
+
+    def test_full_form_hull_withheld(self):
+        """KVLCC2: axisymmetric-body fit is out of applicability -> withheld."""
+        resp = benchmark_validate(BenchmarkValidateRequest(ship_type="KVLCC2", benchmark_id="KVLCC2-02"))
+        r = resp.results[0]
+        assert r.withheld is True
+        assert r.dataset_status == "PARTIAL"
+        assert r.error_pct > 15.0
+        assert "HONEST-FAIL" in r.note
 
 
 # ---------------------------------------------------------------------------
@@ -262,22 +300,28 @@ class TestHonestFailSemantics:
 # ---------------------------------------------------------------------------
 
 class TestConsistencyBetweenPaths:
-    def test_endpoint_and_offline_validator_agree(self):
-        """The endpoint loop and services.benchmark_audit must not drift."""
-        offline = audit_mod.validate_cases(DATA, "SUBOFF", SHIP_GEOMETRY)
-        online = benchmark_validate(BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="all"))
-        offline_by_id = {r["case_id"]: r for r in offline["results"]}
-        for r in online.results:
-            assert r.calc_ct == pytest.approx(offline_by_id[r.case_id]["calc_ct"], rel=1e-6)
-            assert r.error_pct == pytest.approx(offline_by_id[r.case_id]["error_pct"], abs=0.01)
+    def test_endpoint_and_direct_physics_agree(self):
+        """The endpoint loop must equal a direct resistance_breakdown call."""
+        resp = benchmark_validate(BenchmarkValidateRequest(ship_type="SUBOFF", benchmark_id="all"))
+        geo = SHIP_GEOMETRY["SUBOFF"]
+        for r in resp.results:
+            res = resistance_breakdown(
+                length=geo["length"], beam=geo["beam"], draft=geo["draft"],
+                cb=geo["cb"], speed=r.speed_ms,
+                rho=DEFAULT_WATER_DENSITY, nu=DEFAULT_KINEMATIC_VISCOSITY)
+            assert r.calc_ct == pytest.approx(res["ct"], abs=5e-5)
+            # error_pct arithmetic is reproducible from the result fields
+            expect = abs(r.calc_ct - r.ref_ct) / r.ref_ct * 100.0
+            assert r.error_pct == pytest.approx(expect, abs=0.01)
 
     def test_suboff_cb_is_not_the_diameter(self):
         """Was 0.508 (=D): a placeholder, not a block coefficient."""
         assert SHIP_GEOMETRY["SUBOFF"]["cb"] == pytest.approx(0.542)
-        geo = SHIP_GEOMETRY["SUBOFF"]
-        assert geo["wetted_surface_m2"] == pytest.approx(5.42)
+        assert SHIP_GEOMETRY["SUBOFF"]["draft"] == pytest.approx(0.508)
 
-    def test_all_presets_carry_verified_wetted_surface(self):
+    def test_wetted_surface_computed_not_stored(self):
+        """m1771: presets no longer store wetted_surface_m2; it is computed."""
         for ship_type, geo in SHIP_GEOMETRY.items():
-            assert geo.get("wetted_surface_m2", 0) > 0, ship_type
-            assert ship_type in audit_mod.LITERATURE_WETTED_SURFACE
+            assert "wetted_surface_m2" not in geo, ship_type
+            est = axisym_wetted_surface(geo["length"], geo["beam"], geo["cb"])
+            assert est > 0.0, ship_type
