@@ -23,6 +23,13 @@ from api.tenant_access import (
     is_admin,
 )
 from database.config import get_db
+from api.domain.status_contracts import research_run_contract as _rrc
+
+# G-C 单一契约源：登记词表从 backend/contracts/research_run_status_vocab.v1.json 派生
+# （此前 :37-38 为手写正则，与 TensorPhysics platform_registry._RUN_STATUSES 双源漂移）。
+_RUN_STATUS_PATTERN = "^(" + "|".join(_rrc()["run_statuses"]) + ")$"
+_VALIDATION_STATUS_PATTERN = "^(" + "|".join(_rrc()["validation_statuses"]) + ")$"
+_MAX_MANIFEST_BYTES = _rrc()["max_manifest_bytes"]
 
 router = APIRouter(
     prefix="/tensorphysics/runs",
@@ -34,8 +41,8 @@ class RunRegistration(BaseModel):
     """Compact provenance record sent by TensorPhysics after a run."""
 
     run_id: str = Field(min_length=1, max_length=200)
-    status: str = Field(pattern="^(planned|validating|queued|running|succeeded|failed|cancelled|preempted)$")
-    validation_status: str = Field(pattern="^(not_run|passed|failed|incomplete)$")
+    status: str = Field(pattern=_RUN_STATUS_PATTERN)
+    validation_status: str = Field(pattern=_VALIDATION_STATUS_PATTERN)
     manifest: dict[str, Any]
     organization_id: int | None = Field(default=None, ge=1)
 
@@ -54,8 +61,10 @@ class RunRegistration(BaseModel):
             encoded = json.dumps(value, sort_keys=True, separators=(",", ":"), ensure_ascii=False, allow_nan=False)
         except (TypeError, ValueError) as exc:
             raise ValueError("manifest must contain finite JSON-compatible values") from exc
-        if len(encoded.encode("utf-8")) > 1_000_000:
-            raise ValueError("manifest exceeds 1 MB; store large fields as artifacts")
+        if len(encoded.encode("utf-8")) > _MAX_MANIFEST_BYTES:
+            raise ValueError(
+                f"manifest exceeds {_MAX_MANIFEST_BYTES} bytes; store large fields as artifacts"
+            )
         return value
 
 
