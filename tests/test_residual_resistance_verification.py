@@ -36,12 +36,21 @@ BACKEND = ROOT / "backend"
 if str(BACKEND) not in sys.path:
     sys.path.insert(0, str(BACKEND))
 
-from services.ship_resistance import (
-    residual_coefficient,
-    froude_number,
-    ittc57_cf,
-    resistance_breakdown,
-)
+# 合同门 CI 只装 pytest：按路径直载域模块，不触发 api 包导入链
+# （auth→database→sqlalchemy/psycopg2；同 test_holtrop_mennen_verification）。
+import importlib.util as _ilu
+
+_sr = sys.modules.get("ship_resistance")
+if _sr is None:
+    _sr_spec = _ilu.spec_from_file_location(
+        "ship_resistance", BACKEND / "api" / "domain" / "ship_resistance.py")
+    _sr = _ilu.module_from_spec(_sr_spec)
+    sys.modules["ship_resistance"] = _sr
+    _sr_spec.loader.exec_module(_sr)
+residual_coefficient = _sr.residual_coefficient
+froude_number = _sr.froude_number
+ittc57_cf = _sr.ittc57_cf
+resistance_breakdown = _sr.resistance_breakdown
 
 # ---------------------------------------------------------------------------
 # 1. Mathematical properties of the Cr formula

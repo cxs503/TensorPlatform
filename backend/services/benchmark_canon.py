@@ -19,7 +19,7 @@
 R1 阻力恒等式  Rt = Ct·½ρV²S                          [容差 1 %]
 R2 流体溯源    船模拖曳水池 = 淡水 (ρ=998.2, ν=1.004e-6 @20 °C)
                实船全尺度     = 海水 (ρ=1025,  ν=1.188e-6 @15 °C)
-               平台物理核 ``services/ship_resistance.DEFAULT_WATER_DENSITY = 998.0``
+               平台物理核 ``api.domain.ship_resistance.DEFAULT_WATER_DENSITY = 998.0``
                也是淡水，参考数据必须与之同介质，否则契约漂移
 R3 Froude 闭合 Fr = V/√(gL)                            [容差 2 %]
 R4 排水量闭合  Δ = Cb·L·B·T·ρ                         [容差 2 %]

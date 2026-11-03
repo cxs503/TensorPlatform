@@ -10,7 +10,7 @@ import pytest
 BACKEND = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(BACKEND))
 
-from services.ship_resistance import MODEL_ID, resistance_breakdown
+from api.domain.ship_resistance import MODEL_ID, resistance_breakdown
 
 
 def _case(**overrides):

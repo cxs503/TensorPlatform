@@ -37,7 +37,7 @@ from services.benchmark_dataset_audit import (
     assess_case,
     load_and_assess,
 )
-from services.ship_resistance import (
+from api.domain.ship_resistance import (
     ct_from_rt,
     froude_number,
     ittc57_cf,

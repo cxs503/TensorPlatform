@@ -18,6 +18,18 @@ import pytest
 from services import benchmark_canon as bc
 from services import reference_recovery as rr
 
+# seam 接线（M9/#95）：reference_recovery 物理取数走 validation_providers；main 之外的语境自行注册
+# （同 test_ship_benchmark_integrity 惯例：spec-load 避开 api 包导入链，
+# 不引入 DB 依赖；register 同对象幂等）。
+import importlib.util as _ilu_pp
+
+_pp_spec = _ilu_pp.spec_from_file_location(
+    "physics_providers",
+    Path(__file__).resolve().parents[1] / "backend" / "api" / "domain" / "physics_providers.py")
+_pp = _ilu_pp.module_from_spec(_pp_spec)
+_pp_spec.loader.exec_module(_pp)
+_pp.register_ship_resistance_providers()
+
 REPO = Path(__file__).resolve().parents[1]
 DATA = REPO / "backend" / "data" / "benchmark_reference.json"
 

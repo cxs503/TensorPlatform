@@ -36,7 +36,7 @@ from api.domain.ship_benchmark import (  # noqa: E402
     BenchmarkValidateRequest, SHIP_GEOMETRY, _load_benchmark_data, audit_benchmark_cases,
     benchmark_validate,
 )
-from services.ship_resistance import (  # noqa: E402
+from api.domain.ship_resistance import (  # noqa: E402
     DEFAULT_KINEMATIC_VISCOSITY, DEFAULT_WATER_DENSITY, ct_from_rt, froude_number,
     ittc57_cf, resistance_breakdown, schoenherr_cf,
 )

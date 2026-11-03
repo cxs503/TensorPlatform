@@ -6,7 +6,7 @@
     PYTHONPATH=backend python3 tools/audit/reference_recovery_ledger.py
     PYTHONPATH=backend python3 tools/audit/reference_recovery_ledger.py --out artifacts/reference_recovery/ledger.json
 
-只读：仅读取 ``backend/data/benchmark_reference.json`` 与 ``services.holtrop_mennen``，
+只读：仅读取 ``backend/data/benchmark_reference.json`` 与 ``api.domain.holtrop_mennen``，
 不写回正典、不改任何判定（正典判定归 ``benchmark_canon``）。纯 CPU 毫秒级。
 """
 from __future__ import annotations
