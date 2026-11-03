@@ -24,7 +24,15 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 import numpy as np  # noqa: E402
 
-from services import benchmark_audit as ba  # noqa: E402
+try:  # M9 后域载荷区（#583 步骤 3 随迁）
+    from api.domain import benchmark_audit as ba
+except Exception:  # 无 api 包语境退 spec-load（审计器 stdlib-only）
+    import importlib.util as _ilu
+    _spec = _ilu.spec_from_file_location(
+        "benchmark_audit", ROOT / "backend" / "api" / "domain" / "benchmark_audit.py")
+    ba = _ilu.module_from_spec(_spec)
+    sys.modules["benchmark_audit"] = ba
+    _spec.loader.exec_module(ba)
 
 OUT = ROOT / "artifacts" / "benchmark_audit"
 OUT.mkdir(parents=True, exist_ok=True)

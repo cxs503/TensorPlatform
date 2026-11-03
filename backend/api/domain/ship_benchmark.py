@@ -54,6 +54,7 @@ from services.benchmark_integrity import (
     ship_platform_bases,
     total_resistance_coefficient,
 )
+from services.validation_providers import physical_constant
 try:  # app 内包导入；spec-load 语境退回按路径加载（与下方 hull_geometry 同款，自包含避免顺序耦合）
     from api.domain.ship_resistance import (
         DEFAULT_KINEMATIC_VISCOSITY,
@@ -329,13 +330,18 @@ def _resistance(ship_type: str, speed_ms: float, geometry: Dict[str, Any]):
 # Endpoint
 # ---------------------------------------------------------------------------
 
+def _pass_tolerance() -> float:
+    """M8（#583 步骤 3）：15% 验收带经 validation_providers seam 取得，判决点不落字面量。"""
+    return physical_constant("ship_resistance", "pass_tolerance_pct")
+
+
 @router.post("/calculations/benchmark_validate")
 def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateResponse:
     """
     Validate the platform resistance model against experimental benchmark data.
 
     Per case: ``error_pct = |calc_ct - ref_ct| / ref_ct * 100``.
-    ``pass`` requires BOTH ``error_pct <= 15`` and a ``CONSISTENT`` reference row
+    ``pass`` requires BOTH ``error_pct <= 15`` (band value published via the validation seam, M8 #583) and a ``CONSISTENT`` reference row
     (m1388 data gate); rows that fail the audit are ``withheld`` and never count
     toward the pass rate.
     """
@@ -428,7 +434,7 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
         error_pct = round(abs(calc_ct - ref_ct) / ref_ct * 100.0, 2) if ref_ct > 0 else 999.0
 
         # m1388: a pass needs physical numerics AND a usable reference row.
-        passed = (error_pct <= 15.0) and not withheld
+        passed = (error_pct <= _pass_tolerance()) and not withheld
 
         # m1609：适用域判定随行下发（报告不隐藏；None=无判定数据）。
         fr = float(calc_data.get("froude_number") or case.get("froude_number") or 0.0)
@@ -513,7 +519,7 @@ def benchmark_validate(req: BenchmarkValidateRequest) -> BenchmarkValidateRespon
         )
     elif all_verified_failed:
         summary["recommendation"] = (
-            f"All {verified_total} verified cases exceed the 15% threshold. {MODEL_NAME} is not "
+            f"All {verified_total} verified cases exceed the {_pass_tolerance():g}% threshold. {MODEL_NAME} is not "
             "suitable for this hull; recommend a merchant-ship resistance method (Holtrop-Mennen) "
             "or CFD (RANS)."
         )

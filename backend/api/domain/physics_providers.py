@@ -56,3 +56,6 @@ def register_ship_resistance_providers() -> None:
     register_provider(DOMAIN, "constant:default_water_density_kg_m3", sr.DEFAULT_WATER_DENSITY)
     register_provider(
         DOMAIN, "constant:default_kinematic_viscosity_m2_s", sr.DEFAULT_KINEMATIC_VISCOSITY)
+    # M8（#583 步骤 3）：验收判据值同属域发布物（值在 sr 载荷里定义，
+    # 经 _spec_load 缓存取同一对象——重注册走幂等分支，保 M9 同对象不变量）。
+    register_provider(DOMAIN, "constant:pass_tolerance_pct", sr.PASS_TOLERANCE_PCT)
