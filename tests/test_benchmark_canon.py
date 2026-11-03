@@ -18,6 +18,18 @@ from services import benchmark_canon as bc
 from services import benchmark_dataset_audit as legacy_audit
 from services import benchmark_integrity as bi
 
+# seam 接线（M9/#95）：legacy_audit 淡水物性兜底走 validation_providers；main 之外的语境自行注册
+# （同 test_ship_benchmark_integrity 惯例：spec-load 避开 api 包导入链，
+# 不引入 DB 依赖；register 同对象幂等）。
+import importlib.util as _ilu_pp
+
+_pp_spec = _ilu_pp.spec_from_file_location(
+    "physics_providers",
+    Path(__file__).resolve().parents[1] / "backend" / "api" / "domain" / "physics_providers.py")
+_pp = _ilu_pp.module_from_spec(_pp_spec)
+_pp_spec.loader.exec_module(_pp)
+_pp.register_ship_resistance_providers()
+
 REPO = Path(__file__).resolve().parents[1]
 DATA = REPO / "backend" / "data" / "benchmark_reference.json"
 SOURCES = REPO / "backend" / "data" / "benchmark_reference_sources_v2.json"
@@ -76,8 +88,9 @@ def test_fluid_follows_scale_and_explicit_field():
 
 def test_platform_physics_core_uses_fresh_water():
     """平台物理核默认介质是淡水——参考数据若用海水密度就是契约漂移。"""
-    from services.ship_resistance import DEFAULT_WATER_DENSITY
-    assert DEFAULT_WATER_DENSITY == pytest.approx(998.0, abs=0.5)
+    from services.validation_providers import physical_constant
+    assert physical_constant(
+        "ship_resistance", "default_water_density_kg_m3") == pytest.approx(998.0, abs=0.5)
 
 
 # --- R3：DTMB-5415 的 Fr/航速互不自洽 ---------------------------------------

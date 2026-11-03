@@ -29,7 +29,7 @@
 ----------------------
 行内带 ``reference_density_kg_m3`` / ``reference_kinematic_viscosity_m2_s`` 时以其为准
 （正典 v3.0 每行都带）；缺失时回落到平台物理核的淡水物性
-``ship_resistance.DEFAULT_WATER_DENSITY``，与 ``calc.resistance`` 同介质。
+``api.domain.ship_resistance.DEFAULT_WATER_DENSITY``，与 ``calc.resistance`` 同介质。
 """
 from __future__ import annotations
 
@@ -43,7 +43,7 @@ from services.benchmark_integrity import (
     WITHHELD,
     audit_case as _integrity_audit_case,
 )
-from services.ship_resistance import DEFAULT_KINEMATIC_VISCOSITY, DEFAULT_WATER_DENSITY
+from services.validation_providers import physical_constant
 
 CONSISTENT = "CONSISTENT"
 PARTIAL = "PARTIAL"
@@ -71,8 +71,12 @@ def _with_fallback_fluid(case: Dict[str, Any]) -> Dict[str, Any]:
     if case.get("reference_density_kg_m3") is not None:
         return case
     row = dict(case)
-    row.setdefault("reference_density_kg_m3", DEFAULT_WATER_DENSITY)
-    row.setdefault("reference_kinematic_viscosity_m2_s", DEFAULT_KINEMATIC_VISCOSITY)
+    row.setdefault(
+        "reference_density_kg_m3",
+        physical_constant("ship_resistance", "default_water_density_kg_m3"))
+    row.setdefault(
+        "reference_kinematic_viscosity_m2_s",
+        physical_constant("ship_resistance", "default_kinematic_viscosity_m2_s"))
     return row
 
 

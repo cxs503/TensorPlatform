@@ -27,6 +27,18 @@ sys.path.insert(0, str(REPO / "backend"))
 
 from services import reference_recovery as rr  # noqa: E402
 
+# seam 接线（M9/#95）：脚本语境无 main 接线，按路径注册物理 provider
+# （spec-load 避开 api 包导入链；register 同对象幂等）。
+import importlib.util as _ilu_pp  # noqa: E402
+import services.validation_providers as _svp  # noqa: E402
+
+_pp_spec = _ilu_pp.spec_from_file_location(
+    "physics_providers",
+    Path(_svp.__file__).resolve().parent.parent / "api" / "domain" / "physics_providers.py")
+_pp = _ilu_pp.module_from_spec(_pp_spec)
+_pp_spec.loader.exec_module(_pp)
+_pp.register_ship_resistance_providers()
+
 FIGDIR = REPO / "docs/audit/figures"
 DOC = REPO / "docs/audit/reference_recovery_ledger.md"
 

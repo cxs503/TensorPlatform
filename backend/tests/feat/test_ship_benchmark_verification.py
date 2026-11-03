@@ -291,7 +291,7 @@ class TestBenchmarkEndpoint:
         # 与端点同核复算（resistance_breakdown）。注意 rc.solve_resistance 用
         # published S 推 cb_eff，轴对称 ct 随 S 反馈，与经验 S 的 breakdown 合法差
         # ~3.9%——两者是不同 S 溯源，不是同一算法的两个副本。
-        from services.ship_resistance import resistance_breakdown, DEFAULT_WATER_DENSITY, DEFAULT_KINEMATIC_VISCOSITY
+        from api.domain.ship_resistance import resistance_breakdown, DEFAULT_WATER_DENSITY, DEFAULT_KINEMATIC_VISCOSITY
         geo = sb.SHIP_GEOMETRY["SUBOFF"]
         direct = resistance_breakdown(length=geo["length"], beam=geo["beam"],
                                       draft=geo["draft"], cb=geo["cb"], speed=3.0,
