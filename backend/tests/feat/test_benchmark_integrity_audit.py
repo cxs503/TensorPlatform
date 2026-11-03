@@ -62,7 +62,7 @@ from api.domain.physics_providers import (  # noqa: E402
 
 register_ship_resistance_providers()
 from services.benchmark_integrity import total_resistance_coefficient  # noqa: E402
-from services.ship_resistance import (  # noqa: E402
+from api.domain.ship_resistance import (  # noqa: E402
     DEFAULT_KINEMATIC_VISCOSITY,
     DEFAULT_WATER_DENSITY,
     resistance_breakdown,

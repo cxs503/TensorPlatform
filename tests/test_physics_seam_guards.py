@@ -20,8 +20,14 @@ MAIN = REPO / "backend" / "main.py"
 DOMAIN_PHYSICS_MODULES = (
     "api.domain.resistance_model",
     "api.domain.resistance_core_service",
+    "api.domain.ship_resistance",     # M9 (#95) 载荷区新址
+    "api.domain.holtrop_mennen",      # M9 (#95) 载荷区新址
+    "api.domain.resistance_holtrop",  # M9 (#95) 载荷区新址
     "services.resistance_model",      # pre-R2 location; must stay gone
     "services.resistance_core",       # pre-R2 location; must stay gone
+    "services.ship_resistance",       # pre-M9 location; must stay gone
+    "services.holtrop_mennen",        # pre-M9 location; must stay gone
+    "services.resistance_holtrop",    # pre-M9 location; must stay gone
 )
 
 
@@ -86,8 +92,10 @@ class TestWiringIsIntact:
         assert "register_ship_resistance_providers()" in src
 
     def test_domain_adapter_registers_nothing_else(self):
-        """The adapter publishes constants/friction lines; it must not smuggle
-        model callables into the seam that core audit code doesn't declare."""
+        """The adapter publishes exactly the declared capability set
+        (constants / friction lines / the holtrop model callable that
+        reference_recovery consumes); anything else is a wiring change that
+        must update this test."""
         adapter = (REPO / "backend" / "api" / "domain" / "physics_providers.py")
         src = adapter.read_text(encoding="utf-8")
         tree = ast.parse(src)
@@ -104,6 +112,10 @@ class TestWiringIsIntact:
             "constant:rho_sea_water_kg_m3",
             "constant:nu_sea_water_15c_m2_s",
             "friction:ittc1957",
+            "model:holtrop_resistance",
+            "constant:rho_freshwater_15c_kg_m3",
+            "constant:default_water_density_kg_m3",
+            "constant:default_kinematic_viscosity_m2_s",
         }
 
     def test_registry_api_surface_stable(self):

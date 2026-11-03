@@ -18,7 +18,7 @@ import pytest
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "backend"))
 
-from services.holtrop_mennen import (  # noqa: E402
+from api.domain.holtrop_mennen import (  # noqa: E402
     c7_flagged, c15_coefficient, c16_coefficient, c7_coefficient, domain_warnings,
     half_entrance_angle, holtrop_resistance, in_domain, ittc1957_cf,
     wetted_surface,

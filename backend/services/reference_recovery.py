@@ -42,8 +42,15 @@ from pathlib import Path
 from typing import Any, Dict, List, Optional, Tuple
 
 from . import benchmark_canon as canon
-from . import holtrop_mennen as hm
-from .ship_resistance import ittc57_cf
+from services.validation_providers import (
+    friction_line,
+    physical_constant,
+    require_provider,
+)
+
+#: 物理实现经 seam 取用（M9/#95）：实现在 api.domain 载荷区，核心层只认 seam。
+_PHYSICS_DOMAIN = "ship_resistance"
+
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 CANON_PATH = REPO_ROOT / "backend" / "data" / "benchmark_reference.json"
@@ -125,10 +132,14 @@ def hull_surface_estimate(case: Dict[str, Any]) -> Dict[str, Any]:
     beam = float(geo.get("beam_m"))
     draft = float(geo.get("draft_m"))
     cb = float(geo.get("cb"))
-    res = hm.holtrop_resistance(
+    res = require_provider(_PHYSICS_DOMAIN, "model:holtrop_resistance")(
         length, beam, draft, cb, max(float(case.get("speed_ms") or 1.0), 0.5),
-        rho=float(case.get("reference_density_kg_m3") or hm.RHO_SEAWATER),
-        nu=float(case.get("reference_kinematic_viscosity_m2_s") or hm.NU_SEAWATER),
+        rho=float(
+            case.get("reference_density_kg_m3")
+            or physical_constant(_PHYSICS_DOMAIN, "rho_sea_water_kg_m3")),
+        nu=float(
+            case.get("reference_kinematic_viscosity_m2_s")
+            or physical_constant(_PHYSICS_DOMAIN, "nu_sea_water_15c_m2_s")),
     )
     return {
         "s_m2": res.wetted_surface_m2,
@@ -223,7 +234,9 @@ def _hypotheses(case: Dict[str, Any], ct: float, rt: float, speed: float,
     - ``REJECTED``  —— Rt 就不复现。
     """
     length = float(case["geometry"]["length_m"])
-    nu = float(case.get("reference_kinematic_viscosity_m2_s") or hm.NU_SEAWATER)
+    nu = float(
+        case.get("reference_kinematic_viscosity_m2_s")
+        or physical_constant(_PHYSICS_DOMAIN, "nu_sea_water_15c_m2_s"))
     documented = _documented_speeds(case)
 
     modes: List[Tuple[str, float, float, str]] = []
@@ -239,7 +252,11 @@ def _hypotheses(case: Dict[str, Any], ct: float, rt: float, speed: float,
         resistance_from_ct(ct, speed, s_model, rho),
         f"湿面积按 L=7 m 模型尺度缩比 S={s_model:.4g} m²",
     ))
-    rho_alt = hm.RHO_FRESHWATER if abs(rho - hm.RHO_SEAWATER) < 1e-9 else hm.RHO_SEAWATER
+    _rho_sea = physical_constant(_PHYSICS_DOMAIN, "rho_sea_water_kg_m3")
+    rho_alt = (
+        physical_constant(_PHYSICS_DOMAIN, "rho_freshwater_15c_kg_m3")
+        if abs(rho - _rho_sea) < 1e-9 else _rho_sea
+    )
     modes.append((
         "H3_wrong_fluid_density", speed,
         resistance_from_ct(ct, speed, s_hull, rho_alt),
@@ -251,7 +268,7 @@ def _hypotheses(case: Dict[str, Any], ct: float, rt: float, speed: float,
         "湿面积折半（单面 vs 双面）",
     ))
     re = speed * length / nu
-    cf = ittc57_cf(re)
+    cf = friction_line(_PHYSICS_DOMAIN, "ittc1957", re)
     modes.append((
         "H5_friction_component_only", speed,
         cf * 0.5 * rho * speed ** 2 * s_hull,

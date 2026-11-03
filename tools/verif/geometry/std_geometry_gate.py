@@ -109,8 +109,8 @@ def load_prefer_module() -> Optional[Dict[str, Any]]:
 def _platform_axisym_fit():
     """取平台自己的 ``wetted_surface_axisym``（被审计对象）；不可用时退回复刻。"""
     try:
-        from services.ship_resistance import wetted_surface_axisym  # type: ignore
-        return wetted_surface_axisym, "services.ship_resistance.wetted_surface_axisym"
+        from api.domain.ship_resistance import wetted_surface_axisym  # type: ignore
+        return wetted_surface_axisym, "api.domain.ship_resistance.wetted_surface_axisym"
     except Exception as exc:  # pragma: no cover
         return (
             lambda beam, length, cb: wetted_surface_axisym_fit(beam, length, cb),
@@ -120,8 +120,8 @@ def _platform_axisym_fit():
 
 def _platform_resistance_model():
     try:
-        from services.ship_resistance import resistance_breakdown  # type: ignore
-        return resistance_breakdown, "services.ship_resistance.resistance_breakdown"
+        from api.domain.ship_resistance import resistance_breakdown  # type: ignore
+        return resistance_breakdown, "api.domain.ship_resistance.resistance_breakdown"
     except Exception as exc:  # pragma: no cover
         return None, f"unavailable ({type(exc).__name__})"
 

@@ -37,7 +37,7 @@ from services.stability_reference import (
     wall_sided_limit_deg,
     wall_sided_gz,
 )
-from services.ship_resistance import resistance_breakdown, wetted_surface_axisym
+from api.domain.ship_resistance import resistance_breakdown, wetted_surface_axisym
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
