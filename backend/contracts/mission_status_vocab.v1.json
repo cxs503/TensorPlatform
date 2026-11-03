@@ -1,0 +1,10 @@
+{
+  "contract": "mission_status_vocab",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": ["TensorPhysics"],
+  "description": "tensor_dev_missions.status runtime vocabulary. Single source for api/tensor_missions.py MISSION_STATUSES/TERMINAL (G-A side 1). Initial DB CHECK in migrations/086 (7 states); migrations/095_mission_lifecycle widened it to the full set below. Any change requires a version bump and green contract tests on BOTH repos.",
+  "statuses": ["queued", "claimed", "running", "awaiting_acceptance", "succeeded", "failed", "stopped", "revoked", "suspended", "orphan"],
+  "terminal": ["succeeded", "failed", "stopped", "revoked", "orphan"],
+  "platform_only": ["awaiting_acceptance", "revoked", "suspended", "orphan"]
+}

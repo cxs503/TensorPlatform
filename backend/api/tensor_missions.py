@@ -31,11 +31,13 @@ from database.config import get_db
 router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
 DEFAULT_BUDGET = {"max_tool_calls": 80, "max_wall_seconds": 7200, "max_tokens": 3_000_000}
-MISSION_STATUSES = (
-    "queued", "claimed", "running", "awaiting_acceptance",
-    "succeeded", "failed", "stopped", "revoked", "suspended", "orphan",
-)
-TERMINAL = ("succeeded", "failed", "stopped", "revoked", "orphan")
+# G-A 单一契约源（docs/architecture/migration_disposition_2026-11.md §3）：
+# 词表从 backend/contracts/mission_status_vocab.v1.json 派生，与 086+095 的 DB CHECK
+# 终态由 backend/tests/test_status_contracts.py 对拍锁定。
+from api.domain.status_contracts import mission_status_contract as _msc
+
+MISSION_STATUSES = tuple(_msc()["statuses"])
+TERMINAL = tuple(_msc()["terminal"])
 
 
 def _dumps(value: Any) -> str:

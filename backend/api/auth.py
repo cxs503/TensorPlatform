@@ -180,6 +180,15 @@ def login(req: LoginRequest, db: Session = Depends(get_db)):
     }
 
 
+def _resolved_org_or_none(current_user, db):
+    from api.domain.tensor_common import resolved_org
+
+    try:
+        return resolved_org(None, current_user, db)
+    except Exception:
+        return None
+
+
 @router.get("/me")
 def get_current_user_info(
     current_user=Depends(get_current_user), db: Session = Depends(get_db)
@@ -213,6 +222,8 @@ def get_current_user_info(
         "features": result[6],
         "permissions": permissions,
         "is_admin": str(role).split(".")[-1].lower() == "admin",
+        # 2026-11-03：登记链 org 解析（此前 /users/me 422 且本端点不回 org）
+        "organization_id": _resolved_org_or_none(current_user, db),
     }
 
 

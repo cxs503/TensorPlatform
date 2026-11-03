@@ -49,6 +49,31 @@ def list_users(db: Session = Depends(get_db)):
     return [_row_to_dict(r) for r in rows]
 
 
+@router.get("/me", summary="当前账号自身信息（含 organization_id）")
+def get_current_account(current_user=Depends(require_auth), db: Session = Depends(get_db)):
+    """2026-11-03 修复：/api/v1/users/me 此前命中 /users/{user_id} 的 int 路径参数而 422，
+    登记链（TensorPhysics platform_registry）的 org 解析因此断裂只能回退默认 1。
+
+    本路由须声明在 /{user_id} 之前（FastAPI 按声明序匹配）。注意路由器整体挂
+    require_admin：ADMIN 服务账号（如 eco_admin）可解析 org；普通账号自信息走
+    /auth/me（本 PR 同步补 organization_id 字段）。
+    """
+    row = db.execute(
+        text(f"SELECT {_SELECT_COLS} FROM users WHERE id = :id"),
+        {"id": current_user["id"]},
+    ).fetchone()
+    if not row:
+        raise HTTPException(status_code=404, detail="用户不存在")
+    from api.domain.tensor_common import resolved_org
+    try:
+        organization_id = resolved_org(None, current_user, db)
+    except HTTPException:
+        organization_id = None
+    data = _row_to_dict(row)
+    data["organization_id"] = organization_id
+    return data
+
+
 @router.get("/{user_id}")
 def get_user(user_id: int, db: Session = Depends(get_db)):
     row = db.execute(
