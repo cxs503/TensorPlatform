@@ -18,6 +18,7 @@ import json
 import uuid
 from typing import Any
 
+from datetime import datetime, timedelta, timezone
 from fastapi import APIRouter, Depends, HTTPException
 from pydantic import BaseModel, Field
 from sqlalchemy import text
@@ -27,6 +28,15 @@ from api.deps import require_auth, require_role
 from services.factory_profile import get_factory_profile, validate_projects, validate_base_ref, require_factory_agent
 from api.domain.tensor_common import append_event, resolved_org
 from database.config import get_db
+
+
+# 2026-11-03 事故：后端停摆（04:48）→ 复活（04:50:41）后首个 claim 的 lazy-reap
+# 把停摆期心跳静默的 22 张健康在飞单批量收割成 agent_lost（m49 同型复发）。
+# 修法：进程启动 _CLAIM_REAP_BOOT_GRACE 内 :reap_ready=false，跳过收割——
+# 停摆期的静默不是 agent 的错；真死 daemon 由宽限后的首个 claim 检出
+# （只延后误报，不放过真死）。
+_CLAIM_REAP_BOOT_AT = datetime.now(timezone.utc)
+_CLAIM_REAP_BOOT_GRACE = timedelta(seconds=300)
 
 router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
@@ -520,10 +530,12 @@ def claim_mission(
             SET status = 'failed', finished_at = now(),
                 result = result || CAST(:patch AS jsonb)
             WHERE organization_id = :org AND status IN ('claimed','running')
+              AND :reap_ready
               AND heartbeat_at < now() - interval '240 seconds'
             RETURNING id, session_id
         """),
-        {"org": org_id, "patch": _dumps({"stop_condition": "agent_lost"})},
+        {"org": org_id, "reap_ready": datetime.now(timezone.utc) - _CLAIM_REAP_BOOT_AT >= _CLAIM_REAP_BOOT_GRACE,
+             "patch": _dumps({"stop_condition": "agent_lost"})},
     ).mappings().all()
     for dead in reaped:
         if dead["session_id"]:
