@@ -19,6 +19,8 @@ from typing import Dict, List, Optional
 
 G = 9.81
 DEFAULT_WATER_DENSITY = 998.0
+# M8（#583 步骤 3）：验收判据值随域载荷发布（经 seam 下发，判决点零硬编码）。
+PASS_TOLERANCE_PCT = 15.0
 DEFAULT_KINEMATIC_VISCOSITY = 1.004e-6
 MODEL_ID = "suboff_axisymmetric_empirical_v1"
 MODEL_NAME = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"

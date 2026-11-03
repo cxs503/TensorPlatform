@@ -59,6 +59,14 @@ def _load_module(name: str, path: Path):
     return mod
 
 
+# M8（#583 步骤 3）：15% 验收带经 seam 注入——判决点零硬编码字面量。
+sys.path.insert(0, str(BACKEND))
+from services.validation_providers import physical_constant  # noqa: E402
+
+_load_module("physics_providers", DOMAIN / "physics_providers.py").register_ship_resistance_providers()
+PASS_TOL_PCT = physical_constant("ship_resistance", "pass_tolerance_pct")
+
+
 _hg = _load_module("hull_geometry", DOMAIN / "hull_geometry.py")
 _rc = _load_module("resistance_core", DOMAIN / "resistance_core.py")
 
@@ -267,7 +275,7 @@ def model_accuracy(data: Dict[str, Any]) -> Dict[str, Any]:
                 "ct_calc": round(ct, 6),
                 "ct_ref": ref,
                 "error_pct": round(err, 2),
-                "pass_15pct": err <= 15.0,
+                "pass_15pct": err <= PASS_TOL_PCT,
                 "wetted_surface_m2": sol["wetted_surface_m2"],
                 "total_resistance_n": sol["total_resistance_n"],
                 "s_source": sol["geometry"]["s_source"],
@@ -304,7 +312,7 @@ def model_accuracy(data: Dict[str, Any]) -> Dict[str, Any]:
         "max_abs_error_pct": (
             round(max(r["error_pct"] for r in certifiable), 2) if certifiable else None
         ),
-        "n_within_15pct": sum(1 for r in certifiable if r["error_pct"] <= 15.0),
+        "n_within_15pct": sum(1 for r in certifiable if r["error_pct"] <= PASS_TOL_PCT),
     }
     return {"rows": rows, "by_hull": summary,
             "overall_mean_abs_error_pct": round(sum(r["error_pct"] for r in rows) / len(rows), 2),
@@ -412,9 +420,10 @@ def make_figures(acc: Dict[str, Any], geo_audit: Dict[str, Any], out_dir: Path) 
     fig, ax = plt.subplots(figsize=(10, 4.6))
     labels = [r["case_id"].replace("-", "\n") for r in acc["rows"]]
     errs = [r["error_pct"] for r in acc["rows"]]
-    colors = ["#2166ac" if e <= 15 else "#b2182b" for e in errs]
+    colors = ["#2166ac" if e <= PASS_TOL_PCT else "#b2182b" for e in errs]
     ax.bar(range(len(errs)), errs, color=colors)
-    ax.axhline(15, color="k", ls="--", lw=1, label="15% acceptance threshold")
+    ax.axhline(PASS_TOL_PCT, color="k", ls="--", lw=1,
+            label=f"{PASS_TOL_PCT:g}% acceptance threshold")
     ax.set_xticks(range(len(labels)))
     ax.set_xticklabels(labels, rotation=90, fontsize=7)
     ax.set_ylabel("|Ct_calc - Ct_ref| / Ct_ref  [%]")

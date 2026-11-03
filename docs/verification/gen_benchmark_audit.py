@@ -25,7 +25,18 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt  # noqa: E402
 
 from api.domain.ship_benchmark import SHIP_GEOMETRY, benchmark_validate, BenchmarkValidateRequest  # noqa: E402
-from services import benchmark_audit as audit_mod  # noqa: E402
+from api.domain.physics_providers import register_ship_resistance_providers  # noqa: E402
+
+register_ship_resistance_providers()  # M8：benchmark_validate 判决经 seam 取验收带
+try:  # M9 后域载荷区（#583 步骤 3 随迁）
+    from api.domain import benchmark_audit as audit_mod
+except Exception:  # 无 api 包语境退 spec-load（审计器 stdlib-only）
+    import importlib.util as _ilu
+    _spec = _ilu.spec_from_file_location(
+        "benchmark_audit", BACKEND / "api" / "domain" / "benchmark_audit.py")
+    audit_mod = _ilu.module_from_spec(_spec)
+    sys.modules["benchmark_audit"] = audit_mod
+    _spec.loader.exec_module(audit_mod)
 
 HERE = Path(__file__).resolve().parent
 FIGDIR = HERE / "figures"
