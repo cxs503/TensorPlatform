@@ -1,0 +1,461 @@
+{
+  "mission": "m1862",
+  "subject": "backend/services/polar/channel.py :: verify_channel_concentrations (W3-N11 criterion b)",
+  "ship": "handysize_bulker",
+  "settings": {
+    "speed_kn": 6.0,
+    "h_eval_m": 0.8,
+    "tol_pct": 10.0,
+    "anchor_concentration": 0.4,
+    "holdout_concentrations": [
+      0.2,
+      0.7
+    ]
+  },
+  "A1_density_identity": {
+    "claim": "rel_err_brash(c) == rho_b(c)/rho_b(c0) - 1 (exact, independent of n, f_v, h_b)",
+    "k_cal": 3.1011152689035106,
+    "rows": [
+      {
+        "concentration": 0.1,
+        "brash_prod_n": 43862.603,
+        "brash_ref_n": 42461.352,
+        "rel_err_pct": 3.3000611122,
+        "density_ratio_pred_pct": 3.3000611122,
+        "identity_residual_pct": -0.0
+      },
+      {
+        "concentration": 0.2,
+        "brash_prod_n": 122741.064,
+        "brash_ref_n": 120098.841,
+        "rel_err_pct": 2.2000407415,
+        "density_ratio_pred_pct": 2.2000407415,
+        "identity_residual_pct": -0.0
+      },
+      {
+        "concentration": 0.3,
+        "brash_prod_n": 223062.696,
+        "brash_ref_n": 220635.659,
+        "rel_err_pct": 1.1000203707,
+        "density_ratio_pred_pct": 1.1000203707,
+        "identity_residual_pct": -0.0
+      },
+      {
+        "concentration": 0.4,
+        "brash_prod_n": 339690.818,
+        "brash_ref_n": 339690.818,
+        "rel_err_pct": 0.0,
+        "density_ratio_pred_pct": 0.0,
+        "identity_residual_pct": 0.0
+      },
+      {
+        "concentration": 0.5,
+        "brash_prod_n": 469510.198,
+        "brash_ref_n": 474732.351,
+        "rel_err_pct": -1.1000203707,
+        "density_ratio_pred_pct": -1.1000203707,
+        "identity_residual_pct": 0.0
+      },
+      {
+        "concentration": 0.6,
+        "brash_prod_n": 610322.486,
+        "brash_ref_n": 624051.882,
+        "rel_err_pct": -2.2000407415,
+        "density_ratio_pred_pct": -2.2000407415,
+        "identity_residual_pct": -0.0
+      },
+      {
+        "concentration": 0.7,
+        "brash_prod_n": 760443.726,
+        "brash_ref_n": 786395.25,
+        "rel_err_pct": -3.3000611122,
+        "density_ratio_pred_pct": -3.3000611122,
+        "identity_residual_pct": -0.0
+      }
+    ],
+    "max_abs_identity_residual_pct": 8.43769498715119e-15,
+    "pass": true,
+    "interpretation": "hold-out 残差被密度比精确解释 -> 该闸门并不检验 brash 阻力物理"
+  },
+  "A2_vacuity": {
+    "claim": "判据 (b) 只对与参考式结构不一致的项敏感；被标定常数吸收的项一律放行",
+    "threshold_pct": 10.0,
+    "variants": [
+      {
+        "variant": "ref",
+        "description": "生产式原样（对照）",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 2.200041,
+            "rel_err_total_pct": 1.213892
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": -3.300061,
+            "rel_err_total_pct": -2.93582
+          }
+        ],
+        "max_abs_rel_err_total_pct": 2.93582,
+        "criterion_b_pass": true
+      },
+      {
+        "variant": "conc_exp_1.0",
+        "description": "浓度指数 n: 1.5 -> 1.0",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 44.532684,
+            "rel_err_total_pct": 27.589698
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": -26.901717,
+            "rel_err_total_pct": -24.595032
+          }
+        ],
+        "max_abs_rel_err_total_pct": 27.589698,
+        "criterion_b_pass": false
+      },
+      {
+        "variant": "conc_exp_2.5",
+        "description": "浓度指数 n: 1.5 -> 2.5",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": -0.0,
+            "rel_err_total_pct": -0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": -48.89998,
+            "rel_err_total_pct": -20.192634
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": 69.224893,
+            "rel_err_total_pct": 56.876023
+          }
+        ],
+        "max_abs_rel_err_total_pct": 56.876023,
+        "criterion_b_pass": false
+      },
+      {
+        "variant": "thickness_exp_2",
+        "description": "厚度指数 h^1 -> h^2（与参考式一致）",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 2.200041,
+            "rel_err_total_pct": 1.091571
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": -3.300061,
+            "rel_err_total_pct": -2.856985
+          }
+        ],
+        "max_abs_rel_err_total_pct": 2.856985,
+        "criterion_b_pass": true
+      },
+      {
+        "variant": "breadth_exp_2",
+        "description": "宽度指数 B^1 -> B^2",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 2.200041,
+            "rel_err_total_pct": 2.138858
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": -3.300061,
+            "rel_err_total_pct": -3.285707
+          }
+        ],
+        "max_abs_rel_err_total_pct": 3.285707,
+        "criterion_b_pass": true
+      },
+      {
+        "variant": "drop_T_Cb",
+        "description": "删掉 T*Cb 项",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": -0.0,
+            "rel_err_total_pct": -0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 2.200041,
+            "rel_err_total_pct": 0.272284
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": -3.300061,
+            "rel_err_total_pct": -1.585613
+          }
+        ],
+        "max_abs_rel_err_total_pct": 1.585613,
+        "criterion_b_pass": true
+      },
+      {
+        "variant": "drop_fv",
+        "description": "删掉速度因子 f_v",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": -0.0,
+            "rel_err_total_pct": -0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 2.200041,
+            "rel_err_total_pct": 0.973497
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": -3.300061,
+            "rel_err_total_pct": -2.767537
+          }
+        ],
+        "max_abs_rel_err_total_pct": 2.767537,
+        "criterion_b_pass": true
+      },
+      {
+        "variant": "density_constant_rho_ice",
+        "description": "混合密度 rho_b(c) -> 常数 rho_i（更不物理）",
+        "rows": [
+          {
+            "concentration": 0.4,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          },
+          {
+            "concentration": 0.2,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          },
+          {
+            "concentration": 0.7,
+            "rel_err_brash_pct": 0.0,
+            "rel_err_total_pct": 0.0
+          }
+        ],
+        "max_abs_rel_err_total_pct": 0.0,
+        "criterion_b_pass": true
+      }
+    ],
+    "n_variants": 8,
+    "n_caught": 2,
+    "caught": [
+      "conc_exp_1.0",
+      "conc_exp_2.5"
+    ],
+    "passed_through": [
+      "ref",
+      "thickness_exp_2",
+      "breadth_exp_2",
+      "drop_T_Cb",
+      "drop_fv",
+      "density_constant_rho_ice"
+    ],
+    "discriminating_power": "2/8",
+    "zero_power": false
+  },
+  "A3_thickness_holdout": {
+    "claim": "厚度 hold-out 误差 = h_cal/h_eval - 1（维度不一致的直接后果）",
+    "k_times_h": [
+      2.480892215,
+      2.480892215,
+      2.480892215,
+      2.480892215,
+      2.480892215,
+      2.480892215
+    ],
+    "k_times_h_is_constant": true,
+    "rows": [
+      {
+        "calibration_thickness_m": 0.2,
+        "evaluation_thickness_m": 0.8,
+        "k_cal": 12.404461075614043,
+        "rel_err_brash_pct": -75.0,
+        "predicted_hc_over_he_pct": -75.0,
+        "rel_err_total_pct": -69.97539
+      },
+      {
+        "calibration_thickness_m": 0.4,
+        "evaluation_thickness_m": 0.8,
+        "k_cal": 6.202230537807022,
+        "rel_err_brash_pct": -50.0,
+        "predicted_hc_over_he_pct": -50.0,
+        "rel_err_total_pct": -43.721169
+      },
+      {
+        "calibration_thickness_m": 0.6,
+        "evaluation_thickness_m": 0.8,
+        "k_cal": 4.134820358538016,
+        "rel_err_brash_pct": -25.0,
+        "predicted_hc_over_he_pct": -25.0,
+        "rel_err_total_pct": -20.569086
+      },
+      {
+        "calibration_thickness_m": 0.8,
+        "evaluation_thickness_m": 0.8,
+        "k_cal": 3.1011152689035106,
+        "rel_err_brash_pct": 0.0,
+        "predicted_hc_over_he_pct": 0.0,
+        "rel_err_total_pct": 0.0
+      },
+      {
+        "calibration_thickness_m": 1.0,
+        "evaluation_thickness_m": 0.8,
+        "k_cal": 2.4808922151228097,
+        "rel_err_brash_pct": 25.0,
+        "predicted_hc_over_he_pct": 25.0,
+        "rel_err_total_pct": 18.395514
+      },
+      {
+        "calibration_thickness_m": 1.2,
+        "evaluation_thickness_m": 0.8,
+        "k_cal": 2.067410179269008,
+        "rel_err_brash_pct": 50.0,
+        "predicted_hc_over_he_pct": 50.0,
+        "rel_err_total_pct": 34.944695
+      }
+    ],
+    "max_abs_rel_err_total_pct": 69.97538981406473,
+    "criterion_b_pass_under_thickness_holdout": false,
+    "interpretation": "判据 (b) 只在单一标定厚度上成立；厚度一换即失效"
+  },
+  "A4_physical_limits": {
+    "channel_at_c0_n": 97566.52736340025,
+    "channel_at_c_1e-12_n": 97566.52736340025,
+    "limit_c_to_zero_rel_err": 0.0,
+    "channel_at_h0_n": 97566.52736340025,
+    "limit_h_to_zero_rel_err": 0.0,
+    "density_limits": {
+      "rho_b(0)": 1025.0,
+      "rho_w": 1025.0,
+      "rho_b(1)": 917.0,
+      "rho_i": 917.0
+    },
+    "monotone_in_concentration": true,
+    "monotone_in_thickness": true,
+    "monotone_in_speed": true,
+    "pass": true
+  },
+  "A5_consistent_fix": {
+    "claim": "把生产式 brash 项改成 rho_b g h_b^2 B (mu+sin beta) (c/c_max)^n f_v 后，厚度 hold-out 不再失效（标定常数与厚度无关）",
+    "rows": [
+      {
+        "calibration_thickness_m": 0.2,
+        "rel_err_brash_pct": 0.0
+      },
+      {
+        "calibration_thickness_m": 0.4,
+        "rel_err_brash_pct": -0.0
+      },
+      {
+        "calibration_thickness_m": 0.6,
+        "rel_err_brash_pct": 0.0
+      },
+      {
+        "calibration_thickness_m": 0.8,
+        "rel_err_brash_pct": -0.0
+      },
+      {
+        "calibration_thickness_m": 1.0,
+        "rel_err_brash_pct": -0.0
+      },
+      {
+        "calibration_thickness_m": 1.2,
+        "rel_err_brash_pct": 0.0
+      }
+    ],
+    "max_abs_rel_err_brash_pct": 0.0,
+    "thickness_holdout_pass": true,
+    "magnitude_change_at_h_eval": 0.091796,
+    "magnitude_note": "同 h_b/T/Cb 下新式 = 旧式 * h_b/(T*Cb)，需重标定 K 并复核绝对量级"
+  },
+  "reported_by_subject": {
+    "criterion": "b",
+    "description": "brash-channel resistance vs calibrated Riska-type reference, 3 concentrations (1 anchor + 2 hold-out)",
+    "ship": "handysize_bulker",
+    "calibration": {
+      "anchor_concentration": 0.4,
+      "k_cal": 3.101115
+    },
+    "rows": [
+      {
+        "concentration": 0.4,
+        "role": "anchor",
+        "h_b_m": 0.8,
+        "speed_kn": 6.0,
+        "model_total_n": 437257.3,
+        "reference_total_n": 437257.3,
+        "model_brash_n": 339690.8,
+        "reference_brash_n": 339690.8,
+        "rel_error_total_pct": 0.0,
+        "rel_error_brash_pct": 0.0
+      },
+      {
+        "concentration": 0.2,
+        "role": "holdout",
+        "h_b_m": 0.8,
+        "speed_kn": 6.0,
+        "model_total_n": 220307.6,
+        "reference_total_n": 217665.4,
+        "model_brash_n": 122741.1,
+        "reference_brash_n": 120098.8,
+        "rel_error_total_pct": 1.2139,
+        "rel_error_brash_pct": 2.2
+      },
+      {
+        "concentration": 0.7,
+        "role": "holdout",
+        "h_b_m": 0.8,
+        "speed_kn": 6.0,
+        "model_total_n": 858010.3,
+        "reference_total_n": 883961.8,
+        "model_brash_n": 760443.7,
+        "reference_brash_n": 786395.2,
+        "rel_error_total_pct": -2.9358,
+        "rel_error_brash_pct": -3.3001
+      }
+    ],
+    "max_abs_rel_error_pct": 2.9358,
+    "threshold_pct": 10.0,
+    "pass": true
+  },
+  "verdict": {
+    "a1_holdout_is_density_identity": true,
+    "a2_criterion_b_discriminating_power": "2/8",
+    "a2_a5_thickness_holdout_becomes_vacuous": true,
+    "a3_criterion_b_is_thickness_pinned": true,
+    "a4_physical_limits_hold": true,
+    "reported_criterion_b_pass": true,
+    "reported_max_abs_rel_err_pct": 2.9358,
+    "evidence_grade_for_/polar/acceptance/channel": "WITHHELD"
+  }
+}
