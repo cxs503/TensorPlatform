@@ -1,0 +1,24 @@
+{
+  "contract": "mission_task_status_map",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": ["TensorPhysics"],
+  "description": "TP tensor_dev_missions.status <-> TensorPhysics research_runtime.TaskStatus mapping (G-A). Rule: every TensorPhysics task status maps to exactly one mission status (to_platform is a function); mission statuses not in the image are platform-only phases owned by the TP approval/lifecycle chain and are listed with a reason.",
+  "mapping": [
+    {"tph": "queued", "tp": "queued"},
+    {"tph": "claimed", "tp": "claimed"},
+    {"tph": "running", "tp": "running"},
+    {"tph": "verifying", "tp": "running", "note": "verification is a running sub-phase"},
+    {"tph": "waiting_input", "tp": "running", "note": "blocked-in-flight; TP sees running"},
+    {"tph": "retry_wait", "tp": "running", "note": "backoff between attempts; TP sees running"},
+    {"tph": "succeeded", "tp": "succeeded"},
+    {"tph": "failed", "tp": "failed"},
+    {"tph": "cancelled", "tp": "stopped", "note": "TP has no cancelled state; m2089 precedent uses stopped"}
+  ],
+  "platform_only": [
+    {"tp": "awaiting_acceptance", "reason": "acceptance phase owned by TP approval chain"},
+    {"tp": "revoked", "reason": "platform-side revocation"},
+    {"tp": "suspended", "reason": "platform-side reversible suspension (suspend/resume endpoints)"},
+    {"tp": "orphan", "reason": "platform-side orphan reaping"}
+  ]
+}

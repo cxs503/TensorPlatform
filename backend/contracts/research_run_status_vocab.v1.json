@@ -1,0 +1,10 @@
+{
+  "contract": "research_run_status_vocab",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": ["TensorPhysics"],
+  "description": "Run-registration vocabulary for POST /tensorphysics/runs (G-C). Replaces the hand-written pydantic patterns in api/tensorphysics_runs.py:37-38 and the _RUN_STATUSES frozensets in TensorPhysics platform_registry.py. max_manifest_bytes bounds the compact manifest.",
+  "run_statuses": ["planned", "validating", "queued", "running", "succeeded", "failed", "cancelled", "preempted"],
+  "validation_statuses": ["not_run", "passed", "failed", "incomplete"],
+  "max_manifest_bytes": 1000000
+}
