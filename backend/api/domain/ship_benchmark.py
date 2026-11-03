@@ -16,7 +16,7 @@ Mission m1388 — two defects fixed, both reproducible:
    degraded to ``calc_ct = 0.0`` / ``error_pct = 999`` and ``pass = false``,
    which in turn fired the (false) recommendation "Holtrop is not suitable for
    KVLCC2 — use RANS".  The physics is now called in-process through
-   :mod:`services.ship_resistance`; the HTTP hop survives only behind
+   :mod:`api.domain.ship_resistance`; the HTTP hop survives only behind
    ``SHIP_BENCHMARK_REMOTE=1`` (with a corrected schema) for deployments where
    the ship engine really is remote.
 
@@ -54,12 +54,28 @@ from services.benchmark_integrity import (
     ship_platform_bases,
     total_resistance_coefficient,
 )
-from services.ship_resistance import (
-    DEFAULT_KINEMATIC_VISCOSITY,
-    DEFAULT_WATER_DENSITY,
-    displacement_from_cb,
-    resistance_breakdown,
-)
+try:  # app 内包导入；spec-load 语境退回按路径加载（与下方 hull_geometry 同款，自包含避免顺序耦合）
+    from api.domain.ship_resistance import (
+        DEFAULT_KINEMATIC_VISCOSITY,
+        DEFAULT_WATER_DENSITY,
+        displacement_from_cb,
+        resistance_breakdown,
+    )
+except Exception:
+    import importlib.util as _ilu_sr
+    import sys as _sys_sr
+
+    _sr_mod = _sys_sr.modules.get("ship_resistance")
+    if _sr_mod is None:
+        _sr_spec = _ilu_sr.spec_from_file_location(
+            "ship_resistance", Path(__file__).resolve().parent / "ship_resistance.py")
+        _sr_mod = _ilu_sr.module_from_spec(_sr_spec)
+        _sys_sr.modules["ship_resistance"] = _sr_mod
+        _sr_spec.loader.exec_module(_sr_mod)
+    DEFAULT_KINEMATIC_VISCOSITY = _sr_mod.DEFAULT_KINEMATIC_VISCOSITY
+    DEFAULT_WATER_DENSITY = _sr_mod.DEFAULT_WATER_DENSITY
+    displacement_from_cb = _sr_mod.displacement_from_cb
+    resistance_breakdown = _sr_mod.resistance_breakdown
 
 # m1609 几何/适用域锚：先走包导入；spec_from_file_location 加载（测试绕开 api 包重依赖）
 # 时退回按路径加载，两条路取同一份域模块。

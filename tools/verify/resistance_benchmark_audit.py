@@ -39,7 +39,7 @@ from pathlib import Path
 REPO = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(REPO / "backend"))
 
-from services.holtrop_mennen import (  # noqa: E402
+from api.domain.holtrop_mennen import (  # noqa: E402
     NU_FRESHWATER, NU_SEAWATER, RHO_FRESHWATER, RHO_SEAWATER,
     holtrop_resistance, in_domain,
 )

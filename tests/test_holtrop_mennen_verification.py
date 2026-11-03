@@ -45,15 +45,39 @@ import pytest
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "..", "backend"))
 
-from services.holtrop_mennen import (  # noqa: E402
-    c7_coefficient, c7_flagged, c15_coefficient, c16_coefficient,
-    domain_warnings, half_entrance_angle, holtrop_resistance, in_domain,
-    ittc1957_cf, wetted_surface, HoltropResult,
-)
-from services.ship_resistance import (  # noqa: E402
-    wetted_surface_axisym, ittc57_cf as ship_res_itfc57,
-    resistance_breakdown,
-)
+# 合同门 CI 只装 pytest：按路径直载域模块（与 physics_providers 回退同款），
+# 不触发 api 包导入链（auth→database→sqlalchemy/psycopg2）。
+import importlib.util as _ilu
+
+
+def _domain_mod(_name):
+    _mod = sys.modules.get(_name)
+    if _mod is None:
+        _spec = _ilu.spec_from_file_location(
+            _name, os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "..", "backend", "api", "domain", _name + ".py"))
+        _mod = _ilu.module_from_spec(_spec)
+        sys.modules[_name] = _mod
+        _spec.loader.exec_module(_mod)
+    return _mod
+
+
+_hm = _domain_mod("holtrop_mennen")
+_sr = _domain_mod("ship_resistance")
+c7_coefficient = _hm.c7_coefficient
+c7_flagged = _hm.c7_flagged
+c15_coefficient = _hm.c15_coefficient
+c16_coefficient = _hm.c16_coefficient
+domain_warnings = _hm.domain_warnings
+half_entrance_angle = _hm.half_entrance_angle
+holtrop_resistance = _hm.holtrop_resistance
+in_domain = _hm.in_domain
+ittc1957_cf = _hm.ittc1957_cf
+wetted_surface = _hm.wetted_surface
+HoltropResult = _hm.HoltropResult
+wetted_surface_axisym = _sr.wetted_surface_axisym
+ship_res_itfc57 = _sr.ittc57_cf
+resistance_breakdown = _sr.resistance_breakdown
 
 # ---------------------------------------------------------------------------
 # KVLCC2 reference particulars (SIMMAN 2008)

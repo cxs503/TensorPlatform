@@ -26,7 +26,7 @@ OUTDIR = ROOT / "artifacts" / "m1772"
 OUTDIR.mkdir(parents=True, exist_ok=True)
 
 sys.path.insert(0, str(BACKEND))
-from services.ship_resistance import (
+from api.domain.ship_resistance import (
     residual_coefficient,
     ittc57_cf,
     reynolds_number,
