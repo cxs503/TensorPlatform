@@ -23,11 +23,13 @@ DOMAIN_PHYSICS_MODULES = (
     "api.domain.ship_resistance",     # M9 (#95) 载荷区新址
     "api.domain.holtrop_mennen",      # M9 (#95) 载荷区新址
     "api.domain.resistance_holtrop",  # M9 (#95) 载荷区新址
+    "api.domain.benchmark_audit",     # #583 步骤 3：数据集一致性审计器入载荷区
     "services.resistance_model",      # pre-R2 location; must stay gone
     "services.resistance_core",       # pre-R2 location; must stay gone
     "services.ship_resistance",       # pre-M9 location; must stay gone
     "services.holtrop_mennen",        # pre-M9 location; must stay gone
     "services.resistance_holtrop",    # pre-M9 location; must stay gone
+    "services.benchmark_audit",       # pre-#583-step3 location; must stay gone
 )
 
 
@@ -116,6 +118,7 @@ class TestWiringIsIntact:
             "constant:rho_freshwater_15c_kg_m3",
             "constant:default_water_density_kg_m3",
             "constant:default_kinematic_viscosity_m2_s",
+            "constant:pass_tolerance_pct",
         }
 
     def test_registry_api_surface_stable(self):
@@ -125,3 +128,63 @@ class TestWiringIsIntact:
         exported = {n.name for n in tree.body if isinstance(n, (ast.FunctionDef, ast.ClassDef))}
         assert {"register_provider", "require_provider", "physical_constant",
                 "friction_line", "reset_providers", "ProviderNotRegistered"} <= exported
+
+
+class TestAuditIndependence:
+    """#583 步骤 3（M5+M8）：审计侧与被审方零 import 耦合；判据值只经缝。"""
+
+    AUDITEE_MODULES = (
+        "ship_resistance", "holtrop_mennen", "resistance_holtrop",
+        "resistance_model", "resistance_core_service",
+    )
+
+    AUDIT_SIDE_FILES = (
+        SERVICES / "benchmark_dataset_audit.py",
+        SERVICES / "benchmark_integrity.py",
+        REPO / "backend" / "api" / "domain" / "benchmark_audit.py",
+        REPO / "tools" / "verify_ship_benchmark.py",
+    )
+
+    def test_audit_side_never_imports_auditee(self):
+        """数据集审计器/验证工具是被审方的裁判——import 被审方即失去独立性。
+
+        verify_ship_benchmark 按路径 spec-load 物理内核是验证本职（运行期调用），
+        但不得出现 import 级耦合（会把 api 包导入链拖进无 DB 语境）。
+        """
+        for py in self.AUDIT_SIDE_FILES:
+            names = _imported_names(ast.parse(py.read_text(encoding="utf-8")))
+            hit = {n for n in names if n in self.AUDITEE_MODULES
+                   or any(n.endswith("." + m) for m in self.AUDITEE_MODULES)}
+            assert not hit, f"{py.name}: 审计侧 import 被审方 {sorted(hit)}"
+
+    def test_pass_tolerance_via_seam_not_hardcoded(self):
+        """15% 验收带：缝注册值 == 适配器常量；判决文件 Compare 节点零 15 字面量。"""
+        import importlib.util as ilu
+        import sys
+        bp = str(REPO / "backend")
+        if bp not in sys.path:
+            sys.path.insert(0, bp)
+        from services.validation_providers import physical_constant
+
+        spec = ilu.spec_from_file_location(
+            "physics_providers_guard",
+            REPO / "backend" / "api" / "domain" / "physics_providers.py")
+        adapter = ilu.module_from_spec(spec)
+        sys.modules["physics_providers_guard"] = adapter
+        spec.loader.exec_module(adapter)
+        # 不 reset：注册走同对象幂等分支（adapter._spec_load 有 sys.modules 缓存），
+        # reset 会清空同进程其他正典文件收集期注册的全局表（顺序雷）。
+        adapter.register_ship_resistance_providers()
+        assert physical_constant("ship_resistance", "pass_tolerance_pct") == 15.0
+
+        for rel in ("backend/api/domain/ship_benchmark.py",
+                    "tools/verify_ship_benchmark.py"):
+            tree = ast.parse((REPO / rel).read_text(encoding="utf-8"))
+            for node in ast.walk(tree):
+                if not isinstance(node, ast.Compare):
+                    continue
+                for op in [node.left, *node.comparators]:
+                    if (isinstance(op, ast.Constant) and isinstance(op.value, (int, float))
+                            and not isinstance(op.value, bool) and op.value == 15):
+                        raise AssertionError(
+                            f"{rel}: 判决门硬编码 15 字面量残留（M8 要求经 seam）")

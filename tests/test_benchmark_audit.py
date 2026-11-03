@@ -37,7 +37,25 @@ for p in (str(BACKEND), str(ROOT)):
 os.environ.setdefault("ENVIRONMENT", "test")
 os.environ.setdefault("DATABASE_URL", "sqlite:///:memory:")
 
-from services import benchmark_audit as ba  # noqa: E402
+try:  # M9 后域载荷区（#583 步骤 3 随迁）
+    from api.domain import benchmark_audit as ba
+except Exception:  # 无 api 包语境退 spec-load（审计器 stdlib-only）
+    import importlib.util as _ilu
+    _spec = _ilu.spec_from_file_location(
+        "benchmark_audit", BACKEND / "api" / "domain" / "benchmark_audit.py")
+    ba = _ilu.module_from_spec(_spec)
+    sys.modules["benchmark_audit"] = ba
+    _spec.loader.exec_module(ba)
+
+# M8（#583 步骤 3）：判决门经 seam 取验收带——正典注册块（M9 惯用法，
+# adapter._spec_load 有 sys.modules 缓存，重复注册走同对象幂等分支）。
+import importlib.util as _ilu_pp
+_pp_spec = _ilu_pp.spec_from_file_location(
+    "physics_providers", BACKEND / "api" / "domain" / "physics_providers.py")
+_pp = _ilu_pp.module_from_spec(_pp_spec)
+sys.modules.setdefault("physics_providers", _pp)
+_pp_spec.loader.exec_module(_pp)
+_pp.register_ship_resistance_providers()
 
 DATASET_PATH = BACKEND / "data" / "benchmark_reference.json"
 
