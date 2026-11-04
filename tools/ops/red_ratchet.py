@@ -17,6 +17,18 @@ against the committed baseline.
 Usage:
     python tools/ops/red_ratchet.py measure [--suite backend/tests] [...]
     python tools/ops/red_ratchet.py check   [--suite backend/tests] [...]
+    python tools/ops/red_ratchet.py check-from-log  --log pytest.log [--suite backend/tests]
+    python tools/ops/red_ratchet.py measure-from-log --log pytest.log [--suite backend/tests] \
+        [--recompute --reason "..."]
+
+``check-from-log`` compares a *captured* pytest ``-q`` run (the CI job tees its
+output) against the committed baseline instead of re-running the suite — one
+run, one bill.  It also refuses a baseline that GREW in the current checkout
+relative to the merge base (``RED_RATCHET_BASELINE_MAIN`` env path, else
+``git show origin/main:...``/``FETCH_HEAD:...``): adopting new reds by editing
+the baseline file is the ratchet's own bypass, so the gate has to catch it.
+``measure-from-log`` re-baselines from a captured log; growth requires an
+explicit ``--recompute --reason`` that lands in the JSON (auditable).
 
 Multiple ``--suite`` arguments are measured as separate pytest invocations
 (the repository has two disjoint test trees; running them in one pytest
@@ -34,6 +46,7 @@ from __future__ import annotations
 import argparse
 import datetime as _dt
 import json
+import os
 import re
 import subprocess
 import sys
@@ -110,15 +123,202 @@ def check(suites: list[str], baseline_path: Path) -> int:
     return rc
 
 
+# ---------------------------------------------------------------------------
+# Log-based modes (single CI run, no re-execution)
+# ---------------------------------------------------------------------------
+
+# CI 的 backend-suite 从 backend/ 目录用 ``tests/`` 相对路径跑 pytest；
+# 基线节点号是仓库根相对（measure 从根跑）。把日志侧归一到根相对再比。
+_LOG_PREFIX_MAP = {"backend/tests": ("tests/", "backend/tests/")}
+
+_CI_LINE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}T[0-9:.]+Z?\s*")
+
+# A completed pytest run always prints a terminal summary banner.  Without
+# this guard an empty/truncated log parses as "0 red — everything fixed"
+# and the gate would pass on a run that never happened (a green lie).
+_PYTEST_BANNER = re.compile(r"=+ .*in [0-9.]+s|no tests ran")
+_NO_TESTS = "no tests ran"
+
+
+def parse_log(log_text: str) -> set[str]:
+    """Failing node ids from a captured pytest ``-q`` summary (log lines may
+    carry a CI timestamp prefix).
+
+    Raises ValueError when the log is not a completed pytest run — callers
+    turn that into rc=2 (config/infrastructure error, distinct from the
+    gate's rc=1 "new red" verdict).
+    """
+    if not _PYTEST_BANNER.search(log_text):
+        raise ValueError(
+            "log does not contain a pytest terminal summary — the run "
+            "crashed or the log is empty; a gate cannot judge a run that "
+            "never happened")
+    if _NO_TESTS in log_text and "failed" not in log_text and "error" not in log_text:
+        raise ValueError(
+            "log reports 'no tests ran' — collection death is not a green "
+            "state")
+    found: set[str] = set()
+    for line in log_text.splitlines():
+        m = _SUMMARY.match(_CI_LINE_PREFIX.sub("", line))
+        if m:
+            found.add(m.group(2))
+    return found
+
+
+def _normalize(nodes: set[str], suite: str) -> set[str]:
+    pair = _LOG_PREFIX_MAP.get(suite)
+    if not pair:
+        return set(nodes)
+    src_pfx, dst_pfx = pair
+    return {dst_pfx + n[len(src_pfx):] if n.startswith(src_pfx) else n for n in nodes}
+
+
+def _baseline_nodes(doc: dict, suite: str) -> set[str]:
+    return set(doc.get("suites", {}).get(suite, []))
+
+
+def _main_baseline_nodes(baseline_path: Path) -> tuple[set[str] | None, str]:
+    """Node set of the baseline on the merge base, best-effort.
+
+    Order: env override path (tests / explicit CI wiring) -> ``git show
+    origin/main`` -> ``git show FETCH_HEAD`` -> None (unavailable; the growth
+    guard degrades to a warning, the new-red check never degrades).
+    """
+    env = os.environ.get("RED_RATCHET_BASELINE_MAIN")
+    if env:
+        p = Path(env)
+        if p.exists():
+            rel = json.loads(p.read_text())
+            return {n for s in rel.get("suites", {}).values() for n in s}, env
+        return None, f"{env} (missing)"
+    import subprocess as _sp
+    for ref in ("origin/main", "FETCH_HEAD"):
+        try:
+            out = _sp.run(["git", "show", f"{ref}:{baseline_path}"],
+                          capture_output=True, text=True, timeout=30, cwd=REPO)
+        except Exception:
+            continue
+        if out.returncode == 0 and out.stdout.strip():
+            try:
+                rel = json.loads(out.stdout)
+            except ValueError:
+                continue
+            return {n for s in rel.get("suites", {}).values() for n in s}, ref
+    return None, "unavailable"
+
+
+def check_from_log(suites: list[str], log_paths: list[str], baseline_path: Path) -> int:
+    if not baseline_path.exists():
+        print("[check-from-log] no baseline; run measure-from-log first")
+        return 2
+    base = json.loads(baseline_path.read_text())
+    rc = 0
+    for suite, log_path in zip(suites, log_paths):
+        log = Path(log_path)
+        if not log.exists():
+            print(f"[check-from-log] {log_path}: log not found")
+            return 2
+        try:
+            current = _normalize(parse_log(log.read_text(errors="replace")), suite)
+        except ValueError as e:
+            print(f"[check-from-log] {log_path}: {e}")
+            return 2
+        known = _baseline_nodes(base, suite)
+        fresh = current - known
+        fixed = known - current
+        if fresh:
+            rc = 1
+            print(f"[check-from-log] {suite}: {len(fresh)} NEW RED (gate fails):")
+            for f in sorted(fresh):
+                print("  +", f)
+        print(f"[check-from-log] {suite}: {len(current)} red "
+              f"({len(fixed)} fixed since baseline)")
+    # 基线私改守卫：本 PR 的基线只许缩不许涨（对 merge base）
+    main_nodes, src = _main_baseline_nodes(baseline_path)
+    if main_nodes is None:
+        print(f"[check-from-log] growth guard SKIPPED (main baseline {src}) "
+              f"— new-red check unaffected")
+    else:
+        here = {n for s in base.get("suites", {}).values() for n in s}
+        grown = here - main_nodes
+        if grown:
+            rc = 1
+            print(f"[check-from-log] baseline GREW vs {src} by {len(grown)} "
+                  f"(adopt-by-edit forbidden; fix the reds):")
+            for g in sorted(grown):
+                print("  +", g)
+    return rc
+
+
+def measure_from_log(suites: list[str], log_paths: list[str], baseline_path: Path,
+                     recompute: bool, reason: str | None) -> int:
+    doc: dict = {"generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
+                 "suites": {}}
+    total = 0
+    for suite, log_path in zip(suites, log_paths):
+        log = Path(log_path)
+        if not log.exists():
+            print(f"[measure-from-log] {log_path}: log not found")
+            return 2
+        try:
+            nodes = sorted(_normalize(parse_log(log.read_text(errors="replace")), suite))
+        except ValueError as e:
+            print(f"[measure-from-log] {log_path}: {e}")
+            return 2
+        doc["suites"][suite] = nodes
+        total += len(nodes)
+        print(f"[measure-from-log] {suite}: {len(nodes)} red (from log)")
+    doc["total_red"] = total
+    if baseline_path.exists():
+        old = json.loads(baseline_path.read_text())
+        old_total = old.get("total_red", 0)
+        if total > old_total:
+            if not recompute:
+                print(f"[measure-from-log] REFUSING to write a larger baseline "
+                      f"({total} > {old_total}); use --recompute --reason if this "
+                      f"is an audited re-baseline (e.g. suite revived after "
+                      f"collection death), otherwise fix the new reds.")
+                return 1
+            if not (reason and reason.strip()):
+                print("[measure-from-log] --recompute requires --reason "
+                      "(recorded in the JSON, auditable)")
+                return 1
+            doc["recomputed_reason"] = reason.strip()
+            print(f"[measure-from-log] RECOMPUTE {old_total} -> {total} "
+                  f"(reason recorded)")
+    baseline_path.write_text(json.dumps(doc, indent=1, sort_keys=True) + "\n")
+    print(f"[measure-from-log] baseline -> {baseline_path} (total_red={total})")
+    return 0
+
+
 def main() -> int:
     ap = argparse.ArgumentParser(description=__doc__.splitlines()[0])
-    ap.add_argument("mode", choices=("measure", "check"))
+    ap.add_argument("mode", choices=("measure", "check",
+                                     "check-from-log", "measure-from-log"))
     ap.add_argument("--suite", action="append", default=None,
                     help="test path relative to repo root (repeatable)")
+    ap.add_argument("--log", action="append", default=None,
+                    help="captured pytest -q log (repeatable, pairs with --suite)")
+    ap.add_argument("--recompute", action="store_true",
+                    help="measure-from-log: allow growth with a recorded reason")
+    ap.add_argument("--reason", default=None,
+                    help="measure-from-log: why this re-baseline is audited")
     ap.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     args = ap.parse_args()
     suites = args.suite or list(DEFAULT_SUITES)
-    return (measure if args.mode == "measure" else check)(suites, args.baseline)
+    if args.mode in ("measure", "check"):
+        return (measure if args.mode == "measure" else check)(suites, args.baseline)
+    logs = args.log or []
+    if not logs:
+        ap.error(f"{args.mode} requires --log")
+    # --suite 可省：默认 backend/tests 与单日志配对
+    if len(logs) == 1 and len(suites) > 1:
+        suites = suites[:1]
+    if len(suites) != len(logs):
+        ap.error("--suite and --log must pair one-to-one")
+    if args.mode == "check-from-log":
+        return check_from_log(suites, logs, args.baseline)
+    return measure_from_log(suites, logs, args.baseline, args.recompute, args.reason)
 
 
 if __name__ == "__main__":
