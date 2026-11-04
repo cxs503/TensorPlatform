@@ -1,10 +1,10 @@
 {
   "contract": "mission_status_vocab",
-  "version": 1,
+  "version": 2,
   "owner_repo": "TensorPlatform",
   "consumer_repos": ["TensorPhysics"],
-  "description": "tensor_dev_missions.status runtime vocabulary. Single source for api/tensor_missions.py MISSION_STATUSES/TERMINAL (G-A side 1). Initial DB CHECK in migrations/086 (7 states); migrations/095_mission_lifecycle widened it to the full set below. Any change requires a version bump and green contract tests on BOTH repos.",
-  "statuses": ["queued", "claimed", "running", "awaiting_acceptance", "succeeded", "failed", "stopped", "revoked", "suspended", "orphan"],
+  "description": "tensor_dev_missions.status runtime vocabulary. Single source for api/tensor_missions.py MISSION_STATUSES/TERMINAL (G-A side 1). Initial DB CHECK in migrations/086 (7 states); migrations/095_mission_lifecycle widened it to the full set below; migrations/100_pr_merge_gate added awaiting_pr_merge (owner 2026-11-05: a dev mission that pushed a PR is done only when the PR merges — success is provisional between PR open and merge). Any change requires a version bump and green contract tests on BOTH repos.",
+  "statuses": ["queued", "claimed", "running", "awaiting_acceptance", "awaiting_pr_merge", "succeeded", "failed", "stopped", "revoked", "suspended", "orphan"],
   "terminal": ["succeeded", "failed", "stopped", "revoked", "orphan"],
-  "platform_only": ["awaiting_acceptance", "revoked", "suspended", "orphan"]
+  "platform_only": ["awaiting_acceptance", "awaiting_pr_merge", "revoked", "suspended", "orphan"]
 }
