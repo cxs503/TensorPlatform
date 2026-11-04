@@ -12,6 +12,39 @@ from database.config import get_db
 
 router = APIRouter(prefix="/audit", tags=["审计日志"])
 
+# PR-8（AOG P1）：append-only 守卫 = migrations/099_audit_logs_append_only.sql
+# 的自愈镜像。audit_logs 只允许 INSERT；直连 UPDATE/DELETE 由触发器 RAISE。
+# 这是 PG 能力，sqlite（CI 单测）路径不装、如实跳过。
+_PG_APPEND_ONLY_SQL = """
+CREATE OR REPLACE FUNCTION audit_logs_append_only_guard() RETURNS trigger AS $$
+BEGIN
+    RAISE EXCEPTION 'audit_logs is append-only: % on row id=% rejected',
+        TG_OP, OLD.id;
+END;
+$$ LANGUAGE plpgsql;
+DO $$
+BEGIN
+    IF NOT EXISTS (
+        SELECT 1 FROM pg_trigger
+        WHERE tgname = 'audit_logs_append_only'
+          AND tgrelid = 'audit_logs'::regclass
+          AND NOT tgisinternal
+    ) THEN
+        CREATE TRIGGER audit_logs_append_only
+        BEFORE UPDATE OR DELETE ON audit_logs
+        FOR EACH ROW EXECUTE FUNCTION audit_logs_append_only_guard();
+    END IF;
+END;
+$$
+"""
+
+
+def _is_postgres(db) -> bool:
+    try:
+        return db.get_bind().dialect.name == "postgresql"
+    except Exception:
+        return False
+
 
 def record_audit(
     db,
@@ -39,6 +72,8 @@ def record_audit(
             "user_name VARCHAR(64), "
             "created_at TIMESTAMP DEFAULT NOW())"
         ))
+        if _is_postgres(db):
+            db.execute(text(_PG_APPEND_ONLY_SQL))
         db.execute(text(
             "INSERT INTO audit_logs (action, entity_type, entity_id, detail, user_name) "
             "VALUES (:action, :etype, :eid, :detail, :user)"
@@ -181,20 +216,25 @@ def get_audit_actions(db: Session = Depends(get_db)):
 
 @router.get("/security")
 def get_security_events(days: int = 7, db: Session = Depends(get_db)):
-    """获取安全事件"""
-    recent = [
-        {"id": 1, "type": "login_failed", "user": "unknown", "detail": "密码错误", "severity": "warning", "time": datetime.now().isoformat()},
-        {"id": 2, "type": "unauthorized_access", "user": "guest", "detail": "未授权访问尝试", "severity": "critical", "time": datetime.now().isoformat()},
-    ]
+    """安全事件：只报 audit_logs 真实行，空就是空。
+
+    PR-8（AOG P1）：移除历史版本无条件前置的两条捏造事件（login_failed/
+    unauthorized_access，时间戳取 now() 冒充实时）；days 参数此前被忽略，
+    一并落到查询窗口。
+    """
     try:
         rows = db.execute(text(
-            "SELECT id, action, user_name, detail, created_at FROM audit_logs WHERE entity_type='security' ORDER BY id DESC LIMIT 50"
-        )).fetchall()
-        for r in rows:
-            recent.append({"id": r[0], "type": r[1], "user": r[2] or "system", "detail": r[3], "severity": "info", "time": r[4].isoformat() if r[4] else None})
-    except:
-        pass
-    return {"total": len(recent), "items": recent}
+            "SELECT id, action, user_name, detail, created_at FROM audit_logs "
+            "WHERE entity_type='security' "
+            "AND created_at >= NOW() - (:days || ' days')::interval "
+            "ORDER BY id DESC LIMIT 50"
+        ), {"days": days}).fetchall()
+        items = [{"id": r[0], "type": r[1], "user": r[2] or "system",
+                  "detail": r[3], "severity": "info",
+                  "time": r[4].isoformat() if r[4] else None} for r in rows]
+        return {"total": len(items), "items": items}
+    except Exception as e:
+        return {"total": 0, "items": [], "error": str(e)}
 
 @router.get("/user/{user_id}/activity")
 def get_user_activity(user_id: str, days: int = 30, db: Session = Depends(get_db)):

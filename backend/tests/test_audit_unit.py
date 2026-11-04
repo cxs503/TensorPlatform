@@ -86,15 +86,18 @@ class TestAuditUnit:
         assert db.execute.call_args.args[1] == {"u": "123"}
 
     def test_get_security_events(self, db):
-        """测试获取安全相关事件"""
+        """安全事件只报真实审计行（PR-8：不再前置捏造事件）"""
         db.execute.return_value.fetchall.return_value = [
             (3, "unauthorized_access", "testuser", "denied", None),
         ]
         result = get_security_events(7, db=db)
-        assert result["total"] == len(result["items"])
+        assert result["total"] == 1
+        assert len(result["items"]) == 1, "返回集必须等于真实行数，不得混入演示事件"
         assert result["items"][-1]["id"] == 3
         assert result["items"][-1]["type"] == "unauthorized_access"
-        assert "entity_type='security'" in str(db.execute.call_args.args[0])
+        sql = str(db.execute.call_args.args[0])
+        assert "entity_type='security'" in sql
+        assert "created_at" in sql, "days 窗口必须真的落到查询，不得静默忽略"
 
     def test_export_audit_logs_json(self, db):
         """测试导出JSON格式审计日志"""
