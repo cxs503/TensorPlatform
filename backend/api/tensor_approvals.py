@@ -145,6 +145,64 @@ class ApprovalDecision(BaseModel):
     note: str | None = Field(default=None, max_length=2000)
 
 
+# AOG SPEC v1.0 §7 六个 Capability Delta 类别（合法枚举；无实质增量需说明原因）
+DELTA_CATEGORIES = frozenset({
+    "new_capability",        # 新增能力
+    "capability_extension",  # 既有能力扩展或性能/可靠性改善
+    "defect_fix",            # 缺陷修复和风险降低
+    "reusable_knowledge",    # 可复用知识或工具
+    "falsified_hypothesis",  # 被否定的假设（负面结果）
+    "no_substantive_delta",  # 无实质增量（reason 必填）
+})
+
+
+def _declared_capability_delta(mission_result: Any) -> dict[str, Any] | None:
+    """Extract the agent-declared capability delta from a mission result blob.
+
+    Returns None when the agent did not declare one (legal — the decide hook
+    then books an honest no_substantive_delta row instead of fabricating).
+    Raises 422 for a declaration that is present but malformed: the decision
+    rolls back and the mission stays awaiting_acceptance (R1: gate can fail).
+    """
+    blob: Any = mission_result
+    if isinstance(blob, str):
+        try:
+            blob = json.loads(blob) if blob.strip() else {}
+        except ValueError:
+            return None  # unparseable legacy result: treat as undeclared
+    if not isinstance(blob, dict):
+        return None
+    declared = blob.get("capability_delta")
+    if declared is None or declared == {}:
+        return None
+    if not isinstance(declared, dict):
+        raise HTTPException(status_code=422, detail="capability_delta must be an object")
+    category = declared.get("category")
+    if category not in DELTA_CATEGORIES:
+        raise HTTPException(
+            status_code=422,
+            detail=f"capability_delta.category must be one of {sorted(DELTA_CATEGORIES)}",
+        )
+    summary = declared.get("summary")
+    if not isinstance(summary, str) or not summary.strip():
+        raise HTTPException(status_code=422, detail="capability_delta.summary is required")
+    reason = declared.get("reason")
+    if category == "no_substantive_delta" and (not isinstance(reason, str) or not reason.strip()):
+        raise HTTPException(status_code=422,
+                            detail="capability_delta.reason is required for no_substantive_delta")
+    artifacts = declared.get("artifacts", [])
+    if not isinstance(artifacts, list) or not all(isinstance(a, str) for a in artifacts):
+        raise HTTPException(status_code=422, detail="capability_delta.artifacts must be a list of paths")
+    evidence = declared.get("evidence", {})
+    if not isinstance(evidence, dict):
+        raise HTTPException(status_code=422, detail="capability_delta.evidence must be an object")
+    card_id = declared.get("card_id")
+    if card_id is not None and not isinstance(card_id, int):
+        raise HTTPException(status_code=422, detail="capability_delta.card_id must be an integer")
+    return {"category": category, "summary": summary.strip(), "reason": reason if isinstance(reason, str) else None,
+            "artifacts": artifacts, "evidence": evidence, "card_id": card_id}
+
+
 @router.post("/{approval_id}/decide", dependencies=[Depends(require_role("ADMIN"))])
 def decide_approval(
     approval_id: int,
@@ -155,7 +213,7 @@ def decide_approval(
     row = db.execute(
         text("""
             SELECT a.id, a.organization_id, a.scenario_id, a.mission_id, a.kind, a.to_stage, a.status,
-                   s.scenario_key, m.session_id AS mission_session_id
+                   s.scenario_key, m.session_id AS mission_session_id, m.result AS mission_result
             FROM tensor_approval_requests a
             LEFT JOIN tensor_scenarios s ON s.id = a.scenario_id
             LEFT JOIN tensor_dev_missions m ON m.id = a.mission_id
@@ -205,6 +263,36 @@ def decide_approval(
                 """),
                 {"st": "completed" if body.decision == "approved" else "failed",
                  "sid": row["mission_session_id"]},
+            )
+        if body.decision == "approved":
+            # SPEC §7 C-loop: a succeeded mission books exactly one capability
+            # delta row — agent-declared if provided, else an honest
+            # no_substantive_delta (never a fabricated one). Unique index on
+            # mission_id keeps replays idempotent.
+            declared = _declared_capability_delta(row["mission_result"])
+            delta = declared or {"category": "no_substantive_delta",
+                                 "summary": "mission accepted without a declared capability delta",
+                                 "reason": "capability_delta was not declared at complete",
+                                 "artifacts": [], "evidence": {}, "card_id": None}
+            # sqlite (tests) has no jsonb cast — plain bind keeps the JSON text;
+            # postgres needs the explicit cast into the JSONB columns.
+            cast = "CAST(:col AS jsonb)" if (db.bind and db.bind.dialect.name == "postgresql") else ":col"
+            db.execute(
+                text(f"""
+                    INSERT INTO tensor_capability_deltas
+                        (organization_id, mission_id, category, summary, reason,
+                         artifacts, evidence, card_id, reviewer)
+                    VALUES (:org, :mid, :cat, :summary, :reason,
+                            {cast.replace(':col', ':artifacts')}, {cast.replace(':col', ':evidence')},
+                            :card_id, :reviewer)
+                    ON CONFLICT (mission_id) DO NOTHING
+                """),
+                {"org": row["organization_id"], "mid": row["mission_id"],
+                 "cat": delta["category"], "summary": delta["summary"],
+                 "reason": delta["reason"],
+                 "artifacts": json.dumps(delta["artifacts"]),
+                 "evidence": json.dumps(delta["evidence"]),
+                 "card_id": delta["card_id"], "reviewer": user.get("username")},
             )
     elif body.decision == "approved" and row["kind"] == "stage_promotion":
         # promotion commits together with the decision (single transaction);
