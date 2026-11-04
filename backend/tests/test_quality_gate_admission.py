@@ -11,7 +11,7 @@ import sys
 
 import pytest
 
-sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..', 'backend'))
+sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
 from api.tensor_missions import CompleteRequest, _server_quality_audit, _quality_gate_admission
 
