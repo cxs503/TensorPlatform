@@ -26,7 +26,7 @@ from services.stability_reference import (  # noqa: E402
     exact_gz_curve,
     imo_areas,
     validity_angles_deg,
-    wall_sided_gz,
+    wall_sided_gz_deg,
 )
 
 BARGE = BargeGeometry(length=100.0, beam=20.0, draft=6.0, depth=10.0, kg=5.0, rho=1.025)
@@ -172,7 +172,7 @@ def test_wall_sided_exact_inside_envelope():
         if phi > limit:
             continue
         exact = exact_gz(BARGE, phi)["gz"]
-        ws = wall_sided_gz(hs["gm"], hs["bm"], phi)
+        ws = wall_sided_gz_deg(hs["gm"], hs["bm"], phi)
         assert ws == pytest.approx(exact, rel=1e-4, abs=1e-9), phi
 
 
@@ -181,8 +181,8 @@ def test_wall_sided_diverges_beyond_envelope():
     hs = box_hydrostatics(BARGE)
     e25 = exact_gz(BARGE, 25.0)["gz"]
     e30 = exact_gz(BARGE, 30.0)["gz"]
-    assert wall_sided_gz(hs["gm"], hs["bm"], 25.0) / e25 - 1.0 > 0.02
-    assert wall_sided_gz(hs["gm"], hs["bm"], 30.0) / e30 - 1.0 > 0.10
+    assert wall_sided_gz_deg(hs["gm"], hs["bm"], 25.0) / e25 - 1.0 > 0.02
+    assert wall_sided_gz_deg(hs["gm"], hs["bm"], 30.0) / e30 - 1.0 > 0.10
 
 
 def test_exact_curve_has_maximum_and_vanishing_angle():
