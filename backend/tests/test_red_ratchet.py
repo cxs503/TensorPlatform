@@ -108,6 +108,59 @@ class TestCheckFromLog:
         assert R.check_from_log([SUITE], [str(log)], base) == 2
 
 
+class TestCompletionEvidence:
+    """Completion proof: the quiet stats line (no '=' border) and/or the
+    captured pytest exit code.  PR #597 stage 1 hit both in production: CI
+    runs ``pytest -q`` (quiet tail has no '=' border) AND the Actions runner
+    dropped the FINAL stdout line of the step — exactly that stats line —
+    from the captured log while the tee'd file carried it."""
+
+    def test_quiet_stats_line_is_a_completed_run(self, base, tmp_path):
+        log = _write(tmp_path / "quiet.log",
+                     "FAILED tests/test_a.py::test_x - AssertionError: boom\n"
+                     "FAILED tests/test_b.py::test_y - AssertionError: bam\n"
+                     "2 failed, 12 passed in 3.5s\n")
+        assert R.check_from_log([SUITE], [str(log)], base) == 0
+
+    def test_rc_one_authoritative_when_stats_line_dropped(
+            self, base, tmp_path):
+        log = _write(tmp_path / "dropped.log",
+                     "FAILED tests/test_a.py::test_x - AssertionError: boom\n"
+                     "FAILED tests/test_b.py::test_y - AssertionError: bam\n")
+        rc = _write(tmp_path / "pytest.rc", "1\n")
+        assert R.check_from_log([SUITE], [str(log)], base, str(rc)) == 0
+
+    def test_rc_one_without_entries_is_truncated(self, base, tmp_path, capsys):
+        log = _write(tmp_path / "empty.log", "garbage output\n")
+        rc = _write(tmp_path / "pytest.rc", "1\n")
+        assert R.check_from_log([SUITE], [str(log)], base, str(rc)) == 2
+        assert "truncated" in capsys.readouterr().out
+
+    def test_rc_two_is_a_config_error_even_with_banner(
+            self, base, clean_log, tmp_path, capsys):
+        rc = _write(tmp_path / "pytest.rc", "2\n")
+        assert R.check_from_log([SUITE], [str(clean_log)], base, str(rc)) == 2
+        assert "not a completed run" in capsys.readouterr().out
+
+    def test_missing_rc_file_falls_back_to_banner(self, base, clean_log,
+                                                  tmp_path):
+        assert R.check_from_log([SUITE], [str(clean_log)], base,
+                                str(tmp_path / "absent.rc")) == 0
+
+    def test_rc_file_non_integer_ignored(self, base, clean_log, tmp_path):
+        rc = _write(tmp_path / "pytest.rc", "killed?\n")
+        assert R.check_from_log([SUITE], [str(clean_log)], base, str(rc)) == 0
+
+    def test_measure_from_log_with_rc(self, tmp_path):
+        log = _write(tmp_path / "dropped.log",
+                     "FAILED tests/test_a.py::test_x - AssertionError: boom\n")
+        rc = _write(tmp_path / "pytest.rc", "1\n")
+        out = tmp_path / "newbase.json"
+        assert R.measure_from_log([SUITE], [str(log)], out, False, None,
+                                  str(rc)) == 0
+        assert json.loads(out.read_text())["total_red"] == 1
+
+
 class TestGrowthGuard:
     """Baseline fat-by-edit is the ratchet's own bypass — the gate catches it."""
 
@@ -198,3 +251,18 @@ class TestCliWiring:
             capture_output=True, text=True, cwd=REPO_ROOT, timeout=60)
         assert proc.returncode == 1
         assert "test_c.py" in proc.stdout
+
+    def test_check_from_log_cli_with_rc_file(self, base, tmp_path):
+        """The exact ci.yml call shape: tee'd log + PIPESTATUS rc file."""
+        import subprocess
+        log = _write(tmp_path / "dropped.log",
+                     "FAILED tests/test_a.py::test_x - AssertionError: boom\n"
+                     "FAILED tests/test_b.py::test_y - AssertionError: bam\n")
+        rc = _write(tmp_path / "pytest.rc", "1\n")
+        proc = subprocess.run(
+            [sys.executable, str(REPO_ROOT / "tools" / "ops" / "red_ratchet.py"),
+             "check-from-log", "--suite", SUITE, "--log", str(log),
+             "--rc-file", str(rc), "--baseline", str(base)],
+            capture_output=True, text=True, cwd=REPO_ROOT, timeout=60)
+        assert proc.returncode == 0, proc.stdout + proc.stderr
+        assert "backend/tests: 2 red" in proc.stdout
