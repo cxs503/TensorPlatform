@@ -96,7 +96,7 @@ class CheckpointWrite(BaseModel):
 
 class Observation(BaseModel):
     agent_id: uuid.UUID
-    event_type: Literal['observation', 'decision', 'outcome', 'feedback', 'lesson', 'fact']
+    event_type: Literal['observation', 'decision', 'outcome', 'feedback', 'lesson', 'fact', 'hypothesis']
     source: str = Field(min_length=1, max_length=200)
     payload: dict
     session_id: uuid.UUID | None = None

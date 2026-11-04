@@ -26,7 +26,8 @@ from sqlalchemy.orm import Session
 
 VERIFICATION_STATES = ("observed", "validated", "rejected", "superseded")
 SENSITIVITIES = ("private", "organization", "shared")
-EVENT_TYPES = ("observation", "decision", "outcome", "feedback", "lesson", "fact")
+# PR-6 (AOG SPEC M07): hypothesis = 先注册后执行的假设事件（开发过程即研究过程）。
+EVENT_TYPES = ("observation", "decision", "outcome", "feedback", "lesson", "fact", "hypothesis")
 PROMOTION_STATES = ("proposed", "approved", "rejected", "superseded")
 
 DEFAULT_RECALL_CHARS = 2400
