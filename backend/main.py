@@ -452,6 +452,16 @@ app.include_router(_factory_residents.router, prefix="/api/v1")
 app.include_router(_factory_strategy.router, prefix="/api/v1")
 app.include_router(_factory_models.router, prefix="/api/v1")
 
+# ── Soul Runtime 接线（PR-6，AOG SPEC M07 知识与上下文）──
+# RFC #72 的 /tensor/soul* 端点此前只挂在 factory_app（独立进程）上，
+# 生产入口 main:app 不可达（审计 #3554 M07「生产入口不可达」项）。
+# 同 ship_vibration 部署安全模式：import 失败只告警，不阻断 app 启动。
+try:
+    from api import soul_runtime as _soul_runtime  # noqa: E402
+    app.include_router(_soul_runtime.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("soul_runtime router 接线跳过: %s", _exc)
+
 # ── 公共实况展示面（免登录只读，owner 2026-10-22）──
 from api import public  # noqa: E402
 app.include_router(public.router, prefix="/api/v1")
