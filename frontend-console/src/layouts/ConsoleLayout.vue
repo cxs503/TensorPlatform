@@ -20,6 +20,10 @@
         </router-link>
         <router-link to="/sessions">Agent 活动</router-link>
         <router-link to="/missions" class="tf-nav-mission">开发任务</router-link>
+        <router-link to="/center/organization">组织</router-link>
+        <router-link to="/center/quality">质量</router-link>
+        <router-link to="/center/capability">能力</router-link>
+        <router-link to="/center/innovation">创新</router-link>
         <router-link to="/system">系统状态</router-link>
       </nav>
 
