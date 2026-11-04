@@ -1,0 +1,54 @@
+# 任务平面 compose（PR-9 · AOG P1）——舰队守护入基础设施定义
+#
+# P0 审计（报告 #3554）：任务平面全部宿主 cron/nohup 临时化，重装=失忆。
+# 本文件把它变成可复现基础设施：ops/taskplane/（脚本+编制表+manifest）
+# bind mount 为 /root/tp-agent（守护路径假设原样成立），supervise.py
+# 拉起 manifest enabled 集，30s 巡检补拉。
+#
+# 用法（部署机）：
+#   cd deploy/taskplane
+#   cp taskplane.env.example taskplane.env   # 填凭据（不入库）
+#   docker compose -f docker-compose.taskplane.yml up -d --build
+#
+# 宿主 cron/nohup 退役序（cutover 属生产变更，须 owner 批）：
+#   1) 起本 compose（与宿主旧进程并存会双跑——先 TP_PUSHER_OFF 等
+#      停机开关不存在于全部守护，故必须先停宿主侧同名进程再起容器）
+#   2) 观察一个巡更周期（30min）日志与平台 mission 流
+#   3) 撤宿主 crontab 行与 nohup 进程
+name: tensorplatform-taskplane
+
+services:
+  taskplane:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: tp-taskplane:pr9
+    container_name: tp-taskplane
+    # 平台 API/PG 均在 127.0.0.1（PAPI :8010 / PG :5432），host 网络最忠实；
+    # 隔离网络化时改 environment TP_API_BASE + PG host 指向。
+    network_mode: host
+    env_file: taskplane.env
+    environment:
+      TP_BASE: /root/tp-agent
+    volumes:
+      # 脚本+编制表+manifest（库内源）与运行态（state/log/work）同目录，
+      # 与既有守护的 /root/tp-agent 路径假设完全一致。
+      - ../../ops/taskplane:/root/tp-agent
+      - taskplane-logs:/var/log/taskplane
+      # GitHub PAT（merge_governor/runtime_sync 直读此路径；只读挂载）：
+      # 部署机存在该文件则取消注释。
+      # - /root/.git-credentials:/root/.git-credentials:ro
+      # 平台账号凭据文件（auto_approver/campaign_dispatcher 读）：
+      # - /root/.eco_admin_creds.json:/root/.eco_admin_creds.json:ro
+    restart: unless-stopped
+    command: ["python3", "/root/tp-agent/supervise.py"]
+    healthcheck:
+      # 双锚探活：治理面（merge_governor）+ 舰队面（fleet_supervisor）
+      test: ["CMD-SHELL", "pgrep -f merge_governor.py >/dev/null && pgrep -f fleet_supervisor >/dev/null || exit 1"]
+      interval: 60s
+      timeout: 10s
+      retries: 3
+      start_period: 120s
+
+volumes:
+  taskplane-logs:
