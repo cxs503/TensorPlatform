@@ -431,6 +431,142 @@ def write_off_mission(
 
 
 # ─────────────────────────────────────────────────────────────────────────────
+# 2b. PR MERGE GATE (owner 2026-11-05: 推了 PR 的任务，PR 合并才算完成)
+# ─────────────────────────────────────────────────────────────────────────────
+
+class PrGateRequest(BaseModel):
+    state: str = Field(pattern="^(open|merged|closed)$")
+    repo: str = Field(min_length=1, max_length=100)
+    pr: int = Field(ge=1)
+    sha: str | None = Field(default=None, max_length=64)
+    note: str | None = Field(default=None, max_length=500)
+
+
+@router.post("/{mission_id}/pr-gate",
+             dependencies=[Depends(require_role("ADMIN", "MANAGER"))])
+def pr_gate_mission(
+    mission_id: int,
+    body: PrGateRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """PR-merge completion gate.
+
+    Owner 2026-11-05: a dev mission whose deliverable became a PR is DONE only
+    when that PR merges. Machine callers report the PR lifecycle:
+
+      open   succeeded → awaiting_pr_merge  (success turns provisional)
+      merged awaiting_pr_merge → succeeded  (final, merge evidence recorded);
+             succeeded → evidence recorded only (idempotent reconcile)
+      closed awaiting_pr_merge/succeeded → failed (PR closed unmerged; the
+             branch stays on GitHub for salvage)
+
+    Idempotent for repeat reports; every call appends to
+    mission_lifecycle_log and to result.pr_gate.history.
+    """
+    org_id = resolved_org(None, user, db)
+    row = db.execute(
+        text("""
+            SELECT id, organization_id, status, session_id, result
+            FROM tensor_dev_missions WHERE id = :mid FOR UPDATE
+        """),
+        {"mid": mission_id},
+    ).mappings().first()
+    if not row:
+        raise HTTPException(404, "mission not found")
+    if int(row["organization_id"]) != org_id:
+        raise HTTPException(404, "mission not found")
+
+    status = row["status"]
+    detail = {
+        "state": body.state, "repo": body.repo, "pr": body.pr, "sha": body.sha,
+        "note": body.note, "reported_by": user.get("username"),
+        "at": datetime.now(timezone.utc).isoformat(),
+    }
+    result = row["result"] or {}
+    if isinstance(result, str):
+        result = json.loads(result)
+    gate = dict(result.get("pr_gate") or {})
+    history = list(gate.get("history") or []) + [detail]
+
+    if body.state == "open":
+        if status in ("succeeded", "awaiting_pr_merge"):
+            new_status = "awaiting_pr_merge"        # re-open report = idempotent
+        else:
+            raise HTTPException(
+                409, f"pr-gate(open) needs status=succeeded, got {status}")
+    elif body.state == "merged":
+        if status in ("awaiting_pr_merge", "succeeded"):
+            new_status = "succeeded"                # reconcile-safe both ways
+        else:
+            raise HTTPException(
+                409, f"pr-gate(merged) cannot fire from {status}")
+    else:  # closed
+        if status in ("awaiting_pr_merge", "succeeded", "failed"):
+            new_status = "failed"                   # not merged ⇒ not done
+        else:
+            raise HTTPException(
+                409, f"pr-gate(closed) cannot fire from {status}")
+
+    result["pr_gate"] = {**gate, "state": body.state, "repo": body.repo,
+                         "pr": body.pr, "sha": body.sha, "history": history}
+    db.execute(
+        text("""
+            UPDATE tensor_dev_missions
+            SET status = :st, result = CAST(:result AS jsonb)
+            WHERE id = :mid
+        """),
+        {"st": new_status, "result": _dumps(result), "mid": mission_id},
+    )
+    db.execute(
+        text("""
+            INSERT INTO mission_lifecycle_log (mission_id, action, actor_user_id, detail)
+            VALUES (:mid, 'pr_gate', :uid, CAST(:detail AS jsonb))
+        """),
+        {"mid": mission_id, "uid": user.get("id"), "detail": _dumps(detail)},
+    )
+    if row["session_id"]:
+        append_event(db, row["session_id"], "note",
+                     {"subtype": "mission_pr_gate", **detail})
+    db.commit()
+    return {"id": mission_id, "status": new_status,
+            "pr_gate": result["pr_gate"]}
+
+
+@router.get("/pr-merge-queue", dependencies=[Depends(require_auth)])
+def pr_merge_queue(
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+    limit: int = Query(default=200, ge=1, le=1000),
+):
+    """Reconcile worklist: missions whose success is provisional on a PR
+    merge (status=awaiting_pr_merge). merge_governor walks this each cycle to
+    finalise merges done by ANY merger (machine or human)."""
+    org_id = resolved_org(None, user, db)
+    rows = db.execute(
+        text("""
+            SELECT id, repo, goal, result, finished_at
+            FROM tensor_dev_missions
+            WHERE organization_id = :org AND status = 'awaiting_pr_merge'
+            ORDER BY finished_at NULLS LAST
+            LIMIT :lim
+        """),
+        {"org": org_id, "lim": limit},
+    ).mappings().all()
+    items = []
+    for r in rows:
+        result = r["result"] or {}
+        if isinstance(result, str):
+            result = json.loads(result)
+        gate = result.get("pr_gate") or {}
+        items.append({"id": r["id"], "repo": r["repo"], "pr": gate.get("pr"),
+                      "pr_state": gate.get("state"),
+                      "since": _iso(r["finished_at"]),
+                      "goal": (r["goal"] or "")[:120]})
+    return {"count": len(items), "items": items}
+
+
+# ─────────────────────────────────────────────────────────────────────────────
 # 3. WORKER PROBE (lightweight status for worker re-check)
 # ─────────────────────────────────────────────────────────────────────────────
 
