@@ -133,26 +133,53 @@ _LOG_PREFIX_MAP = {"backend/tests": ("tests/", "backend/tests/")}
 
 _CI_LINE_PREFIX = re.compile(r"^\d{4}-\d{2}-\d{2}T[0-9:.]+Z?\s*")
 
-# A completed pytest run always prints a terminal summary banner.  Without
+# A completed pytest run always prints a terminal stats line.  Two shapes:
+# verbose ``==== 2 failed, 1 passed in 3.5s ====`` and quiet ``2 failed, 1
+# passed in 3.5s`` (no ``=`` border — pytest -q, which CI uses).  Without
 # this guard an empty/truncated log parses as "0 red — everything fixed"
 # and the gate would pass on a run that never happened (a green lie).
-_PYTEST_BANNER = re.compile(r"=+ .*in [0-9.]+s|no tests ran")
+_PYTEST_BANNER = re.compile(
+    r"=+ .*in [0-9.]+s"
+    r"|\d+ (?:failed|passed|error|skipped|xfailed|xpassed|warnings?)\b[^\n]*"
+    r"in [0-9.]+s"
+    r"|no tests ran",
+)
 _NO_TESTS = "no tests ran"
 
 
-def parse_log(log_text: str) -> set[str]:
+def parse_log(log_text: str, rc: int | None = None) -> set[str]:
     """Failing node ids from a captured pytest ``-q`` summary (log lines may
     carry a CI timestamp prefix).
+
+    ``rc`` is pytest's own exit code when the caller captured it (CI tees the
+    run and writes ``PIPESTATUS[0]`` next to the log): 0/1 = a completed run,
+    anything else = config error or crash.  The code matters because the
+    Actions runner sometimes drops the FINAL line of a step's stdout — exactly
+    the quiet stats line this guard keys on (observed on PR #597 stage 1:
+    full summary section present, stats line absent from the captured log
+    while the tee'd file carried it).
 
     Raises ValueError when the log is not a completed pytest run — callers
     turn that into rc=2 (config/infrastructure error, distinct from the
     gate's rc=1 "new red" verdict).
     """
-    if not _PYTEST_BANNER.search(log_text):
-        raise ValueError(
-            "log does not contain a pytest terminal summary — the run "
-            "crashed or the log is empty; a gate cannot judge a run that "
-            "never happened")
+    if rc is None:
+        # No exit-code evidence: the terminal stats line is the only
+        # completion proof we have.
+        if not _PYTEST_BANNER.search(log_text):
+            raise ValueError(
+                "log does not contain a pytest terminal summary — the run "
+                "crashed or the log is empty; a gate cannot judge a run that "
+                "never happened")
+    else:
+        if rc not in (0, 1):
+            raise ValueError(
+                f"pytest exited {rc} (config error/crash) — not a completed "
+                f"run; a gate cannot judge a run that never finished")
+        if not log_text.strip():
+            raise ValueError(
+                "empty log despite a captured exit code — output capture "
+                "broke; refusing to judge")
     if _NO_TESTS in log_text and "failed" not in log_text and "error" not in log_text:
         raise ValueError(
             "log reports 'no tests ran' — collection death is not a green "
@@ -162,7 +189,31 @@ def parse_log(log_text: str) -> set[str]:
         m = _SUMMARY.match(_CI_LINE_PREFIX.sub("", line))
         if m:
             found.add(m.group(2))
+    if rc == 1 and not found:
+        raise ValueError(
+            "exit code 1 but no FAILED/ERROR summary lines captured — the "
+            "log is truncated; refusing to judge")
     return found
+
+
+def _read_rc(rc_path: str | None) -> int | None:
+    """Pytest's exit code from the file CI writes next to the log.
+
+    Absent/unparseable file -> None (fall back to the terminal-stats-line
+    check; legacy wiring must keep working).
+    """
+    if rc_path is None:
+        return None
+    p = Path(rc_path)
+    if not p.exists():
+        print(f"[ratchet] rc file {rc_path} not found — falling back to the "
+              f"terminal-stats-line check")
+        return None
+    try:
+        return int(p.read_text().strip())
+    except ValueError:
+        print(f"[ratchet] rc file {rc_path} is not an integer — ignoring")
+        return None
 
 
 def _normalize(nodes: set[str], suite: str) -> set[str]:
@@ -207,19 +258,22 @@ def _main_baseline_nodes(baseline_path: Path) -> tuple[set[str] | None, str]:
     return None, "unavailable"
 
 
-def check_from_log(suites: list[str], log_paths: list[str], baseline_path: Path) -> int:
+def check_from_log(suites: list[str], log_paths: list[str], baseline_path: Path,
+                   rc_path: str | None = None) -> int:
     if not baseline_path.exists():
         print("[check-from-log] no baseline; run measure-from-log first")
         return 2
     base = json.loads(baseline_path.read_text())
     rc = 0
+    pytest_rc = _read_rc(rc_path)
     for suite, log_path in zip(suites, log_paths):
         log = Path(log_path)
         if not log.exists():
             print(f"[check-from-log] {log_path}: log not found")
             return 2
         try:
-            current = _normalize(parse_log(log.read_text(errors="replace")), suite)
+            current = _normalize(
+                parse_log(log.read_text(errors="replace"), pytest_rc), suite)
         except ValueError as e:
             print(f"[check-from-log] {log_path}: {e}")
             return 2
@@ -251,17 +305,20 @@ def check_from_log(suites: list[str], log_paths: list[str], baseline_path: Path)
 
 
 def measure_from_log(suites: list[str], log_paths: list[str], baseline_path: Path,
-                     recompute: bool, reason: str | None) -> int:
+                     recompute: bool, reason: str | None,
+                     rc_path: str | None = None) -> int:
     doc: dict = {"generated_at": _dt.datetime.now(_dt.timezone.utc).isoformat(),
                  "suites": {}}
     total = 0
+    pytest_rc = _read_rc(rc_path)
     for suite, log_path in zip(suites, log_paths):
         log = Path(log_path)
         if not log.exists():
             print(f"[measure-from-log] {log_path}: log not found")
             return 2
         try:
-            nodes = sorted(_normalize(parse_log(log.read_text(errors="replace")), suite))
+            nodes = sorted(_normalize(
+                parse_log(log.read_text(errors="replace"), pytest_rc), suite))
         except ValueError as e:
             print(f"[measure-from-log] {log_path}: {e}")
             return 2
@@ -303,6 +360,11 @@ def main() -> int:
                     help="measure-from-log: allow growth with a recorded reason")
     ap.add_argument("--reason", default=None,
                     help="measure-from-log: why this re-baseline is audited")
+    ap.add_argument("--rc-file", default=None,
+                    help="file holding pytest's exit code (CI: PIPESTATUS[0]); "
+                         "valid with exactly one --log, authoritative "
+                         "completion evidence — the runner may drop the final "
+                         "quiet stats line from the captured stdout")
     ap.add_argument("--baseline", type=Path, default=DEFAULT_BASELINE)
     args = ap.parse_args()
     suites = args.suite or list(DEFAULT_SUITES)
@@ -316,9 +378,12 @@ def main() -> int:
         suites = suites[:1]
     if len(suites) != len(logs):
         ap.error("--suite and --log must pair one-to-one")
+    if args.rc_file and len(logs) != 1:
+        ap.error("--rc-file is only valid with exactly one --log")
     if args.mode == "check-from-log":
-        return check_from_log(suites, logs, args.baseline)
-    return measure_from_log(suites, logs, args.baseline, args.recompute, args.reason)
+        return check_from_log(suites, logs, args.baseline, args.rc_file)
+    return measure_from_log(suites, logs, args.baseline, args.recompute,
+                            args.reason, args.rc_file)
 
 
 if __name__ == "__main__":
