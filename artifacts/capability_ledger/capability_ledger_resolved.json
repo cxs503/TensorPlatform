@@ -1,0 +1,486 @@
+{
+ "capabilities": [
+  {
+   "basis": "最新证据 doc:docs/verification/PROPULSION_OPENWATER_M1584.md stance=contradicts → MOCK",
+   "claimed_level": "REAL",
+   "divergence": "OVERCLAIM",
+   "domain": "推进",
+   "evidence_count": 3,
+   "evidence_refs": [
+    {
+     "asserted_level": "MOCK",
+     "line": "**审计裁决**：**MOCK** —— synthetic response: multiple independent physics criteria fail simultaneously",
+     "line_sha256": "67174ada428d000b",
+     "quote_hit": true,
+     "report_id": 1128,
+     "stance": "contradicts"
+    },
+    {
+     "asserted_level": "MOCK",
+     "line": "判定：**敞水性能证据等级应为 MOCK，误差不可接受（>>15%）**。honest FAIL。",
+     "line_sha256": "b4bae67817136997",
+     "quote_hit": true,
+     "report_id": 1133,
+     "stance": "contradicts"
+    },
+    {
+     "asserted_level": "MOCK",
+     "line": "证据门 2/8 通过，**6 项非物理**；",
+     "line_sha256": "5585b52e4eb3008c",
+     "quote_hit": true,
+     "report_id": "doc:docs/verification/PROPULSION_OPENWATER_M1584.md",
+     "stance": "contradicts"
+    }
+   ],
+   "id": "propeller.open_water",
+   "latest_evidence_as_of": "2026-11-01T17:01:54+08:00",
+   "latest_evidence_report": "doc:docs/verification/PROPULSION_OPENWATER_M1584.md",
+   "reconciled_level": "MOCK"
+  },
+  {
+   "basis": "最新证据 doc:docs/reports/m1564_stability_adjudication.md 支持 REAL",
+   "claimed_level": "REAL",
+   "divergence": "OK",
+   "domain": "稳性",
+   "evidence_count": 3,
+   "evidence_refs": [
+    {
+     "asserted_level": "MOCK",
+     "line": "共 34 项逐量判定：**PASS 7 / WARN 3 / FAIL 24**。",
+     "line_sha256": "a1f0fd0b474e8261",
+     "quote_hit": true,
+     "report_id": 1136,
+     "stance": "contradicts"
+    },
+    {
+     "asserted_level": "MOCK",
+     "line": "**结论一句话**：平台 `calc.resistance` 评 REAL，但其剩余阻力 `Cr` 是手调量级而非 Holtrop 公式；",
+     "line_sha256": "1f5facc1357d5322",
+     "quote_hit": true,
+     "report_id": 1131,
+     "stance": "contradicts"
+    },
+    {
+     "asserted_level": "REAL",
+     "line": "**裁决结论：受证合成（certified synthesis），服务层为正典。**",
+     "line_sha256": "1e8f05848c597bdf",
+     "quote_hit": true,
+     "report_id": "doc:docs/reports/m1564_stability_adjudication.md",
+     "stance": "supports_real"
+    }
+   ],
+   "id": "calc.stability",
+   "latest_evidence_as_of": "2026-11-01T15:56:14+08:00",
+   "latest_evidence_report": "doc:docs/reports/m1564_stability_adjudication.md",
+   "reconciled_level": "REAL"
+  },
+  {
+   "basis": "最新证据 doc:docs/verification/inline_resistance_audit_2026-11-01.md stance=contradicts → WITHHELD",
+   "claimed_level": "REAL",
+   "divergence": "OVERCLAIM",
+   "domain": "阻力",
+   "evidence_count": 4,
+   "evidence_refs": [
+    {
+     "asserted_level": "MOCK",
+     "line": "**结论一句话**：平台 `calc.resistance` 评 REAL，但其剩余阻力 `Cr` 是手调量级而非 Holtrop 公式；",
+     "line_sha256": "1f5facc1357d5322",
+     "quote_hit": true,
+     "report_id": 1131,
+     "stance": "contradicts"
+    },
+    {
+     "asserted_level": "WITHHELD",
+     "line": "> 判决：**PASS** — 工况 9 个、检查项 124 项、FAIL 0 项；RT 误差 -0.0% … -0.0%，PE 误差 0.0% … 0.0%，Cf 最大误差 0.0%；几何前置门生效=yes；基准数据集不自洽算例 0/12。",
+     "line_sha256": "3e3e62f04181330f",
+     "quote_hit": true,
+     "report_id": 1140,
+     "stance": "conditional"
+    },
+    {
+     "asserted_level": "WITHHELD",
+     "line": "- 闸门判决：记录值 0/12 可判据 → 正典 4/12 CONSISTENT + 8/12 WITHHELD。",
+     "line_sha256": "7f71e36ba9fb78c3",
+     "quote_hit": true,
+     "report_id": 1144,
+     "stance": "conditional"
+    },
+    {
+     "asserted_level": "WITHHELD",
+     "line": "判决合计：**FAIL 8 · PASS 1 · WITHHELD 1**（共 10 条判据 / 12 个数据集案例）",
+     "line_sha256": "4614c0d1cf3e5311",
+     "quote_hit": true,
+     "report_id": "doc:docs/verification/inline_resistance_audit_2026-11-01.md",
+     "stance": "contradicts"
+    }
+   ],
+   "id": "calc.resistance",
+   "latest_evidence_as_of": "2026-11-01T17:37:17+08:00",
+   "latest_evidence_report": "doc:docs/verification/inline_resistance_audit_2026-11-01.md",
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "几何",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "geometry.hydro_curves",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "几何",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "geometry.generate",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "几何",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "geometry.list_models",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "几何",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "geometry.verify_official",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "几何",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "shiphull.generate",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "数据",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "stdmodels.lookup",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "平台",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "gov.stats",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "平台",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "knowledge.docs",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.gate_5415",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.git",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.logs",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.nginx_audit",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.probe",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.restart",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "REAL",
+   "divergence": "UNVERIFIED",
+   "domain": "开发",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "dev.services",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "NOT_SUPPORTED",
+   "divergence": "OK",
+   "domain": "AI",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "ai.predict",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "NOT_SUPPORTED",
+   "divergence": "OK",
+   "domain": "方法",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "methods.computation",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  },
+  {
+   "basis": "无证据",
+   "claimed_level": "STUB",
+   "divergence": "OK",
+   "domain": "杂项",
+   "evidence_count": 0,
+   "evidence_refs": [],
+   "id": "misc.stubs",
+   "latest_evidence_as_of": null,
+   "latest_evidence_report": null,
+   "reconciled_level": "WITHHELD"
+  }
+ ],
+ "schema_version": "2.0",
+ "summary": {
+  "capabilities": 21,
+  "divergence_tally": {
+   "OK": 4,
+   "OVERCLAIM": 2,
+   "REVERIFY": 0,
+   "UNVERIFIED": 15
+  },
+  "evidence_rows": 10,
+  "unregistered_domains": 5,
+  "violations": 0,
+  "with_evidence": 3,
+  "without_evidence": 18
+ },
+ "unregistered_domains": [
+  {
+   "action": "在注册表新增 seakeeping.rao（初始 WITHHELD，待外部 RAO 基准复核后升 REAL）。",
+   "domain": "耐波/seakeeping",
+   "evidence": [
+    {
+     "as_of": "2026-11-01T07:02:43.36570",
+     "asserted_level": "MOCK",
+     "note": "10 项判据判决：8 MOCK / 1 STUB / 1 REAL，垂荡长波端 +26%、横摇短波端 311 倍。",
+     "quote": {
+      "hit": true,
+      "line": "耐波域此前无验证欠账清偿记录。本单对 :8001 的四个耐波端点做 10 项可复算判据审计，域判决 **MOCK**（8 MOCK / 1 STUB / 1 REAL），10 条正向对照全部通过（判据非恒真）。",
+      "line_sha256": "a30132cf87cddd61",
+      "match": "域判决 **MOCK**"
+     },
+     "quote_match": "域判决 \\*\\*MOCK\\*\\*",
+     "report_id": 1135,
+     "stance": "contradicts"
+    },
+    {
+     "as_of": "2026-11-01T07:09:57.99683",
+     "asserted_level": "REAL",
+     "note": "STF 切片理论替换 MOCK 后 11/11 判据 PASS（同族自证，仍建议外部 RAO 基准复核）。",
+     "quote": {
+      "hit": true,
+      "line": "**11 条判据全部 PASS（exit 0，等级 REAL）：**",
+      "line_sha256": "92a1a5d4c6732aff",
+      "match": "11 条判据全部 PASS（exit 0，等级 REAL）"
+     },
+     "quote_match": "11 条判据全部 PASS（exit 0，等级 REAL）",
+     "report_id": 1139,
+     "stance": "supports_real"
+    }
+   ],
+   "gap": "注册表 21 项里没有耐波能力条目，但平台已有耐波端点并有 2 份审计报告 → 注册表覆盖缺口（能力在飞而账上无条目）。",
+   "latest_asserted_level": "REAL",
+   "latest_evidence_report": 1139
+  },
+  {
+   "action": "新增 green.eedi、green.cii（等级按报告 1134 的三层拆分入账，不得合并成单个 REAL）。",
+   "domain": "绿色航行/green-ship",
+   "evidence": [
+    {
+     "as_of": "2026-11-01T07:02:07.59422",
+     "asserted_level": "WITHHELD",
+     "note": "分子层 REAL / 要求值层 WITHHELD / A–E 等级 NOT_SUPPORTED 三层显式标注。",
+     "quote": {
+      "hit": true,
+      "line": "**一句话**：平台在\"绿色航行\"这一学科上此前**零实现**；本单交付首个实现，并把可推导层（REAL）与抄规则表层（WITHHELD）、未取得原文层（NOT_SUPPORTED）**在 API 响应里逐层标注**，避免又一个\"看起来能算\"的假能力。",
+      "line_sha256": "ff98cbfe476a4474",
+      "match": "未取得原文层（NOT_SUPPORTED）"
+     },
+     "quote_match": "未取得原文层（NOT_SUPPORTED）",
+     "report_id": 1134,
+     "stance": "conditional"
+    }
+   ],
+   "gap": "注册表无绿色航行条目；报告 1134 交付了 EEDI/EEXI/CII 分层实现。",
+   "latest_asserted_level": "WITHHELD",
+   "latest_evidence_report": 1134
+  },
+  {
+   "action": "新增 data.benchmark_integrity（canonical v3.0，WITHHELD 行逐条列出）。",
+   "domain": "基准参照数据/benchmark-reference",
+   "evidence": [
+    {
+     "as_of": "2026-11-01T07:07:44.55179",
+     "asserted_level": "WITHHELD",
+     "note": "物理合格 0 violations / 11 of 11 coherent，但文献转录项 honest-FAIL（quarantined）。",
+     "quote": {
+      "hit": true,
+      "line": "**状态：物理合格（0 violations / 11 of 11 coherent），文献转录项 honest-FAIL（未能访问原始文献。已按 quarantined 标注）。**",
+      "line_sha256": "877ffcdaad99e633",
+      "match": "0 violations / 11 of 11 coherent"
+     },
+     "quote_match": "0 violations / 11 of 11 coherent",
+     "report_id": 1137,
+     "stance": "conditional"
+    }
+   ],
+   "gap": "基准台账本身是能力判据的基石，注册表未列该能力；其自洽性已有独立审计。",
+   "latest_asserted_level": "WITHHELD",
+   "latest_evidence_report": 1137
+  },
+  {
+   "action": "注册表新增 structure.buckling（可 REAL）与 structure.fatigue / structure.ultimate（记 MOCK），并按 m1590 的契约层建议让 actual_stress 缺输入时返回 WITHHELD 而不是 0.5 sigma_y。",
+   "domain": "结构/structure",
+   "evidence": [
+    {
+     "as_of": "2026-11-01T17:09:35+08:00",
+     "asserted_level": "MOCK",
+     "note": "21 项检查仅 5 项 PASS：屈曲容量/剪屈曲/Miner 求和为真实现；ultimate_strength 与 fatigue_life 判 MOCK/STUB（actual_stress 恒 = 0.5 sigma_y，与载荷无关）。结构域不可用于疲劳寿命与极限强度定量决策。",
+     "quote": {
+      "hit": true,
+      "line": "**总结论**：结构域 4 个端点中，**屈曲容量公式与剪屈曲、Miner 求和是真实现（PASS）**；但 16/21 项判定 FAIL，失效集中在 **(i) 系数/边界的硬截断与非保守取值、(ii) 疲劳参数跨标准串标（BS 参考应力 + DNV 斜率常数）、(iii) 单位/量纲串接、(iv) `ultimate_strength` 与 `fatigue_life` 属 MOCK/STUB**。按平台标准（>15% 不可接受），",
+      "line_sha256": "f67219a0d9503187",
+      "match": "16/21 项判定 FAIL"
+     },
+     "quote_match": "16/21 项判定 FAIL",
+     "report_id": "doc:docs/reports/m1590_structure_verification_debt.md",
+     "stance": "contradicts"
+    }
+   ],
+   "gap": "注册表 21 项里没有结构能力条目，但平台有 4 个结构端点（板格屈曲/疲劳/板厚屈曲/极限强度），且 m1590 已做闭式基准复核 → 注册表覆盖缺口。",
+   "latest_asserted_level": "MOCK",
+   "latest_evidence_report": "doc:docs/reports/m1590_structure_verification_debt.md"
+  },
+  {
+   "action": "把 backend/api/domain/ship_vibration.py 的 router 挂进主站并重启（属运维动作），挂载后本行寄存器新增 vibration.beam/plate、noise.panel_tl 并把在线等级升 REAL。",
+   "domain": "振动噪声/vibration-noise",
+   "evidence": [
+    {
+     "as_of": "2026-11-01T15:15:06+08:00",
+     "asserted_level": "NOT_SUPPORTED",
+     "note": "梁 lambda1..4 对 Blevins(1979) 误差 1e-7 %；板 7 模态对 Rayleigh 商 0.115 %；A 计权对 IEC 61672-1 0.090 dB。能力 REAL 但路由未挂载 → 在线 404（控制组 405）。",
+     "quote": {
+      "hit": true,
+      "line": "因此在线平台当前仍为 NOT_SUPPORTED，仓内为 REAL（能力已实现并验证）。",
+      "line_sha256": "a6104a8a8acd3b40",
+      "match": "在线平台当前仍为 NOT_SUPPORTED，仓内为 REAL"
+     },
+     "quote_match": "在线平台当前仍为 NOT_SUPPORTED，仓内为 REAL",
+     "report_id": "doc:docs/audits/vibration_noise_domain_audit.md",
+     "stance": "contradicts"
+    }
+   ],
+   "gap": "注册表无振动噪声域条目；仓内 m1493 已实现梁/板固有频率、隔振传递率、板隔声、声级合成共 9 个解析端点并复核到 <3%，但**未挂进在线服务** → 在线仍 NOT_SUPPORTED。",
+   "latest_asserted_level": "NOT_SUPPORTED",
+   "latest_evidence_report": "doc:docs/audits/vibration_noise_domain_audit.md"
+  }
+ ],
+ "violations": []
+}

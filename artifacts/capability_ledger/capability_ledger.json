@@ -1,0 +1,384 @@
+{
+ "schema_version": "2.0",
+ "title": "船体总体性能平台能力证据台账（capability evidence ledger）",
+ "purpose": "把 audit_capabilities 自述的证据等级与平台自身审计报告（:8010 /tensor/reports）的裁决逐条对账，任何『自述 REAL 但证据相反/缺失』都必须显式成行，不得静默。",
+ "claimed_level_source": {
+  "kind": "agent_tool",
+  "name": "audit_capabilities",
+  "observed_at": "2026-11-01T07:44:00Z",
+  "snapshot": "tests/fixtures/capability_ledger/capabilities_snapshot.json",
+  "caveat": "该清单没有对应 HTTP 端点（:8001 六个候选路径全部 404），只能以快照形式入库；建议平台把注册表暴露为 /api/v1/tensor/capabilities 以便机器复核。"
+ },
+ "evidence_source": {
+  "kind": "http+repo",
+  "endpoints": [
+   "GET http://127.0.0.1:8010/api/v1/tensor/reports/{id}（在线报告，id 为数字）",
+   "仓内已合并复核文档（id 形如 doc:docs/verification/xxx.md）"
+  ],
+  "corpus": "tests/fixtures/capability_ledger/reports_corpus.json",
+  "corpus_builder": "tools/audit/build_capability_corpus_docs.py",
+  "retrieved_at": "2026-11-01T07:52:00Z"
+ },
+ "level_rank": {
+  "NOT_SUPPORTED": 0,
+  "STUB": 1,
+  "MOCK": 2,
+  "WITHHELD": 3,
+  "REAL": 4
+ },
+ "reconciliation_rules": [
+  "无证据：reconciled=WITHHELD（未验证默认），claim 强于 WITHHELD 记 UNVERIFIED。",
+  "仓内文档当且仅当被 C10 校验过正文 sha256 才可作为证据（文档被改 → 旧引文失效）。",
+  "『最新』= as_of 时间戳最大；同一时间戳取证据种类（在线报告=1 > 仓内文档=0），再取 id 字典序。"
+ ],
+ "capabilities": [
+  {
+   "id": "propeller.open_water",
+   "domain": "推进",
+   "claimed_level": "REAL",
+   "evidence": [
+    {
+     "report_id": 1128,
+     "as_of": "2026-11-01T07:00:35.65955",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "\\*\\*审计裁决\\*\\*：\\*\\*MOCK\\*\\*",
+     "note": "6/6 解析判据不通过：eta0 定义恒等式偏差 237%、KQ 对 J 不变化、螺距/盘面比零敏感。"
+    },
+    {
+     "report_id": 1133,
+     "as_of": "2026-11-01T07:01:56.43748",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "敞水性能证据等级应为 MOCK",
+     "note": "推进域独立复算 0/7 判据通过，误差 >>15%。"
+    },
+    {
+     "report_id": "doc:docs/verification/PROPULSION_OPENWATER_M1584.md",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "证据门 2/8 通过",
+     "note": "m1584 用不依赖文献数值的硬判据重裁：端点自报 eta0 越过动量理论上限 eta_i=2/(1+sqrt(1+CT))，最大越界 0.1421（物理不可能）；另有 KQ/螺距/盘面比零敏感等 5 项非物理。修复单 1556 failed → 不得回填 REAL。",
+     "as_of": "2026-11-01T17:01:54+08:00"
+    }
+   ],
+   "note": "两篇独立审计同向裁决 MOCK；注册表仍报 REAL。修复单 1556 为 failed，故不得回填 REAL。",
+   "action": "注册表 REAL→MOCK（或迁到 capability 文档里标 MOCK），并把敞水端点标注『解析判据 0/7』；修复单需先让 eta0 定义恒等式与螺距敏感度过判据。"
+  },
+  {
+   "id": "calc.stability",
+   "domain": "稳性",
+   "claimed_level": "REAL",
+   "evidence": [
+    {
+     "report_id": 1136,
+     "as_of": "2026-11-01T07:05:08.77419",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "FAIL 24",
+     "note": "34 项逐量判定 PASS 7 / WARN 3 / FAIL 24；KB +33.33%、GM +61.54%、GZ@20° +53.27%。"
+    },
+    {
+     "report_id": 1131,
+     "as_of": "2026-11-01T07:01:24.70030",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "评 REAL，但其剩余阻力",
+     "note": "同族证据：注册表 REAL 与端点实测背离的同类模式（阻力端点）。"
+    },
+    {
+     "report_id": "doc:docs/reports/m1564_stability_adjudication.md",
+     "stance": "supports_real",
+     "asserted_level": "REAL",
+     "quote_match": "受证合成（certified synthesis）",
+     "note": "m1564 平行实现裁决：域内三实现 vs 箱型驳船独立积分基准差在 1e-6 % 量级，正典全程停在舍入噪声（≤1e-3 %），并把有效域改为 atan(2*min(T,D-T)/B) 解析导出、域外截断不再抛无界臂 → 报告 1136 的 24 项 FAIL 已被结构性清偿。",
+     "as_of": "2026-11-01T15:56:14+08:00"
+    }
+   ],
+   "note": "稳性 serving 端点对解析基准 24 项 FAIL；修复单 1546/1548/1555/1559 均 failed，注册表未降级。",
+   "action": "注册表 REAL→MOCK，直到 KB/GM/GZ 三项对解析基准 <3%；当前 KB +33.33% / GM +61.54% / GZ@20° +53.27%。"
+  },
+  {
+   "id": "calc.resistance",
+   "domain": "阻力",
+   "claimed_level": "REAL",
+   "evidence": [
+    {
+     "report_id": 1131,
+     "as_of": "2026-11-01T07:01:24.70030",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "评 REAL，但其剩余阻力",
+     "note": "Cr 为手调量级，部署态 R_T 偏高 224.5%。"
+    },
+    {
+     "report_id": 1140,
+     "as_of": "2026-11-01T07:12:07.94530",
+     "stance": "conditional",
+     "asserted_level": "WITHHELD",
+     "quote_match": "判决：\\*\\*PASS\\*\\*",
+     "note": "Holtrop-1984 内核重写后 124 项检查 FAIL 0；但对照基准主要是自家实现/自家台账，绝对精度仍待独立语料。"
+    },
+    {
+     "report_id": 1144,
+     "as_of": "2026-11-01T07:21:58.85255",
+     "stance": "conditional",
+     "asserted_level": "WITHHELD",
+     "quote_match": "4/12 CONSISTENT \\+ 8/12 WITHHELD",
+     "note": "基准数据集六分支裁决：可判据仅 4/12，8/12 绝对量如实 WITHHELD，故端点不能据自洽性自证 REAL。"
+    },
+    {
+     "report_id": "doc:docs/verification/inline_resistance_audit_2026-11-01.md",
+     "stance": "contradicts",
+     "asserted_level": "WITHHELD",
+     "quote_match": "FAIL 8 · PASS 1 · WITHHELD 1",
+     "note": "10 条判据 12 个数据集案例：FAIL 8 / PASS 1 / WITHHELD 1。inline 湿表面积 vs 解析长球体 -20.9%；SUBOFF inline Ct 误差到 +31.5%；数据集 Rt 与 Froude 恒等式自身不自洽（+852% / -462.9%）→ 基准侧也不可判据。自述 REAL 被推翻，改记 OVERCLAIM（比 v1 的 REVERIFY 更严）。",
+     "as_of": "2026-11-01T17:37:17+08:00"
+    }
+   ],
+   "note": "重写已发生（证据 1140）→ 不是 OVERCLAIM 而是 REVERIFY：需要一份外部绝对基准再判 REAL。",
+   "action": "REAL 暂降为 WITHHELD（或加『条件 REAL：仅自洽性』标签），待外部绝对基准语料（1137/1144 的 8/12 WITHHELD 行）补齐后重新判 REAL。"
+  },
+  {
+   "id": "geometry.hydro_curves",
+   "domain": "几何",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "注册表 REAL 但无任何审计报告覆盖；几何前置门（Cb 由 volume/(L·B·T) 复核，1140 已用）只覆盖 Cb 一项，不等于水曲线正确。"
+  },
+  {
+   "id": "geometry.generate",
+   "domain": "几何",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "无审计证据。"
+  },
+  {
+   "id": "geometry.list_models",
+   "domain": "几何",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "无审计证据；纯登记类端点，REAL 语义应弱化为『可用』而非『物理正确』。"
+  },
+  {
+   "id": "geometry.verify_official",
+   "domain": "几何",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "无审计证据。"
+  },
+  {
+   "id": "shiphull.generate",
+   "domain": "几何",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "无审计证据；船型生成需 Cb/L/B 前置校验证据，未取得。"
+  },
+  {
+   "id": "stdmodels.lookup",
+   "domain": "数据",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "标准船型库查表，无审计证据；查表类可先降为 WITHHELD（可用但未验证）以免与物理能力混谈。"
+  },
+  {
+   "id": "gov.stats",
+   "domain": "平台",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "平台统计端点，非物理能力。"
+  },
+  {
+   "id": "knowledge.docs",
+   "domain": "平台",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "知识库检索，非物理能力。"
+  },
+  {
+   "id": "dev.gate_5415",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发门禁类端点，非物理能力。"
+  },
+  {
+   "id": "dev.git",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发工具类端点，非物理能力。"
+  },
+  {
+   "id": "dev.logs",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发工具类端点，非物理能力。"
+  },
+  {
+   "id": "dev.nginx_audit",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发工具类端点，非物理能力。"
+  },
+  {
+   "id": "dev.probe",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发工具类端点，非物理能力。"
+  },
+  {
+   "id": "dev.restart",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发工具类端点，非物理能力。"
+  },
+  {
+   "id": "dev.services",
+   "domain": "开发",
+   "claimed_level": "REAL",
+   "evidence": [],
+   "note": "开发工具类端点，非物理能力。"
+  },
+  {
+   "id": "ai.predict",
+   "domain": "AI",
+   "claimed_level": "NOT_SUPPORTED",
+   "evidence": [],
+   "note": "自述不支持，与无证据一致。"
+  },
+  {
+   "id": "methods.computation",
+   "domain": "方法",
+   "claimed_level": "NOT_SUPPORTED",
+   "evidence": [],
+   "note": "自述不支持，与无证据一致。"
+  },
+  {
+   "id": "misc.stubs",
+   "domain": "杂项",
+   "claimed_level": "STUB",
+   "evidence": [],
+   "note": "自述 STUB；本台账要求把 stub 清单逐条列出端点名，否则仍是黑箱。"
+  }
+ ],
+ "unregistered_domains": [
+  {
+   "domain": "耐波/seakeeping",
+   "gap": "注册表 21 项里没有耐波能力条目，但平台已有耐波端点并有 2 份审计报告 → 注册表覆盖缺口（能力在飞而账上无条目）。",
+   "evidence": [
+    {
+     "report_id": 1135,
+     "as_of": "2026-11-01T07:02:43.36570",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "域判决 \\*\\*MOCK\\*\\*",
+     "note": "10 项判据判决：8 MOCK / 1 STUB / 1 REAL，垂荡长波端 +26%、横摇短波端 311 倍。"
+    },
+    {
+     "report_id": 1139,
+     "as_of": "2026-11-01T07:09:57.99683",
+     "stance": "supports_real",
+     "asserted_level": "REAL",
+     "quote_match": "11 条判据全部 PASS（exit 0，等级 REAL）",
+     "note": "STF 切片理论替换 MOCK 后 11/11 判据 PASS（同族自证，仍建议外部 RAO 基准复核）。"
+    }
+   ],
+   "action": "在注册表新增 seakeeping.rao（初始 WITHHELD，待外部 RAO 基准复核后升 REAL）。"
+  },
+  {
+   "domain": "绿色航行/green-ship",
+   "gap": "注册表无绿色航行条目；报告 1134 交付了 EEDI/EEXI/CII 分层实现。",
+   "evidence": [
+    {
+     "report_id": 1134,
+     "as_of": "2026-11-01T07:02:07.59422",
+     "stance": "conditional",
+     "asserted_level": "WITHHELD",
+     "quote_match": "未取得原文层（NOT_SUPPORTED）",
+     "note": "分子层 REAL / 要求值层 WITHHELD / A–E 等级 NOT_SUPPORTED 三层显式标注。"
+    }
+   ],
+   "action": "新增 green.eedi、green.cii（等级按报告 1134 的三层拆分入账，不得合并成单个 REAL）。"
+  },
+  {
+   "domain": "基准参照数据/benchmark-reference",
+   "gap": "基准台账本身是能力判据的基石，注册表未列该能力；其自洽性已有独立审计。",
+   "evidence": [
+    {
+     "report_id": 1137,
+     "as_of": "2026-11-01T07:07:44.55179",
+     "stance": "conditional",
+     "asserted_level": "WITHHELD",
+     "quote_match": "0 violations / 11 of 11 coherent",
+     "note": "物理合格 0 violations / 11 of 11 coherent，但文献转录项 honest-FAIL（quarantined）。"
+    }
+   ],
+   "action": "新增 data.benchmark_integrity（canonical v3.0，WITHHELD 行逐条列出）。"
+  },
+  {
+   "domain": "结构/structure",
+   "gap": "注册表 21 项里没有结构能力条目，但平台有 4 个结构端点（板格屈曲/疲劳/板厚屈曲/极限强度），且 m1590 已做闭式基准复核 → 注册表覆盖缺口。",
+   "evidence": [
+    {
+     "report_id": "doc:docs/reports/m1590_structure_verification_debt.md",
+     "stance": "contradicts",
+     "asserted_level": "MOCK",
+     "quote_match": "16/21 项判定 FAIL",
+     "note": "21 项检查仅 5 项 PASS：屈曲容量/剪屈曲/Miner 求和为真实现；ultimate_strength 与 fatigue_life 判 MOCK/STUB（actual_stress 恒 = 0.5 sigma_y，与载荷无关）。结构域不可用于疲劳寿命与极限强度定量决策。",
+     "as_of": "2026-11-01T17:09:35+08:00"
+    }
+   ],
+   "action": "注册表新增 structure.buckling（可 REAL）与 structure.fatigue / structure.ultimate（记 MOCK），并按 m1590 的契约层建议让 actual_stress 缺输入时返回 WITHHELD 而不是 0.5 sigma_y。"
+  },
+  {
+   "domain": "振动噪声/vibration-noise",
+   "gap": "注册表无振动噪声域条目；仓内 m1493 已实现梁/板固有频率、隔振传递率、板隔声、声级合成共 9 个解析端点并复核到 <3%，但**未挂进在线服务** → 在线仍 NOT_SUPPORTED。",
+   "evidence": [
+    {
+     "report_id": "doc:docs/audits/vibration_noise_domain_audit.md",
+     "stance": "contradicts",
+     "asserted_level": "NOT_SUPPORTED",
+     "quote_match": "在线平台当前仍为 NOT_SUPPORTED，仓内为 REAL",
+     "note": "梁 lambda1..4 对 Blevins(1979) 误差 1e-7 %；板 7 模态对 Rayleigh 商 0.115 %；A 计权对 IEC 61672-1 0.090 dB。能力 REAL 但路由未挂载 → 在线 404（控制组 405）。",
+     "as_of": "2026-11-01T15:15:06+08:00"
+    }
+   ],
+   "action": "把 backend/api/domain/ship_vibration.py 的 router 挂进主站并重启（属运维动作），挂载后本行寄存器新增 vibration.beam/plate、noise.panel_tl 并把在线等级升 REAL。"
+  }
+ ],
+ "findings_policy": "OVERCLAIM/REVERIFY/UNVERIFIED 三种分歧都要有 owner 动作句（action），否则 tools/audit/capability_ledger.py --check 退出非 0。",
+ "unverified_policy": "『无证据但自述 REAL』统一记 UNVERIFIED，不算违规；但平台若要把这类能力写进对外材料，必须先补审计报告（每域至少 1 篇，判据须含变异体判负）。",
+ "curation": {
+  "revision": "m1811",
+  "as_of": "2026-11-02T00:00:00+00:00",
+  "max_evidence_age_days": 30,
+  "rationale": "v1 只吃在线报告，已合并的复核文档对台账不可见 → 台账把已修复的能力永久钉在旧判决上；v2 起把仓内已合并复核文档作为第二路证据，并用 C8/C9/C10 三条判据防止再次腐朽。",
+  "must_consume": [
+   {
+    "path": "docs/verification/PROPULSION_OPENWATER_M1584.md",
+    "why": "重裁 propeller.open_water：证据门 2/8，端点 eta0 越过动量理论上限（不依赖文献数值的硬判据）"
+   },
+   {
+    "path": "docs/reports/m1564_stability_adjudication.md",
+    "why": "重裁 calc.stability：域内 vs 箱型驳船精确解误差 ≤1e-3 %，域外由解析有效域截断"
+   },
+   {
+    "path": "docs/verification/inline_resistance_audit_2026-11-01.md",
+    "why": "重裁 calc.resistance：FAIL 8 / PASS 1 / WITHHELD 1，绝对精度仍不可判据"
+   },
+   {
+    "path": "docs/reports/m1590_structure_verification_debt.md",
+    "why": "覆盖缺口：结构域端点在跑而注册表 21 项无结构条目"
+   },
+   {
+    "path": "docs/audits/vibration_noise_domain_audit.md",
+    "why": "覆盖缺口：振动噪声域在仓内已实现并解析复核，但注册表无条目、在线仍 NOT_SUPPORTED"
+   }
+  ]
+ }
+}
