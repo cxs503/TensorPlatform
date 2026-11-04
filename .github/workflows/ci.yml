@@ -99,7 +99,50 @@ jobs:
             /app/.keys
           sudo chown -R "$(id -u):$(id -g)" /app
       - name: Run backend tests
-        run: PYTHONPATH=. pytest -q tests/ --timeout=600
+        # Tee the run: the ratchet gate below parses this log instead of
+        # re-running the suite (one run, one bill). pytest's own exit code is
+        # written to ../backend-pytest.rc — the Actions runner sometimes
+        # drops the FINAL stdout line of a step (observed on PR #597 stage
+        # 1: the quiet "N failed, ... in Ns" tail), so the exit code is the
+        # authoritative "run completed" evidence for the gate; 0/1 =
+        # completed (1 = the ratcheted red tail), anything else = crash.
+        # --continue-on-collection-errors so a dead file becomes a
+        # ratchetable ERROR entry instead of aborting the whole suite with
+        # zero tests run (the pre-PR-7a failure mode). The step itself never
+        # fails: the ratchet step below is the authoritative gate.
+        run: |
+          set +e
+          PYTHONPATH=. pytest -q tests/ --continue-on-collection-errors \
+            --timeout=600 2>&1 | tee ../backend-pytest.log
+          echo "${PIPESTATUS[0]}" > ../backend-pytest.rc
+      - name: Red ratchet (new-red gate)
+        # R6/PR-7b: the inherited red tail may only shrink. Fails the job on
+        # (a) any red not in tools/ops/red_baseline.json, (b) a baseline
+        # that GREW vs main (adopt-by-edit bypass), (c) a log that is not a
+        # completed pytest run (empty log = green lie).
+        if: always()
+        run: |
+          if git fetch --depth=1 origin main 2>/dev/null \
+             && git show FETCH_HEAD:tools/ops/red_baseline.json \
+                  > /tmp/main-red-baseline.json 2>/dev/null \
+             && [ -s /tmp/main-red-baseline.json ]; then
+            export RED_RATCHET_BASELINE_MAIN=/tmp/main-red-baseline.json
+          fi
+          python ../tools/ops/red_ratchet.py check-from-log \
+            --suite backend/tests --log ../backend-pytest.log \
+            --rc-file ../backend-pytest.rc
+      - name: Upload pytest log
+        # Ground truth for any future dispute about what the gate judged:
+        # the tee'd log (with the runner-droppable final line intact) and
+        # the exit-code file.
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: backend-pytest-log
+          path: |
+            backend-pytest.log
+            backend-pytest.rc
+          if-no-files-found: warn
 
   frontend:
     name: frontend
