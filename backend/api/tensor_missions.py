@@ -15,6 +15,8 @@ decided by ADMIN through the shared approval queue (kind=dev_acceptance).
 from __future__ import annotations
 
 import json
+import os
+import re
 import uuid
 from typing import Any
 
@@ -715,6 +717,69 @@ class CompleteRequest(BaseModel):
         description="Stage where failure occurred: tool_loop/build/test/acceptance/agent_lost")
 
 
+_SHA_RE = re.compile(r"^[0-9a-f]{40,64}$")
+
+
+def _server_quality_audit(body: CompleteRequest) -> dict[str, Any]:
+    """Recompute what the *server* can verify about the agent's quality gate.
+
+    Before PR-4 the agent self-reported ``summary.quality_gate`` and a missing
+    key silently bypassed every check in ``complete`` (audit R-B: the happy
+    path of tp_worker omits the key). This audit is deliberately honest about
+    its own limits: artifact *existence* is only checked when a server-side
+    evidence root is configured (``TP_EVIDENCE_ROOT``); without a root the
+    entry is reported ``exists=None`` — unverifiable, never passed.
+    """
+    gate = body.summary.get("quality_gate")
+    audit: dict[str, Any] = {
+        # key presence is about the *key*, even when its value has a wrong type
+        "key_present": "quality_gate" in body.summary,
+        "gate_valid": isinstance(gate, dict) and type(gate.get("passed")) is bool,
+    }
+    if isinstance(gate, dict):
+        artifacts = gate.get("artifacts")
+        if isinstance(artifacts, list) and artifacts:
+            checked = []
+            for item in artifacts:
+                path = item if isinstance(item, str) else (
+                    item.get("path") if isinstance(item, dict) else ""
+                )
+                safe = bool(
+                    isinstance(path, str) and path
+                    and not os.path.isabs(path)
+                    and ".." not in path.split("/")
+                )
+                exists: bool | None = None
+                root = os.environ.get("TP_EVIDENCE_ROOT")
+                if safe and root:
+                    exists = os.path.isfile(os.path.join(root, path))
+                checked.append({"path": path, "safe": safe, "exists": exists})
+            audit["artifacts"] = checked
+            audit["artifacts_ok"] = all(c["safe"] and c["exists"] is True for c in checked)
+    if body.branch:
+        audit["head_commit_sha_like"] = bool(
+            body.head_commit and bool(_SHA_RE.match(body.head_commit))
+        )
+    return audit
+
+
+def _quality_gate_admission(audit: dict[str, Any], *, acceptance: bool, enforce: bool) -> tuple[bool, str | None]:
+    """Admission policy over the server-side audit. Gate must be able to fail:
+    with ``TP_QUALITY_GATE_ENFORCE=1`` each gap below is a hard 422; in the
+    default warn-mode the same gap is recorded in the approval evidence as
+    ``server_quality_audit.gate_missing_warning`` for the decider to see."""
+    if not acceptance:
+        return True, None
+    if not audit.get("key_present"):
+        return not enforce, ("quality gate result missing: summary.quality_gate "
+                             "is required to request acceptance")
+    if not audit.get("gate_valid"):
+        return not enforce, "invalid quality gate result"
+    if audit.get("artifacts_ok") is False:
+        return not enforce, "declared artifacts missing, unsafe, or unverifiable"
+    return True, None
+
+
 @router.post("/{mission_id}/complete", dependencies=[Depends(require_auth)])
 def complete_mission(
     mission_id: int,
@@ -732,6 +797,17 @@ def complete_mission(
     if body.acceptance and body.status != "succeeded":
         raise HTTPException(status_code=422, detail="failed work cannot request successful acceptance")
     gate=body.summary.get('quality_gate')
+    # PR-4: server-side recomputation of the agent's quality gate claim.
+    # Warn-mode by default (gap recorded in the approval evidence for the
+    # decider); TP_QUALITY_GATE_ENFORCE=1 turns each gap into a hard 422.
+    server_audit = _server_quality_audit(body)
+    if body.acceptance and not server_audit.get("key_present"):
+        server_audit["gate_missing_warning"] = True
+    _admit_ok, _admit_detail = _quality_gate_admission(
+        server_audit, acceptance=body.acceptance,
+        enforce=os.environ.get("TP_QUALITY_GATE_ENFORCE", "0") == "1")
+    if not _admit_ok:
+        raise HTTPException(status_code=422, detail=_admit_detail)
     if gate is not None:
         if not isinstance(gate,dict) or type(gate.get('passed')) is not bool:
             raise HTTPException(status_code=422, detail='invalid quality gate result')
@@ -744,6 +820,7 @@ def complete_mission(
         "summary": body.summary,
         "checks": body.checks,
         "finished_status": body.status,
+        "server_quality_audit": server_audit,
     }
 
     approval_id = None
