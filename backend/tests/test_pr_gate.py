@@ -27,6 +27,7 @@ BACKEND = Path(__file__).resolve().parents[1]
 REPO_ROOT = BACKEND.parent
 CONTRACT = BACKEND / "contracts" / "mission_status_vocab.v1.json"
 MIGRATION = BACKEND / "migrations" / "100_pr_merge_gate.sql"
+MIGRATION_101 = BACKEND / "migrations" / "101_pr_merge_gate_log.sql"
 LIFECYCLE = BACKEND / "api" / "tensor_mission_lifecycle.py"
 
 
@@ -49,6 +50,20 @@ def test_migration_100_widens_status_check():
     # 棘轮不缩词：096 终态 10 词全数保留
     assert {"queued", "claimed", "running", "awaiting_acceptance", "succeeded",
             "failed", "stopped", "revoked", "suspended", "orphan"} <= states
+
+
+def test_migration_101_widens_lifecycle_log_action_check():
+    """首跑实锤（2026-11-05 回填 175 单全 500）：pr-gate 审计行
+    action='pr_gate' 撞 mission_lifecycle_log 的 095 六词 CHECK。
+    101 棘轮增补，六词全保留。"""
+    sql = MIGRATION_101.read_text(encoding="utf-8")
+    assert "DROP CONSTRAINT IF EXISTS mission_lifecycle_log_action_check" in sql
+    m = re.search(r"CHECK \(action IN \(([^)]*)\)", sql)
+    assert m, "101 必须重定义 action CHECK"
+    actions = {s.strip().strip("'\"") for s in m.group(1).split(",") if s.strip()}
+    assert "pr_gate" in actions
+    assert {"suspend", "resume", "write_off", "orphan_detect", "reclaim",
+            "necessity_gate"} <= actions, "棘轮不缩词：095 六词全保留"
 
 
 def test_endpoint_declares_three_transitions():
@@ -94,17 +109,26 @@ def test_pg_constraint_accepts_new_status():
                         "AND conname='tensor_dev_missions_status_check'")
             defin = cur.fetchone()[0]
             assert "awaiting_pr_merge" in defin, "约束未含新态（迁移 100 未应用?）"
+            cur.execute("SELECT pg_get_constraintdef(oid) FROM pg_constraint "
+                        "WHERE conrelid='mission_lifecycle_log'::regclass "
+                        "AND conname='mission_lifecycle_log_action_check'")
+            logdef = cur.fetchone()[0]
+            assert "pr_gate" in logdef, "log 约束未含 pr_gate（迁移 101 未应用?）"
             cur.execute("INSERT INTO tensor_dev_missions "
                         "(organization_id, goal, repo, status, origin) "
                         "VALUES (1, 'pr-gate-probe', 'TensorProbe', "
                         "'awaiting_pr_merge', 'owner') RETURNING id")
             pid = cur.fetchone()[0]
+            cur.execute("INSERT INTO mission_lifecycle_log "
+                        "(mission_id, action, detail) "
+                        "VALUES (%s, 'pr_gate', '{}') ", (pid,))
             for st in ("succeeded", "awaiting_pr_merge", "failed"):
                 cur.execute("UPDATE tensor_dev_missions SET status=%s "
                             "WHERE id=%s", (st, pid))
             with pytest.raises(Exception):
                 cur.execute("UPDATE tensor_dev_missions SET status='bogus' "
                             "WHERE id=%s", (pid,))
+            cur.execute("DELETE FROM mission_lifecycle_log WHERE mission_id=%s", (pid,))
             cur.execute("DELETE FROM tensor_dev_missions WHERE id=%s", (pid,))
         conn.commit()
     finally:
