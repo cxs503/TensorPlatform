@@ -15,7 +15,7 @@ Why this audit
 标度律？分量拆分？）——这是本单要机器回答的问题。审计不做文献裁决（离线无原文），
 只做 **结构自洽 + 标度律 + 常数可追溯性** 三类可判定的判据。
 
-Run:  python3 backend/tools/audit/m1687_ice_three_way.py [--out artifacts/m1687]
+Run:  python3 tools/audit/m1687_ice_three_way.py [--out artifacts/m1687]
 """
 from __future__ import annotations
 
@@ -26,7 +26,8 @@ import math
 import os
 import sys
 
-BACKEND = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+REPO = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+BACKEND = os.path.join(REPO, "backend")
 if BACKEND not in sys.path:
     sys.path.insert(0, BACKEND)
 
