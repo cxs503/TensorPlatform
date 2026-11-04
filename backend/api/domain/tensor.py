@@ -33,8 +33,11 @@ router.include_router(tensor_system_router)
 router.include_router(tensor_activity_router)
 router.include_router(tensor_workspace_router)
 router.include_router(tensor_llm_router)
-router.include_router(tensor_missions_router)
+# lifecycle FIRST: its literal GET routes (/suspended, /pr-merge-queue,
+# /orphan-queue, /dashboard-snapshot) must not be shadowed by missions'
+# GET /{mission_id} path-param route (FastAPI matches in include order).
 router.include_router(tensor_mission_lifecycle_router)
+router.include_router(tensor_missions_router)
 router.include_router(tensor_reports_router)
 router.include_router(tensor_papers_router)
 router.include_router(tensor_capability_router)
