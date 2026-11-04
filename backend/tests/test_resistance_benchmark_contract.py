@@ -42,13 +42,17 @@ def _load_module(name: str, path: Path):
 
 calc = _load_module("tp_calculations", BACKEND / "api" / "calculations.py")
 sb = _load_module("tp_ship_benchmark", BACKEND / "api" / "domain" / "ship_benchmark.py")
+# 湿面积/Cf 内核自 R2 起移入 domain 层（calculations.py 只剩路由层），契约改钉
+# canonical 内核本体；三条断言的判据与锚点值不变（2026-11 收集死复活补账）。
+ship_res = _load_module("tp_ship_resistance", BACKEND / "api" / "domain" / "ship_resistance.py")
+hull_geom = _load_module("tp_hull_geometry", BACKEND / "api" / "domain" / "hull_geometry.py")
 
 ResistanceRequest = calc.ResistanceRequest
 ResistanceResponse = calc.ResistanceResponse
 calc_resistance = calc.calc_resistance
-holtrop_wetted_surface = calc.holtrop_wetted_surface
-body_of_revolution_wetted_surface = calc.body_of_revolution_wetted_surface
-ittc57_friction_coefficient = calc.ittc57_friction_coefficient
+holtrop_wetted_surface = hull_geom.holtrop_wetted_surface
+body_of_revolution_wetted_surface = ship_res.wetted_surface_axisym  # 旧回转体代理式 (beam, length, cb)
+ittc57_friction_coefficient = ship_res.ittc57_cf
 
 FAIL, PASS, WITHHELD = sb.FAIL, sb.PASS, sb.WITHHELD
 build_resistance_payload = sb.build_resistance_payload
@@ -139,13 +143,15 @@ def test_extract_ct_unavailable_is_explicit():
 # ---------------------------------------------------------------------------
 
 def test_kvlcc2_wetted_surface_within_3pct_of_published():
-    s = holtrop_wetted_surface(320.0, 58.0, 20.8, 0.8098)
+    # 全量系数 KVLCC2（SIMMAN 2008）：Cm=0.9980、Cwp=0.9071、无球鼻 ABT=0；
+    # 旧 4 参签名随内核入 domain 层移除，公称锚 27,194 m² 与 3% 判带不变。
+    s = holtrop_wetted_surface(320.0, 58.0, 20.8, 0.8098, 0.9980, 0.9071)
     assert abs(s - S_PUBLISHED_KVLCC2) / S_PUBLISHED_KVLCC2 < 0.03, f"S={s:.1f} m² 超 3% 带"
 
 
 def test_old_surrogate_surface_error_was_50pct():
     """留存缺陷证据：回转体代理式用于排水型船时高估 50% 以上。"""
-    s_old = body_of_revolution_wetted_surface(320.0, 58.0, 0.8098)
+    s_old = body_of_revolution_wetted_surface(58.0, 320.0, 0.8098)  # (beam, length, cb)
     assert (s_old - S_PUBLISHED_KVLCC2) / S_PUBLISHED_KVLCC2 > 0.50
 
 
