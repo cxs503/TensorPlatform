@@ -1220,6 +1220,47 @@ def get_provenance(
         }
     }
 
+# ───────────────────────── capability delta ─────────────────────────
+# SPEC §7: every accepted mission books exactly one capability delta row
+# (written by the dev_acceptance approve hook in tensor_approvals). This
+# read endpoint surfaces it for mission detail + the org capability view.
+
+@router.get("/{mission_id}/capability-delta", dependencies=[Depends(require_auth)])
+def get_capability_delta(
+    mission_id: int,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    row = _load_mission(db, mission_id, user)
+    org_id = resolved_org(None, user, db)
+    from api.tenant_access import is_admin
+    if int(row["organization_id"]) != int(org_id) and not is_admin(user):
+        raise HTTPException(status_code=404, detail="mission not found")
+
+    delta = db.execute(
+        text("""
+            SELECT id, mission_id, category, summary, reason, artifacts, evidence,
+                   card_id, reviewer, created_at
+            FROM tensor_capability_deltas WHERE mission_id = :mid
+        """),
+        {"mid": mission_id},
+    ).mappings().first()
+    if not delta:
+        raise HTTPException(status_code=404, detail="capability delta not booked")
+    return {
+        "id": delta["id"],
+        "mission_id": delta["mission_id"],
+        "category": delta["category"],
+        "summary": delta["summary"],
+        "reason": delta["reason"],
+        "artifacts": delta["artifacts"] if not isinstance(delta["artifacts"], str) else json.loads(delta["artifacts"]),
+        "evidence": delta["evidence"] if not isinstance(delta["evidence"], str) else json.loads(delta["evidence"]),
+        "card_id": delta["card_id"],
+        "reviewer": delta["reviewer"],
+        "created_at": delta["created_at"].isoformat() if hasattr(delta["created_at"], "isoformat") else delta["created_at"],
+    }
+
+
 # ───────────────────────── report owed queue ─────────────────────────
 # Missions that completed with status='succeeded' but no report_id are
 # marked report_owed=true. This queue surfaces them for the report_watch
