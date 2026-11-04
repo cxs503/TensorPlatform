@@ -86,6 +86,20 @@ export const missionApi = {
 export const reportApi = {
   list: (params?: any) => http.get<any>("/tensor/reports", params),
   get: (id: number) => http.get<any>(`/tensor/reports/${id}`),
+  qaPending: () => http.get<any>('/tensor/reports/qa/pending'),
+}
+
+// ── audit ledger (append-only organization trail, PR-8 #594) ──
+export const auditApi = {
+  stats: () => http.get<any>('/audit/stats'),
+  logs: (params?: any) => http.get<any>('/audit/logs', params),
+  security: (days = 7) => http.get<any>('/audit/security', { days }),
+}
+
+// ── capability ledger (org capability deltas, PR-10) ──
+export const capabilityApi = {
+  deltas: (params?: any) => http.get<any>('/tensor/capability/deltas', params),
+  summary: () => http.get<any>('/tensor/capability/summary'),
 }
 
 // ── paper production line (TensorPapers registry + paper-* missions) ──
