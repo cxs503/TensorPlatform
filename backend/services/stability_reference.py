@@ -51,15 +51,23 @@ Hydrostatics and Stability*, ch. 6; Rawson & Tupper, *Basic Ship Theory*).
 from __future__ import annotations
 
 import math
-from typing import Dict, List, Optional, Tuple
+from typing import Dict, List, Optional, Sequence, Tuple
 
 __all__ = [
     "box_parameters",
     "exact_gz_box",
     "wall_sided_gz",
+    "wall_sided_gz_deg",
     "wall_sided_limit_deg",
     "gz_error_envelope",
     "max_true_gz",
+    # 面向验证基准的对象面（docs/verification/stability_analytic_benchmark.md）
+    "BargeGeometry",
+    "box_hydrostatics",
+    "exact_gz",
+    "exact_gz_curve",
+    "validity_angles_deg",
+    "imo_areas",
 ]
 
 
@@ -248,3 +256,128 @@ def max_true_gz(beam_m: float, draft_m: float, kg_m: float,
         prev = gz
         hd += step_deg
     return {"gz_max_m": best_gz, "heel_at_gz_max_deg": best_deg}
+
+# ---------------------------------------------------------------------------
+# Object surface for the analytic benchmark
+# (docs/verification/stability_analytic_benchmark.md 的机器证据面；全部包在
+#  上面已验证的数值原语上，不引入第二套物理)
+# ---------------------------------------------------------------------------
+
+from dataclasses import dataclass
+
+
+@dataclass(frozen=True)
+class BargeGeometry:
+    """Rectangular box barge (Cb = Cm = Cw = 1), uniform along its length."""
+
+    length: float
+    beam: float
+    draft: float
+    depth: float
+    kg: float
+    rho: float = 1.025  # t/m^3 (salt water)
+
+    def sanity_check(self) -> List[str]:
+        """Geometric consistency issues (empty list = sane)."""
+        issues: List[str] = []
+        if self.length <= 0 or self.beam <= 0 or self.draft <= 0 or self.depth <= 0:
+            issues.append("all principal dimensions must be positive")
+            return issues
+        if self.draft >= self.depth:
+            issues.append("freeboard is non-positive (draft >= depth)")
+        if self.kg >= self.depth:
+            issues.append("kg is at or above the deck edge")
+        if self.length / self.beam < 2.5:
+            issues.append("length/beam ratio below 2.5 (not a ship-like section)")
+        return issues
+
+
+def box_hydrostatics(geom: BargeGeometry) -> Dict[str, float]:
+    """Closed-form upright hydrostatics of the box (exact, no approximation)."""
+    kb = geom.draft / 2.0
+    bm = geom.beam ** 2 / (12.0 * geom.draft)
+    gm = kb + bm - geom.kg
+    displacement_t = geom.length * geom.beam * geom.draft * geom.rho
+    return {
+        "kb": kb,
+        "bm": bm,
+        "gm": gm,
+        "km": kb + bm,
+        "displacement_t": displacement_t,
+        "cb": (geom.beam * geom.draft * geom.length) / (geom.length * geom.beam * geom.draft),
+    }
+
+
+def exact_gz(geom: BargeGeometry, phi_deg: float) -> Dict[str, float]:
+    """Exact righting arm at heel ``phi_deg`` (constant-displacement polygon solve).
+
+    Thin wrapper over :func:`exact_gz_box`'s solver; exposes the analytic-benchmark
+    names (``kn`` = buoyancy-centroid offset, ``submerged_area`` = conserved B*T).
+    """
+    phi = math.radians(phi_deg)
+    area, y_b, z_b, zeta = _immersed_section(geom.beam, geom.draft, geom.depth, phi)
+    return {
+        "phi_deg": phi_deg,
+        "gz": y_b - geom.kg * math.sin(phi),
+        "kn": y_b,
+        "submerged_area": area,
+        "zb": z_b,
+        "waterline_z": zeta,
+    }
+
+
+def exact_gz_curve(geom: BargeGeometry, angles_deg: Sequence[float]) -> List[Dict[str, float]]:
+    """GZ curve over an explicit heel grid (degrees)."""
+    return [exact_gz(geom, float(a)) for a in angles_deg]
+
+
+def validity_angles_deg(geom: BargeGeometry) -> Dict[str, float]:
+    """Angles where the wall-sided identity stops being exact for the box."""
+    deck = math.degrees(math.atan(2.0 * (geom.depth - geom.draft) / geom.beam))
+    bilge = math.degrees(math.atan(2.0 * geom.draft / geom.beam))
+    return {
+        "deck_immersion_deg": deck,
+        "bilge_emergence_deg": bilge,
+        "exact_limit_deg": min(deck, bilge),
+    }
+
+
+def wall_sided_gz_deg(gm_m: float, bm_m: float, phi_deg: float) -> float:
+    """:func:`wall_sided_gz` with the heel given in degrees (benchmark surface)."""
+    return wall_sided_gz(gm_m, bm_m, math.radians(phi_deg))
+
+
+def imo_areas(curve: Sequence[Tuple[float, float]]) -> Dict[str, float]:
+    """IMO 2008 intact-stability areas under a GZ curve [(phi_deg, gz), ...].
+
+    Trapezoidal integration in radians (exact for piecewise-linear GZ).  The
+    heel grid is resampled at the regulatory boundaries 30/40 deg by linear
+    interpolation when the grid does not land on them.
+    """
+    pts = sorted((float(p[0]), float(p[1])) for p in curve)
+    if len(pts) < 2:
+        raise ValueError("curve needs at least two samples")
+
+    def gz_at(phi_deg: float) -> float:
+        for (p0, g0), (p1, g1) in zip(pts[:-1], pts[1:]):
+            if p0 - 1e-9 <= phi_deg <= p1 + 1e-9:
+                if abs(p1 - p0) < 1e-15:
+                    return g0
+                t = (phi_deg - p0) / (p1 - p0)
+                return g0 + t * (g1 - g0)
+        raise ValueError(f"phi={phi_deg} deg outside curve range [{pts[0][0]}, {pts[-1][0]}]")
+
+    def area(a_deg: float, b_deg: float) -> float:
+        # sample grid = originals in (a,b) plus the two boundaries
+        phis = [p for p, _ in pts if a_deg + 1e-9 < p < b_deg - 1e-9]
+        grid = [a_deg] + phis + [b_deg]
+        total = 0.0
+        for p0, p1 in zip(grid[:-1], grid[1:]):
+            total += 0.5 * (gz_at(p0) + gz_at(p1)) * math.radians(p1 - p0)
+        return total
+
+    return {
+        "area_0_30": area(0.0, 30.0),
+        "area_30_40": area(30.0, 40.0),
+        "area_0_40": area(0.0, 40.0),
+    }

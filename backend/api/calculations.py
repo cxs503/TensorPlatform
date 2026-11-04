@@ -22,7 +22,6 @@ Verification status (m1384, see docs/reports/m1384_resistance_stability_verifica
     GZ(90 deg) = 4.0e32 m). The 90 deg singularity (tan -> inf) is rejected with
     HTTP 400.
 """
-from __future__ import annotations
 
 import math
 import time

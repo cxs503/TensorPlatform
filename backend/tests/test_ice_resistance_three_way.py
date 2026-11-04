@@ -7,9 +7,15 @@
 """
 from __future__ import annotations
 
+import sys
+from pathlib import Path
+
 import pytest
 
-from tools.audit import m1687_ice_three_way as A
+# 仓库根（tools/audit/…）；backend/ 路径由模块自身头部插入（其 import services/*）
+sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
+
+from tools.audit import m1687_ice_three_way as A  # noqa: E402
 
 
 @pytest.fixture(scope="module")
