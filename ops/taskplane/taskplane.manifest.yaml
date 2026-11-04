@@ -1,0 +1,144 @@
+# 任务平面守护清单（PR-9 · AOG P1）——单一事实源
+#
+# 来源：2026-11-04 生产容器 /root/tp-agent 实况盘点（/proc cmdline 探针，
+# 相对/绝对路径启动全覆盖；绝对路径 ps 会漏检相对启动的 tp_pusher/
+# selfstarter），17 项活守护 + tp_worker 舰队（fleet_supervisor 拉起）。
+# 本清单与
+# supervise.py 的 DAEMONS 数组、backend/tests/test_taskplane_infra.py 的
+# 固定清单三方一致——增删守护必须三处同步，CI 红门强制。
+#
+# 字段：
+#   script   —— 入口脚本（相对本目录；容器内挂载为 /root/tp-agent/）
+#   cadence  —— 常驻循环周期 / 事件驱动
+#   enabled  —— compose 拉起（true=随 supervise 起；gated=宪章/开关门控）
+#   live     —— 2026-11-04 生产实况（收库时点快照，供对账）
+#   note     —— 职责一句话
+daemons:
+  - name: agent-directory
+    script: agent_directory.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 席位记忆/能力目录登记面
+  - name: campaign-dispatcher
+    script: campaign_dispatcher.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 战役 DAG 依赖驱动自动派单（PC-2）
+  - name: credit-ledger
+    script: credit_ledger.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 信用账本（自治套餐 v1）
+  - name: fleet-governor
+    script: fleet_governor.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 舰队治理（淘汰不干活+补员）
+  - name: fleet-supervisor
+    script: fleet_supervisor.sh
+    cadence: 30s 巡检
+    enabled: true
+    live: running
+    note: tp_worker 舰队自愈（只补缺员不杀存活）；编制表 fleet.json
+  - name: guide-tracker
+    script: guide_tracker.py
+    cadence: 30min 快照
+    enabled: true
+    live: running
+    note: 指南对标 11 KPI 看板（scenario_key=guide-dashboard）
+  - name: merge-governor
+    script: merge_governor.py
+    cadence: 10min 循环
+    enabled: true
+    live: running
+    note: ABC 治理（串行队列+棘轮+dirty 巡检+机器合并权+heal 派单）
+  - name: paper-line
+    script: paper_line.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 顶刊论文生产线（v2.1 独立评审）
+  - name: report-qa
+    script: report_qa.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 报告质检（PASS/MINOR/RESUBMIT+返工单）
+  - name: report-watch
+    script: report_watch.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 报告补报线 v2.1
+  - name: runtime-sync
+    script: runtime_sync.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 运行时同步（GitHub 侧↔平台）
+  - name: selfstarter
+    script: selfstarter.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 自启动派发（TP 冻结令后白名单改造版）
+  - name: shadow-merge
+    script: shadow_merge.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 影子合并（只读预演，无合并权）
+  - name: tp-autoheal
+    script: tp_autoheal.py
+    cadence: 17s 探活
+    enabled: true
+    live: running
+    note: 元守护（9 守护死亡免疫自愈）
+  - name: wave-cycle
+    script: wave_cycle.py
+    cadence: 常驻循环
+    enabled: true
+    live: running
+    note: 议事会波次循环（session≥20h 间隔+护栏）
+  - name: auto-approver
+    script: auto_approver_loop.sh
+    cadence: 常驻循环
+    enabled: gated    # 宪章默认停：AUTO_APPROVER_ON=1 才拉起
+    live: running     # ⚠ 生产实况仍在跑——与宪章分歧，收敛归 owner（见 README 遗留）
+    note: 审批线（owner 2026-10-31 自主可控宪章「auto_approver 默认停」）
+  - name: eco-patrol
+    script: eco_patrol.py
+    cadence: 30min 循环
+    enabled: gated    # ECO_PATROL_ON=1 才拉起
+    live: stopped     # 治理面已被 merge_governor patrol 吸收（7 仓），独立生态巡更待 owner 裁
+    note: 生态巡更派发器（9 库四轮转焦点）
+  - name: tp-pusher
+    script: tp_pusher.py
+    cadence: 5min 循环
+    enabled: true
+    live: running     # 相对路径启动，绝对路径 ps 会漏检——/proc 探针实证在跑
+    note: 成熟成果自动上 GitHub（v5.8 全门禁）
+# 固定清单（CI 三方一致门锚定；增删守护改这里+supervise.py+清单本体）
+pinned_daemons:
+  - agent-directory
+  - campaign-dispatcher
+  - credit-ledger
+  - fleet-governor
+  - fleet-supervisor
+  - guide-tracker
+  - merge-governor
+  - paper-line
+  - report-qa
+  - report-watch
+  - runtime-sync
+  - selfstarter
+  - shadow-merge
+  - tp-autoheal
+  - wave-cycle
+  - auto-approver
+  - eco-patrol
+  - tp-pusher
