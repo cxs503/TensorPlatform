@@ -49,7 +49,7 @@ def load(db, sid, user, *, owner=False, lock=False):
 def listing(db: Session = Depends(get_db), user=Depends(require_auth)):
     rows = db.execute(text("""SELECT *, (COALESCE(heartbeat_at > now()-interval '90 seconds',false)
         OR EXISTS (SELECT 1 FROM tensor_dev_missions m
-            WHERE m.agent_session_id::text = factory_resident_workers.agent_session_id::text
+            WHERE m.claimed_by = factory_resident_workers.worker_id
               AND m.status IN ('claimed','running')
               AND m.heartbeat_at > now()-interval '150 seconds')) AS online
         FROM factory_resident_workers WHERE organization_id=:org ORDER BY created_at,worker_id"""),
