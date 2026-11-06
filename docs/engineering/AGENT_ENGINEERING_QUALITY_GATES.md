@@ -1,8 +1,8 @@
 # Agent Engineering Quality Gates
 
 **Standard:** Agent Production Quality & Governance Standard  
-**Version:** 1.1  
-**Status:** Normative policy for adoption across the Tensor ecosystem  
+**Version:** 1.2  
+**Status:** Normative policy for adoption across the Tensor ecosystem · enforcement map in §16  
 **Owner:** TensorPlatform  
 **Scope:** Agent-authored and agent-assisted changes, from task intake through post-merge monitoring
 
@@ -32,7 +32,20 @@ Passing one dimension never implies that the others passed.
 
 A missing required record or required check is **unknown/not_run**, never an implicit pass.
 
+### 1.3 Scale doctrine
+
+This standard is written for production-scale Agent manufacturing, not for occasional assisted edits. The TensorPlatform production loop currently operates at the order of 10² agent missions and 10² merges per day (measured 2026-11-06: 289 missions, 154 PRs merged across 8 solver repositories, 54 model seats, one merge every ~8.5 minutes). At this volume:
+
+1. **Human review does not scale.** Every gate MUST be machine-adjudicable; humans appear only at designated exception points (HOLD_HUMAN, waiver approval, risk downgrade approval, halt recovery).
+2. **Every gate MUST be able to fail.** A gate that cannot reject is a formality, not a gate. A gate is described as enforced only after it has demonstrably rejected a known-bad input.
+3. **Verification is two-layered.** Mechanical verification runs at 100% coverage — every PR is executed locally and classified green / baseline-red / true-red. Scientific verification is risk-sampled and tiered (§8): full scientific validation of every change is neither feasible nor meaningful.
+4. **Correct redundancy is acceptable.** Enforcement duplicated at two stations is preferred over a single point of failure; duplicated gates must stay consistent, not diverge.
+5. **Throughput is released by demand and throttled by quality gates, not by timers alone.** Pacing controls (wave cadence, in-flight caps, wave-size caps, halt breakers) protect quality while keeping the execution fleet fed.
+6. **Infrastructure failures are quality failures.** At scale, most escaped defects originate in the production machinery (transport, liveness, configuration, locking), not in code review; §7.1 classifies these as first-class failure modes.
+
 ## 2. Quality-gate model
+
+Each gate below binds to a production-loop station; the live enforcement map is §16.
 
 ### Gate 0 — Change contract and risk classification
 
@@ -213,6 +226,10 @@ A PR can pass in isolation and still break the integrated system. Multi-Agent pr
 
 The platform SHOULD track merge queue age, stale-head failures, integration regressions, and rework caused by conflicting changes. Parallelism is successful only when accepted integrated outcomes improve, not merely when PR volume increases.
 
+### 6.1 TensorPlatform binding
+
+Integration controls currently in production: per-repository serialized merge; branch freshness by mechanical replay (`update-branch`) before conflict adjudication; small-unit change doctrine embedded in the task-footer discipline; a bounded conflict-repair loop (§16 station 8); and per-SHA local verification, so a stale head can never be merge-verified. Pre-dispatch file-collision detection across concurrently running missions is `not_implemented` (§16): conflicts currently surface at PR adjudication and are absorbed by the repair loop, at the measured cost recorded in §11.1.
+
 ## 7. Failure attribution, exceptions, and recovery
 
 ### 7.1 Failure attribution
@@ -224,6 +241,15 @@ For every failing check, classify it as:
 - `environment`: dependency, hardware, service, or infrastructure issue;
 - `flaky`: intermittently failing under a documented rerun protocol;
 - `unknown`: insufficient evidence.
+
+For production-scale Agent manufacturing, additionally classify **infrastructure failure modes** — historically the dominant source of escaped defects:
+
+- `transport_loss`: completed work failed to reach the target ref. Countermeasure: verify-after-push ref reconciliation with bounded retries; worktrees MUST NOT be cleaned before the ref is confirmed.
+- `liveness_race`: the platform reaped in-flight work because progress signals were absent during a slow phase (e.g., a long fetch while preparing the worktree). Countermeasure: heartbeat coverage across ALL execution phases, not just the agent loop; reaper timeouts tuned against worst-case phase duration.
+- `config_drift`: configuration references entities that no longer exist — models with no fleet seats, stale repository whitelists, missing credentials after a daemon restart. Countermeasure: machine-checked mission–roster compatibility at dispatch; whitelist reconciliation against the platform registry on deploy.
+- `lock_contention`: shared local state (git objects, config files) contended by parallel executors. Countermeasure: bounded retry with jitter, or per-executor isolation.
+
+These classes are normatively illustrated by the 2026-11-06 production incidents in the platform root-cause case library: push evaporation (8/32 missions lost before the fix, 0 after verify-after-push); a 240-second liveness reaper killing missions during worktree preparation; council slots pinned to decommissioned models (3/8 slots unclaimable); and git worktree lock races at 32-way parallelism.
 
 Do not dismiss failures as unrelated without a baseline comparison or clear causal explanation. Report the denominator, failures, skips, and relevant environment.
 
@@ -316,6 +342,20 @@ The platform SHOULD report quality outcomes, not just activity volume. Recommend
 - benchmark drift and performance regression;
 - median time to detect, contain, and correct a defect.
 
+### 11.1 Production SLOs (TensorPlatform, normative)
+
+| SLO | Target | Measured 2026-11-06 (first production day) | State |
+|---|---|---|---|
+| Mission success rate | ≥ 90% | 92.0% (265/289) | met |
+| First-merge rate | ≥ 90% | 82.5% (127/154) | not met — conflict-backlog digestion |
+| Conflict-affected merges | < 5% | 17.5% (27/154) | not met — same cause |
+| dev : repair ratio | ≤ 1 : 0.2 | 1 : 0.38 | not met — same cause |
+| Work evaporation (succeeded, unpushed) | 0 | 8/32 pre-fix; 0 after transport gate | met post-fix |
+| Unclaimable missions (config drift) | 0 | 3/8 council slots pre-fix; 0 after roster remap | met post-fix |
+| Empty-evidence finishes | 0 | gate live since 2026-11-06 | met |
+
+Misses recorded during backlog digestion are reported, not waived: the steady-state baseline MUST be re-measured after the conflict backlog clears. Pacing controls in force: council wave cadence 2h (demand-release, owner directive 2026-11-07), in-flight guard 20, wave-size cap 12, halt after 3 consecutive plan-less sessions.
+
 PR count, lines of code, Agent task count, and raw merge speed MUST NOT be used alone as productivity or quality measures.
 
 ## 12. Minimum acceptance checklist
@@ -340,7 +380,7 @@ PR count, lines of code, Agent task count, and raw merge speed MUST NOT be used 
 Adopt this policy incrementally. This document defines the policy; it does not claim that every mechanism is already implemented in TensorPlatform or every solver repository.
 
 1. **Platform contract:** publish this standard and map its fields to the existing Task, RunManifest, artifact, PR, and audit models.
-2. **Enforcement map:** maintain a per-repository matrix showing each requirement as `implemented`, `partial`, `documented_only`, or `not_implemented`, with code/test evidence.
+2. **Enforcement map:** maintain a per-repository matrix showing each requirement as `implemented`, `partial`, `documented_only`, or `not_implemented`, with code/test evidence. The platform-loop map is delivered as §16 of this standard.
 3. **Task ownership:** connect task IDs, owner/contributor/verifier roles, handoffs, PRs, runs, and approvals.
 4. **Policy gates:** implement risk-aware checks and merge authorization in TensorPlatform; do not rely on prompts alone for permissions or enforcement.
 5. **Evidence plane:** collect runner-originated execution facts and immutable artifact references; separate execution from engineering/scientific verdicts.
@@ -384,7 +424,44 @@ Post-merge check: <required check and status>
 
 This example describes the evidence format, not a claim that any particular change or benchmark has been executed.
 
-## 15. Change history
+## 15. Model tiering and fleet governance
+
+Large-scale Agent production quality is bounded below by the weakest executing model. Model capability is therefore a governed production resource, not a free variable.
+
+1. **Fleet scorecard.** Every fleet model carries a periodically re-measured quality scorecard: failure discipline (no-finish, empty-finish, hallucinated claims) and task-class competence. Retired or endpoint-broken models are removed from the roster, not merely avoided by convention.
+2. **Seats follow the scorecard.** Capability tiers map to mission classes: batch-implementation tiers MUST NOT receive high-discretion missions (scientific design, security, control plane); high-discretion classes REQUIRE a top-tier model.
+3. **Mission–roster compatibility MUST be machine-checked at dispatch.** A mission pinned to a model with zero live seats is unclaimable by construction and MUST be rejected or remapped at dispatch time, never discovered by timeout. Status: `not_implemented` (the 2026-11-06 dead-slot incident was repaired by manual remap; see §16).
+4. **Failure discipline is attributed per model.** Repeat no-finish/empty-finish offenders are scope-restricted before re-rostering; a model's failures feed its scorecard, not only the mission record.
+5. **Weak tiers are gate-filtered, not junk-filtered.** Lower tiers may propose, but promotion gates (§5) apply unchanged. Verification by a second weak-tier model MUST NOT be counted as independent verification.
+
+## 16. Production loop and enforcement map (normative)
+
+This section binds the standard to the TensorPlatform production loop. The loop has ten stations; each lists its enforcement mechanism and current status per §13.1. This map IS the enforcement matrix required by §13 item 2 — the audit is delivered inside the standard. A status of `implemented` requires the enforcing component to exist and to have demonstrably rejected a bad input; a gate that has never rejected anything is `partial` by definition.
+
+| # | Station | Enforcement (component · mechanism) | Status |
+|---|---|---|---|
+| 1 | Plan (council) | council_run · R1 proposals → R2 critiques → R3 synthesis; wave_cycle · dispatch gates: cross-session (repo,key) dedup, goal-substance anchor, in-wave dedup, repo whitelist, budget clamps, task-footer discipline | implemented (dedup/substance gates live 2026-11-07) |
+| 1b | Plan roster liveness | automated check that council slot models hold live fleet seats | `not_implemented` (manual remap after 2026-11-06 incident) |
+| 2 | Dispatch | wave_cycle · wave-size cap 12, budget clamps, footer discipline injected into every goal | implemented |
+| 3 | Claim | platform · claim filter (model match or unpinned), claim tokens, heartbeat contract, agent-lost reaper | implemented |
+| 3b | Mission–roster compatibility | dispatch-time check: mission.model ∈ live roster | `not_implemented` (§15.3) |
+| 4 | Execute | tp_worker · per-mission isolated worktree, fetch-timeout clamps, lock-race bounded retry, heartbeat across ALL phases incl. worktree preparation, budget/tool-call/wall caps | implemented (phase-complete heartbeat 2026-11-06) |
+| 5 | Self-attest | tp_worker · finish evidence gate (summary/checks/changed-files thresholds), on-disk change cross-check; empty evidence → honest failed; forced finish passes the same gate | implemented (2026-11-06) |
+| 6 | Transport | tp_pusher · Git Data API push (blob→tree→commit→ref), verify-after-push ref reconciliation with force-retry, local bare-mirror feeding; merge_master · dangling-PR recovery lane | implemented (2026-11-06; evaporation 8/32 → 0) |
+| 7 | Adjudicate | merge_master · per-PR local execution in the shared environment: green → squash merge; red ⊆ baseline-red (exact test-id) → inherit-pass; true red → repair; conflict → `update-branch` mechanical replay; per-SHA verify cache; pr-gate reconciliation closes task records | implemented (GitHub = hosting only; local verification is the gate) |
+| 8 | Repair loop | merge_master · bounded manage-to-end redev rounds; exhausted rounds → HOLD_HUMAN for owner adjudication; per-cycle fix-lane caps | implemented |
+| 9 | Post-merge | merge_master · incremental baseline: old-red inheritance vs new-red attribution by test-id; delta re-verification on main movement; periodic full-baseline reconciliation | implemented (perf-drift tracking `not_implemented`) |
+| 10 | Review | wave_cycle · council context carries prior-wave outcomes; root-cause case library indexed by symptom; SLO measurement per §11.1 | partial (SLO computed on demand; standing dashboard pending) |
+
+Risk-to-merge authority (§3): structured risk capture at task creation is `partial` (change class lives in task text, not a structured field); automated risk classification and L3/L4 human-approval enforcement are `not_implemented`. The 2026-11-05/06 owner-directed batch merges of conflict-free PRs are recorded as an approved deviation under the doctrine "GitHub as hosting only; local verification is the gate".
+
+**Document family.** QUALITY_BAR.md, REPORT_GATE.md, TRUTH_GATES_README.md, and docs/adr/* remain in force as sub-gates; this standard is the umbrella for Agent production and MUST NOT be duplicated by parallel standards.
+
+## 17. Change history
+
+### Version 1.2
+
+Bound the standard to the live TensorPlatform production loop (owner directive 2026-11-07). Added: scale doctrine (§1.3) with measured production volume; infrastructure failure taxonomy with the four 2026-11-06 incident classes (§7.1); normative production SLO table with first-day measured values, including honest misses (§11.1); model tiering and fleet governance (§15); the normative ten-station enforcement map with per-station implementation status, delivered inside the standard instead of deferred (§16); integration-governance binding to live controls (§6.1).
 
 ### Version 1.1
 
