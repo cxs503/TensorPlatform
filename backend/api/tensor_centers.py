@@ -407,7 +407,83 @@ def quality_center(db: Session = Depends(get_db), user: dict = Depends(require_a
                 note=None if repro_total else "0 行——复现裁定门无数据，如实显示 0"),
     ]
 
+    # ── 结论五元证据链完整度（IN59-A3）：缺件 → E 封顶 E1；S3+ 无完整链 → 结算面拦付 ──
+    chain_ready = True
+    chains_by_status: dict[str, int] = {}
+    chain_avg: float | None = None
+    chain_capped = 0
+    chain_blocked = 0
+    chain_incomplete: list[dict[str, Any]] = []
+    try:
+        for r in _rows(db, """
+            SELECT chain_status, count(*) AS n FROM outcome_evidence_chains
+            WHERE (:org IS NULL OR organization_id = :org) GROUP BY chain_status
+        """, p):
+            chains_by_status[str(r["chain_status"])] = int(r["n"])
+        avg_row = db.execute(text("""
+            SELECT avg(completeness) FROM outcome_evidence_chains
+            WHERE (:org IS NULL OR organization_id = :org)
+        """), p).scalar()
+        chain_avg = round(float(avg_row), 4) if avg_row is not None else None
+        chain_capped = _safe_count(db, """
+            SELECT count(*) FROM outcome_evidence_chains
+            WHERE capped = TRUE AND (:org IS NULL OR organization_id = :org)
+        """, p) or 0
+        chain_blocked = _safe_count(db, """
+            SELECT count(*) FROM outcome_eval_chain_audit e
+            WHERE chain_blocked = TRUE AND (:org IS NULL OR e.organization_id = :org)
+        """, p) or 0
+        chain_incomplete = _rows(db, """
+            SELECT chain_id, artifact_id, mission_id, grade, chain_status, completeness,
+                   missing_elements, capped, created_at
+            FROM outcome_evidence_chains
+            WHERE chain_status <> 'complete' AND (:org IS NULL OR organization_id = :org)
+            ORDER BY created_at DESC LIMIT 12
+        """, p)
+        for row in chain_incomplete:
+            row["created_at"] = _iso(row.get("created_at"))
+    except Exception:  # noqa: BLE001 —— 表/视图未建：如实报未实现，不写 0 充数
+        chain_ready = False
+
+    chain_total = sum(chains_by_status.values())
+    metrics.extend([
+        _metric("evidence_chain_total", "五元链·已登记", chain_total if chain_ready else None,
+                "outcome_evidence_chains: count(*) [org]",
+                status="ok" if chain_ready else "not_implemented"),
+        _metric("evidence_chain_complete", "五元链·完整",
+                chains_by_status.get("complete", 0) if chain_ready else None,
+                "outcome_evidence_chains: count(*) where chain_status='complete'"),
+        _metric("evidence_chain_partial", "五元链·缺件",
+                chains_by_status.get("partial", 0) if chain_ready else None,
+                "outcome_evidence_chains: count(*) where chain_status='partial'"),
+        _metric("evidence_chain_missing", "五元链·全缺",
+                chains_by_status.get("missing", 0) if chain_ready else None,
+                "outcome_evidence_chains: count(*) where chain_status='missing'"),
+        _metric("evidence_chain_completeness_avg", "五元链·平均完整度", chain_avg,
+                "avg(completeness)；完整度 = 五元可解析元数/5", unit="ratio",
+                note=None if chain_avg is not None else "无链记录 → null，不写 0"),
+        _metric("evidence_chain_capped", "五元链·E 已封顶",
+                chain_capped if chain_ready else None,
+                "outcome_evidence_chains: count(*) where capped",
+                note="缺件 → E 至多 E1（只降不升）"),
+        _metric("evidence_chain_blocked", "五元链·结算拦付",
+                chain_blocked if chain_ready else None,
+                "outcome_eval_chain_audit: count(*) where chain_blocked",
+                note="S3+ 无完整链 → 不按申报等级入信用账"),
+    ])
+
     gates = [
+        _gate("evidence_chain_gate", "结论五元证据链门",
+              "未实现" if not chain_ready else
+              ("有缺链" if (chains_by_status.get("partial", 0)
+                            or chains_by_status.get("missing", 0))
+               else ("全完整" if chain_total else "无数据")),
+              (f"完整 {chains_by_status.get('complete', 0)} / 缺件 "
+               f"{chains_by_status.get('partial', 0)} / 全缺 "
+               f"{chains_by_status.get('missing', 0)}；封顶 {chain_capped}；"
+               f"结算拦付 {chain_blocked}") if chain_ready
+              else "该库无 outcome_evidence_chains 表——五元链面未初始化",
+              "outcome_evidence_chains.chain_status"),
         _gate("report_qa_gate", "报告 QA 门",
               "有积压" if qa_pending else ("畅通" if qa_passed else "无数据"),
               f"待检 {qa_pending} / 通过 {qa_passed} / 打回 {qa_rejected}",
@@ -450,6 +526,8 @@ def quality_center(db: Session = Depends(get_db), user: dict = Depends(require_a
         "quality", org, metrics,
         gates=gates,
         lists={
+            "evidence_chains_by_status": chains_by_status if chain_ready else None,
+            "evidence_chains_incomplete": chain_incomplete,
             "qa_by_status": qa_by_status,
             "reports_by_status": reports_by_status,
             "milestones_by_status": milestones_by_status,
@@ -460,12 +538,19 @@ def quality_center(db: Session = Depends(get_db), user: dict = Depends(require_a
             [] if rule_checks is not None else
             [{"key": "quality_rule_checks", "label": "规则级质检结果面",
               "reason": "该库无 quality_check_results 表/列——质检面未实现，页面不编造通过率"}]
-        ),
+        ) + ([] if chain_ready else
+             [{"key": "evidence_chain", "label": "结论五元证据链面",
+               "reason": "该库无 outcome_evidence_chains 表/视图（迁移 105）——"
+                         "链完整度未实现，页面不编造完整率"}]),
         definitions={
             "evaluation_flow": "评价流 = 报告进入 QA 后 qa_status 的三态流转（pending→passed/rejected）；"
                                "未分类（qa_status 为空）单列，不并入分母。",
-            "quality_gate": "质量门态 = 四道平台级机器门（报告 QA / 报告欠账 / 战役里程碑 / 复现裁定）"
-                            "的当前状态；状态词由门内计数直接判定，可在本响应 gates[].detail 复核。",
+            "quality_gate": "质量门态 = 五道平台级机器门（结论五元链 / 报告 QA / 报告欠账 / "
+                            "战役里程碑 / 复现裁定）的当前状态；状态词由门内计数直接判定，"
+                            "可在本响应 gates[].detail 复核。",
+            "evidence_chain": "五元链 = 理论/文献依据 + 代码 commit + 实验配置 hash + 原始结果 + "
+                              "分析报告 report_id；完整度 = 可解析元数/5，缺件 → E 封顶 E1，"
+                              "S3+ 无完整链在结算面 chain_blocked（不按申报等级入信用账）。",
         },
     )
 

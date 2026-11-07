@@ -31,6 +31,13 @@ from api.domain.tensor_common import resolved_org
 from api.tenant_access import is_admin
 from database.config import get_db
 
+from tools.evidence_chain_link import (
+    analyze_chain,
+    chain_record,
+    chain_stats_queries,
+    ensure_chain_schema,
+    store_chain,
+)
 from tools.outcome_evaluations import (
     DEFAULT_WINDOW,
     DDL,
@@ -85,10 +92,11 @@ def _row_to_dict(r: Any) -> dict[str, Any]:
 
 
 def ensure_schema(db: Session) -> None:
-    """幂等建表（编号迁移 103 之外的自愈路径：CI/本地 SQLite 也能直接跑）。"""
+    """幂等建表（编号迁移 103/105 之外的自愈路径：CI/本地 SQLite 也能直接跑）。"""
     for stmt in [s.strip() for s in DDL.split(";") if s.strip()]:
         db.execute(text(stmt))
     db.commit()
+    ensure_chain_schema(db)   # 五元证据链表 + 结算审计视图（迁移 105 同源 DDL）
 
 
 def ensure_pending_for_mission(db: Session, mission: dict[str, Any]) -> str | None:
@@ -172,6 +180,8 @@ class EvidenceRef(BaseModel):
 
 
 class EvaluationIn(BaseModel):
+    """写入一条评价。``evidence_chain`` 为五元证据链（S2+ 必填，缺件→E 封顶 E1）。"""
+
     artifact_id: str | None = Field(default=None, max_length=200)
     mission_id: int = Field(ge=1)
     contributor: str = Field(min_length=1, max_length=200)
@@ -184,6 +194,9 @@ class EvaluationIn(BaseModel):
     baseline_or_scope: str | None = Field(default=None, max_length=4000)
     boundary: str | None = Field(default=None, max_length=4000)
     repo: str | None = Field(default=None, max_length=120)
+    conclusion_ref: str | None = Field(default=None, max_length=200)
+    # 五元：{theory, code, config, data, report}；元素值可为字符串或 {"ref": "..."}
+    evidence_chain: dict[str, Any] | None = Field(default=None)
 
 
 @router.post("", dependencies=[Depends(require_auth)])
@@ -216,7 +229,11 @@ def create_evaluation(
         "boundary": body.boundary,
         "repo": body.repo or mission.get("repo"),
         "organization_id": mission.get("organization_id"),
+        "evidence_chain": body.evidence_chain,
     }
+    if body.conclusion_ref:
+        payload["evidence_chain"] = dict(body.evidence_chain or {},
+                                         conclusion_ref=body.conclusion_ref)
     verdict = decide(payload)
     finished = mission.get("finished_at")
     if isinstance(finished, datetime):
@@ -247,7 +264,11 @@ def create_evaluation(
     # 已有 pending 行 → 就地判定（不新增行）；否则新建。两者都受分部唯一索引保护。
     updated = store_record(db, record)
 
+    # 五元链落库（按 evaluation_id 幂等）：rejected 尝试不占链表，审计见 outcome_evaluations 负例
+    chain = _persist_chain(db, payload, record, body.e_level)
+
     return {
+        **({"evidence_chain": chain} if chain else {}),
         "evaluation_id": record["evaluation_id"],
         "artifact_id": record["artifact_id"],
         "mission_id": record["mission_id"],
@@ -256,6 +277,7 @@ def create_evaluation(
         "grade": verdict.grade,
         "e_level": verdict.e_level,
         "reason_codes": verdict.codes,
+        "e_level_requested": body.e_level,
         "decided_at": record["decided_at"],
         "updated_pending_row": bool(updated),
     }
@@ -400,6 +422,74 @@ def evaluation_guidance(
         return {"policy": {"weighting": "forbidden", "ranking": "forbidden"},
                 "wave_id": None, "items": [], "effects": {},
                 "note": f"guidance unavailable: {type(exc).__name__}"}
+
+
+def _persist_chain(db: Session, payload: dict[str, Any], record: dict[str, Any],
+                   e_level_requested: str | None) -> dict[str, Any] | None:
+    """判定结果落链表（幂等）。返回链摘要供调用方回显；rejected 不落链。"""
+    if record.get("status") == "rejected":
+        return None
+    report = analyze_chain(payload.get("evidence_chain"), record.get("grade"))
+    row = chain_record(payload, report, evaluation_id=record["evaluation_id"],
+                       e_level_requested=e_level_requested, grade=record.get("grade"))
+    try:
+        store_chain(db, row, commit=True)
+    except Exception:  # noqa: BLE001 —— 迁移 105 未跑的库：自愈建表后重试一次
+        db.rollback()
+        ensure_chain_schema(db)
+        store_chain(db, row, commit=True)
+    return {
+        "chain_status": row["chain_status"],
+        "completeness": row["completeness"],
+        "present_elements": report.present,
+        "missing_elements": report.missing,
+        "invalid_elements": report.invalid,
+        "e_level_capped": row["e_level_granted"],
+        "capped": row["capped"],
+        "codes": report.codes,
+    }
+
+
+@router.get("/chains/stats", dependencies=[Depends(require_auth)])
+def chain_stats(db: Session = Depends(get_db), user: dict = Depends(require_auth)):
+    """五元链完整度分布（质量中心同一口径；缺表 → 404 不编造 0）。"""
+    org_id = _org_scope(db, user)
+    try:
+        db.execute(text("SELECT 1 FROM outcome_evidence_chains LIMIT 1"))
+    except Exception:  # noqa: BLE001 —— 表不存在/不可读：如实报未实现
+        raise HTTPException(status_code=404, detail="outcome_evidence_chains not initialised")
+    queries = chain_stats_queries(org_filter=org_id is not None)
+    params = {"org": org_id}
+    by_status = db.execute(text(queries["by_status"]), params).mappings().all()
+    avg = db.execute(text(queries["completeness_avg"]), params).scalar()
+    capped = db.execute(text(queries["capped"]), params).scalar()
+    blocked = db.execute(text(queries["blocked"]), params).scalar()
+    return {
+        "by_status": {r["chain_status"]: int(r["n"]) for r in by_status},
+        "completeness_avg": round(float(avg), 4) if avg is not None else None,
+        "capped_count": int(capped or 0),
+        "blocked_count": int(blocked or 0),
+        "sql": queries,
+        "definition": "完整度 = 五元中形态可解析的元数/5；缺件 → E 封顶 E1；"
+                      "S3+ 无完整链 → 结算面 chain_blocked（不按申报等级入信用账）。",
+    }
+
+
+@router.get("/{evaluation_id}/chain", dependencies=[Depends(require_auth)])
+def get_chain(evaluation_id: str, db: Session = Depends(get_db),
+              user: dict = Depends(require_auth)):
+    """单条结论的五元链（含缺失项/是否封顶/命中码）。"""
+    org_id = _org_scope(db, user)
+    row = db.execute(
+        text("SELECT * FROM outcome_evidence_chains WHERE evaluation_id = :eid"),
+        {"eid": evaluation_id},
+    ).mappings().first()
+    if row is None:
+        raise HTTPException(status_code=404, detail=f"no chain for evaluation {evaluation_id}")
+    out = dict(row)
+    if org_id is not None and out.get("organization_id") != org_id:
+        raise HTTPException(status_code=404, detail=f"no chain for evaluation {evaluation_id}")
+    return out
 
 
 @router.get("/{evaluation_id}", dependencies=[Depends(require_auth)])
