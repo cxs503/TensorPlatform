@@ -1,0 +1,190 @@
+{
+  "schema_version": "2.0",
+  "purpose": "IN17-B2 合成域台账夹具：只描述台账机制（登记/升账/WITHHELD/缺口入账），域名为 test.domain/* 合成命名空间，与任何真实领域无关。",
+  "level_rank": {
+    "NOT_SUPPORTED": 0,
+    "STUB": 1,
+    "MOCK": 2,
+    "WITHHELD": 3,
+    "REAL": 4
+  },
+  "reconciliation_rules": [
+    "无证据：reconciled=WITHHELD（未验证默认），claim 强于 WITHHELD 记 UNVERIFIED。",
+    "最新证据 stance=supports_real → reconciled=REAL（升账路径）；其余 stance 取该证据的 asserted_level。",
+    "claim 强于 reconciled：stance=contradicts 记 OVERCLAIM，否则记 REVERIFY；两者都必须带 owner action 句。",
+    "『最新』= as_of 时间戳最大；同一时间戳取证据种类（在线报告=1 > 仓内文档=0），再取 id 字典序。"
+  ],
+  "curation": {
+    "revision": "synthetic-r1",
+    "as_of": "2026-11-01T00:00:00+00:00",
+    "max_evidence_age_days": 45,
+    "rationale": "合成域夹具：用于验证台账机制对任意域条目成立（判例 #608 清洗后的替代断言基线）。",
+    "must_consume": [
+      {
+        "path": "docs/synthetic_domain/alpha_review.md",
+        "why": "合成域文档证据必须入账（C9）且正文 sha256 必须与语料库一致（C10）"
+      }
+    ]
+  },
+  "capabilities": [
+    {
+      "id": "alpha.registration",
+      "domain": "test.domain/alpha",
+      "claimed_level": "REAL",
+      "evidence": [
+        {
+          "report_id": 9101,
+          "as_of": "2026-10-02T00:00:00+00:00",
+          "stance": "supports_real",
+          "asserted_level": "REAL",
+          "quote_match": "12/12 通过",
+          "note": "登记行与快照逐项对齐（登记路径）"
+        }
+      ],
+      "note": "登记路径：证据逐字可查 + 与快照一致。",
+      "action": "无需动作：登记行自述与证据同向。"
+    },
+    {
+      "id": "alpha.promotion",
+      "domain": "test.domain/alpha",
+      "claimed_level": "MOCK",
+      "evidence": [
+        {
+          "report_id": 9102,
+          "as_of": "2026-10-04T00:00:00+00:00",
+          "stance": "supports_real",
+          "asserted_level": "REAL",
+          "quote_match": "误差 0\\.8%",
+          "note": "复算误差低于判据门（升账路径）"
+        }
+      ],
+      "note": "升账路径：自述 MOCK，最新证据支持 REAL。",
+      "action": "升账 MOCK→REAL；升账必须单调向上且 divergence 记 OK。"
+    },
+    {
+      "id": "alpha.withheld",
+      "domain": "test.domain/alpha",
+      "claimed_level": "WITHHELD",
+      "evidence": [
+        {
+          "report_id": 9103,
+          "as_of": "2026-10-06T00:00:00+00:00",
+          "stance": "contradicts",
+          "asserted_level": "WITHHELD",
+          "quote_match": "8 条记为 WITHHELD",
+          "note": "绝对量不可判据（WITHHELD 路径）"
+        }
+      ],
+      "note": "WITHHELD 路径：证据不足时自述与证据同为 WITHHELD。",
+      "action": "保持 WITHHELD；补独立证据后再升账。"
+    },
+    {
+      "id": "alpha.doc_evidence",
+      "domain": "test.domain/alpha",
+      "claimed_level": "WITHHELD",
+      "evidence": [
+        {
+          "report_id": "doc:docs/synthetic_domain/alpha_review.md",
+          "as_of": "2026-10-05T00:00:00+00:00",
+          "stance": "supports_real",
+          "asserted_level": "REAL",
+          "quote_match": "文档正文一致性",
+          "note": "仓内文档证据（受 C9/C10 约束）"
+        }
+      ],
+      "note": "文档证据路径：仓内文档可作证据，但正文 sha256 由 C10 校验。",
+      "action": "按文档证据升账；文档被改则引文失效，须重新 curation。"
+    },
+    {
+      "id": "beta.no_evidence",
+      "domain": "test.domain/beta",
+      "claimed_level": "REAL",
+      "evidence": [],
+      "note": "无证据路径：reconciled 落 WITHHELD，claim 高于 WITHHELD 记 UNVERIFIED；claim 不高于 WITHHELD 记 OK。",
+      "action": "补证据后重跑对账；无证据不得自述 WITHHELD 以上等级。"
+    },
+    {
+      "id": "beta.overclaim",
+      "domain": "test.domain/beta",
+      "claimed_level": "REAL",
+      "evidence": [
+        {
+          "report_id": 9104,
+          "as_of": "2026-10-08T00:00:00+00:00",
+          "stance": "contradicts",
+          "asserted_level": "MOCK",
+          "quote_match": "6/6 判据不通过",
+          "note": "判据全不通过 → 过度自述"
+        }
+      ],
+      "note": "OVERCLAIM 路径：自述 REAL，证据裁决 MOCK。",
+      "action": "自述 REAL 降为 MOCK，直到判据通过。"
+    },
+    {
+      "id": "beta.reverify",
+      "domain": "test.domain/beta",
+      "claimed_level": "REAL",
+      "evidence": [
+        {
+          "report_id": 9105,
+          "as_of": "2026-10-10T00:00:00+00:00",
+          "stance": "conditional",
+          "asserted_level": "WITHHELD",
+          "quote_match": "可判据仅 4/12",
+          "note": "条件通过 → 需复验"
+        }
+      ],
+      "note": "REVERIFY 路径：claim 高于 reconciled 但证据非 contradicts。",
+      "action": "REAL 暂降 WITHHELD，待外部基准补齐后复验。"
+    },
+    {
+      "id": "gamma.gap_backfill",
+      "domain": "test.domain/gamma",
+      "claimed_level": "NOT_SUPPORTED",
+      "evidence": [
+        {
+          "report_id": 9106,
+          "as_of": "2026-10-11T00:00:00+00:00",
+          "stance": "contradicts",
+          "asserted_level": "NOT_SUPPORTED",
+          "quote_match": "缺口条目已入账",
+          "note": "缺口登记路径：自述与证据同为 NOT_SUPPORTED"
+        }
+      ],
+      "note": "缺口入账路径：未实现能力也必须逐字证据 + action。",
+      "action": "缺口保留在 unregistered_domains，承接单补齐后再登记能力。"
+    }
+  ],
+  "unregistered_domains": [
+    {
+      "domain": "test.domain/gamma",
+      "gap": "合成域缺口：注册表尚无该域能力条目，但缺口证据已入账。",
+      "evidence": [
+        {
+          "report_id": 9106,
+          "as_of": "2026-10-11T00:00:00+00:00",
+          "stance": "conditional",
+          "asserted_level": "WITHHELD",
+          "quote_match": "缺口条目已入账",
+          "note": "缺口登记（C6 逐字命中）"
+        }
+      ],
+      "action": "承接单补证据后登记能力条目。"
+    },
+    {
+      "domain": "test.domain/delta",
+      "gap": "合成域缺口：域内端点存在但未入注册表（覆盖缺口路径）。",
+      "evidence": [
+        {
+          "report_id": 9106,
+          "as_of": "2026-10-11T00:00:00+00:00",
+          "stance": "contradicts",
+          "asserted_level": "NOT_SUPPORTED",
+          "quote_match": "缺口条目已入账",
+          "note": "覆盖缺口（C6 逐字命中）"
+        }
+      ],
+      "action": "登记能力条目并把缺口证据挂到 artifact_refs。"
+    }
+  ]
+}
