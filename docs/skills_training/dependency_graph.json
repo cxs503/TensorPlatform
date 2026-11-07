@@ -1,0 +1,50 @@
+{
+  "exercise": "authenticated-export-endpoint-decomposition",
+  "agents": {
+    "A1": {"role": "API", "integrator": true},
+    "A2": {"role": "storage", "integrator": false},
+    "A3": {"role": "docs", "integrator": false},
+    "A4": {"role": "tests", "integrator": false}
+  },
+  "packages": {
+    "WP0": {"owner": "A1", "effort_person_days": 0.5, "artifact": "contracts/exports.v1.md"},
+    "WP1": {"owner": "A1", "effort_person_days": 1.5, "artifact": "backend/api/exports.py"},
+    "WP2": {"owner": "A2", "effort_person_days": 1.5, "artifact": "backend/crud/export_repo.py + alembic migration"},
+    "WP3": {"owner": "A3", "effort_person_days": 1.0, "artifact": "docs/api/exports.md + openapi fragment"},
+    "WP4": {"owner": "A4", "effort_person_days": 1.5, "artifact": "tests/api/test_exports_*.py"},
+    "WP5": {"owner": "A1", "effort_person_days": 1.0, "artifact": "E2E report + security review record"}
+  },
+  "edges": [
+    ["WP0", "WP1"],
+    ["WP0", "WP2"],
+    ["WP0", "WP3"],
+    ["WP0", "WP4"],
+    ["WP1", "WP5"],
+    ["WP2", "WP5"],
+    ["WP4", "WP5"]
+  ],
+  "write_ownership": {
+    "contracts/exports.v1.md": ["A1"],
+    "backend/api/exports.py": ["A1"],
+    "backend/crud/export_repo.py": ["A2"],
+    "alembic/versions/<export_migration>": ["A2"],
+    "docs/api/exports.md": ["A3"],
+    "openapi fragment": ["A3"],
+    "tests/api/test_exports*": ["A4"],
+    "backend/auth.py": []
+  },
+  "budget_person_days": 20,
+  "required_elements": [
+    "parent_goal",
+    "work_packages_and_owners",
+    "deliverables_and_acceptance",
+    "dependency_graph",
+    "interfaces_and_version_assumptions",
+    "parallelization_rationale",
+    "conflict_risks",
+    "integrator",
+    "risk_register",
+    "definition_of_done",
+    "problem_contract"
+  ]
+}
