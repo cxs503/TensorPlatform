@@ -1,0 +1,74 @@
+{
+  "schema": "report_boundary_gate/v1",
+  "purpose": "Domain-neutrality boundary rules for platform-level research reports. Injected as DATA so that tools/tests/backend stay free of domain vocabulary (AGENT_BOOTSTRAP ECOSYSTEM-MAP iron rule: zero domain semantics in code; domain data arrives via config/API/artifacts).",
+  "precedent": {
+    "id": "616",
+    "node": "IN17-B5",
+    "rule": "A platform report keeps organization-level metrics only (throughput, concurrency, coverage matrix, BP-goal coverage). Domain-engineering detail is referenced, never reproduced.",
+    "domain_owner": "ship-performance-platform",
+    "domain_doc_hint": "campaign documentation of the domain repository (campaign plans 11-13)"
+  },
+  "report": "docs/reports/system_research_report_v1.md",
+  "metrics": "artifacts/m4977_metrics.json",
+  "declared_constants": "config/report_declared_constants.json",
+  "required_version_marker": "v1.1",
+  "detail_patterns": [
+    {
+      "id": "hull_dimension_triplet",
+      "regex": "\\b[LBTD]\\s?\\d{2,4}(?:\\s*/\\s*[LBTD]?\\s?\\d{1,4}){2,}\\b",
+      "why": "principal-dimension triplet of a specific vessel (domain engineering detail)"
+    },
+    {
+      "id": "installed_power",
+      "regex": "\\b\\d+(?:\\.\\d+)?\\s?MW\\b",
+      "why": "installed power of a specific power plant (domain engineering detail)"
+    },
+    {
+      "id": "route_arrow",
+      "regex": "[\\w\\u4e00-\\u9fff][\\w\\u4e00-\\u9fff\\.\\-]*(?:→|->|—>)[\\w\\u4e00-\\u9fff][\\w\\u4e00-\\u9fff\\.\\-]*",
+      "why": "named geographic route between waypoints (domain engineering detail); spacing-free arrow form only, so architecture diagrams ('A → B' with spaces) are not flagged"
+    },
+    {
+      "id": "state_matrix",
+      "regex": "(?:\\d+|两|三|四|五|六|七)\\s*(?:态|种工况|state (?:ice|load|environment))",
+      "why": "environmental state matrix enumerated for one domain case"
+    }
+  ],
+  "domain_terms": [
+    "ice navigation",
+    "ice-structure",
+    "ice class",
+    "PC6",
+    "破冰",
+    "东北航道",
+    "冰况",
+    "de Long",
+    "Pevek"
+  ],
+  "whitelist": [
+    {
+      "id": "campaign_registry_title",
+      "regex": "^\\s*\\d+\\.\\s+\\*\\*Plan \\d+",
+      "reason": "Observed campaign registry record (campaign_plans.name). Quoting a recorded title is data citation, not platform-embedded domain semantics; detail patterns are still enforced on these lines."
+    },
+    {
+      "id": "domain_reference_line",
+      "regex": "^\\s*(?:Domain case detail|Domain detail|BP-Towed|High-fidelity simulation)",
+      "reason": "Reference/navigation lines that point to the domain repository instead of restating the case."
+    }
+  ],
+  "code_scan_roots": [
+    "tools",
+    "backend",
+    "tests",
+    "src",
+    "optimizer",
+    "api"
+  ],
+  "code_scan_allow": [
+    "tools/chronicle/report_boundary.py"
+  ],
+  "sections_expected": 10,
+  "section_regex": "^##\\s+(\\d+)\\.\\s+\\S",
+  "baseline": "artifacts/m5014_code_neutrality_baseline.json"
+}

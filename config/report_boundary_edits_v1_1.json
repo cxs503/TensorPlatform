@@ -1,0 +1,49 @@
+{
+  "schema": "report_boundary_edits/v1",
+  "purpose": "Boundary edits (judge case #616) for the v1.0 -> v1.1 platform report revision. Injected as DATA: the patch tool and the tests stay free of domain vocabulary (zero-domain-semantics iron rule); this file is the sanctioned injection channel for the domain text that must be removed.",
+  "report": "docs/reports/system_research_report_v1.md",
+  "edits": [
+    {
+      "id": "bnd_layer4_domain_enum",
+      "anchor": "The ship-performance-platform integrates resistance, propulsion, seakeeping, maneuvering, stability, structure, vibration, green energy, and ice navigation calculations.",
+      "new": "The ship-performance-platform composes the performance calculation families enumerated in its **own** capability catalog. This report deliberately does not restate them: domain vocabulary stays in the domain repository (judge case #616).",
+      "source": "case #616",
+      "why": "domain capability enumeration removed from the platform report"
+    },
+    {
+      "id": "bnd_exec_summary_domain",
+      "anchor": "covering ice navigation, solver development, platform self-optimization, and chronicler functions",
+      "new": "covering domain-application campaigns (titles only; case detail is referenced in \u00a72.3), solver development, platform self-optimization, and chronicler functions",
+      "source": "case #616",
+      "why": "domain theme name replaced by an organizational description"
+    },
+    {
+      "id": "bnd_flagship_case",
+      "anchor": "   Flagship case: PC6\u7834\u51b0\u8d27\u8239 L200/B24/T11 15MW, \u4e1c\u5317\u822a\u9053 de Long\u2192Pevek, \u56db\u6001\u51b0\u51b5\u8c31  ",
+      "new": "   Domain case detail (vessel class, principal dimensions, installed power, route, environmental state matrix) is **not restated here**: it is owned by the campaign documentation of the domain repository `ship-performance-platform` (campaign plans 11-13). This report retains organization-level metrics only (judge case #616).  ",
+      "source": "case #616",
+      "why": "flagship case restatement removed; one-line reference kept"
+    },
+    {
+      "id": "bnd_plan12_desc",
+      "anchor": "High-fidelity simulation: TensorDEM+TensorLBM+TensorFEM coordination for ice-structure interaction",
+      "new": "High-fidelity simulation: TensorDEM+TensorLBM+TensorFEM coordination on the domain case (interaction detail referenced to the domain repository)",
+      "source": "case #616",
+      "why": "multiphysics interaction wording referenced instead of restated"
+    },
+    {
+      "id": "bnd_plan13_desc",
+      "anchor": "BP-Towed System-Piercing: PC6 \u4e1c\u5317\u822a\u9053 flagship case, ten-repository cross-validation",
+      "new": "BP-Towed System-Piercing: cross-repository validation of the flagship application case (case detail referenced; ten-repository cross-validation)",
+      "source": "case #616",
+      "why": "case identifiers removed from the campaign description"
+    },
+    {
+      "id": "bnd_throughput_prose_case_title",
+      "anchor": "corresponds to the activation of Plan 11 (Ice Navigation Full-Pipeline) with 12 nodes going in-flight simultaneously",
+      "new": "corresponds to the activation of campaign Plan 11, whose 12 nodes went in-flight simultaneously",
+      "source": "case #616",
+      "why": "campaign title quoted in prose (registry citation is the only place a recorded title may appear)"
+    }
+  ]
+}
