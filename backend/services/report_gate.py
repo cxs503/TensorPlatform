@@ -56,6 +56,123 @@ REQUIRED_SECTIONS: dict[str, list[list[str]]] = {
     ],
 }
 
+# ── ① 几何量的**量纲**（M2 单位错位） ─────────────────────────────────────
+# 「L = 100」不是几何：没有单位就看不出是 m 还是 mm，而量纲错位正是历史事故
+# （阻力按 mm 建模、误差按 % 报）。所以带单位的量必须带单位。
+_DIM_SYMBOL_ASSIGN = re.compile(
+    r"(?<![A-Za-z0-9_])(L|B|T|D|d|H)\s*=\s*([-+]?\d+(?:\.\d+)?)"
+    r"\s*[（(]?\s*([A-Za-z°µ％%/²³·\^]+)?")
+#: 可接受的量纲记号（长度/时间/角度/力/压强/体积/无量纲比）。
+_DIM_UNIT = re.compile(
+    r"^(?:m|mm|cm|km|ft|in|dm|m2|m3|m\^2|m\^3|m²|m³|kg|t|s|min|h|kn|m/s|"
+    r"N|kN|Pa|kPa|MPa|deg|°|rad|%|％)$")
+#: 几何/参数表中的无量纲量（本来就无单位，不在本规则范围内）。
+_DIMENSIONLESS_SYMBOLS = {"CB", "Cp", "CW", "Fr", "Rn", "Fn"}
+
+
+def unverifiable_dimensions(text: str) -> list[str]:
+    """列出「给了数字但没给单位」的量纲符号赋值（如 ``L = 100``）。
+
+    只挑长度/吃水/型宽这类**有量纲**的单字母符号；比值（``L/B = 7.5``）与
+    无量纲系数（``Cb = 0.6``）不匹配本规则。
+    """
+    bad: list[str] = []
+    for m in _DIM_SYMBOL_ASSIGN.finditer(text or ""):
+        unit = (m.group(3) or "").strip()
+        if unit and _DIM_UNIT.match(unit):
+            continue
+        bad.append(m.group(0).strip())
+    return bad
+
+
+# ── ③ 基准必须是**外部可识别**的（M5 基准替换） ──────────────────────────
+# 「与《基线 v0》对标」是自指：任何自造基线都能宣布一遍「一致」。可验证的基准
+# 要么属于公认类别（解析解/文献/实验/实测/benchmark/公开数据），要么是具名标准
+# （ITTC-1957 / KCS / JHS 这类 ≥2 个大写字母的编号）。
+NAMED_REFERENCE_PATTERNS = [
+    r"解析",
+    r"文献",
+    r"实验",
+    r"试验",
+    r"实测",
+    r"理论解",
+    r"标准解",
+    r"参考解",
+    r"公开数据",
+    r"标准算例",
+    r"(?i)\bbenchmark\b",
+    r"(?i)\breference\b",
+    r"(?i)\bexperiment",
+    r"(?i)\banalytical\b",
+    r"\b[A-Z][A-Z0-9]{1,}[-– ]?\d*\b",      # ITTC-1957 / KCS / JHS-2018
+    # 具名文献/算例的专名：Schäfer-Turek / Wigley / Holtrop（≥3 字母、首字母大写）
+    r"(?<![A-Za-z])[A-ZÄÖÜ][A-Za-zäöüßÄÖÜ0-9_.-]{2,}",
+]
+
+# ── ③ 误差数字必须带**可比单位**（M2 单位错位） ───────────────────────────
+# 千分号 "‰" 不是可比较单位：读的人无法回答「是否 <3%」。分数形态（无单位）
+# 与百分号/百分点/pp 都接受，只有「看起来有单位、其实不可比」的才判违规。
+_ERROR_CLAIM = re.compile(
+    r"(?:误差|偏差|相对误差|(?i:relative\s+error))[^。；;\n]{0,24}?"
+    r"\d+(?:\.\d+)?\s*(%|％|‰|pp|个百分点|percent|倍|ppm|bps|千分比)")
+#: 可比单位：能与「是否 <3%」这类百分判据直接对照。
+_COMPARABLE_UNITS = ("%", "％", "pp", "个百分点", "percent", "倍")
+#: 已知不可比单位：换算出百分数要多一步，报告里出现即为「单位错位」证据。
+#: 形态缺失（分数形态 ``误差 0.0167``）不在本规则内——那是合法写法。
+_INCOMPARABLE_UNITS = ("‰", "ppm", "bps", "千分比")
+
+
+def uncomparable_error_units(text: str) -> list[str]:
+    """列出「误差数字带不可比单位」的片段（如 ``误差 16.7‰``）。
+
+    只判**已知不可比**的单位记号：千分号/ppm/bps 无法直接回答「是否 <3%」，
+    读者必须自己换算，而历史事故正是换算错了（16.7‰ 被当成 16.7%）。
+    """
+    bad: list[str] = []
+    for m in _ERROR_CLAIM.finditer(text or ""):
+        unit = (m.group(1) or "").strip()
+        if not unit or unit.startswith(_COMPARABLE_UNITS):
+            continue
+        if unit.startswith(_INCOMPARABLE_UNITS):
+            bad.append(m.group(0).strip()[:40])
+    return bad
+
+
+#: 比较句（对标发生在哪一句，就在哪一句要外部可识别基准）。
+#: 比较句 = 真在做「A 对 B」的句子（不是出现「比较」二字就算：论文里
+#: 「见图中比较曲线」不是比较句，会把合规稿误伤）。
+_COMPARISON_SENTENCE = re.compile(
+    r"(?:对标)"
+    r"|(?:与[^。；;\n]{0,40}?(?:比较|对比|比对|吻合|一致|相符))"
+    r"|(?i:\bbenchmark(?:ed|ing)?)\b"
+    r"|(?i:\bversus\b|\bvs\.?\s)")
+_SENTENCE_SPLIT = re.compile(r"[。；;\n]")
+
+
+_HEADER_ONLY = re.compile(
+    r"^\s*[#>*\-\s]*(?:对标|验证|比较|对比|benchmark|versus|vs\.?)\s*[:：]?\s*$", re.I)
+
+
+def unbacked_comparisons(text: str) -> list[str]:
+    """列出「在做比较、但没点名基准」的句子（M5 基准替换的可见证据）。
+
+    只在**比较句**里要外部基准，而不是全文任意位置：后文的重述（误差判定段）
+    里出现 ITTC-1957 不能替前面那句「与《基线 v0》对标」背书。
+    """
+    bad: list[str] = []
+    for sent in _SENTENCE_SPLIT.split(text or ""):
+        if not _COMPARISON_SENTENCE.search(sent) or _HEADER_ONLY.match(sent):
+            continue
+        if len(re.sub(r"[#>*\-\s:：]", "", sent)) < 6:
+            continue
+        if any(re.search(p, sent) for p in NAMED_REFERENCE_PATTERNS):
+            continue
+        if any(re.search(p, sent) for p in NO_BASELINE_PATTERNS):
+            continue                      # 显式声明无基准：另一条判据管
+        bad.append(sent.strip()[:60])
+    return bad
+
+
 # ⑤ 注意点
 LIMITATION_PATTERNS = [
     r"(?i)局限",
@@ -172,9 +289,10 @@ def check_report_quality(markdown: str | None, figures: list | None) -> dict[str
     figs = figures or []
     issues: list[str] = []
 
-    # ① 物理/案例介绍（组间 AND）
+    # ① 物理/案例介绍（组间 AND）+ 量纲可验证（M2 单位错位）
     physics_ok = _all(*REQUIRED_SECTIONS["physics_statement"], text=md)
-    if not physics_ok:
+    unitless = unverifiable_dimensions(md)
+    if not physics_ok or unitless:
         issues.append("missing_physics_statement")
 
     # ② 方法
@@ -182,8 +300,12 @@ def check_report_quality(markdown: str | None, figures: list | None) -> dict[str
     if not method_ok:
         issues.append("missing_method")
 
-    # ③ 对标/验证
-    validation_ok = _all(*REQUIRED_SECTIONS["validation"], text=md)
+    # ③ 对标/验证：入口词 + 外部可识别基准 + 可比单位（M5 基准替换 / M2 单位错位）
+    named_refs = [p for p in NAMED_REFERENCE_PATTERNS if re.search(p, md)]
+    bad_units = uncomparable_error_units(md)
+    unbacked = unbacked_comparisons(md)
+    validation_ok = (_all(*REQUIRED_SECTIONS["validation"], text=md)
+                     and bool(named_refs) and not bad_units and not unbacked)
     if not validation_ok:
         issues.append("missing_validation")
 
@@ -228,5 +350,9 @@ def check_report_quality(markdown: str | None, figures: list | None) -> dict[str
             "error_number": has_error_number,
             "verdict_word": has_verdict,
             "no_baseline_declared": no_baseline,
+            "unverifiable_dimensions": unitless,
+            "named_reference_hits": named_refs,
+            "uncomparable_error_units": bad_units,
+            "unbacked_comparisons": unbacked,
         },
     }

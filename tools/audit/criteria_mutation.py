@@ -232,15 +232,20 @@ def _rq_issues(sample: dict) -> list[str]:
     return list(out.get("issues") or [])
 
 
-def _rq_criterion(cid: str, issue: str, statement: str, mutate: dict,
-                  canonical: str = "M3") -> Criterion:
+def _rq_criterion(cid: str, issue: str | tuple[str, ...], statement: str,
+                  mutate: dict, canonical: str = "M3") -> Criterion:
+    """``issue`` 可以是码元组：判据说的是一条**语义**（如「必须有带 caption 的图」），
+    门可能用多个机器码表达同一语义的不同失败面（无图 / 有图无 caption），
+    判据按语义收口，否则「有图但 caption 为空」这种样本会白过。"""
+    wanted = (issue,) if isinstance(issue, str) else tuple(issue)
+
     def _check(sample: dict) -> tuple[bool, str]:
         if _disabled(cid):
             return False, "disabled"
         issues = _rq_issues(sample)
         # 门的 issues 是「code: 人读信息」形式，按 code 前缀匹配（不用宽正则）
         codes = [i.split(":", 1)[0].strip() for i in issues]
-        return issue in codes, f"codes={codes}"
+        return any(c in codes for c in wanted), f"codes={codes}"
 
     return Criterion(
         cid=cid, gate="REPORT-QUALITY", statement=statement,
@@ -289,7 +294,7 @@ def _report_quality_criteria() -> list[Criterion]:
             canonical="M4",
         ),
         _rq_criterion(
-            "RQ-FIGURES", "missing_figures",
+            "RQ-FIGURES", ("missing_figures", "figures_missing_caption"),
             "六要素④：必须有真图（带 caption）或显式无图理由",
             {
                 "M2": lambda eps: {"markdown": COMPLIANT_MD, "figures": []},
