@@ -1,0 +1,40 @@
+{
+  "schema_version": "e3-goal-samples-v1",
+  "fetched_at": "2026-11-07T06:31:14+00:00",
+  "excerpt_chars": 1400,
+  "note": "Goals are quoted verbatim from the mission table; 'after' variants are built at scoring time by appending the precedent injection block (deterministic).",
+  "samples": [
+    {
+      "sample_id": "m5118",
+      "source": "tensor/missions/5118",
+      "mission_status": "succeeded",
+      "role": "metrology benchmark, honest-FAIL declared",
+      "goal_chars_total": 588,
+      "goal": "KCS 阻力+兴波对标，Fr=0.26，对比 SIMMAN 2010 基准数据。交付：JSON 报告（artifacts/kcs_resistance_benchmark.json）含几何验收、阻力计算值、实验参考值、波高场对比（若可测）、相对误差。honest-FAIL 纪律：若几何验收失败或阻力误差 >10%，降级为'记录已知缺陷'，标注为 partial-FAIL。工件路径：work/m*/artifacts/kcs_resistance_benchmark.json + docs/kcs_benchmark_report.md。finish 纪律：写明几何参数、阻力值、误差、波高场对比（若有）、实验数据源。机器判据：|R_total - R_exp|/R_exp ≤ 5%（Fr=0.26）；几何验收 Cb/L/B 偏差 ≤2%；波高场对比（若可测）；实验数据源明确。\n★纪律：读文件 ≤8 次即动手；完成后必须调用 finish；没有产物不算完成；验收过自动推 GitHub 分支（tp_pusher），commit 只要最终成果。多卡测试可在脚本内 SDAA_VISIBLE_DEVICES=<N,M> 显式指定，计时窗口禁 co-tenancy；卡壳先查根因判例库 /root/tp-agent/playbooks/INDEX.md（按症状检索再动手）。"
+    },
+    {
+      "sample_id": "m5101",
+      "source": "tensor/missions/5101",
+      "mission_status": "succeeded",
+      "role": "truth-surface metric with criteria table",
+      "goal_chars_total": 1042,
+      "goal": "【战役 DAG 节点|IN23-N08|成熟化-worker占用真值面：cgroup/进程级外部计量派生online/busy/idle/dead四态+静默死检出延迟与claim-window定义分歧账本】（上层智能体播种的自主战役，物理域 平台度量，风险 ，层 ）。【成熟化任务】测量目标：为worker占用建立外部真值：从/proc+cgroup v2（cpu.stat/memory.current/pids.current）与worker进程树采样派生online/busy/idle/dead四态，与现有claim-window定义对比给出时间加权一致率与混淆矩阵，并给出静默死worker检出延迟分布。实现路径：(1)只读采集器tools/worker_truth/sampler.py：每10s采cgroup级CPU delta、内存、进程数、worker子进程存在性+平台claim/heartbeat事件，输出JSONL（不建表、不改schema）；(2)四态派生器：60s内CPU delta>0且pids>0→busy；pids>0但CPU恒0→suspect-hang；pids=0但claim未释放→silent-dead；无claim无pid→idle；(3)分歧账本：与claim-window busy做时间加权一致率、混淆矩阵、按worker分布；(4)回放取证：用2026-11-02心跳中断批验证silent-dead检出，负控=正常批必须0误报；(5)交付三图：四态时间带图、一致率混淆矩阵、检出延迟CDF。机器可算验收判据：≥1h连续采样字段完整性100%；与claim-window busy时间加权一致率≥90%；silent-dead检出延迟≤120s，回放批4/4命中、负控批0误报；dry-run==commit逐字段相等；pytest≥10全绿。纪律：只读测量面，不DDL/DML；worktree内提交自己分支，论文级报告，honest FAIL不可覆盖。。落库 TensorPlatform（若模块不存在则按领域目录新建，附 pytest 用例）。\n机器验收判据（全部满足，判据数字与产物路径落报告 JSON）：见战役表 metadata。\n纪律：全新前沿节点（禁止重复 verified/ 已验证案例）；worktree 内提交自己分支；论文级报告（物理表述+图+判据数字+审计链+局限）；honest FAIL 不可覆盖。"
+    },
+    {
+      "sample_id": "m5121",
+      "source": "tensor/missions/5121",
+      "mission_status": "succeeded",
+      "role": "read-only aggregation endpoint",
+      "goal_chars_total": 662,
+      "goal": "实现 GET /tensor/kpi/guide_tracker 返回 12 项 KPI 实时值（从 missions/samples/reports 表计算）。交付：API 代码（src/api/routes/kpi.py）+ pytest 测试（tests/test_kpi_api.py，返回 12 项 KPI，每项含 current/target/pct；数值与 DB 直接查询一致误差=0）+ 文档（docs/kpi_api.md）。honest-FAIL 纪律：若全表扫描性能问题导致超时，增加缓存层（内存缓存 TTL 5 分钟），标注为优化项。工件路径：work/m*/src/api/routes/kpi.py + tests/test_kpi_api.py。finish 纪律：写明 12 项 KPI 值、缓存策略（若有）。机器判据：pytest tests/test_kpi_api.py -v 全过；返回 12 项 KPI，每项含 current/target/pct；数值与 DB 直接查询一致（误差=0）。\n★纪律：读文件 ≤8 次即动手；完成后必须调用 finish；没有产物不算完成；验收过自动推 GitHub 分支（tp_pusher），commit 只要最终成果。多卡测试可在脚本内 SDAA_VISIBLE_DEVICES=<N,M> 显式指定，计时窗口禁 co-tenancy；卡壳先查根因判例库 /root/tp-agent/playbooks/INDEX.md（按症状检索再动手）。"
+    },
+    {
+      "sample_id": "m5047",
+      "source": "tensor/missions/5047",
+      "mission_status": "failed",
+      "role": "failed: no finish, no commit (anti-pattern)",
+      "goal_chars_total": 799,
+      "goal": "【战役 DAG 节点|IN20-R3|续航军R3·平台合并口自动化成熟化(TensorPlatform)】（上层智能体播种的自主战役，物理域 ，风险 ，层 ）。合并口自动化成熟化（替代 owner 手并）：merge_master 扩覆盖 TensorPlatform——PR 判据=任务系统验收记录在案+质量门绿（含 plan 19 B1 边界扫描门接入为 pre-merge 检查）+测试证据+无冲突；满足即自动合并并回写 mission 状态；不满足留队列附原因；治理预算内动作全落审计。判据：对现存 awaiting PR 清跑≥10 张（合并或留因）、边界门负例（构造越界 PR）MUST 拒并、合并后 mission 状态回写正确、pytest≥8。本军基因=owner 渐退令：机制替身必须独立于任何人类会话与 AI 协调者会话运行（容器 daemon/平台内任务），带审计日志+回滚路径；设计约束=假设明天没有人类来。/工件路径与 pytest 见任务书；worktree 内提交自己分支；honest FAIL 不可覆盖；零领域语义。。落库 TensorPlatform（若模块不存在则按领域目录新建，附 pytest 用例）。\n机器验收判据（全部满足，判据数字与产物路径落报告 JSON）：见战役表 metadata。\n纪律：全新前沿节点（禁止重复 verified/ 已验证案例）；worktree 内提交自己分支；论文级报告（物理表述+图+判据数字+审计链+局限）；honest FAIL 不可覆盖。【首例追加 2026-11-07 owner 批】现存 PR #626（m5026）=你的合并口第一个真实判例：PR 带 [边界门首例·禁并判据] 评论（词表硬编码）——你的门须拒并附因并走 REOPENED 返工流（词表外置），绿后自动并+回收状态。此例同时验证门可失败。"
+    }
+  ]
+}
