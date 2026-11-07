@@ -1,0 +1,194 @@
+# IN15-O1 — saturation pulse metrology pipeline (mature)
+
+**Node**: IN15-O1 (plan 16 「饱和推进·平台自优化军（自回归燃料）」, autoregressive fuel #1 = measure the scale)
+**Repo**: TensorPlatform · branch `agent/m4959` · 2026-11-07
+**Verdict**: PASS — three-state collector + idempotent single schema action + trend CLI + 24 tests (22 pure, 2 live-DB), 3 consecutive samples persisted.
+
+---
+
+## 1. Why this node exists
+
+The campaign dispatcher keeps a fleet of resident agents saturated: it decides
+how many DAG nodes to release per wave from a *load signal*, and the whole
+autoregressive loop (measure → decide → release → measure) is only as good as
+that signal. Before this node, the platform had **no reproducible measurement**:
+the only trace of load was a single hand-written row in `saturation_pulse`
+
+```
+ts=2026-11-07 00:35:53Z  online=43  busy=34  held=11  released='154,155,156'
+note='online=43 busy=34 queued=2 idle=7 held16=11'
+```
+
+that no code could regenerate — a MOCK-grade measurement (human-typed numbers)
+pretending to be telemetry. Regulation fuel #1 of an autoregressive campaign is
+"measure the scale", so the measurement itself must be REAL: recomputable from
+the database, quoted with its thresholds, and regression-tested.
+
+## 2. What was built
+
+| artifact | path | role |
+|---|---|---|
+| collector + CLI | `tools/pulse/saturation_pulse.py` | reads three states, computes one sample, optional single-row INSERT |
+| trend CLI | `tools/pulse/pulse_report.py` | last-N ASCII sparklines + table, `--json` |
+| idempotent DDL | `tools/pulse/sql/001_saturation_pulse.sql` | the only schema action of the mission |
+| tests | `tests/pulse/test_saturation_pulse.py` | 24 tests (22 pure, 2 live-DB) |
+| usage doc | `tools/pulse/README.md` | semantics + CLI + safety properties |
+| evidence driver | `tools/pulse/acceptance_evidence.py` | one command rebuilds every acceptance artifact |
+| evidence | `artifacts/m4959/` | acceptance JSON, samples, pytest log, figures |
+
+### 2.1 Three-state semantics
+
+* **online** = enabled resident workers with `heartbeat_at` inside a 300 s (5 min)
+  freshness window ∪ claimants of missions whose own heartbeat is ≤ 150 s.
+* **busy** = claimants of a live active mission (`running` / `claimed`), plus
+  workers self-reporting `state='running'` or `current_mission_id` on an active
+  mission. `busy ⊆ online` by construction.
+* **queued** = missions in status `queued` (the releasable backlog).
+* **held** = campaign DAG nodes in status `held` / `blocked`, with identities, so
+  the next sample can report **released** (previous-held minus current-held).
+* auxiliary **stale_claims** = active missions whose heartbeat is older than
+  150 s (claims that look running but stopped beating).
+
+Boundary rule is explicit and pinned by a test: a heartbeat whose age is
+*exactly* the window is still fresh; window + 1 s is stale.
+
+### 2.2 Reconciliation finding (why `online` is a union)
+
+The platform's own worker table under-reports occupancy: on 2026-11-07 every
+`factory_resident_workers` row carried `state='idle'` and
+`current_mission_id IS NULL`, while 32 missions were `running` with heartbeat
+≤ 150 s and a named `claimed_by` worker. The worker-table-only reading publishes
+`online=23, busy=0` at that instant, against `online=52, busy=32`
+from the deployed union definition — i.e. `busy = 0` for a fully loaded fleet.
+
+The deployed factory API already patches this with an `OR EXISTS(...)` on
+missions; the collector adopts the same union (as a metric, not as an API
+change) and keeps the gap visible as `idle = online − busy`. This is the
+single most important calibration decision in the node and is drawn in
+`artifacts/m4959/fig3_state_reconciliation.png`.
+
+### 2.3 Storage without schema surgery
+
+`saturation_pulse(ts, online, busy, held, released, note)` already exists in the
+deployed database. Discipline «只增不改» forbids altering it, so the collector
+maps: headline numbers → `online/busy/held`; released-id list → `released`;
+**full machine-readable snapshot → `note` as single-line JSON v1**. The DDL file
+reproduces the deployed column set exactly and is `IF NOT EXISTS` on both the
+table and the trend index, so running it against production is a no-op
+(`ensure_schema` reports `statements=2, idempotent=true`) and a fresh deployment
+is reproducible from the repo. A column-set drift raises `PulseSchemaError`
+instead of writing into an unexpected shape.
+
+### 2.4 Non-blocking collection
+
+The read phase runs inside `BEGIN` with `connection.read_only = True` and issues
+SELECT statements only (no `FOR UPDATE`, no `LOCK TABLE`, no writes; the write
+phase is one `INSERT`). Live test: while a snapshot is open, the session's
+relation locks are `{AccessShareLock}` only and a concurrent no-op `UPDATE` on
+`saturation_pulse` from a second connection completes under a 1.5 s
+`lock_timeout`.
+
+## 3. Results (programmatic, zero hand-copied numbers)
+
+Samples persisted on 2026-11-07 (regenerated by `tools/pulse/acceptance_evidence.py`;
+raw rows read back from the live table; `artifacts/m4959/pulse_samples.jsonl`
+accumulates the samples written by each evidence run):
+
+| # | ts (UTC) | window | online | busy | queued | idle | running_missions | held | released | source |
+|---|---|---|---|---|---|---|---|---|---|---|
+| — | 00:35:53.514902 | — (legacy) | 43 | 34 | — | — | — | 11 | 3 | legacy |
+| 1 | 00:44:03.017368 | 300 s | 53 | 40 | 1 | 13 | 40 | 16 | 0 | pulse-v1 |
+| 2 | 00:44:03.468113 | 300 s | 53 | 40 | 1 | 13 | 40 | 16 | 0 | pulse-v1 |
+| 3 | 00:44:26.252598 | 300 s | 53 | 40 | 1 | 13 | 40 | 16 | 0 | pulse-v1 |
+| 4 | 00:46:16.248253 | 300 s | 53 | 40 | 1 | 13 | 40 | 16 | 0 | pulse-v1 |
+| 5 | 00:46:16.770406 | 300 s | 53 | 40 | 1 | 13 | 40 | 16 | 0 | pulse-v1 |
+| 6 | 00:47:02.229878 | 300 s | 53 | 39 | 1 | 14 | 39 | 16 | 0 | pulse-v1 |
+| 7 | 00:47:47.618499 | 300 s | 53 | 37 | 3 | 16 | 37 | 16 | 0 | pulse-v1 |
+| 8 | 00:48:00.333351 | 300 s | 53 | 35 | 3 | 18 | 35 | 16 | 0 | pulse-v1 |
+| 9 | 00:48:00.734179 | 300 s | 53 | 35 | 3 | 18 | 35 | 16 | 0 | pulse-v1 |
+| 10 | 00:49:01.297562 | 300 s | 53 | 34 | 2 | 19 | 34 | 16 | 0 | pulse-v1 |
+| 11 | 00:50:03.588005 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 12 | 00:50:03.946849 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 13 | 00:50:09.351735 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 14 | 00:50:14.798399 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 15 | 00:50:35.426548 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 16 | 00:50:36.086474 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 17 | 00:50:42.544186 | 300 s | 52 | 32 | 2 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 18 | 00:50:49.136065 | 300 s | 52 | 32 | 3 | 20 | 32 | 16 | 0 | pulse-v1 |
+| 19 | 00:52:06.343394 | 300 s | 52 | 30 | 3 | 22 | 30 | 16 | 0 | pulse-v1 |
+| 20 | 00:52:06.741750 | 300 s | 52 | 30 | 3 | 22 | 30 | 16 | 0 | pulse-v1 |
+| 21 | 00:52:11.087867 | 300 s | 52 | 30 | 3 | 22 | 30 | 16 | 0 | pulse-v1 |
+| 22 | 00:52:30.759701 | 300 s | 52 | 30 | 3 | 22 | 30 | 16 | 0 | pulse-v1 |
+| 23 | 00:52:31.279776 | 300 s | 52 | 30 | 3 | 22 | 30 | 16 | 0 | pulse-v1 |
+| 24 | 00:52:35.644189 | 300 s | 52 | 30 | 3 | 22 | 30 | 16 | 0 | pulse-v1 |
+
+* the `legacy` row is the pre-existing human-typed sample, kept untouched and
+  *read* by the new trend CLI (its `queued` is reported as `—`, never guessed);
+* the `pulse-v1` rows are the collector's; the first two are the required **two
+  consecutive persisted samples**, the remaining ones were taken while the
+  evidence was rebuilt (busy 30–40, queued 1–3, held 16);
+* dry-run vs commit equality was measured at a pinned instant
+  (`--now 2026-11-07T00:45:00Z`): snapshot dicts and note strings are identical
+  and dry-run writes nothing (`artifacts/m4959/acceptance_IN15-O1.json`).
+
+### 3.1 Independent SQL cross-check (the accuracy substitute)
+
+Every metric is recomputed by hand-written SQL that shares no code path with the
+collector, back-to-back in the same process:
+
+| metric | independent SQL | collector | delta | rel. error |
+|---|---|---|---|---|
+| `online` | 52 | 52 | +0 | 0.000 % |
+| `busy` | 30 | 30 | +0 | 0.000 % |
+| `queued` | 3 | 3 | +0 | 0.000 % |
+| `running_missions` | 30 | 30 | +0 | 0.000 % |
+| `held` | 16 | 16 | +0 | 0.000 % |
+| `stale_claims` | 0 | 0 | +0 | — |
+
+Max |delta| = 0, max relative error = 0.0 %.
+
+Figures: `fig1_pulse_trend.png` (three-state trend + hold), `fig2_verification.png`
+(acceptance evidence panel), `fig3_state_reconciliation.png` (worker-table-only
+vs union reading).
+
+## 4. Acceptance criteria — verdict table
+
+| criterion | evidence | verdict |
+|---|---|---|
+| two consecutive samples persisted | rows 2 & 3 in `saturation_pulse`; `acceptance_IN15-O1.json → consecutive_samples_persisted` | PASS |
+| `--dry-run` output == real run | `snapshot_equal=true` at pinned instant; test `test_dry_run_matches_commit` | PASS |
+| pytest ≥ 5 | 24 passed (`artifacts/m4959/pytest_pulse.txt`): window boundary, empty tables, negative rejection, dry-run equality, lock-footprint, DDL idempotency, trend rendering | PASS |
+| time-window boundary | `test_window_boundary_is_inclusive` (edge fresh, +1 s stale, skew flagged) | PASS |
+| empty table | `test_empty_state_yields_zeroes`, `test_report_on_empty_table` | PASS |
+| negative rejected | `test_negative_inputs_rejected`, `test_negative_snapshot_rejected`, CLI exit 2 | PASS |
+| collection does not lock tables | `test_read_phase_is_read_only_select_only`, `test_live_snapshot_holds_only_access_share_locks` | PASS |
+| only new table as schema action / no surgery | `sql/001_saturation_pulse.sql` (IF NOT EXISTS ×2), `verify_schema` contract, no `ALTER` | PASS |
+| tool in its own dir + dry-run + pytest | `tools/pulse/` + `--dry-run` default + `tests/pulse/` | PASS |
+| frozen API untouched | zero diff under `backend/`, `api/`, `ops/` | PASS |
+
+## 5. Known limits (honest)
+
+1. **`held` is a node-status read, not a valve model.** Nodes in `held`/`blocked`
+   are counted from `campaign_nodes` / `campaign_plan_nodes`; the dispatcher's
+   actual release policy is not reimplemented, so `released` reports *status
+   transitions between two samples*, not "nodes the valve would release".
+   With the current data set `campaign_plan_nodes` is stale (all `planned`), so
+   held comes in practice from `campaign_nodes.blocked` (16 nodes).
+2. **Momentary invariance.** Samples taken seconds apart are identical
+   (rows 2–4); the metric has no smoothing and no deduplication. Consumers must
+   not read two adjacent identical rows as "two independent observations of a
+   steady state".
+3. **Clock skew.** Heartbeats in the future are counted as fresh (up to any
+   skew) and flagged via `skewed`; the flag is stored but not gated on.
+4. **Not wired into the frozen harness.** Per the freeze, the collector is a
+   tool, not a scheduler: it is run manually or by cron
+   (`*/5 * * * * python3 -m tools.pulse.saturation_pulse --commit`). No API
+   endpoint was added.
+5. **`online` is a union**, so it is not comparable to the API's
+   `agents.online` (90 s worker window, no union count) — the two numbers are
+   deliberately different definitions and must not be mixed in one series.
+6. **No accuracy benchmark applies.** This is telemetry, not a physics
+   computation: there is no experimental reference value, so the «< 3 % vs
+   reference» clause is *not applicable*; the substitutes used are (a) exact
+   recomputation identity (dry-run == commit) and (b) ground-truth cross-check
+   against `psql` counts recorded in `artifacts/m4959/cross_check_psql.json`.
