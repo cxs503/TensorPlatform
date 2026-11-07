@@ -16,7 +16,7 @@ T1 正例：读到仓内单一真值（artifacts/capability_ledger/）并对 21 
     「自述 vs 对账」双列；propeller.open_water 必须呈现 REAL→MOCK 的 OVERCLAIM；
 T2 优先级：TP_CAP_LEDGER 显式指定时以其为准；
 T3 回退：最高优先级候选是坏 JSON 时必须跳过并落到下一个可用候选（不许整体失败）；
-T4 反例（阴性对照）：所有候选都不可用时，返回必须**明确报失败并列出尝试过的路径**，
+T4 反例（阴性对照）：所有候选都不可用时（m5352 起候选只由 ledger_paths 提供），返回必须**明确报失败并列出尝试过的路径**，
     不得返回看似正常的能力表（否则仪器失灵会被误读为「能力都正常」）。
 
 全程离线：只读工作树，不访问 :8010/:8001。
@@ -87,17 +87,22 @@ def test_t3_falls_back_past_corrupt_candidate(worker, monkeypatch, tmp_path):
 
 
 def test_t4_all_sources_dead_reports_failure(worker, monkeypatch, tmp_path):
+    """全灭（阴性对照）：env 是坏 JSON **且** 单一解析器的仓根指向空目录。
+
+    m5352：候选路径表已收口到 ``tools/audit/ledger_paths.py``（消费者契约门），
+    因此「全灭」必须在该单一来源处构造，而不是逐个 monkeypatch 各消费者自己的
+    私有常量（私有常量已不存在，留着只会让本负控变成假绿）。
+    """
+    from tools.audit import ledger_paths as LP
+
     corrupt = tmp_path / "cap_corrupt.json"
     corrupt.write_text("{not json", encoding="utf-8")
     monkeypatch.setenv("TP_CAP_LEDGER", str(corrupt))
     monkeypatch.setenv("TP_SHIP_HARNESS_DIR", str(tmp_path / "nope"))
-    monkeypatch.setattr(worker, "CAP_SNAPSHOT_REL", pathlib.Path("artifacts/__none__/a.json"))
-    monkeypatch.setattr(worker, "CAP_LEDGER_REL", pathlib.Path("artifacts/__none__/b.json"))
-    monkeypatch.setattr(worker, "CAP_HARNESS_DEFAULT", tmp_path / "nope2.json")
-    # m5238/W18-N09 新增的兜底候选（证伪台账）也必须一并打死，否则「全灭」不成立
-    if hasattr(worker, "CAP_FALSIFICATION_REL"):
-        monkeypatch.setattr(worker, "CAP_FALSIFICATION_REL",
-                            pathlib.Path("artifacts/__none__/c.json"))
+    empty = tmp_path / "empty_repo"
+    empty.mkdir()
+    monkeypatch.setattr(LP, "repo_root", lambda: empty)
+
     out = worker._tool_audit_caps()
     assert "读取能力清单失败" in out
     assert "能力清单 (" not in out, "仪器全灭时必须报失败，不能吐出看似正常的能力表"

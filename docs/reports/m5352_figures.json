@@ -1,0 +1,343 @@
+{
+ "mission": 5352,
+ "generated_by": "tools/gen_m5352_figures.py",
+ "figures": [
+  {
+   "name": "m5352_consumer_contract.png",
+   "path": "docs/reports/figs/m5352_consumer_contract.png"
+  },
+  {
+   "name": "m5352_replay_gate.png",
+   "path": "docs/reports/figs/m5352_replay_gate.png"
+  },
+  {
+   "name": "m5352_lbm_poiseuille.png",
+   "path": "docs/reports/figs/m5352_lbm_poiseuille.png"
+  }
+ ],
+ "consumer_contract": {
+  "consumers": [
+   "audit_capabilities",
+   "cli",
+   "health",
+   "report_gate"
+  ],
+  "matrix": {
+   "baseline": {
+    "cells": {
+     "audit_capabilities": "618d37ff",
+     "cli": "618d37ff",
+     "health": "618d37ff",
+     "report_gate": "618d37ff"
+    },
+    "contract_ok": true,
+    "status": "OK",
+    "reasons": [],
+    "canonical_sha256": "618d37ff38a162da385c05e84e23c04c9f761fc3f8355f4e37d5b4316b58ac89",
+    "relocated": false,
+    "violations": []
+   },
+   "relocated(same content)": {
+    "cells": {
+     "audit_capabilities": "618d37ff",
+     "cli": "618d37ff",
+     "health": "618d37ff",
+     "report_gate": "618d37ff"
+    },
+    "contract_ok": true,
+    "status": "OK",
+    "reasons": [],
+    "canonical_sha256": "618d37ff38a162da385c05e84e23c04c9f761fc3f8355f4e37d5b4316b58ac89",
+    "relocated": true,
+    "violations": []
+   },
+   "schema 9.9 (negative)": {
+    "cells": {
+     "audit_capabilities": "618d37ff",
+     "cli": "618d37ff",
+     "health": "618d37ff",
+     "report_gate": "618d37ff"
+    },
+    "contract_ok": false,
+    "status": "DEGRADED",
+    "reasons": [
+     "SCHEMA_VERSION_MISMATCH",
+     "PIN_MISSING"
+    ],
+    "canonical_sha256": "5f46a7429ee4fbe2705b14031dfc18f0aa58ef977a36bfce9536ca96bb21a4de",
+    "relocated": false,
+    "violations": [
+     "CONSUMER_SHA256_DIVERGENCE",
+     "LEDGER:SCHEMA_VERSION_MISMATCH",
+     "LEDGER:PIN_MISSING"
+    ]
+   },
+   "ledger tampered (drift)": {
+    "cells": {
+     "audit_capabilities": "618d37ff",
+     "cli": "618d37ff",
+     "health": "618d37ff",
+     "report_gate": "618d37ff"
+    },
+    "contract_ok": false,
+    "status": "DEGRADED",
+    "reasons": [
+     "LEDGER_DRIFT"
+    ],
+    "canonical_sha256": "c664bda2e829910c585f77d37d747840d00c6fd0f97bf99424d37c34fa2a924c",
+    "relocated": false,
+    "violations": [
+     "CONSUMER_SHA256_DIVERGENCE",
+     "LEDGER:LEDGER_DRIFT"
+    ]
+   },
+   "all sources dead": {
+    "cells": {},
+    "contract_ok": false,
+    "status": "DEGRADED",
+    "reasons": [
+     "NO_LEDGER",
+     "NO_PARSEABLE_LEDGER",
+     "DERIVED_MISSING",
+     "PIN_MISSING"
+    ],
+    "canonical_sha256": null,
+    "relocated": false,
+    "violations": [
+     "NO_LEDGER"
+    ]
+   }
+  },
+  "contract_version": "capability-ledger-consumer-contract/1.0",
+  "schema_versions": [
+   "2.0"
+  ],
+  "pin_sha256": "618d37ff38a162da385c05e84e23c04c9f761fc3f8355f4e37d5b4316b58ac89"
+ },
+ "replay_gate": {
+  "clean_venv": {
+   "verdict": "PASS",
+   "denominator": 24,
+   "numerator": 24,
+   "reproduction_rate": 1.0,
+   "ci95": [
+    0.862024,
+    1.0
+   ],
+   "seed": 20261106,
+   "root_cause_ledger": {
+    "ENV_DEPENDENCY_MISSING": {
+     "count": 0,
+     "definition": "判据声明的第三方依赖在目标环境不可导入（干净 venv 无 numpy 等）",
+     "claims": []
+    },
+    "RANDOM_UNSEEDED": {
+     "count": 0,
+     "definition": "判据含未种子的随机过程，两次干净复跑给出不同结果",
+     "claims": []
+    },
+    "ARTIFACT_MISSING": {
+     "count": 0,
+     "definition": "申报值依赖的工件（artifact path）不存在或不可读",
+     "claims": []
+    },
+    "CRITERION_NOT_EXECUTABLE": {
+     "count": 0,
+     "definition": "判据无法执行（内核未登记/异常退出/输出不可解析）",
+     "claims": []
+    },
+    "TRUE_NUMERICAL_DRIFT": {
+     "count": 0,
+     "definition": "判据可执行、工件齐全，但复算值与申报值偏差 > tol（真实数值漂移）",
+     "claims": []
+    }
+   },
+   "per_domain": {
+    "resistance": {
+     "n": 4,
+     "reproduced": 4,
+     "rate": 1.0
+    },
+    "structure": {
+     "n": 4,
+     "reproduced": 4,
+     "rate": 1.0
+    },
+    "seakeeping": {
+     "n": 4,
+     "reproduced": 4,
+     "rate": 1.0
+    },
+    "lbm": {
+     "n": 4,
+     "reproduced": 4,
+     "rate": 1.0
+    },
+    "fem": {
+     "n": 4,
+     "reproduced": 4,
+     "rate": 1.0
+    },
+    "dem": {
+     "n": 4,
+     "reproduced": 4,
+     "rate": 1.0
+    }
+   },
+   "verdict_criteria": {
+    "rate_ge_min": true,
+    "no_true_numerical_drift": true,
+    "tamper_detected": true,
+    "five_root_causes_adjudicable": true
+   },
+   "self_check": {
+    "ENV_DEPENDENCY_MISSING": {
+     "claim": "sc-env",
+     "classified_as": "ENV_DEPENDENCY_MISSING",
+     "ok": true,
+     "detail": "缺少依赖: __absent_dependency_probe__"
+    },
+    "RANDOM_UNSEEDED": {
+     "claim": "sc-rnd",
+     "classified_as": "RANDOM_UNSEEDED",
+     "ok": true,
+     "detail": "两次复跑 0.7996020296567643 vs 0.07422276049594245"
+    },
+    "ARTIFACT_MISSING": {
+     "claim": "sc-art",
+     "classified_as": "ARTIFACT_MISSING",
+     "ok": true,
+     "detail": "工件不存在: artifacts/replay_gate/__absent_artifact__.json"
+    },
+    "CRITERION_NOT_EXECUTABLE": {
+     "claim": "sc-crit",
+     "classified_as": "CRITERION_NOT_EXECUTABLE",
+     "ok": true,
+     "detail": "exit=1: KeyError: \"未登记内核 'no_such_kernel'\""
+    },
+    "TRUE_NUMERICAL_DRIFT": {
+     "claim": "sc-drift",
+     "classified_as": "TRUE_NUMERICAL_DRIFT",
+     "ok": true,
+     "detail": "|Δ|/|declared|=48.9995% > tol=3.00%"
+    }
+   },
+   "env_dependency_probe": {
+    "claim": "probe-numpy",
+    "clean_venv": {
+     "root_cause": "ENV_DEPENDENCY_MISSING",
+     "reproduced": false
+    },
+    "system": {
+     "root_cause": null,
+     "reproduced": true
+    },
+    "gap_demonstrated": true
+   },
+   "tamper": {
+    "injected": false,
+    "spec": null,
+    "claims": [],
+    "detected": null,
+    "evidence": []
+   }
+  },
+  "system_env": {
+   "verdict": "PASS",
+   "numerator": 24,
+   "denominator": 24,
+   "reproduction_rate": 1.0,
+   "ci95": [
+    0.862024,
+    1.0
+   ]
+  },
+  "tampered": {
+   "verdict": "FAIL",
+   "tamper": {
+    "injected": true,
+    "spec": "first_within:resistance",
+    "claims": [
+     "res-fr-kvlcc2-01"
+    ],
+    "detected": true,
+    "evidence": [
+     {
+      "id": "res-fr-kvlcc2-01",
+      "declared_original": 0.1285,
+      "declared_tampered": 0.13492500000000002,
+      "baseline_reproduced": true,
+      "tampered_reproduced": false,
+      "tampered_root_cause": "TRUE_NUMERICAL_DRIFT"
+     }
+    ]
+   },
+   "root_cause_ledger": {
+    "ENV_DEPENDENCY_MISSING": {
+     "count": 0,
+     "definition": "判据声明的第三方依赖在目标环境不可导入（干净 venv 无 numpy 等）",
+     "claims": []
+    },
+    "RANDOM_UNSEEDED": {
+     "count": 0,
+     "definition": "判据含未种子的随机过程，两次干净复跑给出不同结果",
+     "claims": []
+    },
+    "ARTIFACT_MISSING": {
+     "count": 0,
+     "definition": "申报值依赖的工件（artifact path）不存在或不可读",
+     "claims": []
+    },
+    "CRITERION_NOT_EXECUTABLE": {
+     "count": 0,
+     "definition": "判据无法执行（内核未登记/异常退出/输出不可解析）",
+     "claims": []
+    },
+    "TRUE_NUMERICAL_DRIFT": {
+     "count": 1,
+     "definition": "判据可执行、工件齐全，但复算值与申报值偏差 > tol（真实数值漂移）",
+     "claims": [
+      "res-fr-kvlcc2-01"
+     ]
+    }
+   }
+  },
+  "sample_sha256": "6fbbdc3fa6b95cb839aa34f01ed6a4b48ac5a793287ea3347d4c25fff755b16d",
+  "pool_sha256": "be111c70cf240e1139a1747aa30aaa03ea1825c47dd381f60d54cd7a45d52fe0",
+  "pool_n": 71,
+  "pool_per_domain": {
+   "resistance": 12,
+   "structure": 12,
+   "seakeeping": 12,
+   "lbm": 11,
+   "fem": 12,
+   "dem": 12
+  },
+  "lbm": {
+   "figure": "docs/reports/figs/m5352_lbm_poiseuille.png",
+   "claims": [
+    {
+     "id": "lbm-poiseuille-h15-nu008",
+     "analytic": 0.014062500000000002,
+     "computed": 0.014039199603062087,
+     "rel_err": 0.001656917115585083,
+     "reproduced": true
+    },
+    {
+     "id": "lbm-poiseuille-h19-nu010",
+     "analytic": 0.027075,
+     "computed": 0.027065999013450737,
+     "rel_err": 0.00033244640994500516,
+     "reproduced": true
+    },
+    {
+     "id": "lbm-poiseuille-h23-nu012",
+     "analytic": 0.044083333333333335,
+     "computed": 0.044097598036061114,
+     "rel_err": 0.00032358493900443147,
+     "reproduced": true
+    }
+   ]
+  }
+ }
+}

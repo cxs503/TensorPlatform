@@ -591,6 +591,19 @@ async def jwt_auth_middleware(request: Request, call_next):
 # ============== 健康检查 ==============
 
 
+def _capability_ledger_field() -> dict:
+    """消费者 #3：/health 的能力台账体检字段（永不抛异常，失败即 DEGRADED）。"""
+    try:
+        from api.capability_health import ledger_field
+        return ledger_field()
+    except Exception as exc:  # 后端启动顺序/路径问题不能把健康端点打成 500
+        return {"status": "DEGRADED",
+                "reasons": [f"HEALTH_CONSUMER_IMPORT_FAILED:{type(exc).__name__}"],
+                "path": None, "sha256": None, "schema_version": None,
+                "capabilities": 0, "unverified": 0, "overclaim": 0,
+                "contract_version": "unknown"}
+
+
 @app.get("/health", include_in_schema=False)
 @app.get("/api/v1/health")
 async def health_check(db: Session = Depends(get_db)):
@@ -606,7 +619,9 @@ async def health_check(db: Session = Depends(get_db)):
         "services": {
             "api": "up",
             "database": db_status
-        }
+        },
+        # 证据台账体检：path/sha256/capabilities/unverified/overclaim（m5352 消费者契约门）
+        "capability_ledger": _capability_ledger_field(),
     }
 
 

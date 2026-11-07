@@ -243,9 +243,28 @@ def _check_report_quality(markdown: str, figures: list) -> dict:
     if not limitations_found:
         issues.append("missing_limitations: 缺少局限与展望（需包含踩过的坑、适用范围、后续改进方向）")
     
+    # 消费者 #4：报告正文的能力等级断言必须与能力台账对账（强于台账 = 违规）。
+    # 纪律：台账降级 → degraded=True 但**不改变** passed（保持既有发布路径可用），
+    # 由 QA 视图与 CI（tools/audit/ledger_contract_gate.py）看字段裁决。
+    ledger_gate: dict = {"ok": None, "degraded": None, "violations": [],
+                         "ledger_path": None, "ledger_sha256": None, "ledger_status": None}
+    try:
+        import sys
+        from pathlib import Path as _Path
+        _root = _Path(__file__).resolve().parents[2]
+        if str(_root) not in sys.path:
+            sys.path.insert(0, str(_root))
+        from tools.audit.report_gate_ledger import gate_summary
+        ledger_gate = gate_summary(markdown)
+    except Exception as exc:
+        ledger_gate = {"ok": None, "degraded": True, "violations": [],
+                       "ledger_path": None, "ledger_sha256": None,
+                       "ledger_status": f"GATE_CONSUMER_ERROR:{type(exc).__name__}"}
+
     return {
         "passed": len(issues) == 0,
         "issues": issues,
+        "capability_ledger": ledger_gate,
         "checks": {
             "physics_statement": physics_found,
             "method": method_found,
