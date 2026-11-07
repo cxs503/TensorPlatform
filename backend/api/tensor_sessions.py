@@ -1,7 +1,6 @@
 """Tensor console: agent session timeline (append-only event stream)."""
 from __future__ import annotations
 
-import json
 from typing import Any
 
 from fastapi import APIRouter, Depends, HTTPException
@@ -11,7 +10,12 @@ from sqlalchemy.orm import Session
 
 from api.deps import require_auth
 from services.factory_profile import get_factory_profile, require_factory_agent
-from api.domain.tensor_common import EVENT_KINDS, append_event, resolved_org
+from api.domain.tensor_common import (
+    EVENT_KINDS,
+    append_event,
+    insert_event_row,
+    resolved_org,
+)
 from database.config import get_db
 
 router = APIRouter(prefix="/tensor/sessions", tags=["Agent会话"])
@@ -184,18 +188,9 @@ def append_session_events_batch(
         seqs: list[int] = []
         for ev in body.events:
             seq += 1
-            db.execute(
-                text("""
-                    INSERT INTO tensor_agent_session_events (session_id, seq, kind, payload)
-                    VALUES (:sid, :seq, :kind, CAST(:payload AS jsonb))
-                """),
-                {
-                    "sid": session_id,
-                    "seq": seq,
-                    "kind": ev.kind,
-                    "payload": json.dumps(ev.payload, ensure_ascii=False, default=str),
-                },
-            )
+            # G-B 一事实单源：本端点不自己拼 INSERT，行写入统一走
+            # api.domain.tensor_common.insert_event_row（批量保留单锁单事务语义）。
+            insert_event_row(db, session_id, seq, ev.kind, ev.payload)
             seqs.append(seq)
         db.commit()
     except IntegrityError:
