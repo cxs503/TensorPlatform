@@ -35,6 +35,7 @@ DAEMONS = [
     "campaign_dispatcher.py",
     "credit_ledger.py",
     "fleet_governor.py",
+    "gate_auto_release.py",   # 放门自动化（IN20-R2）
     "guide_tracker.py",
     "merge_governor.py",
     "paper_line.py",

@@ -88,3 +88,27 @@
 | 质检数字抽查命中 | 3/3（首批评审） |
 | 跨卡复现 | Couette 2D L2 1.8e-4 跨卡逐位一致 |
 | 动态编制首轮换血 | 10 席变更、daemon 自动巡检 |
+
+## 10 放门自动化（gate_auto_release，IN20-R2）
+
+**问题**：战役门（campaign gate）靠人工 UPDATE 放行——owner 不在场则门永 blocked，
+放了不留证据、放错不可逆。
+
+**机制**：`ops/taskplane/gate_auto_release.py`（决策纯函数 + PG 原子 CTE 写路径 +
+`gate_release_audit` 审计表 + JSONL 流 + `--rollback`），systemd/容器常驻，
+注册进任务平面三方一致清单；无 LLM、无平台令牌，独立于任何人类/协调者会话。
+
+**判据**：C1 上游依赖全 done；C2 判据工件可解析（非空 + json 合法 + 仓归属匹配）；
+C3 非治理门（`owner_only`/治理关键词 → 只标不放）。不满足只记 `wait`，绝不写 `failed`。
+
+**G13–G20 六门演练**（真实 DB）：生产只读矩阵 6 门 = 0 放 / 5 等 / 1 owner_only，
+全表快照 sha256 前后一致；沙箱 `gate_drill` schema 真 UPDATE 4 门→pending 后全量
+rollback 还原，release↔rollback 4/4 配对、审计字段完整；治理门 G20 生产 metadata
+已写 `owner_only=1`。证据：`artifacts/gate_auto_release_drill.json`、图
+`artifacts/gate_auto_release_drill.png`、pytest `tests/test_gate_auto_release.py`（10 条）。
+
+**教训**：①「可解析」要按字面执行（json 损坏即不满足），否则自动化会放空门；
+②等待态审计必须去重（以审计表最近原因为锚，跨进程重启不膨胀）；
+③治理门判定要偏保守——误伤代价是「门等人 review」，误放代价是不可逆的治理越权；
+④沙箱演练用同形目录（`<root>/<repo>/artifacts/…`）才能触发仓归属校验，否则
+repo_mismatch 会让演练假阴性。

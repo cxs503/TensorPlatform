@@ -1,0 +1,35 @@
+[Unit]
+# 放门自动化 daemon（IN20-R2）——替代人工 UPDATE 放门。
+# 设计前提：假设明天没有人类来；本单元与任何 agent 会话无关，宿主重启后自起。
+Description=TensorPlatform gate auto-release daemon (campaign DAG gates)
+Documentation=file:///root/tp-agent/docs/gate_auto_release.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 凭据只走 env 文件（不入库）：GATE_PG_USER / GATE_PG_PASSWORD / GATE_ARTIFACT_ROOTS
+EnvironmentFile=-/root/.eco_gate_release.env
+Environment=GATE_RELEASE_INTERVAL=300
+Environment=GATE_RELEASE_STATE_DIR=/var/lib/gate-auto-release
+Environment=GATE_RELEASE_LOG=/var/log/tensorplatform/gate-auto-release.log
+Environment=GATE_ARTIFACT_ROOTS=/root/tp-agent/work/*
+ExecStart=/usr/bin/python3 /root/tp-agent/gate_auto_release.py --loop \
+    --interval ${GATE_RELEASE_INTERVAL} \
+    --state-dir ${GATE_RELEASE_STATE_DIR} \
+    --artifact-roots ${GATE_ARTIFACT_ROOTS} \
+    --pg-host ${GATE_PG_HOST} \
+    --pg-user ${GATE_PG_USER} \
+    --pg-db ${GATE_PG_DB}
+Restart=always
+RestartSec=10
+# 单次扫描不应长跑；超时由 Restart 兜底
+TimeoutStopSec=30
+# 最小权限：只需读 campaign_nodes、写 gate_release_audit、读 worktree 工件
+StateDirectory=gate-auto-release
+LogsDirectory=tensorplatform
+NoNewPrivileges=true
+PrivateTmp=true
+
+[Install]
+WantedBy=multi-user.target
