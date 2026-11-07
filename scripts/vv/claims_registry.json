@@ -1,0 +1,76 @@
+{
+  "schema": "w10n07-historical-claims/1",
+  "note": "Historical accuracy claims extracted verbatim from the platform's own reports, re-adjudicated against an explicit validation uncertainty U_V = sqrt(U_SN^2 + U_D^2). Numbers are quoted, not recomputed: the re-adjudication question is whether the *claimed band* is certifiable given the experimental uncertainty, which is a property of the claim, not of the solver.",
+  "claims": [
+    {
+      "name": "lindqvist/MV_Arctic",
+      "source": "docs/reports/m1682_level_ice_resistance_crosscheck.md (row MV_Arctic, lindqvist)",
+      "simulation": 4373.8,
+      "experiment": 4800.0,
+      "claimed_band": 0.10,
+      "claim_text": "Lindqvist level-ice resistance within 10 % of the trial mean",
+      "evidence": "measurement",
+      "u_input_basis": "closed-form empirical formula: no discretisation, U_GCI = 0"
+    },
+    {
+      "name": "lindqvist/Polarstern",
+      "source": "docs/reports/m1682_level_ice_resistance_crosscheck.md (row Polarstern, lindqvist)",
+      "simulation": 1685.5,
+      "experiment": 1800.0,
+      "claimed_band": 0.10,
+      "claim_text": "Lindqvist level-ice resistance within 10 % of the trial mean",
+      "evidence": "measurement",
+      "u_input_basis": "closed-form empirical formula: no discretisation, U_GCI = 0"
+    },
+    {
+      "name": "lindqvist/Terry_Fox",
+      "source": "docs/reports/m1682_level_ice_resistance_crosscheck.md (row Terry_Fox, lindqvist)",
+      "simulation": 602.8,
+      "experiment": 850.0,
+      "claimed_band": 0.10,
+      "claim_text": "Lindqvist level-ice resistance within 10 % of the trial mean",
+      "evidence": "measurement",
+      "u_input_basis": "closed-form empirical formula: no discretisation, U_GCI = 0"
+    },
+    {
+      "name": "loo_constant/MV_Arctic",
+      "source": "docs/m1720_ice_resistance_validation_debt.md (J2 LOO table)",
+      "simulation": 4953.4,
+      "experiment": 4800.0,
+      "claimed_band": 0.10,
+      "claim_text": "leave-one-out calibrated resistance within 10 %",
+      "evidence": "measurement",
+      "u_input_basis": "single-constant calibration of an empirical formula"
+    },
+    {
+      "name": "loo_constant/Polarstern",
+      "source": "docs/m1720_ice_resistance_validation_debt.md (J2 LOO table)",
+      "simulation": 2212.9,
+      "experiment": 1800.0,
+      "claimed_band": 0.10,
+      "claim_text": "leave-one-out calibrated resistance within 10 %",
+      "evidence": "measurement",
+      "u_input_basis": "single-constant calibration of an empirical formula"
+    },
+    {
+      "name": "loo_constant/Terry_Fox",
+      "source": "docs/m1720_ice_resistance_validation_debt.md (J2 LOO table)",
+      "simulation": 670.0,
+      "experiment": 850.0,
+      "claimed_band": 0.10,
+      "claim_text": "leave-one-out calibrated resistance within 10 %",
+      "evidence": "measurement",
+      "u_input_basis": "single-constant calibration of an empirical formula"
+    },
+    {
+      "name": "in_sample_calibration_residual",
+      "source": "docs/m1720_ice_resistance_validation_debt.md (§2 in-sample table)",
+      "simulation": 4800.0,
+      "experiment": 4800.0,
+      "claimed_band": 0.10,
+      "claim_text": "calibration reproduces the trial mean (in-sample residual ~1e-16)",
+      "evidence": "tautology",
+      "u_input_basis": "the reference value is used to fit the constant, so the residual is an identity"
+    }
+  ]
+}
