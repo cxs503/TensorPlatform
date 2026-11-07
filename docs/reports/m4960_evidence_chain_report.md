@@ -1,15 +1,15 @@
 # 证据链批量入账 CLI（evidence_chain）：把战役入账从手工变工具
 
-**节点** IN15-O2 · 自回归 O2「喂证据」燃料 · 仓库 TensorPlatform · 分支 `agent/m4960` ·
+**节点** IN17-B3 · 判例 #610 清洗 · 仓库 TensorPlatform · 分支 `agent/m5013` ·
 报告生成于程序化注入（`tools/evidence_chain/gen_report_m4960.py`，数字零手抄）。
 
 ## ① 案例介绍
 
-### 物理背景
+### 背景
 
-战役（campaign）每推进一步都会产出一批**数值证据**：阻力-航速曲线、分项阻力核算、
-一致性核对 JSON、图。这些证据若要能被后续自回归循环复用，必须先进入平台证据链
-（`tensorphysics_runs` 登记表）。平台的登记契约存在，但它只存元数据：
+战役（campaign）每推进一步都会产出一批**数值证据**：参数扫描曲线、一致性核对 JSON、图。
+这些证据若要能被后续自回归循环复用，必须先进入平台证据链（`tensorphysics_runs` 登记表）。
+平台的登记契约存在，但它只存元数据：
 
 > *The endpoint does not itself ingest files, verify remote object existence, enforce the
 > complete nested JSON Schema, or claim solver correctness.* (`docs/tensorphysics-run-registry.md`)
@@ -17,29 +17,26 @@
 于是「工件 → 登记」之间留下一条必须由人补的缝：算哈希、抄摘要、粘贴请求、坏件回滚、
 中断后不知道登到哪。本节点交付把这条缝封上的工具 —— **证据链批量入账 CLI**。
 
-演示用的证据本体是一艘真实尺度船舶的 Holtrop 阻力计算（船舶总体性能平台计算端点
-`:8002` 实时采集，非合成数据）：
+演示用的证据本体是**合成解析函数数据**（纯数学函数生成，不依赖任何物理域 API）：
 
-### 几何与参数表
+### 参数表
 
 | 参数 | 符号 | 值 | 来源 |
 |---|---|---|---|
-| 垂线间长 | L | 200.0 m | 演示船体 |
-| 型宽 | B | 32.0 m | 演示船体 |
-| 设计吃水 | T | 10.0 m | 演示船体 |
-| 方形系数 | C_b | 0.65（端点复算 C_b=0.65625） | 演示船体 |
-| 排水量 | Δ | 42000 t（一致性偏差 0.95%） | 演示船体 |
-| 航速范围 | V | 10–18 kn（9 点） | 扫描设置 |
-| 设计工况 | V_d | 14 kn：R_T=1390.61 N，P_E=10015.48 kW，Fr=0.1626，Re=1.210e+09 | 端点输出 |
-| 阻力方法 | — | ITTC-57 摩擦 + ITTC-1978 粗糙度补贴 + Holtrop 剩余阻力 | 端点 `method` 字段 |
-| 湿表面积 | S | 8098.43 m² | 端点输出 |
+| 主项系数 | α | 2.5 | 合成参数 |
+| 幂指数 | β | 0.8 | 合成参数 |
+| 振荡幅值 | γ | 1.2 | 合成参数 |
+| 振荡频率 | δ | 0.15 | 合成参数 |
+| 扫描范围 | x | 10–90（9 点） | 扫描设置 |
+| 设计工况 | x_d | 50：y_total=58.2887，dy/dx=0.9770 | 端点输出 |
+| 函数形式 | — | y = α·x^β + γ·sin(δ·x) | 解析函数 |
 
 证据形态（被入账的工件）：
 
 | run_id | 工件 | 角色 | validation_status |
 |---|---|---|---|
-| `m4960-r1-holtrop-sweep` | `rt_vs_v.csv`、`sweep.json`、`README.md` | resistance-curve / raw-endpoint-payload / case-note | `not_run`（如实：该 run 未做数值基准验证） |
-| `m4960-r2-design-point-14kn` | `design_point.json`、`check_consistency.json` | design-point / internal-check | `not_run` |
+| `m4960-r1-synthetic-sweep` | `sweep.csv`、`sweep.json`、`README.md` | scan-curve / raw-payload / case-note | `not_run`（如实：该 run 未做数值基准验证） |
+| `m4960-r2-design-point-x50` | `design_point.json`、`check_consistency.json` | design-point / internal-check | `not_run` |
 | `m4960-r3-tampered` | 篡改后的 `design_point.json` | 负控 | — |
 | `m4960-r4-broken` | 截断的 `run_manifest.json` | 负控 | — |
 | `m4960-r5-consistency-note` | `note.json` | 判据声明 | `not_run` |
@@ -101,10 +98,10 @@ tools/evidence_chain/evidence_chain.py   （1 个文件，argparse 双子命令 
 
 | 落盘文件 | A 轮 sha256 | B 轮 sha256 | 差异 |
 |---|---|---|---|
-| `registry.local.jsonl` | `ed24b19e9787f8c5…` | `ed24b19e9787f8c5…` | 0 字节 |
-| `state.json` | `388deff7c3c6cf69…` | `388deff7c3c6cf69…` | 0 字节 |
+| `registry.local.jsonl` | `050b68da4f9bf36f…` | `050b68da4f9bf36f…` | 0 字节 |
+| `state.json` | `a74522895c085f25…` | `a74522895c085f25…` | 0 字节 |
 | `quarantine.json` | `0a2e6c1461753792…` | `0a2e6c1461753792…` | 0 字节 |
-| `ledger.jsonl` | `fbf22077227264d7…` | `fbf22077227264d7…` | 0 字节 |
+| `ledger.jsonl` | `6fad929ca203002d…` | `6fad929ca203002d…` | 0 字节 |
 
 `diff=0` = **True**；`evidence_state` 段一致 =
 **True**；B 轮 `registered` =
@@ -117,44 +114,44 @@ tools/evidence_chain/evidence_chain.py   （1 个文件，argparse 双子命令 
 | run_id | outcome | reason | declared sha256 | actual sha256 |
 |---|---|---|---|---|
 | `（manifest 不可解析，无 run_id）` | `rejected` | `manifest_unparsable` | — | — |
-| `m4960-r3-tampered` | `quarantined` | `artifact_hash_mismatch` | `9b982e313ce5c0cf…` | `29e1b02152be2f9d…` |
+| `m4960-r3-tampered` | `quarantined` | `artifact_hash_mismatch` | `4c8eb763288c7d9a…` | `ad81dbed4ad42fc9…` |
 
-篡改件故意做成**等长改写**（`1390.61 → 1391.61`），size 不变 —— 只有哈希能抓住它，
+篡改件故意做成**等长改写**（`123.456 → 123.457`），size 不变 —— 只有哈希能抓住它，
 这排除了「靠大小蒙对」的伪验证。
 
 ### 3.4 独立复核：工具算的 sha256 vs coreutils `sha256sum`（负控，防自证）
 
 | 工件 | bytes | 工具 sha256 | sha256sum | 一致 |
 |---|---|---|---|---|
-| `batch_clean/r1_holtrop_sweep_2026/README.md` | 267 | `b305d5377567a9bb…` | `b305d5377567a9bb…` | ✔ 一致 |
-| `batch_clean/r1_holtrop_sweep_2026/rt_vs_v.csv` | 1045 | `f7b7fdb2e86aa646…` | `f7b7fdb2e86aa646…` | ✔ 一致 |
-| `batch_clean/r1_holtrop_sweep_2026/sweep.json` | 5003 | `96b613576993a483…` | `96b613576993a483…` | ✔ 一致 |
-| `batch_clean/r2_design_point/check_consistency.json` | 333 | `cd4ddb1fe2b79635…` | `cd4ddb1fe2b79635…` | ✔ 一致 |
-| `batch_clean/r2_design_point/design_point.json` | 510 | `a575aa387bc20691…` | `a575aa387bc20691…` | ✔ 一致 |
-| `batch_mixed/r3_tampered_artifact/design_point.json` | 42 | `29e1b02152be2f9d…` | `29e1b02152be2f9d…` | ✔ 一致 |
+| `batch_clean/r1_synthetic_sweep/README.md` | 165 | `a8d3b2108eea1cb9…` | `a8d3b2108eea1cb9…` | ✔ 一致 |
+| `batch_clean/r1_synthetic_sweep/sweep.csv` | 422 | `3057563e2a881aa1…` | `3057563e2a881aa1…` | ✔ 一致 |
+| `batch_clean/r1_synthetic_sweep/sweep.json` | 1182 | `c34ed55aecea6ba2…` | `c34ed55aecea6ba2…` | ✔ 一致 |
+| `batch_clean/r2_design_point/check_consistency.json` | 298 | `365d1f050a25a48b…` | `365d1f050a25a48b…` | ✔ 一致 |
+| `batch_clean/r2_design_point/design_point.json` | 135 | `aa8bb0ffe52c3eda…` | `aa8bb0ffe52c3eda…` | ✔ 一致 |
+| `batch_mixed/r3_tampered_artifact/design_point.json` | 46 | `ad81dbed4ad42fc9…` | `ad81dbed4ad42fc9…` | ✔ 一致 |
 | `batch_mixed/r5_consistency_note/note.json` | 283 | `85951b368ac44ad7…` | `85951b368ac44ad7…` | ✔ 一致 |
 
 ### 3.5 已入账状态台账（`artifacts/m4960/chain/state.json`）
 
 | run_id | 工件数 | manifest_sha256 | outcome | validation_status |
 |---|---|---|---|---|
-| `m4960-r1-holtrop-sweep` | 3 | `b05da99f47a3a1c9…` | `registered` | `not_run` |
-| `m4960-r2-design-point-14kn` | 2 | `1cf8e7e8a950169e…` | `registered` | `not_run` |
+| `m4960-r1-synthetic-sweep` | 3 | `1bcb90b14069e163…` | `registered` | `not_run` |
+| `m4960-r2-design-point-x50` | 2 | `2a0d2dcc5595d715…` | `registered` | `not_run` |
 | `m4960-r5-consistency-note` | 1 | `2c447cfbafb748cc…` | `registered` | `not_run` |
 
-### 3.6 被入账证据的物理内容（Holtrop 扫描，`rt_vs_v.csv`）
+### 3.6 被入账证据的内容（合成数据扫描，`sweep.csv`）
 
-| V [kn] | R_T [N] | R_F [N] | R_R [N] | P_E [kW] | C_T |
-|---|---|---|---|---|---|
-| 10 | 652.25 | 215.14 | 437.11 | 3355.48 | 0.005938 |
-| 11 | 806.21 | 257.87 | 548.34 | 4562.23 | 0.006066 |
-| 12 | 979.96 | 304.27 | 675.69 | 6049.61 | 0.006196 |
-| 13 | 1174.45 | 354.31 | 820.14 | 7854.44 | 0.006327 |
-| 14 | 1390.61 | 407.97 | 982.64 | 10015.48 | 0.006459 |
-| 15 | 1629.39 | 465.23 | 1164.16 | 12573.44 | 0.006592 |
-| 16 | 1891.72 | 526.06 | 1365.66 | 15570.99 | 0.006728 |
-| 17 | 2178.56 | 590.45 | 1588.11 | 19052.75 | 0.006863 |
-| 18 | 2612.55 | 658.38 | 1954.17 | 24192.22 | 0.007341 |
+| x | y_main | y_osc | y_total | dy/dx |
+|---|---|---|---|---|
+| 10 | 15.7739 | 1.1970 | 16.9709 | 1.2746 |
+| 20 | 27.4640 | 0.1693 | 27.6334 | 0.9204 |
+| 30 | 37.9872 | -1.1730 | 36.8141 | 0.9750 |
+| 40 | 47.8176 | -0.3353 | 47.4823 | 1.1292 |
+| 50 | 57.1631 | 1.1256 | 58.2887 | 0.9770 |
+| 60 | 66.1395 | 0.4945 | 66.6341 | 0.7179 |
+| 70 | 74.8201 | -1.0556 | 73.7645 | 0.7695 |
+| 80 | 83.2553 | -0.6439 | 82.6114 | 0.9844 |
+| 90 | 91.4817 | 0.9645 | 92.4462 | 0.9203 |
 
 ## ④ 结果图
 
@@ -168,9 +165,9 @@ tools/evidence_chain/evidence_chain.py   （1 个文件，argparse 双子命令 
 ![fig2_artifact_verification](artifacts/m4960/fig2_artifact_verification.png)
 
 
-**图 3 被入账的证据本体：Holtrop 阻力-航速扫描（L=200 m, Cb=0.65, 10–18 kn），R_F 含 ITTC-1978 粗糙度补贴，R_T = R_F + R_R。数据由船舶平台 :8002 计算端点实时采集。**
+**图 3 被入账的证据本体：合成解析函数扫描（y = α·x^β + γ·sin(δ·x)），数据由纯数学函数生成，不依赖任何物理域 API。**
 
-![fig3_holtrop_rt_vs_v](artifacts/m4960/fig3_holtrop_rt_vs_v.png)
+![fig3_synthetic_sweep](artifacts/m4960/fig3_synthetic_sweep.png)
 
 ## ⑤ 注意点（踩过的坑 / 局限 / 适用范围）
 
@@ -192,6 +189,8 @@ tools/evidence_chain/evidence_chain.py   （1 个文件，argparse 双子命令 
 5. **并发范围**：同 `--out-dir` 无文件锁，仅串行重入安全；要多实例并行需各自 out-dir。
 6. **适用范围**：本工具是「元数据+工件一致性」闸门，不替代各域数值验证器；manifest 的
    `validation_status` 是生产者声明，工具照抄不背书。
+7. **域无关性**：本演示使用纯合成数据（解析函数），证明证据链机制不依赖任何物理域。
+   域特定数据应通过 API/配置/工件注入，不应硬编码进 backend/tools/tests。
 
 ## ⑥ 误差判定（逐项，显式回答「是否 <3%」）
 
@@ -201,11 +200,11 @@ tools/evidence_chain/evidence_chain.py   （1 个文件，argparse 双子命令 
 | 幂等重跑证据字节（4 个落盘文件） | A 轮字节 | 0 字节差异 | **是（0%）** |
 | 坏件检出力（1 个篡改件 + 1 个非法 JSON） | 应检 2 件 | 检出 2/2 = 100% | **是（漏检率 0%）** |
 | dry-run 预测 vs apply 实做 | apply 的 outcome 计数 | 各 outcome 计数完全一致 | **是（0 偏差）** |
-| 设计点 R_T（14 kn） | 同一平台端点复算 `:8002` | 1390.61 N vs 1390.61 N（0 偏差，同源回放） | **不适用于精度声明** |
-| R_T 对实验/文献基准 | — | **未评估（WITHHELD）** | **否 —— 无基准** |
+| 设计点 y_total（x=50） | 解析函数复算 | 58.2887 vs 解析值（0 偏差，同源回放） | **不适用于精度声明** |
+| y_total 对实验/文献基准 | — | **未评估（WITHHELD）** | **否 —— 无基准（合成数据）** |
 
-最后两行是本案的诚实边界：入账工具证明的是「工件与声明一致、登记幂等」，**不证明阻力数值
-精度**；演示证据的 `validation_status` 因此如实写 `not_run`（阻力域验证器才有权裁绝对精度）。
+最后两行是本案的诚实边界：入账工具证明的是「工件与声明一致、登记幂等」，**不证明数值
+精度**；演示证据的 `validation_status` 因此如实写 `not_run`（各域验证器才有权裁绝对精度）。
 本节点不主张任何物理量精度指标，也不把同源回放的一致当成对实验基准的验证。
 
 ## 审计链
@@ -213,14 +212,14 @@ tools/evidence_chain/evidence_chain.py   （1 个文件，argparse 双子命令 
 | 项 | 值 |
 |---|---|
 | 工具 | `tools/evidence_chain/evidence_chain.py`（sha256 `18832f3b3727b0d1beeb332229856a83…`） |
-| 演示编排 | `tools/evidence_chain/demo_m4960.py`（sha256 `3e5eca942814b8f16808ccdb690bcb83…`） |
-| 报告生成 | `tools/evidence_chain/gen_report_m4960.py`（sha256 `398fc635dffeadda657df6de3b1a87f7…`） |
+| 演示编排 | `tools/evidence_chain/demo_m4960.py`（sha256 `5e277ac0335f6af59e3ba248f55b48a4…`） |
+| 报告生成 | `tools/evidence_chain/gen_report_m4960.py`（sha256 `5010d28985f57ab68bdfc8fb92b591bf…`） |
 | 回归 | `tests/test_evidence_chain_m4960.py` —— 21 passed（含空目录/非法 JSON/契约违规/冲突/远端 URI/HTTP 409+503/跨批台账负例） |
-| 判据数字 | `artifacts/m4960/report_metrics.json`（`criteria.all_passed = True） |
+| 判据数字 | `artifacts/m4960/report_metrics.json`（`criteria.all_passed = True`） |
 | 账本 | `artifacts/m4960/chain/{registry.local.jsonl, state.json, quarantine.json, ledger.jsonl, ingest_report.json}` |
 | 证据工件 | `artifacts/m4960/evidence/batch_clean/`、`artifacts/m4960/evidence/batch_mixed/` |
-| 采集来源 | http://127.0.0.1:8002/api/v1（captured live from http://127.0.0.1:8002/api/v1 (9 speeds + design point)） |
-| git 分支 / HEAD | `agent/m4960` / `9bf3d947` |
+| 数据来源 | synthetic-data-generator（generated synthetic data: 9 scan points + design point at x=50.0） |
+| git 分支 / HEAD | `agent/m5013` / `e5cfd4aa` |
 
 **判据总表**：corrupted_file_quarantined=True, dry_run_zero_side_effects=True, hash_cross_checked_by_coreutils=True, idempotent_rerun_diff_zero=True, idempotent_rerun_evidence_state_identical=True, invalid_json_rejected=True, rerun_registered_is_zero=True, valid_row_not_blocked_by_bad_row=True
 
