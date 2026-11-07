@@ -125,13 +125,60 @@ ENGINE = create_engine(
 )
 
 
+CHAIN_SEED_EVALS = [
+    # (evaluation_id, artifact, mission, grade, e_level, status)
+    ("eval-chain-full", "A-chain-full", 1, "S3", "E3", "confirmed"),
+    ("eval-chain-part", "A-chain-part", 2, "S3", "E1", "candidate"),
+    ("eval-chain-blocked", "A-chain-blocked", 3, "S3", "E1", "confirmed"),
+]
+
+
 @pytest.fixture(scope="module")
 def conn():
+    from tools import outcome_evaluations as oe
+    from tools.evidence_chain_link import CHAIN_DDL, chain_insert_sql
+
     with ENGINE.begin() as c:
         for ddl in SCHEMA:
             c.execute(text(ddl))
         for stmt in SEED:
             c.execute(text(stmt))
+        # 评价表 + 五元链表/审计视图（IN59-A3）：迁移 103/105 的同源 DDL
+        for ddl in [d.strip() for d in oe.DDL.split(";") if d.strip()]:
+            c.execute(text(ddl))
+        for ddl in [d.strip() for d in CHAIN_DDL.split(";") if d.strip()]:
+            c.execute(text(ddl))
+        for eid, artifact, mid, grade, elevel, status in CHAIN_SEED_EVALS:
+            c.execute(text(
+                "INSERT INTO outcome_evaluations (evaluation_id, artifact_id, mission_id, "
+                "contributor, grade, e_level, status, organization_id, created_at) "
+                "VALUES (:eid, :aid, :mid, 'agent-1', :grade, :el, :st, 1, "
+                "'2026-01-10T00:00:00+00:00')"
+            ), {"eid": eid, "aid": artifact, "mid": mid, "grade": grade, "el": elevel, "st": status})
+        chains = [
+            # (evaluation_id, artifact, mission, status, completeness, present, missing, capped, grade)
+            ("eval-chain-full", "A-chain-full", 1, "complete", 1.0,
+             ["theory", "code", "config", "data", "report"], [], False, "S3"),
+            ("eval-chain-part", "A-chain-part", 2, "partial", 0.8,
+             ["theory", "code", "config", "report"], ["data"], True, "S3"),
+            ("eval-chain-blocked", "A-chain-blocked", 3, "partial", 0.6,
+             ["theory", "code", "config"], ["data", "report"], True, "S3"),
+        ]
+        for eid, artifact, mid, st, comp, present, missing, capped, grade in chains:
+            c.execute(text(chain_insert_sql()), {
+                "chain_id": f"chain:{eid}", "evaluation_id": eid, "artifact_id": artifact,
+                "mission_id": mid, "contributor": "agent-1", "conclusion_ref": f"claim:{eid}",
+                "grade": grade, "e_level_requested": "E3", "e_level_granted": "E3" if not capped else "E1",
+                "theory_ref": "doi:10.5555/centers.1", "code_ref": "solver-alpha@abcdef1",
+                "config_ref": "sha256:" + "b" * 64,
+                "data_ref": None if "data" in missing else "runs/a/result.json",
+                "report_ref": None if "report" in missing else "1",
+                "present_elements": __import__("json").dumps(present),
+                "missing_elements": __import__("json").dumps(missing),
+                "invalid_elements": "[]", "completeness": comp, "chain_status": st,
+                "capped": capped, "codes": "[]", "repo": "solver-alpha", "organization_id": 1,
+                "created_at": "2026-01-10T00:00:00+00:00",
+            })
     yield ENGINE
 
 
@@ -311,8 +358,17 @@ def test_e2e_organization_center(client):
 def test_e2e_quality_center(client):
     body = _fetch(client, "quality")
     gates = {g["key"]: g for g in body["gates"]}
-    assert set(gates) == {"report_qa_gate", "report_delivery_gate",
+    assert set(gates) == {"evidence_chain_gate", "report_qa_gate", "report_delivery_gate",
                           "campaign_milestone_gate", "repro_verdict_gate"}
+    # 五元链门（IN59-A3）：完整 1 / 缺件 2 → 有缺链；封顶 2；S3+ 无完整链的 confirmed 行 1 条
+    assert gates["evidence_chain_gate"]["state"] == "有缺链"
+    chain_metrics = {m["key"]: m for m in body["metrics"]}
+    assert chain_metrics["evidence_chain_total"]["value"] == 3
+    assert chain_metrics["evidence_chain_complete"]["value"] == 1
+    assert chain_metrics["evidence_chain_partial"]["value"] == 2
+    assert chain_metrics["evidence_chain_completeness_avg"]["value"] == 0.8
+    assert chain_metrics["evidence_chain_capped"]["value"] == 2
+    assert chain_metrics["evidence_chain_blocked"]["value"] == 1
     assert gates["report_qa_gate"]["state"] == "有积压"
     assert gates["report_delivery_gate"]["state"] == "有欠账"
     assert gates["campaign_milestone_gate"]["state"] == "在验"
