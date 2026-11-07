@@ -97,7 +97,10 @@ METRICS: dict[str, MetricSpec] = {
         MetricSpec("capability_deltas_24h", "s3_capability", "24h 能力增量", "deltas",
                    "lower_worse", warn=1.0, crit=0.5, zero_flow=True),
         # ── 战役 ─────────────────────────────────────────────────────
-        MetricSpec("campaign_blocked", "s2_campaign", "阻塞节点数", "nodes",
+        # 口径：只数任务级真阻塞（node_type<>'gate'）。放门机制持有的 gate 停放
+        # （判据不满足只等不放，见 ops/taskplane/gate_auto_release.py）是设计态，
+        # 计入会让「有 ≥5 条战役在飞」必然压线（诊断单 7a90c537e3805175）。
+        MetricSpec("campaign_blocked", "s2_campaign", "任务级阻塞节点数（不含放门停放）", "nodes",
                    "higher_worse", warn=5, crit=12),
         MetricSpec("campaign_pending", "s2_campaign", "待启动节点数", "nodes",
                    "higher_worse", warn=40, crit=80),
