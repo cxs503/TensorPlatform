@@ -1,0 +1,88 @@
+{
+  "schema": "tp.boundary.pr_gate_lexicon/v1",
+  "version": "1.0.0",
+  "status": "active",
+  "freeze_note": "SPEC §3 落机器：TensorPlatform 全域边界门。本文件是域词表的唯一存放地；backend/ tools/ tests/ 代码里出现域词条=越界。改词表只改本文件，不改工具代码。",
+  "rationale": {
+    "blocking_terms": "强域词：命中即认定「领域语义写进了平台代码」。词条按 IN17-B1 任务书给定集合（冰况/冰载荷/船体/极地冰区经典方法名/冰型参数）+ 同义变体；词表可增，工具代码不感知具体词。",
+    "advisory_terms": "弱域词（多义/通用术语）：仅在平台语境里出现也可能合法（如电学义、数值分析义、能力卡 id 字面值），因此只出 advisory 不影响判决——判决口径必须可被正例校核（见 README §4 校准）。",
+    "exempt_compounds": "连字符/下划线复合名豁免：其整体是生态内的「专有名词」（仓名/工件名），属于对外部实体的引用而非领域语义。豁免按整复合名精确匹配，因此 ship-hull 这类真领域复合名仍会判红。",
+    "path_scopes": "blocked_prefixes=代码扫描域（命中即越界）；observation_prefixes=观察数据白名单（仅对 observation_extensions 生效，代码扩展名落在白名单目录内仍按代码扫描——防「白名单路径伪造域代码」）。",
+    "out_of_scope": "既非代码域也非观察白名单的路径（如 docs/architecture/、config/）不参与判决，仅计入 out_of_scope，属已知覆盖局限。"
+  },
+  "scopes": {
+    "blocked_prefixes": [
+      "backend/",
+      "src/",
+      "api/",
+      "tools/",
+      "tests/",
+      "scripts/",
+      "optimizer/",
+      "schemas/",
+      "contracts/",
+      "deploy/",
+      "ops/",
+      "frontend/",
+      "frontend-vue/",
+      "frontend-console/",
+      "frontend-factory/"
+    ],
+    "observation_prefixes": [
+      "docs/reports/",
+      "docs/papers/",
+      "docs/audits/",
+      "artifacts/",
+      "runs/"
+    ],
+    "observation_extensions": [
+      ".md",
+      ".json",
+      ".jsonl",
+      ".csv",
+      ".tsv",
+      ".txt",
+      ".log",
+      ".yaml",
+      ".yml",
+      ".png",
+      ".svg",
+      ".pdf",
+      ".html"
+    ],
+    "self_exempt_paths": [
+      "data/boundary/pr_boundary_lexicon.json",
+      "tools/boundary/data/"
+    ]
+  },
+  "terms": [
+    {"id": "ice_en", "kind": "word", "values": ["ice"], "gloss": "冰况/冰载荷通用词根"},
+    {"id": "icebreaking_en", "kind": "word", "values": ["icebreaking", "icebreaker"], "gloss": "破冰"},
+    {"id": "sea_ice_en", "kind": "word", "values": ["sea ice", "sea-ice"], "gloss": "海冰"},
+    {"id": "hull_en", "kind": "word", "values": ["hull"], "gloss": "船体"},
+    {"id": "polaris_en", "kind": "word", "values": ["polaris"], "gloss": "POLARIS 冰区阻力模型"},
+    {"id": "lindqvist_en", "kind": "word", "values": ["lindqvist"], "gloss": "Lindqvist 冰阻力半经验式"},
+    {"id": "frazil_en", "kind": "word", "values": ["frazil"], "gloss": "frazil ice 细粒冰"},
+    {"id": "adfreeze_en", "kind": "word", "values": ["adfreeze", "adfreezing", "adfreeze-bond"], "gloss": "冻结附着"},
+    {"id": "ice_zh", "kind": "substring", "values": ["冰"], "gloss": "中文冰况词（含破冰/海冰/冰区/冰载荷等复合形式）"},
+    {"id": "polar_zh", "kind": "substring", "values": ["极地"], "gloss": "极地"},
+    {"id": "ice_dash_prefix", "kind": "dash_prefix", "values": ["ice-"], "gloss": "ice-* 复合名（ice-class/ice-going/ice-loads…）"},
+    {"id": "ship_dash_prefix", "kind": "dash_prefix", "values": ["ship-"], "gloss": "ship-* 复合名（ship-hull/ship-resistance…）"}
+  ],
+  "advisory_terms": [
+    {"id": "resistance_adv", "kind": "word", "values": ["resistance"], "gloss": "阻力/电学多义"},
+    {"id": "propulsion_adv", "kind": "word", "values": ["propulsion"], "gloss": "推进"},
+    {"id": "seakeeping_adv", "kind": "word", "values": ["seakeeping", "sea-keeping"], "gloss": "耐波"},
+    {"id": "manoeuvring_adv", "kind": "word", "values": ["manoeuvring", "maneuvering", "manoeuvering"], "gloss": "操纵"},
+    {"id": "vessel_adv", "kind": "word", "values": ["vessel"], "gloss": "船舶泛称"},
+    {"id": "hydrostatics_adv", "kind": "word", "values": ["hydrostatics", "hydrostatic"], "gloss": "静水力"},
+    {"id": "polar_adv", "kind": "word", "values": ["polar"], "gloss": "极地/极坐标多义"},
+    {"id": "benchmark_hull_adv", "kind": "word", "values": ["wigley", "kvlcc", "kvlcc2", "suboff", "dtmb"], "gloss": "船型基准名"}
+  ],
+  "exempt_compounds": [
+    "ship-performance-platform",
+    "ship-platform",
+    "ship_body",
+    "ship-performance"
+  ]
+}
