@@ -1,0 +1,865 @@
+{
+  "generated_at": "2026-11-07T22:59:46",
+  "env": {
+    "git_head": "",
+    "python": "3.11.6",
+    "fastapi": "0.136.1",
+    "starlette": "1.0.0",
+    "sqlalchemy": "2.0.51",
+    "sqlite": "3.42.0",
+    "db": "sqlite:///<tmp>/p07_2.db",
+    "note": "MAX_FILE_SIZE 与 UPLOAD_DIR 在测试期替换；生产值见 module 常量",
+    "prod_max_file_size": 104857600,
+    "prod_upload_dir": "/tmp/tmp.hXJzJhetCs/backend/api/../uploads"
+  },
+  "baseline": {
+    "coverage_scan": {
+      "tests/": [],
+      "backend/tests/": []
+    },
+    "existing_tests_for_module": 0,
+    "premise_check": "题设='只有 happy-path 测试'；实测该模块测试文件数见上，若为 0 则实际状态严于题设",
+    "module_routes": [
+      "/categories",
+      "/download/{file_id}",
+      "/files",
+      "/files/{file_id}",
+      "/stats",
+      "/upload",
+      "/upload/batch"
+    ],
+    "module_constants": {
+      "MAX_FILE_SIZE": 104857600,
+      "categories": [
+        "image",
+        "document",
+        "data",
+        "model",
+        "archive",
+        "code"
+      ]
+    }
+  },
+  "records": [
+    {
+      "id": "s01",
+      "dimension": "n/a",
+      "name": "s01",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "len==MAX → True; len==MAX+1 → False",
+      "verdict": "OK",
+      "severity": "info",
+      "evidence": {
+        "len_eq": true,
+        "len_over": false,
+        "semantics": "validate_file 用 '>' 判定，恰好 MAX 被接受（契约 ≤ 一致）"
+      },
+      "repro": ""
+    },
+    {
+      "id": "s03",
+      "dimension": "n/a",
+      "name": "s03",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "限=1024B, 提交=4194304B → status=400, 实际读入=4194304B（整包读入）",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "high",
+      "evidence": {
+        "status": 400,
+        "bytes_read": 4194304,
+        "body": 4194304,
+        "limit": 1024,
+        "ratio_buffered_vs_limit": 4096.0
+      },
+      "repro": ""
+    },
+    {
+      "id": "S-01",
+      "dimension": "尺寸上限",
+      "name": "恰好上限字节（缩放 2KiB）",
+      "priority": "P1",
+      "invariant": "INV-1",
+      "expect": "接受",
+      "actual": "status=200",
+      "verdict": "OK",
+      "severity": null,
+      "evidence": {
+        "status": 200
+      },
+      "repro": "MAX_FILE_SIZE:=2048, body=2048B"
+    },
+    {
+      "id": "S-02",
+      "dimension": "尺寸上限",
+      "name": "上限+1 字节（缩放）",
+      "priority": "P0",
+      "invariant": "INV-1",
+      "expect": "4xx 拒绝",
+      "actual": "status=400",
+      "verdict": "OK",
+      "severity": null,
+      "evidence": {
+        "status": 400,
+        "detail": "{\"detail\":\"不支持的文件类型或文件过大 (最大 0MB)\"}"
+      },
+      "repro": "MAX_FILE_SIZE:=2048, body=2049B"
+    },
+    {
+      "id": "S-04",
+      "dimension": "尺寸上限",
+      "name": "0 字节文件",
+      "priority": "P2",
+      "invariant": "INV-1",
+      "expect": "契约须一致（接受或 4xx）",
+      "actual": "status=200",
+      "verdict": "ACCEPTED_RISK",
+      "severity": null,
+      "evidence": {
+        "status": 200,
+        "note": "空文件被接受并落盘，DB 记录 0 字节；契约未禁止但无意义，计入噪声"
+      },
+      "repro": ""
+    },
+    {
+      "id": "S-05",
+      "dimension": "尺寸上限",
+      "name": "批量中单文件非法（bad.exe）",
+      "priority": "P1",
+      "invariant": "INV-1",
+      "expect": "该文件记 error，其余成功",
+      "actual": "status=200 body={\"total\":3,\"success_count\":2,\"error_count\":1,\"results\":[{\"success\":true,\"file_id\":3,\"filename\":\"e0360aaf2f7f480db97c8a5cde06ac99.csv\",\"original_filename\":\"ok1.csv\",\"size\":1},{\"success\":true,\"file_id\":",
+      "verdict": "OK",
+      "severity": null,
+      "evidence": {
+        "total": 3,
+        "success_count": 2,
+        "error_count": 1,
+        "results": [
+          {
+            "success": true,
+            "file_id": 3,
+            "filename": "e0360aaf2f7f480db97c8a5cde06ac99.csv",
+            "original_filename": "ok1.csv",
+            "size": 1
+          },
+          {
+            "success": true,
+            "file_id": 4,
+            "filename": "2663d68c543a4fa884b84a25595e27ec.csv",
+            "original_filename": "ok2.csv",
+            "size": 1
+          }
+        ],
+        "errors": [
+          {
+            "filename": "bad.exe",
+            "error": "不支持的文件类型或文件过大"
+          }
+        ]
+      },
+      "repro": ""
+    },
+    {
+      "id": "s02_s04_s05",
+      "dimension": "n/a",
+      "name": "s02_s04_s05",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "see individual records",
+      "verdict": "INFO",
+      "severity": null,
+      "evidence": {},
+      "repro": ""
+    },
+    {
+      "id": "T-01..T-07",
+      "dimension": "类型白名单",
+      "name": "扩展名矩阵（11 例）",
+      "priority": "P0",
+      "invariant": "INV-2",
+      "expect": "白名单接受、危险/无扩展名 4xx",
+      "actual": "a.csv:200; A.CSV:200; noext:400; <empty>:422; .gitignore:400; a.php.jpg:200; a.svg:400; a.html:400; a.exe:400; a.csv.exe:400; x.tar.gz:200",
+      "verdict": "OK",
+      "severity": "medium",
+      "evidence": {
+        "matrix": {
+          "a.csv": {
+            "why": "白名单扩展名",
+            "want": 200,
+            "got": 200
+          },
+          "A.CSV": {
+            "why": "大写扩展名",
+            "want": 200,
+            "got": 200
+          },
+          "noext": {
+            "why": "无扩展名",
+            "want": 400,
+            "got": 400
+          },
+          "<empty>": {
+            "why": "空文件名",
+            "want": 400,
+            "got": 422
+          },
+          ".gitignore": {
+            "why": "点开头无有效扩展名",
+            "want": 400,
+            "got": 400
+          },
+          "a.php.jpg": {
+            "why": "双扩展名伪装",
+            "want": 200,
+            "got": 200
+          },
+          "a.svg": {
+            "why": "svg（可含脚本）",
+            "want": 400,
+            "got": 400
+          },
+          "a.html": {
+            "why": "html",
+            "want": 400,
+            "got": 400
+          },
+          "a.exe": {
+            "why": "exe",
+            "want": 400,
+            "got": 400
+          },
+          "a.csv.exe": {
+            "why": "允许后缀+危险后缀",
+            "want": 400,
+            "got": 400
+          },
+          "x.tar.gz": {
+            "why": "多段压缩后缀",
+            "want": 200,
+            "got": 200
+          }
+        },
+        "mismatch": {}
+      },
+      "repro": "POST /upload 逐个文件名"
+    },
+    {
+      "id": "T-05",
+      "dimension": "类型白名单",
+      "name": "双扩展名 a.php.jpg 落盘",
+      "priority": "P1",
+      "invariant": "INV-2",
+      "expect": "接受但应可告警/记录真实内容类型",
+      "actual": "落盘扩展名={'why': '双扩展名伪装', 'want': 200, 'got': 200} 且响应无 mime/内容校验字段",
+      "verdict": "ACCEPTED_RISK",
+      "severity": null,
+      "evidence": {
+        "note": "按最终扩展名判定 → a.php.jpg 以 .jpg 保存；无内容嗅探、无 mime 记录，下载恒为 application/octet-stream，RCE 面被扩展名白名单挡住但伪装文件可入库"
+      },
+      "repro": ""
+    },
+    {
+      "id": "t_matrix",
+      "dimension": "n/a",
+      "name": "t_matrix",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "see individual records",
+      "verdict": "INFO",
+      "severity": null,
+      "evidence": {},
+      "repro": ""
+    },
+    {
+      "id": "P-01",
+      "dimension": "目录围栏",
+      "name": "category 相对穿越 ../../escape",
+      "priority": "P0",
+      "invariant": "INV-3",
+      "expect": "4xx 或不得写出 UPLOAD_DIR",
+      "actual": "status=200; 逃逸落盘=['/tmp/escape_5fd92695/da13f86a1ae24ff9ae4860efaa67a632.csv']",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "critical",
+      "evidence": {
+        "status": 200,
+        "escaped_files": [
+          "/tmp/escape_5fd92695/da13f86a1ae24ff9ae4860efaa67a632.csv"
+        ],
+        "upload_root": "/tmp/p07_2_qxqq8g2j/upload_root"
+      },
+      "repro": "POST /upload data={\"category\":\"../../escape_x\"}"
+    },
+    {
+      "id": "P-02",
+      "dimension": "目录围栏",
+      "name": "category 绝对路径覆盖",
+      "priority": "P0",
+      "invariant": "INV-3",
+      "expect": "4xx",
+      "actual": "status=200; 绝对目录内文件=['/tmp/p07_abs_5fd92695/e32fb56d41ce474dbc4a9948aca8912a.csv']",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "critical",
+      "evidence": {
+        "status": 200,
+        "abs_dir": "/tmp/p07_abs_5fd92695",
+        "written": [
+          "/tmp/p07_abs_5fd92695/e32fb56d41ce474dbc4a9948aca8912a.csv"
+        ],
+        "note": "os.path.join(UPLOAD_DIR, '/abs') 语义：绝对路径直接替换前缀"
+      },
+      "repro": "POST /upload data={'category':'/tmp/p07_abs_x'}"
+    },
+    {
+      "id": "P-03",
+      "dimension": "目录围栏",
+      "name": "category 非枚举值静默建目录",
+      "priority": "P1",
+      "invariant": "INV-3",
+      "expect": "4xx 或归入 general",
+      "actual": "status=200; 新建目录=True",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "medium",
+      "evidence": {
+        "status": 200,
+        "dir_created": true,
+        "note": "docstring 宣称 category 为枚举，实现无校验（且默认值 general 不在枚举内）"
+      },
+      "repro": ""
+    },
+    {
+      "id": "P-04",
+      "dimension": "目录围栏",
+      "name": "文件名穿越 ../../traversal.csv",
+      "priority": "P0",
+      "invariant": "INV-3",
+      "expect": "落盘名与客户端名无关",
+      "actual": "status=200; 落盘名=10d884195ea54142a716dc79f0940eaa.csv",
+      "verdict": "OK",
+      "severity": null,
+      "evidence": {
+        "saved_name": "10d884195ea54142a716dc79f0940eaa.csv",
+        "note": "uuid 重命名，原始名仅存 DB"
+      },
+      "repro": ""
+    },
+    {
+      "id": "P-05",
+      "dimension": "目录围栏",
+      "name": "落盘名可预测性",
+      "priority": "P1",
+      "invariant": "INV-3",
+      "expect": "不可预测",
+      "actual": "uuid4 hex 命名，前缀不可预测；但目录名=category 客户端可控",
+      "verdict": "ACCEPTED_RISK",
+      "severity": null,
+      "evidence": {
+        "note": "可预测性风险转移到目录层（见 P-01/P-02）"
+      },
+      "repro": ""
+    },
+    {
+      "id": "path_probes",
+      "dimension": "n/a",
+      "name": "path_probes",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "see individual records",
+      "verdict": "INFO",
+      "severity": null,
+      "evidence": {},
+      "repro": ""
+    },
+    {
+      "id": "A-00",
+      "dimension": "授权",
+      "name": "负控：仅挂 router（无中间件）时的无凭据上传",
+      "priority": "P0",
+      "invariant": "INV-4",
+      "expect": "预期 200 —— 用于证明隔离测试不可用于鉴权结论",
+      "actual": "status=200",
+      "verdict": "OK",
+      "severity": null,
+      "evidence": {
+        "note": "隔离挂载丢失 main.py:598 的 jwt_auth_middleware → 鉴权结论必须用 v2"
+      },
+      "repro": ""
+    },
+    {
+      "id": "A-01..A-04",
+      "dimension": "授权",
+      "name": "无凭据访问（已挂应用级 JWT 守卫）",
+      "priority": "P0",
+      "invariant": "INV-4",
+      "expect": "401/403",
+      "actual": "upload=401; list=401; batch=401; info=401; download=401; delete=401",
+      "verdict": "OK",
+      "severity": null,
+      "evidence": {
+        "codes": {
+          "upload": 401,
+          "list": 401,
+          "batch": 401,
+          "info": 401,
+          "download": 401,
+          "delete": 401
+        },
+        "with_token_upload": 200,
+        "note": "main.py:598 最外层挂 auth_guard_middleware；/upload、/files、/download 均不在 SKIP_AUTH 白名单 → 一律 401"
+      },
+      "repro": "TestClient(guarded) 无 Authorization 头"
+    },
+    {
+      "id": "A-05",
+      "dimension": "授权",
+      "name": "用户 B（低权 role=viewer）访问用户 A 的文件",
+      "priority": "P0",
+      "invariant": "INV-4",
+      "expect": "403",
+      "actual": "download=200, info=200, delete=200; 表内 uploaded_by 非空行数=0",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "critical",
+      "evidence": {
+        "download": 200,
+        "info": 200,
+        "delete": 200,
+        "uploaded_by_rows": 0,
+        "note": "端点内无 Depends(require_permission(...))、无 owner 过滤；uploaded_by 列从不写入 → 无主体归属，任意登录用户可读写删全部文件"
+      },
+      "repro": "AUTH_A 上传 → AUTH_B 下载/删除 → 200"
+    },
+    {
+      "id": "A-06",
+      "dimension": "授权",
+      "name": "无 files:* 权限位 / 列表无 owner 过滤（枚举面）",
+      "priority": "P1",
+      "invariant": "INV-4",
+      "expect": "按 owner 过滤或按权限收窄",
+      "actual": "list status=200, 本后端可见条数=0（受 C-09 影响不可用作计数证据）; router 上 require_permission 依赖数=0（对照 datasets.py=15）; 枚举能力由 A-05 交叉读/交叉删直接证实",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "high",
+      "evidence": {
+        "list_status": 200,
+        "visible": 0,
+        "permission_deps_on_router": 0,
+        "enumeration_proof": "A-05: AUTH_B 可读/删 AUTH_A 的文件（200）",
+        "note": "平台已有 require_permission 基建（backend/api/*.py 中 32 个模块在用），本模块完全未接入；role=viewer 令牌可上传/删除"
+      },
+      "repro": ""
+    },
+    {
+      "id": "A-07",
+      "dimension": "授权",
+      "name": "role=viewer 令牌执行写操作（上传）",
+      "priority": "P1",
+      "invariant": "INV-4",
+      "expect": "403（只读角色不应能写）",
+      "actual": "status=200",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "high",
+      "evidence": {
+        "status": 200,
+        "role": "viewer",
+        "note": "中间件只验签名与 type=access，不校验 role；端点无权限依赖"
+      },
+      "repro": ""
+    },
+    {
+      "id": "auth_probes",
+      "dimension": "n/a",
+      "name": "auth_probes",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "see individual records",
+      "verdict": "INFO",
+      "severity": null,
+      "evidence": {},
+      "repro": ""
+    },
+    {
+      "id": "R-01",
+      "dimension": "中断续传",
+      "name": "传输中断（流读取抛错）",
+      "priority": "P0",
+      "invariant": "INV-5",
+      "expect": "无半成品残留（临时文件+原子 rename）",
+      "actual": "异常=OSError('client disconnected mid-stream'); 残留文件=['/tmp/p07_2_qxqq8g2j/upload_root/interrupt_probe/01bb18333fec46b08a82fec504ddb617.csv']",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "high",
+      "evidence": {
+        "residue": [
+          "/tmp/p07_2_qxqq8g2j/upload_root/interrupt_probe/01bb18333fec46b08a82fec504ddb617.csv"
+        ],
+        "size": [
+          4096
+        ],
+        "note": "直接 open(目标) 写入，无 .part/rename；DB 无记录 → 孤儿文件不可见不可删"
+      },
+      "repro": "fu.save_file(<流中途抛错>)"
+    },
+    {
+      "id": "R-02",
+      "dimension": "中断续传",
+      "name": "上传带 Content-Range 分片头",
+      "priority": "P1",
+      "invariant": "INV-7",
+      "expect": "支持续传或明确 501",
+      "actual": "status=200, body_keys=['success', 'file_id', 'filename', 'original_filename', 'category', 'size', 'size_formatted', 'extension', 'upload_time']",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "medium",
+      "evidence": {
+        "ranges_supported": false,
+        "note": "头被忽略 → 每次重试生成新文件与新记录（重复计存储）"
+      },
+      "repro": "POST /upload + Content-Range 头"
+    },
+    {
+      "id": "R-03",
+      "dimension": "中断续传",
+      "name": "同内容重复上传",
+      "priority": "P2",
+      "invariant": "INV-6",
+      "expect": "幂等或可识别重复",
+      "actual": "两次 file_id=17/18，新增记录=2",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "low",
+      "evidence": {
+        "note": "无 checksum 计算（表有 checksum 列未用），响应也不返回 checksum"
+      },
+      "repro": ""
+    },
+    {
+      "id": "R-04",
+      "dimension": "中断续传",
+      "name": "下载 Range: bytes=2-5",
+      "priority": "P1",
+      "invariant": "INV-7/INV-10",
+      "expect": "206 且返回 4 字节 '2345'",
+      "actual": "status=206, content=b'2345'",
+      "verdict": "OK",
+      "severity": "low",
+      "evidence": {
+        "status": 206,
+        "body": "2345",
+        "content_disposition": "attachment; filename=\"range.csv\"",
+        "accept_ranges": "bytes"
+      },
+      "repro": ""
+    },
+    {
+      "id": "R-05",
+      "dimension": "中断续传",
+      "name": "中断后清单/统计一致性",
+      "priority": "P1",
+      "invariant": "INV-5",
+      "expect": "不出现幽灵条目",
+      "actual": "R-01 残留文件不在 uploaded_files（rows=18）→ 清单不可见，配额层面为幽灵占盘",
+      "verdict": "ACCEPTED_RISK",
+      "severity": null,
+      "evidence": {
+        "note": "幽灵文件既不进清单也无法经 API 删除，只能人工清理"
+      },
+      "repro": ""
+    },
+    {
+      "id": "resume_probes",
+      "dimension": "n/a",
+      "name": "resume_probes",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "see individual records",
+      "verdict": "INFO",
+      "severity": null,
+      "evidence": {},
+      "repro": ""
+    },
+    {
+      "id": "C-01",
+      "dimension": "数据完整性",
+      "name": "DB 插入失败时的上传结果",
+      "priority": "P0",
+      "invariant": "INV-5",
+      "expect": "5xx 且回滚物理文件",
+      "actual": "status=200, success=True, file_id=None, 落盘文件数 17→18",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "high",
+      "evidence": {
+        "response": {
+          "success": true,
+          "file_id": null,
+          "filename": "4cbc7850777b41b4aa7c662d81e3db7e.csv",
+          "original_filename": "dbfail.csv",
+          "category": "data",
+          "size": 6,
+          "size_formatted": "0.00 MB",
+          "extension": "csv",
+          "upload_time": "2026-11-07T22:59:45.928122"
+        },
+        "files_on_disk_delta": 1,
+        "note": "捕获 DB 异常后仅 warning，仍返回 success=True/file_id=None"
+      },
+      "repro": "DROP TABLE uploaded_files 后 POST /upload"
+    },
+    {
+      "id": "C-02",
+      "dimension": "错误语义",
+      "name": "DB 不可用时 GET /files",
+      "priority": "P1",
+      "invariant": "INV-8",
+      "expect": "5xx",
+      "actual": "status=200, body={\"total\":0,\"items\":[]}",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "medium",
+      "evidence": {
+        "status": 200,
+        "body": "{\"total\":0,\"items\":[]}",
+        "note": "except 分支返回 {total:0, items:[]}，故障被伪装成'空集成功'"
+      },
+      "repro": "DROP TABLE 后 GET /files"
+    },
+    {
+      "id": "C-03",
+      "dimension": "数据完整性",
+      "name": "GET /files/{id} 按列序取值（期望按名绑定）",
+      "priority": "P1",
+      "invariant": "INV-9",
+      "expect": "uploaded_at 取 f[8]=(2026)",
+      "actual": "fake-row 复现：uploaded_at='1999-09-09T09:09:09'（=mime_type 列 1999）; 真实行复现：status=500 body={\"detail\":\"获取文件信息失败\"}",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "medium",
+      "evidence": {
+        "fake_row_response": {
+          "id": 1,
+          "filename": "uuid.csv",
+          "original_filename": "orig.csv",
+          "category": "data",
+          "file_path": "/p/uuid.csv",
+          "file_size": 5,
+          "extension": "csv",
+          "uploaded_at": "1999-09-09T09:09:09"
+        },
+        "real_backend": {
+          "status": 500,
+          "body": "{\"detail\":\"获取文件信息失败\"}"
+        },
+        "columns_from_migration": [
+          "id",
+          "filename",
+          "original_filename",
+          "category",
+          "file_path",
+          "file_size",
+          "extension",
+          "mime_type",
+          "uploaded_at"
+        ],
+        "note": "SELECT * 后 f[7] 应为 mime_type、f[8] 才是 uploaded_at；实现取 f[7]。PG 下表现为 uploaded_at 显示 MIME 字符串；SQLite 下 mime 为 str 时 .isoformat() 抛错 → 500"
+      },
+      "repro": "dependency_overrides 注入 fake row（f[7]=1999）→ GET /files/1"
+    },
+    {
+      "id": "C-04",
+      "dimension": "数据完整性",
+      "name": "迁移种子行进入统计/列表视图",
+      "priority": "P1",
+      "invariant": "INV-9",
+      "expect": "不进入",
+      "actual": "种子行=7 条, /stats.total_files=8 (真实行 1 + 种子 7), 种子行下载 status=404",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "low",
+      "evidence": {
+        "placeholder_count": 7,
+        "stats": {
+          "total_files": 8,
+          "total_size": 5,
+          "total_size_formatted": "0.00 MB",
+          "today_uploads": 8
+        },
+        "placeholder_ids": [
+          2,
+          3,
+          4
+        ],
+        "download_of_placeholder": 404,
+        "note": "011 迁移末尾插入 7 条 /placeholder 占位行：计入 /stats、在支持列表的后端会出现在清单里，点击下载 404"
+      },
+      "repro": ""
+    },
+    {
+      "id": "C-09",
+      "dimension": "数据完整性",
+      "name": "GET /files 在 SQLite 后端的一致性",
+      "priority": "P1",
+      "invariant": "INV-9/INV-8",
+      "expect": "与 DB 行数一致",
+      "actual": "DB 行数=8, /files total=0, status=200; uploaded_at 驱动返回值类型=str（'2026-11-07 22:59:45.961488'）→ 无 .isoformat()",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "medium",
+      "evidence": {
+        "db_rows": 8,
+        "api_total": 0,
+        "status": 200,
+        "note": "uploaded_at.isoformat() 假定 datetime；SQLite 返回 str → 异常被 except 吞掉并返回 {total:0,items:[]} → 与 C-02 同一处静默失败叠加"
+      },
+      "repro": ""
+    },
+    {
+      "id": "C-05",
+      "dimension": "错误语义",
+      "name": "500 响应是否含内部绝对路径",
+      "priority": "P1",
+      "invariant": "INV-8",
+      "expect": "不含",
+      "actual": "status=500, detail={\"detail\":\"上传失败: [Errno 17] File exists: '/tmp/p07_2_qxqq8g2j/upload_root/blocked_dir'\"}",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "low",
+      "evidence": {
+        "status": 500,
+        "detail": "{\"detail\":\"上传失败: [Errno 17] File exists: '/tmp/p07_2_qxqq8g2j/upload_root/blocked_dir'\"}",
+        "note": "detail=f'上传失败: {str(e)}' 直接回显异常串（含服务器路径）"
+      },
+      "repro": ""
+    },
+    {
+      "id": "C-07",
+      "dimension": "数据完整性",
+      "name": "删除后物理文件与记录同时消失",
+      "priority": "P1",
+      "invariant": "INV-9",
+      "expect": "一致，重复删除 404",
+      "actual": "第一次=200, 物理删除=True, 第二次=404",
+      "verdict": "OK",
+      "severity": "info",
+      "evidence": {
+        "first": 200,
+        "physical_gone": true,
+        "second": 404
+      },
+      "repro": ""
+    },
+    {
+      "id": "C-06",
+      "dimension": "数据完整性",
+      "name": "物理文件缺失时下载",
+      "priority": "P2",
+      "invariant": "INV-9",
+      "expect": "404 且记录状态可自愈",
+      "actual": "status=404, detail={\"detail\":\"文件物理路径不存在\"}",
+      "verdict": "ACCEPTED_RISK",
+      "severity": "low",
+      "evidence": {
+        "status": 404,
+        "note": "返回 404 但记录仍 active，清单永久展示不可下载条目"
+      },
+      "repro": ""
+    },
+    {
+      "id": "integrity_probes",
+      "dimension": "n/a",
+      "name": "integrity_probes",
+      "priority": null,
+      "invariant": null,
+      "expect": "see records",
+      "actual": "see individual records",
+      "verdict": "INFO",
+      "severity": null,
+      "evidence": {},
+      "repro": ""
+    },
+    {
+      "id": "C-08",
+      "dimension": "数据完整性",
+      "name": "011 迁移在 SQLite 后端可执行（NFR-4）",
+      "priority": "P2",
+      "invariant": "NFR-4",
+      "expect": "全部语句可执行",
+      "actual": "7/9 语句可执行；失败 2 条",
+      "verdict": "CONFIRMED_DEFECT",
+      "severity": "low",
+      "evidence": {
+        "statements": [
+          {
+            "stmt": 0,
+            "kind": "OTHER",
+            "head": "CREATE TABLE IF NOT EXISTS uploaded_files ( id INTEGER PRIMARY KEY AUT",
+            "ok": true
+          },
+          {
+            "stmt": 1,
+            "kind": "OTHER",
+            "head": "CREATE INDEX IF NOT EXISTS idx_uploaded_files_category ON uploaded_fil",
+            "ok": true
+          },
+          {
+            "stmt": 2,
+            "kind": "OTHER",
+            "head": "CREATE INDEX IF NOT EXISTS idx_uploaded_files_uploaded_at ON uploaded_",
+            "ok": true
+          },
+          {
+            "stmt": 3,
+            "kind": "OTHER",
+            "head": "CREATE INDEX IF NOT EXISTS idx_uploaded_files_uploaded_by ON uploaded_",
+            "ok": true
+          },
+          {
+            "stmt": 4,
+            "kind": "OTHER",
+            "head": "CREATE INDEX IF NOT EXISTS idx_uploaded_files_status ON uploaded_files",
+            "ok": true
+          },
+          {
+            "stmt": 5,
+            "kind": "OTHER",
+            "head": "CREATE INDEX IF NOT EXISTS idx_uploaded_files_extension ON uploaded_fi",
+            "ok": true
+          },
+          {
+            "stmt": 6,
+            "kind": "OTHER",
+            "head": "CREATE INDEX IF NOT EXISTS idx_uploaded_files_original_filename ON upl",
+            "ok": true
+          },
+          {
+            "stmt": 7,
+            "kind": "CREATE_OR_REPLACE_VIEW",
+            "head": "CREATE OR REPLACE VIEW v_file_category_stats AS SELECT category, COUNT",
+            "ok": false,
+            "error": "SQLite: CREATE OR REPLACE VIEW 不支持"
+          },
+          {
+            "stmt": 8,
+            "kind": "SEED_INSERT",
+            "head": "INSERT INTO uploaded_files (filename, original_filename, category, fil",
+            "ok": false,
+            "error": "(sqlite3.OperationalError) near \"(\": syntax error\n[SQL: INSERT INTO uploaded_files (filename, original_filename, category, file_path, file_size, extension, desc"
+          }
+        ]
+      },
+      "repro": ""
+    }
+  ],
+  "summary": {
+    "verdict_counts": {
+      "OK": 10,
+      "CONFIRMED_DEFECT": 17,
+      "ACCEPTED_RISK": 5,
+      "INFO": 6
+    },
+    "defect_severity": {
+      "high": 5,
+      "critical": 3,
+      "medium": 5,
+      "low": 4
+    },
+    "records": 38
+  }
+}
