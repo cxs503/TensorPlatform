@@ -462,6 +462,17 @@ try:
 except Exception as _exc:  # pragma: no cover - 部署面兜底
     logging.getLogger(__name__).warning("soul_runtime router 接线跳过: %s", _exc)
 
+# ── 任务梯度与探索预算机制（IN19-Q6）──
+# 平台当前处于冻结期（owner 2026-11-02）：本机制以「附加、默认关闭」方式落地，
+# 只有 TP_MISSION_GRADIENT=1 时才挂载；未开启时线上派发路径一行未改。
+# 详见 docs/mission_gradient_mechanism.md。
+if os.getenv("TP_MISSION_GRADIENT", "0") == "1":
+    try:
+        from api import mission_gradient as _mission_gradient  # noqa: E402
+        app.include_router(_mission_gradient.router, prefix="/api/v1")
+    except Exception as _exc:  # pragma: no cover - 部署面兜底
+        logging.getLogger(__name__).warning("mission_gradient router 接线跳过: %s", _exc)
+
 # ── 成果评价 S×E（AOG SPEC v1.2 §7.1；m5018）──
 # outcome_evaluations 实体写入/待评价记录流/分层统计，app 内可达；
 # import 失败只告警不阻断启动（同 soul_runtime 部署安全模式）。
