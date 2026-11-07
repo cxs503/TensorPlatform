@@ -1,0 +1,68 @@
+{
+  "mission": 6334,
+  "node": "IN59-P1",
+  "campaign": "ABM/IN59-P1 (physical domain: multiphase)",
+  "subject": "液滴入水异常表征与改进 (droplet water-entry anomaly: characterization and remediation)",
+  "discipline_note": "Predictions below were written and committed BEFORE any simulation was run (see git history of this file: it precedes src/multiphase/ and runs/in59p1/). No number in this file may be edited after the fact; the post-mortem records hit/miss verbatim.",
+  "roles": {
+    "pi": "攻关负责人 (owns problem tree, gate decisions)",
+    "theorist": "理论研究者 (interface mechanics literature: YL balance, parasitic currents, added mass)",
+    "engineer": "实现工程师 (SC-LBM D2Q9 implementation, two force-coupling routes)",
+    "challenger": "挑战者 (independent right to judge; hunts counter-examples, controls the 'is this real?' question)",
+    "verifier": "独立验证者 (blind-sequence recompute from the frozen results.json)"
+  },
+  "case_family": {
+    "model": "single-component Shan-Chen pseudopotential LBM, D2Q9, SRT-BGK, periodic in x and y, no solid walls",
+    "baseline_route": "A/legacy: pseudopotential force + shifted-equilibrium forcing (u_eq = u + tau*F/rho), no source term -- the coupling used by most MCMP/CAC production codes ported from the 2000s",
+    "improved_route": "B/balanced: identical psi and identical force, but Guo(2002) complete forcing term S_i = (1-1/(2tau)) w_i [3(c_i-u).F + 9(c_i.u)(c_i.F)] and u = sum(c f) + F/(2rho)",
+    "why_the_two_routes_are_a_controlled_comparison": "Only the force-to-population coupling changes; psi, force stencil, tau, grid and initial data are bitwise identical between A and B. Any difference is therefore attributable to the coupling alone."
+  },
+  "hypotheses": [
+    {
+      "id": "H-A",
+      "route": "A -> B (force coupling / temporal discretisation of the force)",
+      "statement": "液滴入水算例中的异常（伪流、动量不守恒、入水冲量偏差）主要来自力的时间推进格式：shifted-equilibrium 方案把整步力塞进平衡态速度，等于对力做了一阶（显式）近似，产生 O(dt) 的伪质量通量与伪动量。把耦合换成 Guo 完整源项（二阶）即可把异常压掉一个量级。",
+      "theory_basis": [
+        "Guo, Zheng & Shi, Phys. Fluids 14 (2002) 2007: 完整源项是力项的二阶格式，缺项会留下 (1-1/(2tau)) 相关的伪项",
+        "Wagner, Phys. Rev. E 67 (2003) 056703: 伪流(parasitic currents)是离散力与离散平衡态之间不平衡的直接后果",
+        "Huang, Sukop & Lu, Phys. Rev. E 91 (2015) 013310: SC 力实施格式决定机械稳定性与伪流幅值"
+      ],
+      "blind_predictions": [
+        {"id": "P1", "case": "static_droplet R=20, tau=1.0, G=-5.0", "quantity": "max|u| (spurious current, lattice units)", "prediction": "route A in [5e-3, 5e-2]; route B <= route A / 3"},
+        {"id": "P2", "case": "static_droplet R=20, 2000 steps", "quantity": "|P(t)-P(0)| / P_scale, P = sum(rho u) over periodic box (must be 0 in the continuum)", "prediction": "route A >= 1e-3, route B <= 1e-4"},
+        {"id": "P3", "case": "entry, u0=0.05, R_drop=8, pool density = drop density", "quantity": "impact velocity ratio u_after/u_before vs potential-flow 1/(1+C_A)=0.5 (C_A=1 for a 2D cylinder)", "prediction": "both routes within 20% of 0.5; |B-0.5| < |A-0.5|"},
+        {"id": "P4", "case": "tau sweep 0.6/0.8/1.0/1.2", "quantity": "spurious current exponent, u_max vs tau", "prediction": "A decreases steeply with tau (-1.5..-2.5 log-log slope); B flatter (slope magnitude < 1)"}
+      ],
+      "falsified_if": "B does not reduce u_max by >= 2x, or momentum drift of B is not lower than A, or impact ratio of B is farther from 0.5 than A"
+    },
+    {
+      "id": "H-B",
+      "route": "spatial: discrete gradient / interface thickness / curvature (needs a different fix than the forcing)",
+      "statement": "异常的另一半来自空间离散：伪势力的格点梯度非各向同性与界面厚度有限，令曲率估计偏差、Laplace 定律有系统误差，且界面方向（0° vs 45°）会给出不同的等效表面张力。这部分换forcing格式治不了，只能靠界面/梯度改进（提高各向同性阶数、界面加宽或 EDM）。",
+      "theory_basis": [
+        "Sbragaglia et al., J. Comput. Phys. 222 (2007) 471: 用高阶各向同性有限差分梯度可显著降低伪流",
+        "Shan & Chen, Phys. Rev. E 47 (1993) 1815: 伪势 EOS p = cs^2 rho + (G cs^2 / 2) psi^2，界面厚度有限",
+        "Kupershtokh, Medvedev & Karpov, Comput. Math. Appl. 58 (2009) 965: 精确差分法(EDM)消除伪流的机制是让离散力与离散平衡态一致"
+      ],
+      "blind_predictions": [
+        {"id": "P5", "case": "static_droplet R in {12,16,20}", "quantity": "Laplace law residual: Delta_p*R/(2) should be R-independent (constant sigma); report relative spread across R", "prediction": "relative spread <= 10% for both routes; improving the forcing changes sigma by < 2x"},
+        {"id": "P6", "case": "droplet area-equivalent circle: axis-aligned vs 45-degree-lattice-rotated initial datum, same area", "quantity": "sigma_0deg vs sigma_45deg", "prediction": "difference <= 5% for both routes (isotropic D2Q9 weights suppress leading anisotropy), i.e. no orientation pathology"},
+        {"id": "P7", "case": "static_droplet", "quantity": "Delta_p*R/2 vs a sigma obtained independently from a flat (planar) interface pressure-deficit integral", "prediction": "|sigma_flat - sigma_Laplace| / sigma_flat <= 15% (curvature + finite thickness error, NOT < 3%), improving with R"}
+      ],
+      "falsified_if": "sigma varies by > 10% across R, or 0deg/45deg differ by > 5%, or the forcing change shifts sigma by > 2x"
+    }
+  ],
+  "discriminating_experiment": {
+    "design": "2x2 factorial: {route A, route B} x {static droplet family, entry case}. H-A is supported iff route B improves spurious current AND momentum drift AND impact ratio simultaneously, while sigma (a purely spatial/interface quantity) stays put. H-B is supported to the extent sigma itself carries the residual error and is insensitive to the forcing route.",
+    "verdicts_allowed": ["SUPPORTED", "REFUTED", "PARTIAL", "WITHHELD"],
+    "honesty_rule": "Any prediction missed beyond its stated tolerance is recorded as MISS in the post-mortem without re-widening the tolerance."
+  },
+  "six_dimension_gates": {
+    "correctness": "mass conservation exact (<=1e-12 relative), uniform-fluid quiescent state stays exactly at rest, momentum conservation in a periodic closed box",
+    "accuracy": "Laplace law Delta_p = 2 sigma/R linear in 1/R (R^2 >= 0.99) and cross-scheme sigma agreement; added-mass impact ratio vs 1/2",
+    "stability": "no blow-up over the tau sweep and the entry run; max Mach number <= 0.1; density stays positive",
+    "efficiency": "wall-clock seconds per 1e6 lattice-node updates, measured, plus steps to reach the QoI",
+    "reproducibility": "bitwise identical rerun of the same case in the same process and in a fresh process",
+    "applicability": "declared domain of validity: density ratio achieved, Mach, interface thickness in lattice units, 2D, no solid boundary"
+  }
+}
