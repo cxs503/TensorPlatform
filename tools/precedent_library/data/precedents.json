@@ -1,0 +1,372 @@
+{
+  "schema_version": "e3-v1",
+  "generated_by": "IN24-E3 precedent library (campaign node, TensorPlatform)",
+  "grading_authority": "tools/outcome_evaluations.py (S1-S5 / S-N, E0-E4, reviewer_kind caps)",
+  "sources_note": "Every case is distilled from a real delivered mission / commit / verifier run in this repository or its control plane; refs are machine-checkable (paths exist, mission ids resolvable via /tensor/missions, commits resolvable via git).",
+  "cases": [
+    {
+      "id": "E3-S1-01",
+      "grade": "S1",
+      "title": "基准对标按判据完成，几何门失败如实降级（honest FAIL 不可覆盖）",
+      "repo": "TensorPlatform",
+      "missions": [
+        5118
+      ],
+      "problem": "对标单最容易死在'总分好看'：把不合格的几何验收项隐去，只报阻力误差；本单吃水项 G2 实际失败（低 50%），若隐去则结论不可信。",
+      "delta": "R_T=2108.2 kN vs 实验 2113.2 kN（−0.24%，EFD ±1% 带 −1.61%~+1.17%）；几何 G1 PASS 0.000%、G3 PASS 0.08%、G2 FAIL（T 低 50%）如实标注；单链内部口径 −5.07% 一并披露；pytest 11 passed, 1 xfailed（G2 已知缺陷）；报告 id=5871。",
+      "why_grade": "判据全部可复算、不达标项降级留痕（xfail/partial-FAIL），但没有任何对照基线或能力增量，因此只够 S1；按 S×E 规则不允许自报 S2 及以上。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "api",
+          "ref": "tensor/missions/5118",
+          "note": "验收 checks 原文：11 passed, 1 xfailed；G2 FAIL 自报"
+        },
+        {
+          "kind": "run",
+          "ref": "python3 scripts/kcs_benchmark.py",
+          "note": "命令可重跑；几何三门 + 阻力误差同一次运行产出"
+        },
+        {
+          "kind": "report",
+          "ref": "tensor/reports/5871",
+          "note": "平台报告，含几何验收与误差表"
+        }
+      ],
+      "injection_line": "- E3-S1-01 对标单先过几何门再报误差；单项 FAIL 就写 FAIL+xfail，不许用总分掩盖（m5118：G2 失败、−0.24% 同报）。"
+    },
+    {
+      "id": "E3-S1-02",
+      "grade": "S1",
+      "title": "外部真值面任务：判据逐条裁决，未达标项如实 FAIL",
+      "repo": "TensorPlatform",
+      "missions": [
+        5101
+      ],
+      "problem": "度量类任务常把'机制演示成功'当成'指标达标'；本单一致率指标 C2 实测 30.5%，远低于 90% 门槛。",
+      "delta": "pytest 33 passed（解析器/cgroup v1+v2/四态决策表/确认窗/账本/端到端静默死）；criteria C1/C3/C4/C5/C6 PASS，C2 honest FAIL 30.5% < 90%；SIGKILL 回放 4/4 检出，延迟中位/最大 2.15 s / 2.15 s？(原文 median/max 2.15 s)，干净队列 0 误报。",
+      "why_grade": "交付可复跑、判据逐条给出 PASS/FAIL 且 FAIL 项不被粉饰；机制增量不等于指标达标，故仍为 S1 而非 S3。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "api",
+          "ref": "tensor/missions/5101",
+          "note": "checks 原文列出 C1/C3-C6 PASS 与 C2 honest FAIL 30.5%"
+        },
+        {
+          "kind": "run",
+          "ref": "python3 -m tools.worker_truth.report",
+          "note": "criteria.json 由程序生成，PASS/FAIL 可复算"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tests/test_worker_truth_in23.py",
+          "note": "33 条测试在库内，可重跑"
+        }
+      ],
+      "injection_line": "- E3-S1-02 判据表逐条裁决：机制跑通≠指标达标；C2 实测 30.5%<90% 就写 FAIL，不换算口径充数。"
+    },
+    {
+      "id": "E3-S1-03",
+      "grade": "S1",
+      "title": "只读 API 的数值一致性验收（与 DB 直查误差=0）",
+      "repo": "TensorPlatform",
+      "missions": [
+        5121
+      ],
+      "problem": "聚合类 API 最容易'看起来对'——返回值形状对、数值口径却与库内 SQL 不一致。",
+      "delta": "pytest 8 passed；12 项 KPI 每项含 current/target/pct；与 DB 直查逐项误差=0；PR 641 合并。",
+      "why_grade": "验收判据是'与 DB 直查一致'这种可机器裁决的等式，且达成；无基线对照增量 → S1。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "api",
+          "ref": "tensor/missions/5121",
+          "note": "checks: 8 passed; values match DB queries with error=0"
+        },
+        {
+          "kind": "artifact",
+          "ref": "mission-worktree:m5121/tests/test_kpi_api.py",
+          "note": "测试随 m5121 分支交付，本树未含（PR 641 已合并）；证据锚点为 mission 5118/5121 的 checks",
+          "external": true
+        },
+        {
+          "kind": "doc",
+          "ref": "docs/kpi_api.md",
+          "note": "端点契约"
+        }
+      ],
+      "injection_line": "- E3-S1-03 聚合端点判据写成等式（返回值 vs DB 直查误差=0），别验收'形状对'；m5121 12 项 KPI 逐项 0 误差。"
+    },
+    {
+      "id": "E3-S1-04",
+      "grade": "S1",
+      "title": "计时基线单：结论（是否可行）先于数字好看",
+      "repo": "TensorPlatform",
+      "missions": [
+        5123
+      ],
+      "problem": "性能/预算类任务的风险是把'能跑通'当'可批量'；必须先量单工况耗时再裁决批量是否可行。",
+      "delta": "单工况全链 80 s（全文重跑产出 JSON/图/报告）；pytest 11 passed；报告 id=5873，payload 157.4 KB（<250 KB 上限）；commit 027537a4 工作树 clean。",
+      "why_grade": "判据（耗时阈值/工件存在/测试绿）全部机器可裁并达成，且给出'批量不可行'的裁决口径；无改进对照 → S1。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "api",
+          "ref": "tensor/missions/5123",
+          "note": "checks: 80 s 全链 + 11 passed + payload 157.4 KB"
+        },
+        {
+          "kind": "run",
+          "ref": "python3 scripts/profile_single_case.py",
+          "note": "可重跑"
+        },
+        {
+          "kind": "report",
+          "ref": "tensor/reports/5873",
+          "note": "含耗时分解表"
+        }
+      ],
+      "injection_line": "- E3-S1-04 预算类单先量再判：80 s/工况→批量可行性裁决写进交付，数字与工件路径同报（m5123）。"
+    },
+    {
+      "id": "E3-S2-01",
+      "grade": "S2",
+      "title": "原子批入库 vs 降级循环：同一判据下的前后 A/B",
+      "repo": "TensorPlatform",
+      "missions": [
+        5115
+      ],
+      "problem": "批量 API 的两种实现（原子事务 / 逐条循环降级）语义不同，若只报'提交成功'无法比较代价与失败残留。",
+      "delta": "atomic 92.1 ms vs degraded 400.9 ms（4.35×）；失败后残留 0 行 vs 1 行；pytest 13 passed（50 条入库/重复提交 409 行数不变/原子性负控 0 残留/401/422）；生产探针 50/50 queued、重投 409、回滚后 4763→4763 行。",
+      "why_grade": "有基线（degraded）对照的量化增量：时延与失败残留两项同时改善且负控可失败，符合 S2 的'对照改进'定义。",
+      "baseline": {
+        "before": "degraded loop: 400.9 ms, 失败后残留 1 行",
+        "after": "atomic batch: 92.1 ms, 失败后残留 0 行",
+        "metric": "latency_ms / residue_rows",
+        "delta": "-77.0% latency, residue -1 row",
+        "evidence_ref": "tensor/missions/5115#checks"
+      },
+      "evidence": [
+        {
+          "kind": "api",
+          "ref": "tensor/missions/5115",
+          "note": "batch_bench.py 数字与 13 passed 原文"
+        },
+        {
+          "kind": "artifact",
+          "ref": "mission-worktree:m5115/artifacts/m5115/batch_bench.py",
+          "note": "benchmark 脚本在 m5115 工作树，不在本仓树",
+          "external": true
+        },
+        {
+          "kind": "report",
+          "ref": "tensor/reports/5865",
+          "note": "报告含 A/B 表"
+        }
+      ],
+      "injection_line": "- E3-S2-01 改进单必须同判据 A/B：atomic 92.1ms vs 降级 400.9ms、残留 0 vs 1 行，才算 S2（m5115）。"
+    },
+    {
+      "id": "E3-S2-02",
+      "grade": "S2",
+      "title": "词表外置：硬编码 15 条→数据文件 + 缺文件恒等降级",
+      "repo": "TensorPlatform",
+      "commits": [
+        "71e740bd",
+        "f39ed941"
+      ],
+      "problem": "显示词表硬编码在绘图代码里（评审判例 #614）：平台代码携带领域词，删一个词要改代码，缺配置则崩。",
+      "delta": "figures.py 删除 15 条域词字面量（+21/−6 行，commit 71e740bd），词表落 domain_display.json（15 条，commit f39ed941）；加载器异常/缺文件降级为空映射→按原始名恒等显示不崩；本库新增 test_domain_display_fallback_identity 现场复证该降级。",
+      "why_grade": "同一行为口径的前后对照：代码内字面量 15→0，缺文件从'崩/需要改代码'变为'恒等降级'，且降级有测试可失败 → S2。",
+      "baseline": {
+        "before": "figures.py: 15 domain literals in code, missing/corrupt config = no recovery path",
+        "after": "domain_display.json: 15 entries as data; loader returns {} on OSError/ValueError -> identity display",
+        "metric": "domain_literals_in_code / missing_config_behaviour",
+        "delta": "15 -> 0 literals; crash/needs-code-change -> identity fallback",
+        "evidence_ref": "git show 71e740bd"
+      },
+      "evidence": [
+        {
+          "kind": "commit",
+          "ref": "71e740bd",
+          "note": "figures.py 删除 15 条字面量，改读 DOMAIN_DISPLAY"
+        },
+        {
+          "kind": "commit",
+          "ref": "f39ed941",
+          "note": "新增 domain_display.json（15 条，数据非代码）"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tools/chronicle/report/domain_display.json",
+          "note": "现网数据文件"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tools/chronicle/report/figures.py",
+          "note": "_load_domain_display() 异常降级恒等"
+        }
+      ],
+      "injection_line": "- E3-S2-02 域词硬编码是债：15 条字面量→domain_display.json+缺文件恒等降级，前后对照才算 S2。"
+    },
+    {
+      "id": "E3-S3-01",
+      "grade": "S3",
+      "title": "报告图管线重写为 SQL-only + 每图 sha256 入 provenance（结构性防造假）",
+      "repo": "TensorPlatform",
+      "problem": "旧报告管线的失败模式（PG9）：图数组在绘图脚本内合成，文字校验全绿但数字无法回溯到工件；事后补文字规则无法根治。",
+      "delta": "figures.py 三图只经 snapshot 上的 SQL 取数（不在绘图代码内构造数组）；snapshot sqlite 字节 SHA-256 锚定；每图 PNG/PDF sha256 写入 provenance，替换即 FIGURE_HASH_MISMATCH；端到端 demo 现场 verifier_status=PASS、snapshot_hash=f46ab6f3…（两次独立重跑同值=可复现）、23 条 provenance、20 条 SQL 重执行、3 图/6 文件；manuscript_sha256 随稿件文本变化（非稳定量，不作判据）。",
+      "why_grade": "不是修一个 bug 而是新建一类能力：把'可造假面'从流程上移除（绘图代码无数据构造入口 + 哈希锚定），并登记可失败码（SNAP_HASH_MISMATCH/FIGURE_HASH_MISMATCH）；端到端 demo 3 图/6 文件 + 23 条 provenance 现场 PASS，声明了它突破的旧失败模式与增量载体。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "artifact",
+          "ref": "tools/chronicle/report/figures.py",
+          "note": "三图均 SQL 常量，绘图代码不构造数组"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tools/chronicle/report/verify.py",
+          "note": "SNAP_HASH_MISMATCH/FIGURE_HASH_MISMATCH 等可失败码"
+        },
+        {
+          "kind": "run",
+          "ref": "python3 -m tools.chronicle.report.demo",
+          "note": "现场 PASS + snapshot_hash + 23 provenance"
+        },
+        {
+          "kind": "doc",
+          "ref": "docs/papers/chronicle-report-v2/manuscript.md",
+          "note": "记录的旧失败模式与能力声明"
+        }
+      ],
+      "injection_line": "- E3-S3-01 防造假靠结构不靠自觉：图只从 SQL 取数+每图 sha256↔snapshot_hash（demo PASS 且两次重跑同哈希）。"
+    },
+    {
+      "id": "E3-S3-02",
+      "grade": "S3",
+      "title": "S×E 成果评价机：无理由必拒 / auto_scan 封顶 / 禁加权排名",
+      "repo": "TensorPlatform",
+      "problem": "评价靠人嘴：等级可自报、无证据也能登记、机器扫描被当成同行评审、等级被加权成单一排名。",
+      "delta": "outcome_evaluations DDL（SQLite/PG 通用子集）用 CHECK 硬拒非法 status/grade/e_level/reviewer_kind；decide() 纯函数落 §7.1 判据：reason<50 字符→rejected、证据空→rejected、E0 不可登记、S4/S5 由 auto_scan 判出→candidate（CANDIDATE_NEEDS_INDEPENDENT_REVIEW）、S5 须 E≥3 且独立评审；summarize() 只做分层计数，weighted_score/ranking 硬编码 None。pytest 62 passed（本库现场重跑）。",
+      "why_grade": "能力建设：把'等级语义'与'机器可拒'分离，评价从此可复算、可红（62 条测试含封顶负控）；同时为否定轨（S-N）留位。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "artifact",
+          "ref": "tools/outcome_evaluations.py",
+          "note": "DDL + decide() + summarize()"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tests/test_outcome_evaluations.py",
+          "note": "62 passed，含 CANDIDATE_NEEDS_INDEPENDENT_REVIEW 负控"
+        },
+        {
+          "kind": "doc",
+          "ref": "docs/m5018/outcome_evaluations.md",
+          "note": "回填草案与 auto_scan 边界说明"
+        }
+      ],
+      "injection_line": "- E3-S3-02 评价要能拒：无理由/无证据拒登记，auto_scan 只能 S1-S3、S4/S5 落 candidate，禁加权排名。"
+    },
+    {
+      "id": "E3-S4-01",
+      "grade": "S4",
+      "status": "vacant",
+      "title": "（空缺）突破级判例：本轮无满足者",
+      "repo": "TensorPlatform",
+      "problem": "S4 需'能力/认识上的突破 + 独立评审 + 外部基准或多主体复现'。本库审计的真实战史里没有一例同时满足。",
+      "delta": "无。最接近的三例（E3-S3-01 结构性防造假、E3-S1-01 −0.24% 对标、E3-S2-01 4.35× 时延）都缺独立评审或外部基准：对标单几何门 G2 仍 FAIL，S3 单仅有自证 demo。",
+      "why_grade": "空绝不降格填充：按 S×E 规则 S4 须独立评审确认，本库无此证据，故如实标注 vacant，等待后续独立评审席位裁决。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "doc",
+          "ref": "docs/precedent_library/E3_PRECEDENT_LIBRARY.md",
+          "note": "空缺说明与最接近案例的差距逐项列出"
+        }
+      ],
+      "injection_line": "- E3-S4-01 空缺级如实标注：无独立评审+外部基准的'突破'不算 S4，别把自证 demo 抬成突破。"
+    },
+    {
+      "id": "E3-A-01",
+      "grade": "anti",
+      "title": "反例·打转裸死单：58 次工具调用、改了文件、没调 finish",
+      "repo": "TensorPlatform",
+      "missions": [
+        5047
+      ],
+      "problem": "长会话模型把'在读在改'当成进展：58 tool_calls 后终局 no_progress，finish 未调用，改动文件未提交，证据被忽略。",
+      "delta": "无增量成果：58 次工具调用后终局 no_progress，finish 调用 0 次、commit 0 个；evidence.gate=no-evidence，reason='模型未调用 finish（终局: no_progress）'；changed_files 仅工作树内未提交文件；该单在合并口自动化这条线上零推进。",
+      "why_grade": "反例：无判据、无提交、无回执 ⇒ 不进任何正面等级；正确做法是先落最小可证单元 + commit（见 PLAYBOOK 2026-10-31 条）。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "api",
+          "ref": "tensor/missions/5047",
+          "note": "result.evidence.gate=no-evidence, fail_stage=no_progress"
+        },
+        {
+          "kind": "doc",
+          "ref": "docs/playbooks/PB-008-harness-death-modes.md",
+          "note": "同一失败模式的根因判例"
+        }
+      ],
+      "injection_line": "- E3-A-01 反例：58 次调用不改判据、不 commit、不 finish=m5047 式裸死；每步都要留下可复算证据。"
+    },
+    {
+      "id": "E3-A-02",
+      "grade": "anti",
+      "title": "反例·形式闭环：文字/路径校验全绿，数字仍无法回溯",
+      "repo": "TensorPlatform",
+      "problem": "报告生产线的两稿被否（W2 判例）：PG1–PG8（路径/引用/算术）全绿，但稿中数字回溯不到任何工件，图件数据在绘图脚本内合成——'检查通过'与'结论成立'是两件事。",
+      "delta": "负增量：两稿作废；事后证明只有把数据面固定为哈希锚定 snapshot + 图件执行式溯源（PG9 升级到 SQL-only + sha256）才恢复可复现性（见 E3-S3-01）。",
+      "why_grade": "反例：形式闭环（PG1–PG8 八项校验全绿 ≠ 语义成立）。判据须指向'不动状态'的工件，否则再多的正则校验也只是装饰——该线因此作废 2 稿。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "doc",
+          "ref": "docs/papers/chronicle-report-v2/manuscript.md",
+          "note": "'前两稿因同一根因被否（W2 判例）'原句"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tools/chronicle/report/README.md",
+          "note": "PG9 执行式图件溯源的设计说明"
+        }
+      ],
+      "injection_line": "- E3-A-02 反例：PG1-PG8 全绿仍被否（W2）——检查通过≠结论成立；数字必须绑到哈希锚定的不冻工件。"
+    },
+    {
+      "id": "E3-A-03",
+      "grade": "anti",
+      "title": "反例·auto_scan 冒充终判：机器回填是草案不是评审",
+      "repo": "TensorPlatform",
+      "problem": "批量回填时全部记录的 reviewer_kind='auto_scan'、reason_source='rule_derived'；若把草案当评审结论，S4/S5 会被机器扫描'确认'，等级梯失效。",
+      "delta": "负增量防御：m5018 明确'回填是草案不是评审结论'，S4/S5/S-N 只能落 candidate（CANDIDATE_NEEDS_INDEPENDENT_REVIEW）；tests/test_outcome_evaluations.py 对该封顶设负控。",
+      "why_grade": "反例：用机器扫描冒充独立同行评审=等级通胀。规则（S4/S5 封顶 candidate）与 1 个负控测试同时留痕，才能让'冒充实例'变成可失败的红灯。",
+      "baseline": null,
+      "evidence": [
+        {
+          "kind": "doc",
+          "ref": "docs/m5018/outcome_evaluations.md",
+          "note": "第 134/182/191 行：auto_scan 明确不是独立评审、回填是草案"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tools/backfill_outcome_evaluations.py",
+          "note": "reviewer_kind='auto_scan' + reason_source='rule_derived'"
+        },
+        {
+          "kind": "artifact",
+          "ref": "tests/test_outcome_evaluations.py",
+          "note": "S4/S5 + auto_scan → candidate 负控"
+        }
+      ],
+      "injection_line": "- E3-A-03 反例：auto_scan 回填是草案；S4/S5/S-N 落 candidate——机器扫描冒充同行评审=等级通胀。"
+    }
+  ],
+  "injection_gate_line": "- E3-GATE 开工自检 8 项：数字判据/工件路径/重跑命令/基线与参考/honest FAIL/worktree 分支/报告/不重复；缺一项即返工。"
+}
