@@ -131,9 +131,12 @@ def test_real_repo_oracles():
     assert meter["importers_non_test"] == [] and meter["importers_test"] == []
     # 2. truth-gates router is mounted (tensor router imports domain/tensor.py)
     assert rows["backend/api/truth_gates.py"]["verdict"] == "WIRED_RUNTIME"
-    # 3. report gate: only tests + tools import it, no production path
+    # 3. report gate: 生产路径已接线（POST /tensor/reports/qa/check 调它），
+    #    这条 oracle 原先断言「只有 tests+tools 引用」——那是接线前的状态，
+    #    现已反过来钉住**接线点必须是报告 QA 端点**（更严：不认别的入口）。
     rg = rows["backend/services/report_gate.py"]
-    assert rg["verdict"] in ("TOOL_ONLY", "TEST_ONLY")
+    assert rg["verdict"] == "WIRED_RUNTIME"
+    assert "backend/api/tensor_reports.py" in rg["importers_non_test"], rg
     # 4. sqlalchemy models ARE wired (regression guard for the resolver bug)
     assert rows["backend/models/truth_gates.py"]["verdict"] == "WIRED_RUNTIME"
     # 5. inventory must be non-trivial and parse errors bounded
