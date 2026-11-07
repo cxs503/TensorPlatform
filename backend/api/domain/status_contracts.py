@@ -45,3 +45,14 @@ def mission_task_status_map_contract() -> dict[str, Any]:
 def session_event_contract() -> dict[str, Any]:
     """Workspace-level session event vocabulary (G-B: M3/M4 event stream)."""
     return _load("session_event_kinds.v1.json", "session_event_kinds")
+
+
+def mission_state_machine_contract() -> dict[str, Any]:
+    """Lifecycle transition graph + reopen rules (SPEC §4.2, m5022 reopened state).
+
+    States are not duplicated in this contract: its keys and targets must be
+    members of ``mission_status_vocab``; the closure check lives in
+    backend/tests/test_mission_reopened_state.py (and the G-A audit item
+    ``state_machine_closure``).
+    """
+    return _load("mission_state_machine.v1.json", "mission_state_machine")
