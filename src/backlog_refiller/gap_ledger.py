@@ -24,6 +24,44 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+CAPABILITY_LEDGER_DDL = (
+    "CREATE TABLE IF NOT EXISTS capability_ledger ("
+    " capability_name text PRIMARY KEY,"
+    " evidence_level text NOT NULL,"
+    " repo text,"
+    " description text,"
+    " metadata jsonb NOT NULL DEFAULT '{}'::jsonb,"
+    " updated_at timestamptz NOT NULL DEFAULT now())"
+)
+
+CAPABILITY_LEDGER_INDEX_DDL = (
+    "CREATE INDEX IF NOT EXISTS capability_ledger_evidence_idx"
+    " ON capability_ledger (evidence_level)"
+)
+
+
+def ensure_capability_ledger(db_session) -> bool:
+    """确保缺口源表 ``capability_ledger`` 存在（幂等 DDL，返回是否成功）。
+
+    背景：R1 的补给器把「能力台账 WITHHELD 项」当作第一缺口源，但平台库里
+    从来没有这张表（2026-11-07 现场核对：tensorplatform / foundation 两库均无
+    ``capability_ledger``）。缺表时 ``collect_gaps`` 直接抛 psycopg 错误，
+    daemon 一轮都跑不完——回放测试能过、真库跑不通。这里把建表做成显式、
+    幂等的一步，由 daemon 启动时调用；建不出来也不致命（源级容错兜底）。
+    """
+    from sqlalchemy import text
+
+    try:
+        db_session.execute(text(CAPABILITY_LEDGER_DDL))
+        db_session.execute(text(CAPABILITY_LEDGER_INDEX_DDL))
+        db_session.commit()
+        return True
+    except Exception as exc:  # noqa: BLE001 - 建表失败降级为源不可用
+        db_session.rollback()
+        logger.warning("[gap_ledger] capability_ledger 建表失败: %s", exc)
+        return False
+
+
 class GapLedgerSource:
     """缺口账本聚合器。
 
@@ -43,12 +81,27 @@ class GapLedgerSource:
         self.db = db_session
         self.api_base = api_base.rstrip("/")
 
+    #: 各缺口源的健康状态（ok / unavailable:<原因>），审计与门禁据此判读
+    source_status: dict[str, str] = {}
+
+    def _safe_source(self, name: str, fn) -> list[dict[str, Any]]:
+        """源级容错：单源缺表/报错不再拖死整轮补给（记状态后跳过）。"""
+        try:
+            rows = fn()
+            self.source_status[name] = "ok"
+            return rows
+        except Exception as exc:  # noqa: BLE001 - 缺表/权限均可降级
+            self.db.rollback()
+            self.source_status[name] = f"unavailable:{type(exc).__name__}"
+            logger.warning("[gap_ledger] 缺口源 %s 不可用: %s", name, exc)
+            return []
+
     def collect_gaps(self) -> list[dict[str, Any]]:
         """聚合所有缺口源，返回标准化缺口列表。"""
         gaps: list[dict[str, Any]] = []
-        gaps.extend(self._collect_withheld_capabilities())
-        gaps.extend(self._collect_campaign_gaps())
-        gaps.extend(self._collect_mission_gaps())
+        gaps.extend(self._safe_source("capability_ledger", self._collect_withheld_capabilities))
+        gaps.extend(self._safe_source("campaign_nodes", self._collect_campaign_gaps))
+        gaps.extend(self._safe_source("mission_gap", self._collect_mission_gaps))
         # 按优先级排序（1=最高）
         gaps.sort(key=lambda g: g.get("priority", 99))
         return gaps

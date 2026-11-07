@@ -1,0 +1,16 @@
+{
+  "schema": "coordinator-diagnostic-order/1",
+  "order_id": "IN27-H2-D2",
+  "issued_by": "coordinator_shadow/IN27-H2",
+  "rationale": "边界演示：诊断单里常见的“报告型条目”（重启某个 daemon、改线上 cron、通知人类）在门控仓里没有绑定门链动作，必须判 NOT_EXECUTABLE 并写明原因，整体 verdict 降为 PARTIAL —— 这正是“可执行诊断单”与“只报告”的分界线：能被拒绝的才是可执行的。",
+  "items": [
+    {"id": "R1", "op": "restart_daemon", "params": {"unit": "coordinator_shadow"},
+     "note": "报告型：无门控重启动作"},
+    {"id": "R2", "op": "edit_live_file_in_place", "params": {"file": "/root/tp-agent/wave_cycle.py"},
+     "note": "报告型：就地改生产文件（门控仓只允许 patch→门链→deploy）"},
+    {"id": "R3", "op": "notify_owner", "params": {"channel": "log"},
+     "note": "报告型：通知人类"},
+    {"id": "R4", "op": "gate_compile",
+     "note": "可执行的那一项：编译门"}
+  ]
+}

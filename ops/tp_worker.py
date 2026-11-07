@@ -300,28 +300,32 @@ def _tool_ship_api(args: dict) -> str:
 
 
 CAP_SNAPSHOT_REL = pathlib.Path("artifacts/capability_ledger/capability_ledger_resolved.json")
+CAP_FALSIFICATION_REL = pathlib.Path("artifacts/capability_falsification/capabilities.json")
 CAP_LEDGER_REL = pathlib.Path("artifacts/capability_ledger/capability_ledger.json")
 CAP_HARNESS_DEFAULT = pathlib.Path(
     "/root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json")
 
 
 def _cap_sources() -> list[pathlib.Path]:
-    """能力清单候选真值文件（按优先级）。
+    """能力台账候选文件（委托单一解析器；不再各自硬编码）。
 
-    2026-11-02 m2031：此前本工具只认一条硬编码路径（船舶 harness 的
-    capabilities.json），该文件在 incoming 树里只剩 .pyc，工具对全部 agent 恒返回
-    「读取能力清单失败」，证据分级仪整月不可用。改为多候选 + 仓内台账优先：
-    仓内 artifacts/capability_ledger/ 是 C1~C10 签过字的单一真值（含对账等级）。
+    历史：本函数从「单一硬编码绝对路径」（文件只剩 .pyc → FileNotFoundError，
+    工具对所有 agent 恒返回读取失败）改为「本文件内私有一张候选表」，结果是四个
+    消费者可能解析到不同文件。m5352 起路径与指纹只来自
+    ``tools/audit/ledger_paths.py``（消费者契约门），本函数仅是它的薄壳。
     """
+    # _LEDGER_CONTRACT_DELEGATED
+    try:
+        root = pathlib.Path(__file__).resolve().parents[1]
+        if str(root) not in sys.path:
+            sys.path.insert(0, str(root))
+        from tools.audit import ledger_paths as _LP
+        return [pathlib.Path(c["path"]) for c in _LP.candidate_paths(root) if c["path"].is_file()]
+    except Exception:  # 解析器不可用：退回本地候选表（宁可降级也不炸工具）
+        pass
     root = pathlib.Path(__file__).resolve().parents[1]
-    cands: list[pathlib.Path] = []
-    if os.environ.get("TP_CAP_LEDGER"):
-        cands.append(pathlib.Path(os.environ["TP_CAP_LEDGER"]))
-    cands.append(root / CAP_SNAPSHOT_REL)
-    if os.environ.get("TP_SHIP_HARNESS_DIR"):
-        cands.append(pathlib.Path(os.environ["TP_SHIP_HARNESS_DIR"]) / "backend/platform_harness/capabilities.json")
-    cands.append(CAP_HARNESS_DEFAULT)
-    cands.append(root / CAP_LEDGER_REL)
+    cands = [root / CAP_SNAPSHOT_REL, root / CAP_LEDGER_REL,
+             CAP_HARNESS_DEFAULT, root / CAP_FALSIFICATION_REL]
     return [p for p in cands if p.is_file()]
 
 
@@ -360,8 +364,16 @@ def _render_caps(d: dict) -> str:
 
 
 def _tool_audit_caps() -> str:
-    """审计船舶平台能力清单。"""
+    """审计船舶平台能力清单（正文由台账消费者渲染；路径/指纹来自单一解析器）。"""
     tried: list[str] = []
+    try:  # 消费者 #1：tools/audit/ledger_consumer_audit_tool.py
+        root = pathlib.Path(__file__).resolve().parents[1]
+        if str(root) not in sys.path:
+            sys.path.insert(0, str(root))
+        from tools.audit.ledger_consumer_audit_tool import audit_capabilities as _render_ledger
+        return _render_ledger()
+    except Exception as exc:
+        tried.append(f"ledger_consumer_audit_tool: {type(exc).__name__}: {exc}")
     for path in _cap_sources():
         try:
             d = json.loads(path.read_text(encoding="utf-8"))

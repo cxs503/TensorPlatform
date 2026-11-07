@@ -89,6 +89,34 @@
 | 跨卡复现 | Couette 2D L2 1.8e-4 跨卡逐位一致 |
 | 动态编制首轮换血 | 10 席变更、daemon 自动巡检 |
 
+## 8 停摆自检自愈（stall detector，IN20-R5）
+
+- 病案：2026-11-07 00:52→03:18 停摆 147.55 min（`saturation_pulse` 实测断档
+  00:52:35→03:20:08），无人报警——检测器是人的注意力，这是单点。
+- 机制：`ops/taskplane/stall_detector.py`（daemon，独立于任何会话）三规则——
+  R1 断粮（pending=0 且 idle/online≥0.5 持续 15 min → 触发补给器 selfstarter）、
+  R2 舰队心跳丢失（失联比≥0.5 持续 5 min → fleet_supervisor 重启路径）、
+  R3 脉搏停滞（老化≥30 min → 自证存活 beacon）。
+- 判据：历史时间线回放 MUST 报警+触发（R1 01:10 / R3 01:23，延迟 ≤1 采样周期），
+  健康态负例 0 误报；`tests/test_stall_detector_in20_r5.py` 16 项。
+- 纪律：只读台账 + hash 链审计 + `--rollback` 清闸闩；动作 dry/live 分离，
+  dry 只探活不改系统（「不动作」≠「不检查」）。
+
+## 自主续航验收门（IN20-G21）
+
+`tools/autonomy/acceptance.py`：把 R1–R7 的机制替身装进同一条时间线真跑一遍，产出
+`artifacts/autonomy_acceptance/autonomy_acceptance.json`（六条判据 + 证据 sha256）。判据：
+
+- C1 补给器停摆回放自动触发（真 Postgres 沙箱库，真 INSERT + 真回滚）
+- C2a 放门自动化真释放 + 幂等 + 回滚（可丢弃 schema，纯函数离线复算审计）
+- C2b 合并自动化真合并 1 例 PR（审计链哈希 + git ancestry 双验）
+- C3 propose 通道积压 stuck=0（宽限内在途不计）
+- C4 退出仪表盘三指标基线（全 REAL + chronicle 快照）
+- C5 垫池四单终态 + 能力增减账本入账
+
+聚合规则：**WITHHELD 不得当 PASS**（沙箱/DB 不可达 → 整体不通过）。复跑：
+`python3 -m tools.autonomy.acceptance && python3 -m pytest -q tests/test_autonomy_acceptance_gate.py`。
+
 ## 10 放门自动化（gate_auto_release，IN20-R2）
 
 **问题**：战役门（campaign gate）靠人工 UPDATE 放行——owner 不在场则门永 blocked，

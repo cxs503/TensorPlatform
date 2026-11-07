@@ -18,12 +18,62 @@ PROPOSAL_POOL = "/root/tp-agent/proposals"       # 相互扶持：全舰队可�
 FREE_STATE = "/root/tp-agent/autonomy_free.json" # 池空自由波状态（无挂靠计划时）
 BUDGET = {"max_tokens": 5000000, "max_tool_calls": 220, "max_wall_seconds": 7200}
 PLAN_ID = 1
-TERMINAL = {"succeeded", "failed", "stopped", "revoked"}
+TERMINAL = {"succeeded", "failed", "stopped", "revoked", "suspended", "orphan"}
+PROPOSER_STALL_SECS = 1800   # 提案者在池里等这么久还没人领=领取路径可疑（IN20-R4 根因）
 READY = {"done", "in-flight"}  # 契约并行：in-flight 也算就绪
 NODE_TERMINAL = {"done", "failed", "blocked"}
 
 PROPOSER_MODELS = ["qwen3.7-plus", "glm-5.1", "deepseek-v4-flash"]  # 异构独立思考（中继实测活）
 ARBITER_MODEL = "qwen3.6-plus"
+
+def pick_proposer_models(live_models, candidates=None, k=None):
+    """从候选异构模型里只挑"当前有活体 worker"的；一个都没有 → [None]（不钉模型，走 claim_null_model）。
+
+    IN20-R4 根因：钉死 PROPOSER_MODELS 后，claim 端过滤是
+    `AND (model = :claim_model OR model IS NULL)`，钉住的模型没有活体 daemon 就永远 queued；
+    glm-5.1 恰恰在册但无进程 → 2026-11-07 起 9 张 propose-* 积压、仲裁永不点火。
+    纯函数（注入 live_models 集合），便于 pytest 脱库验证。
+    """
+    k = K_PROPOSERS if k is None else int(k)   # K_PROPOSERS 在本函数之后才定义（默认参数延迟求值）
+    cands = list(candidates if candidates is not None else PROPOSER_MODELS)
+    live = {str(m) for m in (live_models or []) if m}
+    picked = [m for m in cands if m in live][:max(1, int(k))]
+    if picked:
+        return picked
+    if live:                      # 候选全灭但舰队有别的活体模型：异构性让位于可领取性
+        return sorted(live)[:max(1, int(k))]
+    return [None]                 # 无活体名册（或探测失败）：不钉模型，任何 worker 可领
+
+
+def _live_worker_models():
+    """从 factory_resident_workers 取"在册 + 心跳新鲜 + 非停机态"的模型集合。"""
+    try:
+        rows = q("SELECT model, enabled, coalesce(heartbeat_at::text,''), coalesce(state,'') "
+                 "FROM factory_resident_workers")
+    except Exception as e:
+        log(f"WARN 活体模型探测失败（退回不钉模型）：{type(e).__name__}: {str(e)[:120]}")
+        return set()
+    now = time.time()
+    live = set()
+    for r in rows:
+        model, enabled, hb, state = (list(r) + ["", "", "", ""])[:4]
+        if not model or str(enabled).lower() in ("f", "false", "0"):
+            continue
+        if str(state).lower() in ("stopped", "dead", "offline", "exited"):
+            continue
+        try:
+            ts = float(hb) if hb.replace(".", "", 1).isdigit() else \
+                datetime.datetime.fromisoformat(hb.replace("Z", "+00:00")).timestamp()
+        except Exception:
+            continue
+        if now - ts <= 600:
+            live.add(str(model))
+    return live
+
+
+def _arbiter_model():
+    return pick_proposer_models(_live_worker_models(), [ARBITER_MODEL], k=1)[0]
+
 K_PROPOSERS = 3          # 冗余多渠道：允许重叠，仲裁聚合
 MAX_WAVES = 3            # 每计划提案波上限（防无限烧预算）
 MAX_ARBITER_ATTEMPTS = 2 # 仲裁者每波重试上限
@@ -365,18 +415,57 @@ def _mission(mid):
     return {"id": int(rid), "status": st, "result": res}
 
 
+def _mission_is_live(mid):
+    """单子是否还有生命（非终态）。读不到就当死的，让上层重派而不是干等。"""
+    try:
+        rows = q(f"SELECT status FROM tensor_dev_missions WHERE id={int(mid)}")
+    except Exception:
+        return False
+    return bool(rows) and rows[0][0] not in TERMINAL
+
+
 def _dispatch_mission(token, goal, task_key, model=None, origin="agent"):
+    """建单（幂等）。去重守卫的正确语义：在飞去重、终态必须换纪元重派。
+
+    IN20-R4 根因②：POST /tensor/missions 对同 task_key + 同指纹返回 HTTP 200
+    {id: 旧单, idempotent: True}，旧单即便已终态也会被返回；旧代码把返回 id 当
+    "新点火"收下 → 重派波静默复用死单，提案者"连败重派"实际从未发生。
+    """
     payload = {"goal": goal, "repo": "TensorPlatform", "runner": "native",
                "origin": origin, "task_key": task_key, "budget": BUDGET}
     if model:
         payload["model"] = model
-    code, d = api("/api/v1/tensor/missions", payload, token)
-    mid = d.get("id") or (d.get("mission") or {}).get("id")
-    if code == 409:
-        hit = q(f"SELECT id FROM tensor_dev_missions WHERE task_key='{task_key}' "
-                f"ORDER BY id DESC LIMIT 1")
-        mid = int(hit[0][0]) if hit else None
-    return int(mid) if mid else None
+    for epoch in range(0, 3):
+        key = task_key if epoch == 0 else f"{task_key}-r{epoch + 1}"[:120]
+        payload["task_key"] = key
+        code, d = api("/api/v1/tensor/missions", payload, token)
+        mid = d.get("id") or (d.get("mission") or {}).get("id")
+        if code == 409:   # 同 key 不同指纹：换纪元再试，别把旧单当自己的
+            log(f"WARN task_key {key} 撞不同任务（409）→ 纪元 +1")
+            continue
+        if not mid:
+            return None
+        mid = int(mid)
+        if epoch == 0 and d.get("idempotent") and not _mission_is_live(mid):
+            log(f"task_key {task_key} 幂等命中终态旧单 m{mid} → 纪元后缀重派（防静默复用死单）")
+            continue
+        return mid
+    hit = q(f"SELECT id FROM tensor_dev_missions WHERE task_key='{task_key}' "
+            f"ORDER BY id DESC LIMIT 1")
+    return int(hit[0][0]) if hit else None
+
+
+_STALL_LOGGED = {}
+
+def _note_proposer_stall(pid, wave, stuck):
+    """把"谁是堵点"写进日志一次（旧代码这里静默 continue，10 天没人发现通道堵死）。"""
+    key = (int(pid), int(wave or 0))
+    if _STALL_LOGGED.get(key):
+        return
+    _STALL_LOGGED[key] = True
+    detail = ", ".join(f"m{(p or {}).get('id', '?')}={(p or {}).get('status', 'missing')}" for p in stuck)
+    log(f"AUTONOMY plan {pid} w{wave} 提案波未收敛，堵点: {detail}"
+        f"（propose_channel_guard 守护会带理由撤销不可领取槽位）")
 
 
 def _plan_meta(pid):
@@ -385,6 +474,49 @@ def _plan_meta(pid):
         return json.loads(rows[0][0]) if rows else {}
     except Exception:
         return {}
+
+
+AUTONOMY_DEFAULTS = {
+    "wave": 1, "proposers": [], "arbiter": None,
+    "new_plan": None, "arbiter_attempts": 0, "exhausted": False,
+}
+
+
+def _norm_autonomy(aut):
+    """把持久化的 ``metadata.autonomy`` 规整成当前 schema：缺失键补默认、坏类型回退默认。
+
+    根因（IN27-H1，2026-11-07 shadowdiag-a242be993ae2d1d6）：``metadata.autonomy`` 是**外部
+    可写**的持久状态（迁移/旧版本守护/仲裁者播种都可能写进旧形状），历史上存在缺
+    ``arbiter_attempts`` 的旧形状（实测 plan 94 = {"wave":2,"arbiter":5498,"proposers":[...]}）。
+    旧代码用 ``aut["arbiter_attempts"] += 1`` 直接下标 → KeyError；异常发生在
+    ``_set_plan_autonomy`` 之前，坏状态写不回去 ⇒ 每轮（30s）重犯一次、永久坏环。
+    纪律：读入即规整（不信任外部持久状态），规整过就回写。纯函数（不碰库），便于 pytest。
+
+    返回 ``(状态, 是否发生修复)``。
+    """
+    if aut is None:
+        return {k: (list(v) if isinstance(v, list) else v)
+                for k, v in AUTONOMY_DEFAULTS.items()}, False
+    if not isinstance(aut, dict):
+        return {k: (list(v) if isinstance(v, list) else v)
+                for k, v in AUTONOMY_DEFAULTS.items()}, True
+    out, repaired = dict(aut), False
+    for k, dv in AUTONOMY_DEFAULTS.items():
+        if k not in out:
+            out[k] = list(dv) if isinstance(dv, list) else dv
+            repaired = True
+    for k in ("wave", "arbiter_attempts"):
+        try:
+            out[k] = int(out[k])
+        except (TypeError, ValueError):
+            out[k] = AUTONOMY_DEFAULTS[k]
+            repaired = True
+    if isinstance(out.get("proposers"), (list, tuple)):
+        out["proposers"] = list(out["proposers"])
+    else:
+        out["proposers"] = []
+        repaired = True
+    return out, repaired
 
 
 def _set_plan_autonomy(pid, autonomy):
@@ -396,7 +528,8 @@ def _set_plan_autonomy(pid, autonomy):
 def _launch_wave(token, pid, title, wave):
     """派 K 个异构提案者（独立思考，允许重叠=冗余多渠道）。"""
     mids = []
-    for i, model in enumerate(PROPOSER_MODELS[:K_PROPOSERS], 1):
+    models = pick_proposer_models(_live_worker_models())
+    for i, model in enumerate(models, 1):
         goal = PROPOSER_GOAL.format(pid=pid, title=(title or f"plan-{pid}")[:60],
                                     pool=PROPOSAL_POOL, wave=wave)
         mid = _dispatch_mission(token, goal, f"propose-p{pid}-w{wave}-{i}", model=model)
@@ -405,7 +538,7 @@ def _launch_wave(token, pid, title, wave):
     if not mids:
         log(f"AUTONOMY plan {pid} w{wave} 提案者派发全败（下轮重试）")
         return None
-    log(f"AUTONOMY plan {pid} w{wave} 提案波点火：{len(mids)} 位异构提案者 {mids}（模型 {PROPOSER_MODELS[:K_PROPOSERS]}）")
+    log(f"AUTONOMY plan {pid} w{wave} 提案波点火：{len(mids)} 位异构提案者 {mids}（钉模型 {models}）")
     return {"wave": wave, "proposers": mids, "arbiter": None, "new_plan": None,
             "arbiter_attempts": 0, "exhausted": False}
 
@@ -512,6 +645,7 @@ def _collect_new_plan(pid, arbiter_mid):
 
 def _resolve_arbiter_outcome(token, pid, title, aut):
     """仲裁者终态→机器门验证→激活/重试/耗尽。"""
+    aut, _ = _norm_autonomy(aut)   # 入口防御：绕过 autonomy_phase 的调用方也不吃 KeyError（IN27-H1）
     am = _mission(aut["arbiter"])
     if not am:
         return aut
@@ -563,7 +697,7 @@ def _resolve_arbiter_outcome(token, pid, title, aut):
                                self_id="本任务", minn=MIN_NODES, maxn=MAX_NODES) \
            + f"\n（第 {aut['arbiter_attempts'] + 1} 次尝试：前次机器门未过/失败：{reason_txt[:400]}。修正后重播种。）"
     mid = _dispatch_mission(token, goal, f"arbiter-p{pid}-w{aut['wave']}-a{aut['arbiter_attempts'] + 1}",
-                            model=ARBITER_MODEL)
+                            model=_arbiter_model())
     if mid:
         aut["arbiter"] = mid
         log(f"AUTONOMY plan {pid} 仲裁重派 m{mid}（原因：{reason_txt[:150]}）")
@@ -611,6 +745,12 @@ def autonomy_phase(token):
                 event("plan_updated", {"plan": pid, "autonomy_wave": 1,
                                        "note": "收官触发自主提案波（一群 agent 提议）"}, pid=pid)
             continue
+        aut, _repaired = _norm_autonomy(aut)
+        if _repaired:
+            # IN27-H1：旧形状（缺 arbiter_attempts 等键）在读入处补齐并回写，
+            # 否则后面的 += 1 每轮 KeyError，坏状态永远修不回来（ERROR 无限刷 → daemon_warns 越界）
+            _set_plan_autonomy(pid, aut)
+            log(f"WARN plan {pid} autonomy 状态缺键/坏类型已补默认并回写（IN27-H1：旧形状曾致每轮 KeyError）")
         if aut.get("exhausted"):
             continue
         if aut.get("new_plan"):
@@ -635,7 +775,9 @@ def autonomy_phase(token):
         if not aut.get("proposers"):
             continue
         props = [_mission(m) for m in aut["proposers"]]
-        if not all(p and p["status"] in TERMINAL for p in props):
+        stuck = [p for p in props if not p or p["status"] not in TERMINAL]
+        if stuck:
+            _note_proposer_stall(pid, aut["wave"], stuck)
             continue  # 提案者仍在思考
         if not aut.get("arbiter"):
             succ = [p for p in props if p["status"] == "succeeded"]
@@ -645,7 +787,7 @@ def autonomy_phase(token):
                                            pool=PROPOSAL_POOL, pid=pid, wave=aut["wave"],
                                            self_id="本任务", minn=MIN_NODES, maxn=MAX_NODES)
                 mid = _dispatch_mission(token, goal,
-                                        f"arbiter-p{pid}-w{aut['wave']}-a1", model=ARBITER_MODEL)
+                                        f"arbiter-p{pid}-w{aut['wave']}-a1", model=_arbiter_model())
                 if mid:
                     aut["arbiter"] = mid
                     _set_plan_autonomy(pid, aut)
@@ -698,7 +840,8 @@ def _idle_free_wave(token):
         return
     if not state.get("proposers"):
         mids = []
-        for i, model in enumerate(PROPOSER_MODELS[:K_PROPOSERS], 1):
+        free_models = pick_proposer_models(_live_worker_models())
+        for i, model in enumerate(free_models, 1):
             goal = PROPOSER_GOAL.format(pid=0, title="池空自由波（无挂靠战役，面向全平台）",
                                         pool=PROPOSAL_POOL, wave=wave) \
                    + "\n（自由波：无前序战役，情报面=提案池+guide_tracker+verified/ 全景+近期已合并 PR。）"

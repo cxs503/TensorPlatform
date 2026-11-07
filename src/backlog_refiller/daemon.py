@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .audit import AuditLogger
-from .gap_ledger import GapLedgerSource
+from .gap_ledger import GapLedgerSource, ensure_capability_ledger
 from .mission_generator import MissionGenerator
 
 logger = logging.getLogger(__name__)
@@ -64,6 +64,19 @@ class BacklogRefillerDaemon:
         self.running = False
         self.cycle_count = 0
         self.refill_count = 0
+        self._schema_ready = False
+        self._last_source_status: dict[str, str] = {}
+
+    def ensure_schema(self) -> bool:
+        """启动时确保缺口源表存在（幂等；失败不致命，源级容错兜底）。"""
+        if self._schema_ready:
+            return True
+        session = self._get_session()
+        try:
+            self._schema_ready = ensure_capability_ledger(session)
+            return self._schema_ready
+        finally:
+            session.close()
 
     def _get_session(self):
         """获取数据库会话。"""
@@ -142,6 +155,7 @@ class BacklogRefillerDaemon:
 
             # 收集缺口
             gaps = gap_source.collect_gaps()
+            self._last_source_status = dict(gap_source.source_status)
             gaps = gap_source.filter_by_whitelist(gaps)
             logger.info("[refiller] 收集到 %d 个缺口", len(gaps))
 
@@ -235,6 +249,7 @@ class BacklogRefillerDaemon:
             }
         """
         self.cycle_count += 1
+        self.ensure_schema()
         queue_depth = self.check_queue_depth()
 
         result = {
@@ -242,6 +257,7 @@ class BacklogRefillerDaemon:
             "queue_depth": queue_depth,
             "generated_missions": [],
             "cycle_count": self.cycle_count,
+            "gap_sources": dict(self._last_source_status),
         }
 
         if queue_depth["should_trigger"]:
@@ -250,6 +266,7 @@ class BacklogRefillerDaemon:
             generated = self.refill_cycle()
             result["triggered"] = True
             result["generated_missions"] = generated
+            result["gap_sources"] = dict(self._last_source_status)
         else:
             logger.debug("[refiller] 未触发补给 (pending=%d, idle=%d)",
                          queue_depth["pending_missions"], queue_depth["idle_workers"])

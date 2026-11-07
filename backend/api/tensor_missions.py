@@ -517,7 +517,20 @@ def claim_mission(
         if not registered:
             raise HTTPException(403, "agent session is not bound to this principal")
         if body.model != registered["model"] or body.worker_role != registered["role"]:
-            raise HTTPException(409, "session configuration changed; refresh before claiming")
+            # 结构化 409：注册表与进程呈递的 model/role 漂移时，这条车道其实已经
+            # 没有可工作的认领者。2026-11-07 事故（IN27 adoption_stall）：漂移
+            # 一直被当成普通 409 静默吞掉，被钉在该 model 上的单 10 小时无人认领
+            # 而指标只能看到「队列变老」。机器可读的 code 让监护面一眼定位。
+            raise HTTPException(409, {
+                "code": "session_config_drift",
+                "detail": "session configuration changed; refresh before claiming",
+                "registered_model": registered["model"],
+                "registered_role": registered["role"],
+                "presented_model": body.model,
+                "presented_role": body.worker_role,
+                "remedy": "restart the resident with --model/--role matching its registration, "
+                          "or re-register the session under the presented model",
+            })
         active = db.execute(text("SELECT id FROM tensor_dev_missions WHERE agent_session_id=:sid AND status IN ('claimed','running') AND heartbeat_at > now()-interval '240 seconds'"), {"sid": str(body.agent_session_id)}).scalar()
         if active:
             return {"claimed": False, "busy": True}
@@ -575,7 +588,7 @@ def claim_mission(
                 heartbeat_at = now()
             WHERE id = (
                 SELECT id FROM tensor_dev_missions
-                WHERE organization_id = :org AND status = 'queued' {runner_filter} {model_filter} {mission_filter} {role_filter} {session_filter}
+                WHERE organization_id = :org AND status = 'queued' AND suspended_at IS NULL {runner_filter} {model_filter} {mission_filter} {role_filter} {session_filter}
                   AND NOT EXISTS (
                     SELECT 1 FROM jsonb_array_elements_text(COALESCE(tensor_dev_missions.result->'dependency_ids','[]'::jsonb)) dep_id
                     LEFT JOIN tensor_dev_missions prerequisite ON prerequisite.id=CAST(dep_id.value AS bigint)
@@ -926,6 +939,18 @@ def complete_mission(
         except Exception as _exc:  # pragma: no cover - 部署面兜底
             logging.getLogger(__name__).warning("outcome_evaluations pending record skipped: %s", _exc)
     db.commit()
+    # IN35-N07：终态事件驱动增量评价 + 积压排空（pending > 阈值时）。
+    # 完全旁路：失败只告警，绝不改变完结主流程的返回体与状态机（判据 J4）。
+    try:
+        from tools.evaluation_ops import triggers as eval_triggers
+        eval_triggers.ensure_tables(db)
+        eval_triggers.on_mission_terminal(db, mission_id, status=body.status, commit=True,
+                                         source="mission_finish_hook")
+        if eval_triggers.should_drain(db)["trigger"]:
+            eval_triggers.drain_backlog(db, commit=True, batch=100, limit=200,
+                                        trigger_kind="threshold_hook")
+    except Exception as _exc:  # pragma: no cover - 部署面兜底
+        logging.getLogger(__name__).warning("eval timeliness hook skipped: %s", _exc)
     return {"id": mission_id, "status": body.status, "approval_id": None,
             "report_owed": report_owed}
 

@@ -1,0 +1,2763 @@
+{
+ "schema": "stall_detector/fixture/1",
+ "case": "2026-11-07 00:52→03:18 停摆（断粮 + 脉搏表停滞）",
+ "provenance": {
+  "generator": "tools/stall_fixture_20261107.py",
+  "anchors_query": "select to_char(ts,'YYYY-MM-DD HH24:MI:SS'), online, busy, held from saturation_pulse where ts >= '2026-11-07 00:00' order by ts",
+  "anchors": [
+   {
+    "ts": "2026-11-07T00:35:53",
+    "online": 43,
+    "busy": 34,
+    "held": 11
+   },
+   {
+    "ts": "2026-11-07T00:44:03",
+    "online": 53,
+    "busy": 40,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:46:16",
+    "online": 53,
+    "busy": 40,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:47:02",
+    "online": 53,
+    "busy": 39,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:47:47",
+    "online": 53,
+    "busy": 37,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:48:00",
+    "online": 53,
+    "busy": 35,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:49:01",
+    "online": 53,
+    "busy": 34,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:50:03",
+    "online": 52,
+    "busy": 32,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:52:06",
+    "online": 52,
+    "busy": 30,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T00:52:35",
+    "online": 52,
+    "busy": 30,
+    "held": 16
+   },
+   {
+    "ts": "2026-11-07T03:20:08",
+    "online": 52,
+    "busy": 1,
+    "held": 0
+   },
+   {
+    "ts": "2026-11-07T03:20:43",
+    "online": 52,
+    "busy": 9,
+    "held": 0
+   },
+   {
+    "ts": "2026-11-07T03:22:43",
+    "online": 53,
+    "busy": 8,
+    "held": 0
+   },
+   {
+    "ts": "2026-11-07T03:24:43",
+    "online": 47,
+    "busy": 8,
+    "held": 0
+   },
+   {
+    "ts": "2026-11-07T03:26:43",
+    "online": 45,
+    "busy": 19,
+    "held": 0
+   }
+  ],
+  "gap": {
+   "start": "2026-11-07T00:52:35",
+   "end": "2026-11-07T03:20:08",
+   "seconds": 8853.0,
+   "evidence_grade": "WITHHELD（缺口内无任何观测行）"
+  },
+  "reconstruction_law": {
+   "pulse_last_ts": "≤ 样本时刻的最后一条实测脉搏行（缺口内冻结于 00:52:35）",
+   "workers_online": "缺口内恒 52（两侧实测均为 52）",
+   "busy": "00:52:35 实测 30，600s 内线性降到 8（03:22:43/03:24:43 实测低水位）后恒定",
+   "workers_idle": "online − busy（与 tools/pulse 口径一致）",
+   "dag_pending/queued": "缺口内 0：任务书给定 + 当日 campaign_nodes 可派状态实测 0",
+   "fleet_heartbeat": "enrolled=57（当日 enabled 实测），心率全新鲜 → R2 本案例应沉默（负控）",
+   "recovery": "≥03:19：pending=19（campaign_nodes in-flight 实测 19）"
+  },
+  "evidence_grades": {
+   "pulse rows / gap 边界 / online / 高度水位": "REAL",
+   "gap 内 busy 与 pending 的逐分钟值": "RECONSTRUCTED（依上律，非实测）",
+   "判据依赖": "定性形状（pending=0 + idle 高 ≥15 min、脉搏停 ≥30 min）来自任务书与 gap 边界实测；检测器不得依赖 gap 内具体数值"
+  }
+ },
+ "thresholds": {},
+ "samples": [
+  {
+   "ts": "2026-11-07T00:35:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 43,
+   "workers_idle": 9,
+   "pulse_last_ts": null,
+   "source": "anchor_hold",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:36:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 43,
+   "workers_idle": 9,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:37:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 44,
+   "workers_idle": 9,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:38:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 46,
+   "workers_idle": 10,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:39:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 47,
+   "workers_idle": 11,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:40:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 48,
+   "workers_idle": 11,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:41:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 49,
+   "workers_idle": 11,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:42:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 50,
+   "workers_idle": 12,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:43:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 13,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:44:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 53,
+   "workers_idle": 13,
+   "pulse_last_ts": "2026-11-07T00:35:53+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:45:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 53,
+   "workers_idle": 13,
+   "pulse_last_ts": "2026-11-07T00:44:03+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:46:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 53,
+   "workers_idle": 13,
+   "pulse_last_ts": "2026-11-07T00:44:03+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:47:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 53,
+   "workers_idle": 14,
+   "pulse_last_ts": "2026-11-07T00:46:16+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:48:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 53,
+   "workers_idle": 18,
+   "pulse_last_ts": "2026-11-07T00:48:00+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:49:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 53,
+   "workers_idle": 19,
+   "pulse_last_ts": "2026-11-07T00:48:00+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:50:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 20,
+   "pulse_last_ts": "2026-11-07T00:49:01+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:51:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 21,
+   "pulse_last_ts": "2026-11-07T00:50:03+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:52:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 22,
+   "pulse_last_ts": "2026-11-07T00:50:03+00:00",
+   "source": "interpolated",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T00:53:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 23,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T00:54:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 25,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T00:55:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 27,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T00:56:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 30,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T00:57:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 32,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T00:58:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 34,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T00:59:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 36,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:00:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 38,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:01:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 41,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:02:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 43,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:03:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:04:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:05:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:06:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:07:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:08:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:09:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:10:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:11:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:12:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:13:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:14:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:15:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:16:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:17:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:18:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:19:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:20:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:21:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:22:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:23:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:24:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:25:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:26:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:27:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:28:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:29:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:30:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:31:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:32:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:33:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:34:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:35:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:36:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:37:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:38:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:39:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:40:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:41:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:42:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:43:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:44:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:45:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:46:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:47:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:48:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:49:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:50:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:51:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:52:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:53:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:54:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:55:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:56:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:57:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:58:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T01:59:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:00:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:01:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:02:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:03:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:04:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:05:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:06:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:07:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:08:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:09:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:10:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:11:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:12:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:13:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:14:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:15:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:16:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:17:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:18:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:19:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:20:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:21:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:22:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:23:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:24:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:25:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:26:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:27:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:28:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:29:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:30:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:31:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:32:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:33:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:34:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:35:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:36:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:37:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:38:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:39:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:40:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:41:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:42:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:43:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:44:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:45:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:46:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:47:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:48:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:49:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:50:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:51:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:52:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:53:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:54:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:55:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:56:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:57:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:58:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T02:59:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:00:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:01:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:02:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:03:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:04:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:05:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:06:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:07:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:08:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:09:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:10:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:11:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:12:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:13:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:14:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:15:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:16:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:17:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:18:00+00:00",
+   "dag_pending": 0,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 57,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "gap_reconstruction",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:19:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:20:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T00:52:35+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 0
+   }
+  },
+  {
+   "ts": "2026-11-07T03:21:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 52,
+   "workers_idle": 43,
+   "pulse_last_ts": "2026-11-07T03:20:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:22:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 53,
+   "workers_idle": 45,
+   "pulse_last_ts": "2026-11-07T03:20:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:23:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 52,
+   "workers_idle": 44,
+   "pulse_last_ts": "2026-11-07T03:22:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:24:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 49,
+   "workers_idle": 41,
+   "pulse_last_ts": "2026-11-07T03:22:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:25:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 47,
+   "workers_idle": 37,
+   "pulse_last_ts": "2026-11-07T03:24:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:26:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 46,
+   "workers_idle": 31,
+   "pulse_last_ts": "2026-11-07T03:24:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:27:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 45,
+   "workers_idle": 26,
+   "pulse_last_ts": "2026-11-07T03:26:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:28:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 45,
+   "workers_idle": 26,
+   "pulse_last_ts": "2026-11-07T03:26:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:29:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 45,
+   "workers_idle": 26,
+   "pulse_last_ts": "2026-11-07T03:26:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  },
+  {
+   "ts": "2026-11-07T03:30:00+00:00",
+   "dag_pending": 19,
+   "plan_pending": 0,
+   "queued_missions": 0,
+   "workers_enrolled": 57,
+   "heartbeat_fresh": 56,
+   "workers_online": 45,
+   "workers_idle": 26,
+   "pulse_last_ts": "2026-11-07T03:26:43+00:00",
+   "source": "post_recovery",
+   "detail": {
+    "pulse_rows_in_window": 1
+   }
+  }
+ ]
+}

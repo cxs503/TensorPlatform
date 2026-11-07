@@ -1,0 +1,2067 @@
+{
+  "schema": "tp.council.replay_cases/v1",
+  "version": "replay-2026-11-07",
+  "note": "26 个历史真实争议案例（仓内可查证据）+ 预登记判据 + owner 实际裁决。facts 一律用 regex 从证据文件现取（零手抄），expected 不符即 FAIL；owner_ruling.verbatim 必须是源文件原文子串；evidence.quote 亦逐条校验原文。v1 三例（IN27-H5-C1/C2/C3）逐字节保留。",
+  "cases": [
+    {
+      "case_id": "IN27-H5-C1",
+      "title": "MOCK 端点能否登记为已验证能力（REAL）",
+      "question": "既有 8 个端点经 MOCK 指纹扫描命中 INVARIANT 判据（跨扫参展布 0.00e+00），却在能力台账/报告中按『HTTP 200 + 字段齐全』登记为已验证能力（REAL）。该登记是否成立？",
+      "scope": "能力台账的证据等级口径",
+      "disputed_action": "把 MOCK 级端点登记为 REAL 并在对外报告里作为能力证据",
+      "preregistration": {
+        "frozen_by": "IN27-H5/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-06T20:00:00Z",
+        "rationale": "争议点只有一个：证据等级。判据必须机器可裁，故绑定 MOCK 指纹扫描的命中计数，而不是『看起来像真的』。",
+        "criteria": [
+          {
+            "criterion_id": "C1-A",
+            "statement": "登记为已验证能力（REAL）要求 MOCK 级判据命中数为 0",
+            "eval": {
+              "metric": "mock_endpoints_hit",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "DOWNGRADE_TO_MOCK"
+          },
+          {
+            "criterion_id": "C1-B",
+            "statement": "MOCK 命中数必须可被独立扫描复算（披露完整性）",
+            "eval": {
+              "metric": "mock_endpoints_hit",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "mock_endpoints_hit",
+          "source": "docs/audits/mock_fingerprint_sweep.md",
+          "regex": "\\|\\s*MOCK\\s*\\|\\s*(\\d+)\\s*\\|",
+          "expected": 8
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/mock_fingerprint_sweep.md",
+          "quote": "端点判决：任一 MOCK 级判据命中 ⇒ MOCK"
+        },
+        {
+          "path": "docs/audits/mock_fingerprint_sweep.md",
+          "quote": "判据只证「有响应」，不证精度"
+        },
+        {
+          "path": "docs/QUALITY_BAR.md",
+          "quote": "R5 失败保留（honest-FAIL 不可覆盖）"
+        }
+      ],
+      "charter_citations": [
+        "QG-MOCK-1",
+        "QG-MOCK-2",
+        "QG-R5",
+        "EV-GREEN-1"
+      ],
+      "owner_ruling": {
+        "label": "DOWNGRADE_TO_MOCK",
+        "verbatim": "不得作为绿色航行（EEDI/EEOI/CII）决策依据",
+        "source_ref": "docs/m1850_green_efficiency_validation_audit.md",
+        "ruled_at": null,
+        "ruled_at_note": "日期以 m1850 报告文本为准（本案例只引用仓内成文裁决原文，不代填日期）"
+      },
+      "owner_options": [
+        {
+          "option": "维持 REAL 登记",
+          "consequence": "证据分级制度失效，后续所有精度类结论不可信"
+        },
+        {
+          "option": "降 MOCK 并如实披露",
+          "consequence": "台账诚实但对外能力清单缩水"
+        },
+        {
+          "option": "先补外部基准再评级",
+          "consequence": "需新增基准工程，时间成本不可控"
+        }
+      ],
+      "recommended_option": "降 MOCK 并如实披露",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN27-H5-C2",
+      "title": "误差超 15% 能否宣称精度达标（honest-FAIL 可否被覆盖）",
+      "question": "阻力端点中 SUBOFF 高速工况误差远超 15% 验收带（Holtrop-Mennen 适用范围外），报告以『方法适用范围外』为由仍宣称满足精度要求。该宣称是否成立？",
+      "scope": "精度验收与 honest-FAIL 纪律",
+      "disputed_action": "以适用范围解释替代 honest-FAIL，把超 15% 工况计入达标",
+      "preregistration": {
+        "frozen_by": "IN27-H5/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-06T20:00:00Z",
+        "rationale": "『是否达标』必须由分母全集定义：只有全部工况都进 15% 带才可宣称达标；否则按 R5 如实判失败。",
+        "criteria": [
+          {
+            "criterion_id": "C2-A",
+            "statement": "宣称『全部达标』须全部工况均通过 15% 验收带",
+            "eval": {
+              "metric": "passed_cases_15pct",
+              "op": "==",
+              "value": 8
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C2-B",
+            "statement": "通过/未通过工况数须可复算披露",
+            "eval": {
+              "metric": "passed_cases_15pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "passed_cases_15pct",
+          "source": "docs/resistance_verification_report.md",
+          "regex": "(\\d+)/8\\s*工况通过",
+          "expected": 6
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/resistance_verification_report.md",
+          "quote": "6/8 工况通过 <15% 阈值"
+        },
+        {
+          "path": "docs/SUBOFF_RESISTANCE_VALIDATION.md",
+          "quote": "所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。"
+        },
+        {
+          "path": "docs/resistance_verification_report.md",
+          "quote": "HONEST-FAIL 说明"
+        }
+      ],
+      "charter_citations": [
+        "EV-SUBOFF-1",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。",
+        "source_ref": "docs/SUBOFF_RESISTANCE_VALIDATION.md",
+        "ruled_at": null,
+        "ruled_at_note": "以仓内 SUBOFF 验证报告成文结论为准"
+      },
+      "owner_options": [
+        {
+          "option": "宣称达标（剔除适用范围外工况）",
+          "consequence": "分母作弊，验收体系失效"
+        },
+        {
+          "option": "honest-FAIL 并标注适用范围",
+          "consequence": "能力清单缩水但结论可信"
+        },
+        {
+          "option": "升级算法（CFD/细长体理论）后重测",
+          "consequence": "需独立立项与算力"
+        }
+      ],
+      "recommended_option": "honest-FAIL 并标注适用范围",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN27-H5-C3",
+      "title": "平台能否自行改写产品定位（战略方向变更）",
+      "question": "平台是否可将产品定位由『所有领域智能体共用的运行底座』改为『船舶总体性能专用底座』，并同步改写北极星与指南锚点以换取领域功能开发效率？",
+      "scope": "战略方向变更与治理规则",
+      "disputed_action": "把战略级变更当作工程取舍，由平台自行决定并同步改写北极星/指南锚点",
+      "preregistration": {
+        "frozen_by": "IN27-H5/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-06T20:00:00Z",
+        "rationale": "先把红线判据写在前面：一旦争议文本命中红线类别，机器只能出呈 owner 的决策包，票决不得改变这一点。",
+        "criteria": [
+          {
+            "criterion_id": "C3-A",
+            "statement": "自决（不呈 owner）要求争议文本未命中任何红线类别",
+            "eval": {
+              "metric": "red_line_categories_hit",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "ESCALATE_TO_OWNER"
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "red_line_categories_hit",
+          "source": "data/governance/redline_lexicon.json",
+          "regex": null,
+          "expected": 2,
+          "derive": "len(set(category for hit in classifier.classify(question+scope+disputed_action)))",
+          "expected_note": "v1 原值 1 未经现算（原回放脚本对该 metric 直接信任 expected）；本节点改为分类器现算 = 2，判据结论不变（≥1 类别 → 升级 owner）。"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "AGENTS.md",
+          "quote": "Keep physical formulas, scientific workflow semantics, video grammar, game mechanics, humanities methodology, and other specialist rules out of platform core."
+        },
+        {
+          "path": "AGENTS.md",
+          "quote": "Preserve the repository boundary: TensorPlatform is domain-neutral AI-era infrastructure."
+        }
+      ],
+      "charter_citations": [
+        "BP-REDLINE-1",
+        "CC-REDLINE-1",
+        "RB-1",
+        "RB-3"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "Keep physical formulas, scientific workflow semantics, video grammar, game mechanics, humanities methodology, and other specialist rules out of platform core.",
+        "source_ref": "AGENTS.md",
+        "ruled_at": "2026-11-02",
+        "ruled_at_note": "owner 2026-11-02 归仓终裁：平台=共用运行底座、不做领域功能（仓外 BP 文本 ECOSYSTEM-MAP 同步记载）；本案例只把仓内可溯源的条文作为裁决原文。"
+      },
+      "owner_options": [
+        {
+          "option": "维持通用底座，领域功能落领域仓",
+          "consequence": "平台与领域仓各归其位，短期效率低"
+        },
+        {
+          "option": "改为船舶专用底座并改写北极星",
+          "consequence": "战略锚点变更、多租户能力作废，不可逆"
+        },
+        {
+          "option": "仅加装领域适配器（adapter），不改定位",
+          "consequence": "满足领域接入且不动北极星"
+        }
+      ],
+      "recommended_option": "维持通用底座，领域功能落领域仓",
+      "divergence_analysis": "机器判决=ESCALATE_TO_OWNER，owner 实际=REJECT，二者**标签不一致但不是错误**：宪章（BP-REDLINE-1 / CC-REDLINE-1）规定战略级变更与治理规则只能由 owner 终裁，机器正确行为就是不代签。分歧可辩护性有三条证据：①裁决器在红线命中时构造 owner_packet 且 self_decision=False，packet 里 recommended_option=REJECT（依据 RB-1/RB-3 边界铁律），但 recommendation_is_binding=False；②owner 对同一争议已有成文裁决（AGENTS.md 边界条文 + 2026-11-02 归仓终裁），即『机器不自签 + owner 已签』是正确终态而非悬空；③若把 ESCALATE 与 REJECT 强行合并成同一标签，就等于让机器事后认领 owner 的裁决（自我授权），这正是宪政化要消除的失败模式。因此本案例按『宪法性分歧』记账，不计入一致、也不判 mismatch。"
+    },
+    {
+      "case_id": "IN28-N07-C04",
+      "title": "操纵性端点以常量响应登记为真实能力",
+      "question": "平台 maneuvering 三个端点对输入参数不敏感（88 探针全返回同一常量），却在能力台账中按『HTTP 200 + 字段齐全』登记为已验证能力。该登记是否成立？",
+      "scope": "能力台账的证据等级口径",
+      "disputed_action": "把常量响应的端点登记为已验证能力并对外引用其输出",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C04-A",
+            "statement": "登记为已验证能力要求 MOCK 级端点数为 0",
+            "eval": {
+              "metric": "maneuvering_mock_endpoints",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "DOWNGRADE_TO_MOCK"
+          },
+          {
+            "criterion_id": "C04-B",
+            "statement": "MOCK 端点计数须可被独立复算披露",
+            "eval": {
+              "metric": "maneuvering_mock_endpoints",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "maneuvering_mock_endpoints",
+          "source": "docs/audits/m1763_maneuvering_verification_comprehensive.md",
+          "regex": "`:8001/api/v1/maneuvering/(?:turning|zigzag|k_t)`\\s*\\|\\s*\\*\\*MOCK\\*\\*",
+          "expected": 3
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/m1763_maneuvering_verification_comprehensive.md",
+          "quote": "| `:8001/api/v1/maneuvering/turning` | **MOCK** | m1456: 88 探针全返回常量 |"
+        },
+        {
+          "path": "docs/audits/m1763_maneuvering_verification_comprehensive.md",
+          "quote": "| 平台端点响应性 | 参数变化应引起输出变化 | 非零灵敏度 | 0 (MOCK) | ❌ NO (已知缺陷) |"
+        },
+        {
+          "path": "docs/audits/mock_fingerprint_sweep.md",
+          "quote": "端点判决：任一 MOCK 级判据命中 ⇒ MOCK"
+        }
+      ],
+      "charter_citations": [
+        "QG-MOCK-1",
+        "QG-MOCK-2",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "DOWNGRADE_TO_MOCK",
+        "verbatim": "| 平台端点响应性 | 参数变化应引起输出变化 | 非零灵敏度 | 0 (MOCK) | ❌ NO (已知缺陷) |",
+        "source_ref": "docs/audits/m1763_maneuvering_verification_comprehensive.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "维持真实能力登记",
+          "consequence": "台账把常量响应当物理结论，后续操纵性引用失真"
+        },
+        {
+          "option": "降 MOCK 并撤回对外引用",
+          "consequence": "台账诚实，操纵性能力对用户不可用"
+        },
+        {
+          "option": "补真实 MMG 求解器后再评级",
+          "consequence": "需新增实现与验证工程量"
+        }
+      ],
+      "recommended_option": "降 MOCK 并撤回对外引用",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C05",
+      "title": "无证据 PASS 卡片保留绿色状态",
+      "question": "能力卡片链审计发现 3 张卡片的 PASS 无证据锚点（报告正文无 sha256/md5 绑定），审计已将其降级；原绿色 PASS 是否仍可作为对外能力证据？",
+      "scope": "能力卡片证据链",
+      "disputed_action": "保留无证据锚点的 PASS 卡片作为能力证据",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C05-A",
+            "statement": "对外能力证据要求无证据 PASS 卡片数为 0",
+            "eval": {
+              "metric": "uncited_pass_cards",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "DOWNGRADE_TO_MOCK"
+          },
+          {
+            "criterion_id": "C05-B",
+            "statement": "降级卡片数须披露",
+            "eval": {
+              "metric": "uncited_pass_cards",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "uncited_pass_cards",
+          "source": "docs/audits/capability_card_evidence_chain.md",
+          "regex": "并把 (\\d+) 个无证据 PASS 降级",
+          "expected": 3
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/capability_card_evidence_chain.md",
+          "quote": "> 本单把这条链换成可机器裁判的 E1–E7 七条判据，重锚到真实报告正文的 sha256/md5，并把 3 个无证据 PASS 降级。"
+        },
+        {
+          "path": "docs/audits/capability_card_evidence_chain.md",
+          "quote": "| CAP-002 SUBOFF 阻力 | PASS |"
+        }
+      ],
+      "charter_citations": [
+        "QG-MOCK-1",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "DOWNGRADE_TO_MOCK",
+        "verbatim": "并把 3 个无证据 PASS 降级。",
+        "source_ref": "docs/audits/capability_card_evidence_chain.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "保留绿色 PASS",
+          "consequence": "证据链制度失效，卡片不可复核"
+        },
+        {
+          "option": "降级并重锚证据",
+          "consequence": "台账诚实，需重跑锚点绑定"
+        },
+        {
+          "option": "删卡不作说明",
+          "consequence": "违反失败保留纪律，历史丢失"
+        }
+      ],
+      "recommended_option": "降级并重锚证据",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C06",
+      "title": "必填入参装饰化仍按真实计算登记",
+      "question": "绿色航行效率端点的 G7 判据失败：9 个必填入参中 5 个只做透传、未参与计算。该端点可否登记为真实计算能力？",
+      "scope": "参数参与度与证据等级",
+      "disputed_action": "把装饰化入参的端点登记为真实计算能力",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C06-A",
+            "statement": "真实计算要求装饰化必填入参数为 0",
+            "eval": {
+              "metric": "decorated_required_inputs",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "DOWNGRADE_TO_MOCK"
+          },
+          {
+            "criterion_id": "C06-B",
+            "statement": "装饰化入参数须披露",
+            "eval": {
+              "metric": "decorated_required_inputs",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "decorated_required_inputs",
+          "source": "docs/m1850_green_efficiency_validation_audit.md",
+          "regex": "必填入参 (\\d+)/9 装饰",
+          "expected": 5
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/m1850_green_efficiency_validation_audit.md",
+          "quote": "| G7 | G7_必填入参必须参与计算（不得装饰） | **FAIL** | 必填入参 5/9 装饰（length, beam, draft, displacement, cb） |"
+        }
+      ],
+      "charter_citations": [
+        "EV-GREEN-1",
+        "QG-MOCK-2",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "DOWNGRADE_TO_MOCK",
+        "verbatim": "必填入参 5/9 装饰（length, beam, draft, displacement, cb）",
+        "source_ref": "docs/m1850_green_efficiency_validation_audit.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "维持真实计算登记",
+          "consequence": "承诺的敏感性分析实为无效参数扫描"
+        },
+        {
+          "option": "降 MOCK 并披露参数参与度",
+          "consequence": "绿色航行结论只能作趋势参考"
+        },
+        {
+          "option": "补齐参数参与计算后重验",
+          "consequence": "需改实现并重跑基准"
+        }
+      ],
+      "recommended_option": "降 MOCK 并披露参数参与度",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C07",
+      "title": "语料评估以结构存在性替代量值判定",
+      "question": "评估语料中 67 条按语料 schema 标记为 HONEST_FAIL（占 48.2%）。若把 honest-FAIL 样本计入『语料全部达标』，该宣称是否成立？",
+      "scope": "语料标签与达标口径",
+      "disputed_action": "把带 HONEST_FAIL 标签的语料计为全部达标的语料",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C07-A",
+            "statement": "宣称语料全部达标要求 HONEST_FAIL 计数为 0",
+            "eval": {
+              "metric": "corpus_honest_fail_count",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C07-B",
+            "statement": "HONEST_FAIL 计数须披露",
+            "eval": {
+              "metric": "corpus_honest_fail_count",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "corpus_honest_fail_count",
+          "source": "docs/g-sample-schema.md",
+          "regex": "\\| HONEST_FAIL \\| (\\d+) \\|",
+          "expected": 67
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/g-sample-schema.md",
+          "quote": "| HONEST_FAIL | 67 | 48.2% | 误差 >100% 或方法不适用 |"
+        },
+        {
+          "path": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "quote": "| 硬标准 | `HARD_TOL_PCT = 15.0 %`（>15% 不可接受） |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "| HONEST_FAIL | 67 | 48.2% | 误差 >100% 或方法不适用 |",
+        "source_ref": "docs/g-sample-schema.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称语料全部达标",
+          "consequence": "48.2% 的失败样本被静默覆盖"
+        },
+        {
+          "option": "如实标注失败占比",
+          "consequence": "语料用途受限但可复核"
+        },
+        {
+          "option": "剔除失败样本再评估",
+          "consequence": "幸存者偏差，违反保留纪律"
+        }
+      ],
+      "recommended_option": "如实标注失败占比",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C08",
+      "title": "数字可核率未达 100% 仍按全量统计",
+      "question": "评估波次中『调用可核率』实测 0.9656（197 个数字未命中，已按保守规则降为 candidate）。若仍按全量峰值统计并对外报告，该统计是否成立？",
+      "scope": "可核率与统计口径",
+      "disputed_action": "把未达 100% 可核率的样本按全量计入统计",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C08-A",
+            "statement": "全量统计要求数字可核率为 1.0",
+            "eval": {
+              "metric": "citation_verifiable_rate",
+              "op": ">=",
+              "value": 1.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "DOWNGRADE_TO_MOCK"
+          },
+          {
+            "criterion_id": "C08-B",
+            "statement": "可核率须披露",
+            "eval": {
+              "metric": "citation_verifiable_rate",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "citation_verifiable_rate",
+          "source": "docs/m5180/evaluation_wave.md",
+          "regex": "调用可核率 \\| 100% \\| ([\\d.]+)",
+          "expected": 0.9656
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/m5180/evaluation_wave.md",
+          "quote": "| 调用可核率 | 100% | 0.9656 | −3.44 pp（197 个数字未命中 → 降 candidate） | ⚠️ 未达 100%，已按保守规则降级而非忽略 |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "QG-MOCK-2"
+      ],
+      "owner_ruling": {
+        "label": "DOWNGRADE_TO_MOCK",
+        "verbatim": "⚠️ 未达 100%，已按保守规则降级而非忽略",
+        "source_ref": "docs/m5180/evaluation_wave.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "按全量峰值报告",
+          "consequence": "3.44 pp 的不可核部分被隐去"
+        },
+        {
+          "option": "按 candidate 口径保守报告",
+          "consequence": "结论保守但每次可复核"
+        },
+        {
+          "option": "补核 197 个未命中",
+          "consequence": "需可核性回填工程"
+        }
+      ],
+      "recommended_option": "按 candidate 口径保守报告",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C09",
+      "title": "推进批量路径以接线一致性替代绝对精度登记交付",
+      "question": "propulsion 批量路径的接线缺陷已修，但绝对精度未达 15% 全线判据，报告仍以『双通道零偏差』表述整体交付。该交付表述是否成立？",
+      "scope": "精度验收与交付口径",
+      "disputed_action": "以接线一致性替代绝对精度判据，宣称推进批量能力已交付",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C09-A",
+            "statement": "宣称交付须满足全线绝对精度判据（无未达项）",
+            "eval": {
+              "metric": "propulsion_unmet_lines",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C09-B",
+            "statement": "未达项数须披露",
+            "eval": {
+              "metric": "propulsion_unmet_lines",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "propulsion_unmet_lines",
+          "source": "docs/audit/m1664_propulsion_batch_path_verification.md",
+          "regex": "绝对精度\\*\\*未达 15% 全线判据",
+          "expected": 1
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/m1664_propulsion_batch_path_verification.md",
+          "quote": "**结论（honest）**：接线缺陷已修并锁死（测试绿、双通道零偏差）；绝对精度**未达 15% 全线判据**，"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "QG-MOCK-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "**结论（honest）**：接线缺陷已修并锁死（测试绿、双通道零偏差）；绝对精度**未达 15% 全线判据**，",
+        "source_ref": "docs/audit/m1664_propulsion_batch_path_verification.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称批量能力已交付",
+          "consequence": "精度债务被表述掩盖，下游误用"
+        },
+        {
+          "option": "如实登记为接线已修、精度未达",
+          "consequence": "能力标签变弱但可复核"
+        },
+        {
+          "option": "补精度口径重做验证",
+          "consequence": "需新增对标算例与工时"
+        }
+      ],
+      "recommended_option": "如实登记为接线已修、精度未达",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C10",
+      "title": "旧式回转直径口径沿用",
+      "question": "回转直径曾在报告里按旧式 2u/r 口径给出，与稳态运动学恒等式 R=|U|/|r| 相差 5.96%。旧式口径是否可作为有效结果沿用？",
+      "scope": "操纵性结果口径",
+      "disputed_action": "沿用旧式 2u/r 回转直径口径并登记其偏差为 0",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C10-A",
+            "statement": "回转直径口径偏差须 ≤3%（恒等式口径）",
+            "eval": {
+              "metric": "turning_diameter_dev_pct",
+              "op": "<=",
+              "value": 3.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "REJECT"
+          },
+          {
+            "criterion_id": "C10-B",
+            "statement": "口径偏差须披露",
+            "eval": {
+              "metric": "turning_diameter_dev_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "turning_diameter_dev_pct",
+          "source": "docs/audit/manoeuvring_verification_debt.md",
+          "regex": "回转直径（旧式 2u/r）[^|]*\\|[^|]*\\|\\s*\\*\\*([\\d.]+)\\s*%",
+          "expected": 5.96
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/manoeuvring_verification_debt.md",
+          "quote": "| 回转直径（旧式 2u/r）vs 恒等式 | 同上 | **5.96 %** | ❌ 否（已修复为恒等式口径） |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "| 回转直径（旧式 2u/r）vs 恒等式 | 同上 | **5.96 %** | ❌ 否（已修复为恒等式口径） |",
+        "source_ref": "docs/audit/manoeuvring_verification_debt.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "沿用旧式口径",
+          "consequence": "5.96% 系统偏差进入操纵性结论"
+        },
+        {
+          "option": "改用恒等式口径并留痕",
+          "consequence": "偏差归零，但与历史报告数字不连续"
+        },
+        {
+          "option": "两口径并列报告",
+          "consequence": "披露完整但读者易误引"
+        }
+      ],
+      "recommended_option": "改用恒等式口径并留痕",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C11",
+      "title": "两套实现 30.1% 分歧下宣称操纵性精度达标",
+      "question": "仓内两套操纵性实现回转直径 D/L 相差 30.1%（4.192 vs 3.223），实现方仍宣称操纵性精度满足验收。该精度宣称是否成立？",
+      "scope": "code-to-code 精度与验收口径",
+      "disputed_action": "在跨实现分歧 30.1% 未解决时宣称操纵性精度达标",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C11-A",
+            "statement": "精度宣称要求跨实现分歧 ≤15%",
+            "eval": {
+              "metric": "code_to_code_DL_diff_pct",
+              "op": "<=",
+              "value": 15.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C11-B",
+            "statement": "跨实现分歧须披露",
+            "eval": {
+              "metric": "code_to_code_DL_diff_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "code_to_code_DL_diff_pct",
+          "source": "docs/audit/manoeuvring_verification_debt.md",
+          "regex": "code-to-code\\*\\*\\s*\\|\\s*\\*\\*([\\d.]+)\\s*%",
+          "expected": 30.1
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/manoeuvring_verification_debt.md",
+          "quote": "| **D/L vs 仓内第二套 MMG（W3-N08）** | **code-to-code** | **30.1 %**（4.192 vs 3.223） | ❌ **否，未解决** |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "| **D/L vs 仓内第二套 MMG（W3-N08）** | **code-to-code** | **30.1 %**（4.192 vs 3.223） | ❌ **否，未解决** |",
+        "source_ref": "docs/audit/manoeuvring_verification_debt.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称精度达标",
+          "consequence": "两套实现谁对未定，下游无法判定适用性"
+        },
+        {
+          "option": "如实判失败并登记债务",
+          "consequence": "操纵性能力标签降级"
+        },
+        {
+          "option": "先做跨实现归因再评级",
+          "consequence": "工程量增加但可定位真值"
+        }
+      ],
+      "recommended_option": "如实判失败并登记债务",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C12",
+      "title": "横摇 T44 通道 B 超 15% 门槛仍按达标报告",
+      "question": "横摇周期 T44 的通道 B 相对 IS Code 2008 回归最大偏差 +22.71%（超 15% 不可接受线），报告仍把该通道结果计入横摇能力达标。该计入是否成立？",
+      "scope": "耐波性精度验收",
+      "disputed_action": "把超出 15% 不可接受线的通道结果计入达标",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C12-A",
+            "statement": "计入达标要求通道偏差 ≤15%",
+            "eval": {
+              "metric": "t44_channel_b_max_err_pct",
+              "op": "<=",
+              "value": 15.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C12-B",
+            "statement": "通道偏差须披露",
+            "eval": {
+              "metric": "t44_channel_b_max_err_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "t44_channel_b_max_err_pct",
+          "source": "docs/audit/m2032_roll_verification_debt.md",
+          "regex": "T44（通道 B）[^|]*\\|[^|]*\\|\\s*\\+([\\d.]+)\\s*%",
+          "expected": 22.71
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/m2032_roll_verification_debt.md",
+          "quote": "| T44（通道 B） | IS Code 2008 回归 | +22.71%（max） | **否**（且超 15% 门槛 → DEBT） |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "| T44（通道 B） | IS Code 2008 回归 | +22.71%（max） | **否**（且超 15% 门槛 → DEBT） |",
+        "source_ref": "docs/audit/m2032_roll_verification_debt.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "计入横摇达标",
+          "consequence": "22.71% 偏差被表述为可接受"
+        },
+        {
+          "option": "如实判失败并登记 DEBT-ROLL",
+          "consequence": "横摇结论降级为债务"
+        },
+        {
+          "option": "只报通道 A 结果",
+          "consequence": "选择性披露，双通道一致性缺失"
+        }
+      ],
+      "recommended_option": "如实判失败并登记 DEBT-ROLL",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C13",
+      "title": "双通道横摇结果互证为单通道结论",
+      "question": "横摇两通道 T44 互比偏差 +12.96%（>3%），却被用作『双通道互证』以支撑单通道结论。该互证是否成立？",
+      "scope": "互证口径与重复性",
+      "disputed_action": "把 12.96% 的双通道偏差表述为互证一致",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C13-A",
+            "statement": "互证一致要求双通道偏差 ≤3%",
+            "eval": {
+              "metric": "dual_channel_consistency_pct",
+              "op": "<=",
+              "value": 3.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C13-B",
+            "statement": "双通道偏差须披露",
+            "eval": {
+              "metric": "dual_channel_consistency_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "dual_channel_consistency_pct",
+          "source": "docs/audit/m2032_roll_verification_debt.md",
+          "regex": "双通道 T44 一致性[^|]*\\|[^|]*\\|\\s*\\+([\\d.]+)\\s*%",
+          "expected": 12.96
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/m2032_roll_verification_debt.md",
+          "quote": "| 双通道 T44 一致性 | 两通道互比 | +12.96% | **否** → DEBT-ROLL-1 |"
+        },
+        {
+          "path": "docs/audit/m2032_roll_verification_debt.md",
+          "quote": "| T44（通道 A） | IS Code 2008 回归 | +8.63%（max） | **否**（介于 2.07%~8.63%，>3%） |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "| 双通道 T44 一致性 | 两通道互比 | +12.96% | **否** → DEBT-ROLL-1 |",
+        "source_ref": "docs/audit/m2032_roll_verification_debt.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "按互证通过处理",
+          "consequence": "12.96% 的通道差被当作噪声"
+        },
+        {
+          "option": "判互证不成立并留 DEBT",
+          "consequence": "需单独立项做通道归因"
+        },
+        {
+          "option": "只用其一并声明单通道",
+          "consequence": "结论范围收窄但诚实"
+        }
+      ],
+      "recommended_option": "判互证不成立并留 DEBT",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C14",
+      "title": "SUBOFF 3/4 工况通过即宣称精度满足",
+      "question": "阻力端点验证中 SUBOFF 4 个工况仅 3 个进入 3% 带、最大误差 34.57%，报告以『3/4 通过』宣称精度满足要求。该宣称是否成立？",
+      "scope": "阻力精度验收分母口径",
+      "disputed_action": "以部分工况通过替代全工况判据宣称精度满足",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C14-A",
+            "statement": "宣称精度满足要求全部工况通过",
+            "eval": {
+              "metric": "suboff_passed_cases",
+              "op": "==",
+              "value": 4
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C14-B",
+            "statement": "通过工况数须披露",
+            "eval": {
+              "metric": "suboff_passed_cases",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "suboff_passed_cases",
+          "source": "docs/RESISTANCE_API_VALIDATION.md",
+          "regex": "\\| SUBOFF \\| (\\d+)/4 \\|",
+          "expected": 3
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/RESISTANCE_API_VALIDATION.md",
+          "quote": "| SUBOFF | 3/4 | 34.57% | ❌ 否（仅 SUBOFF-02 为 1.18% <3%） |"
+        },
+        {
+          "path": "docs/SUBOFF_RESISTANCE_VALIDATION.md",
+          "quote": "**所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。**"
+        }
+      ],
+      "charter_citations": [
+        "EV-SUBOFF-1",
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "**所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。**",
+        "source_ref": "docs/SUBOFF_RESISTANCE_VALIDATION.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称精度满足",
+          "consequence": "34.57% 的最大误差被分母技巧掩盖"
+        },
+        {
+          "option": "按全工况判据如实判失败",
+          "consequence": "阻力端点能力降级"
+        },
+        {
+          "option": "只报 1.18% 的工况",
+          "consequence": "选择性披露，违反失败保留纪律"
+        }
+      ],
+      "recommended_option": "按全工况判据如实判失败",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C15",
+      "title": "湿面积第二套核以 50.62% 偏差仍按主口径合并",
+      "question": "KVLCC2 湿面积与轴对称第二核对差 +50.62%（该核方法不适用）。若把两核结果取平均作为最终湿面积，该合并是否成立？",
+      "scope": "code-to-code 核选择与合并口径",
+      "disputed_action": "把 50.62% 偏差的失效核对与主口径平均",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C15-A",
+            "statement": "参与合并的核要求各核偏差 ≤15%",
+            "eval": {
+              "metric": "wetted_area_vs_axisym_pct",
+              "op": "<=",
+              "value": 15.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C15-B",
+            "statement": "核偏差须披露",
+            "eval": {
+              "metric": "wetted_area_vs_axisym_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "wetted_area_vs_axisym_pct",
+          "source": "docs/audits/m1873_dup_kernel_divergence.md",
+          "regex": "KVLCC2 \\| ref_axisym[^|]*\\|[^|]*\\|\\s*\\+([\\d.]+) %",
+          "expected": 50.62
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/m1873_dup_kernel_divergence.md",
+          "quote": "| KVLCC2 | ref_axisym(pi*B*L*(0.5+0.25Cb)) | 40958.426 | +50.62 % | no | NO |"
+        },
+        {
+          "path": "docs/audits/m1873_dup_kernel_divergence.md",
+          "quote": "| KVLCC2 | ref_holtrop1982(Cwp=published) | 27066.827 | -0.47 % | YES | YES |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "| KVLCC2 | ref_axisym(pi*B*L*(0.5+0.25Cb)) | 40958.426 | +50.62 % | no | NO |",
+        "source_ref": "docs/audits/m1873_dup_kernel_divergence.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "两核平均",
+          "consequence": "把方法失效项当独立样本，引入 ~25% 偏差"
+        },
+        {
+          "option": "剔除失效核并披露理由",
+          "consequence": "湿面积单一口径，需说明适用范围"
+        },
+        {
+          "option": "两核并列不合并",
+          "consequence": "披露完整但读者需自行取舍"
+        }
+      ],
+      "recommended_option": "剔除失效核并披露理由",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C16",
+      "title": "证据指针不可核率 28.79% 下宣称验证可复核",
+      "question": "证据指针审计显示 28.79% 的验证断言属 UNANCHORED（无容差声明或无现存测试指针），报告仍宣称『验证证据全部可复核』。该宣称是否成立？",
+      "scope": "证据可复核性口径",
+      "disputed_action": "在近三成证据无锚点情况下宣称证据全部可复核",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C16-A",
+            "statement": "宣称全部可复核要求无锚点比例 ≤3%",
+            "eval": {
+              "metric": "unanchored_evidence_pct",
+              "op": "<=",
+              "value": 3.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C16-B",
+            "statement": "无锚点比例须披露",
+            "eval": {
+              "metric": "unanchored_evidence_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "unanchored_evidence_pct",
+          "source": "docs/audits/verification_evidence_pointer_rot_m2055.md",
+          "regex": "UNANCHORED \\| \\d+ \\| ([\\d.]+)%",
+          "expected": 28.79
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/verification_evidence_pointer_rot_m2055.md",
+          "quote": "| UNANCHORED | 76 | 28.79% | 无容差声明、或无现存测试指针 |"
+        },
+        {
+          "path": "docs/audits/verification_evidence_pointer_rot_m2055.md",
+          "quote": "| OFFBRANCH_ONLY | 92 | 34.85% | 指针只在别的分支历史里，本树不可复核 |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "QG-MOCK-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "| UNANCHORED | 76 | 28.79% | 无容差声明、或无现存测试指针 |",
+        "source_ref": "docs/audits/verification_evidence_pointer_rot_m2055.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称全部可复核",
+          "consequence": "近三成断言不可复算，结论不可审计"
+        },
+        {
+          "option": "如实标注不可核比例",
+          "consequence": "证据链诚实，需回填锚点"
+        },
+        {
+          "option": "只统计可核子集",
+          "consequence": "分母缩小，结论范围需显式声明"
+        }
+      ],
+      "recommended_option": "如实标注不可核比例",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C17",
+      "title": "观察窗未满即宣称成熟度达成",
+      "question": "IN27-H4 的 A2 判据要求连续观察 7 天，实测仅 1/7 天，报告仍宣称该成熟度项达成。该宣称是否成立？",
+      "scope": "成熟度观察窗与达成判据",
+      "disputed_action": "以观察窗未满的样本宣称成熟度项达成",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C17-A",
+            "statement": "宣称达成要求观察天数 ≥7",
+            "eval": {
+              "metric": "a2_observed_days",
+              "op": ">=",
+              "value": 7
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C17-B",
+            "statement": "观察天数须披露",
+            "eval": {
+              "metric": "a2_observed_days",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "a2_observed_days",
+          "source": "docs/IN27-H4/README.md",
+          "regex": "A2 未达成\\*\\*（(\\d+)/7 天）",
+          "expected": 1
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/IN27-H4/README.md",
+          "quote": "1. **A2 未达成**（1/7 天）。这不是机制缺陷，而是观察窗口未满；但按判据它就是未达成，不许粉饰。"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "CC-1"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "**A2 未达成**（1/7 天）",
+        "source_ref": "docs/IN27-H4/README.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称达成",
+          "consequence": "把窗口未满当机制成功，判据失效"
+        },
+        {
+          "option": "如实判未达成并续观察",
+          "consequence": "成熟度标签推迟，但判据可信"
+        },
+        {
+          "option": "改判据为 1 天",
+          "consequence": "事后改判据，程序上不可接受"
+        }
+      ],
+      "recommended_option": "如实判未达成并续观察",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C18",
+      "title": "带治理标记的门被自动释放",
+      "question": "自动释放台账中 1 道门带 owner_only 治理标记（governance_marker=SPEC军），仍被流水线按 done=True 自动释放。该自动释放是否成立？",
+      "scope": "治理门与自动释放边界",
+      "disputed_action": "把带 owner_only 标记的门交给自动释放逻辑",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C18-A",
+            "statement": "自动释放后不得残留 owner_only 门",
+            "eval": {
+              "metric": "owner_only_gates",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "REJECT"
+          },
+          {
+            "criterion_id": "C18-B",
+            "statement": "owner_only 计数须披露",
+            "eval": {
+              "metric": "owner_only_gates",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "owner_only_gates",
+          "source": "docs/gate_auto_release.md",
+          "regex": "owner_only=(\\d+) / owner_only_reason",
+          "expected": 1
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/gate_auto_release.md",
+          "quote": "`owner_only=1 / owner_only_reason=governance_marker=SPEC军 / owner_only_marked_at=…`。"
+        },
+        {
+          "path": "docs/gate_auto_release.md",
+          "quote": "| 185 | SPEC军G20·S×E闭环验收门 | 9/9 done=True |"
+        }
+      ],
+      "charter_citations": [
+        "CC-1",
+        "BP-REDLINE-1",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "owner_only=1 / owner_only_reason=governance_marker=SPEC军 / owner_only_marked_at=…",
+        "source_ref": "docs/gate_auto_release.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "自动释放",
+          "consequence": "治理标记被流水线越过，审计断链"
+        },
+        {
+          "option": "拦截并挂 owner 待裁决",
+          "consequence": "释放延迟，但治理链完整"
+        },
+        {
+          "option": "删除治理标记后释放",
+          "consequence": "等于自授权，违反不得自提权"
+        }
+      ],
+      "recommended_option": "拦截并挂 owner 待裁决",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C19",
+      "title": "不确定度已达闸门宽度仍判 PASS/FAIL",
+      "question": "GCI/ITTC 吸收试验数值不确定度 U_V 已达 15% 闸门宽度，报告仍按 PASS/FAIL 二值结论发布。该判定是否成立？",
+      "scope": "数值不确定度与可裁性",
+      "disputed_action": "在不确定度≥闸门宽度时仍给出二值验证结论",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C19-A",
+            "statement": "可判 PASS/FAIL 要求不确定度 <15%",
+            "eval": {
+              "metric": "u_v_pct",
+              "op": "<",
+              "value": 15.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "REJECT"
+          },
+          {
+            "criterion_id": "C19-B",
+            "statement": "不确定度须披露",
+            "eval": {
+              "metric": "u_v_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "u_v_pct",
+          "source": "docs/gci_ittc_7503_absorption.md",
+          "regex": "U_V >= (\\d+)%",
+          "expected": 15
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/gci_ittc_7503_absorption.md",
+          "quote": "| `U_V >= 15%` | **WITHHELD** | 数值不确定度已达闸门宽度，验证不足，不得判 PASS/FAIL |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "数值不确定度已达闸门宽度，验证不足，不得判 PASS/FAIL",
+        "source_ref": "docs/gci_ittc_7503_absorption.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "发布 PASS/FAIL",
+          "consequence": "结论强度超过证据支撑"
+        },
+        {
+          "option": "判 WITHHELD（证据不足）",
+          "consequence": "结论不可用但诚实"
+        },
+        {
+          "option": "补算降不确定度",
+          "consequence": "需更多网格/时域算例"
+        }
+      ],
+      "recommended_option": "判 WITHHELD（证据不足）",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C20",
+      "title": "引用核验 22/22 通过（正向控制）",
+      "question": "自检报告声称 22 条引用全部可核（逐条打开文件:行号比对 token，允许 ±8 行漂移）。该自检结论是否可采信？",
+      "scope": "自检可核性与引用纪律",
+      "disputed_action": "把未逐条核验的引用计为通过",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C20-A",
+            "statement": "引用核验须全部通过（22/22）",
+            "eval": {
+              "metric": "citations_verified",
+              "op": "==",
+              "value": 22
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C20-B",
+            "statement": "核验条数须披露",
+            "eval": {
+              "metric": "citations_verified",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "citations_verified",
+          "source": "docs/audits/m2088_audit3_selfcheck.md",
+          "regex": "\\*\\*(\\d+)/22 通过\\*\\*",
+          "expected": 22
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/m2088_audit3_selfcheck.md",
+          "quote": "| 4 | 引用核验（内置） | **22/22 通过**（逐条打开 `文件:行号` 比对期望 token；允许 ±8 行漂移并记录 `actual_line`） |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "ADOPT",
+        "verbatim": "**22/22 通过**（逐条打开 `文件:行号` 比对期望 token；允许 ±8 行漂移并记录 `actual_line`）",
+        "source_ref": "docs/audits/m2088_audit3_selfcheck.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "采信自检结论",
+          "consequence": "引用链可复核（正向控制样本）"
+        },
+        {
+          "option": "不采信任何自检",
+          "consequence": "自检机制作废，成本外溢"
+        },
+        {
+          "option": "抽样复算",
+          "consequence": "可作补充但不能替代逐条"
+        }
+      ],
+      "recommended_option": "采信自检结论",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C21",
+      "title": "旧版判定词口径 39 条全误报仍按可采信口径使用",
+      "question": "误差宣称审计第一版用『子串判定词』：实测 39 条 HARD 全为误报（审计对照表里的勾号、通过率、优于另一模型都被当成验收背书）。该口径能否直接用于验收判定？",
+      "scope": "判定词口径与误报率",
+      "disputed_action": "沿用第一版子串判定词口径做验收判定",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C21-A",
+            "statement": "可采信口径要求误报条数为 0",
+            "eval": {
+              "metric": "false_positive_rows",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "REJECT"
+          },
+          {
+            "criterion_id": "C21-B",
+            "statement": "误报条数须披露",
+            "eval": {
+              "metric": "false_positive_rows",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "false_positive_rows",
+          "source": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "regex": "实测 \\*\\*(\\d+) 条 HARD 全为误报\\*\\*",
+          "expected": 39
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "quote": "第一版用「子串判定词」，实测 **39 条 HARD 全为误报**（审计对照表里的 `✅`、`通过率`、`优于另一模型`、"
+        },
+        {
+          "path": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "quote": "| **违规条目（HARD_GT15 + SOFT_THRESH）** | **0** |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "QG-MOCK-1",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "第一版用「子串判定词」，实测 **39 条 HARD 全为误报**（审计对照表里的 `✅`、`通过率`、`优于另一模型`、",
+        "source_ref": "docs/audit/m1856_error_claim_consistency_audit.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "沿用第一版口径",
+          "consequence": "39 条合法披露被误判违规，门禁不可信"
+        },
+        {
+          "option": "加子句作用域等守卫后升版",
+          "consequence": "误报归零但门禁实现变复杂"
+        },
+        {
+          "option": "放弃机器判定",
+          "consequence": "回到人工抽查，可审计性下降"
+        }
+      ],
+      "recommended_option": "加子句作用域等守卫后升版",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C22",
+      "title": "为消除账本不一致直接删除历史账本条目",
+      "question": "裁决账本与关系库出现行差异，有人主张直接删除数据（历史账本条目）后重建，以消除差异。该主张可否由平台自行执行？",
+      "scope": "审计账本不可删改（不可逆动作）",
+      "disputed_action": "由业务任务静默删除数据并重建账本条目，属于不可逆动作",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C22-A",
+            "statement": "自决要求争议文本未命中任何红线类别",
+            "eval": {
+              "metric": "red_line_categories_hit",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "ESCALATE_TO_OWNER"
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "red_line_categories_hit",
+          "source": "data/governance/redline_lexicon.json",
+          "regex": null,
+          "expected": 1,
+          "derive": "len(set(hit['category'] for hit in classifier.classify(question + scope + disputed_action)))"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+          "quote": "- 安全事件和审计日志不得由普通业务任务静默删除或改写。"
+        },
+        {
+          "path": "docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+          "quote": "- **R3：** 高影响、不可逆、安全敏感、治理规则变更或跨项目重大操作；必须人工批准并保留完整审计。"
+        }
+      ],
+      "charter_citations": [
+        "BP-REDLINE-1",
+        "CC-REDLINE-1",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "- 安全事件和审计日志不得由普通业务任务静默删除或改写。",
+        "source_ref": "docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "自行删除并重建账本",
+          "consequence": "审计链被抹除，历史不可复核（不可逆）"
+        },
+        {
+          "option": "呈 owner 并保留双份差异明细",
+          "consequence": "处理延迟，但审计链完整"
+        },
+        {
+          "option": "新增补偿性条目说明差异",
+          "consequence": "append-only 不被破坏，差异可追"
+        }
+      ],
+      "recommended_option": "呈 owner 并保留双份差异明细",
+      "divergence_analysis": "机器判决=ESCALATE_TO_OWNER，owner 实际=REJECT，二者标签不同但**不是错误**，而是分权设计的结果：争议文本命中不可逆类（删除数据/不可逆），宪章规定此类事项只能由 owner 终裁，机器的正确行为就是不代签。可辩护性三条：①裁决器在该路由构造 owner_packet 且 self_decision=False，recommendation_is_binding=False（只呈选项不代签）；②owner 对同一争议已有成文裁决（治理规范第 11 节：审计日志不得由普通业务任务静默删除或改写），即『机器不自签 + owner 已签』是正确终态；③若把 ESCALATE 与 REJECT 合并为同一标签，等于让机器事后认领 owner 的裁决，反而破坏分权。"
+    },
+    {
+      "case_id": "IN28-N07-C23",
+      "title": "为加速收敛下调多族表决的超级多数门槛",
+      "question": "有人主张把多族表决的超级多数门槛由 2/3 降为简单多数，以减少升级到 owner 的争议数量、加快收敛。该变更可否由平台自行执行？",
+      "scope": "表决规则变更（治理规则类）",
+      "disputed_action": "由平台自行下调超级多数门槛，改动表决规则本身",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C23-A",
+            "statement": "自决要求争议文本未命中任何红线类别",
+            "eval": {
+              "metric": "red_line_categories_hit",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "ESCALATE_TO_OWNER"
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "red_line_categories_hit",
+          "source": "data/governance/redline_lexicon.json",
+          "regex": null,
+          "expected": 1,
+          "derive": "len(set(hit['category'] for hit in classifier.classify(question + scope + disputed_action)))"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+          "quote": "- **R3：** 高影响、不可逆、安全敏感、治理规则变更或跨项目重大操作；必须人工批准并保留完整审计。"
+        },
+        {
+          "path": "docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+          "quote": "- Agent 不得自行授予自己权限、关闭独立审查或删除失败证据。"
+        }
+      ],
+      "charter_citations": [
+        "CC-REDLINE-1",
+        "BP-REDLINE-1",
+        "CC-1"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "- **R3：** 高影响、不可逆、安全敏感、治理规则变更或跨项目重大操作；必须人工批准并保留完整审计。",
+        "source_ref": "docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "自行下调门槛",
+          "consequence": "被约束方自改约束，分权失效"
+        },
+        {
+          "option": "维持 2/3 并升级争议",
+          "consequence": "升级量不变，但程序可信"
+        },
+        {
+          "option": "提出变更并走 owner 审批",
+          "consequence": "合规但周期长"
+        }
+      ],
+      "recommended_option": "维持 2/3 并升级争议",
+      "divergence_analysis": "机器判决=ESCALATE_TO_OWNER，owner 实际=REJECT：争议文本命中治理规则类（表决规则/超级多数），按宪章机器不得改动自己的表决口径，只能呈 owner。可辩护性三条：①改门槛等于改『谁有权终裁』，受益方正是被门槛约束的 Agent 自身，属典型的自利冲突，机器一律升级；②owner 有成文裁决（治理规范 R3：治理规则变更须人工批准并保留完整审计）；③升级包内 options 明确列出保持 2/3 的结果，recommendation_is_binding=False，机器未把偏好伪装成裁决。"
+    },
+    {
+      "case_id": "IN28-N07-C24",
+      "title": "WIGLEY 静水力学精度宣称（正向控制）",
+      "question": "WIGLEY 标准船型静水力学验证中排水体积误差 0.0022%（闭式基准），若据此宣称该静水力学实现精度达标，该宣称是否成立？",
+      "scope": "静水力学精度验收",
+      "disputed_action": "宣称静水力学精度达标（排水体积误差 0.0022%）",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C24-A",
+            "statement": "达标要求排水体积误差 ≤3%",
+            "eval": {
+              "metric": "wigley_displacement_err_pct",
+              "op": "<=",
+              "value": 3.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C24-B",
+            "statement": "误差须披露",
+            "eval": {
+              "metric": "wigley_displacement_err_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "wigley_displacement_err_pct",
+          "source": "docs/WIGLEY_HYDROSTATICS_VALIDATION.md",
+          "regex": "排水体积误差 < 3%\\?\\s*\\|\\s*✅ 是（([\\d.]+)%）",
+          "expected": 0.0022
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/WIGLEY_HYDROSTATICS_VALIDATION.md",
+          "quote": "| 排水体积误差 < 3%? | ✅ 是（0.0022%） |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "ADOPT",
+        "verbatim": "| 排水体积误差 < 3%? | ✅ 是（0.0022%） |",
+        "source_ref": "docs/WIGLEY_HYDROSTATICS_VALIDATION.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称达标",
+          "consequence": "结论与闭式基准逐项一致（正向控制样本）"
+        },
+        {
+          "option": "不宣称",
+          "consequence": "过度保守，与实测不符"
+        },
+        {
+          "option": "加做更多船型再宣称",
+          "consequence": "覆盖更广，但本项已被闭式解覆盖"
+        }
+      ],
+      "recommended_option": "宣称达标",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C25",
+      "title": "振动接线修复后精度宣称（正向控制）",
+      "question": "振动域端点接线修复后，关键量最大相对误差 3.372e-01 %（参考值与被测量是同一物理量在不同实现下的闭式解）。若据此宣称该端点精度达标，该宣称是否成立？",
+      "scope": "振动噪声精度验收",
+      "disputed_action": "宣称振动端点精度达标（最大相对误差 0.3372%）",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C25-A",
+            "statement": "达标要求关键量相对误差 ≤3%",
+            "eval": {
+              "metric": "vibration_max_rel_err_pct",
+              "op": "<=",
+              "value": 3.0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C25-B",
+            "statement": "误差须披露",
+            "eval": {
+              "metric": "vibration_max_rel_err_pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "vibration_max_rel_err_pct",
+          "source": "docs/audit/m1849_vibration_wiring.md",
+          "regex": "关键量最大相对误差 = \\*\\*([\\d.eE+-]+) %\\*\\*",
+          "expected": 0.3372
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/m1849_vibration_wiring.md",
+          "quote": "关键量最大相对误差 = **3.372e-01 %**（判据 <3%）。"
+        },
+        {
+          "path": "docs/audit/m1849_vibration_wiring.md",
+          "quote": "**是否 <3%：是**（且远小于 3% —— 因为参考值与被测量是同一物理量在不同实现下的闭式解）。"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "ADOPT",
+        "verbatim": "**是否 <3%：是**（且远小于 3% —— 因为参考值与被测量是同一物理量在不同实现下的闭式解）。",
+        "source_ref": "docs/audit/m1849_vibration_wiring.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称达标",
+          "consequence": "与闭式参考一致（正向控制样本）"
+        },
+        {
+          "option": "因参考同源而不宣称",
+          "consequence": "过度保守，但可提示同源局限"
+        },
+        {
+          "option": "补外部实验基准",
+          "consequence": "证据更强，成本更高"
+        }
+      ],
+      "recommended_option": "宣称达标",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN28-N07-C26",
+      "title": "升级后判定词门禁在发表语料零违规（正向控制）",
+      "question": "判定词门禁升级后复扫发表语料：2827 条误差宣称中违规条目（HARD_GT15 + SOFT_THRESH）为 0。若据此宣称『机器可判范围内不存在数字与结论矛盾的宣称』，该宣称是否成立？",
+      "scope": "报告语料自洽性",
+      "disputed_action": "宣称发表语料在机器可判范围内零违规",
+      "preregistration": {
+        "frozen_by": "IN28-N07/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-07T12:00:00Z",
+        "rationale": "争议点只有一个：该主张能否成立。判据绑定仓内可复核的计数/误差量，不绑『看起来像真的』；判据冻结后不可再改（改则 PreregistrationError）。",
+        "criteria": [
+          {
+            "criterion_id": "C26-A",
+            "statement": "宣称零违规要求违规条目数为 0",
+            "eval": {
+              "metric": "hard_gate_violations",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C26-B",
+            "statement": "违规条目数须披露",
+            "eval": {
+              "metric": "hard_gate_violations",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "hard_gate_violations",
+          "source": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "regex": "\\| \\*\\*违规条目（HARD_GT15 \\+ SOFT_THRESH）\\*\\* \\| \\*\\*(\\d+)\\*\\* \\|",
+          "expected": 0
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "quote": "| **违规条目（HARD_GT15 + SOFT_THRESH）** | **0** |"
+        },
+        {
+          "path": "docs/audit/m1856_error_claim_consistency_audit.md",
+          "quote": "| 抽取到的误差宣称条目 | **2827** |"
+        }
+      ],
+      "charter_citations": [
+        "QG-R5",
+        "BP-1"
+      ],
+      "owner_ruling": {
+        "label": "ADOPT",
+        "verbatim": "| **违规条目（HARD_GT15 + SOFT_THRESH）** | **0** |",
+        "source_ref": "docs/audit/m1856_error_claim_consistency_audit.md",
+        "ruled_at": null,
+        "ruled_at_note": "本案例把仓内成文结论归一化到封闭判决词表（ADOPT=采纳争议主张 / REJECT=驳回争议主张 / DOWNGRADE_TO_MOCK=证据等级降级 / HONEST_FAIL=如实判失败 / ESCALATE_TO_OWNER=呈 owner 终裁）；verbatim 为 source_ref 原文子串，机器校验，非本节点代拟。"
+      },
+      "owner_options": [
+        {
+          "option": "宣称零违规",
+          "consequence": "结论由机器复扫支撑（正向控制样本）"
+        },
+        {
+          "option": "不宣称",
+          "consequence": "过度保守，与复扫结果不符"
+        },
+        {
+          "option": "扩大语料再复扫",
+          "consequence": "覆盖更广，但本项已覆盖全部发表语料"
+        }
+      ],
+      "recommended_option": "宣称零违规",
+      "divergence_analysis": ""
+    }
+  ]
+}
