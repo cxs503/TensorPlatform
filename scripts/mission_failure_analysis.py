@@ -31,7 +31,8 @@ import psycopg
 
 DB_URL = os.getenv(
     "DATABASE_URL",
-    "host=127.0.0.1 port=5432 dbname=tensorplatform user=foundation password=uGTN-KwuQv_7l8Tw0MMWUx_kf-nF2Rzz",
+    "host=127.0.0.1 port=5432 dbname=tensorplatform user=foundation password="
+    + os.getenv("TP_PG_PASSWORD", ""),
 )
 
 # ---------------------------------------------------------------------------

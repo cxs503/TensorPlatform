@@ -1,0 +1,14 @@
+{
+  "label": "0002-chronicle-clock-psql-timeout",
+  "author": "m5306/IN27-H2",
+  "rationale": "战史官钟单拍与饱和调节器同属一个缺陷类：psql 调用无超时，锁等待时整条 daemon 通道挂死（chronicle_clock 是六源快照的源，挂死=影子官与结算环全部断料）。补 psql 单次调用硬上限，超时按既有的 SQLERR 路径优雅退出（不改 schema、不改负载）。",
+  "replacements": [
+    {
+      "file": "chronicle_clock_once.py",
+      "note": "psql 单次调用硬上限 + 超时走既有 SQLERR 优雅退出",
+      "old": "import json, subprocess, sys\nfrom datetime import datetime, timezone\ndef psql(sql):\n    r = subprocess.run([\"psql\",\"-U\",\"postgres\",\"-d\",\"tensorplatform\",\"-h\",\"/var/run/postgresql\",\"-t\",\"-A\",\"-c\",sql],\n                       capture_output=True, text=True)\n    if r.returncode: print(\"SQLERR\", r.stderr.strip()[:150]); sys.exit(1)\n    return r.stdout.strip()\n",
+      "new": "import json, os, subprocess, sys\nfrom datetime import datetime, timezone\n\n# IN27-H2 门控仓补丁：psql 单次调用硬上限（锁等待不再挂死整条时钟通道）\nPSQL_TIMEOUT_S = float(os.environ.get(\"TP_PG_TIMEOUT_S\", \"15\"))\n\n\ndef psql(sql):\n    try:\n        r = subprocess.run([\"psql\",\"-U\",\"postgres\",\"-d\",\"tensorplatform\",\"-h\",\"/var/run/postgresql\",\"-t\",\"-A\",\"-c\",sql],\n                           capture_output=True, text=True, timeout=PSQL_TIMEOUT_S)\n    except subprocess.TimeoutExpired:\n        print(\"SQLERR timeout\", PSQL_TIMEOUT_S); sys.exit(1)\n    if r.returncode: print(\"SQLERR\", r.stderr.strip()[:150]); sys.exit(1)\n    return r.stdout.strip()\n",
+      "count": 1
+    }
+  ]
+}
