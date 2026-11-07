@@ -39,12 +39,21 @@ from .snapshot import REPO_ROOT, Snapshot, sha256_file  # noqa: E402
 # The build image ships no CJK font, so CJK ticks render as tofu. Domain names
 # keep their exact values in the data/series and provenance; only the axis tick
 # text is transliterated for display, and unmapped domains keep the raw name.
-DOMAIN_DISPLAY = {
-    "开发": "dev", "几何": "geometry", "平台": "platform", "推进": "propulsion",
-    "稳性": "stability", "阻力": "resistance", "数据": "data", "方法": "methods",
-    "杂项": "misc", "耐波": "seakeeping", "操纵": "manoeuvring", "结构": "structure",
-    "振动噪声": "vib-acoustics", "绿色航行": "green", "冰区": "ice",
-}
+# The vocabulary is data, not code (SPEC §3: platform stays domain-neutral):
+# entries live in domain_display.json so domain terms are injected via config;
+# a missing/corrupt file degrades to identity mapping, never a crash.
+
+
+def _load_domain_display() -> dict[str, str]:
+    path = Path(__file__).with_name("domain_display.json")
+    try:
+        loaded = json.loads(path.read_text(encoding="utf-8"))
+        return loaded if isinstance(loaded, dict) else {}
+    except (OSError, ValueError):
+        return {}
+
+
+DOMAIN_DISPLAY = _load_domain_display()
 
 LEVEL_ORDER = ["REAL", "MOCK", "STUB", "WITHHELD", "NOT_SUPPORTED", "UNSPECIFIED"]
 
