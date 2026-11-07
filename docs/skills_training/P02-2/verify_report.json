@@ -1,0 +1,56 @@
+{
+  "task": "P02-2 certification export endpoint planning",
+  "checks": [
+    {
+      "id": "C1",
+      "check": "openapi.yaml 可解析",
+      "pass": true,
+      "detail": "openapi=3.1.0"
+    },
+    {
+      "id": "C2",
+      "check": "3 个操作均有 2xx 响应 schema",
+      "pass": true,
+      "detail": "ops=3/3, missing_2xx=无"
+    },
+    {
+      "id": "C3",
+      "check": "storage.sql 可执行",
+      "pass": true,
+      "detail": "tables=['certification_exports']"
+    },
+    {
+      "id": "C4",
+      "check": "4 个 WP × 7 字段齐全",
+      "pass": true,
+      "detail": "wp_found=['WP1', 'WP2', 'WP3', 'WP4'], missing=无"
+    },
+    {
+      "id": "C5",
+      "check": "依赖图无环",
+      "pass": true,
+      "detail": "nodes=5, topo_visited=5, edges=6"
+    },
+    {
+      "id": "C6",
+      "check": "关键路径复算一致",
+      "pass": true,
+      "detail": "computed=4.0d, doc_claim=4.0, critical=WP1 -> WP2 -> WP4b"
+    },
+    {
+      "id": "C7",
+      "check": "交叉引用闭合",
+      "pass": true,
+      "detail": "problems=无"
+    },
+    {
+      "id": "C8",
+      "check": "错误码表覆盖",
+      "pass": true,
+      "detail": "openapi_codes=[401, 403, 404, 409, 410, 422, 429, 507], uncovered=无"
+    }
+  ],
+  "passed": 8,
+  "total": 8,
+  "verdict": "PASS"
+}
