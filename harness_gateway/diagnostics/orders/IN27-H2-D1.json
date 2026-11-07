@@ -1,0 +1,68 @@
+{
+  "schema": "coordinator-diagnostic-order/1",
+  "order_id": "IN27-H2-D1",
+  "issued_by": "coordinator_shadow/IN27-H2",
+  "rationale": "协调官诊断单的执行形态：每一项都绑定门链里的既有动作，逐项产出机器证据；负例项以 expect.verdict 声明期望拦截结果（拦不住 = FAIL，而不是'看起来没事'）。",
+  "items": [
+    {
+      "id": "D1",
+      "op": "mirror_verify",
+      "expect": {
+        "drifts": 0
+      },
+      "note": "生产 harness 是否被绕过门改动 / 镜像是否被手改"
+    },
+    {
+      "id": "D2",
+      "op": "gate_compile",
+      "note": "编译门：语法 + 重复定义 + 明文凭据"
+    },
+    {
+      "id": "D3",
+      "op": "gate_canary",
+      "note": "金丝雀门：单进程真跑（psql/网络被 shim 拦死）"
+    },
+    {
+      "id": "D4",
+      "op": "patch_apply",
+      "params": {
+        "patch_file": "harness_gateway/patches/0002-chronicle-clock-psql-timeout.json",
+        "run_id": "0003_order_patch_0002",
+        "commit": true
+      },
+      "note": "真实修补②：战史官钟 psql 超时上限（经三门外）"
+    },
+    {
+      "id": "D5",
+      "op": "patch_apply",
+      "params": {
+        "patch_file": "harness_gateway/patches/NC1-syntax-error-injection.json",
+        "run_id": "0003_order_NC1_syntax"
+      },
+      "expect": {
+        "verdict": "FAIL_ROLLED_BACK"
+      },
+      "note": "红队负例①：语法错必须被编译门拦住并回滚"
+    },
+    {
+      "id": "D6",
+      "op": "patch_apply",
+      "params": {
+        "patch_file": "harness_gateway/patches/NC2-runtime-crash-injection.json",
+        "run_id": "0003_order_NC2_runtime"
+      },
+      "expect": {
+        "verdict": "FAIL_ROLLED_BACK"
+      },
+      "note": "红队负例②：运行期崩溃必须被金丝雀门拦住并回滚"
+    },
+    {
+      "id": "D7",
+      "op": "deploy_dry_run",
+      "params": {
+        "target_root": "/root/tp-agent"
+      },
+      "note": "部署计划（默认 dry-run，不写生产 harness）"
+    }
+  ]
+}

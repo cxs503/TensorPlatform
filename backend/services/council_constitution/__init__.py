@@ -1,0 +1,63 @@
+"""议会宪政化（council constitutionalism）—— 裁决程序的最小实现。
+
+对外只暴露程序原语：宪法装载/溯源、预登记判据、红线分类、多模型族票决、
+裁决器、审计链账本、回放比对。全部领域数据外置在 ``data/governance/``。
+"""
+
+from .core import (  # noqa: F401
+    SCHEMA_ADJUDICATION,
+    SCHEMA_CHARTER,
+    SCHEMA_LEDGER,
+    RED_LINE_KINDS,
+    VERDICTS,
+    Adjudicator,
+    Ballot,
+    Charter,
+    Clause,
+    Conclave,
+    ConstitutionError,
+    Criterion,
+    Ledger,
+    Preregistration,
+    PreregistrationError,
+    RedLineClassifier,
+    Source,
+    acceptance_summary,
+    canonical_bytes,
+    compare_with_owner,
+    load_charter,
+    load_redline_lexicon,
+    parse_ts,
+    sha256_file,
+    sha256_obj,
+    utc_now,
+)
+
+__all__ = [
+    "SCHEMA_ADJUDICATION",
+    "SCHEMA_CHARTER",
+    "SCHEMA_LEDGER",
+    "RED_LINE_KINDS",
+    "VERDICTS",
+    "Adjudicator",
+    "Ballot",
+    "Charter",
+    "Clause",
+    "Conclave",
+    "ConstitutionError",
+    "Criterion",
+    "Ledger",
+    "Preregistration",
+    "PreregistrationError",
+    "RedLineClassifier",
+    "Source",
+    "acceptance_summary",
+    "canonical_bytes",
+    "compare_with_owner",
+    "load_charter",
+    "load_redline_lexicon",
+    "parse_ts",
+    "sha256_file",
+    "sha256_obj",
+    "utc_now",
+]

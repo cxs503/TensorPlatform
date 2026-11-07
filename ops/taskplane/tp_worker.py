@@ -289,7 +289,7 @@ def tool_run_shell(root, command, timeout=120):
 def tool_cluster(action, repo=None, cmd=None, ref="main", node="auto",
                  shards=None, cmd_tpl=None, job_id=None, timeout=3600, stage_dir=None):
     """计算集群工具（owner 2026-11-03「计算的时候调用」「当集群用」）：
-    702所双节点 loong64 128核×2。重计算/大规模扫描一律走集群，别压 99。"""
+    外协方双节点 loong64 128核×2。重计算/大规模扫描一律走集群，别压 99。"""
     if action not in ("nodes", "run", "shard", "ps", "kill", "fetch"):
         return "REJECTED: action 只允许 nodes/run/shard/ps/kill/fetch"
     if shards is not None and (not isinstance(shards, int) or shards < 1 or shards > 64):
@@ -378,7 +378,7 @@ TOOLS = [
         "parameters": {"type": "object", "properties": {}}}},
     {"type": "function", "function": {
         "name": "run_cluster", "description":
-            "调用计算集群（702所双节点 loong64 128核×2，repo 从 GitHub 缓存秒级就绪）。"
+            "调用计算集群（外协方双节点 loong64 128核×2，repo 从 GitHub 缓存秒级就绪）。"
             "action=nodes 查负载；run 在单节点 repo 检出内执行命令；shard 把 {i}/{n} 分片"
             "并行撒两节点（每分片日志 shard_<i>.log）；ps/kill/fetch 按 job_id 跟踪/杀/取回。"
             "重计算（全量测试/参数扫描/收敛研究）一律走这里，不要压 99 控制面。",
@@ -462,7 +462,21 @@ def _tool_ship_api(args: dict) -> str:
 
 
 def _tool_audit_caps() -> str:
-    """审计船舶平台能力清单。"""
+    """审计船舶平台能力清单（委托单一解析器 + 台账消费者渲染）。
+
+    2026-11-07 m5352：此前这里是**单一硬编码绝对路径**，该文件在本机只剩 .pyc，
+    于是本工具对全部 agent 恒返回「读取能力清单失败」——证据分级仪整月不可用的根因。
+    现在路径/指纹只经 tools/audit/ledger_paths.py（消费者契约门）。
+    """
+    try:
+        import pathlib
+        root = pathlib.Path(__file__).resolve().parents[1]
+        if str(root) not in sys.path:
+            sys.path.insert(0, str(root))
+        from tools.audit.ledger_consumer_audit_tool import audit_capabilities as _render_ledger
+        return _render_ledger()
+    except Exception as exc:
+        return f"读取能力清单失败: {type(exc).__name__}: {exc}"
     cap_path = "/root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json"
     try:
         d = json.load(open(cap_path))

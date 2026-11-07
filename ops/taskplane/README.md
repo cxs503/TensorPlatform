@@ -11,6 +11,7 @@ cron 行/凭据/编制表全在库外，**宿主重装 = 舰队失忆**。本目
 |---|---|
 | `taskplane.manifest.yaml` | 守护清单单一事实源（增删守护改这里） |
 | `supervise.py` | 统一监护：按 manifest 拉起 + 30s 巡检补拉（只补缺员不杀存活） |
+| `gate_auto_release.py` | 放门自动化 daemon：blocked 门→上游全 done+判据工件可解析→翻 pending+审计；治理门只标 `owner_only=1` 不放；`--rollback <audit_id>` 可逆（IN20-R2，设计见 `docs/gate_auto_release.md`） |
 | `*.py / *.sh / fleet.json` | 18 项守护脚本 + tp_worker 舰队编制表（生产实况快照收库） |
 | `deploy/taskplane/`（库根） | Dockerfile + compose + env 模板 |
 

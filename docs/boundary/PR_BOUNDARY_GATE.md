@@ -150,3 +150,85 @@ artifacts/boundary/pr_gate_selfcheck_paths.json   对本节点自身源码（pat
 artifacts/boundary/pr_gate_selfcheck_branch.json  对本节点整条分支 diff（git 模式）自检判决
 artifacts/boundary/figures/pr_gate_calibration.png 校准图
 ```
+
+## 5. 检出保证（P20-N08）：对抗语料上的召回率 / 误报率实测
+
+§4 的校准是「手写判例全绿」——它证明门禁在**已知**判例上不错，但不给检出保证。
+P20-N08 用**对抗语料**把保证量化（语料作者 ≠ 门禁作者，故对作者盲；种子是三单真实清洗过的渗漏形态：
+
+`IN17-B2`/#608、`IN17-B3`/#610、`IN17-B5`/#616）：
+
+| 项 | 值 |
+|---|---|
+| 语料 | 6 类变异算子 × (26 正 + 10 负) = 216 条，种子 `20261107` |
+| 语料哈希 | `8ef53c885b1a5c2920ff8edb658844c37267e6bc2c0951b6bf4a8a7782af104a` |
+| 基线（本文件 `pr_gate_scan.py`）整体 | 召回 **55.1%** · 误报 **0.0%** · 精确率 100.0% |
+| 加固层（`structural_gate.py`）整体 | 召回 **76.3%** · 误报 **0.0%** |
+| 留出语料（换种子、不调参） | 召回 **76.3%** · 误报 **0.0%** |
+
+逐类矩阵（负样本 60 条，两层零误报）：
+
+| 变异类 | n | 基线召回 | 加固召回 | 基线误报 | 加固误报 |
+|---|---|---|---|---|---|
+| `synonym_rewrite` | 36 | 50.0% | 50.0% | 0.0% | 0.0% |
+| `symbol_notation` | 36 | 50.0% | 88.5% | 0.0% | 0.0% |
+| `cross_language` | 36 | 50.0% | 50.0% | 0.0% | 0.0% |
+| `block_embedding` | 36 | 61.5% | 84.6% | 0.0% | 0.0% |
+| `comment_url` | 36 | 69.2% | 100.0% | 0.0% | 0.0% |
+| `long_range_reference` | 36 | 50.0% | 84.6% | 0.0% | 0.0% |
+| **整体** | 216 | 55.1% | 76.3% | 0.0% | 0.0% |
+
+结论与引用规则见 [`边界声明.md`](边界声明.md)：**边界门检出能力不足**（基线 55.1% < 70%），
+PASS 不得被引用为「平台无域语义」。
+
+## 6. 加固层（P20-N08 / E4）：三条结构性判据
+
+`tools/boundary/structural_gate.py` = 本文件的基础门禁 + 以下判据（判据内容全部在
+`data/boundary/structural_rules.json`，工具代码零域词）：
+
+| 规则 | 判据 | 目标盲区 | 对召回的作用 |
+|---|---|---|---|
+| `R1_unmask` | NFKC/去格式字符/百分号解码/同形字折叠/数字替换 + 跨相邻行断词拼接（命中须跨拼接边界） | 遮蔽（`comment_url`） | 69.2% → 100% |
+| `R2_notation` | 方形系数、L/B、Re_τ、主尺度三元组、主尺度 dict（length+beam+draft 三键） | 符号化（`symbol_notation`） | 50% → 88.5% |
+| `R2b_key_cooccurrence` | ±4 行窗口内 ≥1 特征键且合计 ≥2 几何键的赋值形态 | 容器（表格/yaml/docstring） | 61.5% → 84.6% |
+| `R3_reference` | 路径 + 节号锚 → 读被引用工件 → 携带阻断词条即判引用越界 | 长程引用 | 50% → 84.6% |
+
+**加固次序纪律**：结构性判据只对基础门禁**未命中**的行生效；每条规则的收紧都用**负样本实测**决定
+（例：`dimension_dict` 只要 `length`+`beam` 时画布尺寸误报 2 条，加 `draft` 三键后归零）。
+整体误报上升 **0.0pp**（预算 2.0pp）。
+
+**加固后仍 <0.6 的两类**是 `synonym_rewrite` 与 `cross_language`——词表覆盖度/语种问题，
+结构判据无解；留出法探针（把同义/外文映射一半写进临时词表）显示：扩张集召回 1.00、留出集 0.00，
+即「只能靠词表增长，且对未枚举措辞无保证」。
+
+## 7. 接入（加固后命令行与基础门禁同参，可直接替换）
+
+```yaml
+      - name: PR boundary gate (SPEC §3, v1.1 = base + structural)
+        run: |
+          git diff -U0 "${{ github.event.pull_request.base.sha }}" "${{ github.event.pull_request.head.sha }}" \
+            | python3 tools/boundary/structural_gate.py diff - \
+                --json artifacts/boundary/pr_gate_verdict.json --format text
+```
+
+退出码与基础门禁一致（`0`=PASS、`2`=FAIL、`3`=内部错误），判决 JSON 兼容并新增
+`structural.rules` / `structural.violations` / `totals.base_violations|structural_violations` 留痕。
+启用仍属治理动作（§3）：本节点只提供可替换命令行与实测数字，不擅自改 `.github/workflows/`。
+
+## 8. 复现（P20-N08 产物清单）
+
+```
+data/boundary/adversarial_corpus_seeds.json     种子数据（三单真实渗漏形态 + 同义/外文/数值/引用槽位池）
+data/boundary/adversarial_corpus.json           216 条语料（确定性生成，哈希见 §5）
+data/boundary/structural_rules.json             结构性判据数据（R1/R2/R2b/R3 的形态与取舍理由）
+tools/boundary/adversarial_corpus.py            6 类变异算子（结构算子，零域词）
+tools/boundary/adversarial_measure.py           召回/误报/漏检/机理/留出语料/留出法探针
+tools/boundary/structural_gate.py               加固门禁（CLI 与基础门禁同参）
+tools/boundary/gen_adversarial_figure.py        报告图（只读 metrics）
+tools/boundary/gen_adversarial_report.py        报告正文（数字程序化注入）
+tests/test_boundary_adversarial.py              14 项判据（C1-C5 + E4 + 零域词自检 + CLI）
+artifacts/boundary/adversarial_metrics.json     度量明细（含逐条漏检清单）
+artifacts/boundary/adversarial_recall_figure.png 报告图
+docs/boundary/边界声明.md                        检出能力声明（honest 条款落点）
+docs/reports/m5282_boundary_adversarial_recall.md 论文级报告
+```

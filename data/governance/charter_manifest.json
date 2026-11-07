@@ -1,0 +1,156 @@
+{
+  "schema": "tp.council.charter/v1",
+  "version": "constitution-2026-11-06",
+  "note": "成文宪法投影：owner 判断已固化于文本（BP / 可控宪章 / 质量门 v1 / 北极星 / 仓边界），本文件只是把这些文本投影成机器可读约束。clause.text 必须是来源文件里的原文（verify_provenance 机器校验），不得改写或概括。",
+  "sources": [
+    {
+      "source_id": "north_star",
+      "title": "两级北极星（PANORAMA 愿景节）",
+      "role": "north_star",
+      "paths": ["/root/tp-agent/PANORAMA.md"],
+      "external": true
+    },
+    {
+      "source_id": "controllable_charter",
+      "title": "AUTONOMY_CHARTER（可控宪章，owner 2026-10-31 令）",
+      "role": "charter",
+      "paths": ["/root/tp-agent/AUTONOMY_CHARTER.md"],
+      "external": true
+    },
+    {
+      "source_id": "bp_spec",
+      "title": "AGENT_BOOTSTRAP（BP 产品需求规格书 + 入场纪律）",
+      "role": "bp",
+      "paths": ["/root/tp-agent/AGENT_BOOTSTRAP.md"],
+      "external": true
+    },
+    {
+      "source_id": "repo_boundary",
+      "title": "AGENTS.md（仓边界铁律）",
+      "role": "repo_boundary",
+      "paths": ["AGENTS.md"],
+      "external": false
+    },
+    {
+      "source_id": "quality_gate_v1",
+      "title": "QUALITY_BAR（质量门 v1 R1-R5）",
+      "role": "quality_gate",
+      "paths": ["docs/QUALITY_BAR.md"],
+      "external": false
+    },
+    {
+      "source_id": "mock_fingerprint_audit",
+      "title": "MOCK 指纹扫描（证据分级机器判据）",
+      "role": "quality_gate",
+      "paths": ["docs/audits/mock_fingerprint_sweep.md"],
+      "external": false
+    },
+    {
+      "source_id": "green_efficiency_audit",
+      "title": "绿色航行端点证据级审计",
+      "role": "evidence",
+      "paths": ["docs/m1850_green_efficiency_validation_audit.md"],
+      "external": false
+    },
+    {
+      "source_id": "suboff_validation",
+      "title": "SUBOFF 阻力验证（honest-FAIL 判例）",
+      "role": "evidence",
+      "paths": ["docs/SUBOFF_RESISTANCE_VALIDATION.md"],
+      "external": false
+    }
+  ],
+  "clauses": [
+    {
+      "rule_id": "RB-1",
+      "kind": "principle",
+      "text": "Preserve the repository boundary: TensorPlatform is domain-neutral AI-era infrastructure.",
+      "source_ref": "repo_boundary",
+      "precedence": 5
+    },
+    {
+      "rule_id": "RB-2",
+      "kind": "principle",
+      "text": "Implement reusable primitives and versioned contracts; integrate domain capabilities through adapters.",
+      "source_ref": "repo_boundary",
+      "precedence": 6
+    },
+    {
+      "rule_id": "RB-3",
+      "kind": "principle",
+      "text": "Keep physical formulas, scientific workflow semantics, video grammar, game mechanics, humanities methodology, and other specialist rules out of platform core.",
+      "source_ref": "repo_boundary",
+      "precedence": 7
+    },
+    {
+      "rule_id": "NS-1",
+      "kind": "principle",
+      "text": "两级北极星",
+      "source_ref": "north_star",
+      "precedence": 50
+    },
+    {
+      "rule_id": "CC-1",
+      "kind": "procedure",
+      "text": "默认行动 + 审计 + 回滚",
+      "source_ref": "controllable_charter",
+      "precedence": 40
+    },
+    {
+      "rule_id": "CC-REDLINE-1",
+      "kind": "strategic_change",
+      "text": "战略方向变更（4000 万指南锚点的改写）",
+      "source_ref": "controllable_charter",
+      "precedence": 1
+    },
+    {
+      "rule_id": "BP-1",
+      "kind": "principle",
+      "text": "12 仓租户制，任务落错仓=白做还添乱",
+      "source_ref": "bp_spec",
+      "precedence": 45
+    },
+    {
+      "rule_id": "BP-REDLINE-1",
+      "kind": "governance_rule",
+      "text": "唯一红线：战略级变更（北极星/治理规则/安全/不可逆）留给 owner",
+      "source_ref": "bp_spec",
+      "precedence": 1
+    },
+    {
+      "rule_id": "QG-R5",
+      "kind": "evidence",
+      "text": "R5 失败保留（honest-FAIL 不可覆盖）",
+      "source_ref": "quality_gate_v1",
+      "precedence": 10
+    },
+    {
+      "rule_id": "QG-MOCK-1",
+      "kind": "evidence",
+      "text": "端点判决：任一 MOCK 级判据命中 ⇒ MOCK",
+      "source_ref": "mock_fingerprint_audit",
+      "precedence": 12
+    },
+    {
+      "rule_id": "QG-MOCK-2",
+      "kind": "evidence",
+      "text": "判据只证「有响应」，不证精度",
+      "source_ref": "mock_fingerprint_audit",
+      "precedence": 15
+    },
+    {
+      "rule_id": "EV-GREEN-1",
+      "kind": "evidence",
+      "text": "不得作为绿色航行（EEDI/EEOI/CII）决策依据",
+      "source_ref": "green_efficiency_audit",
+      "precedence": 12
+    },
+    {
+      "rule_id": "EV-SUBOFF-1",
+      "kind": "evidence",
+      "text": "所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。",
+      "source_ref": "suboff_validation",
+      "precedence": 20
+    }
+  ]
+}

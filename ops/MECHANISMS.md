@@ -88,3 +88,55 @@
 | 质检数字抽查命中 | 3/3（首批评审） |
 | 跨卡复现 | Couette 2D L2 1.8e-4 跨卡逐位一致 |
 | 动态编制首轮换血 | 10 席变更、daemon 自动巡检 |
+
+## 8 停摆自检自愈（stall detector，IN20-R5）
+
+- 病案：2026-11-07 00:52→03:18 停摆 147.55 min（`saturation_pulse` 实测断档
+  00:52:35→03:20:08），无人报警——检测器是人的注意力，这是单点。
+- 机制：`ops/taskplane/stall_detector.py`（daemon，独立于任何会话）三规则——
+  R1 断粮（pending=0 且 idle/online≥0.5 持续 15 min → 触发补给器 selfstarter）、
+  R2 舰队心跳丢失（失联比≥0.5 持续 5 min → fleet_supervisor 重启路径）、
+  R3 脉搏停滞（老化≥30 min → 自证存活 beacon）。
+- 判据：历史时间线回放 MUST 报警+触发（R1 01:10 / R3 01:23，延迟 ≤1 采样周期），
+  健康态负例 0 误报；`tests/test_stall_detector_in20_r5.py` 16 项。
+- 纪律：只读台账 + hash 链审计 + `--rollback` 清闸闩；动作 dry/live 分离，
+  dry 只探活不改系统（「不动作」≠「不检查」）。
+
+## 自主续航验收门（IN20-G21）
+
+`tools/autonomy/acceptance.py`：把 R1–R7 的机制替身装进同一条时间线真跑一遍，产出
+`artifacts/autonomy_acceptance/autonomy_acceptance.json`（六条判据 + 证据 sha256）。判据：
+
+- C1 补给器停摆回放自动触发（真 Postgres 沙箱库，真 INSERT + 真回滚）
+- C2a 放门自动化真释放 + 幂等 + 回滚（可丢弃 schema，纯函数离线复算审计）
+- C2b 合并自动化真合并 1 例 PR（审计链哈希 + git ancestry 双验）
+- C3 propose 通道积压 stuck=0（宽限内在途不计）
+- C4 退出仪表盘三指标基线（全 REAL + chronicle 快照）
+- C5 垫池四单终态 + 能力增减账本入账
+
+聚合规则：**WITHHELD 不得当 PASS**（沙箱/DB 不可达 → 整体不通过）。复跑：
+`python3 -m tools.autonomy.acceptance && python3 -m pytest -q tests/test_autonomy_acceptance_gate.py`。
+
+## 10 放门自动化（gate_auto_release，IN20-R2）
+
+**问题**：战役门（campaign gate）靠人工 UPDATE 放行——owner 不在场则门永 blocked，
+放了不留证据、放错不可逆。
+
+**机制**：`ops/taskplane/gate_auto_release.py`（决策纯函数 + PG 原子 CTE 写路径 +
+`gate_release_audit` 审计表 + JSONL 流 + `--rollback`），systemd/容器常驻，
+注册进任务平面三方一致清单；无 LLM、无平台令牌，独立于任何人类/协调者会话。
+
+**判据**：C1 上游依赖全 done；C2 判据工件可解析（非空 + json 合法 + 仓归属匹配）；
+C3 非治理门（`owner_only`/治理关键词 → 只标不放）。不满足只记 `wait`，绝不写 `failed`。
+
+**G13–G20 六门演练**（真实 DB）：生产只读矩阵 6 门 = 0 放 / 5 等 / 1 owner_only，
+全表快照 sha256 前后一致；沙箱 `gate_drill` schema 真 UPDATE 4 门→pending 后全量
+rollback 还原，release↔rollback 4/4 配对、审计字段完整；治理门 G20 生产 metadata
+已写 `owner_only=1`。证据：`artifacts/gate_auto_release_drill.json`、图
+`artifacts/gate_auto_release_drill.png`、pytest `tests/test_gate_auto_release.py`（10 条）。
+
+**教训**：①「可解析」要按字面执行（json 损坏即不满足），否则自动化会放空门；
+②等待态审计必须去重（以审计表最近原因为锚，跨进程重启不膨胀）；
+③治理门判定要偏保守——误伤代价是「门等人 review」，误放代价是不可逆的治理越权；
+④沙箱演练用同形目录（`<root>/<repo>/artifacts/…`）才能触发仓归属校验，否则
+repo_mismatch 会让演练假阴性。

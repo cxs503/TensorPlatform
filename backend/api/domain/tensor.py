@@ -22,8 +22,10 @@ from api.tensor_reports import router as tensor_reports_router             # pre
 from api.tensor_papers import router as tensor_papers_router             # prefix="/tensor/papers"
 from api.tensor_capability import router as tensor_capability_router      # prefix="/tensor/capability" (PR-10 能力中心聚合面)
 from api.campaign_plans import router as campaign_plans_router             # prefix="/tensor/campaigns"
+from api.tensor_centers import router as tensor_centers_router             # prefix="/tensor/centers" (PR-10 四中心最小视图)
 from api.tensor_repro import router as tensor_repro_router                 # prefix="/tensor/repro"
 from api.execution_lineage import router as execution_lineage_router       # prefix="/lineage"
+from api.kpi import router as kpi_router                                   # prefix="/tensor/kpi" (m5121 KPI guide tracker)
 
 router.include_router(tensor_scenarios_router)
 router.include_router(tensor_executions_router)
@@ -42,6 +44,8 @@ router.include_router(tensor_reports_router)
 router.include_router(tensor_papers_router)
 router.include_router(tensor_capability_router)
 router.include_router(campaign_plans_router)
+router.include_router(tensor_centers_router)
+router.include_router(kpi_router)
 
 # ── m613: Truth Gates — Independence-Convergence Verdict Mechanism ──
 from api.truth_gates import router as truth_gates_router              # prefix="/truth-gates"

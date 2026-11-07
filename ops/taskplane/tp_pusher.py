@@ -116,6 +116,41 @@ def _close_pr(full, rec):
 
 _MAIN_RED_CACHE = {}
 
+def _reopen_module():
+    """SPEC §4.2（m5022）：继承红挂起不再用 pusher 私有旗标复活，改走正式 REOPENED。
+    同目录导入为常态；被单文件部署到别处时按 taskplane/mission_reopen.py 路径兜底。"""
+    try:
+        import mission_reopen  # same dir (ops/taskplane)
+        return mission_reopen
+    except Exception:
+        import importlib.util
+        f = pathlib.Path(__file__).resolve().parent / "taskplane" / "mission_reopen.py"
+        spec = importlib.util.spec_from_file_location("mission_reopen", f)
+        mod = importlib.util.module_from_spec(spec)
+        spec.loader.exec_module(mod)
+        return mod
+
+def _reopen_inherited_red(mid, full, run_url):
+    """把「PR CI 红但 main 亦红（继承红）」写成正式重开：引用原验收记录 + 理由 + 审计行。
+    返回落库结果（applied/code）；任何异常都不许打断推送主循环。"""
+    try:
+        mr = _reopen_module()
+        _acc = q(f"SELECT coalesce(max(id),0) FROM tensor_approval_requests "
+                 f"WHERE mission_id={int(mid)} AND kind='dev_acceptance'").strip()
+        _ref = (f"acceptance:{_acc}" if _acc and _acc != "0"
+                else f"pr:{full}:inherited-red")
+        plan = mr.apply_reopen(
+            q, int(mid), actor="tp_pusher", actor_role="GOVERNANCE",
+            acceptance_ref=_ref,
+            reason=(f"PR CI 红而 main 亦红，失败不可归因于本单，须待 main 修红后复验："
+                    f"{str(run_url)[:150]}"))
+        return {"code": plan.get("code"), "applied": plan.get("applied"),
+                "from_status": plan.get("current_status"),
+                "acceptance_ref": _ref, "at": time.time()}
+    except Exception as e:
+        return {"code": f"error:{type(e).__name__}", "applied": False,
+                "note": str(e)[:160], "at": time.time()}
+
 def _main_red(full, ttl=600):
     """v5.8.1（11-04 19 单误关事故）：main 最新 head 的完成 run 是否红。
     红 main 仓的 PR CI 红大概率是继承红——不可归因于 PR 自身，禁止自动关。"""
@@ -468,9 +503,14 @@ def main():
                         # v5.8 F1: PR 已开、用 PR 事件 CI 复验——红→自动关（分支保留），绿→放行
                         if ci == "failure":
                             if _main_red(full):
-                                # v5.8.1: main 亦红 → 继承红嫌疑，挂起不关，待 main 修红后复验
-                                rec["ci"] = "main_red_hold"
-                                log(f"m{mid_s} PR CI 红，但 main 亦红→挂起不关（继承红）: {run_url}")
+                                # v5.8.1 × SPEC §4.2（m5022）：main 亦红→继承红嫌疑，挂起不关；
+                                # 挂起改写正式 REOPENED 状态（引用原验收记录 + 审计行），
+                                # 不再用 pusher 私有旗标在库外复活。
+                                rec["ci"] = _reopen_module().REOPENED
+                                rec["reopen"] = _reopen_inherited_red(
+                                    int(mid_s), full, run_url)
+                                log(f"m{mid_s} PR CI 红且 main 亦红→正式重开 "
+                                    f"{rec['ci']}（{rec['reopen'].get('code')}）: {run_url}")
                             else:
                                 _close_pr(full, rec)
                                 rec["ci"] = "red_closed"
