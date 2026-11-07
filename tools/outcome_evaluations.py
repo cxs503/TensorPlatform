@@ -32,6 +32,19 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from typing import Any, Iterable, Mapping, Sequence
 
+try:  # 允许以脚本/包两种方式运行（tools 目录直跑时同名导入）
+    from tools.evidence_chain_link import (
+        analyze_chain,
+        below_grade_floor,
+        cap_e_level,
+    )
+except ImportError:  # pragma: no cover
+    from evidence_chain_link import (  # type: ignore
+        analyze_chain,
+        below_grade_floor,
+        cap_e_level,
+    )
+
 # ─────────────────────────────── 常量 ───────────────────────────────
 
 S_GRADES: tuple[str, ...] = ("S1", "S2", "S3", "S4", "S5")
@@ -246,6 +259,11 @@ def decide(payload: Mapping[str, Any]) -> Verdict:
       BASELINE_REQUIRED（S2 须有对照基线；S4 须有基线）
       SCOPE_REQUIRED（S5 须有新颖性检索范围）
 
+    证据链判据（IN59-A3，五元契约见 ``tools.evidence_chain_link``；只降不升）：
+      S2+ 声明缺五元链 → E 级封顶 E1，并留 ``CHAIN_*`` 命中码（``CHAIN_ABSENT`` /
+      ``CHAIN_MISSING_<元素>`` / ``CHAIN_INVALID_<元素>`` / ``CHAIN_RAW_DATA_MISSING``）；
+      封顶后低于该 S 级的 E 门槛 → status=candidate（不计分布、不给信用）。
+
     软判据（合法但不到确认门槛 → candidate，登记不计入分布）：
       CANDIDATE_S3_NEEDS_E2 / CANDIDATE_S4_NEEDS_E2 / CANDIDATE_S5_NEEDS_E3
       CANDIDATE_NEEDS_INDEPENDENT_REVIEW（S4/S5/S-N 机器扫描不足以确认）
@@ -314,6 +332,12 @@ def decide(payload: Mapping[str, Any]) -> Verdict:
 
     baseline = _clean(payload.get("baseline_or_scope"))
 
+    # 五元证据链体检：链不全 → E 封顶（只降不升）。S1 不要求链，故不产生命中码。
+    chain = analyze_chain(payload.get("evidence_chain"), grade)
+    chain_codes: list[str] = list(chain.codes)
+    if chain.cap:
+        e_level = cap_e_level(e_level, chain.cap)   # 只降不升：缺件 → E 至多 E1
+
     if e_level and grade:
         e_rank = _E_RANK[e_level]
         if e_rank < 1:
@@ -345,12 +369,15 @@ def decide(payload: Mapping[str, Any]) -> Verdict:
             candidate_codes.append("CANDIDATE_NEEDS_INDEPENDENT_REVIEW")
     if grade == S_NEGATIVE and reviewer_kind != "independent":
         candidate_codes.append("CANDIDATE_NEEDS_INDEPENDENT_REVIEW")
+    if chain.cap and below_grade_floor(grade, e_level):
+        # 链不全把 E 压到该 S 级门槛之下 → 只能 candidate（拦截而不放行）
+        candidate_codes.append("CANDIDATE_CHAIN_CAP_BELOW_GRADE")
 
     return Verdict(
         status="candidate" if candidate_codes else "confirmed",
         grade=grade,
         e_level=e_level,
-        codes=_uniq(candidate_codes),
+        codes=_uniq(candidate_codes + chain_codes),
     )
 
 

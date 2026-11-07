@@ -78,6 +78,16 @@ def _payload(**over):
         "reviewer_kind": "independent",
         "baseline_or_scope": "合成基线 B0（旧版流程）",
         "boundary": "仅适用于合成夹具，不外推到其他工况",
+        # IN59-A3：S2+ 必带五元证据链（缺件 → E 封顶 E1）。夹具给完整链，
+        # 使既有 §7.1 判据在「链无缺陷」前提下被单独检验；链缺陷另有专测。
+        "evidence_chain": {
+            "conclusion_ref": "synthetic-claim-1",
+            "theory": "doi:10.5555/synthetic.0001",
+            "code": "SyntheticRepo@abcdef1",
+            "config": "sha256:" + "a" * 64,
+            "data": "runs/synthetic/result.json",
+            "report": "1",
+        },
     }
     base.update(over)
     return base
