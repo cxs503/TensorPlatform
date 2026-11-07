@@ -1,0 +1,26 @@
+[Unit]
+Description=TensorPlatform stall detector (IN20-R5) — starvation / fleet-heartbeat / pulse-stall watchdog
+Documentation=file:///root/tp-agent/docs/IN20_R5_stall_detector.md
+# 机制替身独立性：本 unit 不依赖任何人类会话或 AI 协调者会话。
+# 只读平台台账（psql SELECT），状态/审计/beacon 全在 runs/stall_detector/。
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+WorkingDirectory=/root/tp-agent
+ExecStart=/usr/bin/python3 /root/tp-agent/ops/taskplane/stall_detector.py --from-db --daemon --interval 60 --out /root/tp-agent/runs/stall_detector --action-mode ${TP_STALL_ACTION_MODE}
+Environment=TP_STALL_ACTION_MODE=dry
+Environment=TP_ROOT=/root/tp-agent
+# 阈值可覆盖（字段名见 ops/taskplane/stall_detector.py::Thresholds）
+Environment=TP_STALL_STARVE_SUSTAIN_S=900
+Environment=TP_STALL_FLEET_LOSS_RATIO=0.5
+Environment=TP_STALL_PULSE_STALL_S=1800
+Environment=TP_STALL_COOLDOWN_S=1800
+Restart=on-failure
+RestartSec=30
+# 单周期台账异常不致命：daemon 内部 fail-closed 记 cycle_error 并继续下一周期
+Nice=5
+
+[Install]
+WantedBy=multi-user.target

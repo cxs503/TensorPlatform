@@ -50,5 +50,27 @@ services:
       retries: 3
       start_period: 120s
 
+  # 停摆自检自愈（IN20-R5）：独立于任何人类/AI 会话的机制替身。
+  # 只读平台台账 + 自带 state/audit/beacon（runs/stall_detector/）。
+  # 回滚：docker compose stop stall-detector &&   #       python3 ops/taskplane/stall_detector.py --rollback --out runs/stall_detector
+  stall-detector:
+    image: tp-taskplane:pr9
+    container_name: tp-stall-detector
+    network_mode: host
+    env_file: taskplane.env
+    environment:
+      TP_BASE: /root/tp-agent
+      TP_ROOT: /root/tp-agent
+      TP_STALL_ACTION_MODE: ${TP_STALL_ACTION_MODE:-dry}
+    volumes:
+      - ../../ops/taskplane:/root/tp-agent
+      - ../../runs:/root/tp-agent/runs
+    command: ["python3", "/root/tp-agent/stall_detector.py", "--from-db", "--daemon",
+              "--interval", "60", "--out", "/root/tp-agent/runs/stall_detector",
+              "--action-mode", "${TP_STALL_ACTION_MODE:-dry}"]
+    restart: unless-stopped
+    depends_on:
+      - taskplane
+
 volumes:
   taskplane-logs:
