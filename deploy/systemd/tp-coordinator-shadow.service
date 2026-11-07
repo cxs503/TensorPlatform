@@ -1,0 +1,33 @@
+[Unit]
+Description=TensorPlatform coordinator_shadow v1 (resident read-only shadow coordinator, IN27-H1)
+Documentation=file:///root/tp-agent/work/m5305/docs/IN27_H1_coordinator_shadow_v1.md
+After=network-online.target postgresql.service
+Wants=network-online.target
+
+[Service]
+Type=simple
+# 为什么用 postgres 角色：coordinator_shadow 表属主是 postgres，租户角色 foundation
+# 没有该表的 DDL/写权限（实跑报 must be owner of table）。
+Environment=TP_DSN=dbname=tensorplatform user=postgres host=/var/run/postgresql
+Environment=PYTHONPATH=/root/tp-agent/work/m5305
+Environment=PYTHONUNBUFFERED=1
+# LLM 判读凭据（LLM_BASE_URL / LLM_API_KEY / LLM_MODEL）从中继 agent.env 注入；
+# 没有凭据时模块自动回退 RuleJudge（judge=rule-fallback），不会停摆。
+EnvironmentFile=-/root/tp-agent/agent.env
+WorkingDirectory=/root/tp-agent/work/m5305
+ExecStart=/usr/bin/python3 -m tools.coordinator_shadow.daemon \
+    --interval 1800 \
+    --state-dir /var/lib/tp-coordinator-shadow \
+    --log /var/log/tp-fleet/coordinator_shadow_v1.log \
+    --watch-log /var/log/tp-fleet/campaign_dispatcher.log \
+    --watch-log /var/log/tp-fleet/autoheal.log
+Restart=always
+RestartSec=30
+# 影子只读 + 只立单：崩溃重启不丢拍（beat_id 幂等），所以 Restart=always 是安全的
+KillSignal=SIGTERM
+TimeoutStopSec=120
+StateDirectory=tp-coordinator-shadow
+LogsDirectory=tp-fleet
+
+[Install]
+WantedBy=multi-user.target
