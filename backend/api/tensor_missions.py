@@ -939,6 +939,18 @@ def complete_mission(
         except Exception as _exc:  # pragma: no cover - 部署面兜底
             logging.getLogger(__name__).warning("outcome_evaluations pending record skipped: %s", _exc)
     db.commit()
+    # IN35-N07：终态事件驱动增量评价 + 积压排空（pending > 阈值时）。
+    # 完全旁路：失败只告警，绝不改变完结主流程的返回体与状态机（判据 J4）。
+    try:
+        from tools.evaluation_ops import triggers as eval_triggers
+        eval_triggers.ensure_tables(db)
+        eval_triggers.on_mission_terminal(db, mission_id, status=body.status, commit=True,
+                                         source="mission_finish_hook")
+        if eval_triggers.should_drain(db)["trigger"]:
+            eval_triggers.drain_backlog(db, commit=True, batch=100, limit=200,
+                                        trigger_kind="threshold_hook")
+    except Exception as _exc:  # pragma: no cover - 部署面兜底
+        logging.getLogger(__name__).warning("eval timeliness hook skipped: %s", _exc)
     return {"id": mission_id, "status": body.status, "approval_id": None,
             "report_owed": report_owed}
 
