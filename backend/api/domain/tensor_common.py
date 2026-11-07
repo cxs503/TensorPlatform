@@ -8,6 +8,7 @@ from fastapi import HTTPException
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
+from api.domain.status_contracts import session_event_contract
 from api.tenant_access import (
     create_organization_id,
     is_admin,
@@ -15,21 +16,10 @@ from api.tenant_access import (
 )
 
 LOG_TAIL_BYTES = 16 * 1024
-EVENT_KINDS = (
-    "plan",
-    "execution_started",
-    "run_registered",
-    "validation_seen",
-    "decision",
-    "approval_requested",
-    "approval_decided",
-    "note",
-    "error",
-    "tool_call",
-    "tool_result",
-    "web_search",
-    "code_commit",
-)
+# G-B 单一契约源：会话事件词表从 backend/contracts/session_event_kinds.v1.json 派生
+# （此前为手写元组——加词要同时手改本文件与 TensorPhysics 任务级发射器，靠人脑同步）。
+# 新增词项只许进契约文件；两侧任一单边加词都会由契约测试判红。
+EVENT_KINDS = tuple(session_event_contract()["kinds"])
 STAGES = ("S0", "S1", "S2", "S3", "S4")
 TERMINAL_STATUSES = ("succeeded", "failed", "cancelled")
 
@@ -76,6 +66,29 @@ def next_event_seq(db: Session, session_id: int) -> int:
     return int(row) + 1
 
 
+def insert_event_row(
+    db: Session, session_id: int, seq: int, kind: str, payload: dict[str, Any]
+) -> None:
+    """唯一事件行写手（G-B 一事实单源）。
+
+    ``tensor_agent_session_events`` 的 INSERT 语句只许出现在这里：批量端点
+    （api/tensor_sessions.py）与单条 append_event 共用同一行写入形态，
+    守卫测试 ``test_status_contracts.TestGB_SingleWriter`` 扫全仓 SQL 字面量。
+    """
+    db.execute(
+        text("""
+            INSERT INTO tensor_agent_session_events (session_id, seq, kind, payload)
+            VALUES (:sid, :seq, :kind, CAST(:payload AS jsonb))
+        """),
+        {
+            "sid": session_id,
+            "seq": seq,
+            "kind": kind,
+            "payload": json.dumps(payload, ensure_ascii=False, default=str),
+        },
+    )
+
+
 def append_event(db: Session, session_id: int, kind: str, payload: dict[str, Any]) -> int:
     if kind not in EVENT_KINDS:
         raise HTTPException(status_code=422, detail=f"unknown event kind: {kind}")
@@ -88,18 +101,7 @@ def append_event(db: Session, session_id: int, kind: str, payload: dict[str, Any
         db.execute(text("SELECT pg_advisory_xact_lock(:sid)"), {"sid": session_id})
         seq = next_event_seq(db, session_id)
         try:
-            db.execute(
-                text("""
-                    INSERT INTO tensor_agent_session_events (session_id, seq, kind, payload)
-                    VALUES (:sid, :seq, :kind, CAST(:payload AS jsonb))
-                """),
-                {
-                    "sid": session_id,
-                    "seq": seq,
-                    "kind": kind,
-                    "payload": json.dumps(payload, ensure_ascii=False, default=str),
-                },
-            )
+            insert_event_row(db, session_id, seq, kind, payload)
             return seq
         except IntegrityError:
             db.rollback()  # releases the advisory lock; retry re-derives seq

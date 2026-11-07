@@ -40,3 +40,8 @@ def research_run_contract() -> dict[str, Any]:
 def mission_task_status_map_contract() -> dict[str, Any]:
     """TP mission status <-> TensorPhysics TaskStatus mapping (G-A)."""
     return _load("mission_task_status_map.v1.json", "mission_task_status_map")
+
+
+def session_event_contract() -> dict[str, Any]:
+    """Workspace-level session event vocabulary (G-B: M3/M4 event stream)."""
+    return _load("session_event_kinds.v1.json", "session_event_kinds")

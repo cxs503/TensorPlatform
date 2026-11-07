@@ -1,0 +1,31 @@
+{
+  "contract": "session_event_kinds",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": ["TensorPhysics"],
+  "description": "Workspace-level session event stream vocabulary (migration_disposition §3 G-B, formerly M3/M4). Single source for api/domain/tensor_common.EVENT_KINDS; before m4964 the tuple was hand-written, so adding a word meant editing code in one branch and the TensorPhysics task-level emitter in another. Rule (one fact, one source): TensorPhysics TaskEvent (task-level stream) never inserts into tensor_agent_session_events; it cross-references the platform stream through the run manifest, and the only row writer on the platform side is api.domain.tensor_common.insert_event_row. Any new word needs a version bump plus green contract tests here and on the TensorPhysics side; a word added on either side alone is a red test, not a review comment.",
+  "kinds": [
+    "plan",
+    "execution_started",
+    "run_registered",
+    "validation_seen",
+    "decision",
+    "approval_requested",
+    "approval_decided",
+    "note",
+    "error",
+    "tool_call",
+    "tool_result",
+    "web_search",
+    "code_commit"
+  ],
+  "governance_members": [
+    "plan",
+    "execution_started",
+    "run_registered",
+    "validation_seen",
+    "decision",
+    "note"
+  ],
+  "table": "tensor_agent_session_events"
+}
