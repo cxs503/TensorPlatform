@@ -1,0 +1,35 @@
+# static evidence 2026-11-07T22:10:29Z
+## git
+4b3b8ae3
+agent/m6350
+
+## artifact sha256
+f04476187e74a988c1f8cad50049c4411f76b3fd65d207554602becd1b96da2f  docs/skills_training/P07-1/design_doc.md
+19649f25c5ff0395026ece5611d5d2ea8810d8e5077600ff1d59947136752465  docs/skills_training/P07-1/test_checklist.md
+7dfe56d9cd57bdc00935cd53a694496cd5831cff1235f54d6c7adf7324c8cf44  docs/skills_training/P07-1/candidate/upload_service.py
+b80463d0fcc5059b7c0ca1cd610efb0805a92a7566917a64663d452039b0b2e1  docs/skills_training/P07-1/candidate/test_upload_happy.py
+5b990022f48d52e0623fa2dc29525c338adcedf94f6a95e11e61981fcdfc9b95  docs/skills_training/P07-1/probe_upload.py
+
+## candidate missing-feature grep (0 = absent)
+MAX_UPLOAD       0
+413              0
+Content-Range    1
+os.replace       0
+logging          0
+owner            3
+403              0
+Range            1
+tempfile         0
+Lock             0
+
+## candidate LOC
+  62 docs/skills_training/P07-1/candidate/test_upload_happy.py
+ 134 docs/skills_training/P07-1/candidate/upload_service.py
+ 196 total
+
+## happy-path test count / negative-test grep
+3
+negative-token(4xx assert) count: 0
+
+## real-platform analogue (backend/api/datasets.py) size-cap grep
+203:    content = await file.read()
