@@ -62,3 +62,7 @@ tools/agent/agent.env
 config/*.local.json
 frontend-factory/node_modules/
 frontend-factory/dist/
+
+# IN18-T3: the frozen evidence snapshot ships with the report so the gate is
+# re-verifiable in a fresh clone without rebuilding (deterministic anyway).
+!artifacts/chronicle_report/snapshot/report.sqlite
