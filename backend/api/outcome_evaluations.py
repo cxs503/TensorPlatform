@@ -344,6 +344,64 @@ def sync_pending_records(
     return {"created": len(created), "items": created}
 
 
+@router.get("/guidance", dependencies=[Depends(require_auth)])
+def evaluation_guidance(
+    wave_id: str | None = None,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """评价统计落成的派发梯度（准入/预算/优先级）+ 上一轮回路的可量效果。
+
+    只读：档位由 ``tools.evaluation_wave.guidance_policy`` 用**词典序规则**给出，
+    没有加权分数、没有主体排名（§7.1）。表不存在（迁移 104 未上）时返回空集合，
+    不阻断读面。
+    """
+    _org_scope(db, user)  # 组织上下文校验（无上下文且非管理员 → 404，与其他端点一致）
+    try:
+        if wave_id:
+            rows = db.execute(
+                text(
+                    "SELECT wave_id, subject_kind, subject, tier, budget_multiplier, "
+                    "admission, priority_delta, rows_counted FROM evaluation_guidance "
+                    "WHERE wave_id = :w ORDER BY subject_kind, tier, rows_counted DESC"
+                ),
+                {"w": wave_id},
+            ).mappings().all()
+        else:
+            rows = db.execute(
+                text(
+                    "SELECT wave_id, subject_kind, subject, tier, budget_multiplier, "
+                    "admission, priority_delta, rows_counted FROM evaluation_guidance "
+                    "WHERE wave_id = (SELECT wave_id FROM evaluation_guidance "
+                    "                 ORDER BY created_at DESC LIMIT 1) "
+                    "ORDER BY subject_kind, tier, rows_counted DESC"
+                )
+            ).mappings().all()
+        items = [dict(r) for r in rows]
+        effects = {}
+        if items:
+            wid = items[0]["wave_id"]
+            wave = db.execute(
+                text("SELECT metrics FROM evaluation_waves WHERE wave_id = :w"), {"w": wid}
+            ).mappings().first()
+            metrics = loads_json(wave["metrics"]) if wave else {}
+            effects = (metrics or {}).get("guidance_effects") or {}
+        return {
+            "policy": {
+                "weighting": "forbidden",
+                "ranking": "forbidden",
+                "tiers": "lexicographic rules (S3+ then S2+ share then S1-only share)",
+            },
+            "wave_id": items[0]["wave_id"] if items else None,
+            "items": items,
+            "effects": effects,
+        }
+    except Exception as exc:  # 迁移未上/表缺失不阻断读面
+        return {"policy": {"weighting": "forbidden", "ranking": "forbidden"},
+                "wave_id": None, "items": [], "effects": {},
+                "note": f"guidance unavailable: {type(exc).__name__}"}
+
+
 @router.get("/{evaluation_id}", dependencies=[Depends(require_auth)])
 def get_evaluation(
     evaluation_id: str,

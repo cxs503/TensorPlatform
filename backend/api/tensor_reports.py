@@ -5,7 +5,6 @@ TENSOR_REPORT_FIGURE_DIR/<report_id>/<name>.png with [{name, caption}]
 metadata in figures JSONB. The list endpoint omits the markdown body."""
 from __future__ import annotations
 
-import base64
 import binascii
 import json
 import os
@@ -22,6 +21,11 @@ from sqlalchemy.orm import Session
 from api.deps import require_auth, require_role
 from api.domain.tensor_common import resolved_org
 from database.config import get_db
+from services.report_ownership import (
+    FigureRejected,
+    ownership_verdict,
+    validate_png_payload,
+)
 
 router = APIRouter(prefix="/tensor/reports", tags=["科研运行台·报告"])
 
@@ -98,6 +102,34 @@ def list_reports(
     return {"items": [_row(r, with_markdown=False) for r in rows], "total": len(rows)}
 
 
+def _fetch_mission(db: Session, mission_id: int) -> dict | None:
+    """读 mission 的归属证据（claimed_user_id 优先，回退 claimed_by）。
+
+    0090 迁移给 ``tensor_dev_missions`` 加了 ``claimed_user_id``；老库（未跑迁移）
+    只有 ``claimed_by``。这里两种都兼容，任一可用即能定性「谁是领取者」。
+    """
+    for sql in (
+        """SELECT id, organization_id, status, claimed_by, claimed_user_id
+             FROM tensor_dev_missions WHERE id = :mid""",
+        """SELECT id, organization_id, status, claimed_by,
+                  NULL::bigint AS claimed_user_id
+             FROM tensor_dev_missions WHERE id = :mid""",
+    ):
+        try:
+            row = db.execute(text(sql), {"mid": mission_id}).mappings().first()
+            return dict(row) if row else None
+        except Exception:  # UndefinedColumn / 老库 schema
+            db.rollback()
+            continue
+    return None
+
+
+def _error(status_code: int, code: str, detail: dict) -> HTTPException:
+    """带机器码的 HTTPException：detail 是 JSON 体，X-Error-Code 头便于客户端 fail-fast。"""
+    return HTTPException(status_code=status_code, detail=detail,
+                         headers={"X-Error-Code": code})
+
+
 @router.post("", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
 def create_report(
     body: ReportCreate,
@@ -105,6 +137,26 @@ def create_report(
     user: dict = Depends(require_auth),
 ):
     org_id = resolved_org(body.organization_id, user, db)
+
+    # ── 归属门（第一道）：报告不得挂到别人的单号上 ───────────────────────
+    # 依赖客户端「记得填对本单号」是不可靠的；服务端结构性阻断 + 机器码。
+    verdict = ownership_verdict(user, _fetch_mission(db, body.mission_id)
+                                if body.mission_id else None,
+                                mission_id=body.mission_id, org_id=org_id)
+    if not verdict["ok"]:
+        raise _error(verdict["status"], verdict["code"],
+                     dict(verdict, expected="submit report under your own mission_id"))
+
+    # ── 配图门（第二道）：逐图 PNG 魔数 + IEND，先验后落 ────────────────
+    # 先验后落：旧实现先 INSERT 再写盘、失败再 DELETE，异常路径上会短暂存在
+    # 一条指向缺失图片的报告行（并发读会读到半成品）。
+    decoded: list[tuple[FigureIn, bytes]] = []
+    for fig in body.figures:
+        try:
+            decoded.append((fig, validate_png_payload(fig.name, fig.png_base64)))
+        except FigureRejected as exc:
+            raise _error(exc.status_code, exc.code, exc.as_detail()) from exc
+
     figures_meta = [{"name": f.name, "caption": f.caption} for f in body.figures]
     row = db.execute(
         text("""
@@ -130,10 +182,7 @@ def create_report(
     # Figures land on disk only after the row exists; any failure rolls the row
     # back so a report never references missing files (fail-closed).
     try:
-        for fig in body.figures:
-            raw = base64.b64decode(fig.png_base64, validate=True)
-            if not raw.startswith(b"\x89PNG"):
-                raise ValueError(f"{fig.name}: not a PNG payload")
+        for fig, raw in decoded:
             dest = FIGURE_DIR / str(report_id) / f"{fig.name}.png"
             dest.parent.mkdir(parents=True, exist_ok=True)
             dest.write_bytes(raw)
@@ -144,7 +193,11 @@ def create_report(
 
     db.commit()
     full = db.execute(text(f"{_SELECT} WHERE id = :rid"), {"rid": report_id}).mappings().first()
-    return _row(full)
+    out = _row(full)
+    out["ownership"] = {"mission_id": body.mission_id, "owner": verdict["owner"],
+                        "bypass": verdict["bypass"],
+                        "figures_checked": len(decoded)}
+    return out
 
 
 @router.get("/{report_id}", dependencies=[Depends(require_auth)])
@@ -175,84 +228,44 @@ def get_figure(report_id: int, name: str):
 
 
 # ───────────────────────── report QA (paper-quality gate) ─────────────────────────
-# Minimum fields for paper-quality reports:
-# 1. Physical statement (物理表述): clear problem description with physics context
-# 2. Traceable criteria (判据可溯源): method/validation with references
-# 3. Figures (图): at least one figure or explicit justification for none
-# 4. Limitations (局限): known limitations and scope of applicability
-
-REQUIRED_SECTIONS = {
-    "physics_statement": [
-        r"(?i)(物理|背景|problem|background|物理背景|案例介绍)",
-        r"(?i)(几何|参数|geometry|parameter|参数表)",
-    ],
-    "traceable_criteria": [
-        r"(?i)(方法|method|流程|procedure|工具链|toolchain)",
-        r"(?i)(验证|validation|对标|benchmark|参考|reference|文献|误差|error)",
-    ],
-    "figures": [
-        r"(?i)(图|figure|云图|contour|曲线|curve|比较|comparison)",
-    ],
-    "limitations": [
-        r"(?i)(局限|limitation|注意|note|适用|scope|范围|展望|outlook|future)",
-    ],
-}
-
+# 论文级六要素判据（①案例介绍 ②方法 ③对标验证 ④图 ⑤局限 ⑥误差判定）的**唯一实现**
+# 在 `services/report_gate.py`；本模块只做 API 适配（响应形状）+ 能力台账对账。
+#
+# 为什么要删掉这里的副本：本模块曾内联过一份六要素判据表，与 services 版各自演化，
+# 于是「同样的报告两种判定」——测试绿而生产门悄悄变松（假门禁）。结构守卫
+# `backend/tests/test_report_gate_validation.py::test_api_module_does_not_refork_gate`
+# 就是为这笔账写的：API 层必须 import 共享实现，且不得再定义 REQUIRED_SECTIONS。
 
 def _check_report_quality(markdown: str, figures: list) -> dict:
-    """Check if report meets paper-quality minimum requirements."""
-    issues = []
-    
-    # Check physics statement
-    physics_found = any(
-        re.search(pattern, markdown)
-        for patterns in REQUIRED_SECTIONS["physics_statement"]
-        for pattern in [patterns]
-    )
-    if not physics_found:
-        issues.append("missing_physics_statement: 缺少物理背景/案例介绍（需包含物理问题描述、几何参数）")
-    
-    # Check traceable criteria
-    method_found = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["traceable_criteria"][:1]
-    )
-    validation_found = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["traceable_criteria"][1:]
-    )
-    if not method_found:
-        issues.append("missing_method: 缺少方法/流程描述（需包含计算方法、关键设置、工具链）")
-    if not validation_found:
-        issues.append("missing_validation: 缺少验证/对标（需包含与基准/文献/解析解的比较，或声明无基准原因）")
-    
-    # Check figures
-    has_figure_section = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["figures"]
-    )
-    has_figures = len(figures) > 0
-    if not has_figure_section and not has_figures:
-        issues.append("missing_figures: 缺少图表（需包含场量云图/比较曲线，或纯文档任务需写明无图理由）")
-    
-    # Check limitations
-    limitations_found = any(
-        re.search(pattern, markdown)
-        for pattern in REQUIRED_SECTIONS["limitations"]
-    )
-    if not limitations_found:
-        issues.append("missing_limitations: 缺少局限与展望（需包含踩过的坑、适用范围、后续改进方向）")
-    
+    """六要素门禁 + 能力等级断言对账（强于台账 = 违规，degraded 上报不阻断发布）。"""
+    from services.report_gate import check_report_quality
+
+    base = check_report_quality(markdown, figures)
+
+    # 消费者 #4：报告正文的能力等级断言必须与能力台账对账（强于台账 = 违规）。
+    # 纪律：台账降级 → degraded=True 但**不改变** passed（保持既有发布路径可用），
+    # 由 QA 视图与 CI（tools/audit/ledger_contract_gate.py）看字段裁决。
+    ledger_gate: dict = {"ok": None, "degraded": None, "violations": [],
+                         "ledger_path": None, "ledger_sha256": None, "ledger_status": None}
+    try:
+        import sys
+        from pathlib import Path as _Path
+        _root = _Path(__file__).resolve().parents[2]
+        if str(_root) not in sys.path:
+            sys.path.insert(0, str(_root))
+        from tools.audit.report_gate_ledger import gate_summary
+        ledger_gate = gate_summary(markdown)
+    except Exception as exc:
+        ledger_gate = {"ok": None, "degraded": True, "violations": [],
+                       "ledger_path": None, "ledger_sha256": None,
+                       "ledger_status": f"GATE_CONSUMER_ERROR:{type(exc).__name__}"}
+
     return {
-        "passed": len(issues) == 0,
-        "issues": issues,
-        "checks": {
-            "physics_statement": physics_found,
-            "method": method_found,
-            "validation": validation_found,
-            "figures": has_figure_section or has_figures,
-            "limitations": limitations_found,
-        }
+        "passed": base["passed"],
+        "issues": base["issues"],
+        "issue_codes": base.get("issue_codes", []),
+        "capability_ledger": ledger_gate,
+        "checks": base["checks"],
     }
 
 

@@ -1,0 +1,399 @@
+{
+  "schema": "tp.boundary.adversarial_seeds/v1",
+  "version": "1.0.0",
+  "status": "active",
+  "note": "边界门对抗语料的**种子数据**（P20-N08）。本文件是域语义的唯一存放地：变异算子的槽位池、同义/外文改写映射、数值符号池、引用目标池全在这里；tools/boundary/adversarial_corpus.py 只含结构算子，不含任何域词。作者与门禁作者不同人（门禁=IN17-B1/m5016，语料=本单），故为「对作者盲」。",
+  "purpose": "把边界门（tools/boundary/pr_gate_scan.py）的可信度从『手写判例全绿』升级为『对抗语料上的召回率/误报率实测数字 + 漏检清单 + 机理归因』。",
+  "provenance": [
+    {
+      "mission": 5012,
+      "node": "IN17-B2",
+      "case": "616 系列之 #608",
+      "merge_commit": "9bf3d947",
+      "cleaned_in": "m5012 / PR #620（台账测试合成域名化）",
+      "leak_forms": [
+        "domain_word_in_module_docstring",
+        "domain_word_in_string_compare_filter",
+        "dash_prefixed_domain_artifact_ids",
+        "cjk_substring_in_list_literal"
+      ],
+      "observed_snippets": [
+        "\"\"\"IN12-P7: Ice campaign evidence registration and capability ledger upgrade.",
+        "if \"ice\" in d.get(\"domain\", \"\").lower() or \"冰区\" in d.get(\"domain\", \"\")]",
+        "\"ice-resistance-evidence\", \"ice-loads-evidence\", \"ice-uq-pce-evidence\","
+      ],
+      "observed_violations": 92
+    },
+    {
+      "mission": 5013,
+      "node": "IN17-B3",
+      "case": "#610",
+      "merge_commit": "fddf5413",
+      "cleaned_in": "m5013 / PR #620（证据链 demo 合成算例化）",
+      "leak_forms": [
+        "principal_dimension_dict_literal",
+        "unit_bearing_power_literal"
+      ],
+      "observed_snippets": [
+        "HULL = {\"length\": 200.0, \"beam\": 32.0, \"draft\": 10.0, \"cb\": 0.65, \"displacement\": 42000.0}"
+      ],
+      "observed_violations": 17
+    },
+    {
+      "mission": 5014,
+      "node": "IN17-B5",
+      "case": "#616",
+      "merge_commit": "n/a（文档正稿 v1.0→v1.1 边界收缩）",
+      "cleaned_in": "m5014（system_research_report_v1.md 边界收缩 + 数字重导）",
+      "leak_forms": [
+        "principal_dimension_triplet",
+        "installed_power_unit",
+        "named_route_arrow",
+        "environmental_state_matrix",
+        "report_markdown_table"
+      ],
+      "observed_snippets": [
+        "L 200 / B 32 / T 10",
+        "45 MW",
+        "Pevek→Tiksi",
+        "四种冰况",
+        "| 总长 L | 200.0 | m |"
+      ],
+      "observed_violations": 0
+    }
+  ],
+  "mutation_operators": [
+    {
+      "id": "synonym_rewrite",
+      "task_op": "i",
+      "desc": "同义/迂回改写：域概念改用词表外措辞表达（词表覆盖度盲区）"
+    },
+    {
+      "id": "symbol_notation",
+      "task_op": "ii",
+      "desc": "符号化：以符号+数值表达域量（Cb=0.82、Re_tau=180、L/B/T 三元组、MW）"
+    },
+    {
+      "id": "cross_language",
+      "task_op": "iii",
+      "desc": "跨语言混写：同一概念改用其它语种/转写（词表语种盲区）"
+    },
+    {
+      "id": "block_embedding",
+      "task_op": "iv",
+      "desc": "表格/代码块/docstring 内嵌：术语藏在结构块内或跨相邻行断开"
+    },
+    {
+      "id": "comment_url",
+      "task_op": "v",
+      "desc": "注释/URL 内嵌：百分号编码、零宽字符、同形字、数字替换等遮蔽"
+    },
+    {
+      "id": "long_range_reference",
+      "task_op": "vi",
+      "desc": "长程引用：本行只写引用（路径+节号），域语义落在被引用工件里"
+    }
+  ],
+  "quota": {
+    "per_class_pos_min": 25,
+    "per_class_neg_min": 10,
+    "total_min": 200,
+    "classes": 6
+  },
+  "slots": {
+    "ids": [
+      "alpha",
+      "beta",
+      "gamma",
+      "delta",
+      "epsilon",
+      "zeta",
+      "eta",
+      "theta",
+      "iota",
+      "kappa",
+      "lambda",
+      "mu",
+      "nu",
+      "xi",
+      "omicron",
+      "pi",
+      "rho",
+      "sigma",
+      "tau2",
+      "upsilon"
+    ],
+    "neutral_words": [
+      "digest",
+      "ledger",
+      "metrics",
+      "throughput",
+      "registry",
+      "artifact",
+      "budget",
+      "session",
+      "quota",
+      "retry",
+      "schema",
+      "merge"
+    ],
+    "neutral_terms": [
+      "conf",
+      "ind_ex",
+      "0ffset",
+      "c0de",
+      "Größe",
+      "設定",
+      "данные",
+      "서정"
+    ],
+    "numbers": {
+      "block_coeff": [
+        "0.82",
+        "0.78",
+        "0.65",
+        "0.71"
+      ],
+      "re_tau": [
+        "180",
+        "250",
+        "320",
+        "410"
+      ],
+      "power_mw": [
+        "45",
+        "32",
+        "18",
+        "26"
+      ],
+      "dims": [
+        [
+          200,
+          32,
+          10
+        ],
+        [
+          180,
+          28,
+          9
+        ],
+        [
+          230,
+          36,
+          11
+        ],
+        [
+          150,
+          24,
+          8
+        ]
+      ],
+      "displacement": [
+        "42000",
+        "56000",
+        "31000",
+        "48000"
+      ]
+    }
+  },
+  "paraphrase": {
+    "note": "词表内阻断词条 → 词表外同义/迂回措辞。生成时脚本校验『改写后整行不含任何阻断词条』，故该类的漏检是词表覆盖度的直接度量，而非匹配器缺陷。",
+    "map": {
+      "ice": "frozen-water cover",
+      "icebreaking": "ramming capability",
+      "icebreaker": "ramming-capable platform",
+      "sea ice": "drift cover",
+      "sea-ice": "drift-cover",
+      "hull": "shell plating",
+      "polaris": "the semi-empirical model of record",
+      "lindqvist": "the older closed-form formula",
+      "frazil": "fine suspended crystals",
+      "adfreeze": "freeze-bond adhesion",
+      "adfreezing": "freeze-bond adhesion",
+      "adfreeze-bond": "freeze bond",
+      "冰": "浮凌",
+      "极地": "高纬海域",
+      "ice-": "cold-region-",
+      "ship-": "vessel-"
+    }
+  },
+  "foreign": {
+    "note": "词表内阻断词条 → 其它语种/转写表达（语种覆盖度盲区）。全部经脚本校验不含词表内任何阻断串。",
+    "map": {
+      "ice": [
+        "氷",
+        "Eis",
+        "ledokol",
+        "빙"
+      ],
+      "icebreaking": [
+        "氷海航行",
+        "Eisbrechen"
+      ],
+      "sea ice": [
+        "流氷",
+        "Meereis"
+      ],
+      "hull": [
+        "Rumpf",
+        "корпус"
+      ],
+      "polaris": [
+        "Поларис"
+      ],
+      "lindqvist": [
+        "Линдквист"
+      ],
+      "frazil": [
+        "шуга"
+      ],
+      "adfreeze": [
+        "примерзание"
+      ],
+      "冰": [
+        "氷",
+        "얼음"
+      ],
+      "极地": [
+        "極域",
+        "полярный"
+      ]
+    }
+  },
+  "reference_targets": {
+    "note": "长程引用的被引用工件：domain_bearing=确实携带阻断词条的仓内工件（引用它=语义落在目标里）；term_free=已校验零阻断词条的工件（负样本必须放行）。",
+    "domain_bearing": [
+      "config/report_boundary_gate.json",
+      "data/boundary/adversarial_corpus_seeds.json"
+    ],
+    "term_free_candidates": [
+      "docs/QUALITY_BAR.md",
+      "docs/REPORT_GATE.md",
+      "CHANGELOG.md",
+      "Makefile"
+    ],
+    "anchors": [
+      "§2.3",
+      "§4.1",
+      "§5.2",
+      "§3.4"
+    ]
+  },
+  "templates": {
+    "note": "变异模板。槽位：{TERM}=词表内阻断词条，{PARA}=同义改写，{FOREIGN}=外文/转写，{CJK}=中文阻断词条，{ID}=中性 id，{W}=中性词，{N}=中性数值池，{ENC}=百分号编码，{ZW}=零宽插入，{HOMO}=同形字替换，{LEET}=数字替换，{PATH_D}=域承载工件路径，{PATH_T}=零词条工件路径，{ANCHOR}=节号，{DIMS}=主尺度三元组，{POWER}=功率数值，{CB}=方形系数，{RETAU}=Re_tau 数值。",
+    "synonym_rewrite": {
+      "pos_light": [
+        "# {PARA} pipeline; evidence id \"{TERM}-{ID}\" kept for the regression baseline",
+        "# {PARA} branch — regression id {TERM}-{ID} retained",
+        "NOTE = \"{PARA} review (id: {TERM}-{ID})\"",
+        "# {PARA} registry entry {TERM}-{ID} is quoted verbatim"
+      ],
+      "pos_heavy": [
+        "def build_{ID}_context():  # {PARA} branch of the pipeline",
+        "notes = \"stage-2 {PARA} review\"",
+        "TABLE = \"{PARA} vs throughput\"",
+        "def {ID}_profile():  # {PARA} assumptions live in the domain repo"
+      ],
+      "neg": [
+        "def build_{ID}_context():  # {W} branch of the pipeline",
+        "notes = \"stage-2 {W} review\"",
+        "TABLE = \"{W} vs throughput\"",
+        "# {W} registry entry {ID} is quoted verbatim"
+      ]
+    },
+    "symbol_notation": {
+      "pos_light": [
+        "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+        "assert {N} is not None  # {TERM} case: cb={CB}"
+      ],
+      "pos_heavy": [
+        "PRINCIPAL = {{\"length\": {DIMS0}, \"beam\": {DIMS1}, \"draft\": {DIMS2}, \"cb\": {CB}, \"displacement\": {DISP}}}",
+        "INSTALLED = {POWER}  # MW",
+        "TRIPLET = \"L {DIMS0} / B {DIMS1} / T {DIMS2}\"",
+        "RE_TAU = {RETAU}  # transition criterion of the closure",
+        "def profile_{ID}(cb={CB}, beam={DIMS1}):  # geometry envelope"
+      ],
+      "neg": [
+        "PRINCIPAL = {{\"timeout_s\": 30, \"retries\": 3, \"alpha\": {CB}}}",
+        "INSTALLED = {POWER}  # MW datacenter envelope for the compute pool",
+        "TRIPLET = \"{N} / {N} / {N}\"",
+        "re_tau = 180.0  # solver damping coefficient"
+      ]
+    },
+    "cross_language": {
+      "pos_light": [
+        "# {CJK} 工况与 latin 混写：{ID}",
+        "label = \"{CJK} 记录 / {W}\"",
+        "# {CJK} 段与英文混排 {ID}"
+      ],
+      "pos_heavy": [
+        "# {FOREIGN} 工况与 latin 混写：{ID}",
+        "label = \"{FOREIGN} 记录 / {W}\"",
+        "NOTES = \"{FOREIGN} assumptions (see domain repo)\"",
+        "# {FOREIGN} 段与英文混排 {ID}"
+      ],
+      "neg": [
+        "# {NEUTRAL} 工况与 latin 混写：{ID}",
+        "label = \"{NEUTRAL} 记录 / {W}\"",
+        "NOTES = \"{NEUTRAL} assumptions\""
+      ]
+    },
+    "block_embedding": {
+      "pos_light": [
+        "    | {TERM} | {CB} | unitless |",
+        "    ```yaml\n    key: {TERM}\n    ```",
+        "\"\"\"{ID} module.\n\n    {TERM} evidence rows: see below.\n    \"\"\""
+      ],
+      "pos_heavy": [
+        "    | {DIMS0} | {DIMS1} | {DIMS2} | principal |",
+        "    ```yaml\n    cb: {CB}\n    l_over_b: 6.25\n    ```",
+        "\"\"\"{ID} module.\n\n    sea-\nice rows: see below.\n    \"\"\"",
+        "    \"\"\"Resistance in the drift cover, cb={CB}, displacement={DISP}.\"\"\""
+      ],
+      "neg": [
+        "    | {W} | {CB} | unitless |",
+        "    ```yaml\n    key: {W}\n    ```",
+        "\"\"\"{ID} module.\n\n    {W} rows: see below.\n    \"\"\"",
+        "    \"\"\"Retry policy: alpha={CB}, timeout=30.\"\"\"",
+        "layout = {{\"length\": {N}, \"beam\": {N}}}  # canvas sizing (rule-ambiguity probe)"
+      ],
+      "neg_probe_note": "最后一条负样本是**判据歧义探针**：画布/布局用的 {length, beam} 组合，用来量化 R2b 键共现判据的误报面（通用键不单独触发）。"
+    },
+    "comment_url": {
+      "pos_light": [
+        "# see https://example.org/{TERM}-{ID}/notes for the table",
+        "# upstream: https://example.org/{TERM}-class/{ID}"
+      ],
+      "pos_heavy": [
+        "# see https://example.org/{ENC}/notes for the table",
+        "# the {ZW} branch documents the {W} envelope",
+        "# the {HOMO} branch documents the {W} envelope",
+        "# the {LEET} branch documents the {W} envelope",
+        "URL = \"https://example.org/ref?q={ENC}&w={ID}\""
+      ],
+      "neg": [
+        "# see https://example.org/{W}/{ID}/notes for the table",
+        "# upstream: https://example.org/{W}%20{ID}",
+        "# the {ZWN} branch documents the {W} envelope",
+        "# the {HOMON} branch documents the {W} envelope",
+        "# the {LEETN} branch documents the {W} envelope"
+      ]
+    },
+    "long_range_reference": {
+      "pos_light": [
+        "# {TERM} table: see {PATH_D} {ANCHOR}",
+        "# {TERM} numbers quoted from {PATH_D} {ANCHOR}"
+      ],
+      "pos_heavy": [
+        "# principal dimensions: see {PATH_D} {ANCHOR}",
+        "# geometry envelope and power: see {PATH_D} {ANCHOR}",
+        "# see {ANCHOR} above for the domain case table"
+      ],
+      "neg": [
+        "# totals: see {PATH_T} {ANCHOR}",
+        "# release notes: see {PATH_T} {ANCHOR}",
+        "# see {ANCHOR} above for the throughput table"
+      ]
+    }
+  }
+}

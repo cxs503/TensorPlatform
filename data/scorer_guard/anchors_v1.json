@@ -1,0 +1,178 @@
+{
+  "anchors": [
+    {
+      "anchor_id": "A-CF-ITTC57-RE1E6",
+      "covariates": {
+        "Re": 1000000.0
+      },
+      "envelope": {
+        "Re": [
+          100000.0,
+          10000000000.0
+        ]
+      },
+      "provenance_status": "VERIFIED",
+      "quantity": "CF_plate_mean",
+      "score_e_max": 0.05,
+      "source": {
+        "citation": "ITTC 1957 line: Cf = 0.075 / (log10(Re) - 2)^2",
+        "derivation_file": "tools/scorer_guard/physics.py",
+        "formula_id": "ittc1957_cf",
+        "independent_recheck": "exact rational (Fraction/Decimal)",
+        "retrieved": "2026-11-06"
+      },
+      "source_type": "ANALYTIC_FORMULA",
+      "uncertainty_rel": 0.02,
+      "unit": "-",
+      "value": 0.0046875,
+      "weight": 1.0
+    },
+    {
+      "anchor_id": "A-CF-ITTC57-RE1E7",
+      "covariates": {
+        "Re": 10000000.0
+      },
+      "envelope": {
+        "Re": [
+          100000.0,
+          10000000000.0
+        ]
+      },
+      "provenance_status": "VERIFIED",
+      "quantity": "CF_plate_mean",
+      "score_e_max": 0.05,
+      "source": {
+        "citation": "ITTC 1957 line: Cf = 0.075 / (log10(Re) - 2)^2",
+        "derivation_file": "tools/scorer_guard/physics.py",
+        "formula_id": "ittc1957_cf",
+        "independent_recheck": "exact rational (Fraction/Decimal)",
+        "retrieved": "2026-11-06"
+      },
+      "source_type": "ANALYTIC_FORMULA",
+      "uncertainty_rel": 0.02,
+      "unit": "-",
+      "value": 0.003,
+      "weight": 1.0
+    },
+    {
+      "anchor_id": "A-CF-ITTC57-RE1E9",
+      "covariates": {
+        "Re": 1000000000.0
+      },
+      "envelope": {
+        "Re": [
+          100000.0,
+          10000000000.0
+        ]
+      },
+      "provenance_status": "VERIFIED",
+      "quantity": "CF_plate_mean",
+      "score_e_max": 0.05,
+      "source": {
+        "citation": "ITTC 1957 line: Cf = 0.075 / (log10(Re) - 2)^2",
+        "derivation_file": "tools/scorer_guard/physics.py",
+        "formula_id": "ittc1957_cf",
+        "independent_recheck": "exact rational (Fraction/Decimal)",
+        "retrieved": "2026-11-06"
+      },
+      "source_type": "ANALYTIC_FORMULA",
+      "uncertainty_rel": 0.02,
+      "unit": "-",
+      "value": 0.001530612244897959,
+      "weight": 1.0
+    },
+    {
+      "anchor_id": "A-CF-BLAS-RE1E5",
+      "covariates": {
+        "Re": 100000.0
+      },
+      "envelope": {
+        "Re": [
+          10000.0,
+          500000.0
+        ]
+      },
+      "provenance_status": "VERIFIED",
+      "quantity": "CF_plate_mean",
+      "score_e_max": 0.08,
+      "source": {
+        "citation": "Blasius (1908) similarity solution: CF = 1.328 / sqrt(Re_L)",
+        "derivation_file": "tools/scorer_guard/physics.py",
+        "formula_id": "blasius_plate_cf",
+        "independent_recheck": "classic 0.664/sqrt(Re_x) local, integrated analytically",
+        "retrieved": "2026-11-06"
+      },
+      "source_type": "ANALYTIC_FORMULA",
+      "uncertainty_rel": 0.01,
+      "unit": "-",
+      "value": 0.004199504732703608,
+      "weight": 1.0
+    },
+    {
+      "anchor_id": "A-CF-KS-RE1E9",
+      "covariates": {
+        "Re": 1000000000.0
+      },
+      "envelope": {
+        "Re": [
+          1000000.0,
+          10000000000.0
+        ]
+      },
+      "provenance_status": "VERIFIED",
+      "quantity": "CF_plate_mean",
+      "score_e_max": 0.05,
+      "source": {
+        "citation": "Karman-Schoenherr (1932): 1/sqrt(Cf) = 4.13 log10(Re Cf)",
+        "derivation_file": "tools/scorer_guard/physics.py",
+        "formula_id": "schoenherr_implicit_cf",
+        "independent_recheck": "explicit 0.455/(log10 Re)^2.58",
+        "retrieved": "2026-11-06"
+      },
+      "source_type": "ANALYTIC_FORMULA",
+      "uncertainty_rel": 0.03,
+      "unit": "-",
+      "value": 0.0015323878875347237,
+      "weight": 1.0
+    },
+    {
+      "anchor_id": "A-CT-EXPERIMENT-PENDING",
+      "covariates": {
+        "Fr": 0.25
+      },
+      "envelope": {
+        "Fr": [
+          0.1,
+          0.45
+        ]
+      },
+      "provenance_status": "QUARANTINED",
+      "quantity": "CT_total",
+      "score_e_max": 0.05,
+      "source": {
+        "citation": "",
+        "doc_sha256": "",
+        "note": "no experimental value ingested until the source table is hash-recorded",
+        "retrieved": "2026-11-06"
+      },
+      "source_type": "EXPERIMENT",
+      "uncertainty_rel": 0.05,
+      "unit": "-",
+      "value": null,
+      "weight": 1.0
+    }
+  ],
+  "ledger": {
+    "chain": [
+      "b84934112c56ddb9e3c6f7c3f0064aad60856ceeab2fae9a79d1ddbd4e912585",
+      "b6d9f3eda582902c480100ede1c05f5d039509a5ed725053f5ab296abe9099bb",
+      "2348937371f0a2e608deb309f7453ea1e995594f0c06fe8ad6f9d267b0a9c8fa",
+      "67e7eec1129b0702a302fe702ffb6e1a9675382761badcfe14947bf2c18e6b6f",
+      "a70222afd7c567c627c9d107147ad2fe159d95e29325fcb7f83b7889ae3c48ce",
+      "ce5ffa518d971802fe6e307e5a631e7e3eddbf40cd536578050d03482f010040"
+    ],
+    "head": "ce5ffa518d971802fe6e307e5a631e7e3eddbf40cd536578050d03482f010040"
+  },
+  "registry_id": "ship_perf_tournament_anchors",
+  "version": "1.0.0"
+}

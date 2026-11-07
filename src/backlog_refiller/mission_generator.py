@@ -15,6 +15,12 @@ from datetime import datetime, timezone
 from typing import Any
 
 logger = logging.getLogger(__name__)
+#: 平台 ``tensor_dev_missions.origin`` 的 CHECK 只接受 owner/agent（2026-11-07 现场核对）。
+#: 补给器是无人值守的 agent 侧机制，因此写 ``agent``；生成者身份另记在
+#: ``result.generated_by = GENERATOR_TAG``，去重与审计都按那个字段走。
+MISSION_ORIGIN = "agent"
+GENERATOR_TAG = "backlog_refiller"
+
 
 # Goal 模板：确保 ≥80 字 + 判据 + honest FAIL + 零域语义
 GOAL_TEMPLATE = """【常设补给器自动生成】{title}
@@ -83,13 +89,16 @@ class MissionGenerator:
         """检查 ext_id 是否已存在（去重）。"""
         from sqlalchemy import text
         ext_hash = self.compute_ext_id_hash(ext_id)
+        # 去重键不依赖 origin：平台 CHECK 只允许 origin ∈ {owner, agent}，
+        # 生成者身份记在 result.generated_by（见 MISSION_ORIGIN 注释）。
         row = self.db.execute(text("""
             SELECT 1 FROM tensor_dev_missions
-            WHERE origin = 'backlog_refiller'
-              AND (result->>'ext_id_hash') = :ext_hash
-                 OR goal LIKE :ext_id_pattern
+            WHERE result->>'generated_by' = :generator
+              AND ((result->>'ext_id_hash') = :ext_hash
+                   OR goal LIKE :ext_id_pattern)
             LIMIT 1
         """), {
+            "generator": GENERATOR_TAG,
             "ext_hash": ext_hash,
             "ext_id_pattern": f"%ext_id={ext_id}%",
         }).first()
@@ -121,7 +130,7 @@ class MissionGenerator:
         return {
             "goal": goal,
             "repo": repo,
-            "origin": "backlog_refiller",
+            "origin": MISSION_ORIGIN,
             "runner": "native",
             "budget": {
                 "max_tool_calls": 80,
