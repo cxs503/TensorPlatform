@@ -37,6 +37,7 @@ PINNED = {
     "merge-governor", "paper-line", "report-qa", "report-watch",
     "runtime-sync", "selfstarter", "shadow-merge", "tp-autoheal",
     "wave-cycle", "auto-approver", "eco-patrol", "tp-pusher",
+    "gate-auto-release",
 }
 DAEMON_FIELDS = {"name", "script", "cadence", "enabled", "live", "note"}
 
