@@ -1,0 +1,35 @@
+# merge_master 合并口守护（容器形态：脱离任何人类/AI 会话运行）
+#
+# 设计要点：
+#   * restart: always —— 进程死了自己回来，不等人拉；
+#   * healthcheck 校验审计链（链断了容器判不健康，而不是默默继续合并）；
+#   * 合并动作默认关闭（TP_MM_ALLOW_EXECUTE=0 → loop 只判不并），
+#     打开是治理决策，改环境变量即生效，不需要改代码；
+#   * 审计与状态都在挂载卷上，容器重建不丢决策账本。
+services:
+  merge-master:
+    image: python:3.11-slim
+    working_dir: /repo
+    restart: always
+    environment:
+      TP_REPO_ROOT: /repo
+      TP_MM_OUTDIR: /repo/artifacts/merge_master
+      TP_MM_INTERVAL: "300"
+      TP_MM_REPOS: "TensorPlatform"
+      TP_MM_MAX_MERGES: "3"
+      TP_MM_MAX_MUTATIONS: "8"
+      TP_MM_ALLOW_EXECUTE: "0"
+      TENSOR_API_BASE: "http://platform:8010/api/v1"
+    volumes:
+      - ${TP_REPO_PATH:-/root/tp-agent/work/m5104}:/repo
+      - ${TP_MM_STATE:-/var/lib/tp-merge-master}:/repo/artifacts/merge_master
+    command: ["bash", "ops/merge_master/daemon.sh", "loop"]
+    healthcheck:
+      test: ["CMD", "bash", "ops/merge_master/daemon.sh", "verify"]
+      interval: 5m
+      timeout: 60s
+      retries: 2
+      start_period: 2m
+    logging:
+      driver: json-file
+      options: {"max-size": "20m", "max-file": "5"}
