@@ -1,0 +1,102 @@
+[
+  {
+    "id": "P01",
+    "ac": "AC-4",
+    "claim": "单文件 ≤100MiB，超限在读取请求体前 413",
+    "expected_contract": "HTTP 413，且不落盘",
+    "observed": "HTTP 200，落盘 209715200 bytes（209715200 bytes 已发送）",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "high",
+    "evidence": "raw socket 流式上传 200MiB → status=200, tail=b' 07 Nov 2026 22:59:31 GMT\\r\\nserver: uvicorn\\r\\ncontent-length: 83\\r\\ncontent-type: application/json\\r\\nconnection: close\\r\\n\\r\\n{\"dataset_id\":1,\"bytes\":209715200,\"rows\":0,\"stored_name\":\"big.dat\",\"actor\":\"alice\"}'"
+  },
+  {
+    "id": "P02",
+    "ac": "AC-3",
+    "claim": "非属主不得写入他人数据集（403）",
+    "expected_contract": "403 且原文件不变",
+    "observed": "HTTP 200，文件已被 bob 覆盖（sha 2a2b86e74ffd → b37573c84e63）",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "critical",
+    "evidence": "bob 对 alice 的 dataset 2 上传 → 200, body={\"dataset_id\":2,\"bytes\":16,\"rows\":3,\"stored_name\":\"shared.csv\",\"actor\":\"bob\"}"
+  },
+  {
+    "id": "P03",
+    "ac": "AC-3",
+    "claim": "下载需认证且限属主",
+    "expected_contract": "401/403",
+    "observed": "HTTP 200，匿名拿到 16 bytes",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "high",
+    "evidence": "无 Authorization 头 GET /api/v1/datasets/2/download → 200"
+  },
+  {
+    "id": "P04",
+    "ac": "AC-3",
+    "claim": "缺失/伪造 token 必须 401",
+    "expected_contract": "401 / 401",
+    "observed": "401 / 401",
+    "status": "OK",
+    "severity": "-",
+    "evidence": "认证依赖项做了负例校验，属于已正确实现的部分"
+  },
+  {
+    "id": "P05",
+    "ac": "AC-7",
+    "claim": "客户端 filename 不参与路径拼接",
+    "expected_contract": "400/422，文件不得写出上传目录",
+    "observed": "HTTP 200，写出到 /tmp/p07_escape.csv（exists=True）",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "critical",
+    "evidence": "filename=\"../../p07_escape.csv\" → 落盘 /tmp/p07_escape.csv"
+  },
+  {
+    "id": "P06",
+    "ac": "AC-5",
+    "claim": "解析失败必须回滚，原版本字节不变",
+    "expected_contract": "422 且 roll.csv 仍等于 V1（rows=2）",
+    "observed": "HTTP 422，文件变为 b'\\x00\\x01\\x02\\xff'（V1 sha 2a2b86e74ffd → 3d1f57c98497），meta.rows=2",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "critical",
+    "evidence": "先写终态文件再校验，失败路径无 os.replace/回滚；response={\"detail\":\"binary content in csv\"}"
+  },
+  {
+    "id": "P07",
+    "ac": "AC-6",
+    "claim": "未声明完整的分片不得登记为当前完整版本",
+    "expected_contract": "202/409，或按偏移拼接（总长 1000 B）",
+    "observed": "HTTP 200，8/1000 bytes 被登记为完整版本（rows=1, bytes=8）",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "high",
+    "evidence": "带 Content-Range: bytes 0-7/1000 上传 8B 分片 → 200, body={\"dataset_id\":5,\"bytes\":8,\"rows\":1,\"stored_name\":\"chunk.csv\",\"actor\":\"alice\"}"
+  },
+  {
+    "id": "P08",
+    "ac": "AC-6",
+    "claim": "中断上传不得破坏既有版本，且应可续传",
+    "expected_contract": "原 abort.csv 不变；服务端提供续传令牌/偏移登记",
+    "observed": "断开于 5242880 bytes（声明 41943040）；原文件不变=True；meta.rows=2；残留=['abort.csv']；服务端无续传状态字段/接口",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "medium",
+    "evidence": "半途 RST：既有版本未被破坏（值得记录的缓解事实），但服务端不登记偏移、无续传接口，客户端只能整文件重传 → AC-6 未实现；且未完成的 5MiB 请求体在服务端被整体丢弃，带宽与时间成本由客户端承担"
+  },
+  {
+    "id": "P09",
+    "ac": "AC-8",
+    "claim": "二进制误标 .csv 必须 422 且不留残留",
+    "expected_contract": "422，UPLOAD_ROOT 无 spoof.csv",
+    "observed": "HTTP 422，残留文件 exists=True，meta.path=None",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "medium",
+    "evidence": "内容校验（NUL/行数）拦住了伪装，但写入发生在校验之前 → 残留 + meta/文件不一致"
+  },
+  {
+    "id": "P10",
+    "ac": "非功能",
+    "claim": "同一 dataset 并发写应 409 互斥",
+    "expected_contract": "一 200 一 409",
+    "observed": "两个请求返回 [200, 200]；读者观测到 2 个不同中间态",
+    "status": "CONFIRMED_DEFECT",
+    "severity": "high",
+    "evidence": "并发 2×2MiB 上传 → codes=[200, 200]；非终态 sha 观测=['39ca14ce36f6']（观测到撕裂读）"
+  }
+]

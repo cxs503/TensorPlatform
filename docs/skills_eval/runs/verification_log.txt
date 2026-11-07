@@ -1,0 +1,96 @@
+# P07 评分取证日志（evaluator: agent/m6364 worker, blind）
+# UTC 2026-11-07T23:03:46Z
+loongarch64
+Python 3.11.6 (main, May  9 2024, 00:00:00) [GCC 12.3.0 20230508 (Anolis OS 12.3.0-2)]
+fastapi 0.136.1 sqlalchemy 2.0.51 starlette 1.0.0
+
+## [F1] 产物A sha256 vs 报告 §0 声明
+f04476187e74a988c1f8cad50049c4411f76b3fd65d207554602becd1b96da2f  design_doc.md
+19649f25c5ff0395026ece5611d5d2ea8810d8e5077600ff1d59947136752465  test_checklist.md
+7dfe56d9cd57bdc00935cd53a694496cd5831cff1235f54d6c7adf7324c8cf44  candidate/upload_service.py
+b80463d0fcc5059b7c0ca1cd610efb0805a92a7566917a64663d452039b0b2e1  candidate/test_upload_happy.py
+5b990022f48d52e0623fa2dc29525c338adcedf94f6a95e11e61981fcdfc9b95  probe_upload.py
+
+## [F3] 产物A 静态 grep（对照 runs/static_checks.txt）
+MAX_UPLOAD     0
+413            0
+Content-Range  1
+os.replace     0
+logging        0
+owner          3
+403            0
+Range          1
+tempfile       0
+Lock           0
+
+## [F2/F5] 产物A 复跑判定 vs 存档
+rerun    {'P01': 'CONFIRMED_DEFECT', 'P02': 'CONFIRMED_DEFECT', 'P03': 'CONFIRMED_DEFECT', 'P04': 'OK', 'P05': 'CONFIRMED_DEFECT', 'P06': 'CONFIRMED_DEFECT', 'P07': 'CONFIRMED_DEFECT', 'P08': 'CONFIRMED_DEFECT', 'P09': 'CONFIRMED_DEFECT', 'P10': 'CONFIRMED_DEFECT'}
+artifact {'P01': 'CONFIRMED_DEFECT', 'P02': 'CONFIRMED_DEFECT', 'P03': 'CONFIRMED_DEFECT', 'P04': 'OK', 'P05': 'CONFIRMED_DEFECT', 'P06': 'CONFIRMED_DEFECT', 'P07': 'CONFIRMED_DEFECT', 'P08': 'CONFIRMED_DEFECT', 'P09': 'CONFIRMED_DEFECT', 'P10': 'CONFIRMED_DEFECT'}
+agree True
+P10 rerun    : 两个请求返回 [200, 200]；读者观测到 2 个不同中间态 | 并发 2×2MiB 上传 → codes=[200, 200]；非终态 sha 观测=['39ca14ce36f6']（观测到撕裂读）
+P10 artifact : 两个请求返回 [200, 200]；读者观测到 2 个不同中间态 | 并发 2×2MiB 上传 → codes=[200, 200]；非终态 sha 观测=['124d4a1285e0']（观测到撕裂读）
+
+## [F6] 产物B 复跑 38 记录 vs 存档
+records 38 38 ids_equal True verdict_diffs {}
+summary rerun    {"verdict_counts": {"OK": 10, "CONFIRMED_DEFECT": 17, "ACCEPTED_RISK": 5, "INFO": 6}, "defect_severity": {"high": 5, "critical": 3, "medium": 5, "low": 4}, "records": 38}
+summary artifact {"verdict_counts": {"OK": 10, "CONFIRMED_DEFECT": 17, "ACCEPTED_RISK": 5, "INFO": 6}, "defect_severity": {"high": 5, "critical": 3, "medium": 5, "low": 4}, "records": 38}
+records with dimension n/a-or-empty: 8
+
+## [F7/F9] 产物B 引用核对（TensorPlatform head 0f3655a6）
+    category: str = Form(default="general"),
+        file_content = await file.read()
+
+                    "category": file_info["category"],
+            logger.warning(f"记录文件到数据库失败: {e}")
+        }
+        return {"total": 0, "items": []}
+            text("SELECT * FROM uploaded_files WHERE id = :id"), {"id": file_id}
+            "uploaded_at": file[7].isoformat() if file[7] else None,
+--- 79/84/88
+    category_dir = os.path.join(UPLOAD_DIR, category)
+    with open(file_path, "wb") as buffer:
+    file_size = os.path.getsize(file_path)
+--- main.py:598
+async def jwt_auth_middleware(request: Request, call_next):
+--- auth_guard.py:179
+async def auth_guard_middleware(request: Request, call_next):
+--- require_permission counts (datasets / file_upload)
+15
+0
+--- uploaded_by occurrences in module
+0
+--- table cols vs INSERT cols
+table columns = 19
+zero-based col[7] = mime_type
+INSERT columns = 7 ['filename,', 'original_filename,', 'category,', 'file_path,', 'file_size,', 'extension,', 'uploaded_at']
+migration ";" count = 9
+
+## [F8] 模块既有测试检索（空=0）
+
+## [F4] 产物A 作者套件复跑
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+3 passed, 1 warning in 0.70s
+
+## 附：宿主 /tmp 遗留物
+-rw-r--r-- 1 root root 12 Nov  7 22:59 /tmp/p07_escape.csv
+
+## [F5/F11] 产物A P10 读数三处不一致（报告/表 vs 存档 JSON vs 复跑）
+runs/probe_output.txt:62:    observed: 两个请求返回 [200, 200]；读者观测到 3 个不同中间态
+runs/probe_output.txt:63:    evidence: 并发 2×2MiB 上传 → codes=[200, 200]；非终态 sha 观测=['18adbb501f53', 'e3b0c44298fc']（观测到撕裂读）
+runs/probe_output_rerun.txt:62:    observed: 两个请求返回 [200, 200]；读者观测到 2 个不同中间态
+runs/findings_table.md:12:| P10 | 非功能 | 两个请求返回 [200, 200]；读者观测到 3 个不同中间态 | CONFIRMED_DEFECT | high |
+JSON P10: 并发 2×2MiB 上传 → codes=[200, 200]；非终态 sha 观测=['124d4a1285e0']（观测到撕裂读）
+--- mtimes
+total 80
+-rw-r--r-- 1 root root 701 Nov 7 22:11 author_tests.txt
+-rw-r--r-- 1 root root 10064 Nov 7 22:15 build_report.py
+-rw-r--r-- 1 root root 33205 Nov 7 22:10 findings.png
+-rw-r--r-- 1 root root 1478 Nov 7 22:10 findings_table.md
+-rw-r--r-- 1 root root 4062 Nov 7 22:10 probe_output.txt
+-rw-r--r-- 1 root root 4046 Nov 7 22:12 probe_output_rerun.txt
+-rw-r--r-- 1 root root 4665 Nov 7 22:12 probe_results.json
+-rw-r--r-- 1 root root 749 Nov 7 22:12 reproducibility.txt
+-rw-r--r-- 1 root root 1237 Nov 7 22:10 static_checks.txt
+--- gen_findings 只读该 JSON
+1:"""从 runs/probe_results.json 程序化生成评审用的数字表与图（零手抄）。
+18:ROWS = json.loads((HERE / "runs" / "probe_results.json").read_text(encoding="utf-8"))
