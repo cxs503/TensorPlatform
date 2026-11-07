@@ -466,6 +466,11 @@ except Exception as _exc:  # pragma: no cover - 部署面兜底
 from api import public  # noqa: E402
 app.include_router(public.router, prefix="/api/v1")
 
+# SPEC §6.5 审查预算账本（测量先行）：四类审查记账 + 周聚合查询
+from api import review_budget as _review_budget  # noqa: E402
+
+app.include_router(_review_budget.router, prefix="/api/v1")
+
 # ── Prometheus /metrics 端点（空前缀，供 Prometheus 采集）──
 app.include_router(metrics_api.router, prefix="")
 app.include_router(dashboard_router)
