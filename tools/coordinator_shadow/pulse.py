@@ -593,14 +593,41 @@ def collect_organs(
     node_counts = safe("campaign_nodes", lambda: _count_by(runner, sql_nodes, {})) or {}
     book.metric("campaign_nodes", unit="map", value=sum(node_counts.values()) or 0,
                 extra={"counts": node_counts})
-    _record(book, "campaign_blocked", sql_nodes, {})
+    # 阻塞口径（诊断单 7a90c537e3805175）-------------------------------------------
+    # ``campaign_nodes.status='blocked'`` 是**两种语义的合流**，不能整列当「阻塞节点数」：
+    #   (a) 任务级真阻塞：派发器把失败耗尽宽限的 task 节点打回 blocked
+    #       （``block_reason`` = "mission failed x2" / "infra x5 (agent_lost)" /
+    #       "hollow success x2"），需要裁决或复派 —— 这才是要报警的东西；
+    #   (b) 门控停放：``node_type='gate'`` 由放门机制持有
+    #       （ops/taskplane/gate_auto_release.py，FROM_STATUS='blocked'）：上游没全 done
+    #       就等、判据工件缺失就等、治理门等人工双钥匙 —— 判据不满足**只等不放**是
+    #       设计纪律，不是故障。生产库实测 11 blocked = 8 gate 停放 + 3 task 真阻塞。
+    # 把 (b) 计入指标 ⇒ 只要有 5 条以上战役同时在飞，停放门就常年压线 →
+    # 影子每拍读到同一签名（「连续 3 拍同签不消」正是这么来的）。
+    # 故只数 (a)；(b) 进 extra.gate_held 留档，放门判据的权威实现只在 gate_auto_release
+    # 一处，脉搏层不复制门语义（避免两套判据漂移）。
+    sql_fault = (
+        "SELECT count(*) FROM campaign_nodes WHERE status = 'blocked' "
+        "AND coalesce(node_type, 'task') <> 'gate'"
+    )
+    _record(book, "campaign_blocked", sql_fault, {})
     _record(book, "campaign_pending", sql_nodes, {})
-    book.metric("campaign_blocked", value=node_counts.get("blocked") if node_counts else None,
-                extra={"zero_flow": True}, withheld=why("campaign_nodes"))
+    fault_blocked = safe("campaign_blocked", lambda: _scalar(runner, sql_fault, {}))
+    total_blocked = node_counts.get("blocked") if node_counts else None
+    gate_held = (None if total_blocked is None or fault_blocked is None
+                 else max(0, int(total_blocked) - int(fault_blocked)))
+    book.metric("campaign_blocked",
+                value=None if fault_blocked is None else int(fault_blocked),
+                extra={"zero_flow": True, "blocked_total": total_blocked,
+                       "gate_held": gate_held,
+                       "scope": "task-level faults only; gate parking (放门持有) excluded"},
+                withheld=why("campaign_blocked") or why("campaign_nodes"))
     book.metric("campaign_pending", value=node_counts.get("pending") if node_counts else None,
                 withheld=why("campaign_nodes"))
 
     blocked = {"counts": node_counts, "blocked": node_counts.get("blocked", 0),
+               "fault": None if fault_blocked is None else int(fault_blocked),
+               "gate_held": gate_held,
                "pending": node_counts.get("pending", 0),
                "in_flight": node_counts.get("in-flight", 0)}
 

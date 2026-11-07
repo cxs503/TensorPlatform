@@ -44,7 +44,8 @@ CREATE TABLE outcome_evaluations (
 CREATE TABLE tensor_credit_ledger (
     id INTEGER PRIMARY KEY, organization_id INTEGER, model TEXT, delta INTEGER,
     reason TEXT, mission_id INTEGER, created_at TEXT);
-CREATE TABLE campaign_nodes (id INTEGER PRIMARY KEY, status TEXT NOT NULL);
+CREATE TABLE campaign_nodes (id INTEGER PRIMARY KEY, status TEXT NOT NULL,
+    node_type TEXT NOT NULL DEFAULT 'task');
 CREATE TABLE tensor_capability_deltas (id INTEGER PRIMARY KEY, created_at TEXT);
 CREATE TABLE tensor_reports (id INTEGER PRIMARY KEY, mission_id INTEGER, title TEXT);
 """
@@ -101,6 +102,8 @@ def db(tmp_path):
                 "VALUES (1,1,'m',5,'eval:e1|grade=S2',?)", (_iso(AS_OF - timedelta(hours=5)),))
     for i, status in enumerate(("pending", "in-flight", "blocked", "blocked", "done"), start=1):
         con.execute("INSERT INTO campaign_nodes (id, status) VALUES (?,?)", (i, status))
+    # 放门停放的门（gate）不进 campaign_blocked 口径（诊断单 7a90c537e3805175）
+    con.execute("INSERT INTO campaign_nodes (id, status, node_type) VALUES (6,'blocked','gate')")
     # 声明权威通道：m9 无 report_id，但 tensor_reports 里有它的报告 → 算已声明
     con.execute("INSERT INTO tensor_reports (id, mission_id, title) VALUES (1, 9, 'm9 报告')")
     con.execute("INSERT INTO tensor_capability_deltas (id, created_at) VALUES (1,?)",
@@ -173,8 +176,10 @@ def test_zero_flow_organs_exact_numbers(db):
     assert organs["declaration_rate"].extra["finished_24h"] == 4
     assert organs["declaration_rate"].extra["declared_24h"] == 3
     assert organs["declaration_rate"].value == pytest.approx(3 / 4, abs=1e-3)
-    # 战役阻塞 2、能力增量 1
+    # 战役阻塞 2（task 级真阻塞）、能力增量 1；gate 停放不计入，但留档在 extra
     assert organs["campaign_blocked"].value == 2
+    assert organs["campaign_blocked"].extra["blocked_total"] == 3
+    assert organs["campaign_blocked"].extra["gate_held"] == 1
     assert organs["capability_deltas_24h"].value == 1
 
 
