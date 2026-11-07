@@ -1,10 +1,10 @@
 #!/usr/bin/env python3
-"""m4960 演示：把一次「真实抵抗证据」批量入账，并给出幂等/隔离/拒收三种判据的实测数字。
+"""m4960 演示：把一次「合成证据」批量入账，并给出幂等/隔离/拒收三种判据的实测数字。
 
 做的事（全部程序化，报告数字零手抄）
 ====================================
-1. 采集：调船舶总体性能平台 API（:8002）取真实 Holtrop 阻力证据（9 个航速点 + 设计点），
-   落盘成工件目录；API 不可达则如实标 WITHHELD 并沿用已记录快照（不伪造）。
+1. 生成：用解析函数生成合成数据（N 点扫描 + 设计点），落盘成工件目录。
+   数据完全由数学函数产生，不依赖任何物理域 API。
 2. 成文：用 ``build_manifest`` 扫工件目录算出 RunManifest（逐文件 sha256）。
 3. 入账四相：
    A 全新批（2 个干净 run）→ 期望 registered=2
@@ -13,18 +13,17 @@
    D dry-run 同一混合批 → 期望不落盘
 4. 出图 + 出 ``report_metrics.json``（counts / digests / 判据布尔 / 独立 sha256sum 复核）。
 
-用法：python3 tools/evidence_chain/demo_m4960.py [--refresh] [--no-figures]
+用法：python3 tools/evidence_chain/demo_m4960.py [--no-figures]
 """
 from __future__ import annotations
 
 import argparse
 import hashlib
 import json
+import math
 import shutil
 import subprocess
 import sys
-import urllib.error
-import urllib.request
 from pathlib import Path
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
@@ -42,46 +41,53 @@ from tools.evidence_chain.evidence_chain import (  # noqa: E402
 ART = REPO_ROOT / "artifacts" / "m4960"
 EVIDENCE = ART / "evidence"
 CHAIN = ART / "chain"
-SHIP_API = "http://127.0.0.1:8002/api/v1"
-SPEEDS_KN = [10.0, 11.0, 12.0, 13.0, 14.0, 15.0, 16.0, 17.0, 18.0]
-HULL = {"length": 200.0, "beam": 32.0, "draft": 10.0, "cb": 0.65, "displacement": 42000.0}
+
+# 合成数据参数（域无关）
+SCAN_POINTS = [10.0, 20.0, 30.0, 40.0, 50.0, 60.0, 70.0, 80.0, 90.0]
+SYNTH_PARAMS = {"alpha": 2.5, "beta": 0.8, "gamma": 1.2, "delta": 0.15}
 
 
-def _post(path: str, body: dict, timeout: float = 20.0) -> dict:
-    request = urllib.request.Request(
-        f"{SHIP_API}/{path.lstrip('/')}",
-        data=json.dumps(body).encode("utf-8"),
-        method="POST",
-        headers={"Content-Type": "application/json"},
-    )
-    with urllib.request.urlopen(request, timeout=timeout) as response:
-        payload = json.loads(response.read().decode("utf-8"))
-    return payload.get("data", payload) if isinstance(payload, dict) else payload
-
-
-def capture_resistance(refresh: bool = False) -> tuple[dict, dict, list[str]]:
-    """采集真实阻力证据；返回 (sweep, design, provenance_notes)。"""
+def generate_synthetic_data() -> tuple[dict, dict, list[str]]:
+    """生成合成数据：解析函数扫描 + 设计点；返回 (sweep, design, provenance_notes)。"""
     notes: list[str] = []
-    cache = ART / "capture" / "resistance_cache.json"
-    if cache.exists() and not refresh:
-        cached = json.loads(cache.read_text(encoding="utf-8"))
-        notes.append(f"reused captured snapshot {cache.relative_to(REPO_ROOT)}")
-        return cached["sweep"], cached["design"], notes
+    
+    # 解析函数：y = alpha * x^beta + gamma * sin(delta * x)
     sweep: dict[str, dict] = {}
-    try:
-        for speed in SPEEDS_KN:
-            sweep[f"{speed:g}"] = _post("calculations/resistance", {**HULL, "speed": speed, "method": "holtrop"})
-        design = _post("calculations/resistance", {**HULL, "speed": 14.0, "method": "holtrop"})
-        notes.append(f"captured live from {SHIP_API} ({len(sweep)} speeds + design point)")
-        cache.parent.mkdir(parents=True, exist_ok=True)
-        cache.write_text(json.dumps({"sweep": sweep, "design": design}, indent=2, sort_keys=True),
-                         encoding="utf-8")
-    except (urllib.error.URLError, OSError, ValueError) as exc:
-        if cache.exists():
-            cached = json.loads(cache.read_text(encoding="utf-8"))
-            notes.append(f"SHIP API unreachable ({exc}); reused recorded snapshot (WITHHELD for freshness)")
-            return cached["sweep"], cached["design"], notes
-        raise SystemExit(f"FATAL: ship API unreachable and no snapshot: {exc}") from exc
+    for x in SCAN_POINTS:
+        y_main = SYNTH_PARAMS["alpha"] * (x ** SYNTH_PARAMS["beta"])
+        y_osc = SYNTH_PARAMS["gamma"] * math.sin(SYNTH_PARAMS["delta"] * x)
+        y_total = y_main + y_osc
+        sweep[f"{x:g}"] = {
+            "x": x,
+            "y_main": round(y_main, 6),
+            "y_osc": round(y_osc, 6),
+            "y_total": round(y_total, 6),
+            "derivative": round(
+                SYNTH_PARAMS["alpha"] * SYNTH_PARAMS["beta"] * (x ** (SYNTH_PARAMS["beta"] - 1))
+                + SYNTH_PARAMS["gamma"] * SYNTH_PARAMS["delta"] * math.cos(SYNTH_PARAMS["delta"] * x),
+                6
+            ),
+        }
+    
+    # 设计点（x=50）
+    design_x = 50.0
+    design_y_main = SYNTH_PARAMS["alpha"] * (design_x ** SYNTH_PARAMS["beta"])
+    design_y_osc = SYNTH_PARAMS["gamma"] * math.sin(SYNTH_PARAMS["delta"] * design_x)
+    design_y_total = design_y_main + design_y_osc
+    design = {
+        "x": design_x,
+        "y_main": round(design_y_main, 6),
+        "y_osc": round(design_y_osc, 6),
+        "y_total": round(design_y_total, 6),
+        "derivative": round(
+            SYNTH_PARAMS["alpha"] * SYNTH_PARAMS["beta"] * (design_x ** (SYNTH_PARAMS["beta"] - 1))
+            + SYNTH_PARAMS["gamma"] * SYNTH_PARAMS["delta"] * math.cos(SYNTH_PARAMS["delta"] * design_x),
+            6
+        ),
+        "consistency_check": round(design_y_total / (design_y_main + design_y_osc), 6),
+    }
+    
+    notes.append(f"generated synthetic data: {len(sweep)} scan points + design point at x={design_x}")
     return sweep, design, notes
 
 
@@ -96,57 +102,56 @@ def materialise_clean_batch(sweep: dict, design: dict) -> Path:
     if batch.exists():
         shutil.rmtree(batch)
 
-    r1 = batch / "r1_holtrop_sweep_2026"
-    rows = ["speed_kn,speed_ms,reynolds,froude,cf,cr,ct,rf_n,rr_n,rt_n,pe_kw"]
-    for speed in SPEEDS_KN:
-        d = sweep[f"{speed:g}"]
+    r1 = batch / "r1_synthetic_sweep"
+    rows = ["x,y_main,y_osc,y_total,derivative"]
+    for x in SCAN_POINTS:
+        d = sweep[f"{x:g}"]
         rows.append(",".join(str(v) for v in [
-            speed, d["speed_ms"], d["reynolds_number"], d["froude_number"], d["cf"],
-            d["cr"], d["ct"], d["rf"], d["rr"], d["rt"], d["pe"],
+            d["x"], d["y_main"], d["y_osc"], d["y_total"], d["derivative"]
         ]))
-    _write(r1 / "rt_vs_v.csv", "\n".join(rows) + "\n")
+    _write(r1 / "sweep.csv", "\n".join(rows) + "\n")
     _write(r1 / "sweep.json", json.dumps(sweep, indent=2, sort_keys=True))
     _write(r1 / "README.md",
-           "# r1 Holtrop 阻力-航速扫描（真实平台 API 输出）\n\n"
-           f"船体：L={HULL['length']} m, B={HULL['beam']} m, T={HULL['draft']} m, "
-           f"Cb={HULL['cb']}, Δ={HULL['displacement']} t；航速 10–18 kn 共 {len(SPEEDS_KN)} 点。\n"
-           "方法：ITTC-57 摩擦 + ITTC-1978 粗糙度补贴 + Holtrop 剩余阻力（平台 :8002 计算端点）。\n")
+           "# r1 合成数据扫描（解析函数生成）\n\n"
+           f"参数：α={SYNTH_PARAMS['alpha']}, β={SYNTH_PARAMS['beta']}, "
+           f"γ={SYNTH_PARAMS['gamma']}, δ={SYNTH_PARAMS['delta']}；"
+           f"扫描点 {SCAN_POINTS[0]:g}–{SCAN_POINTS[-1]:g} 共 {len(SCAN_POINTS)} 点。\n"
+           "函数：y = α·x^β + γ·sin(δ·x)。\n")
     _write(r1 / "run_manifest.json", json.dumps(
         build_manifest(r1, {
-            "run_id": "m4960-r1-holtrop-sweep",
+            "run_id": "m4960-r1-synthetic-sweep",
             "status": "succeeded",
             "validation_status": "not_run",
-            "producer": {"name": "ship-performance-platform", "version": "api:8002"},
-            "goal": {"objective": "Holtrop 阻力-航速扫描，作为入账证据链批量录入的标准样本"},
-            "inputs": [{"name": name, "value": value} for name, value in HULL.items()]
-                      + [{"name": "speeds_kn", "value": SPEEDS_KN}],
+            "producer": {"name": "synthetic-data-generator", "version": "1.0.0"},
+            "goal": {"objective": "解析函数扫描，作为入账证据链批量录入的标准样本"},
+            "inputs": [{"name": name, "value": value} for name, value in SYNTH_PARAMS.items()]
+                      + [{"name": "scan_points", "value": SCAN_POINTS}],
             "validation": {"status": "not_run",
-                           "limitations": ["端点未声明对基准误差；本 run 仅证明工件哈希与声明一致"]},
-            "limitations": ["数值正确性由阻力域验证器负责，入账工具不背书"],
-            "roles": {"rt_vs_v.csv": "resistance-curve", "sweep.json": "raw-endpoint-payload",
+                           "limitations": ["合成数据无数值基准；本 run 仅证明工件哈希与声明一致"]},
+            "limitations": ["数值正确性由解析函数保证，入账工具不背书"],
+            "roles": {"sweep.csv": "scan-curve", "sweep.json": "raw-payload",
                       "README.md": "case-note"},
         }, vocab=load_vocab()), indent=2, sort_keys=True))
 
     r2 = batch / "r2_design_point"
     _write(r2 / "design_point.json", json.dumps(design, indent=2, sort_keys=True))
     _write(r2 / "check_consistency.json", json.dumps({
-        "cb_declared": HULL["cb"],
-        "cb_from_dims": design["cb_from_dims"],
-        "displacement_consistency_pct": design["displacement_consistency_pct"],
-        "froude_number": design["froude_number"],
-        "rt_over_pe_consistency": round(design["pe"] * 1000.0 / (design["rt"] * design["speed_ms"]), 6),
-        "note": "R_T·V 与 P_E 的一致性（Holtrop 端点内部恒等式，量纲 kW ↔ N·m/s）",
+        "params_declared": SYNTH_PARAMS,
+        "consistency_ratio": design["consistency_check"],
+        "x_design": design["x"],
+        "y_total": design["y_total"],
+        "note": "y_total / (y_main + y_osc) 一致性（解析函数内部恒等式）",
     }, indent=2, sort_keys=True))
     _write(r2 / "run_manifest.json", json.dumps(
         build_manifest(r2, {
-            "run_id": "m4960-r2-design-point-14kn",
+            "run_id": "m4960-r2-design-point-x50",
             "status": "succeeded",
             "validation_status": "not_run",
-            "producer": {"name": "ship-performance-platform", "version": "api:8002"},
-            "goal": {"objective": "设计工况 14 kn 的阻力分项 + 排水量一致性核对"},
-            "metrics": {"rt_n": design["rt"], "pe_kw": design["pe"]},
+            "producer": {"name": "synthetic-data-generator", "version": "1.0.0"},
+            "goal": {"objective": "设计工况 x=50 的函数值 + 一致性核对"},
+            "metrics": {"y_total": design["y_total"], "derivative": design["derivative"]},
             "validation": {"status": "not_run",
-                           "limitations": ["Cb 一致性 0.95% 属内部自洽，不等于对实验基准的精度"]},
+                           "limitations": ["一致性 1.0 属解析恒等，不等于对实验基准的精度"]},
             "roles": {"design_point.json": "design-point", "check_consistency.json": "internal-check"},
         }, vocab=load_vocab()), indent=2, sort_keys=True))
     return batch
@@ -160,11 +165,11 @@ def materialise_mixed_batch() -> Path:
     # (a) 篡改件：先按原样建 manifest，再等长改写一个数字 → 哈希不符、size 不变
     bad = batch / "r3_tampered_artifact"
     bad.mkdir(parents=True)
-    _write(bad / "design_point.json", json.dumps({"rt_n": 1390.61, "pe_kw": 10015.48}, indent=2))
+    _write(bad / "design_point.json", json.dumps({"y_total": 123.456, "derivative": 7.89}, indent=2))
     manifest = build_manifest(bad, {"run_id": "m4960-r3-tampered", "status": "succeeded",
                                    "validation_status": "not_run"}, vocab=load_vocab())
     _write(bad / "run_manifest.json", json.dumps(manifest, indent=2, sort_keys=True))
-    _write(bad / "design_point.json", json.dumps({"rt_n": 1391.61, "pe_kw": 10015.48}, indent=2))
+    _write(bad / "design_point.json", json.dumps({"y_total": 123.457, "derivative": 7.89}, indent=2))
 
     # (b) 非法 JSON 的 manifest（截断）
     broken = batch / "r4_broken_manifest"
@@ -277,13 +282,17 @@ def figures(sweep: dict, metrics: dict) -> list[Path]:
     matplotlib.use("Agg")
     import matplotlib.pyplot as plt
 
-    ART.mkdir(parents=True, exist_ok=True)
     made: list[Path] = []
 
-    # 图 1：四相入账结果（堆叠柱 = 本次调用各 outcome 计数）
-    phases = [("A fresh batch", metrics["phase_a"]), ("B rerun", metrics["phase_b"]),
-              ("C mixed batch", metrics["phase_c"]), ("D dry-run", metrics["phase_d"])]
-    keys = ["registered", "already_registered", "quarantined", "rejected", "conflict", "failed"]
+    # 图 1：四相入账结果（每次调用各 outcome 计数）
+    phases = [
+        ("A", metrics["phase_a"]),
+        ("B", metrics["phase_b"]),
+        ("C", metrics["phase_c"]),
+        ("D", metrics["phase_d"]),
+    ]
+    keys = ["registered", "already_registered", "quarantined",
+            "rejected", "conflict", "failed"]
     fig, ax = plt.subplots(figsize=(8.2, 4.4))
     bottom = [0] * len(phases)
     for key in keys:
@@ -326,24 +335,24 @@ def figures(sweep: dict, metrics: dict) -> list[Path]:
     plt.close(fig)
     made.append(path)
 
-    # 图 3：被入账的证据本身（真实 Holtrop 阻力-航速曲线）
-    speeds = [float(k) for k in sweep]
-    order = sorted(range(len(speeds)), key=lambda i: speeds[i])
-    rf = [sweep[f"{speeds[i]:g}"]["rf"] for i in order]
-    rr = [sweep[f"{speeds[i]:g}"]["rr"] for i in order]
-    rt = [sweep[f"{speeds[i]:g}"]["rt"] for i in order]
-    xs = [speeds[i] for i in order]
+    # 图 3：被入账的证据本身（合成数据扫描曲线）
+    xs = [float(k) for k in sweep]
+    order = sorted(range(len(xs)), key=lambda i: xs[i])
+    y_main = [sweep[f"{xs[i]:g}"]["y_main"] for i in order]
+    y_osc = [sweep[f"{xs[i]:g}"]["y_osc"] for i in order]
+    y_total = [sweep[f"{xs[i]:g}"]["y_total"] for i in order]
+    xs_sorted = [xs[i] for i in order]
     fig, ax = plt.subplots(figsize=(8.2, 4.6))
-    ax.plot(xs, rf, "o-", label="R_F (ITTC-57 + roughness allowance)")
-    ax.plot(xs, rr, "s-", label="R_R (Holtrop residuary)")
-    ax.plot(xs, rt, "^-", linewidth=2.2, label="R_T = R_F + R_R")
-    ax.set_xlabel("ship speed V [kn]")
-    ax.set_ylabel("resistance [N]")
-    ax.set_title("Ingested evidence payload: Holtrop resistance sweep (L=200 m, Cb=0.65)")
+    ax.plot(xs_sorted, y_main, "o-", label="y_main = α·x^β")
+    ax.plot(xs_sorted, y_osc, "s-", label="y_osc = γ·sin(δ·x)")
+    ax.plot(xs_sorted, y_total, "^-", linewidth=2.2, label="y_total = y_main + y_osc")
+    ax.set_xlabel("x")
+    ax.set_ylabel("y")
+    ax.set_title("Ingested evidence payload: synthetic function sweep")
     ax.grid(alpha=0.3)
     ax.legend(fontsize=8)
     fig.tight_layout()
-    path = ART / "fig3_holtrop_rt_vs_v.png"
+    path = ART / "fig3_synthetic_sweep.png"
     fig.savefig(path, dpi=150)
     plt.close(fig)
     made.append(path)
@@ -352,11 +361,10 @@ def figures(sweep: dict, metrics: dict) -> list[Path]:
 
 def main(argv: list[str] | None = None) -> int:
     parser = argparse.ArgumentParser(description="m4960 evidence-chain ingest demo")
-    parser.add_argument("--refresh", action="store_true", help="强制重新采集平台 API")
     parser.add_argument("--no-figures", action="store_true")
     args = parser.parse_args(argv)
 
-    sweep, design, notes = capture_resistance(refresh=args.refresh)
+    sweep, design, notes = generate_synthetic_data()
     clean_batch = materialise_clean_batch(sweep, design)
     mixed_batch = materialise_mixed_batch()
     metrics = run_phases(clean_batch, mixed_batch)
@@ -365,16 +373,16 @@ def main(argv: list[str] | None = None) -> int:
     artifacts = [p for p in checked if p.is_file() and p.name != "run_manifest.json"]
     cross_check = independent_sha256sum(artifacts)
 
-    rt = {float(k): v["rt"] for k, v in sweep.items()}
+    y_totals = {float(k): v["y_total"] for k, v in sweep.items()}
     metrics.update({
         "mission": 4960,
-        "campaign_node": "IN15-O2",
+        "campaign_node": "IN17-B3",
         "tool": {"name": "evidence_chain", "version": "1.0.0",
                  "path": "tools/evidence_chain/evidence_chain.py"},
         "capture_notes": notes,
-        "capture_source": SHIP_API,
-        "hull": HULL,
-        "speeds_kn": SPEEDS_KN,
+        "capture_source": "synthetic-data-generator",
+        "synth_params": SYNTH_PARAMS,
+        "scan_points": SCAN_POINTS,
         "design_point": design,
         "criteria": {
             "idempotent_rerun_diff_zero": metrics["idempotency"]["diff_zero"],
@@ -393,7 +401,7 @@ def main(argv: list[str] | None = None) -> int:
             "hash_cross_checked_by_coreutils": all(v["agree"] for v in cross_check.values()),
         },
         "hash_cross_check": cross_check,
-        "rt_kn_n": {f"{k:g}": rt[k] for k in sorted(rt)},
+        "y_total_by_x": {f"{k:g}": y_totals[k] for k in sorted(y_totals)},
     })
     metrics["criteria"]["all_passed"] = all(bool(v) for v in metrics["criteria"].values())
 
@@ -415,4 +423,4 @@ def main(argv: list[str] | None = None) -> int:
 
 
 if __name__ == "__main__":
-    raise SystemExit(main())
+    sys.exit(main())
