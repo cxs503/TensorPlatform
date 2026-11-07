@@ -1,0 +1,161 @@
+{
+  "contract": "mission_state_machine",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": [
+    "TensorPhysics"
+  ],
+  "description": "tensor_dev_missions.status transition graph (SPEC §4.2 lifecycle formalisation). States are NOT duplicated here: every key/target must be a member of mission_status_vocab.v1.json#statuses, and that equality is machine-checked by backend/tests/test_mission_reopened_state.py plus tools/contracts/vocab_contract_audit.py (item state_machine_closure). The only governance-injected state is REOPENED: it is reachable exclusively from the terminal set, only by an independent governance actor (never the producer of the deliverable), and only when the caller cites the original acceptance record — the rule block below is the single source for both the backend endpoint (api/domain/mission_state_machine.py) and the ops-side guard (ops/taskplane/mission_reopen.py), whose decisions are locked to be identical by test. Words go into this file, never into a code literal.",
+  "derived_from": "mission_status_vocab.v1.json#statuses",
+  "workable": [
+    "queued",
+    "claimed",
+    "running"
+  ],
+  "workable_note": "States that carry live execution (queued = claimable by a worker, claimed/running = in a worker's hands). The machine invariant: every edge from a terminal state into this set must be enumerated in audited_retry_edges — i.e. no *undeclared* revival backdoor exists. The formal revival path is terminal -> reopened; the enumerated exemptions are the live `refill` retry (one-step re-dispatch, audited under result.refill), which predates this contract and is listed rather than silently tolerated.",
+  "governance_roles": [
+    "ADMIN",
+    "MANAGER",
+    "GOVERNANCE"
+  ],
+  "transitions": {
+    "queued": {
+      "to": [
+        "claimed",
+        "suspended",
+        "stopped",
+        "revoked",
+        "orphan"
+      ],
+      "note": "claim() takes queued->claimed; suspend/orphan-reaper/stop/revoke are platform-side exits"
+    },
+    "claimed": {
+      "to": [
+        "running",
+        "queued",
+        "suspended",
+        "stopped",
+        "revoked",
+        "orphan",
+        "failed"
+      ],
+      "note": "start() -> running; reclaim/lazy-reap return to queued; stale claim -> failed"
+    },
+    "running": {
+      "to": [
+        "awaiting_acceptance",
+        "failed",
+        "stopped",
+        "suspended",
+        "revoked",
+        "orphan"
+      ],
+      "note": "complete() with pending dev_acceptance -> awaiting_acceptance"
+    },
+    "awaiting_acceptance": {
+      "to": [
+        "succeeded",
+        "failed",
+        "queued",
+        "stopped",
+        "revoked",
+        "suspended"
+      ],
+      "note": "approval decides succeeded/failed; rejection refills to queued"
+    },
+    "awaiting_pr_merge": {
+      "to": [
+        "succeeded",
+        "failed",
+        "queued",
+        "stopped",
+        "revoked",
+        "orphan"
+      ],
+      "note": "pr-gate merged -> succeeded, closed -> failed; custody-requeue -> queued"
+    },
+    "succeeded": {
+      "to": [
+        "awaiting_pr_merge",
+        "failed",
+        "reopened",
+        "queued"
+      ],
+      "note": "pr-gate open report turns success provisional; closed report -> failed; queued = refill retry (audited exemption)"
+    },
+    "failed": {
+      "to": [
+        "reopened",
+        "queued"
+      ],
+      "note": "terminal: governance reopen, or refill retry (audited exemption)"
+    },
+    "stopped": {
+      "to": [
+        "reopened",
+        "queued"
+      ],
+      "note": "terminal: owner stop-payment; reopen needs an independent governance actor, refill retry is the audited exemption"
+    },
+    "revoked": {
+      "to": [
+        "reopened"
+      ],
+      "note": "terminal"
+    },
+    "orphan": {
+      "to": [
+        "reopened"
+      ],
+      "note": "terminal: reaped queued mission; reopen only with cited acceptance record"
+    },
+    "suspended": {
+      "to": [
+        "queued",
+        "stopped",
+        "revoked",
+        "failed"
+      ],
+      "note": "resume() -> queued (reversible, budget clock frozen)"
+    },
+    "reopened": {
+      "to": [
+        "queued",
+        "suspended",
+        "stopped",
+        "revoked",
+        "failed"
+      ],
+      "note": "parked rework state: release -> queued, or governance closes it again"
+    }
+  },
+  "reopen": {
+    "from": [
+      "succeeded",
+      "failed",
+      "stopped",
+      "revoked",
+      "orphan"
+    ],
+    "targets": [
+      "reopened"
+    ],
+    "release_to": "queued",
+    "require": [
+      "acceptance_ref",
+      "reason"
+    ],
+    "independent_actor": true,
+    "min_reason_chars": 8,
+    "acceptance_ref_pattern": "^(acceptance|review|pr|evidence):[A-Za-z0-9._:#/-]{1,200}$",
+    "note": "SPEC §4.2: 重开必须引用原验收记录并说明理由，且由独立治理侧（非生产者本人）触发。The ref prefix records WHICH artefact is being cited (dev_acceptance row, review verdict, PR, or evidence bundle)."
+  },
+  "audited_retry_edges": {
+    "note": "Terminal -> workable edges that exist in the live API but are NOT post-acceptance reopens: POST /tensor/missions/{id}/refill sets status='queued' in one step for succeeded/failed/stopped and audits the act under result.refill (no acceptance citation, no REOPENED anchor). They are enumerated here so the machine checks can assert 'no UNDECLARED terminal->workable backdoor' instead of loosening the rule into a no-op. Recommendation (out of scope for m5022): route refill through reopened + release once the migration is deployed, then delete this exemption.",
+    "edges": [
+      "succeeded->queued",
+      "failed->queued",
+      "stopped->queued"
+    ]
+  }
+}
