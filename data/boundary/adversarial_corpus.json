@@ -1,0 +1,4222 @@
+{
+ "schema": "tp.boundary.adversarial_corpus/v1",
+ "version": "1.0.0",
+ "seed": 20261107,
+ "generator": {
+  "path": "tools/boundary/adversarial_corpus.py",
+  "sha256": "0fc58bd3af61e65077efeca73c30a3661c8c9c6f1bc63e0e0753c6c0780a3108",
+  "version": "1.0.0"
+ },
+ "seeds": {
+  "path": "data/boundary/adversarial_corpus_seeds.json",
+  "sha256": "297941588cc40d2cc5096739b8303862f88bc5480d3c153ac8eb4f47aaf5dba8"
+ },
+ "lexicon": {
+  "path": "/root/tp-agent/work/m5282/data/boundary/pr_boundary_lexicon.json",
+  "sha256": "598dc7cd24cee564bb0df79706e59fff80dde5ba8d4302475ed12c0a0ddec425",
+  "version": "1.0.0"
+ },
+ "quota": {
+  "per_class_pos_min": 25,
+  "per_class_neg_min": 10,
+  "total_min": 200,
+  "classes": 6
+ },
+ "counts": {
+  "total": 216,
+  "by_class": {
+   "synonym_rewrite": {
+    "positive": 26,
+    "negative": 10
+   },
+   "symbol_notation": {
+    "positive": 26,
+    "negative": 10
+   },
+   "cross_language": {
+    "positive": 26,
+    "negative": 10
+   },
+   "block_embedding": {
+    "positive": 26,
+    "negative": 10
+   },
+   "comment_url": {
+    "positive": 26,
+    "negative": 10
+   },
+   "long_range_reference": {
+    "positive": 26,
+    "negative": 10
+   }
+  }
+ },
+ "corpus_sha256": "8ef53c885b1a5c2920ff8edb658844c37267e6bc2c0951b6bf4a8a7782af104a",
+ "control": {
+  "id": "self-injury-control",
+  "label": "positive",
+  "expect": "FAIL",
+  "path": "backend/api/probe_guard.py",
+  "lines": [
+   "VALUE = \"ice\""
+  ],
+  "note": "已知会被拦的一行（词表内词条裸写进代码路径）；门禁若判绿=度量链路坏了，度量必须中止"
+ },
+ "samples": [
+  {
+   "id": "synonym_rewrite-pos_light-001",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "docs/reports/kappa_gate.py",
+   "lines": [
+    "# freeze-bond adhesion pipeline; evidence id \"adfreeze-theta\" kept for the regression baseline"
+   ],
+   "template": "# {PARA} pipeline; evidence id \"{TERM}-{ID}\" kept for the regression baseline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-002",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "scripts/omicron_job.sh",
+   "lines": [
+    "# ramming-capable platform branch — regression id icebreaker-xi retained"
+   ],
+   "template": "# {PARA} branch — regression id {TERM}-{ID} retained",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-003",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "tests/test_delta_ledger.py",
+   "lines": [
+    "NOTE = \"ramming-capable platform review (id: icebreaker-upsilon)\""
+   ],
+   "template": "NOTE = \"{PARA} review (id: {TERM}-{ID})\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-004",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "docs/reports/omicron_gate.py",
+   "lines": [
+    "# drift-cover registry entry sea-ice-alpha is quoted verbatim"
+   ],
+   "template": "# {PARA} registry entry {TERM}-{ID} is quoted verbatim",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-005",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "scripts/eta_job.sh",
+   "lines": [
+    "# the semi-empirical model of record pipeline; evidence id \"polaris-delta\" kept for the regression baseline"
+   ],
+   "template": "# {PARA} pipeline; evidence id \"{TERM}-{ID}\" kept for the regression baseline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-006",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "backend/api/pi_runs.py",
+   "lines": [
+    "# freeze-bond adhesion branch — regression id adfreeze-tau2 retained"
+   ],
+   "template": "# {PARA} branch — regression id {TERM}-{ID} retained",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-007",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "optimizer/xi/search.py",
+   "lines": [
+    "NOTE = \"freeze bond review (id: adfreeze-bond-upsilon)\""
+   ],
+   "template": "NOTE = \"{PARA} review (id: {TERM}-{ID})\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-008",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "tools/kappa/pipeline.py",
+   "lines": [
+    "# ramming capability registry entry icebreaking-lambda is quoted verbatim"
+   ],
+   "template": "# {PARA} registry entry {TERM}-{ID} is quoted verbatim",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-009",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "docs/reports/mu_gate.py",
+   "lines": [
+    "# fine suspended crystals pipeline; evidence id \"frazil-rho\" kept for the regression baseline"
+   ],
+   "template": "# {PARA} pipeline; evidence id \"{TERM}-{ID}\" kept for the regression baseline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-010",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "tools/zeta/pipeline.py",
+   "lines": [
+    "# shell plating branch — regression id hull-epsilon retained"
+   ],
+   "template": "# {PARA} branch — regression id {TERM}-{ID} retained",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-011",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "tools/xi/pipeline.py",
+   "lines": [
+    "NOTE = \"drift cover review (id: sea ice-lambda)\""
+   ],
+   "template": "NOTE = \"{PARA} review (id: {TERM}-{ID})\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-012",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "docs/reports/eta_gate.py",
+   "lines": [
+    "# frozen-water cover registry entry ice-gamma is quoted verbatim"
+   ],
+   "template": "# {PARA} registry entry {TERM}-{ID} is quoted verbatim",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_light-013",
+   "class": "synonym_rewrite",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary_partial",
+   "remediable_by": "base",
+   "path": "scripts/lambda_job.sh",
+   "lines": [
+    "# the semi-empirical model of record pipeline; evidence id \"polaris-tau2\" kept for the regression baseline"
+   ],
+   "template": "# {PARA} pipeline; evidence id \"{TERM}-{ID}\" kept for the regression baseline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-001",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "src/upsilon/registry.py",
+   "lines": [
+    "def build_theta_context():  # freeze-bond adhesion branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {PARA} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-002",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "optimizer/upsilon/search.py",
+   "lines": [
+    "notes = \"stage-2 freeze-bond adhesion review\""
+   ],
+   "template": "notes = \"stage-2 {PARA} review\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-003",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "tools/eta/pipeline.py",
+   "lines": [
+    "TABLE = \"ramming capability vs throughput\""
+   ],
+   "template": "TABLE = \"{PARA} vs throughput\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-004",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "src/omicron/registry.py",
+   "lines": [
+    "def upsilon_profile():  # ramming-capable platform assumptions live in the domain repo"
+   ],
+   "template": "def {ID}_profile():  # {PARA} assumptions live in the domain repo",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-005",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "backend/api/eta_runs.py",
+   "lines": [
+    "def build_pi_context():  # the semi-empirical model of record branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {PARA} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-006",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "scripts/tau2_job.sh",
+   "lines": [
+    "notes = \"stage-2 fine suspended crystals review\""
+   ],
+   "template": "notes = \"stage-2 {PARA} review\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-007",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "tools/tau2/pipeline.py",
+   "lines": [
+    "TABLE = \"freeze bond vs throughput\""
+   ],
+   "template": "TABLE = \"{PARA} vs throughput\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-008",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "src/epsilon/registry.py",
+   "lines": [
+    "def sigma_profile():  # ramming capability assumptions live in the domain repo"
+   ],
+   "template": "def {ID}_profile():  # {PARA} assumptions live in the domain repo",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-009",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "backend/api/lambda_runs.py",
+   "lines": [
+    "def build_alpha_context():  # ramming-capable platform branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {PARA} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-010",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "docs/reports/lambda_gate.py",
+   "lines": [
+    "notes = \"stage-2 freeze-bond adhesion review\""
+   ],
+   "template": "notes = \"stage-2 {PARA} review\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-011",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "docs/reports/upsilon_gate.py",
+   "lines": [
+    "TABLE = \"drift cover vs throughput\""
+   ],
+   "template": "TABLE = \"{PARA} vs throughput\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-012",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "tests/test_nu_ledger.py",
+   "lines": [
+    "def tau2_profile():  # ramming capability assumptions live in the domain repo"
+   ],
+   "template": "def {ID}_profile():  # {PARA} assumptions live in the domain repo",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "synonym_rewrite-pos_heavy-013",
+   "class": "synonym_rewrite",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "paraphrase",
+   "remediable_by": "vocabulary",
+   "path": "tests/test_tau2_ledger.py",
+   "lines": [
+    "def build_iota_context():  # fine suspended crystals branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {PARA} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-001",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/theta/pipeline.py",
+   "lines": [
+    "def build_nu_context():  # retry branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {W} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-002",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/tau2/search.py",
+   "lines": [
+    "notes = \"stage-2 retry review\""
+   ],
+   "template": "notes = \"stage-2 {W} review\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-003",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/kappa/registry.py",
+   "lines": [
+    "TABLE = \"registry vs throughput\""
+   ],
+   "template": "TABLE = \"{W} vs throughput\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-004",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/kappa/pipeline.py",
+   "lines": [
+    "# registry registry entry lambda is quoted verbatim"
+   ],
+   "template": "# {W} registry entry {ID} is quoted verbatim",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-005",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/mu/search.py",
+   "lines": [
+    "def build_theta_context():  # digest branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {W} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-006",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/alpha/pipeline.py",
+   "lines": [
+    "notes = \"stage-2 session review\""
+   ],
+   "template": "notes = \"stage-2 {W} review\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-007",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/beta_gate.py",
+   "lines": [
+    "TABLE = \"metrics vs throughput\""
+   ],
+   "template": "TABLE = \"{W} vs throughput\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-008",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/kappa_job.sh",
+   "lines": [
+    "# session registry entry mu is quoted verbatim"
+   ],
+   "template": "# {W} registry entry {ID} is quoted verbatim",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-009",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/tau2/pipeline.py",
+   "lines": [
+    "def build_rho_context():  # quota branch of the pipeline"
+   ],
+   "template": "def build_{ID}_context():  # {W} branch of the pipeline",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "synonym_rewrite-neg-010",
+   "class": "synonym_rewrite",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/delta/registry.py",
+   "lines": [
+    "notes = \"stage-2 registry review\""
+   ],
+   "template": "notes = \"stage-2 {W} review\"",
+   "provenance": "IN17-B2/#608 语义清洗后的同义回流形态 + IN17-B5/#616 报告改写",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-001",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/pi_job.sh",
+   "lines": [
+    "# adfreeze-bond: cb = 0.71, L/B = 6.25, Re_tau = 410"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-002",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/delta/pipeline.py",
+   "lines": [
+    "assert 80 is not None  # ice case: cb=0.82"
+   ],
+   "template": "assert {N} is not None  # {TERM} case: cb={CB}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-003",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/mu/registry.py",
+   "lines": [
+    "# hull: cb = 0.71, L/B = 6.25, Re_tau = 180"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-004",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/eta_runs.py",
+   "lines": [
+    "assert 53 is not None  # sea-ice case: cb=0.71"
+   ],
+   "template": "assert {N} is not None  # {TERM} case: cb={CB}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-005",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/gamma/registry.py",
+   "lines": [
+    "# icebreaker: cb = 0.71, L/B = 6.25, Re_tau = 180"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-006",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tests/test_xi_ledger.py",
+   "lines": [
+    "assert 60 is not None  # icebreaking case: cb=0.78"
+   ],
+   "template": "assert {N} is not None  # {TERM} case: cb={CB}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-007",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/nu_runs.py",
+   "lines": [
+    "# lindqvist: cb = 0.82, L/B = 6.25, Re_tau = 180"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-008",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/mu_runs.py",
+   "lines": [
+    "assert 85 is not None  # adfreeze-bond case: cb=0.71"
+   ],
+   "template": "assert {N} is not None  # {TERM} case: cb={CB}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-009",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/beta_gate.py",
+   "lines": [
+    "# icebreaking: cb = 0.71, L/B = 6.25, Re_tau = 180"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-010",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/omicron/pipeline.py",
+   "lines": [
+    "assert 84 is not None  # icebreaking case: cb=0.78"
+   ],
+   "template": "assert {N} is not None  # {TERM} case: cb={CB}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-011",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/theta/registry.py",
+   "lines": [
+    "# icebreaking: cb = 0.82, L/B = 6.25, Re_tau = 320"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-012",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/theta/registry.py",
+   "lines": [
+    "assert 55 is not None  # hull case: cb=0.82"
+   ],
+   "template": "assert {N} is not None  # {TERM} case: cb={CB}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_light-013",
+   "class": "symbol_notation",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/nu_gate.py",
+   "lines": [
+    "# polaris: cb = 0.71, L/B = 6.25, Re_tau = 180"
+   ],
+   "template": "# {TERM}: cb = {CB}, L/B = 6.25, Re_tau = {RETAU}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-001",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/upsilon_gate.py",
+   "lines": [
+    "PRINCIPAL = {\"length\": 200, \"beam\": 32, \"draft\": 10, \"cb\": 0.71, \"displacement\": 31000}"
+   ],
+   "template": "PRINCIPAL = {{\"length\": {DIMS0}, \"beam\": {DIMS1}, \"draft\": {DIMS2}, \"cb\": {CB}, \"displacement\": {DISP}}}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-002",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "backend/api/upsilon_runs.py",
+   "lines": [
+    "INSTALLED = 32  # MW"
+   ],
+   "template": "INSTALLED = {POWER}  # MW",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-003",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "tests/test_sigma_ledger.py",
+   "lines": [
+    "TRIPLET = \"L 180 / B 28 / T 9\""
+   ],
+   "template": "TRIPLET = \"L {DIMS0} / B {DIMS1} / T {DIMS2}\"",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-004",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "optimizer/epsilon/search.py",
+   "lines": [
+    "RE_TAU = 250  # transition criterion of the closure"
+   ],
+   "template": "RE_TAU = {RETAU}  # transition criterion of the closure",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-005",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "scripts/zeta_job.sh",
+   "lines": [
+    "def profile_alpha(cb=0.82, beam=24):  # geometry envelope"
+   ],
+   "template": "def profile_{ID}(cb={CB}, beam={DIMS1}):  # geometry envelope",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-006",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "tools/nu/pipeline.py",
+   "lines": [
+    "PRINCIPAL = {\"length\": 180, \"beam\": 28, \"draft\": 9, \"cb\": 0.71, \"displacement\": 31000}"
+   ],
+   "template": "PRINCIPAL = {{\"length\": {DIMS0}, \"beam\": {DIMS1}, \"draft\": {DIMS2}, \"cb\": {CB}, \"displacement\": {DISP}}}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-007",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "backend/api/epsilon_runs.py",
+   "lines": [
+    "INSTALLED = 32  # MW"
+   ],
+   "template": "INSTALLED = {POWER}  # MW",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-008",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/delta_gate.py",
+   "lines": [
+    "TRIPLET = \"L 200 / B 32 / T 10\""
+   ],
+   "template": "TRIPLET = \"L {DIMS0} / B {DIMS1} / T {DIMS2}\"",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-009",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "tests/test_sigma_ledger.py",
+   "lines": [
+    "RE_TAU = 180  # transition criterion of the closure"
+   ],
+   "template": "RE_TAU = {RETAU}  # transition criterion of the closure",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-010",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/alpha_gate.py",
+   "lines": [
+    "def profile_beta(cb=0.71, beam=36):  # geometry envelope"
+   ],
+   "template": "def profile_{ID}(cb={CB}, beam={DIMS1}):  # geometry envelope",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-011",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "tests/test_tau2_ledger.py",
+   "lines": [
+    "PRINCIPAL = {\"length\": 200, \"beam\": 32, \"draft\": 10, \"cb\": 0.71, \"displacement\": 56000}"
+   ],
+   "template": "PRINCIPAL = {{\"length\": {DIMS0}, \"beam\": {DIMS1}, \"draft\": {DIMS2}, \"cb\": {CB}, \"displacement\": {DISP}}}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-012",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/theta_gate.py",
+   "lines": [
+    "INSTALLED = 32  # MW"
+   ],
+   "template": "INSTALLED = {POWER}  # MW",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "symbol_notation-pos_heavy-013",
+   "class": "symbol_notation",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "backend/api/upsilon_runs.py",
+   "lines": [
+    "TRIPLET = \"L 150 / B 24 / T 8\""
+   ],
+   "template": "TRIPLET = \"L {DIMS0} / B {DIMS1} / T {DIMS2}\"",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-001",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/xi_job.sh",
+   "lines": [
+    "PRINCIPAL = {\"timeout_s\": 30, \"retries\": 3, \"alpha\": 0.65}"
+   ],
+   "template": "PRINCIPAL = {{\"timeout_s\": 30, \"retries\": 3, \"alpha\": {CB}}}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-002",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/epsilon_job.sh",
+   "lines": [
+    "INSTALLED = 32  # MW datacenter envelope for the compute pool"
+   ],
+   "template": "INSTALLED = {POWER}  # MW datacenter envelope for the compute pool",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-003",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/rho_runs.py",
+   "lines": [
+    "TRIPLET = \"67 / 67 / 67\""
+   ],
+   "template": "TRIPLET = \"{N} / {N} / {N}\"",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-004",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/pi_gate.py",
+   "lines": [
+    "re_tau = 180.0  # solver damping coefficient"
+   ],
+   "template": "re_tau = 180.0  # solver damping coefficient",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-005",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_upsilon_ledger.py",
+   "lines": [
+    "PRINCIPAL = {\"timeout_s\": 30, \"retries\": 3, \"alpha\": 0.71}"
+   ],
+   "template": "PRINCIPAL = {{\"timeout_s\": 30, \"retries\": 3, \"alpha\": {CB}}}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-006",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/delta/search.py",
+   "lines": [
+    "INSTALLED = 18  # MW datacenter envelope for the compute pool"
+   ],
+   "template": "INSTALLED = {POWER}  # MW datacenter envelope for the compute pool",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-007",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/lambda/registry.py",
+   "lines": [
+    "TRIPLET = \"40 / 40 / 40\""
+   ],
+   "template": "TRIPLET = \"{N} / {N} / {N}\"",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-008",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/theta_gate.py",
+   "lines": [
+    "re_tau = 180.0  # solver damping coefficient"
+   ],
+   "template": "re_tau = 180.0  # solver damping coefficient",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-009",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_zeta_ledger.py",
+   "lines": [
+    "PRINCIPAL = {\"timeout_s\": 30, \"retries\": 3, \"alpha\": 0.78}"
+   ],
+   "template": "PRINCIPAL = {{\"timeout_s\": 30, \"retries\": 3, \"alpha\": {CB}}}",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "symbol_notation-neg-010",
+   "class": "symbol_notation",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/xi_job.sh",
+   "lines": [
+    "INSTALLED = 26  # MW datacenter envelope for the compute pool"
+   ],
+   "template": "INSTALLED = {POWER}  # MW datacenter envelope for the compute pool",
+   "provenance": "IN17-B3/#610 主尺度 dict 字面量 + IN17-B5/#616 三元组/功率",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-001",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/eta/registry.py",
+   "lines": [
+    "# 冰 工况与 latin 混写：zeta"
+   ],
+   "template": "# {CJK} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-002",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/iota_job.sh",
+   "lines": [
+    "label = \"冰 记录 / registry\""
+   ],
+   "template": "label = \"{CJK} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-003",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/zeta_job.sh",
+   "lines": [
+    "# 极地 段与英文混排 xi"
+   ],
+   "template": "# {CJK} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-004",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/theta/search.py",
+   "lines": [
+    "# 冰 工况与 latin 混写：alpha"
+   ],
+   "template": "# {CJK} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-005",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/epsilon_runs.py",
+   "lines": [
+    "label = \"冰 记录 / artifact\""
+   ],
+   "template": "label = \"{CJK} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-006",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/alpha/search.py",
+   "lines": [
+    "# 极地 段与英文混排 pi"
+   ],
+   "template": "# {CJK} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-007",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/upsilon_job.sh",
+   "lines": [
+    "# 极地 工况与 latin 混写：lambda"
+   ],
+   "template": "# {CJK} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-008",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/rho_job.sh",
+   "lines": [
+    "label = \"极地 记录 / schema\""
+   ],
+   "template": "label = \"{CJK} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-009",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/nu_runs.py",
+   "lines": [
+    "# 极地 段与英文混排 alpha"
+   ],
+   "template": "# {CJK} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-010",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tests/test_delta_ledger.py",
+   "lines": [
+    "# 冰 工况与 latin 混写：epsilon"
+   ],
+   "template": "# {CJK} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-011",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/beta/pipeline.py",
+   "lines": [
+    "label = \"极地 记录 / budget\""
+   ],
+   "template": "label = \"{CJK} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-012",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tests/test_zeta_ledger.py",
+   "lines": [
+    "# 极地 段与英文混排 zeta"
+   ],
+   "template": "# {CJK} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "cross_language-pos_light-013",
+   "class": "cross_language",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/gamma/search.py",
+   "lines": [
+    "# 极地 工况与 latin 混写：mu"
+   ],
+   "template": "# {CJK} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-001",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "src/rho/registry.py",
+   "lines": [
+    "# 氷 工况与 latin 混写：lambda"
+   ],
+   "template": "# {FOREIGN} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-002",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "optimizer/kappa/search.py",
+   "lines": [
+    "label = \"примерзание 记录 / budget\""
+   ],
+   "template": "label = \"{FOREIGN} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-003",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "src/upsilon/registry.py",
+   "lines": [
+    "NOTES = \"примерзание assumptions (see domain repo)\""
+   ],
+   "template": "NOTES = \"{FOREIGN} assumptions (see domain repo)\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-004",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "optimizer/epsilon/search.py",
+   "lines": [
+    "# шуга 段与英文混排 sigma"
+   ],
+   "template": "# {FOREIGN} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-005",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "backend/api/nu_runs.py",
+   "lines": [
+    "# 氷 工况与 latin 混写：theta"
+   ],
+   "template": "# {FOREIGN} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-006",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "tests/test_kappa_ledger.py",
+   "lines": [
+    "label = \"氷 记录 / throughput\""
+   ],
+   "template": "label = \"{FOREIGN} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-007",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "scripts/lambda_job.sh",
+   "lines": [
+    "NOTES = \"примерзание assumptions (see domain repo)\""
+   ],
+   "template": "NOTES = \"{FOREIGN} assumptions (see domain repo)\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-008",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "optimizer/eta/search.py",
+   "lines": [
+    "# примерзание 段与英文混排 iota"
+   ],
+   "template": "# {FOREIGN} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-009",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "optimizer/epsilon/search.py",
+   "lines": [
+    "# примерзание 工况与 latin 混写：mu"
+   ],
+   "template": "# {FOREIGN} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-010",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "scripts/sigma_job.sh",
+   "lines": [
+    "label = \"Поларис 记录 / merge\""
+   ],
+   "template": "label = \"{FOREIGN} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-011",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "docs/reports/alpha_gate.py",
+   "lines": [
+    "NOTES = \"氷海航行 assumptions (see domain repo)\""
+   ],
+   "template": "NOTES = \"{FOREIGN} assumptions (see domain repo)\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-012",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "docs/reports/tau2_gate.py",
+   "lines": [
+    "# примерзание 段与英文混排 lambda"
+   ],
+   "template": "# {FOREIGN} 段与英文混排 {ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "cross_language-pos_heavy-013",
+   "class": "cross_language",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "script_shift",
+   "remediable_by": "vocabulary",
+   "path": "tools/gamma/pipeline.py",
+   "lines": [
+    "# шуга 工况与 latin 混写：gamma"
+   ],
+   "template": "# {FOREIGN} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "cross_language-neg-001",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/delta_job.sh",
+   "lines": [
+    "# c0de 工况与 latin 混写：zeta"
+   ],
+   "template": "# {NEUTRAL} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "cross_language-neg-002",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/lambda_runs.py",
+   "lines": [
+    "label = \"ind_ex 记录 / quota\""
+   ],
+   "template": "label = \"{NEUTRAL} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "cross_language-neg-003",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_epsilon_ledger.py",
+   "lines": [
+    "NOTES = \"данные assumptions\""
+   ],
+   "template": "NOTES = \"{NEUTRAL} assumptions\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "cross_language-neg-004",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/pi_gate.py",
+   "lines": [
+    "# 서정 工况与 latin 混写：beta"
+   ],
+   "template": "# {NEUTRAL} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "cross_language-neg-005",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/tau2/pipeline.py",
+   "lines": [
+    "label = \"c0de 记录 / digest\""
+   ],
+   "template": "label = \"{NEUTRAL} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "cross_language-neg-006",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/theta/registry.py",
+   "lines": [
+    "NOTES = \"conf assumptions\""
+   ],
+   "template": "NOTES = \"{NEUTRAL} assumptions\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "cross_language-neg-007",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/tau2_runs.py",
+   "lines": [
+    "# 서정 工况与 latin 混写：theta"
+   ],
+   "template": "# {NEUTRAL} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "cross_language-neg-008",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/theta_job.sh",
+   "lines": [
+    "label = \"ind_ex 记录 / digest\""
+   ],
+   "template": "label = \"{NEUTRAL} 记录 / {W}\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "cross_language-neg-009",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/epsilon/search.py",
+   "lines": [
+    "NOTES = \"Größe assumptions\""
+   ],
+   "template": "NOTES = \"{NEUTRAL} assumptions\"",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "cross_language-neg-010",
+   "class": "cross_language",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/gamma_gate.py",
+   "lines": [
+    "# ind_ex 工况与 latin 混写：sigma"
+   ],
+   "template": "# {NEUTRAL} 工况与 latin 混写：{ID}",
+   "provenance": "IN17-B2/#608 中英文混写 + IN17-B5/#616 域文档引用",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-001",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/kappa/registry.py",
+   "lines": [
+    "    | hull | 0.82 | unitless |"
+   ],
+   "template": "    | {TERM} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-002",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/omicron/pipeline.py",
+   "lines": [
+    "    ```yaml",
+    "    key: sea ice",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    key: {TERM}\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-003",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/eta/pipeline.py",
+   "lines": [
+    "\"\"\"gamma module.",
+    "",
+    "    hull evidence rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    {TERM} evidence rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-004",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/beta_job.sh",
+   "lines": [
+    "    | polaris | 0.78 | unitless |"
+   ],
+   "template": "    | {TERM} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-005",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/kappa/pipeline.py",
+   "lines": [
+    "    ```yaml",
+    "    key: sea-ice",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    key: {TERM}\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-006",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/gamma_runs.py",
+   "lines": [
+    "\"\"\"lambda module.",
+    "",
+    "    polaris evidence rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    {TERM} evidence rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-007",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tests/test_theta_ledger.py",
+   "lines": [
+    "    | hull | 0.71 | unitless |"
+   ],
+   "template": "    | {TERM} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-008",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/upsilon/pipeline.py",
+   "lines": [
+    "    ```yaml",
+    "    key: sea-ice",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    key: {TERM}\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-009",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/pi/search.py",
+   "lines": [
+    "\"\"\"pi module.",
+    "",
+    "    frazil evidence rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    {TERM} evidence rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-010",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/rho/pipeline.py",
+   "lines": [
+    "    | adfreezing | 0.78 | unitless |"
+   ],
+   "template": "    | {TERM} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-011",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/theta_job.sh",
+   "lines": [
+    "    ```yaml",
+    "    key: adfreeze-bond",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    key: {TERM}\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-012",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/pi/pipeline.py",
+   "lines": [
+    "\"\"\"lambda module.",
+    "",
+    "    frazil evidence rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    {TERM} evidence rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "block_embedding-pos_light-013",
+   "class": "block_embedding",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/kappa_gate.py",
+   "lines": [
+    "    | ice | 0.82 | unitless |"
+   ],
+   "template": "    | {TERM} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-001",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/beta_gate.py",
+   "lines": [
+    "    | 180 | 28 | 9 | principal |"
+   ],
+   "template": "    | {DIMS0} | {DIMS1} | {DIMS2} | principal |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-002",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "line_split",
+   "remediable_by": "R1_normalize",
+   "path": "optimizer/eta/search.py",
+   "lines": [
+    "    ```yaml",
+    "    cb: 0.78",
+    "    l_over_b: 6.25",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    cb: {CB}\n    l_over_b: 6.25\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-003",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "line_split",
+   "remediable_by": "R1_normalize",
+   "path": "src/kappa/registry.py",
+   "lines": [
+    "\"\"\"mu module.",
+    "",
+    "    sea-",
+    "ice rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    sea-\nice rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-004",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/pi_gate.py",
+   "lines": [
+    "    \"\"\"Resistance in the drift cover, cb=0.65, displacement=31000.\"\"\""
+   ],
+   "template": "    \"\"\"Resistance in the drift cover, cb={CB}, displacement={DISP}.\"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-005",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "docs/reports/pi_gate.py",
+   "lines": [
+    "    | 230 | 36 | 11 | principal |"
+   ],
+   "template": "    | {DIMS0} | {DIMS1} | {DIMS2} | principal |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-006",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "line_split",
+   "remediable_by": "R1_normalize",
+   "path": "scripts/xi_job.sh",
+   "lines": [
+    "    ```yaml",
+    "    cb: 0.78",
+    "    l_over_b: 6.25",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    cb: {CB}\n    l_over_b: 6.25\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-007",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "line_split",
+   "remediable_by": "R1_normalize",
+   "path": "scripts/beta_job.sh",
+   "lines": [
+    "\"\"\"mu module.",
+    "",
+    "    sea-",
+    "ice rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    sea-\nice rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-008",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "tools/lambda/pipeline.py",
+   "lines": [
+    "    \"\"\"Resistance in the drift cover, cb=0.71, displacement=31000.\"\"\""
+   ],
+   "template": "    \"\"\"Resistance in the drift cover, cb={CB}, displacement={DISP}.\"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-009",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "backend/api/rho_runs.py",
+   "lines": [
+    "    | 180 | 28 | 9 | principal |"
+   ],
+   "template": "    | {DIMS0} | {DIMS1} | {DIMS2} | principal |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-010",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "line_split",
+   "remediable_by": "R1_normalize",
+   "path": "docs/reports/eta_gate.py",
+   "lines": [
+    "    ```yaml",
+    "    cb: 0.82",
+    "    l_over_b: 6.25",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    cb: {CB}\n    l_over_b: 6.25\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-011",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "line_split",
+   "remediable_by": "R1_normalize",
+   "path": "scripts/epsilon_job.sh",
+   "lines": [
+    "\"\"\"eta module.",
+    "",
+    "    sea-",
+    "ice rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    sea-\nice rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-012",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "scripts/xi_job.sh",
+   "lines": [
+    "    \"\"\"Resistance in the drift cover, cb=0.71, displacement=56000.\"\"\""
+   ],
+   "template": "    \"\"\"Resistance in the drift cover, cb={CB}, displacement={DISP}.\"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "block_embedding-pos_heavy-013",
+   "class": "block_embedding",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "notation_gap",
+   "remediable_by": "R2_notation",
+   "path": "backend/api/pi_runs.py",
+   "lines": [
+    "    | 180 | 28 | 9 | principal |"
+   ],
+   "template": "    | {DIMS0} | {DIMS1} | {DIMS2} | principal |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "block_embedding-neg-001",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_kappa_ledger.py",
+   "lines": [
+    "    | merge | 0.65 | unitless |"
+   ],
+   "template": "    | {W} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "block_embedding-neg-002",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/rho_runs.py",
+   "lines": [
+    "    ```yaml",
+    "    key: registry",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    key: {W}\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "block_embedding-neg-003",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/xi_runs.py",
+   "lines": [
+    "\"\"\"xi module.",
+    "",
+    "    merge rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    {W} rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "block_embedding-neg-004",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/gamma/search.py",
+   "lines": [
+    "    \"\"\"Retry policy: alpha=0.71, timeout=30.\"\"\""
+   ],
+   "template": "    \"\"\"Retry policy: alpha={CB}, timeout=30.\"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "block_embedding-neg-005",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/upsilon_gate.py",
+   "lines": [
+    "layout = {\"length\": 32, \"beam\": 32}  # canvas sizing (rule-ambiguity probe)"
+   ],
+   "template": "layout = {{\"length\": {N}, \"beam\": {N}}}  # canvas sizing (rule-ambiguity probe)",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "block_embedding-neg-006",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/pi_runs.py",
+   "lines": [
+    "    | retry | 0.78 | unitless |"
+   ],
+   "template": "    | {W} | {CB} | unitless |",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "block_embedding-neg-007",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/pi_gate.py",
+   "lines": [
+    "    ```yaml",
+    "    key: merge",
+    "    ```"
+   ],
+   "template": "    ```yaml\n    key: {W}\n    ```",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "block_embedding-neg-008",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/sigma_runs.py",
+   "lines": [
+    "\"\"\"upsilon module.",
+    "",
+    "    ledger rows: see below.",
+    "    \"\"\""
+   ],
+   "template": "\"\"\"{ID} module.\n\n    {W} rows: see below.\n    \"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "block_embedding-neg-009",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/eta/registry.py",
+   "lines": [
+    "    \"\"\"Retry policy: alpha=0.82, timeout=30.\"\"\""
+   ],
+   "template": "    \"\"\"Retry policy: alpha={CB}, timeout=30.\"\"\"",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "block_embedding-neg-010",
+   "class": "block_embedding",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/upsilon_job.sh",
+   "lines": [
+    "layout = {\"length\": 57, \"beam\": 57}  # canvas sizing (rule-ambiguity probe)"
+   ],
+   "template": "layout = {{\"length\": {N}, \"beam\": {N}}}  # canvas sizing (rule-ambiguity probe)",
+   "provenance": "IN17-B2/#608 docstring 内嵌 + IN17-B5/#616 报告表格",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-001",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/mu_job.sh",
+   "lines": [
+    "# see https://example.org/adfreeze-bond-theta/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-002",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/zeta/search.py",
+   "lines": [
+    "# upstream: https://example.org/adfreeze-class/beta"
+   ],
+   "template": "# upstream: https://example.org/{TERM}-class/{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-003",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/nu/search.py",
+   "lines": [
+    "# see https://example.org/frazil-xi/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-004",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tests/test_alpha_ledger.py",
+   "lines": [
+    "# upstream: https://example.org/adfreezing-class/xi"
+   ],
+   "template": "# upstream: https://example.org/{TERM}-class/{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-005",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/epsilon/registry.py",
+   "lines": [
+    "# see https://example.org/polaris-mu/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-006",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/sigma/search.py",
+   "lines": [
+    "# upstream: https://example.org/icebreaking-class/mu"
+   ],
+   "template": "# upstream: https://example.org/{TERM}-class/{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-007",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "backend/api/mu_runs.py",
+   "lines": [
+    "# see https://example.org/adfreeze-iota/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-008",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/iota_job.sh",
+   "lines": [
+    "# upstream: https://example.org/sea-ice-class/omicron"
+   ],
+   "template": "# upstream: https://example.org/{TERM}-class/{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-009",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/zeta/registry.py",
+   "lines": [
+    "# see https://example.org/hull-eta/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-010",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/omicron_gate.py",
+   "lines": [
+    "# upstream: https://example.org/polaris-class/theta"
+   ],
+   "template": "# upstream: https://example.org/{TERM}-class/{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-011",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tests/test_beta_ledger.py",
+   "lines": [
+    "# see https://example.org/icebreaking-theta/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-012",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/iota/pipeline.py",
+   "lines": [
+    "# upstream: https://example.org/hull-class/beta"
+   ],
+   "template": "# upstream: https://example.org/{TERM}-class/{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "comment_url-pos_light-013",
+   "class": "comment_url",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/gamma_job.sh",
+   "lines": [
+    "# see https://example.org/adfreeze-bond-beta/notes for the table"
+   ],
+   "template": "# see https://example.org/{TERM}-{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-001",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "backend/api/eta_runs.py",
+   "lines": [
+    "# see https://example.org/sea%2Dice/notes for the table"
+   ],
+   "template": "# see https://example.org/{ENC}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-002",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "optimizer/rho/search.py",
+   "lines": [
+    "# the fra​zil branch documents the ledger envelope"
+   ],
+   "template": "# the {ZW} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-003",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "tools/pi/pipeline.py",
+   "lines": [
+    "# the ѕеa-ice branch documents the registry envelope"
+   ],
+   "template": "# the {HOMO} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-004",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "backend/api/kappa_runs.py",
+   "lines": [
+    "# the p0l4ris branch documents the metrics envelope"
+   ],
+   "template": "# the {LEET} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-005",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "tools/zeta/pipeline.py",
+   "lines": [
+    "URL = \"https://example.org/ref?q=hull&w=kappa\""
+   ],
+   "template": "URL = \"https://example.org/ref?q={ENC}&w={ID}\"",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-006",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "optimizer/pi/search.py",
+   "lines": [
+    "# see https://example.org/sea%2Dice/notes for the table"
+   ],
+   "template": "# see https://example.org/{ENC}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-007",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "backend/api/mu_runs.py",
+   "lines": [
+    "# the adfr​eeze branch documents the budget envelope"
+   ],
+   "template": "# the {ZW} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-008",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "tests/test_eta_ledger.py",
+   "lines": [
+    "# the аdfrеeze branch documents the artifact envelope"
+   ],
+   "template": "# the {HOMO} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-009",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "optimizer/kappa/search.py",
+   "lines": [
+    "# the hull branch documents the budget envelope"
+   ],
+   "template": "# the {LEET} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-010",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "docs/reports/iota_gate.py",
+   "lines": [
+    "URL = \"https://example.org/ref?q=adfreeze%2Dbond&w=iota\""
+   ],
+   "template": "URL = \"https://example.org/ref?q={ENC}&w={ID}\"",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-011",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "src/kappa/registry.py",
+   "lines": [
+    "# see https://example.org/adfreeze%2Dbond/notes for the table"
+   ],
+   "template": "# see https://example.org/{ENC}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-012",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "tests/test_upsilon_ledger.py",
+   "lines": [
+    "# the adfr​eeze branch documents the artifact envelope"
+   ],
+   "template": "# the {ZW} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-pos_heavy-013",
+   "class": "comment_url",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "obfuscation",
+   "remediable_by": "R1_normalize",
+   "path": "tests/test_nu_ledger.py",
+   "lines": [
+    "# the lіndqvіst branch documents the schema envelope"
+   ],
+   "template": "# the {HOMO} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "comment_url-neg-001",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/delta/pipeline.py",
+   "lines": [
+    "# see https://example.org/throughput/theta/notes for the table"
+   ],
+   "template": "# see https://example.org/{W}/{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "comment_url-neg-002",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/delta/registry.py",
+   "lines": [
+    "# upstream: https://example.org/session%20upsilon"
+   ],
+   "template": "# upstream: https://example.org/{W}%20{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "comment_url-neg-003",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/alpha/search.py",
+   "lines": [
+    "# the off​set branch documents the session envelope"
+   ],
+   "template": "# the {ZWN} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-neg-004",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/upsilon/registry.py",
+   "lines": [
+    "# the thrоughрut branch documents the ledger envelope"
+   ],
+   "template": "# the {HOMON} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "comment_url-neg-005",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/alpha/search.py",
+   "lines": [
+    "# the 1nd3x branch documents the throughput envelope"
+   ],
+   "template": "# the {LEETN} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-neg-006",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/tau2/pipeline.py",
+   "lines": [
+    "# see https://example.org/budget/tau2/notes for the table"
+   ],
+   "template": "# see https://example.org/{W}/{ID}/notes for the table",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "comment_url-neg-007",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "src/eta/registry.py",
+   "lines": [
+    "# upstream: https://example.org/session%20pi"
+   ],
+   "template": "# upstream: https://example.org/{W}%20{ID}",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "comment_url-neg-008",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "docs/reports/kappa_gate.py",
+   "lines": [
+    "# the dig​est branch documents the artifact envelope"
+   ],
+   "template": "# the {ZWN} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "comment_url-neg-009",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_beta_ledger.py",
+   "lines": [
+    "# the соde branch documents the registry envelope"
+   ],
+   "template": "# the {HOMON} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "comment_url-neg-010",
+   "class": "comment_url",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/rho/search.py",
+   "lines": [
+    "# the r3g1stry branch documents the artifact envelope"
+   ],
+   "template": "# the {LEETN} branch documents the {W} envelope",
+   "provenance": "IN17-B2/#608 字符串比较内嵌 + IN17-B3/#610 demo 注释",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-001",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/omicron_gate.py",
+   "lines": [
+    "# frazil table: see config/report_boundary_gate.json §4.1"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-002",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/omicron/registry.py",
+   "lines": [
+    "# lindqvist numbers quoted from data/boundary/adversarial_corpus_seeds.json §4.1"
+   ],
+   "template": "# {TERM} numbers quoted from {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "lindqvist_en",
+    "term_value": "lindqvist"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-003",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/beta_job.sh",
+   "lines": [
+    "# sea ice table: see config/report_boundary_gate.json §5.2"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-004",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/kappa_job.sh",
+   "lines": [
+    "# sea-ice numbers quoted from config/report_boundary_gate.json §2.3"
+   ],
+   "template": "# {TERM} numbers quoted from {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-005",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/pi/pipeline.py",
+   "lines": [
+    "# hull table: see config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-006",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/alpha/search.py",
+   "lines": [
+    "# adfreezing numbers quoted from config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# {TERM} numbers quoted from {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-007",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "scripts/eta_job.sh",
+   "lines": [
+    "# icebreaking table: see data/boundary/adversarial_corpus_seeds.json §3.4"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-008",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/kappa/registry.py",
+   "lines": [
+    "# adfreezing numbers quoted from config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# {TERM} numbers quoted from {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-009",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/upsilon_gate.py",
+   "lines": [
+    "# icebreaker table: see config/report_boundary_gate.json §4.1"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-010",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "docs/reports/eta_gate.py",
+   "lines": [
+    "# icebreaking numbers quoted from config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# {TERM} numbers quoted from {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-011",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "tools/mu/pipeline.py",
+   "lines": [
+    "# adfreeze-bond table: see config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-012",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "optimizer/eta/search.py",
+   "lines": [
+    "# adfreeze numbers quoted from data/boundary/adversarial_corpus_seeds.json §3.4"
+   ],
+   "template": "# {TERM} numbers quoted from {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_light-013",
+   "class": "long_range_reference",
+   "variant": "pos_light",
+   "label": "positive",
+   "predicted": "FAIL",
+   "mechanism": "in_vocabulary",
+   "remediable_by": "base",
+   "path": "src/xi/registry.py",
+   "lines": [
+    "# adfreeze-bond table: see config/report_boundary_gate.json §2.3"
+   ],
+   "template": "# {TERM} table: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-001",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "backend/api/lambda_runs.py",
+   "lines": [
+    "# principal dimensions: see data/boundary/adversarial_corpus_seeds.json §3.4"
+   ],
+   "template": "# principal dimensions: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-002",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "docs/reports/gamma_gate.py",
+   "lines": [
+    "# geometry envelope and power: see config/report_boundary_gate.json §4.1"
+   ],
+   "template": "# geometry envelope and power: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-003",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "none",
+   "path": "backend/api/kappa_runs.py",
+   "lines": [
+    "# see §3.4 above for the domain case table"
+   ],
+   "template": "# see {ANCHOR} above for the domain case table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-004",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "tools/delta/pipeline.py",
+   "lines": [
+    "# principal dimensions: see data/boundary/adversarial_corpus_seeds.json §2.3"
+   ],
+   "template": "# principal dimensions: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-005",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "src/kappa/registry.py",
+   "lines": [
+    "# geometry envelope and power: see data/boundary/adversarial_corpus_seeds.json §4.1"
+   ],
+   "template": "# geometry envelope and power: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-006",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "none",
+   "path": "optimizer/gamma/search.py",
+   "lines": [
+    "# see §2.3 above for the domain case table"
+   ],
+   "template": "# see {ANCHOR} above for the domain case table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea ice"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-007",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "docs/reports/mu_gate.py",
+   "lines": [
+    "# principal dimensions: see config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# principal dimensions: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-008",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "scripts/iota_job.sh",
+   "lines": [
+    "# geometry envelope and power: see data/boundary/adversarial_corpus_seeds.json §4.1"
+   ],
+   "template": "# geometry envelope and power: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreezing"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-009",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "none",
+   "path": "docs/reports/rho_gate.py",
+   "lines": [
+    "# see §3.4 above for the domain case table"
+   ],
+   "template": "# see {ANCHOR} above for the domain case table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-010",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "docs/reports/pi_gate.py",
+   "lines": [
+    "# principal dimensions: see config/report_boundary_gate.json §4.1"
+   ],
+   "template": "# principal dimensions: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-011",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "tools/zeta/pipeline.py",
+   "lines": [
+    "# geometry envelope and power: see config/report_boundary_gate.json §3.4"
+   ],
+   "template": "# geometry envelope and power: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-012",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "none",
+   "path": "docs/reports/sigma_gate.py",
+   "lines": [
+    "# see §2.3 above for the domain case table"
+   ],
+   "template": "# see {ANCHOR} above for the domain case table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "long_range_reference-pos_heavy-013",
+   "class": "long_range_reference",
+   "variant": "pos_heavy",
+   "label": "positive",
+   "predicted": "PASS",
+   "mechanism": "cross_reference",
+   "remediable_by": "R3_reference",
+   "path": "src/theta/registry.py",
+   "lines": [
+    "# principal dimensions: see data/boundary/adversarial_corpus_seeds.json §3.4"
+   ],
+   "template": "# principal dimensions: see {PATH_D} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-001",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/delta_job.sh",
+   "lines": [
+    "# totals: see docs/REPORT_GATE.md §5.2"
+   ],
+   "template": "# totals: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaking"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-002",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/epsilon_runs.py",
+   "lines": [
+    "# release notes: see docs/REPORT_GATE.md §5.2"
+   ],
+   "template": "# release notes: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-003",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_xi_ledger.py",
+   "lines": [
+    "# see §5.2 above for the throughput table"
+   ],
+   "template": "# see {ANCHOR} above for the throughput table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "frazil_en",
+    "term_value": "frazil"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-004",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/zeta_job.sh",
+   "lines": [
+    "# totals: see Makefile §3.4"
+   ],
+   "template": "# totals: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "ice_en",
+    "term_value": "ice"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-005",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/tau2_job.sh",
+   "lines": [
+    "# release notes: see docs/REPORT_GATE.md §5.2"
+   ],
+   "template": "# release notes: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-006",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "optimizer/rho/search.py",
+   "lines": [
+    "# see §2.3 above for the throughput table"
+   ],
+   "template": "# see {ANCHOR} above for the throughput table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "polaris_en",
+    "term_value": "polaris"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-007",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tests/test_delta_ledger.py",
+   "lines": [
+    "# totals: see docs/QUALITY_BAR.md §4.1"
+   ],
+   "template": "# totals: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "hull_en",
+    "term_value": "hull"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-008",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "backend/api/xi_runs.py",
+   "lines": [
+    "# release notes: see CHANGELOG.md §3.4"
+   ],
+   "template": "# release notes: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "sea_ice_en",
+    "term_value": "sea-ice"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-009",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "tools/pi/pipeline.py",
+   "lines": [
+    "# see §3.4 above for the throughput table"
+   ],
+   "template": "# see {ANCHOR} above for the throughput table",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "adfreeze_en",
+    "term_value": "adfreeze-bond"
+   }
+  },
+  {
+   "id": "long_range_reference-neg-010",
+   "class": "long_range_reference",
+   "variant": "neg",
+   "label": "negative",
+   "predicted": "PASS",
+   "mechanism": "neutral_control",
+   "remediable_by": "none",
+   "path": "scripts/epsilon_job.sh",
+   "lines": [
+    "# totals: see CHANGELOG.md §4.1"
+   ],
+   "template": "# totals: see {PATH_T} {ANCHOR}",
+   "provenance": "IN17-B5/#616 「引用不复述」规则的对抗形态",
+   "slot_meta": {
+    "term_id": "icebreaking_en",
+    "term_value": "icebreaker"
+   }
+  }
+ ]
+}
