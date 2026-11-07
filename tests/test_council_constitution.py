@@ -332,7 +332,11 @@ def test_acceptance_summary_thresholds() -> None:
 # 七、真实案例（数据驱动的端到端）
 # --------------------------------------------------------------------------- #
 def test_real_cases_adjudicate(charter: Charter, classifier: RedLineClassifier) -> None:
-    cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))["cases"]
+    all_cases = json.loads(CASES_PATH.read_text(encoding="utf-8"))["cases"]
+    # 语料在 IN28-N07 扩到 ≥20 例；本测试只回放 v1 三例（facts 硬编码），新语料由
+    # tests/test_council_corpus_v2.py 做端到端回放。
+    assert len(all_cases) >= 20, "语料应已扩充到 ≥20 例（IN28-N07）"
+    cases = [c for c in all_cases if c["case_id"].startswith("IN27-H5-")]
     assert len(cases) == 3
     facts = {"IN27-H5-C1": {"mock_endpoints_hit": 8}, "IN27-H5-C2": {"passed_cases_15pct": 6}}
     adj = Adjudicator(charter, classifier)
