@@ -31,6 +31,11 @@ from api.deps import require_auth, require_role
 from services.factory_profile import get_factory_profile, validate_projects, validate_base_ref, require_factory_agent
 from api.domain.tensor_common import append_event, resolved_org
 from database.config import get_db
+from services.breakthrough_admission import (
+    admission_decision,
+    exemption_guard,
+    requires_admission,
+)
 
 
 # 2026-11-03 事故：后端停摆（04:48）→ 复活（04:50:41）后首个 claim 的 lazy-reap
@@ -128,6 +133,16 @@ class MissionCreate(BaseModel):
     claim_unassigned: bool = False
     agent_session_id: uuid.UUID | None = None
     task_key: str | None = Field(default=None, min_length=2, max_length=120, pattern="^[a-zA-Z0-9_.:-]+$")
+    # ── 攻关准入门（IN59-A1）：难度≥3 或 research 类任务进编码环前三要素齐备 ──
+    # 三要素：problem_definition（问题树≥3）/ baseline（现状+差距）/ acceptance_criteria（可机检）
+    # 普通工程单可显式声明豁免（exemption_declared）；科研任务不得借它绕门。
+    difficulty: int | None = Field(default=None, ge=1, le=5)
+    task_class: str | None = Field(default=None, pattern="^(research|engineering)$")
+    problem_tree: list[str] | None = None
+    baseline_summary: str | None = Field(default=None, max_length=4000)
+    baseline_gap: str | None = Field(default=None, max_length=4000)
+    acceptance_criteria: list[dict[str, Any]] | None = None
+    exemption_declared: bool = False
 
 
 @router.post("", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
@@ -147,6 +162,41 @@ def create_mission(
             raise HTTPException(422, f"repo 无法解析到本地 git 仓（worker 将无法建树）: {r}")
     if len(body.goal.strip()) < 10:
         raise HTTPException(422, "goal must contain at least 10 non-padding characters")
+    # ── 攻关准入门（IN59-A1）：难度≥3 或 research 类任务进编码环前三要素齐备 ──
+    # 门必须可失败：三要素不全的攻关任务必须被拒（红队负例）。
+    # 普通工程单可显式声明豁免；科研任务不得借工程单豁免绕门。
+    if body.difficulty is not None or body.task_class is not None:
+        _diff = body.difficulty if body.difficulty is not None else 1
+        _cls = body.task_class if body.task_class is not None else "engineering"
+        _guard = exemption_guard(
+            task_class=_cls,
+            exemption_declared=body.exemption_declared,
+            difficulty=_diff,
+        )
+        if not _guard["ok"]:
+            raise HTTPException(
+                status_code=422,
+                detail={"admitted": False, "status": "rejected",
+                        "missing": ["exemption_abuse"], "reason": _guard["reason"]},
+            )
+        _decision = admission_decision(
+            difficulty=_diff,
+            task_class=_cls,
+            problem_tree=body.problem_tree or [],
+            baseline_summary=body.baseline_summary or "",
+            baseline_gap=body.baseline_gap or "",
+            acceptance_criteria=body.acceptance_criteria or [],
+            exemption_declared=body.exemption_declared,
+        )
+        if not _decision["admitted"]:
+            # 门必须可失败：三要素不全 → 422 并列缺件清单。
+            raise HTTPException(
+                status_code=422,
+                detail={"admitted": False, "status": _decision["status"],
+                        "missing": _decision["missing"],
+                        "missing_elements": _decision["missing"],
+                        "reason": _decision["reason"]},
+            )
     if body.agent_session_id:
         resident = db.execute(text("SELECT role,model FROM factory_resident_workers WHERE agent_session_id=:sid AND organization_id=:org AND enabled FOR UPDATE"),
                               {"sid": str(body.agent_session_id), "org": org_id}).mappings().first()
