@@ -1,0 +1,34 @@
+{
+  "schema": "report_declared_constants/v1",
+  "purpose": "Numbers printed in the platform research report that are NOT measurements from the metrics artifact: stated bounds, gate thresholds, and observations that the snapshot does not carry. Each entry must name the exact wording it is allowed to back, so that a fabricated number can never borrow an alibi. Declared claims are counted separately by tools/chronicle/validate_report.py and are never reported as metric-validated.",
+  "constants": [
+    {
+      "value": 25,
+      "unit": "percent",
+      "context_contains": "exceeds 25%",
+      "reason": "stated upper bound used in the prose argument (no single repository exceeds this share); a bound, not a measurement",
+      "owner": "docs/reports/system_research_report_v1.md#4.2"
+    },
+    {
+      "value": 3,
+      "unit": "percent",
+      "context_contains": "<3%",
+      "reason": "six-element report gate error threshold, quoted as a criterion definition",
+      "owner": "docs/reports/system_research_report_v1.md#3.3"
+    },
+    {
+      "value": 8,
+      "unit": "hour",
+      "context_contains": "Worker Active Window",
+      "reason": "worker claim-token active span; the metrics snapshot carries only total_workers, so this span is an observation outside the snapshot and stays flagged as declared",
+      "owner": "docs/reports/system_research_report_v1.md#4.4"
+    },
+    {
+      "value": 4,
+      "unit": "repositories",
+      "context_contains": "top 4 repositories",
+      "reason": "size of the aggregate group discussed in §4.2 (a selection, not a measured count)",
+      "owner": "docs/reports/system_research_report_v1.md#4.2"
+    }
+  ]
+}
