@@ -476,6 +476,49 @@ def _plan_meta(pid):
         return {}
 
 
+AUTONOMY_DEFAULTS = {
+    "wave": 1, "proposers": [], "arbiter": None,
+    "new_plan": None, "arbiter_attempts": 0, "exhausted": False,
+}
+
+
+def _norm_autonomy(aut):
+    """把持久化的 ``metadata.autonomy`` 规整成当前 schema：缺失键补默认、坏类型回退默认。
+
+    根因（IN27-H1，2026-11-07 shadowdiag-a242be993ae2d1d6）：``metadata.autonomy`` 是**外部
+    可写**的持久状态（迁移/旧版本守护/仲裁者播种都可能写进旧形状），历史上存在缺
+    ``arbiter_attempts`` 的旧形状（实测 plan 94 = {"wave":2,"arbiter":5498,"proposers":[...]}）。
+    旧代码用 ``aut["arbiter_attempts"] += 1`` 直接下标 → KeyError；异常发生在
+    ``_set_plan_autonomy`` 之前，坏状态写不回去 ⇒ 每轮（30s）重犯一次、永久坏环。
+    纪律：读入即规整（不信任外部持久状态），规整过就回写。纯函数（不碰库），便于 pytest。
+
+    返回 ``(状态, 是否发生修复)``。
+    """
+    if aut is None:
+        return {k: (list(v) if isinstance(v, list) else v)
+                for k, v in AUTONOMY_DEFAULTS.items()}, False
+    if not isinstance(aut, dict):
+        return {k: (list(v) if isinstance(v, list) else v)
+                for k, v in AUTONOMY_DEFAULTS.items()}, True
+    out, repaired = dict(aut), False
+    for k, dv in AUTONOMY_DEFAULTS.items():
+        if k not in out:
+            out[k] = list(dv) if isinstance(dv, list) else dv
+            repaired = True
+    for k in ("wave", "arbiter_attempts"):
+        try:
+            out[k] = int(out[k])
+        except (TypeError, ValueError):
+            out[k] = AUTONOMY_DEFAULTS[k]
+            repaired = True
+    if isinstance(out.get("proposers"), (list, tuple)):
+        out["proposers"] = list(out["proposers"])
+    else:
+        out["proposers"] = []
+        repaired = True
+    return out, repaired
+
+
 def _set_plan_autonomy(pid, autonomy):
     q("UPDATE campaign_plans SET updated_at=now(), "
       "metadata=jsonb_set(coalesce(metadata,'{}'::jsonb), '{autonomy}', %s::jsonb) "
@@ -602,6 +645,7 @@ def _collect_new_plan(pid, arbiter_mid):
 
 def _resolve_arbiter_outcome(token, pid, title, aut):
     """仲裁者终态→机器门验证→激活/重试/耗尽。"""
+    aut, _ = _norm_autonomy(aut)   # 入口防御：绕过 autonomy_phase 的调用方也不吃 KeyError（IN27-H1）
     am = _mission(aut["arbiter"])
     if not am:
         return aut
@@ -701,6 +745,12 @@ def autonomy_phase(token):
                 event("plan_updated", {"plan": pid, "autonomy_wave": 1,
                                        "note": "收官触发自主提案波（一群 agent 提议）"}, pid=pid)
             continue
+        aut, _repaired = _norm_autonomy(aut)
+        if _repaired:
+            # IN27-H1：旧形状（缺 arbiter_attempts 等键）在读入处补齐并回写，
+            # 否则后面的 += 1 每轮 KeyError，坏状态永远修不回来（ERROR 无限刷 → daemon_warns 越界）
+            _set_plan_autonomy(pid, aut)
+            log(f"WARN plan {pid} autonomy 状态缺键/坏类型已补默认并回写（IN27-H1：旧形状曾致每轮 KeyError）")
         if aut.get("exhausted"):
             continue
         if aut.get("new_plan"):
