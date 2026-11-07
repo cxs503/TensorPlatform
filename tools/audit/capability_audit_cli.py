@@ -40,9 +40,20 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import capability_audit_scan as S  # noqa: E402
 
+import ledger_paths as _LP  # noqa: E402  单一台账解析器（消费者契约门）
+
 ROOT = Path(__file__).resolve().parents[2]
 DEFAULT_CLAIMS = ROOT / "tests" / "fixtures" / "capability_ledger" / "capabilities_snapshot.json"
-DEFAULT_LEDGER = ROOT / "artifacts" / "capability_ledger" / "capability_ledger.json"
+
+
+def ledger_ref() -> dict:
+    """消费者 #2 契约访问器：CLI 解析到的台账身份（path/sha256/status）。"""
+    return _LP.resolve_ledger()
+
+
+_RESOLVED = ledger_ref()
+DEFAULT_LEDGER = Path(_RESOLVED["path"]) if _RESOLVED.get("path") else (
+    ROOT / "artifacts" / "capability_ledger" / "capability_ledger.json")
 DEFAULT_REFERENCE = ROOT / "backend" / "data" / "benchmark_reference.json"
 DEFAULT_SOLVER_ROOT = Path("/root")
 OUT_DIR = ROOT / "artifacts" / "capability_audit"
