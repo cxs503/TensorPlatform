@@ -117,3 +117,28 @@ agent 仓开发冻结令不因此解除。
 - 调用方计数以静态 import 边为准（#573 采集器口径）；运行时动态调用（lazy import、RPC）以代码标注为准，未做运行时追踪。
 - M11 polar 28 边中或含冰区战役在飞任务的临时依赖，执行前需与战役 DAG 对账。
 - TensorPhysics 侧 4 个 si 收集错误（torch env）未在本清单范围，不影响本清单结论。
+
+## 8. G-A/B/C 收尾复核记录（m4964，2026-11-07；§3 的实测证据，只增不改）
+
+§3 三缺口的判据是「三组 diff=0 契约测试绿」。本次把判据从「散落的 pytest 断言」升级为
+**可独立运行、逐项点名差集**的审计器，并当场修掉两处真实漂移。逐项证据见
+`docs/architecture/gabc_vocab_contract_closeout_2026-11.md` 与工件
+`artifacts/contracts_gabc_2026-11/`（`vocab_contract_audit.json` / `CONTRACTS_GABC_CLOSEOUT.md` /
+`fig_gabc_diff_matrix.png`）。
+
+| 缺口 | 复核结论（19 项检查、diff 总和 0） | 本次改动 |
+|---|---|---|
+| G-A | 9 项 diff=0：状态 11/11、终态 5/5、DB CHECK 终态与历史并集、映射是函数 9/9 覆盖冻结镜像、platform_only 两文件互拍 | 映射契约 v1→v2 补 `awaiting_pr_merge`（migrations/100 引入的相位，映射文件落后一词）；新增「映射是函数 / 两文件 platform_only diff=0 / AST 派生判据」测试 |
+| G-B | 5 项 diff=0：事件词表 13/13、治理成员 ⊆ 词表、`append_event` 字面量 ⊆ 正典、**事件行写手唯一**、登记面不写事件 | 新建正典 `session_event_kinds.v1.json`；`EVENT_KINDS` 改派生；新增唯一写手 `insert_event_row()`，批量端点不再自拼 INSERT |
+| G-C | 5 项 diff=0：run 8/8、validation 4/4、manifest 上限、三常量 AST 派生、手写正则双源已灭 | 仅补「正则成员集 == 正典（非仅包含）」与「AST 派生」两条测试，无代码改动 |
+
+模式与工具：`python3 tools/contracts/vocab_contract_audit.py --dry-run`（不落盘）／`--json-out`／
+`--md-out`／`--plot-out`；退出码 0=全 diff=0、2=有非 0。pytest：
+`backend/tests/test_status_contracts.py`（24 例）+ `backend/tests/test_vocab_contract_audit_tool.py`（10 例，
+含两条负控：篡改正典必须判红、手写元组必须不算派生）。
+
+纪律边界：未改任何 API 请求/响应面、未做 schema 手术、未改既有表结构；新增词项一律走契约 JSON，
+代码侧只保留派生（AST 判据机器可验）。
+
+未覆盖（honest）：TensorPhysics 侧实跑（仓库不在本工作树，跨仓那一半用冻结镜像常量代表）；
+会话事件批量端点的端到端回归（本环境缺 `cryptography`/`psycopg2`，全 app 启动类测试在 main 上同样 ImportError）。
