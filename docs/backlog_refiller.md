@@ -90,3 +90,24 @@ pytest tests/test_backlog_refiller.py -v
 - 独立于任何人类会话与 AI 协调者会话运行
 - 带审计日志 + 回滚路径
 - 假设明天没有人类来
+
+## IN20-G21 现场修复（真库跑不通的两处）
+
+2026-11-07 验收门实测发现：R1 的 22 条单测全过，但在真库上**一轮都跑不完**。两处根因，均已修并加回归用例
+（`tests/test_autonomy_acceptance_gate.py::TestRefillerWiringRegression`）：
+
+1. **第一缺口源的表不存在**。`_collect_withheld_capabilities()` 查 `capability_ledger`，
+   而 `tensorplatform` / `foundation` 两库都没有这张表 → `UndefinedTable` 抛穿 `collect_gaps()`，
+   daemon 直接失败。修法：
+   - `gap_ledger.ensure_capability_ledger(session)`：幂等建表（`daemon.ensure_schema()` 启动时调用）；
+   - 源级容错：`collect_gaps()` 逐源 `try/except`，不可用源记 `source_status[name]="unavailable:<Exc>"`
+     后跳过，不再拖死整轮；状态经 `run_once()["gap_sources"]` 输出，可审计。
+2. **`origin` 撞平台 CHECK**。`tensor_dev_missions_origin_check` 只允许 `owner|agent`，
+   而生成器写 `origin='backlog_refiller'` → 每次补给 INSERT 必然失败。修法：
+   - 写 `origin='agent'`（补给器是无人值守 agent 侧机制），生成者身份记
+     `result.generated_by='backlog_refiller'`；
+   - 去重查询改按 `result->>'generated_by'` + `ext_id_hash`，不再依赖 `origin`。
+
+回放实证（`artifacts/autonomy_acceptance/refill_stall_replay.json`）：停摆态（pending=0、idle=8、
+6 条 WITHHELD 缺口）下 `triggered=true`，生成 3 条 mission、3 条 refill 审计行，
+`rollback_latest()` 撤销后回库核验该 mission 已不存在。

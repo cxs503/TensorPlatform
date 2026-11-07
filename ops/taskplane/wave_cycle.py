@@ -19,8 +19,12 @@ MAX_WAVE, MAX_CALLS, MAX_WALL, MAX_TOKENS = 12, 140, 5400, 4000000
 COOLDOWN = 7200            # 波收官后冷却
 MIN_INTERVAL = 20 * 3600   # 两场议事会最小间隔
 INFLIGHT_GUARD = 20        # 入池前闸
-HALT_AFTER_FAILS = 3
-REPOS = {"TensorLBM", "TensorPlatform", "ship-platform", "TensorPhysics",
+HALT_AFTER_FAILS = 3       # 议事会连败阈值：**只转兜底模式，不熔断等人**（渐退令）
+HEARTBEAT_SECS = 3600      # 空转可见性：每小时一行心跳，杜绝"日志长期空转"式静默
+FALLBACK_TASK_PREFIX = "cnode-"   # 兜底派发单的 task_key 前缀（幂等去重靠它）
+# 白名单：ship-performance-platform 是 campaign_nodes.metadata.repo 的现名
+# （ship-platform 为历史别名，两写法都收，否则兜底派发会把船单全裁掉）
+REPOS = {"TensorLBM", "TensorPlatform", "ship-platform", "ship-performance-platform", "TensorPhysics",
          "TensorBEM", "TensorSPH", "TensorDG", "TensorCAD", "TensorFVM", "TensorFEM", "TensorDEM"}
 FOOTER = ("\n★纪律：读文件 ≤8 次即动手；完成后必须调用 finish；没有产物不算完成；验收过自动推 GitHub 分支（tp_pusher），commit 只要最终成果。"
           "多卡测试可在脚本内 SDAA_VISIBLE_DEVICES=<N,M> 显式指定，计时窗口禁 co-tenancy；卡壳先查根因判例库 /root/tp-agent/playbooks/INDEX.md（按症状检索再动手）。")
@@ -200,13 +204,99 @@ def dispatch_wave(n):
     if skipped: log(f"session-{n:03d} 截除/跳过: {skipped}")
     return ids
 
+def fallback_rows(rows, max_wave=MAX_WAVE):
+    """把 campaign_nodes 就绪行（SQL 结果）转成派发载荷列表（纯函数，可单测）。
+
+    row = [node_id, plan_id, ext_id, repo, goal, acceptance, plan_status]
+    纪律：repo 白名单外跳过；缺 goal 跳过；只取前 max_wave 条（预算帽）。
+    """
+    out, skipped = [], []
+    for r in rows or []:
+        r = (list(r) + [""] * 7)[:7]
+        nid, pid, ext, repo, goal, accept, pst = r
+        repo = {"ship-platform": "ship-performance-platform",
+                "TensorFEM": "TensorPhysics"}.get(repo, repo)
+        if repo not in REPOS:
+            skipped.append(f"node{nid}(repo={repo})")
+            continue
+        if not (goal or "").strip():
+            skipped.append(f"node{nid}(空 goal)")
+            continue
+        crit = ""
+        acc = (accept or "").strip()
+        if acc not in ("", "[]", "null", "None"):   # 空数组=节点没写判据，不注空标题
+            crit = f"\n★节点机器验收判据（campaign_nodes.acceptance_criteria）：{acc[:1200]}"
+        out.append({"task_key": f"{FALLBACK_TASK_PREFIX}{nid}",
+                    "repo": repo,
+                    "goal": goal.strip() + crit + FOOTER,
+                    "budget": {"max_tool_calls": MAX_CALLS, "max_wall_seconds": MAX_WALL,
+                               "max_tokens": MAX_TOKENS},
+                    "node": int(nid), "plan": int(pid) if str(pid).isdigit() else pid,
+                    "ext_id": ext})
+        if len(out) >= max_wave:
+            skipped.append(f"超帽截除 {len(rows) - len(out)} 条")
+            break
+    return out, skipped
+
+
+def ready_nodes_sql(max_wave=MAX_WAVE):
+    """就绪节点 SQL：active 计划里未终态、且从未派过（task_key 幂等）的节点。"""
+    return ("SELECT n.id, n.plan_id, coalesce(n.metadata->>'ext_id',''), "
+            "coalesce(n.metadata->>'repo',''), coalesce(n.metadata->>'goal',''), "
+            "coalesce(n.metadata->>'acceptance_criteria',''), coalesce(p.status,'active') "
+            "FROM campaign_nodes n JOIN campaign_plans p ON p.id = n.plan_id "
+            "WHERE coalesce(p.status,'active') = 'active' "
+            "AND n.status IN ('in-flight','blocked') "
+            "AND NOT EXISTS (SELECT 1 FROM tensor_dev_missions m "
+            f"                WHERE m.task_key = '{FALLBACK_TASK_PREFIX}' || n.id) "
+            f"ORDER BY n.plan_id DESC, n.id LIMIT {int(max_wave)}")
+
+
+def dispatch_fallback_wave(n, api_fn=None, q_fn=None, login_fn=None, logf=None):
+    """无议事会兜底派发（渐退令替身）：session 挂了也不让任务池空转。
+
+    返回派出的 mission id 列表（可能为空=池里真没活）。
+    """
+    api_fn, q_fn, login_fn, logf = api_fn or api, q_fn or q, login_fn or login, logf or log
+    try:
+        rows = q_fn(ready_nodes_sql())
+    except Exception as e:
+        logf(f"session-{n:03d} 兜底派发探测失败 {type(e).__name__}: {str(e)[:150]}")
+        return []
+    if not rows:
+        return []
+    payloads, skipped = fallback_rows(rows)
+    if skipped:
+        logf(f"session-{n:03d} 兜底截除/跳过: {skipped[:6]}")
+    try:
+        tok = login_fn()
+    except Exception as e:
+        logf(f"session-{n:03d} 兜底派发登录失败 {type(e).__name__}: {str(e)[:120]}")
+        return []
+    ids = []
+    for pl in payloads:
+        code, d = api_fn("POST", "/tensor/missions",
+                         {"goal": pl["goal"], "repo": pl["repo"], "runner": "native",
+                          "origin": "agent", "task_key": pl["task_key"],
+                          "budget": pl["budget"]}, tok)
+        if code in (200, 201) and (d.get("id") or (d.get("mission") or {}).get("id")):
+            mid = d.get("id") or (d.get("mission") or {}).get("id")
+            ids.append(int(mid))
+            logf(f"fallback-wave m{mid} [{pl['task_key']}] node={pl['ext_id']} "
+                 f"repo={pl['repo']}（无议事会兜底，plan {pl['plan']}）")
+        else:
+            logf(f"fallback-wave 跳过 {pl['task_key']}（POST {code}）")
+    return ids
+
+
 def main():
     st = load_state()
     log("wave_cycle 启动（议事会常态化+自助领取，owner 2026-10-30 放行）")
     while True:
         try:
             if st.get("halt"):
-                write_status(st, f"HALTED: {st['halt']}"); time.sleep(POLL); continue
+                write_status(st, f"HALTED: {st['halt']}（仅显式 owner 令；议事会连败自动转兜底模式）")
+                time.sleep(POLL); continue
             inflight = int(q("SELECT count(*) FROM tensor_dev_missions WHERE status IN ('queued','running')") or 0)
             cur = st["sessions"][-1] if st["sessions"] else None
             if cur is None:  # 首发 session-002（001 为手跑史前场）
@@ -232,12 +322,23 @@ def main():
                 if (board / "r3_plan.json").exists() and inflight >= INFLIGHT_GUARD:
                     write_status(st, f"session-{n:03d} 计划就绪，等 in-flight<={INFLIGHT_GUARD}（现 {inflight}）")
                     time.sleep(POLL); continue
-                # 无 plan_json：失败场
+                # 无 plan_json：议题会失败场 → 先走**session 无关兜底派发**（渐退令），
+                # 有活可派就当这一波成立；真没活才计失败，且**绝不熔断等人**。
+                fids = dispatch_fallback_wave(n) if inflight < INFLIGHT_GUARD else []
+                if fids:
+                    cur["wave_ids"] = fids
+                    cur["wave_dispatched"] = time.time()
+                    cur["fallback"] = True
+                    st["consec_fail"] = 0
+                    log(f"session-{n:03d} 无议事会计划 → 兜底派发 {len(fids)} 单"
+                        f"（session 无关机制替身，不依赖人类/AI 协调者会话）")
+                    save_state(st); continue
                 st["consec_fail"] += 1
-                log(f"session-{n:03d} 无 r3_plan.json，失败计 {st['consec_fail']}")
-                if st["consec_fail"] >= HALT_AFTER_FAILS:
-                    st["halt"] = f"连续 {st['consec_fail']} 场议事会未产出计划，熔断待人工"
-                    log("熔断：" + st["halt"])
+                log(f"session-{n:03d} 无 r3_plan.json 且兜底无活可派，失败计 {st['consec_fail']}")
+                if st["consec_fail"] >= HALT_AFTER_FAILS and not st.get("fallback_mode"):
+                    st["fallback_mode"] = True
+                    log(f"议事会连败 {st['consec_fail']} 场 → 转兜底模式（不熔断、不等人工）："
+                        f"每轮只靠 campaign_nodes 就绪节点续火，议事会自愈即回主轨")
                 cur["wave_dispatched"] = "failed"
                 save_state(st); continue
             # 波在飞：判收官
@@ -254,11 +355,27 @@ def main():
                 time.sleep(POLL); continue
             # 波已收官：冷却+间隔→开下一场
             wd = cur.get("wave_done") or 0
+            hb_ts = float(st.get("last_hb", 0) or 0)
+            if time.time() - hb_ts > HEARTBEAT_SECS:
+                st["last_hb"] = time.time()
+                save_state(st)
+                log(f"idle-heartbeat session-{n:03d} phase=冷却 fallback_mode="
+                    f"{bool(st.get('fallback_mode'))} consec_fail={st['consec_fail']} "
+                    f"in-flight={inflight}（机制存活；日志不再是空转黑箱）")
             ready = (wd > 0 and time.time() - wd > COOLDOWN
                      and time.time() - cur["started"] > MIN_INTERVAL and inflight < INFLIGHT_GUARD)
             if cur["wave_dispatched"] == "failed":
                 ready = time.time() - cur["started"] > MIN_INTERVAL and inflight < INFLIGHT_GUARD
             if ready:
+                if st.get("fallback_mode"):
+                    fids = dispatch_fallback_wave(n + 1) if inflight < INFLIGHT_GUARD else []
+                    if fids:
+                        st["sessions"].append({"n": n + 1, "pid": None, "started": time.time(),
+                                               "wave_ids": fids, "wave_dispatched": time.time(),
+                                               "wave_done": None, "fallback": True})
+                        save_state(st)
+                        log(f"fallback-wave session-{n+1:03d} 兜底派发 {len(fids)} 单（连续兜底巡航）")
+                        continue
                 st["sessions"].append({"n": n + 1, "pid": launch_session(n + 1), "started": time.time(),
                                        "wave_ids": [], "wave_dispatched": None, "wave_done": None})
                 save_state(st)
