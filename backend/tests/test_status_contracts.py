@@ -12,17 +12,23 @@ from __future__ import annotations
 
 import json
 import re
+import sys
 from pathlib import Path
 
 import pytest
 
 BACKEND = Path(__file__).resolve().parents[1]
+ROOT = BACKEND.parent
 CONTRACTS = BACKEND / "contracts"
+
+if str(ROOT) not in sys.path:  # 复用审计工具的 AST 判据，避免第二份实现
+    sys.path.insert(0, str(ROOT))
 
 CONTRACT_NAMES = (
     "mission_status_vocab.v1.json",
     "research_run_status_vocab.v1.json",
     "mission_task_status_map.v1.json",
+    "session_event_kinds.v1.json",
 )
 
 # TensorPhysics TaskStatus 枚举冻结镜像（platform_registry / status_map 的消费源）。
@@ -107,6 +113,55 @@ class TestGA_MissionVocab:
         assert images <= set(mission_status_contract()["statuses"])
 
 
+    # --- m4964 收尾复核：把「单源」扩到结构性判据 + 映射函数性质 ---
+
+    def test_mapping_is_a_function_and_closed_on_contract(self):
+        """每个 TensorPhysics 状态恰一个 TP 像；像集 ⊆ mission 词表。"""
+        from api.domain.status_contracts import (
+            mission_status_contract, mission_task_status_map_contract,
+        )
+        c = mission_status_contract()
+        images: dict[str, set[str]] = {}
+        for row in mission_task_status_map_contract()["mapping"]:
+            images.setdefault(row["tph"], set()).add(row["tp"])
+        assert {k: len(v) for k, v in images.items()} == {k: 1 for k in images}, images
+        flat = set().union(*images.values())
+        assert flat <= set(c["statuses"])
+
+    def test_platform_only_agrees_across_the_two_contract_files(self):
+        """两份 G-A 契约文件的 platform_only 必须 diff=0（v1 曾漏 awaiting_pr_merge）。
+
+        mission_status_vocab v2 / migrations/100_pr_merge_gate 在任务侧新增了
+        awaiting_pr_merge，映射文件落后一个词；审计器 platform_only_consistency
+        项当场判红，v2 补齐后本测试锁死。
+        """
+        from api.domain.status_contracts import (
+            mission_status_contract, mission_task_status_map_contract,
+        )
+        vocab = set(mission_status_contract()["platform_only"])
+        mapped = {r["tp"] for r in mission_task_status_map_contract()["platform_only"]}
+        assert vocab == mapped, {"canon_only": sorted(vocab - mapped),
+                                 "runtime_only": sorted(mapped - vocab)}
+        images = {r["tp"] for r in mission_task_status_map_contract()["mapping"]}
+        assert mapped & images == set()
+
+    def test_runtime_vocab_derived_not_hand_written(self):
+        """MISSION_STATUSES/TERMINAL 的赋值右式必须调用契约装载器（AST 判据）。"""
+        from tools.contracts.vocab_contract_audit import derives_symbol
+        src = (BACKEND / "api" / "tensor_missions.py").read_text()
+        for symbol in ("MISSION_STATUSES", "TERMINAL"):
+            assert derives_symbol(src, symbol), f"{symbol} 又变成手写字面量分支了"
+
+    def test_new_word_path_is_contract_only(self):
+        """新增词项只许进契约：给运行面加一个未登记状态 → 契约测试立刻红。"""
+        from api.domain.status_contracts import mission_status_contract
+        canon = set(mission_status_contract()["statuses"])
+        src = (BACKEND / "api" / "tensor_missions.py").read_text()
+        # 源码里不得出现「状态元组字面量」（手写分支的形态）
+        assert not re.search(r"MISSION_STATUSES\s*=\s*\(", src)
+        assert "awaiting_pr_merge" in canon
+
+
 # ---------------------------------------------------------------------------
 # G-C: run 登记词表单一契约源
 # ---------------------------------------------------------------------------
@@ -164,10 +219,98 @@ class TestGB_SingleWriter:
 
     def test_event_kinds_cover_governance_members(self):
         from api.domain.tensor_common import EVENT_KINDS
+        from api.domain.status_contracts import session_event_contract
+        c = session_event_contract()
         kinds = set(EVENT_KINDS)
+        assert set(c["governance_members"]) <= kinds
         assert {"plan", "execution_started", "run_registered",
                 "validation_seen", "decision", "note"} <= kinds
 
+    # --- m4964 收尾复核：词表进正典、写手唯一 ---
+
+    def test_event_kinds_equals_contract(self):
+        """G-B diff=0：运行时常量 ≡ 正典列表（逐词、含顺序）。"""
+        from api.domain.status_contracts import session_event_contract
+        from api.domain.tensor_common import EVENT_KINDS
+        canon = session_event_contract()["kinds"]
+        assert list(EVENT_KINDS) == list(canon)
+        assert set(EVENT_KINDS) ^ set(canon) == set()
+
+    def test_event_kinds_derived_not_hand_written(self):
+        from tools.contracts.vocab_contract_audit import derives_symbol
+        src = (BACKEND / "api" / "domain" / "tensor_common.py").read_text()
+        assert derives_symbol(src, "EVENT_KINDS"), (
+            "EVENT_KINDS 又变成手写元组：加词要过 backend/contracts/session_event_kinds.v1.json"
+        )
+
+    def test_only_one_event_row_writer(self):
+        """一事实单源：全仓只有一处 INSERT INTO tensor_agent_session_events。"""
+        from tools.contracts.vocab_contract_audit import event_insert_writers
+        writers = event_insert_writers(ROOT)
+        assert writers == ["backend/api/domain/tensor_common.py"], writers
+
+    def test_batch_endpoint_reuses_shared_writer(self):
+        src = (BACKEND / "api" / "tensor_sessions.py").read_text()
+        assert "insert_event_row(" in src
+        assert "INSERT INTO tensor_agent_session_events" not in src, (
+            "批量端点自己拼 INSERT = 第二写手（G-B 双写）"
+        )
+
+    def test_append_event_goes_through_shared_writer(self):
+        """行为判据：append_event 的行写入必须落在 insert_event_row 的 SQL 形态上。"""
+        from fastapi import HTTPException
+        from api.domain.tensor_common import append_event
+
+        class _Result:
+            def scalar(self):
+                return 0  # 空事件流 → seq=1
+
+        class _FakeDB:
+            def __init__(self):
+                self.sql: list[str] = []
+                self.params: list[dict] = []
+
+            def execute(self, stmt, params=None):
+                self.sql.append(" ".join(str(stmt).split()))
+                self.params.append(dict(params or {}))
+                return _Result()
+
+        db = _FakeDB()
+        seq = append_event(db, 7, "note", {"k": "v"})
+        assert seq == 1
+        inserts = [q for q in db.sql if "INSERT INTO tensor_agent_session_events" in q]
+        assert len(inserts) == 1
+        assert db.params[-1]["kind"] == "note" and db.params[-1]["seq"] == 1
+        with pytest.raises(HTTPException) as exc:
+            append_event(db, 7, "not_a_kind", {})
+        assert exc.value.status_code == 422
+
+    def test_append_event_literals_are_contract_members(self):
+        """api/ 里 append_event(..., '<kind>', ...) 的字面量必须都在正典内。"""
+        from api.domain.status_contracts import session_event_contract
+        from tools.contracts.vocab_contract_audit import append_event_literals
+        canon = set(session_event_contract()["kinds"])
+        used = set(append_event_literals(BACKEND / "api"))
+        assert used <= canon, f"手写新增词项：{sorted(used - canon)}"
+
+
+    def test_pattern_membership_equals_contract_exactly(self):
+        """正则成员集 == 正典列表（不是「包含」）：多一个词也算漂移。"""
+        from api.domain.status_contracts import research_run_contract
+        from api.tensorphysics_runs import (
+            _RUN_STATUS_PATTERN, _VALIDATION_STATUS_PATTERN,
+        )
+        from tools.contracts.vocab_contract_audit import pattern_tokens
+        c = research_run_contract()
+        assert pattern_tokens(_RUN_STATUS_PATTERN) == sorted(c["run_statuses"])
+        assert pattern_tokens(_VALIDATION_STATUS_PATTERN) == sorted(c["validation_statuses"])
+
+    def test_runtime_constants_derived_not_hand_written(self):
+        from tools.contracts.vocab_contract_audit import derives_symbol
+        src = (BACKEND / "api" / "tensorphysics_runs.py").read_text()
+        for symbol in ("_RUN_STATUS_PATTERN", "_VALIDATION_STATUS_PATTERN",
+                       "_MAX_MANIFEST_BYTES"):
+            assert derives_symbol(src, symbol), f"{symbol} 不是从契约派生的"
 
 # ---------------------------------------------------------------------------
 # users/me 422 修复（PR #101 发现：int 路径参数吞掉 /me）
