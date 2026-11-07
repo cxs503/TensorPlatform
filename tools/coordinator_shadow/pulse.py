@@ -706,22 +706,74 @@ def _tail_lines(path: Path, max_lines: int = 600, max_bytes: int = 512 * 1024) -
     return lines[-max_lines:]
 
 
+WARN_TAIL_START = 600        # 起始尾读行数（v0 默认值，保持向后兼容）
+WARN_TAIL_MAX = 20000        # 自适应放大上限（有界：约 8 MB/文件封顶，不把整本日志吃进内存）
+WARN_TAIL_BYTES_MAX = 8 * 1024 * 1024
+
+
+def _window_covered(lines: Sequence[str], as_of: datetime, window_minutes: float) -> bool:
+    """尾读是否已覆盖整个窗口：最老一行（=最小时间戳）早于窗口起点，或整段无时间戳。"""
+    window_start = as_of - timedelta(minutes=window_minutes)
+    oldest = None
+    for raw in lines:                      # 取最小时间戳（不假设行序；块首行可能被截断）
+        m = _TS_LINE.match(raw.strip())
+        if not m:
+            continue
+        try:
+            ts = datetime(*(int(m.group(i)) for i in range(1, 7)), tzinfo=timezone.utc)
+        except ValueError:
+            continue
+        if oldest is None or ts < oldest:
+            oldest = ts
+    if oldest is None:
+        return True        # 全无时间戳：无从判定，按已覆盖处理（这些行本就全计入窗口）
+    return oldest <= window_start
+
+
+def _tail_covering_window(
+    path: Path,
+    as_of: datetime,
+    window_minutes: float,
+    start_lines: int = WARN_TAIL_START,
+    max_lines: int = WARN_TAIL_MAX,
+) -> list[str]:
+    """有界自适应尾读：600 行不够覆盖窗口就倍增，直到覆盖或触上限。
+
+    口径缺陷（IN27-H1 附带发现）：指标名是「窗口内 ERROR 行数」，但固定 600 行尾读在
+    日志密集时（campaign_dispatcher 实测 ~12 行/分钟）只覆盖约 50 分钟 < 60 分钟窗口，
+    实测少算 73→61 行（-16%）。放大到覆盖为止，既有上限防止内存/IO 失控。
+    """
+    want = max(int(start_lines), 1)
+    while True:
+        lines = _tail_lines(path, max_lines=want,
+                            max_bytes=min(WARN_TAIL_BYTES_MAX, max(512 * 1024, want * 256)))
+        if want >= int(max_lines) or _window_covered(lines, as_of, window_minutes):
+            return lines
+        want = min(int(max_lines), want * 2)
+
+
 def read_warn_stream(
     paths: Sequence[str | Path],
     as_of: datetime,
     *,
     window_minutes: float = 60.0,
     max_clusters: int = 8,
-    tail_lines: int = 600,
+    tail_lines: int = WARN_TAIL_START,
+    max_tail_lines: int = WARN_TAIL_MAX,
 ) -> dict[str, Any]:
     """读若干 daemon 日志的尾部，聚簇 WARN/ERROR；读不到就 withheld（不是 0 告警）。"""
     lines: list[str] = []
     read_ok: list[str] = []
     problems: list[str] = []
+    tail_capped: list[str] = []
     for raw_path in paths:
         path = Path(raw_path)
         try:
-            lines.extend(_tail_lines(path, max_lines=tail_lines))
+            chunk = _tail_covering_window(path, as_of, window_minutes,
+                                          start_lines=tail_lines, max_lines=max_tail_lines)
+            if not _window_covered(chunk, as_of, window_minutes):
+                tail_capped.append(str(path))     # 触上限仍未覆盖窗口：读数偏低，如实留痕
+            lines.extend(chunk)
             read_ok.append(str(path))
         except FileNotFoundError:
             problems.append(f"{path}:not-found")
@@ -730,6 +782,7 @@ def read_warn_stream(
     parsed = parse_warn_lines(lines, as_of, window_minutes=window_minutes, max_clusters=max_clusters)
     parsed["paths_read"] = read_ok
     parsed["path_problems"] = problems
+    parsed["tail_capped_paths"] = tail_capped
     if not read_ok:
         parsed["warn_total"] = None
         parsed["error_total"] = None
