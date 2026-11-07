@@ -1,0 +1,187 @@
+openapi: 3.1.0
+info:
+  title: Certification Export API
+  version: 1.0.0
+  description: >
+    认证导出端点族（契约先行冻结件）。给定 CERTIFIED 状态的认证记录，
+    异步生成自包含导出包（JSON/ZIP：裁决+判据+证据引用+provenance+sha256 清单）。
+    契约哈希见 contract_hashes.txt；冻结后改动须走变更评审并升 version。
+servers:
+  - url: /api/v1
+tags:
+  - name: certification-export
+paths:
+  /certifications/{certification_id}/exports:
+    post:
+      tags: [certification-export]
+      operationId: createExport
+      summary: 创建导出 job
+      parameters:
+        - $ref: '#/components/parameters/CertificationId'
+      requestBody:
+        required: false
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExportRequest'
+      responses:
+        '202':
+          description: 已入队
+          content:
+            application/json:
+              schema:
+              $ref: '#/components/schemas/ExportJobCreated'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/TenantMismatch' }
+        '404': { $ref: '#/components/responses/CertNotFound' }
+        '409': { $ref: '#/components/responses/NotExportable' }
+        '422': { $ref: '#/components/responses/InvalidParams' }
+        '429': { $ref: '#/components/responses/RateLimited' }
+        '507': { $ref: '#/components/responses/QuotaExceeded' }
+  /certifications/{certification_id}/exports/{job_id}:
+    get:
+      tags: [certification-export]
+      operationId: getExportStatus
+      summary: 查询导出 job 状态
+      parameters:
+        - $ref: '#/components/parameters/CertificationId'
+        - $ref: '#/components/parameters/JobId'
+      responses:
+        '200':
+          description: job 状态
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExportJobStatus'
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/TenantMismatch' }
+        '404': { $ref: '#/components/responses/JobNotFound' }
+  /certifications/{certification_id}/exports/{job_id}/download:
+    get:
+      tags: [certification-export]
+      operationId: downloadExport
+      summary: 下载导出工件（流式）
+      parameters:
+        - $ref: '#/components/parameters/CertificationId'
+        - $ref: '#/components/parameters/JobId'
+      responses:
+        '200':
+          description: 工件二进制流
+          headers:
+            X-Content-Sha256:
+              schema: { type: string }
+              description: 工件 sha256，与包内 manifest 一致
+            Content-Disposition:
+              schema: { type: string }
+          content:
+            application/json:
+              schema: { type: string, format: binary }
+            application/zip:
+              schema: { type: string, format: binary }
+        '401': { $ref: '#/components/responses/Unauthorized' }
+        '403': { $ref: '#/components/responses/TenantMismatch' }
+        '404': { $ref: '#/components/responses/JobNotFound' }
+        '410': { $ref: '#/components/responses/ExportExpired' }
+components:
+  parameters:
+    CertificationId:
+      name: certification_id
+      in: path
+      required: true
+      schema: { type: string, minLength: 1 }
+    JobId:
+      name: job_id
+      in: path
+      required: true
+      schema: { type: string, pattern: '^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$' }
+  responses:
+    Unauthorized:
+      description: 未认证
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    TenantMismatch:
+      description: 跨租户访问或角色不足（需 certification.viewer）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    CertNotFound:
+      description: 认证记录不存在
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    NotExportable:
+      description: 认证记录非 CERTIFIED 状态（状态机 DRAFT→SUBMITTED→REVIEWING→CERTIFIED|REJECTED）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    JobNotFound:
+      description: job 不存在或不属于该认证记录
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    ExportExpired:
+      description: 导出已过期（保留期 30 天）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    InvalidParams:
+      description: 参数非法（如 format 取值非法）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    RateLimited:
+      description: 触发限流
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+    QuotaExceeded:
+      description: 租户活跃导出配额超限（500 MB）
+      content:
+        application/json:
+          schema: { $ref: '#/components/schemas/Error' }
+  schemas:
+    Error:
+      type: object
+      required: [code, message]
+      properties:
+        code: { type: string, example: CERT_NOT_EXPORTABLE }
+        message: { type: string }
+    ExportRequest:
+      type: object
+      properties:
+        format:
+          type: string
+          enum: [json, zip]
+          default: json
+        include_evidence:
+          type: boolean
+          default: true
+        include_provenance:
+          type: boolean
+          default: true
+    ExportJobCreated:
+      type: object
+      required: [job_id, status, poll_url]
+      properties:
+        job_id: { type: string }
+        status: { type: string, enum: [queued] }
+        poll_url: { type: string }
+    ExportJobStatus:
+      type: object
+      required: [job_id, status]
+      properties:
+        job_id: { type: string }
+        status: { type: string, enum: [queued, running, succeeded, failed, expired] }
+        progress: { type: number, minimum: 0, maximum: 1 }
+        artifact:
+          type: object
+          properties:
+            url: { type: string }
+            sha256: { type: string }
+            size_bytes: { type: integer, minimum: 0 }
+        error:
+          type: object
+          properties:
+            code: { type: string }
+            message: { type: string }
