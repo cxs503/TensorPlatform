@@ -1,0 +1,21 @@
+{
+  "label": "0001-saturation-regulator-hardening",
+  "author": "m5306/IN27-H2",
+  "rationale": "饱和调节器 daemon 的四处硬伤：①生产库口令内联在源码（镜像入库即泄露）；②PATH 写死 /usr/bin:/bin（沙箱 shim 失效、宿主漂移即行为漂移）；③psql 调用无超时（锁等待时 daemon 挂死）；④psqlos 输出直接 int()（非数字输出即崩）。四处均由门链验证：脱敏门拦明文口令，金丝雀门验证降级路径不崩不挂。",
+  "replacements": [
+    {
+      "file": "saturation_regulator_loop_once.py",
+      "note": "拆明文口令 + 拆死 PATH + psql 硬超时 + 解析容错 helper",
+      "old": "import subprocess\nPGENV = {\"PGPASSWORD\": \"<REDACTED:pgpassword_literal>\"}\ndef q(sql):\n    p = subprocess.run([\"psql\",\"-U\",\"postgres\",\"-d\",\"tensorplatform\",\"-h\",\"/var/run/postgresql\",\"-t\",\"-A\",\"-c\",sql],\n                       capture_output=True,text=True,env={\"PATH\":\"/usr/bin:/bin\",**PGENV})\n    return p.stdout.strip() if not p.returncode else \"\"\n",
+      "new": "import os\nimport subprocess\n\n# IN27-H2 门控仓补丁：口令只从环境/.pgpass 取（源码内不得有明文）；\n# PATH 不再写死（写死会让沙箱 shim 失效、也让 daemon 行为随宿主漂移）；\n# psql 单次调用加硬上限，daemon 不会被「锁等待中的 psql」拖成僵尸。\nPGPASSWORD = os.environ.get(\"TP_PG_PASSWORD\", \"\")\nPGENV = {\"PATH\": os.environ.get(\"PATH\", \"/usr/bin:/bin\")}\nif PGPASSWORD:\n    PGENV[\"PGPASSWORD\"] = PGPASSWORD\nPSQL_TIMEOUT_S = float(os.environ.get(\"TP_PG_TIMEOUT_S\", \"15\"))\n\n\ndef _int(v, default=0):\n    \"\"\"psql 输出解析容错：空串/告警串不再让 daemon 崩在 ValueError。\"\"\"\n    try:\n        return int(str(v).strip())\n    except (TypeError, ValueError):\n        return default\n\n\ndef q(sql):\n    try:\n        p = subprocess.run([\"psql\",\"-U\",\"postgres\",\"-d\",\"tensorplatform\",\"-h\",\"/var/run/postgresql\",\"-t\",\"-A\",\"-c\",sql],\n                           capture_output=True,text=True,env={**os.environ, **PGENV},timeout=PSQL_TIMEOUT_S)\n    except subprocess.TimeoutExpired:\n        print(f\"psql 超时 {PSQL_TIMEOUT_S}s，跳过本跳\")\n        return \"\"\n    return p.stdout.strip() if not p.returncode else \"\"\n",
+      "count": 1
+    },
+    {
+      "file": "saturation_regulator_loop_once.py",
+      "note": "数值解析统一走 _int，非数字输出不再 ValueError 崩 daemon",
+      "old": "idle = max(0, int(online) - int(busy or 0))\nrel = 0\nif idle >= 6 and int(held or 0) > 0:\n    rel = min(idle - 4, int(held))\n",
+      "new": "online, busy, held = _int(online), _int(busy), _int(held)\nidle = max(0, online - busy)\nrel = 0\nif idle >= 6 and held > 0:\n    rel = min(idle - 4, held)\n",
+      "count": 1
+    }
+  ]
+}
