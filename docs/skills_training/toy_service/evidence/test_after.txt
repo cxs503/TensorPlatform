@@ -1,0 +1,34 @@
+$ python3 -m pytest test_pagination.py -v
+============================= test session starts ==============================
+platform linux -- Python 3.11.6, pytest-9.2.0, pluggy-1.7.0 -- /usr/bin/python3
+cachedir: .pytest_cache
+rootdir: /root/tp-agent/work/m6348/docs/skills_training/toy_service
+plugins: anyio-4.13.0, xdist-3.8.0, timeout-2.4.0, cov-7.1.0, platformdirs-4.14.5
+collecting ... collected 14 items
+
+test_pagination.py::test_all_items_reachable_via_advertised_pages PASSED [  7%]
+test_pagination.py::test_total_pages_is_ceil[10-3] PASSED                [ 14%]
+test_pagination.py::test_total_pages_is_ceil[9-3] PASSED                 [ 21%]
+test_pagination.py::test_total_pages_is_ceil[1-1] PASSED                 [ 28%]
+test_pagination.py::test_total_pages_is_ceil[0-3] PASSED                 [ 35%]
+test_pagination.py::test_total_pages_is_ceil[10-10] PASSED               [ 42%]
+test_pagination.py::test_total_pages_is_ceil[10-11] PASSED               [ 50%]
+test_pagination.py::test_total_pages_is_ceil[10-1] PASSED                [ 57%]
+test_pagination.py::test_total_pages_is_ceil[7-4] PASSED                 [ 64%]
+test_pagination.py::test_last_page_returns_tail PASSED                   [ 71%]
+test_pagination.py::test_page_one_returns_first_items PASSED             [ 78%]
+test_pagination.py::test_page_beyond_range_returns_empty_items PASSED    [ 85%]
+test_pagination.py::test_empty_catalog PASSED                            [ 92%]
+test_pagination.py::test_invalid_arguments_rejected PASSED               [100%]
+
+=============================== warnings summary ===============================
+../../../../../../../usr/lib/python3.11/site-packages/anyio/pytest_plugin.py:14
+  /usr/lib/python3.11/site-packages/anyio/pytest_plugin.py:14: PytestRemovedIn10Warning: _pytest.python.CallSpec2 has been renamed to CallSpec.
+  The CallSpec2 alias will be removed in pytest 10.
+  Update imports to use CallSpec instead.
+  See https://docs.pytest.org/en/stable/deprecations.html#callspec2-renamed
+    from _pytest.python import CallSpec2
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 14 passed, 1 warning in 0.03s =========================
+exit=0
