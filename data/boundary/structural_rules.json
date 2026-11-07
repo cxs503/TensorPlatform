@@ -1,0 +1,156 @@
+{
+  "schema": "tp.boundary.structural_rules/v1",
+  "version": "1.2.0",
+  "status": "proposed",
+  "note": "边界门 v1.1 的**结构性判据**数据（P20-N08 / E4）。与词表同一纪律：判据的领域内容全部在本文件里，tools/boundary/structural_gate.py 只实现与语言无关的结构算子（归一化/遮蔽还原、记号匹配、键共现、引用解析）。三条规则的取舍理由见 docs/boundary/PR_BOUNDARY_GATE.md §5。",
+  "rules": [
+    {
+      "id": "R1_unmask",
+      "kind": "unmask",
+      "enabled": true,
+      "why": "把遮蔽后的形态还原成明文再匹配：百分号编码、零宽/格式字符、NFKC 兼容字符、西里尔/希腊同形字、数字替换（leet）。只对**基础门禁未命中**的行执行，且还原结果必须命中词表阻断词条才算违规——因此不会扩大明文误报面。",
+      "fold": {
+        "homoglyph": {
+          "а": "a",
+          "е": "e",
+          "о": "o",
+          "р": "p",
+          "с": "c",
+          "у": "y",
+          "х": "x",
+          "ѕ": "s",
+          "і": "i",
+          "ј": "j",
+          "А": "A",
+          "В": "B",
+          "Е": "E",
+          "К": "K",
+          "М": "M",
+          "Н": "H",
+          "О": "O",
+          "Р": "P",
+          "С": "C",
+          "Т": "T",
+          "Х": "X",
+          "α": "a",
+          "ε": "e",
+          "ι": "i",
+          "κ": "k",
+          "ο": "o",
+          "ρ": "p",
+          "τ": "t",
+          "υ": "u",
+          "χ": "x",
+          "Α": "A",
+          "Β": "B",
+          "Ε": "E",
+          "Ζ": "Z",
+          "Η": "H",
+          "Ι": "I",
+          "Κ": "K",
+          "Μ": "M",
+          "Ν": "N",
+          "Ο": "O",
+          "Ρ": "P",
+          "Τ": "T",
+          "Χ": "X"
+        },
+        "leet": {
+          "0": "o",
+          "1": "i",
+          "3": "e",
+          "4": "a",
+          "5": "s",
+          "7": "t"
+        },
+        "strip_categories": [
+          "Cf",
+          "Cc"
+        ],
+        "percent_decode": true,
+        "nfkc": true
+      },
+      "join_adjacent_lines": {
+        "enabled": true,
+        "why": "跨相邻新增行的断词（表格单元格断词、docstring 换行断词）只有把两行拼接后才能看见；只在拼接边界两侧都是字母数字时拼接，且违规命中必须**跨过该边界**才计数（避免把两行无关内容凑成一句）。",
+        "max_joined_chars": 400
+      }
+    },
+    {
+      "id": "R2_notation",
+      "kind": "notation",
+      "enabled": true,
+      "why": "域量以符号+数值表达时词表是空的：方形系数、长宽比、转捩判据、主尺度三元组、主尺度 dict 字面量。判据是**记号形态**（形状+单位+键名组合），不是词；每条 pattern 都附 why。",
+      "patterns": [
+        {
+          "id": "block_coefficient",
+          "regex": "(?<![0-9A-Za-z])C[bB]\\s*=\\s*0?\\.\\d{2,3}(?![0-9])",
+          "why": "方形系数赋值的记号形态（Cb=0.82）"
+        },
+        {
+          "id": "length_beam_ratio",
+          "regex": "(?<![0-9A-Za-z])L\\s*/\\s*B\\s*=\\s*\\d+(?:\\.\\d+)?",
+          "why": "长宽比 L/B 的记号形态（船体主尺度关系）"
+        },
+        {
+          "id": "transition_criterion",
+          "regex": "(?<![0-9A-Za-z])Re_?τ\\s*=|\\bRE[_-]?TAU\\s*=|\\bRe_?τ\\b",
+          "why": "以 τ 上标写法的转捩/摩擦速度判据（刻意区分小写 re_tau=求解器阻尼，后者不判）"
+        },
+        {
+          "id": "dimension_triplet",
+          "regex": "(?<![0-9A-Za-z])L\\s*\\d{2,4}\\s*/\\s*B\\s*\\d{1,3}\\s*/\\s*T\\s*\\d{1,3}(?![0-9])",
+          "why": "主尺度三元组 L/B/T（SPEC §3 判例 #616 的 detail_pattern）"
+        },
+        {
+          "id": "dimension_dict",
+          "regex": "\\{\\s*[\"']length[\"']\\s*:\\s*\\d{2,4}(?:\\.\\d+)?\\s*,\\s*[\"']beam[\"']\\s*:\\s*\\d{1,3}\\s*,\\s*[\"']draft[\"']\\s*:\\s*\\d{1,3}",
+          "why": "主尺度 dict 字面量（判例 #610 清理前形态的符号化残留）；要求 length+beam+draft **三键同现**——实测两键（{length,beam} 的画布/布局）会误报，三键才是有物理含义的主尺度签名"
+        }
+      ],
+      "deliberately_omitted": [
+        {
+          "id": "installed_power_mw",
+          "shape": "\\d+(?:\\.\\d+)?\\s*MW",
+          "why": "MW 在平台语境里合法（机房/算力功率），实测会误报；本节点不纳入，列为残余缺口（报告 §6 局限 L3）"
+        }
+      ]
+    },
+    {
+      "id": "R2b_key_cooccurrence",
+      "kind": "key_cooccurrence",
+      "enabled": true,
+      "why": "表格/代码块（yaml 块、docstring 段）里每个域量占一行，任何单行判据都看不到整体；改为**窗口内键共现**：±窗口 4 行内出现 ≥1 个『特征键』且合计 ≥2 个几何键的赋值形态 → 判结构性越界。特征键与通用键分层，是为了让 {length, beam} 这类 UI/画布尺寸不误报（通用键单独不触发）。",
+      "window_lines": 4,
+      "min_total_keys": 2,
+      "min_distinctive_keys": 1,
+      "distinctive_keys": [
+        "cb",
+        "draft",
+        "displacement",
+        "displacement_t",
+        "l_over_b",
+        "lwl",
+        "bwl",
+        "tpc",
+        "block_coefficient"
+      ],
+      "generic_keys": [
+        "length",
+        "beam",
+        "width",
+        "height"
+      ],
+      "value_shape": "[\"']?\\s*[=:]\\s*-?\\d"
+    },
+    {
+      "id": "R3_reference",
+      "kind": "reference",
+      "enabled": true,
+      "why": "判例 #616 的规则本身是「引用不复述」；对抗形态就是只写引用。判据：新增行出现**仓内工件路径 + 节号锚**且被引用工件确实携带阻断词条 → 判结构性引用越界（证据含被引用路径与命中词条）。自豁免路径（词表本身）不参与解析。",
+      "anchor_regex": "(?:§\\s*\\d+(?:\\.\\d+)*|section\\s+\\d+(?:\\.\\d+)*|第\\s*\\d+\\s*节)",
+      "path_regex": "[A-Za-z0-9_][A-Za-z0-9_./-]*\\.(?:md|json|yaml|yml|py|sh|toml|txt)",
+      "max_target_bytes": 200000
+    }
+  ]
+}
