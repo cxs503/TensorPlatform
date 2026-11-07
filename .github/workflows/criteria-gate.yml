@@ -1,0 +1,75 @@
+name: criteria-mutation-gate
+
+# P34-N7：判据可证伪性门禁。
+# 为什么放在 CI：mutation testing 的价值是「改判据 → 必须有测试转红」，
+# 这件事只有在 PR 上跑才有约束力（本地跑/HUMAN 自觉都不是门）。
+on:
+  pull_request:
+    paths:
+      - "tools/audit/criteria_mutation.py"
+      - "backend/services/report_ownership.py"
+      - "backend/services/report_gate.py"
+      - "backend/api/tensor_reports.py"
+      - "tools/report_payload.py"
+      - "tools/paper_gate/**"
+      - "tests/test_criteria_mutation.py"
+      - "tests/test_report_ownership.py"
+      - "backend/tests/test_paper_traceability_gate*.py"
+      - "artifacts/m5496/pr_new_criteria_*.json"
+  workflow_dispatch:
+
+jobs:
+  criteria-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: install test deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest fastapi httpx sqlalchemy pydantic
+
+      - name: 归属门 / 配图魔数门 / 客户端工装 单测
+        run: python -m pytest tests/test_report_ownership.py -q --noconftest
+
+      - name: 判据台账 + killer tests + 准入负控
+        run: |
+          python -m pytest tests/test_criteria_mutation.py -q --noconftest
+          # 无条件拒绝：新判据未登记 killer test（C11 负控，期望 exit 2）
+          if python tools/audit/criteria_mutation.py gate \
+               --spec artifacts/m5496/pr_new_criteria_no_killer.json; then
+            echo "::error::门禁未拒绝无 killer test 的新判据"; exit 1
+          fi
+          # 正控：登记了真会咬的 killer test（期望 exit 0）
+          python tools/audit/criteria_mutation.py gate \
+            --spec artifacts/m5496/pr_new_criteria_with_killer.json --run-killer-tests
+
+      - name: 台账 KPI（逐门 kill rate / 最弱清单 / M1 单调性）
+        run: |
+          python tools/audit/criteria_mutation.py ledger \
+            --json-out artifacts/m5496/criteria_mutation_ledger.json
+          python - <<'PY'
+          import json
+          d = json.load(open("artifacts/m5496/criteria_mutation_ledger.json"))
+          k = d["kpi"]
+          assert k["n_gates"] >= 4, k["gates"]
+          assert k["instantiation_rate"] >= 0.90, k["instantiation_rate"]
+          assert k["m1_monotonic"]["n_violations"] == 0, k["m1_monotonic"]
+          assert k["control"]["killed"] == 0, k["control"]
+          print("KPI ok:", k["n_mutants"], "mutants,", k["overall_kill_rate"])
+          PY
+
+      - name: PAPER-TRACE 门的变异审计（kill rate ≥90% 门禁）
+        run: |
+          python tools/audit/paper_gate_mutation_audit.py \
+            --tests backend/tests/test_paper_traceability_gate.py,backend/tests/test_paper_traceability_gate_kills.py,backend/tests/test_paper_traceability_gate_kills_v2.py,backend/tests/test_paper_traceability_gate_kills_v3.py \
+            --jobs 8 --json-out artifacts/m5496/audit_ci.json
+          python - <<'PY'
+          import json
+          d = json.load(open("artifacts/m5496/audit_ci.json"))
+          assert d["baseline_green"], "基线镜像不绿：kill rate 无意义"
+          assert d["kill_rate"] >= 0.90, d["kill_rate"]
+          print("PAPER-TRACE kill rate:", d["killed"], "/", d["total"])
+          PY
