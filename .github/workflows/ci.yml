@@ -33,6 +33,9 @@ jobs:
       - run: python -m pip install --upgrade pip && pip install pytest
       - name: Run contract tests
         run: python -m pytest -q tests/
+      - name: Capability ledger consumer contract gate
+        # 单一台账解析器 + 四消费者 sha256 一致性；schema_version 越界/台账漂移 → 非 0（CI 红）
+        run: python tools/audit/ledger_contract_gate.py --check
 
   research-factory:
     name: research factory checks

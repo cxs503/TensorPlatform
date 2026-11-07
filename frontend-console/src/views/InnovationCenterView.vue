@@ -1,52 +1,79 @@
 <template>
   <div class="tf-page">
     <HeroPanel>
-      <template #title>创新中心 <span class="tf-hero-mint">· 未实现</span></template>
+      <template #title>创新中心 <span class="tf-hero-mint">· 提案 &amp; 吸收率</span></template>
       <template #sub>
-        自主创新实体（SPEC 第 4 章「创新与演化中心」）尚未建设——本页如实标注，不用假数据占位。
+        创新实体（提案受理 / 自主探索任务线 / 创新产出账）<b>未实现</b>——本页如实标注，不用假数据占位；
+        可测量的只有<b>代理面</b>：可复用增量吸收率（定义见下，后端 <span class="tf-mono">definitions.absorption_rate</span>）。
+      </template>
+      <template #extra>
+        <span>实体实现 <b class="tf-hero-mint">{{ implementedLabel }}</b></span>
+        <span>未实现面 <b class="tf-hero-mint">{{ notImplemented.length }}</b></span>
       </template>
     </HeroPanel>
 
-    <el-row :gutter="16">
-      <el-col :span="12">
-        <div class="tf-card">
-          <div class="tf-card-title">现状（如实）</div>
-          <el-descriptions :column="1" border size="small">
-            <el-descriptions-item label="创新提案机制">未实现</el-descriptions-item>
-            <el-descriptions-item label="自主探索任务线">未实现（探索触发器在 AOG P2 规划中）</el-descriptions-item>
-            <el-descriptions-item label="创新产出账">未实现（能力中心已有相邻面：<router-link class="tf-link" to="/center/capability">能力增量流水</router-link>）</el-descriptions-item>
-          </el-descriptions>
-          <div class="innov-note">
-            依据：AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.0 第 4 章；P0 审计（报告 #3554）
-            已定谳「创新实体未实现」。建设属于 P2 映射表（M01-M08）后的排期项。
-          </div>
+    <CenterBoard :payload="payload" :load-error="loadError">
+      <div class="tf-card" style="margin-top: 16px">
+        <div class="tf-card-title">吸收证据 · 可复用增量流水（代理面，非创新实体本体）</div>
+        <el-table :data="absorptionEvidence" size="small" empty-text="无同类增量（台账为空）">
+          <el-table-column prop="id" label="#" width="70" />
+          <el-table-column prop="category" label="类别" width="180" show-overflow-tooltip />
+          <el-table-column prop="summary" label="增量摘要" min-width="260" show-overflow-tooltip />
+          <el-table-column prop="mission_repo" label="来源仓库" width="130" show-overflow-tooltip />
+          <el-table-column label="来源任务" width="110">
+            <template #default="{ row }"><span class="tf-mono">m{{ row.mission_id }}</span></template>
+          </el-table-column>
+        </el-table>
+      </div>
+
+      <div class="tf-card" style="margin-top: 16px">
+        <div class="tf-card-title">相邻的真实机制（已上线）</div>
+        <div v-for="l in links" :key="l.to" class="innov-link">
+          <router-link class="tf-link" :to="l.to">{{ l.label }}</router-link>
+          <span class="innov-note">{{ l.desc }}</span>
         </div>
-      </el-col>
-      <el-col :span="12">
-        <div class="tf-card">
-          <div class="tf-card-title">相邻的真实机制（已上线）</div>
-          <div class="innov-link" v-for="l in links" :key="l.to">
-            <router-link class="tf-link" :to="l.to">{{ l.label }}</router-link>
-            <span class="tf-dim">{{ l.desc }}</span>
-          </div>
-        </div>
-      </el-col>
-    </el-row>
+      </div>
+    </CenterBoard>
   </div>
 </template>
 
 <script setup lang="ts">
+import { ref, computed, onMounted } from 'vue'
+import { centersApi } from '@/api'
+import HeroPanel from '@/components/HeroPanel.vue'
+import CenterBoard from '@/components/CenterBoard.vue'
+
+const payload = ref<any>(null)
+const loadError = ref<string | null>(null)
+
 const links = [
-  { to: '/center/capability', label: '能力中心', desc: '验收任务 → 能力增量入账（真实账本）' },
-  { to: '/missions', label: '开发任务', desc: '任务在册与状态（创新任务未来落此平面）' },
-  { to: '/papers', label: '论文生产线', desc: '研究产出线（已运行）' },
+  { to: '/center/capability', label: '能力中心', desc: '能力增量台账（吸收分子的唯一真值源）' },
+  { to: '/missions', label: '开发任务', desc: '任务在册（创新任务未来落此平面）' },
+  { to: '/papers', label: '进展报告', desc: '研究产出线（已运行）' },
 ]
+
+const implementedLabel = computed(() => {
+  if (!payload.value) return '—'
+  return payload.value.implemented ? '已实现' : '未实现'
+})
+const notImplemented = computed(() => (payload.value && payload.value.not_implemented) || [])
+const absorptionEvidence = computed(() => {
+  const lists = (payload.value && payload.value.lists) || {}
+  return lists.absorption_evidence || []
+})
+
+onMounted(async () => {
+  try {
+    payload.value = await centersApi.innovation()
+  } catch (e: any) {
+    loadError.value = e?.message || String(e)
+  }
+})
 </script>
 
 <style scoped>
 .tf-link { color: var(--tf-navy-700); text-decoration: none; }
 .tf-link:hover { text-decoration: underline; }
-.tf-dim { color: #a5aeb8; font-size: 12px; margin-left: 8px; }
-.innov-note { margin-top: 12px; color: #a5aeb8; font-size: 12px; line-height: 1.7; }
+.innov-note { color: #a5aeb8; font-size: 12px; margin-left: 8px; }
 .innov-link { padding: 6px 0; }
 </style>

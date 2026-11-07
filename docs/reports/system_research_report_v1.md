@@ -1,17 +1,36 @@
 # Tensor Ecosystem as AI Large-Scale Scientific Research Infrastructure: An Empirical Study
 
-**System Research Report v1.0**  
+**System Research Report v1.1**  
 **Observation Window**: 2026-11-06 00:00 UTC ~ 2026-11-08 00:00 UTC (48 hours)  
 **Report Date**: 2026-11-07  
 **Authors**: Chronicle Agent (m4977)  
 **Data Source**: TensorPlatform production database, chronicle_snapshots, campaign_plans, tensor_dev_missions  
 **Validation**: T3 Anti-Fabrication Validator ✓ | Six-Element Report Gate ✓
 
+**Version**: v1.1 (boundary contraction of v1.0; supersedes v1.0 in place)
+
+**v1.1 change note — why the boundary moved.** v1.0 of this platform report restated a *flagship application
+case* (vessel class, principal dimensions, installed power, route, environmental state matrix) and described
+domain workstream content, even though this document is the **organization-level** report of a domain-neutral
+harness. Judge case **#616** (campaign node `IN17-B5`) fixes the rule applied here: **a platform report keeps
+organization-level metrics only** — throughput, concurrency, the coverage matrix, BP-goal coverage — while
+domain-engineering detail is *referenced*, never reproduced. The reference target is the campaign documentation
+owned by the domain repository (`ship-performance-platform`, campaign plans 11-13). In addition, v1.0's numeric tables disagreed
+with its own archived metrics artifact (repository rows summed to 329 instead of 330 missions; campaign node
+totals printed 82 while the per-plan table summed to 65), and §5.3 claimed a validator result that the validator
+never produced. v1.1 therefore **re-derives 26 numeric cells from `artifacts/m4977_metrics.json`**
+(programmatic injection, zero manual transcription: `tools/chronicle/tighten_report_v1_1.py`), applies
+**6 boundary edits** (case #616), and the T3 validator was hardened so a claim can only be resolved by a
+metric entry whose *subject* appears on the claim's own line (`tools/chronicle/validate_report.py`). Audit
+artifacts: `artifacts/m5014_v1_1_edits.json`, `artifacts/m5014_t3_validation.json`,
+`artifacts/m5014_report_boundary_audit.json`. Domain-neutrality is machine-checked by
+`tools/chronicle/report_boundary.py` against rules injected from `config/report_boundary_gate.json`.
+
 ---
 
 ## Executive Summary
 
-This report presents the first empirical study of the Tensor ecosystem operating as an AI-driven large-scale scientific research infrastructure. Over a 48-hour observation window (2026-11-06~11-07), the system processed **330 missions** across **12 repositories** with a **91.8% success rate**, demonstrating the feasibility of autonomous AI-agent-driven scientific production at scale. Seven concurrent campaign plans orchestrated **82 DAG nodes** covering ice navigation, solver development, platform self-optimization, and chronicler functions. The system achieved a peak throughput of **53 missions/hour** with **5 distinct worker agents** participating, utilizing **6 different AI models** in a model-agnostic architecture. This empirical evidence validates the core thesis: AI agents can sustainably operate as a distributed scientific research workforce when provided with proper infrastructure, governance, and evidence chains.
+This report presents the first empirical study of the Tensor ecosystem operating as an AI-driven large-scale scientific research infrastructure. Over a 48-hour observation window (2026-11-06~11-07), the system processed **330 missions** across **12 repositories** with a **91.8% success rate**, demonstrating the feasibility of autonomous AI-agent-driven scientific production at scale. Seven concurrent campaign plans orchestrated **65 DAG nodes** covering domain-application campaigns (titles only; case detail is referenced in §2.3), solver development, platform self-optimization, and chronicler functions. The system achieved a peak throughput of **53 missions/hour** with **5 distinct worker agents** participating, utilizing **6 different AI models** in a model-agnostic architecture. This empirical evidence validates the core thesis: AI agents can sustainably operate as a distributed scientific research workforce when provided with proper infrastructure, governance, and evidence chains.
 
 ---
 
@@ -63,7 +82,7 @@ Scientific workflow semantics: solver coordination, physical/numerical validatio
 Specialist numerical methods, solver implementations, benchmarks, and supported-use boundaries. Each library owns its domain logic and quality criteria; they consume shared platform services rather than duplicating general agent infrastructure.
 
 **Layer 4: Applications (ship-performance-platform, TensorPapers)**  
-Domain-specific applications that compose solver capabilities into end-user workflows. The ship-performance-platform integrates resistance, propulsion, seakeeping, maneuvering, stability, structure, vibration, green energy, and ice navigation calculations. TensorPapers handles paper production workflows.
+Domain-specific applications that compose solver capabilities into end-user workflows. The ship-performance-platform composes the performance calculation families enumerated in its **own** capability catalog. This report deliberately does not restate them: domain vocabulary stays in the domain repository (judge case #616). TensorPapers handles paper production workflows.
 
 This separation ensures that domain knowledge grows in domain libraries, not in the platform core. The platform remains reusable across domains (future: video production, game creation, humanities research).
 
@@ -73,18 +92,18 @@ The current ecosystem comprises **12 repositories** (not 10 as initially planned
 
 | Repository | Role | Missions (48h) | Success Rate |
 |---|---|---|---|
-| TensorLBM | Lattice Boltzmann Method solver | 72 | 94.4% |
+| TensorLBM | Lattice Boltzmann Method solver | 73 | 91.8% |
 | TensorSPH | Smoothed Particle Hydrodynamics | 44 | 93.2% |
-| TensorDEM | Discrete Element Method | 42 | 92.9% |
-| TensorBEM | Boundary Element Method | 35 | 91.4% |
-| TensorFEM | Finite Element Method | 27 | 88.9% |
-| TensorCAD | Computational geometry | 24 | 91.7% |
-| ship-performance-platform | Ship hydrodynamics application | 21 | 90.5% |
-| TensorPlatform | Agent harness infrastructure | 19 | 89.5% |
-| TensorFVM | Finite Volume Method | 16 | 93.8% |
-| TensorPapers | Paper production | 13 | 92.3% |
-| TensorDG | Discontinuous Galerkin | 12 | 91.7% |
-| TensorPhysics | Scientific workflow orchestration | 4 | 100% |
+| TensorDEM | Discrete Element Method | 42 | 95.2% |
+| TensorBEM | Boundary Element Method | 35 | 97.1% |
+| TensorFEM | Finite Element Method | 27 | 96.3% |
+| TensorCAD | Computational geometry | 24 | 95.8% |
+| ship-performance-platform | Ship hydrodynamics application | 21 | 100.0% |
+| TensorPlatform | Agent harness infrastructure | 19 | 78.9% |
+| TensorFVM | Finite Volume Method | 16 | 87.5% |
+| TensorPapers | Paper production | 13 | 100.0% |
+| TensorDG | Discontinuous Galerkin | 12 | 58.3% |
+| TensorPhysics | Scientific workflow orchestration | 4 | 50.0% |
 
 **Total: 330 missions, 303 succeeded (91.8%), 24 failed (7.3%), 3 awaiting PR merge (0.9%)**
 
@@ -100,14 +119,14 @@ Rather than a monolithic scheduler, the ecosystem uses **campaign plans** to org
 During the observation window, **7 active campaign plans** were created:
 
 1. **Plan 11: Ice Navigation Full-Pipeline Group-Army Campaign** (12 nodes)  
-   Flagship case: PC6破冰货船 L200/B24/T11 15MW, 东北航道 de Long→Pevek, 四态冰况谱  
+   Domain case detail (vessel class, principal dimensions, installed power, route, environmental state matrix) is **not restated here**: it is owned by the campaign documentation of the domain repository `ship-performance-platform` (campaign plans 11-13). This report retains organization-level metrics only (judge case #616).  
    Army structure: A(Environment) + B(Structure) + C(Performance) + D(Decision) + E(Twin) + G(Gate) + L(Logistics)
 
 2. **Plan 12: Ice Navigation Hi-Fi Sim Army** (6 nodes)  
-   High-fidelity simulation: TensorDEM+TensorLBM+TensorFEM coordination for ice-structure interaction
+   High-fidelity simulation: TensorDEM+TensorLBM+TensorFEM coordination on the domain case (interaction detail referenced to the domain repository)
 
 3. **Plan 13: Ice Navigation System-Piercing Campaign** (9 nodes)  
-   BP-Towed System-Piercing: PC6 东北航道 flagship case, ten-repository cross-validation
+   BP-Towed System-Piercing: cross-repository validation of the flagship application case (case detail referenced; ten-repository cross-validation)
 
 4. **Plan 15: Deep-Water Army (Solver Hard Gaps)** (12 nodes)  
    Solver hard gaps: capability ledger-driven development targeting verification barriers
@@ -122,9 +141,9 @@ During the observation window, **7 active campaign plans** were created:
    Dedicated agents for global record analysis and publication-grade research reports
 
 **Campaign Node Status Distribution**:
-- Done: 18 nodes (22.0%)
-- In-Flight: 33 nodes (40.2%)
-- Blocked: 31 nodes (37.8%)
+- Done: 17 nodes (26.2%)
+- In-Flight: 33 nodes (50.8%)
+- Blocked: 15 nodes (23.1%)
 
 The high blocked ratio reflects dependency chains and resource contention, not system failure. Blocked nodes are explicitly tracked with `block_reason` metadata for diagnosis.
 
@@ -208,14 +227,14 @@ This diversity demonstrates the platform's model-agnostic design: agents can use
 ![Hourly Throughput](artifacts/m4977_figures/fig1_throughput.png)  
 *Figure 1: Hourly mission throughput showing bursty pattern with peak at 53 missions/hour*
 
-The throughput pattern is **bursty**, not uniform. This reflects the campaign-based orchestration: when a campaign plan unblocks a set of nodes, multiple missions launch in parallel. The 09:00 UTC peak (53 missions) corresponds to the activation of Plan 11 (Ice Navigation Full-Pipeline) with 12 nodes going in-flight simultaneously.
+The throughput pattern is **bursty**, not uniform. This reflects the campaign-based orchestration: when a campaign plan unblocks a set of nodes, multiple missions launch in parallel. The 09:00 UTC peak (53 missions) corresponds to the activation of campaign Plan 11, whose 12 nodes went in-flight simultaneously.
 
 ### 4.2 Repository Distribution
 
 ![Repository Distribution](artifacts/m4977_figures/fig2_repo_distribution.png)  
-*Figure 2: Mission distribution across 12 repositories. TensorLBM dominates with 72 missions (21.8%), reflecting its role as the primary CFD solver.*
+*Figure 2: Mission distribution across 12 repositories. TensorLBM dominates with 73 missions (22.1%), reflecting its role as the primary CFD solver.*
 
-The distribution shows **healthy diversity**: no single repository exceeds 25% of total missions. The top 4 repositories (TensorLBM, TensorSPH, TensorDEM, TensorBEM) account for 58.5% of missions, all being numerical solver libraries. This confirms the ecosystem's focus on **solver development** as the current primary workload.
+The distribution shows **healthy diversity**: no single repository exceeds 25% of total missions. The top 4 repositories (TensorLBM, TensorSPH, TensorDEM, TensorBEM) account for 58.8% of missions, all being numerical solver libraries. This confirms the ecosystem's focus on **solver development** as the current primary workload.
 
 ### 4.3 Campaign Node Matrix
 
@@ -277,9 +296,9 @@ The campaign-based orchestration successfully coordinated work across 12 reposit
 - **Parallelism**: Plan 15 achieved 11 in-flight nodes simultaneously, demonstrating effective parallel execution
 
 **Weaknesses**:
-- **High blocked ratio**: 37.8% of nodes blocked, indicating dependency chains or resource contention
+- **Blocked share**: 23.1% of nodes blocked, indicating dependency chains or resource contention
 - **Limited autonomy**: All missions originated from "owner" directives; no agent-initiated work observed
-- **Slow completion**: Only 22% of nodes done after 24+ hours, suggesting long task durations or blocking
+- **Slow completion**: Only 26.2% of nodes are done within the 48-hour window, suggesting long task durations or blocking
 
 ### 5.3 Evidence Governance Effectiveness
 
@@ -287,7 +306,7 @@ The T3 anti-fabrication framework successfully validated all numeric claims in t
 
 **Zero-manual-transcription principle**: All numbers in Section 4 were programmatically extracted from `artifacts/m4977_metrics.json`, which was generated by `tools/chronicle/extract_metrics.py` querying the production database. No numbers were hand-copied.
 
-**T3 validator**: `tools/chronicle/validate_report.py` extracted 47 numeric claims from this report and validated 47/47 (100%) against metrics. Zero unvalidated claims.
+**T3 validator**: `tools/chronicle/validate_report.py` extracts every numeric claim in this report and resolves it against `artifacts/m4977_metrics.json`: 106 claims, 102 resolved by metrics, 4 on declared non-measured constants (`config/report_declared_constants.json`), zero unvalidated. A claim can only be resolved by a metric entry whose subject appears on the claim's own line, so a value cannot be borrowed from another row. Verdict: `artifacts/m5014_t3_validation.json`. (v1.0 printed a 47/47 result that the validator never produced; see the v1.1 change note.)
 
 **Report-owed queue**: The 3 missions with `status=awaiting_pr_merge` will enter the report-owed queue if completed without `report_id`, triggering automatic补报 dispatch.
 
@@ -499,7 +518,7 @@ The question is no longer "Can AI agents do scientific research?" but "How do we
 
 6. `tensor_dev_missions` table: 330 missions, 2026-11-06~11-08.
 7. `campaign_plans` table: 7 active plans, created 2026-11-06~11-07.
-8. `campaign_nodes` table: 82 nodes across 7 plans.
+8. `campaign_nodes` table: 65 nodes across 7 plans.
 9. `chronicle_snapshots` table: 1 snapshot, 2026-11-07 00:42 UTC.
 10. Extracted metrics: `artifacts/m4977_metrics.json`.
 
@@ -529,13 +548,13 @@ python3 tools/chronicle/generate_figures.py --metrics artifacts/m4977_metrics.js
 ### A.3 Validate Report
 
 ```bash
-python3 tools/chronicle/validate_report.py --report docs/reports/system_research_report_v1.md --metrics artifacts/m4977_metrics.json
+python3 tools/chronicle/validate_report.py --report docs/reports/system_research_report_v1.md --metrics artifacts/m4977_metrics.json --declared config/report_declared_constants.json --json-out artifacts/m5014_t3_validation.json
 ```
 
 Expected output:
 ```
-T3 Validation: 47/47 claims validated
-PASSED: All 47 claims validated against metrics
+T3 Validation: 106 claims | 102 metric-validated | 4 declared | 0 unvalidated
+PASSED: all 106 claims resolved (102 metric, 4 declared)
 ```
 
 ### A.4 Dry-Run Mode (No Database)
@@ -558,7 +577,7 @@ python3 tools/chronicle/extract_metrics.py --dry-run --output /tmp/mock_metrics.
 | Peak throughput | 53 missions/hour | `hourly_throughput` max |
 | Repositories | 12 | `len(by_repository)` |
 | Campaign plans | 7 | `len(campaigns)` |
-| Campaign nodes | 82 | `sum(campaign_nodes.node_count)` |
+| Campaign nodes | 65 | `sum(campaign_nodes.node_count)` |
 | Distinct workers | 5 | `workers.total_workers` |
 | AI models used | 6 | `len(by_model)` |
 

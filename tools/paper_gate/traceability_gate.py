@@ -50,6 +50,7 @@ import argparse
 import json
 import re
 import sys
+from decimal import Decimal, InvalidOperation
 from pathlib import Path
 
 NUM = r"[-+]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][-+]?\d+)?"
@@ -115,11 +116,62 @@ def value_present(claim: float, corpus: list[float], rtol: float = 1e-6) -> bool
     return any(abs(c - claim) <= 1e-12 + rtol * abs(claim) for c in corpus)
 
 
-def _close(stated: float, computed: float, tol_pp: float, tol_rel: float) -> bool:
+# ── 打印精度传播（PG4/PG5 容差） ────────────────────────────────────────────
+# 旧口径固定容差（0.05pp + 0.5%）是「人眼扫一眼」的量级；对 6 位小数表它比
+# 真实可判性松两个数量级，于是误差列被扰动 1%~3% 照样放行（=判据不可证伪，
+# 变异存活）。可判性上限由**印刷精度**决定，所以再叠一条逐行传播带宽：
+#     δpct = 100·(δv/|ref| + |val|·δref/ref²) + δstated      （δ = 该字面量 0.5 ulp）
+# 取严（min）而不是取代：门对旧口径**只紧不松**——表印得比旧口径能分辨的更细时
+# 按印刷精度判（1% 扰动即被抓住），印得粗时退回旧口径（粗精度下本来就判不出
+# 小扰动，不制造新的假阳）。
+_LIT_CLEAN = str.maketrans({",": "", " ": "", "%": "",
+                            "\u2030": "", "\u2212": "-", "\u2013": "-"})
+_LIT_NUM = re.compile(r"[+-]?(?:\d+(?:\.\d*)?|\.\d+)(?:[eE][+-]?\d+)?")
+
+
+def half_ulp(literal) -> float | None:
+    """字面量的半个末位单位（0.5×10^exponent）；无法判读返回 None。"""
+    if literal is None:
+        return None
+    m = _LIT_NUM.search(str(literal).translate(_LIT_CLEAN))
+    if not m:
+        return None
+    try:
+        d = Decimal(m.group(0))
+    except InvalidOperation:  # pragma: no cover - 防御
+        return None
+    return float(Decimal(5).scaleb(d.as_tuple().exponent - 1))
+
+
+def literal_number(literal) -> float | None:
+    m = _LIT_NUM.search(str(literal).translate(_LIT_CLEAN))
+    if not m:
+        return None
+    try:
+        return float(m.group(0))
+    except ValueError:  # pragma: no cover - 防御
+        return None
+
+
+def error_band(stated_lit, val_lit, ref_lit, computed, tol_pp, tol_rel) -> float:
+    """一行/一句误差声明的合理带宽（百分点）：旧口径与印刷精度传播取严。"""
+    legacy = tol_pp + tol_rel * abs(computed)
+    d_st, d_v, d_r = half_ulp(stated_lit), half_ulp(val_lit), half_ulp(ref_lit)
+    if d_st is None or d_v is None or d_r is None:
+        return legacy                                     # 精度不可判读 → 旧口径兜底
+    ref, val = literal_number(ref_lit), literal_number(val_lit)
+    if not ref:
+        return legacy
+    propagated = d_st + 100.0 * (d_v / abs(ref) + abs(val or 0.0) * d_r / (ref * ref))
+    return min(legacy, propagated)
+
+
+def _close(stated: float, computed: float, tol_pp: float, tol_rel: float,
+           band: float | None = None) -> bool:
     """Tolerance band. Errors are quoted as magnitudes as often as with sign, so
     all three conventions (±pct, |pct|) are accepted — the gate must not fail a
     manuscript over a sign convention."""
-    band = tol_pp + tol_rel * abs(computed)
+    band = tol_pp + tol_rel * abs(computed) if band is None else band
     return min(abs(stated - computed), abs(stated - abs(computed)),
                abs(abs(stated) - abs(computed))) <= band
 
@@ -185,16 +237,19 @@ def check_table_arithmetic(header, rows, line_no, tol_pp, tol_rel):
             continue
         checked += 1
         pct = (val - ref) / ref * 100.0
-        ok = _close(stated, pct, tol_pp, tol_rel)
+        band = error_band(row[err_i], row[val_i], row[ref_i], pct, tol_pp, tol_rel)
+        ok = _close(stated, pct, tol_pp, tol_rel, band=band)
         if not ok and not as_pct:  # header had no unit: accept fraction form
-            ok = _close(stated, pct / 100.0, tol_pp, tol_rel)
+            ok = _close(stated, pct / 100.0, tol_pp, tol_rel, band=band / 100.0)
         if not ok:
             findings.append({
                 "code": "PG4_table_arithmetic", "severity": "FAIL",
                 "line": line_no + r_off + 1,
                 "detail": (f"误差列声明 {stated:g}{'%' if as_pct else ''} 与 "
                            f"(值 {val:g} − 参考 {ref:g})/参考 = {pct:.6g}% 不符"
-                           f"（容差 {tol_pp}pp + {tol_rel*100:g}%）"),
+                           f"（容差 {tol_pp:g}pp + {tol_rel*100:g}% 与印刷精度"
+                           f"取严 = {band:.3g}pp）"),
+                "band_pp": band,
             })
     return findings, checked
 
@@ -217,15 +272,19 @@ def check_inline_errors(md: str, tol_pp, tol_rel):
         checked += 1
         pct = (a - b) / b * 100.0
         is_pct = bool(m.group(4))
-        ok = _close(stated, pct, tol_pp, tol_rel)
+        band = error_band(m.group(3), m.group(1), m.group(2), pct, tol_pp, tol_rel)
+        ok = _close(stated, pct, tol_pp, tol_rel, band=band)
         if not ok and not is_pct:
-            ok = _close(stated, pct / 100.0, tol_pp, tol_rel)
+            ok = _close(stated, pct / 100.0, tol_pp, tol_rel, band=band / 100.0)
         if not ok:
             line = md[:m.start()].count("\n") + 1
             findings.append({
                 "code": "PG5_inline_error", "severity": "FAIL", "line": line,
                 "detail": (f"«{m.group(0)[:80]}» 声明误差 {stated:g}"
-                           f"{'%' if is_pct else ''}，复算 (A−B)/B={pct:.6g}%"),
+                           f"{'%' if is_pct else ''}，复算 (A−B)/B={pct:.6g}%"
+                           f"（容差 {tol_pp:g}pp + {tol_rel*100:g}% 与印刷精度"
+                           f"取严 = {band:.3g}pp）"),
+                "band_pp": band,
             })
     return findings, checked
 

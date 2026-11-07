@@ -1,0 +1,14 @@
+{
+  "label": "NC2-runtime-crash-injection",
+  "author": "m5306/IN27-H2 red-team",
+  "rationale": "红队负例②：语法合法但运行期崩溃（把「db 不可达优雅跳过」改成 raise）—— py_compile 查不出来，必须由金丝雀单进程试跑门拦住，并由回滚门字节级复原。",
+  "replacements": [
+    {
+      "file": "saturation_regulator_loop_once.py",
+      "note": "injected: crash on db-unreachable path",
+      "old": "    print(\"db 不可达，跳过本跳\"); raise SystemExit(0)\n",
+      "new": "    raise RuntimeError(\"injected fault: db-unreachable path must degrade, not crash\")\n",
+      "count": 1
+    }
+  ]
+}

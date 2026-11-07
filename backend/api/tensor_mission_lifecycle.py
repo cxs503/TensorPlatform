@@ -31,6 +31,13 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from api.deps import require_auth, require_role
+from api.domain.mission_state_machine import (
+    REOPENED,
+    ReopenRejected,
+    assert_reopen,
+    plan_release,
+    plan_reopen,
+)
 from api.domain.tensor_common import append_event, resolved_org
 from database.config import get_db
 
@@ -1242,3 +1249,181 @@ def dashboard_snapshot(
             for r in budget_summary
         ],
     }
+
+
+# ─────────────────────────────────────────────────────────────────────────────
+# 8. REOPENED — 验收后回归的正式重开（SPEC §4.2 / 战役 IN19-Q7 / 迁移 103）
+# ─────────────────────────────────────────────────────────────────────────────
+#
+# 为什么要有这个端点：终态（succeeded/failed/stopped/revoked/orphan）过去没有
+# 正式回头路——回归红、证据失效、审查被推翻时，是库外守护或人工把状态直接改回
+# 可执行态，词表里看不到「这是一张被重开的单」，也查不到谁重开、推翻了哪份验收、
+# 理由是什么。SPEC §4.2 要求三件事：独立治理侧触发、引用原验收记录、说明理由。
+# 本端点把这三条做成机器判据（规则在 backend/contracts/mission_state_machine.v1.json，
+# 不在代码字面量里），并在库里留三份证据：mission 行上的 reopened_* 四列、
+# mission_lifecycle_log 的 append-only 审计行、会话事件流的 decision 事件。
+
+class ReopenRequest(BaseModel):
+    """重开请求：必须给出被推翻的验收记录引用与理由。"""
+
+    acceptance_ref: str = Field(
+        min_length=3,
+        max_length=220,
+        description="原验收记录引用，前缀标明证据种类：acceptance:/review:/pr:/evidence:",
+    )
+    reason: str = Field(min_length=8, max_length=1000)
+    target: str | None = Field(
+        default=None,
+        description="缺省=契约 reopen.targets；只能落在契约允许的重开目标上",
+    )
+
+
+def _governance_role(user: dict) -> str:
+    """用户角色末段大写（deps.require_role 同源口径：role.admin -> ADMIN）。"""
+    return str(user.get("role") or "").split(".")[-1].upper()
+
+
+@router.post("/{mission_id}/reopen",
+             dependencies=[Depends(require_role("ADMIN", "MANAGER"))])
+def reopen_mission(
+    mission_id: int,
+    body: ReopenRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """终态 mission → reopened（正式重开；独立治理侧 + 引用原验收记录 + 理由）。
+
+    拒绝口径（409，机器可读 code 见 code 字段）：
+      not_reopenable_from   当前状态不是终态（在飞的活不用「重开」，用 custody/refill）
+      not_governance_actor  调用者无治理角色
+      producer_cannot_reopen 调用者就是产出者本人（自己给自己重开=规避验收）
+      acceptance_ref_missing / acceptance_ref_malformed  未引用原验收记录
+      reason_too_short      理由过短，无法区分正当重开与关闭/重开churn
+    """
+    org_id = resolved_org(None, user, db)
+    row = db.execute(
+        text("""
+            SELECT id, organization_id, status, session_id, claimed_by,
+                   claimed_user_id
+            FROM tensor_dev_missions WHERE id = :mid
+            FOR UPDATE
+        """),
+        {"mid": mission_id},
+    ).mappings().first()
+    if not row:
+        raise HTTPException(404, "mission not found")
+    if int(row["organization_id"]) != org_id:
+        raise HTTPException(404, "mission not found")
+
+    producer = row["claimed_by"]
+    if row["claimed_user_id"] and user.get("id") and \
+            int(row["claimed_user_id"]) == int(user["id"]):
+        producer = str(user.get("username") or user.get("id"))  # 同一用户=生产者本人
+    try:
+        decision = assert_reopen(
+            from_status=row["status"],
+            actor_role=_governance_role(user),
+            acceptance_ref=body.acceptance_ref,
+            reason=body.reason,
+            actor_identity=str(user.get("username") or user.get("id") or ""),
+            producer_identity=producer,
+            target=body.target,
+        )
+    except ReopenRejected as rej:
+        raise HTTPException(409, rej.decision)
+
+    db.execute(
+        text("""
+            UPDATE tensor_dev_missions
+            SET status = :tgt, reopened_from = :frm, reopen_ref = :ref,
+                reopen_reason = :reason, reopened_at = now()
+            WHERE id = :mid
+        """),
+        {"tgt": decision["to_status"], "frm": row["status"],
+         "ref": body.acceptance_ref, "reason": body.reason, "mid": mission_id},
+    )
+    detail = {
+        "from_status": row["status"],
+        "to_status": decision["to_status"],
+        "acceptance_ref": body.acceptance_ref,
+        "reason": body.reason,
+        "actor_role": decision["actor_role"],
+        "reported_by": user.get("username"),
+        "at": datetime.now(timezone.utc).isoformat(),
+    }
+    db.execute(
+        text("""
+            INSERT INTO mission_lifecycle_log (mission_id, action, actor_user_id, detail)
+            VALUES (:mid, 'reopen', :uid, CAST(:detail AS jsonb))
+        """),
+        {"mid": mission_id, "uid": user.get("id"), "detail": _dumps(detail)},
+    )
+    if row["session_id"]:
+        append_event(db, row["session_id"], "decision",
+                     {"subtype": "mission_reopened", **detail})
+    db.commit()
+    return {"id": mission_id, "status": decision["to_status"],
+            "reopened_from": row["status"], "reopen": detail}
+
+
+@router.post("/{mission_id}/reopen-release",
+             dependencies=[Depends(require_role("ADMIN", "MANAGER"))])
+def release_reopened_mission(
+    mission_id: int,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """reopened → queued：重开单重新进入派发队列（返工开始）。
+
+    重开是**parked**态（不自动被 claim 捡走），返工必须由治理侧显式放行，
+    这样「重开」不会变成绕过验收的自动复活通道（SPEC §10）。
+    """
+    org_id = resolved_org(None, user, db)
+    row = db.execute(
+        text("""
+            SELECT id, organization_id, status, session_id, reopened_from,
+                   reopen_ref
+            FROM tensor_dev_missions WHERE id = :mid
+            FOR UPDATE
+        """),
+        {"mid": mission_id},
+    ).mappings().first()
+    if not row:
+        raise HTTPException(404, "mission not found")
+    if int(row["organization_id"]) != org_id:
+        raise HTTPException(404, "mission not found")
+    decision = plan_release(from_status=row["status"])
+    if not decision["ok"]:
+        raise HTTPException(
+            409, f"release needs status={REOPENED}, got {row['status']}")
+
+    db.execute(
+        text("""
+            UPDATE tensor_dev_missions
+            SET status = :tgt, claim_token = NULL, claimed_by = NULL,
+                finished_at = NULL, heartbeat_at = now()
+            WHERE id = :mid
+        """),
+        {"tgt": decision["to_status"], "mid": mission_id},
+    )
+    detail = {
+        "from_status": row["status"],
+        "to_status": decision["to_status"],
+        "phase": "release",
+        "reopened_from": row["reopened_from"],
+        "acceptance_ref": row["reopen_ref"],
+        "reported_by": user.get("username"),
+        "at": datetime.now(timezone.utc).isoformat(),
+    }
+    db.execute(
+        text("""
+            INSERT INTO mission_lifecycle_log (mission_id, action, actor_user_id, detail)
+            VALUES (:mid, 'reopen', :uid, CAST(:detail AS jsonb))
+        """),
+        {"mid": mission_id, "uid": user.get("id"), "detail": _dumps(detail)},
+    )
+    if row["session_id"]:
+        append_event(db, row["session_id"], "decision",
+                     {"subtype": "mission_reopen_released", **detail})
+    db.commit()
+    return {"id": mission_id, "status": decision["to_status"], "reopen": detail}

@@ -473,9 +473,23 @@ if os.getenv("TP_MISSION_GRADIENT", "0") == "1":
     except Exception as _exc:  # pragma: no cover - 部署面兜底
         logging.getLogger(__name__).warning("mission_gradient router 接线跳过: %s", _exc)
 
+# ── 成果评价 S×E（AOG SPEC v1.2 §7.1；m5018）──
+# outcome_evaluations 实体写入/待评价记录流/分层统计，app 内可达；
+# import 失败只告警不阻断启动（同 soul_runtime 部署安全模式）。
+try:
+    from api import outcome_evaluations as _outcome_evaluations  # noqa: E402
+    app.include_router(_outcome_evaluations.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("outcome_evaluations router 接线跳过: %s", _exc)
+
 # ── 公共实况展示面（免登录只读，owner 2026-10-22）──
 from api import public  # noqa: E402
 app.include_router(public.router, prefix="/api/v1")
+
+# SPEC §6.5 审查预算账本（测量先行）：四类审查记账 + 周聚合查询
+from api import review_budget as _review_budget  # noqa: E402
+
+app.include_router(_review_budget.router, prefix="/api/v1")
 
 # ── Prometheus /metrics 端点（空前缀，供 Prometheus 采集）──
 app.include_router(metrics_api.router, prefix="")
@@ -588,6 +602,19 @@ async def jwt_auth_middleware(request: Request, call_next):
 # ============== 健康检查 ==============
 
 
+def _capability_ledger_field() -> dict:
+    """消费者 #3：/health 的能力台账体检字段（永不抛异常，失败即 DEGRADED）。"""
+    try:
+        from api.capability_health import ledger_field
+        return ledger_field()
+    except Exception as exc:  # 后端启动顺序/路径问题不能把健康端点打成 500
+        return {"status": "DEGRADED",
+                "reasons": [f"HEALTH_CONSUMER_IMPORT_FAILED:{type(exc).__name__}"],
+                "path": None, "sha256": None, "schema_version": None,
+                "capabilities": 0, "unverified": 0, "overclaim": 0,
+                "contract_version": "unknown"}
+
+
 @app.get("/health", include_in_schema=False)
 @app.get("/api/v1/health")
 async def health_check(db: Session = Depends(get_db)):
@@ -603,7 +630,9 @@ async def health_check(db: Session = Depends(get_db)):
         "services": {
             "api": "up",
             "database": db_status
-        }
+        },
+        # 证据台账体检：path/sha256/capabilities/unverified/overclaim（m5352 消费者契约门）
+        "capability_ledger": _capability_ledger_field(),
     }
 
 
