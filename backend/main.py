@@ -462,6 +462,15 @@ try:
 except Exception as _exc:  # pragma: no cover - 部署面兜底
     logging.getLogger(__name__).warning("soul_runtime router 接线跳过: %s", _exc)
 
+# ── 成果评价 S×E（AOG SPEC v1.2 §7.1；m5018）──
+# outcome_evaluations 实体写入/待评价记录流/分层统计，app 内可达；
+# import 失败只告警不阻断启动（同 soul_runtime 部署安全模式）。
+try:
+    from api import outcome_evaluations as _outcome_evaluations  # noqa: E402
+    app.include_router(_outcome_evaluations.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("outcome_evaluations router 接线跳过: %s", _exc)
+
 # ── 公共实况展示面（免登录只读，owner 2026-10-22）──
 from api import public  # noqa: E402
 app.include_router(public.router, prefix="/api/v1")
