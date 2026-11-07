@@ -14,7 +14,11 @@ from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import text
 from sqlalchemy.orm import Session
 
-from services.s3_stream import s3_client
+# Lazy import: s3_client is only needed for the artifact streaming endpoint,
+# not for run registration / listing / retrieval.  This keeps the module
+# importable in test environments where boto3 may not be installed.
+# (G-C contract tests import RunRegistration and _MAX_MANIFEST_BYTES without
+# needing the S3 dependency.)
 
 from api.deps import require_auth, require_permission
 from api.tenant_access import (
@@ -253,6 +257,12 @@ def list_runs(
     }
 
 
+def _get_s3_client():
+    """Lazy-load S3 client only when artifact streaming is actually needed."""
+    from services.s3_stream import s3_client  # noqa: PLC0415
+    return s3_client()
+
+
 @router.get(
     "/{run_id}/artifacts/{index}",
     dependencies=[Depends(require_permission("datasets:read"))],
@@ -284,7 +294,7 @@ def get_run_artifact(
     if not bucket or not key:
         raise HTTPException(status_code=422, detail="malformed artifact uri")
     try:
-        obj = s3_client().get_object(Bucket=bucket, Key=key)
+        obj = _get_s3_client().get_object(Bucket=bucket, Key=key)
     except Exception:
         raise HTTPException(status_code=503, detail="artifact store unavailable")
     filename = key.rsplit("/", 1)[-1]
