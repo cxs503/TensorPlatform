@@ -179,3 +179,42 @@ rebuild:
 	docker-compose down
 	docker-compose build --no-cache
 	docker-compose up -d
+
+# ---------------------------------------------------------------------------
+# W10-N07 numerical-uncertainty certification (GCI + cross-solver + U_V)
+# ---------------------------------------------------------------------------
+VV_OUT ?= runs/w10n07
+VV_STEPS ?= 40000
+VV_TOL ?= 2e-5
+
+#: unit tests for the V&V toolkit (fast, CI-safe)
+vv-test:
+	@python3 -m pytest tests/vv -q
+
+#: kernel verification only (60-digit reference + locked ITTC anchors)
+vv-verify:
+	@PYTHONPATH=. python3 -c "import json; from scripts.vv import benchmarks as B; \
+	  print(json.dumps({k: B.roache_power_law()['pass'] for k in ('roache',)}, default=str)); \
+	  print('anchors', B.ittc_locked_anchors()['pass'])"
+
+#: full certification sweep: 12 solver units (2 cases x 3 grids x 2 solvers)
+#: then the assembly (GCI, cross-solver, structural GCI, U_V adjudication,
+#: figures).  Grid sequencing makes each unit start from the next coarser field.
+vv-w10n07:
+	@set -e; for lvl in 0 1 2; do \
+	  init=""; if [ $$lvl -gt 0 ]; then init="--init-level $$((lvl-1))"; fi; \
+	  for kind in level brash; do for solver in fvm lbm; do \
+	    echo "== $$kind level $$lvl $$solver $$init"; \
+	    PYTHONPATH=. python3 -m scripts.vv.run_certification \
+	      --run-one $$kind $$lvl $$solver --max-steps $(VV_STEPS) \
+	      --tol $(VV_TOL) --window 500 $$init > /dev/null; \
+	  done; done; done
+	@PYTHONPATH=. python3 -m scripts.vv.run_certification --assemble --out $(VV_OUT)
+
+#: reproducibility gate: run the quick configuration twice and compare every
+#: number with tolerance 0 (exit code 1 on any difference)
+vv-repro:
+	@PYTHONPATH=. python3 -m scripts.vv.run_certification --quick --check-repro \
+	  --out /tmp/w10n07_repro
+
+.PHONY: vv-test vv-verify vv-w10n07 vv-repro
