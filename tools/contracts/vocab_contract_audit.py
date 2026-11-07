@@ -79,6 +79,7 @@ EVENT_TABLE = "tensor_agent_session_events"
 
 CANON_FILES = (
     "mission_status_vocab.v1.json",
+    "mission_state_machine.v1.json",
     "mission_task_status_map.v1.json",
     "session_event_kinds.v1.json",
     "research_run_status_vocab.v1.json",
@@ -349,6 +350,38 @@ def audit_ga(canon: dict, rt: dict) -> list:  # type: ignore[type-arg]
                     "mission_task_status_map#platform_only（须与像集不相交）",
                     "mission_task_status_map#mapping 像集", [], [], [], overlap,
                     note="平台专有相位不得同时是 TPh 状态的像"))
+
+    # REOPENED（SPEC §4.2 / m5022）：迁移图必须闭在词表上，且终态没有回到
+    # 「干活态」的后门——库外守护复活被正式状态取代的结构性证明。
+    sm = canon["docs"]["mission_state_machine.v1.json"]
+    graph = {k: tuple(v["to"]) for k, v in sm["transitions"].items()}
+    states = set(vocab["statuses"])
+    workable = set(sm["workable"])
+    reopen_from = set(sm["reopen"]["from"])
+    terminal = set(vocab["terminal"])
+
+    edges = sorted({f"{a}->{b}" for a, dsts in graph.items() for b in dsts})
+    bad_edges = sorted({f"{a}->{b}" for a, dsts in graph.items() for b in dsts
+                        if b not in states or a not in states})
+    c, r, co, ro = _diff(edges, [e for e in edges if e not in bad_edges])
+    rows.append(Row("G-A", "state_machine_closure",
+                    "mission_state_machine#transitions（节点/边须闭在词表上）",
+                    "mission_state_machine#transitions（按 bad_edges 过滤）",
+                    c, r, co, ro,
+                    note="回边 reopened 是唯一合法复活通道"))
+
+    declared = set(sm.get("audited_retry_edges", {}).get("edges", []))
+    backdoors = sorted({f"{a}->{b}" for a in terminal for b in graph.get(a, ())
+                        if b in workable} - declared)
+    reentries = sorted({a for a, dsts in graph.items() if "reopened" in dsts})
+    c, r, co, ro = _diff(sorted(terminal), reentries)
+    rows.append(Row("G-A", "reopen_back_edge_only",
+                    "mission_state_machine#reopen.from == mission_status_vocab#terminal",
+                    "mission_state_machine#transitions 中指向 reopened 的来源",
+                    c, r, co, ro))
+    rows.append(Row("G-A", "terminal_no_workable_edge", "终态不得直通干活态",
+                    "mission_state_machine#workable ∩ 终态出边", [], [], [], backdoors,
+                    note="非空=存在绕过 reopened 的复活后门"))
 
     src = (BACKEND / "api" / "tensor_missions.py").read_text(encoding="utf-8")
     symbols = ["MISSION_STATUSES", "TERMINAL"]

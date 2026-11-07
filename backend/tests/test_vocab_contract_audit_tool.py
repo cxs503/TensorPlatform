@@ -27,7 +27,9 @@ from tools.contracts import vocab_contract_audit as audit_mod  # noqa: E402
 def test_audit_all_rows_diff_zero():
     audit = audit_mod.run_audit()
     assert audit.errors == []
-    assert len(audit.rows) == 19
+    # 19（G-A/B/C 原始项）+ 3（m5022 REOPENED：state_machine_closure /
+    # reopen_back_edge_only / terminal_no_workable_edge）
+    assert len(audit.rows) == 22
     assert audit.diff_total == 0
     assert audit.ok
     # 三组各自有行（不是某一组被静默跳过）
