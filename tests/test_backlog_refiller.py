@@ -347,7 +347,8 @@ class TestMissionGeneratorParams:
             assert "goal" in params
             assert "repo" in params
             assert "origin" in params
-            assert params["origin"] == "backlog_refiller"
+            # 平台 CHECK：origin ∈ {owner, agent}（补给器=无人值守 agent 侧机制）
+            assert params["origin"] == "agent"
             assert params["repo"] == "TensorPlatform"
             assert len(params["goal"]) >= 80
 
