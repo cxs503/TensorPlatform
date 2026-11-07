@@ -17,6 +17,19 @@ Zero domain semantics: nothing in this package knows about any physical or
 engineering domain -- it only reads platform bookkeeping tables.
 """
 
+from .sr_readiness import (  # noqa: F401
+    CLOCK_SLOT,
+    PACK_CHECKS,
+    TARGETS,
+    build_report as build_sr_report,
+    chronicle_payload as sr_chronicle_payload,
+    continuity as sr_continuity,
+    measure_sr1,
+    measure_sr2,
+    measure_sr3,
+    measure_sr4,
+)
+
 from .metrics import (  # noqa: F401
     MECHANISMS,
     ActionSource,
@@ -33,6 +46,16 @@ from .metrics import (  # noqa: F401
 )
 
 __all__ = [
+    "CLOCK_SLOT",
+    "PACK_CHECKS",
+    "TARGETS",
+    "build_sr_report",
+    "measure_sr1",
+    "measure_sr2",
+    "measure_sr3",
+    "measure_sr4",
+    "sr_chronicle_payload",
+    "sr_continuity",
     "MECHANISMS",
     "ActionSource",
     "Mechanism",
@@ -47,4 +70,4 @@ __all__ = [
     "tables_in",
 ]
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"  # + SR1..SR4 inheritance-readiness block (IN27-H7)
