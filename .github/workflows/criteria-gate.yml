@@ -11,6 +11,8 @@ on:
       - "backend/services/report_gate.py"
       - "backend/api/tensor_reports.py"
       - "tools/report_payload.py"
+      - "tools/audit/report_path_convention_lint.py"
+      - "config/report_path_baseline.json"
       - "tools/paper_gate/**"
       - "tests/test_criteria_mutation.py"
       - "tests/test_report_ownership.py"
@@ -33,6 +35,18 @@ jobs:
 
       - name: 归属门 / 配图魔数门 / 客户端工装 单测
         run: python -m pytest tests/test_report_ownership.py -q --noconftest
+
+      - name: 路径约定 lint（裸 /tmp report.json 只减不增）
+        run: |
+          python tools/audit/report_path_convention_lint.py --json artifacts/report_path_lint.json
+          python - <<'PY'
+          import json
+          d = json.load(open("artifacts/report_path_lint.json"))
+          c = d["comparison"]
+          assert c["ok"] and not c["regressions"], c
+          print("lint ok:", d["scanned_files"], "files,", c["current_total"],
+                "/", c["baseline_total"], "baseline violations")
+          PY
 
       - name: 判据台账 + killer tests + 准入负控
         run: |
