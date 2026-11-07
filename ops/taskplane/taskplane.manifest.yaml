@@ -44,6 +44,12 @@ daemons:
     enabled: true
     live: running
     note: tp_worker 舰队自愈（只补缺员不杀存活）；编制表 fleet.json
+  - name: gate-auto-release
+    script: gate_auto_release.py
+    cadence: 5min 轮询
+    enabled: true
+    live: stopped
+    note: 放门自动化（IN20-R2）：blocked 门→上游全 done+判据工件可解析→翻 pending+审计；治理门 owner_only 只标不放
   - name: guide-tracker
     script: guide_tracker.py
     cadence: 30min 快照
@@ -129,6 +135,7 @@ pinned_daemons:
   - credit-ledger
   - fleet-governor
   - fleet-supervisor
+  - gate-auto-release
   - guide-tracker
   - merge-governor
   - paper-line
