@@ -94,6 +94,10 @@ def test_t4_all_sources_dead_reports_failure(worker, monkeypatch, tmp_path):
     monkeypatch.setattr(worker, "CAP_SNAPSHOT_REL", pathlib.Path("artifacts/__none__/a.json"))
     monkeypatch.setattr(worker, "CAP_LEDGER_REL", pathlib.Path("artifacts/__none__/b.json"))
     monkeypatch.setattr(worker, "CAP_HARNESS_DEFAULT", tmp_path / "nope2.json")
+    # m5238/W18-N09 新增的兜底候选（证伪台账）也必须一并打死，否则「全灭」不成立
+    if hasattr(worker, "CAP_FALSIFICATION_REL"):
+        monkeypatch.setattr(worker, "CAP_FALSIFICATION_REL",
+                            pathlib.Path("artifacts/__none__/c.json"))
     out = worker._tool_audit_caps()
     assert "读取能力清单失败" in out
     assert "能力清单 (" not in out, "仪器全灭时必须报失败，不能吐出看似正常的能力表"

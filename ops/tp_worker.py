@@ -300,6 +300,7 @@ def _tool_ship_api(args: dict) -> str:
 
 
 CAP_SNAPSHOT_REL = pathlib.Path("artifacts/capability_ledger/capability_ledger_resolved.json")
+CAP_FALSIFICATION_REL = pathlib.Path("artifacts/capability_falsification/capabilities.json")
 CAP_LEDGER_REL = pathlib.Path("artifacts/capability_ledger/capability_ledger.json")
 CAP_HARNESS_DEFAULT = pathlib.Path(
     "/root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json")
@@ -322,6 +323,9 @@ def _cap_sources() -> list[pathlib.Path]:
         cands.append(pathlib.Path(os.environ["TP_SHIP_HARNESS_DIR"]) / "backend/platform_harness/capabilities.json")
     cands.append(CAP_HARNESS_DEFAULT)
     cands.append(root / CAP_LEDGER_REL)
+    # 2026-11-07 m5238/W18-N09：证伪台账（21 项，含 claimed/reconciled 双列 + callable_spec）
+    # 作为兜底候选，保证本工具在其余来源缺失时仍能渲染能力清单（id 集合与上面同源）。
+    cands.append(root / CAP_FALSIFICATION_REL)
     return [p for p in cands if p.is_file()]
 
 
