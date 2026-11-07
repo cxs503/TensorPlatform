@@ -8,3 +8,4 @@ This package provides:
 
 All tools support --dry-run mode for testing without database access.
 """
+"""Chronicle tooling (IN18): report framework, provenance gate."""
