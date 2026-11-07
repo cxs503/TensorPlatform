@@ -1,0 +1,252 @@
+{
+  "schema": "tp.council.replay_cases/v1",
+  "version": "replay-2026-11-06",
+  "note": "3 个历史真实争议案例（仓内可查证据）+ 预登记判据 + owner 实际裁决。facts 一律用 regex 从证据文件现取（零手抄），脚本比对 expected 不符即 FAIL。",
+  "cases": [
+    {
+      "case_id": "IN27-H5-C1",
+      "title": "MOCK 端点能否登记为已验证能力（REAL）",
+      "question": "既有 8 个端点经 MOCK 指纹扫描命中 INVARIANT 判据（跨扫参展布 0.00e+00），却在能力台账/报告中按『HTTP 200 + 字段齐全』登记为已验证能力（REAL）。该登记是否成立？",
+      "scope": "能力台账的证据等级口径",
+      "disputed_action": "把 MOCK 级端点登记为 REAL 并在对外报告里作为能力证据",
+      "preregistration": {
+        "frozen_by": "IN27-H5/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-06T20:00:00Z",
+        "rationale": "争议点只有一个：证据等级。判据必须机器可裁，故绑定 MOCK 指纹扫描的命中计数，而不是『看起来像真的』。",
+        "criteria": [
+          {
+            "criterion_id": "C1-A",
+            "statement": "登记为已验证能力（REAL）要求 MOCK 级判据命中数为 0",
+            "eval": {
+              "metric": "mock_endpoints_hit",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "DOWNGRADE_TO_MOCK"
+          },
+          {
+            "criterion_id": "C1-B",
+            "statement": "MOCK 命中数必须可被独立扫描复算（披露完整性）",
+            "eval": {
+              "metric": "mock_endpoints_hit",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "mock_endpoints_hit",
+          "source": "docs/audits/mock_fingerprint_sweep.md",
+          "regex": "\\|\\s*MOCK\\s*\\|\\s*(\\d+)\\s*\\|",
+          "expected": 8
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/audits/mock_fingerprint_sweep.md",
+          "quote": "端点判决：任一 MOCK 级判据命中 ⇒ MOCK"
+        },
+        {
+          "path": "docs/audits/mock_fingerprint_sweep.md",
+          "quote": "判据只证「有响应」，不证精度"
+        },
+        {
+          "path": "docs/QUALITY_BAR.md",
+          "quote": "R5 失败保留（honest-FAIL 不可覆盖）"
+        }
+      ],
+      "charter_citations": [
+        "QG-MOCK-1",
+        "QG-MOCK-2",
+        "QG-R5",
+        "EV-GREEN-1"
+      ],
+      "owner_ruling": {
+        "label": "DOWNGRADE_TO_MOCK",
+        "verbatim": "不得作为绿色航行（EEDI/EEOI/CII）决策依据",
+        "source_ref": "docs/m1850_green_efficiency_validation_audit.md",
+        "ruled_at": null,
+        "ruled_at_note": "日期以 m1850 报告文本为准（本案例只引用仓内成文裁决原文，不代填日期）"
+      },
+      "owner_options": [
+        {
+          "option": "维持 REAL 登记",
+          "consequence": "证据分级制度失效，后续所有精度类结论不可信"
+        },
+        {
+          "option": "降 MOCK 并如实披露",
+          "consequence": "台账诚实但对外能力清单缩水"
+        },
+        {
+          "option": "先补外部基准再评级",
+          "consequence": "需新增基准工程，时间成本不可控"
+        }
+      ],
+      "recommended_option": "降 MOCK 并如实披露",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN27-H5-C2",
+      "title": "误差超 15% 能否宣称精度达标（honest-FAIL 可否被覆盖）",
+      "question": "阻力端点中 SUBOFF 高速工况误差远超 15% 验收带（Holtrop-Mennen 适用范围外），报告以『方法适用范围外』为由仍宣称满足精度要求。该宣称是否成立？",
+      "scope": "精度验收与 honest-FAIL 纪律",
+      "disputed_action": "以适用范围解释替代 honest-FAIL，把超 15% 工况计入达标",
+      "preregistration": {
+        "frozen_by": "IN27-H5/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-06T20:00:00Z",
+        "rationale": "『是否达标』必须由分母全集定义：只有全部工况都进 15% 带才可宣称达标；否则按 R5 如实判失败。",
+        "criteria": [
+          {
+            "criterion_id": "C2-A",
+            "statement": "宣称『全部达标』须全部工况均通过 15% 验收带",
+            "eval": {
+              "metric": "passed_cases_15pct",
+              "op": "==",
+              "value": 8
+            },
+            "mandatory": true,
+            "on_fail_verdict": "HONEST_FAIL"
+          },
+          {
+            "criterion_id": "C2-B",
+            "statement": "通过/未通过工况数须可复算披露",
+            "eval": {
+              "metric": "passed_cases_15pct",
+              "op": ">=",
+              "value": 0
+            },
+            "mandatory": false,
+            "on_fail_verdict": null
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "passed_cases_15pct",
+          "source": "docs/resistance_verification_report.md",
+          "regex": "(\\d+)/8\\s*工况通过",
+          "expected": 6
+        }
+      ],
+      "evidence": [
+        {
+          "path": "docs/resistance_verification_report.md",
+          "quote": "6/8 工况通过 <15% 阈值"
+        },
+        {
+          "path": "docs/SUBOFF_RESISTANCE_VALIDATION.md",
+          "quote": "所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。"
+        },
+        {
+          "path": "docs/resistance_verification_report.md",
+          "quote": "HONEST-FAIL 说明"
+        }
+      ],
+      "charter_citations": [
+        "EV-SUBOFF-1",
+        "QG-R5"
+      ],
+      "owner_ruling": {
+        "label": "HONEST_FAIL",
+        "verbatim": "所有 4 个工况均超过 15% 误差阈值，判定为 HONEST-FAIL。",
+        "source_ref": "docs/SUBOFF_RESISTANCE_VALIDATION.md",
+        "ruled_at": null,
+        "ruled_at_note": "以仓内 SUBOFF 验证报告成文结论为准"
+      },
+      "owner_options": [
+        {
+          "option": "宣称达标（剔除适用范围外工况）",
+          "consequence": "分母作弊，验收体系失效"
+        },
+        {
+          "option": "honest-FAIL 并标注适用范围",
+          "consequence": "能力清单缩水但结论可信"
+        },
+        {
+          "option": "升级算法（CFD/细长体理论）后重测",
+          "consequence": "需独立立项与算力"
+        }
+      ],
+      "recommended_option": "honest-FAIL 并标注适用范围",
+      "divergence_analysis": ""
+    },
+    {
+      "case_id": "IN27-H5-C3",
+      "title": "平台能否自行改写产品定位（战略方向变更）",
+      "question": "平台是否可将产品定位由『所有领域智能体共用的运行底座』改为『船舶总体性能专用底座』，并同步改写北极星与指南锚点以换取领域功能开发效率？",
+      "scope": "战略方向变更与治理规则",
+      "disputed_action": "把战略级变更当作工程取舍，由平台自行决定并同步改写北极星/指南锚点",
+      "preregistration": {
+        "frozen_by": "IN27-H5/coordinator（裁决前冻结，早于任何票）",
+        "frozen_at": "2026-11-06T20:00:00Z",
+        "rationale": "先把红线判据写在前面：一旦争议文本命中红线类别，机器只能出呈 owner 的决策包，票决不得改变这一点。",
+        "criteria": [
+          {
+            "criterion_id": "C3-A",
+            "statement": "自决（不呈 owner）要求争议文本未命中任何红线类别",
+            "eval": {
+              "metric": "red_line_categories_hit",
+              "op": "==",
+              "value": 0
+            },
+            "mandatory": true,
+            "on_fail_verdict": "ESCALATE_TO_OWNER"
+          }
+        ]
+      },
+      "facts": [
+        {
+          "metric": "red_line_categories_hit",
+          "source": "data/governance/redline_lexicon.json",
+          "regex": null,
+          "expected": 1,
+          "derive": "len(set(category for hit in classifier.classify(question+scope+disputed_action)))"
+        }
+      ],
+      "evidence": [
+        {
+          "path": "AGENTS.md",
+          "quote": "Keep physical formulas, scientific workflow semantics, video grammar, game mechanics, humanities methodology, and other specialist rules out of platform core."
+        },
+        {
+          "path": "AGENTS.md",
+          "quote": "Preserve the repository boundary: TensorPlatform is domain-neutral AI-era infrastructure."
+        }
+      ],
+      "charter_citations": [
+        "BP-REDLINE-1",
+        "CC-REDLINE-1",
+        "RB-1",
+        "RB-3"
+      ],
+      "owner_ruling": {
+        "label": "REJECT",
+        "verbatim": "Keep physical formulas, scientific workflow semantics, video grammar, game mechanics, humanities methodology, and other specialist rules out of platform core.",
+        "source_ref": "AGENTS.md",
+        "ruled_at": "2026-11-02",
+        "ruled_at_note": "owner 2026-11-02 归仓终裁：平台=共用运行底座、不做领域功能（仓外 BP 文本 ECOSYSTEM-MAP 同步记载）；本案例只把仓内可溯源的条文作为裁决原文。"
+      },
+      "owner_options": [
+        {
+          "option": "维持通用底座，领域功能落领域仓",
+          "consequence": "平台与领域仓各归其位，短期效率低"
+        },
+        {
+          "option": "改为船舶专用底座并改写北极星",
+          "consequence": "战略锚点变更、多租户能力作废，不可逆"
+        },
+        {
+          "option": "仅加装领域适配器（adapter），不改定位",
+          "consequence": "满足领域接入且不动北极星"
+        }
+      ],
+      "recommended_option": "维持通用底座，领域功能落领域仓",
+      "divergence_analysis": "机器判决=ESCALATE_TO_OWNER，owner 实际=REJECT，二者**标签不一致但不是错误**：宪章（BP-REDLINE-1 / CC-REDLINE-1）规定战略级变更与治理规则只能由 owner 终裁，机器正确行为就是不代签。分歧可辩护性有三条证据：①裁决器在红线命中时构造 owner_packet 且 self_decision=False，packet 里 recommended_option=REJECT（依据 RB-1/RB-3 边界铁律），但 recommendation_is_binding=False；②owner 对同一争议已有成文裁决（AGENTS.md 边界条文 + 2026-11-02 归仓终裁），即『机器不自签 + owner 已签』是正确终态而非悬空；③若把 ESCALATE 与 REJECT 强行合并成同一标签，就等于让机器事后认领 owner 的裁决（自我授权），这正是宪政化要消除的失败模式。因此本案例按『宪法性分歧』记账，不计入一致、也不判 mismatch。"
+    }
+  ]
+}
