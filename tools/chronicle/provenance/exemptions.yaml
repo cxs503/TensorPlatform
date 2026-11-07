@@ -1,0 +1,27 @@
+# Machine-auditable exemption rules for full-text numeric provenance (W18-N10).
+#
+# Contract: each rule is {rule_id, exact_regex, reason, hash}.  hash is the
+# sha256 over the canonical (rule_id|exact_regex|reason) triple, computed by
+# tools.chronicle.provenance.tokens.rule_hash.  The loader recomputes the hash
+# and REJECTS any rule whose hash does not verify (EXEMPTION_HASH_MISMATCH),
+# so a rule cannot be widened silently.  A token is exempted only when its
+# contextual raw (immediately preceding label word + raw) fullmatches the
+# regex.  Exemption rate must stay < 5% of all tokens (gate: EXEMPTION_RATE_HIGH).
+schema: chronicle-provenance-exemptions/1
+rules:
+- rule_id: EX-001
+  exact_regex: ^(?:表|图|式|附录|章节|第|Figure|Fig\.|Table|Section|§|Eq\.?)\s*\(?\s*\d+(?:\.\d+)?(?:\s*[\u2013\u2014\-]\s*\d+)?\s*\)?$
+  reason: structural cross-reference label (table/figure/equation/section), not a measured value
+  hash: sha256:d35b688d9bc6c10fed3fcd0bf87fb0626da399f9afb42a518d3e7dd1a72046fe
+- rule_id: EX-002
+  exact_regex: ^\d{4}[-/]\d{1,2}[-/]\d{1,2}$
+  reason: calendar date, not a measurement
+  hash: sha256:2d509dbcf18ba2047dbf72bf6622445f1aff8cebeaa024c2d5c797e7ab1d88d2
+- rule_id: EX-003
+  exact_regex: ^[+]?\d{1,2}:\d{2}$
+  reason: clock time-of-day, not a measurement
+  hash: sha256:7f8f8a3c763a776a7085a8c9f2ac39ec0d6d91355e68d618fcee89c875c56bb1
+- rule_id: EX-004
+  exact_regex: ^\d+(?:\.\d+)+$
+  reason: dotted version/coordinate identifier, not a measurement
+  hash: sha256:203f2248e244e2547337bc6a86790990944c6ec81de49495ea3d48c36986b623
