@@ -1,0 +1,132 @@
+{
+  "schema": "tp.boundary.pr_gate_calibration/v1",
+  "version": "1.0.0",
+  "note": "边界门校准语料。git 类用例=对本仓已并入 PR 复判（判据要求 2 红 5 绿）；synthetic 类用例=用合成词条（zorbium/blorf-/龘）验证机制，词条本身不具领域语义，因此本文件放进 data/ 不会污染平台代码。合成用例只覆盖 terms/advisory_terms/exempt_compounds，路径域策略一律继承真实词表（保证测的是真策略）。",
+  "criteria": {
+    "pr_must_fail": ["608", "610"],
+    "pr_must_pass": ["611", "612", "613", "618", "619"],
+    "mechanism_must": [
+      "synthetic-code-path-hit-fails",
+      "synthetic-forged-code-in-whitelist-fails",
+      "synthetic-observation-data-passes",
+      "synthetic-dash-prefix-exempt-compound-passes",
+      "synthetic-dash-prefix-plain-fails",
+      "synthetic-word-boundary-no-false-positive",
+      "synthetic-removed-line-ignored",
+      "synthetic-cjk-substring-fails"
+    ]
+  },
+  "synthetic_lexicon_overrides": {
+    "terms": [
+      {"id": "probe_word", "kind": "word", "values": ["zorbium"], "gloss": "合成探针词（无领域语义）"},
+      {"id": "probe_dash_prefix", "kind": "dash_prefix", "values": ["blorf-"], "gloss": "合成连字符前缀（无领域语义）"},
+      {"id": "probe_cjk", "kind": "substring", "values": ["龘"], "gloss": "合成 CJK 子串（无领域语义）"}
+    ],
+    "advisory_terms": [
+      {"id": "probe_advisory", "kind": "word", "values": ["gronk"], "gloss": "合成弱词（不阻断）"}
+    ],
+    "exempt_compounds": ["blorf-platform"]
+  },
+  "cases": [
+    {"id": "pr-608", "mode": "git", "merge": "9bf3d947", "expect": "FAIL",
+     "note": "负例1：历史 PR 把域测试写进 tests/（须判红）"},
+    {"id": "pr-610", "mode": "git", "merge": "fddf5413", "expect": "FAIL",
+     "note": "负例2：历史 PR 把域算例写进 tools/（须判红）"},
+    {"id": "pr-611", "mode": "git", "merge": "f9e68b02", "expect": "PASS", "note": "正例1"},
+    {"id": "pr-612", "mode": "git", "merge": "89b5ff83", "expect": "PASS",
+     "note": "正例2：含专有名词复合名引用，须豁免放行"},
+    {"id": "pr-613", "mode": "git", "merge": "39aeaf57", "expect": "PASS", "note": "正例3"},
+    {"id": "pr-618", "mode": "git", "merge": "ecf73e04", "expect": "PASS", "note": "正例4"},
+    {"id": "pr-619", "mode": "git", "merge": "46e8f9ed", "expect": "PASS",
+     "note": "正例5：仅弱词（advisory），不阻断"},
+
+    {"id": "synthetic-code-path-hit-fails", "mode": "synthetic", "expect": "FAIL",
+     "diff_lines": [
+       "diff --git a/tools/probe/mod.py b/tools/probe/mod.py",
+       "new file mode 100644",
+       "index 0000000..1111111",
+       "--- /dev/null",
+       "+++ b/tools/probe/mod.py",
+       "@@ -0,0 +1,2 @@",
+       "+# probe fixture",
+       "+VALUE = \"zorbium\""
+     ]},
+    {"id": "synthetic-forged-code-in-whitelist-fails", "mode": "synthetic", "expect": "FAIL",
+     "note": "白名单路径伪造域代码：docs/reports/ 下的 .py 仍按代码扫描",
+     "diff_lines": [
+       "diff --git a/docs/reports/probe_forged.py b/docs/reports/probe_forged.py",
+       "new file mode 100644",
+       "index 0000000..2222222",
+       "--- /dev/null",
+       "+++ b/docs/reports/probe_forged.py",
+       "@@ -0,0 +1,1 @@",
+       "+MAGIC = \"zorbium\""
+     ]},
+    {"id": "synthetic-observation-data-passes", "mode": "synthetic", "expect": "PASS",
+     "note": "同词条落在白名单观察数据（.md）里应放行",
+     "diff_lines": [
+       "diff --git a/docs/reports/probe_obs.md b/docs/reports/probe_obs.md",
+       "new file mode 100644",
+       "index 0000000..3333333",
+       "--- /dev/null",
+       "+++ b/docs/reports/probe_obs.md",
+       "@@ -0,0 +1,1 @@",
+       "+probe observation: zorbium at 14 kn"
+     ]},
+    {"id": "synthetic-dash-prefix-exempt-compound-passes", "mode": "synthetic", "expect": "PASS",
+     "note": "专有名词整复合名（blorf-platform）豁免，命中留痕进 exempted",
+     "expect_exempted_min": 1,
+     "diff_lines": [
+       "diff --git a/tools/probe/refs.py b/tools/probe/refs.py",
+       "new file mode 100644",
+       "index 0000000..4444444",
+       "--- /dev/null",
+       "+++ b/tools/probe/refs.py",
+       "@@ -0,0 +1,1 @@",
+       "+REPO = \"blorf-platform\""
+     ]},
+    {"id": "synthetic-dash-prefix-plain-fails", "mode": "synthetic", "expect": "FAIL",
+     "note": "非豁免连字符复合名仍判红",
+     "diff_lines": [
+       "diff --git a/tools/probe/refs2.py b/tools/probe/refs2.py",
+       "new file mode 100644",
+       "index 0000000..5555555",
+       "--- /dev/null",
+       "+++ b/tools/probe/refs2.py",
+       "@@ -0,0 +1,1 @@",
+       "+CACHE = \"blorf-cache\""
+     ]},
+    {"id": "synthetic-word-boundary-no-false-positive", "mode": "synthetic", "expect": "PASS",
+     "note": "词边界：zorbiums / xzorbium 不是 zorbium",
+     "diff_lines": [
+       "diff --git a/tools/probe/boundary.py b/tools/probe/boundary.py",
+       "new file mode 100644",
+       "index 0000000..6666666",
+       "--- /dev/null",
+       "+++ b/tools/probe/boundary.py",
+       "@@ -0,0 +1,1 @@",
+       "+NAMES = [\"zorbiums\", \"xzorbium\"]"
+     ]},
+    {"id": "synthetic-removed-line-ignored", "mode": "synthetic", "expect": "PASS",
+     "note": "只判加行：删除域词是治理成果，不判红",
+     "diff_lines": [
+       "diff --git a/tools/probe/cleanup.py b/tools/probe/cleanup.py",
+       "--- a/tools/probe/cleanup.py",
+       "+++ b/tools/probe/cleanup.py",
+       "@@ -1,1 +1,1 @@",
+       "-# VALUE = \"zorbium\"",
+       "+# VALUE = \"ok\""
+     ]},
+    {"id": "synthetic-cjk-substring-fails", "mode": "synthetic", "expect": "FAIL",
+     "note": "无词边界语言按子串判",
+     "diff_lines": [
+       "diff --git a/backend/probe/cjk.py b/backend/probe/cjk.py",
+       "new file mode 100644",
+       "index 0000000..7777777",
+       "--- /dev/null",
+       "+++ b/backend/probe/cjk.py",
+       "@@ -0,0 +1,1 @@",
+       "+LABEL = \"龘龘\""
+     ]}
+  ]
+}
