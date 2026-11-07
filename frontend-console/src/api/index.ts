@@ -102,6 +102,14 @@ export const capabilityApi = {
   summary: () => http.get<any>('/tensor/capability/summary'),
 }
 
+// ── four centers (PR-10 首期最小视图：单一真值载荷，metrics[] 每项带 SQL 口径) ──
+export const centersApi = {
+  organization: () => http.get<any>('/tensor/centers/organization'),
+  quality: () => http.get<any>('/tensor/centers/quality'),
+  capability: () => http.get<any>('/tensor/centers/capability'),
+  innovation: () => http.get<any>('/tensor/centers/innovation'),
+}
+
 // ── paper production line (TensorPapers registry + paper-* missions) ──
 export const paperApi = {
   line: () => http.get<any>('/tensor/papers/line'),
