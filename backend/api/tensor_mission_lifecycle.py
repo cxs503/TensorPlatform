@@ -425,6 +425,22 @@ def write_off_mission(
          })},
     )
     db.commit()
+
+    # IN59-A4：failed 终态自动收割 postmortem（best-effort；已提交事务不受影响，
+    # 收割失败绝不让结算失败；TP_POSTMORTEM_AUTOHARVEST=0 可关断）。
+    postmortem_receipt = None
+    if row["status"] == "failed":
+        try:
+            from services.failure_postmortem_service import (
+                auto_harvest_after_failure,
+                record_hook_receipt,
+            )
+
+            postmortem_receipt = auto_harvest_after_failure(db, mission_id)
+            record_hook_receipt(db, mission_id, postmortem_receipt)
+        except Exception as exc:  # noqa: BLE001 - 结算钩子不得因收割失败而 500
+            postmortem_receipt = {"status": "error", "error": str(exc)[:200]}
+
     return {
         "id": mission_id,
         "status": row["status"],
@@ -433,6 +449,7 @@ def write_off_mission(
         "report_owed": report_owed,
         "worktree_recyclable": True,
         "budget_used": budget_used,
+        "postmortem": postmortem_receipt,
         "message": "Write-off complete. Claim invalidated. Worktree recyclable.",
     }
 
