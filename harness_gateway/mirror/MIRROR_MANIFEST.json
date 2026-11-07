@@ -1,0 +1,130 @@
+{
+  "schema": "harness-gateway/mirror-manifest/1",
+  "created_at": "2026-11-07T10:08:41Z",
+  "staged_patch_units": [
+    "saturation_regulator"
+  ],
+  "src_root": "/root/tp-agent",
+  "mirror_root": "harness_gateway/mirror",
+  "units": [
+    {
+      "name": "campaign_dispatcher",
+      "role": "dispatcher",
+      "relpath": "campaign_dispatcher.py",
+      "canary": "symbol_probe",
+      "source_sha256": "e320572088d8bd4cccf68adeba4eaedd1cd7579560eb7b0e4069677a0deaf52b",
+      "mirror_sha256": "e320572088d8bd4cccf68adeba4eaedd1cd7579560eb7b0e4069677a0deaf52b",
+      "source_bytes": 45975,
+      "mirror_bytes": 45975,
+      "redactions": [],
+      "staged_patch": false
+    },
+    {
+      "name": "tp_worker",
+      "role": "worker",
+      "relpath": "tp_worker.py",
+      "canary": "symbol_probe",
+      "source_sha256": "0d5676247809ac192a488c295fedd8f888bb7dd05e93f84713eeec792f78cd0a",
+      "mirror_sha256": "0d5676247809ac192a488c295fedd8f888bb7dd05e93f84713eeec792f78cd0a",
+      "source_bytes": 54037,
+      "mirror_bytes": 54037,
+      "redactions": [],
+      "staged_patch": false
+    },
+    {
+      "name": "chronicle_clock",
+      "role": "daemon",
+      "relpath": "chronicle_clock_once.py",
+      "canary": "exec_dry_run",
+      "source_sha256": "e40d7ef55043025d4076023239a9f7192f1373ea263b168dfd26e54e81f8d162",
+      "mirror_sha256": "e40d7ef55043025d4076023239a9f7192f1373ea263b168dfd26e54e81f8d162",
+      "source_bytes": 5472,
+      "mirror_bytes": 5472,
+      "redactions": [],
+      "staged_patch": false
+    },
+    {
+      "name": "saturation_regulator",
+      "role": "daemon",
+      "relpath": "saturation_regulator_loop_once.py",
+      "canary": "exec_dry_run",
+      "source_sha256": "fab2028848896d31c02c6f46c5f5ed976fc976f50ad70055976f73b191756f87",
+      "mirror_sha256": "743cabe54fe8305746b69ee8a3897575bb6bc0bc6e70d0d96f2f04ec394d51c0",
+      "source_bytes": 1514,
+      "mirror_bytes": 2370,
+      "redactions": [
+        {
+          "pattern": "pgpassword_literal",
+          "line": 4,
+          "placeholder": "PGPASSWORD\": \"<REDACTED:pgpassword_literal>",
+          "preview": "uG***"
+        }
+      ],
+      "staged_patch": true
+    },
+    {
+      "name": "coordinator_shadow",
+      "role": "daemon",
+      "relpath": "coordinator_shadow.py",
+      "canary": "symbol_probe",
+      "source_sha256": "996cb3a938832941430ab032437a4b856bc521eecb21ab4c91e3bb8a82852236",
+      "mirror_sha256": "996cb3a938832941430ab032437a4b856bc521eecb21ab4c91e3bb8a82852236",
+      "source_bytes": 5912,
+      "mirror_bytes": 5912,
+      "redactions": [],
+      "staged_patch": false
+    },
+    {
+      "name": "report_watch",
+      "role": "daemon",
+      "relpath": "report_watch.py",
+      "canary": "symbol_probe",
+      "source_sha256": "b43ad7c219f156090daea2eecf17364703b3fffafcb8b22fac2c39a843447e42",
+      "mirror_sha256": "ba31187d9ea4ae83c251b3fafaac2ef0e93d08bc67d1b1e3f0e511c372bb6b90",
+      "source_bytes": 7426,
+      "mirror_bytes": 7423,
+      "redactions": [
+        {
+          "pattern": "pgpassword_literal",
+          "line": 15,
+          "placeholder": "PGPASSWORD\": \"<REDACTED:pgpassword_literal>",
+          "preview": "uG***"
+        }
+      ],
+      "staged_patch": false
+    },
+    {
+      "name": "wave_cycle",
+      "role": "daemon",
+      "relpath": "wave_cycle.py",
+      "canary": "symbol_probe",
+      "source_sha256": "b3dc16ada094888393729657aa3af1f50600e92a27863a2310a2baea05a933bd",
+      "mirror_sha256": "7ed7fb756a0a62e951612e725071c3d533db12f41eaf2dfad1892ba4ff9e51ca",
+      "source_bytes": 18687,
+      "mirror_bytes": 18684,
+      "redactions": [
+        {
+          "pattern": "env_default_secret",
+          "line": 11,
+          "placeholder": "TP_PG_PASSWORD\", \"<REDACTED:env_default_secret>",
+          "preview": "uG***"
+        }
+      ],
+      "staged_patch": false
+    },
+    {
+      "name": "credit_settler",
+      "role": "daemon",
+      "relpath": "credit_settler_loop.py",
+      "canary": "symbol_probe",
+      "source_sha256": "a702bc8cd98d4270a3629b807aeccfdd4a5c5d881db7aafd054a7047daf895ea",
+      "mirror_sha256": "a702bc8cd98d4270a3629b807aeccfdd4a5c5d881db7aafd054a7047daf895ea",
+      "source_bytes": 2900,
+      "mirror_bytes": 2900,
+      "redactions": [],
+      "staged_patch": false
+    }
+  ],
+  "unit_count": 8,
+  "redaction_total": 3
+}

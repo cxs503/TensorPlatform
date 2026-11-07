@@ -1,0 +1,14 @@
+{
+  "label": "NC1-syntax-error-injection",
+  "author": "m5306/IN27-H2 red-team",
+  "rationale": "红队负例①：把完好的语句改成括号未闭合 —— 必须被 py_compile 编译门拦住，并由回滚门字节级复原。",
+  "replacements": [
+    {
+      "file": "saturation_regulator_loop_once.py",
+      "note": "injected: unclosed parenthesis",
+      "old": "idle = max(0, online - busy)\n",
+      "new": "idle = max(0, online - busy\n",
+      "count": 1
+    }
+  ]
+}
