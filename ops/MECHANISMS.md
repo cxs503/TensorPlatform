@@ -101,3 +101,18 @@
   健康态负例 0 误报；`tests/test_stall_detector_in20_r5.py` 16 项。
 - 纪律：只读台账 + hash 链审计 + `--rollback` 清闸闩；动作 dry/live 分离，
   dry 只探活不改系统（「不动作」≠「不检查」）。
+
+## 自主续航验收门（IN20-G21）
+
+`tools/autonomy/acceptance.py`：把 R1–R7 的机制替身装进同一条时间线真跑一遍，产出
+`artifacts/autonomy_acceptance/autonomy_acceptance.json`（六条判据 + 证据 sha256）。判据：
+
+- C1 补给器停摆回放自动触发（真 Postgres 沙箱库，真 INSERT + 真回滚）
+- C2a 放门自动化真释放 + 幂等 + 回滚（可丢弃 schema，纯函数离线复算审计）
+- C2b 合并自动化真合并 1 例 PR（审计链哈希 + git ancestry 双验）
+- C3 propose 通道积压 stuck=0（宽限内在途不计）
+- C4 退出仪表盘三指标基线（全 REAL + chronicle 快照）
+- C5 垫池四单终态 + 能力增减账本入账
+
+聚合规则：**WITHHELD 不得当 PASS**（沙箱/DB 不可达 → 整体不通过）。复跑：
+`python3 -m tools.autonomy.acceptance && python3 -m pytest -q tests/test_autonomy_acceptance_gate.py`。
