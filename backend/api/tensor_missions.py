@@ -15,6 +15,7 @@ decided by ADMIN through the shared approval queue (kind=dev_acceptance).
 from __future__ import annotations
 
 import json
+import logging
 import os
 import re
 import uuid
@@ -915,6 +916,15 @@ def complete_mission(
             text("UPDATE tensor_agent_sessions SET status=:st, closed_at=now() WHERE id=:sid"),
             {"st": session_status, "sid": row["session_id"]},
         )
+    # AOG SPEC §7.1：succeeded mission 完结即生成待评价记录（S×E 记录流入口）。
+    # 表缺失/迁移未上时只告警，绝不阻断完结主流程（fail-open）。
+    if body.status == "succeeded":
+        try:
+            from api.outcome_evaluations import ensure_pending_for_mission, ensure_schema
+            ensure_schema(db)
+            ensure_pending_for_mission(db, mission)
+        except Exception as _exc:  # pragma: no cover - 部署面兜底
+            logging.getLogger(__name__).warning("outcome_evaluations pending record skipped: %s", _exc)
     db.commit()
     return {"id": mission_id, "status": body.status, "approval_id": None,
             "report_owed": report_owed}
