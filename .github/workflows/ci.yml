@@ -195,6 +195,18 @@ jobs:
         run: python -m pip install --upgrade pip && pip install pytest
       - name: Gate logic unit tests (red and green fixtures)
         run: python -m pytest -q tests/test_boundary_gates.py
+      - name: Adversarial recall measurement (corpus + criteria)
+        # Measures the gates' recall on a synthetic-vocabulary adversarial corpus
+        # and fails if recall < 95 %, a miss lacks a root cause, or a known
+        # control case stops being detected.
+        run: python -m pytest -q tests/test_boundary_gate_recall.py
+      - name: Adversarial recall report
+        continue-on-error: true
+        run: |
+          python tools/audit/boundary_gate_recall.py \
+            --no-live --no-figures \
+            --json-out artifacts/boundary_gate_recall/recall_report.json \
+            --markdown-out docs/reports/boundary_gate_recall.md
       - name: Boundary gate baseline snapshot
         # No API container runs in this job, so the G2 endpoint-vocabulary gate
         # reports WITHHELD; that is written into the JSON baseline rather than
@@ -212,5 +224,7 @@ jobs:
           name: boundary-gates-baseline
           path: |
             artifacts/boundary_gates/
+            artifacts/boundary_gate_recall/
             docs/audit/boundary_gates_baseline.ci.md
+            docs/reports/boundary_gate_recall.md
           if-no-files-found: warn

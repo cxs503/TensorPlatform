@@ -136,7 +136,11 @@ def _token_matches(segment: str, token: str) -> bool:
     return False
 
 
-def _ship_import_hit(module: str, names: Sequence[str]) -> Optional[tuple[str, str]]:
+def _ship_import_hit(
+    module: str,
+    names: Sequence[str],
+    tokens: Optional[Sequence[str]] = None,
+) -> Optional[tuple[str, str]]:
     """Return ``(matched_segment, matched_token)`` for a module+names spec."""
     candidates: List[str] = []
     if module:
@@ -148,16 +152,25 @@ def _ship_import_hit(module: str, names: Sequence[str]) -> Optional[tuple[str, s
         candidates.extend(names)
     for candidate in candidates:
         for segment in str(candidate).split("."):
-            for token in SHIP_IMPORT_TOKENS:
+            for token in (tokens or SHIP_IMPORT_TOKENS):
                 if _token_matches(segment, token):
                     return segment, token
     return None
 
 
 def collect_surface(
-    repo_root: Path, extra_files: Iterable[str] = ()
+    repo_root: Path,
+    extra_files: Iterable[str] = (),
+    surface_globs: Optional[Sequence[str]] = None,
 ) -> tuple[List[Path], List[str], List[str]]:
-    """Resolve the core surface to concrete ``*.py`` files under ``repo_root``."""
+    """Resolve the core surface to concrete ``*.py`` files under ``repo_root``.
+
+    ``surface_globs`` extends the closed whitelist (``CORE_SURFACE_FILES`` +
+    ``CORE_SURFACE_DIRS``) with glob-discovered files such as
+    ``backend/services/*.py``.  Without it a violation planted in a file nobody
+    enumerated is simply invisible, which is a *coverage* blind spot rather than
+    a detection blind spot; the glob is operator data, not detection logic.
+    """
     files: List[Path] = []
     missing: List[str] = []
     seen: set[str] = set()
@@ -182,6 +195,15 @@ def collect_surface(
             if rel not in seen:
                 seen.add(rel)
                 files.append(path)
+
+    for pattern in surface_globs or ():
+        for path in sorted(repo_root.glob(pattern)):
+            if not path.is_file() or path.suffix != ".py":
+                continue
+            rel = path.relative_to(repo_root).as_posix()
+            if rel not in seen:
+                seen.add(rel)
+                files.append(path)
     return files, missing, sorted(seen)
 
 
@@ -193,12 +215,165 @@ def _self_path() -> Path:
 # G1 — import boundary gate
 # ---------------------------------------------------------------------------
 
+#: Functions whose first argument is a module path (runtime import forms).
+DYNAMIC_IMPORT_FUNCS: tuple[str, ...] = ("import_module", "__import__")
+
+
+def _call_name(func: ast.AST) -> str:
+    """``importlib.import_module`` -> ``import_module``; ``__import__`` -> itself."""
+    if isinstance(func, ast.Name):
+        return func.id
+    if isinstance(func, ast.Attribute):
+        return func.attr
+    return ""
+
+
+def _fold_str(node: Optional[ast.AST], table: Dict[str, str]) -> tuple[str, bool]:
+    """Fold a constant string expression to ``(text, fully_resolved)``.
+
+    Handles string literals, module-level ``NAME = "..."`` assignments, ``+``
+    concatenation and f-strings whose placeholders are literals.  A partially
+    known f-string returns its literal parts with ``resolved`` False so the
+    token matcher still sees the visible half of the path.
+    """
+    if node is None:
+        return "", False
+    if isinstance(node, ast.Constant):
+        if isinstance(node.value, str):
+            return node.value, True
+        return "", False
+    if isinstance(node, ast.Name):
+        if node.id in table:
+            return table[node.id], True
+        return "", False
+    if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Add):
+        left, left_ok = _fold_str(node.left, table)
+        right, right_ok = _fold_str(node.right, table)
+        return left + right, left_ok and right_ok
+    if isinstance(node, ast.JoinedStr):
+        parts: List[str] = []
+        resolved = True
+        for value in node.values:
+            if isinstance(value, ast.Constant) and isinstance(value.value, str):
+                parts.append(value.value)
+                continue
+            literal, ok = _fold_str(getattr(value, "value", None), table)
+            parts.append(literal)
+            resolved = resolved and ok
+        return "".join(parts), resolved
+    return "", False
+
+
+def _string_assignment_table(tree: ast.AST) -> Dict[str, str]:
+    """Module-level ``NAME = <foldable string>`` lookup for indirect imports."""
+    table: Dict[str, str] = {}
+    body = getattr(tree, "body", [])
+    for node in body:
+        if not isinstance(node, ast.Assign) or len(node.targets) != 1:
+            continue
+        target = node.targets[0]
+        if not isinstance(target, ast.Name):
+            continue
+        folded, ok = _fold_str(node.value, table)
+        if ok and folded:
+            table[target.id] = folded
+    return table
+
+
+def _import_machinery_aliases(tree: ast.AST) -> set[str]:
+    """Local names bound to the import machinery (``from importlib import ... as im``)."""
+    aliases: set[str] = set(DYNAMIC_IMPORT_FUNCS)
+    for node in ast.walk(tree):
+        if isinstance(node, ast.ImportFrom):
+            module = node.module or ""
+            if not (module == "importlib" or module.endswith(".importlib")):
+                continue
+            for alias in node.names:
+                if alias.name in DYNAMIC_IMPORT_FUNCS:
+                    aliases.add(alias.asname or alias.name)
+        elif isinstance(node, ast.Assign) and isinstance(node.value, ast.Attribute):
+            if node.value.attr not in DYNAMIC_IMPORT_FUNCS:
+                continue
+            for target in node.targets:
+                if isinstance(target, ast.Name):
+                    aliases.add(target.id)
+    return aliases
+
+
+def _call_argument(node: ast.Call) -> Optional[ast.AST]:
+    """First positional argument, else a known keyword (``name=``/``module=``/``path=``)."""
+    if node.args:
+        return node.args[0]
+    for keyword in node.keywords:
+        if keyword.arg in ("name", "module", "path"):
+            return keyword.value
+    return None
+
+
+def _dynamic_import_calls(tree: ast.AST) -> List[Dict[str, Any]]:
+    """Every runtime import call site with its (partially) folded target."""
+    table = _string_assignment_table(tree)
+    aliases = _import_machinery_aliases(tree)
+    calls: List[Dict[str, Any]] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        name = _call_name(node.func)
+        if isinstance(node.func, ast.Call) and _call_name(node.func.func) == "getattr":
+            # ``getattr(importlib, 'import_module')(...)`` -- machinery fetched by name
+            if len(node.func.args) > 1:
+                attr_name, _ok = _fold_str(node.func.args[1], table)
+                if attr_name in aliases:
+                    name = attr_name
+        if name not in aliases:
+            continue
+        target, resolved = _fold_str(_call_argument(node), table)
+        calls.append(
+            {
+                "line": node.lineno,
+                "callee": name,
+                "target": target or None,
+                "resolved": bool(resolved and target),
+                "source": ast.unparse(node)[:200],
+            }
+        )
+    return calls
+
+
+#: Functions whose first argument is *code* rather than a module path.
+DYNAMIC_EXEC_FUNCS: tuple[str, ...] = ("exec", "eval", "compile")
+
+
+def _dynamic_exec_calls(tree: ast.AST) -> List[Dict[str, Any]]:
+    """``exec``/``eval``/``compile`` calls whose source text (partially) folds."""
+    table = _string_assignment_table(tree)
+    calls: List[Dict[str, Any]] = []
+    for node in ast.walk(tree):
+        if not isinstance(node, ast.Call):
+            continue
+        if _call_name(node.func) not in DYNAMIC_EXEC_FUNCS:
+            continue
+        text, resolved = _fold_str(_call_argument(node), table)
+        if not text:
+            continue
+        calls.append({"line": node.lineno, "callee": _call_name(node.func),
+                      "text": text, "resolved": resolved})
+    return calls
+
+
 def gate_g1_imports(
-    repo_root: Path, extra_files: Iterable[str] = ()
+    repo_root: Path,
+    extra_files: Iterable[str] = (),
+    *,
+    tokens: Optional[Sequence[str]] = None,
+    dynamic_imports: bool = True,
+    surface_globs: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
-    files, missing, surface_rel = collect_surface(repo_root, extra_files)
+    tokens = tuple(tokens or SHIP_IMPORT_TOKENS)
+    files, missing, surface_rel = collect_surface(repo_root, extra_files, surface_globs)
     violations: List[Dict[str, Any]] = []
     parse_errors: List[Dict[str, Any]] = []
+    advisories: List[Dict[str, Any]] = []
     self_file = _self_path()
     scanned = 0
 
@@ -214,10 +389,53 @@ def gate_g1_imports(
             parse_errors.append({"file": rel, "error": str(exc)})
             continue
 
+        if dynamic_imports:
+            for call in _dynamic_import_calls(tree):
+                hit = _ship_import_hit(call["target"] or "", (), tokens)
+                if hit:
+                    violations.append(
+                        {
+                            "file": rel,
+                            "line": call["line"],
+                            "kind": "dynamic-import",
+                            "module": call["target"],
+                            "callee": call["callee"],
+                            "resolved": call["resolved"],
+                            "matched_segment": hit[0],
+                            "matched_token": hit[1],
+                            "source": call["source"],
+                        }
+                    )
+                elif not call["resolved"]:
+                    advisories.append(
+                        {
+                            "file": rel,
+                            "line": call["line"],
+                            "kind": "dynamic-import-opaque",
+                            "callee": call["callee"],
+                            "source": call["source"],
+                            "note": "module path cannot be folded; leak not machine-checkable",
+                        }
+                    )
+            for call in _dynamic_exec_calls(tree):
+                matched = [tok for tok in tokens if _token_matches(call["text"], tok)]
+                if not matched:
+                    continue
+                violations.append(
+                    {
+                        "file": rel,
+                        "line": call["line"],
+                        "kind": "dynamic-exec",
+                        "callee": call["callee"],
+                        "matched_token": matched[0],
+                        "source": call["text"][:200],
+                    }
+                )
+
         for node in ast.walk(tree):
             if isinstance(node, ast.Import):
                 for alias in node.names:
-                    hit = _ship_import_hit(alias.name, ())
+                    hit = _ship_import_hit(alias.name, (), tokens)
                     if hit:
                         violations.append(
                             {
@@ -235,7 +453,7 @@ def gate_g1_imports(
                 names = [alias.name for alias in node.names]
                 # ``from . import ship_x`` inside a package resolves via module='';
                 # the alias names themselves are then the candidates.
-                hit = _ship_import_hit(module, names)
+                hit = _ship_import_hit(module, names, tokens)
                 if hit:
                     violations.append(
                         {
@@ -257,10 +475,13 @@ def gate_g1_imports(
         "files_scanned": scanned,
         "surface": surface_rel,
         "missing_surface": missing,
-        "tokens": list(SHIP_IMPORT_TOKENS),
+        "tokens": list(tokens),
+        "surface_globs": list(surface_globs or ()),
+        "dynamic_imports_enabled": bool(dynamic_imports),
         "count": len(violations),
         "status": "red" if violations else "green",
         "violations": violations,
+        "advisories": advisories,
         "parse_errors": parse_errors,
     }
 
@@ -304,27 +525,153 @@ def load_openapi(
         }
 
 
+#: Operation-document fields that are published in the live OpenAPI document.
+VOCAB_METADATA_FIELDS: tuple[str, ...] = (
+    "tags",
+    "summary",
+    "description",
+    "operationId",
+    "parameters",
+)
+
+#: Document-level fields (outside ``paths``) that are published as well.
+VOCAB_DOCUMENT_FIELDS: tuple[str, ...] = ("title", "description", "summary")
+
+
+def normalise_vocab(text: Any) -> str:
+    """Case-fold and strip separators so ``sea-keeping``/``sea_keeping``/``seakeep`` agree."""
+    return re.sub(r"[\s_\-/.]+", "", str(text)).lower()
+
+
+class VocabMatcher:
+    """Match a vocabulary alternation against text, with optional normalisation."""
+
+    def __init__(self, pattern: str, normalize_separators: bool = True) -> None:
+        self.pattern = pattern
+        self.normalize_separators = normalize_separators
+        self.tokens = [token for token in pattern.split("|") if token]
+        self.regex = re.compile(pattern, re.IGNORECASE)
+
+    def search(self, text: Any) -> Optional[str]:
+        if not self.normalize_separators:
+            match = self.regex.search(str(text))
+            return match.group(0).lower() if match else None
+        haystack = normalise_vocab(text)
+        for token in self.tokens:
+            needle = normalise_vocab(token)
+            if needle and needle in haystack:
+                return token.lower()
+        return None
+
+
+def _metadata_items(value: Any) -> List[Any]:
+    """Flatten a metadata field into the strings that actually get published."""
+    items = value if isinstance(value, list) else [value]
+    flat: List[Any] = []
+    for item in items:
+        if isinstance(item, dict):
+            # OpenAPI nests publishable names one level down (parameter.name,
+            # tag.name, tag.description ...).
+            for key in ("name", "description", "summary"):
+                if key in item:
+                    flat.append(item[key])
+        elif item is not None:
+            flat.append(item)
+    return flat
+
+
+def _gate_g2_metadata_hits(path: str, operations: Dict[str, Any], matcher: VocabMatcher):
+    hits: List[Dict[str, Any]] = []
+    for method, operation in sorted(operations.items()):
+        if method.lower() not in HTTP_METHODS or not isinstance(operation, dict):
+            continue
+        for field in VOCAB_METADATA_FIELDS:
+            if field not in operation:
+                continue
+            for item in _metadata_items(operation[field]):
+                token = matcher.search(item)
+                if token:
+                    hits.append(
+                        {
+                            "path": path,
+                            "method": method.upper(),
+                            "field": field,
+                            "value": str(item)[:120],
+                            "matched_token": token,
+                        }
+                    )
+    return hits
+
+
+def _gate_g2_document_hits(doc: Dict[str, Any], matcher: VocabMatcher):
+    """Document-level metadata (``info.title`` etc.) is published vocabulary too."""
+    hits: List[Dict[str, Any]] = []
+    info = doc.get("info") or {}
+    for field in VOCAB_DOCUMENT_FIELDS:
+        if field not in info:
+            continue
+        token = matcher.search(info[field])
+        if token:
+            hits.append(
+                {
+                    "path": "<document>",
+                    "method": "-",
+                    "field": f"info.{field}",
+                    "value": str(info[field])[:120],
+                    "matched_token": token,
+                }
+            )
+    for tag in doc.get("tags") or []:
+        if not isinstance(tag, dict):
+            continue
+        for item in _metadata_items(tag):
+            token = matcher.search(item)
+            if token:
+                hits.append(
+                    {
+                        "path": "<document>",
+                        "method": "-",
+                        "field": "tags",
+                        "value": str(item)[:120],
+                        "matched_token": token,
+                    }
+                )
+    return hits
+
+
 def gate_g2_endpoints(
-    api_base: str, openapi_file: Optional[str] = None, timeout: float = 8.0
+    api_base: str,
+    openapi_file: Optional[str] = None,
+    timeout: float = 8.0,
+    *,
+    vocab_pattern: Optional[str] = None,
+    metadata_scan: bool = True,
+    normalize_separators: bool = True,
 ) -> Dict[str, Any]:
     loaded = load_openapi(api_base, openapi_file, timeout)
-    pattern = re.compile(SHIP_ENDPOINT_PATTERN, re.IGNORECASE)
+    matcher = VocabMatcher(vocab_pattern or SHIP_ENDPOINT_PATTERN, normalize_separators)
     endpoints: List[Dict[str, Any]] = []
+    metadata_hits: List[Dict[str, Any]] = []
     total_paths = 0
 
     if loaded["status"] == "ok":
         paths = loaded["doc"].get("paths") or {}
         total_paths = len(paths)
+        if metadata_scan:
+            metadata_hits.extend(_gate_g2_document_hits(loaded["doc"], matcher))
         for path in sorted(paths):
-            if not pattern.search(path):
-                continue
             operations = paths[path] or {}
+            if metadata_scan:
+                metadata_hits.extend(_gate_g2_metadata_hits(path, operations, matcher))
+            token = matcher.search(path)
+            if not token:
+                continue
             methods = [m.upper() for m in operations if m.lower() in HTTP_METHODS]
             endpoints.append(
                 {
                     "path": path,
                     "methods": sorted(methods),
-                    "matched_token": pattern.search(path).group(0).lower(),
+                    "matched_token": token,
                 }
             )
 
@@ -339,8 +686,11 @@ def gate_g2_endpoints(
             "path_count": len(endpoints),
             "total_openapi_paths": total_paths,
             "spec_stated_baseline": SPEC_STATED_G2_BASELINE,
-            "pattern": SHIP_ENDPOINT_PATTERN,
+            "pattern": matcher.pattern,
+            "normalize_separators": bool(normalize_separators),
+            "metadata_scan_enabled": bool(metadata_scan),
             "endpoints": endpoints,
+            "metadata_hits": metadata_hits,
             "violations": [],
             "error": loaded["error"],
         }
@@ -354,11 +704,24 @@ def gate_g2_endpoints(
         "path_count": len(endpoints),
         "total_openapi_paths": total_paths,
         "spec_stated_baseline": SPEC_STATED_G2_BASELINE,
-        "pattern": SHIP_ENDPOINT_PATTERN,
+        "pattern": matcher.pattern,
+        "normalize_separators": bool(normalize_separators),
+        "metadata_scan_enabled": bool(metadata_scan),
         "endpoints": endpoints,
+        "metadata_hits": metadata_hits,
         "violations": [
             {"file": e["path"], "line": 0, "matched_token": e["matched_token"]}
             for e in endpoints
+        ]
+        + [
+            {
+                "file": h["path"],
+                "line": 0,
+                "matched_token": h["matched_token"],
+                "field": h["field"],
+                "kind": "metadata",
+            }
+            for h in metadata_hits
         ],
         "error": None,
     }
@@ -400,13 +763,59 @@ def _hit_context(line: int, col: int, comments, strings) -> str:
 # G3 — constant hoisting gate
 # ---------------------------------------------------------------------------
 
+def constant_hits(
+    line: str,
+    constants: Sequence[str],
+    *,
+    variants: bool = True,
+    embedded: bool = True,
+) -> List[tuple[int, str, str]]:
+    """Locate hoisted-name occurrences in ``line`` as ``(col, constant, form)``.
+
+    ``form``
+        ``exact``        declared case, word-delimited both sides
+        ``embedded``     declared case, glued to other word characters
+                         (``SEA_WATER_DENSITY`` on the left, ``KVLCC2`` on the right)
+        ``case_variant`` different case (``gadget_rho``)
+
+    ``variants=False`` keeps only declared-case hits; ``embedded=False`` keeps
+    only left-delimited hits.  Both off reproduces the historical ``\b(NAME)``
+    regex, which is what makes the before/after comparison honest.
+    """
+    hits: List[tuple[int, str, str]] = []
+    for constant in constants:
+        flags = re.IGNORECASE if variants else 0
+        for match in re.finditer(re.escape(constant), line, flags):
+            start, end = match.span()
+            left_delimited = start == 0 or not (
+                line[start - 1].isalnum() or line[start - 1] == "_"
+            )
+            if not left_delimited and not embedded:
+                continue
+            if match.group(0) != constant:
+                form = "case_variant"
+            elif left_delimited and (
+                end >= len(line) or not (line[end].isalnum() or line[end] == "_")
+            ):
+                form = "exact"
+            else:
+                form = "embedded"
+            hits.append((start, constant, form))
+    return hits
+
+
 def gate_g3_constants(
-    repo_root: Path, extra_files: Iterable[str] = ()
+    repo_root: Path,
+    extra_files: Iterable[str] = (),
+    *,
+    constants: Optional[Sequence[str]] = None,
+    variants: bool = True,
+    embedded: bool = True,
+    constant_folding: bool = True,
+    surface_globs: Optional[Sequence[str]] = None,
 ) -> Dict[str, Any]:
-    files, missing, surface_rel = collect_surface(repo_root, extra_files)
-    # No trailing \b: bare ``grep`` semantics so ``KVLCC2``/``SUBOFF_...``
-    # still count as hits of the ``KVLCC``/``SUBOFF`` families.
-    pattern = re.compile(r"\b(" + "|".join(HOIST_CONSTANTS) + r")")
+    constants = tuple(constants or HOIST_CONSTANTS)
+    files, missing, surface_rel = collect_surface(repo_root, extra_files, surface_globs)
     violations: List[Dict[str, Any]] = []
     self_file = _self_path()
     scanned = 0
@@ -417,36 +826,80 @@ def gate_g3_constants(
         scanned += 1
         rel = path.resolve().relative_to(repo_root.resolve()).as_posix()
         comments, strings = _literal_spans(path)
+        seen: set[tuple[int, str]] = set()
         for lineno, line in enumerate(
             path.read_text(encoding="utf-8", errors="replace").splitlines(), start=1
         ):
-            for match in pattern.finditer(line):
+            for col, constant, form in constant_hits(
+                line, constants, variants=variants, embedded=embedded
+            ):
+                seen.add((lineno, constant))
                 violations.append(
                     {
                         "file": rel,
                         "line": lineno,
-                        "constant": match.group(1),
-                        "context": _hit_context(lineno, match.start(), comments, strings),
+                        "constant": constant,
+                        "form": form,
+                        "context": _hit_context(lineno, col, comments, strings),
                         "text": line.strip()[:200],
                     }
                 )
 
+        if constant_folding:
+            try:
+                tree = ast.parse(path.read_text(encoding="utf-8", errors="replace"))
+            except SyntaxError:  # pragma: no cover - defensive
+                tree = None
+            if tree is not None:
+                table = _string_assignment_table(tree)
+                for node in ast.walk(tree):
+                    if not isinstance(node, (ast.Constant, ast.JoinedStr, ast.BinOp)):
+                        continue
+                    folded, _resolved = _fold_str(node, table)
+                    if not folded:
+                        continue
+                    for _col, constant, form in constant_hits(
+                        folded, constants, variants=variants, embedded=embedded
+                    ):
+                        key = (node.lineno, constant)
+                        if key in seen:
+                            continue
+                        seen.add(key)
+                        violations.append(
+                            {
+                                "file": rel,
+                                "line": node.lineno,
+                                "constant": constant,
+                                "form": "folded",
+                                "context": _hit_context(
+                                    node.lineno, node.col_offset, comments, strings
+                                ),
+                                "text": ast.unparse(node)[:200],
+                            }
+                        )
+
     violations.sort(key=lambda v: (v["file"], v["line"], v["constant"]))
     by_constant: Dict[str, int] = {}
     by_context: Dict[str, int] = {}
+    by_form: Dict[str, int] = {}
     for v in violations:
         by_constant[v["constant"]] = by_constant.get(v["constant"], 0) + 1
         by_context[v["context"]] = by_context.get(v["context"], 0) + 1
+        by_form[v["form"]] = by_form.get(v["form"], 0) + 1
     return {
         "id": "G3_constant_hoisting",
         "title": "core surface must not hard-code hydrodynamics constants",
         "files_scanned": scanned,
         "surface": surface_rel,
         "missing_surface": missing,
-        "constants": list(HOIST_CONSTANTS),
+        "constants": list(constants),
+        "variants_enabled": bool(variants),
+        "embedded_enabled": bool(embedded),
+        "constant_folding_enabled": bool(constant_folding),
         "count": len(violations),
         "by_constant": by_constant,
         "by_context": by_context,
+        "by_form": by_form,
         "status": "red" if violations else "green",
         "violations": violations,
     }
@@ -462,17 +915,29 @@ def run_gates(
     openapi_file: Optional[str] = None,
     only: Optional[Sequence[str]] = None,
     timeout: float = 8.0,
+    legacy_detectors: bool = False,
 ) -> Dict[str, Any]:
     wanted = {g.upper() for g in (only or ("G1", "G2", "G3"))}
     gates: Dict[str, Dict[str, Any]] = {}
     if "G1" in wanted:
-        gates["G1_import_boundary"] = gate_g1_imports(repo_root)
+        gates["G1_import_boundary"] = gate_g1_imports(
+            repo_root, dynamic_imports=not legacy_detectors
+        )
     if "G2" in wanted:
         gates["G2_endpoint_vocabulary"] = gate_g2_endpoints(
-            api_base, openapi_file, timeout
+            api_base,
+            openapi_file,
+            timeout,
+            metadata_scan=not legacy_detectors,
+            normalize_separators=not legacy_detectors,
         )
     if "G3" in wanted:
-        gates["G3_constant_hoisting"] = gate_g3_constants(repo_root)
+        gates["G3_constant_hoisting"] = gate_g3_constants(
+            repo_root,
+            variants=not legacy_detectors,
+            embedded=not legacy_detectors,
+            constant_folding=not legacy_detectors,
+        )
 
     red = [g for g in gates.values() if g["status"] == "red"]
     withheld = [g for g in gates.values() if g["status"] == "withheld"]
@@ -699,6 +1164,20 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         help="comma separated subset of gates, e.g. G1,G3",
     )
     parser.add_argument("--timeout", type=float, default=8.0)
+    parser.add_argument(
+        "--legacy-detectors",
+        action="store_true",
+        help=(
+            "reproduce the pre-hardening detectors (static imports only, path-only "
+            "vocabulary, case-sensitive left-delimited constants) for A/B recall runs"
+        ),
+    )
+    parser.add_argument(
+        "--surface-glob",
+        action="append",
+        default=None,
+        help="extra glob for core-surface files, e.g. 'backend/services/*.py' (repeatable)",
+    )
     parser.add_argument("--quiet", action="store_true")
     args = parser.parse_args(argv)
 
@@ -713,6 +1192,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
             openapi_file=args.openapi_file,
             only=only,
             timeout=args.timeout,
+            legacy_detectors=args.legacy_detectors,
         )
     except Exception as exc:  # pragma: no cover - defensive
         print(f"[boundary_gates] internal error: {exc}", file=sys.stderr)
@@ -721,6 +1201,7 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     result["mode"] = mode
     result["enforce"] = bool(args.enforce)
     result["max_violations"] = args.max_violations
+    result["legacy_detectors"] = bool(args.legacy_detectors)
 
     json_path = Path(args.json)
     if not json_path.is_absolute():
