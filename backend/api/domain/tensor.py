@@ -22,6 +22,7 @@ from api.tensor_reports import router as tensor_reports_router             # pre
 from api.tensor_papers import router as tensor_papers_router             # prefix="/tensor/papers"
 from api.tensor_capability import router as tensor_capability_router      # prefix="/tensor/capability" (PR-10 能力中心聚合面)
 from api.campaign_plans import router as campaign_plans_router             # prefix="/tensor/campaigns"
+from api.campaign_routing import router as campaign_routing_router         # prefix="/tensor/campaigns" (conditional DAG)
 from api.tensor_centers import router as tensor_centers_router             # prefix="/tensor/centers" (PR-10 四中心最小视图)
 from api.tensor_repro import router as tensor_repro_router                 # prefix="/tensor/repro"
 from api.execution_lineage import router as execution_lineage_router       # prefix="/lineage"
@@ -36,7 +37,7 @@ router.include_router(tensor_system_router)
 router.include_router(tensor_activity_router)
 router.include_router(tensor_workspace_router)
 router.include_router(tensor_llm_router)
-# lifecycle FIRST: its literal GET routes (/suspended, /pr-merge-queue,
+# lifecycle FIRST: its literal routes (/suspended, /pr-merge-queue,
 # /orphan-queue, /dashboard-snapshot) must not be shadowed by missions'
 # GET /{mission_id} path-param route (FastAPI matches in include order).
 router.include_router(tensor_mission_lifecycle_router)
@@ -45,6 +46,7 @@ router.include_router(tensor_reports_router)
 router.include_router(tensor_papers_router)
 router.include_router(tensor_capability_router)
 router.include_router(campaign_plans_router)
+router.include_router(campaign_routing_router)
 router.include_router(tensor_centers_router)
 router.include_router(kpi_router)
 router.include_router(failure_postmortems_router)
