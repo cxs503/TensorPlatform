@@ -1,0 +1,112 @@
+{
+  "experiment": {
+    "trace_length": 10000,
+    "n_items": 500,
+    "cache_size": 128,
+    "n_repetitions": 30,
+    "warmup_fraction": 0.1,
+    "zipf_alpha": 1.2,
+    "base_seed": 42
+  },
+  "baseline": {
+    "p50_latency": 50.966617683274585,
+    "p99_latency": 216.4783208178328,
+    "mean_latency": 57.406465602327025
+  },
+  "lru": {
+    "hit_rate": {
+      "mean": 0.8371,
+      "std": 0.0
+    },
+    "p50_latency": {
+      "mean": 2.1162362247248785,
+      "std": 0.00889026453299339
+    },
+    "p99_latency": {
+      "mean": 83.52159797205441,
+      "std": 3.2177526078282037
+    },
+    "mean_latency": {
+      "mean": 10.737412996987935,
+      "std": 0.1327284595809609
+    },
+    "stale_ratio": {
+      "mean": 0.027,
+      "std": 0.0
+    },
+    "threshold_checks": {
+      "hit_rate": {
+        "value": 0.8371,
+        "threshold": 0.6,
+        "pass": true
+      },
+      "p99_ratio": {
+        "value": 0.38581968696227137,
+        "threshold": 0.5,
+        "pass": true
+      },
+      "stale_ratio": {
+        "value": 0.027,
+        "threshold": 0.1,
+        "pass": true
+      }
+    }
+  },
+  "lfu": {
+    "hit_rate": {
+      "mean": 0.8642,
+      "std": 0.0
+    },
+    "p50_latency": {
+      "mean": 2.090827965783178,
+      "std": 0.007046797452621742
+    },
+    "p99_latency": {
+      "mean": 77.90718638578551,
+      "std": 1.5702061960214437
+    },
+    "mean_latency": {
+      "mean": 10.737412996987935,
+      "std": 0.1327284595809609
+    },
+    "stale_ratio": {
+      "mean": 0.463,
+      "std": 0.0
+    },
+    "threshold_checks": {
+      "hit_rate": {
+        "value": 0.8642,
+        "threshold": 0.6,
+        "pass": true
+      },
+      "p99_ratio": {
+        "value": 0.3598844729183975,
+        "threshold": 0.5,
+        "pass": true
+      },
+      "stale_ratio": {
+        "value": 0.463,
+        "threshold": 0.1,
+        "pass": false
+      }
+    }
+  },
+  "statistical_tests": {
+    "hit_rate": {
+      "t_statistic": -271000000.0000001,
+      "df": 1
+    },
+    "p50_latency": {
+      "t_statistic": 12.267501452129807,
+      "df": 55.12701027742572
+    },
+    "p99_latency": {
+      "t_statistic": 8.588744452320453,
+      "df": 42.07021051054531
+    },
+    "stale_ratio": {
+      "t_statistic": -4360000000.0,
+      "df": 1
+    }
+  }
+}
