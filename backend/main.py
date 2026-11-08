@@ -491,6 +491,17 @@ from api import review_budget as _review_budget  # noqa: E402
 
 app.include_router(_review_budget.router, prefix="/api/v1")
 
+# ── 多保真级联打分器（IN59-N10，m6604）──
+# Low→Medium→High fidelity cascade with physics-consistency gates and
+# budget-adaptive sampling.  Addresses wall_exhausted failure mode
+# (plan 41 / IN25-T3) by eliminating ≥80% candidates at low+medium stages.
+# 部署安全模式：import 失败只告警，不阻断 app 启动。
+try:
+    from api import cascade_scorer as _cascade_scorer  # noqa: E402
+    app.include_router(_cascade_scorer.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("cascade_scorer router 接线跳过: %s", _exc)
+
 # ── Prometheus /metrics 端点（空前缀，供 Prometheus 采集）──
 app.include_router(metrics_api.router, prefix="")
 app.include_router(dashboard_router)
