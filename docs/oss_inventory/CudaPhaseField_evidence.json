@@ -1,0 +1,387 @@
+{
+  "repo": "AminZar69/CudaPhaseField",
+  "commit": "d6181e677c413bbec443570010bca60d896022b5",
+  "src_sha256": "97dc0e5d518de62a0b0d56089f408888ce3d2501445e7678d606172ab72cc1d6",
+  "constants": {
+    "nxd": 254,
+    "nyd": 254,
+    "nx": 254,
+    "ny": 254,
+    "tf": 1500000,
+    "step": 8000,
+    "r_0": 35.0,
+    "w": 4.0,
+    "m": 0.01,
+    "tau1": 0.9,
+    "tau2": 0.9,
+    "tau3": 0.9,
+    "sigma_offdiag": 0.1,
+    "w_c_formula": "w_c = 1._fp_kind/(0.5_fp_kind + 3._fp_kind*m)",
+    "density": [
+      1000.0,
+      500.0,
+      100.0
+    ],
+    "sigma_flat": [
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1,
+      0.1
+    ],
+    "num_phases": 3
+  },
+  "kernels": [
+    {
+      "name": "phi_cal",
+      "start": 22,
+      "end": 52,
+      "loc": 31
+    },
+    {
+      "name": "periodic_phi",
+      "start": 54,
+      "end": 93,
+      "loc": 40
+    },
+    {
+      "name": "gradient_cal",
+      "start": 95,
+      "end": 189,
+      "loc": 95
+    },
+    {
+      "name": "interface_cal",
+      "start": 191,
+      "end": 245,
+      "loc": 55
+    },
+    {
+      "name": "chemical_potential",
+      "start": 247,
+      "end": 346,
+      "loc": 100
+    },
+    {
+      "name": "hydro_cal",
+      "start": 348,
+      "end": 482,
+      "loc": 135
+    },
+    {
+      "name": "collision_h",
+      "start": 484,
+      "end": 769,
+      "loc": 286
+    },
+    {
+      "name": "collision_g1",
+      "start": 771,
+      "end": 850,
+      "loc": 80
+    },
+    {
+      "name": "collision_g2",
+      "start": 852,
+      "end": 939,
+      "loc": 88
+    },
+    {
+      "name": "periodic_f",
+      "start": 941,
+      "end": 1157,
+      "loc": 217
+    },
+    {
+      "name": "propagation_gather",
+      "start": 1159,
+      "end": 1201,
+      "loc": 43
+    },
+    {
+      "name": "propagation_scatter",
+      "start": 1203,
+      "end": 1245,
+      "loc": 43
+    }
+  ],
+  "timestep": {
+    "loop_start": 53,
+    "loop_end": 89,
+    "launches": [
+      {
+        "name": "phi_cal",
+        "line": 54
+      },
+      {
+        "name": "periodic_phi",
+        "line": 55
+      },
+      {
+        "name": "gradient_cal",
+        "line": 56
+      },
+      {
+        "name": "interface_cal",
+        "line": 57
+      },
+      {
+        "name": "chemical_potential",
+        "line": 58
+      },
+      {
+        "name": "hydro_cal",
+        "line": 59
+      },
+      {
+        "name": "collision_h",
+        "line": 60
+      },
+      {
+        "name": "collision_g1",
+        "line": 61
+      },
+      {
+        "name": "collision_g2",
+        "line": 62
+      },
+      {
+        "name": "periodic_f",
+        "line": 63
+      },
+      {
+        "name": "propagation_gather",
+        "line": 64
+      },
+      {
+        "name": "propagation_scatter",
+        "line": 65
+      }
+    ],
+    "count": 12
+  },
+  "solid_wetting_scan": {
+    "streaming_kernels_reference_mask": false,
+    "streaming_kernel_loc": 45,
+    "is_solid_node_live_assignments": [
+      "0"
+    ],
+    "kernels_referencing_solid_mask": [
+      "phi_cal",
+      "hydro_cal",
+      "collision_h",
+      "collision_g1",
+      "collision_g2"
+    ],
+    "keyword_hits": {
+      "bounce_back": 0,
+      "contact_angle": 0,
+      "ispc_wetting": 0
+    },
+    "commented_alloc_hits": 1
+  },
+  "declarations": {
+    "population_arrays": [
+      "h1",
+      "h2",
+      "g"
+    ],
+    "n_population_arrays": 3,
+    "n_field_arrays": 173,
+    "n_streaming_temporaries": 24,
+    "streaming_temporaries": [
+      "htemp11",
+      "htemp12",
+      "htemp13",
+      "htemp14",
+      "htemp15",
+      "htemp16",
+      "htemp17",
+      "htemp18",
+      "htemp21",
+      "htemp22",
+      "htemp23",
+      "htemp24",
+      "htemp25",
+      "htemp26",
+      "htemp27",
+      "htemp28",
+      "gtemp1",
+      "gtemp2",
+      "gtemp3",
+      "gtemp4",
+      "gtemp5",
+      "gtemp6",
+      "gtemp7",
+      "gtemp8"
+    ],
+    "n_auxiliary_arrays": 54
+  },
+  "d2q9_moments": {
+    "sum_w": 1.0,
+    "sum_w_ex2": 0.3333333333333333,
+    "sum_w_ey2": 0.33333333333333337,
+    "sum_w_ex4": 0.3333333333333333,
+    "sum_w_ex2ey2": 0.1111111111111111,
+    "sum_w_ex3": 0.0,
+    "sum_w_ex6": 0.3333333333333333,
+    "isotropic_2nd": true,
+    "isotropic_4th": true,
+    "cs2_implied": 0.3333333333333333
+  },
+  "operators": {
+    "polynomial_exactness": {
+      "const": {
+        "max_abs_err": 4.440892098500626e-16
+      },
+      "x": {
+        "max_abs_err": 5.684341886080802e-14
+      },
+      "xy": {
+        "max_abs_err": 3.637978807091713e-12
+      },
+      "x2+y2": {
+        "max_abs_err": 3.637978807091713e-12
+      },
+      "x2-y2": {
+        "max_abs_err": 3.637978807091713e-12
+      }
+    },
+    "gradient_exactness": {
+      "x": {
+        "max_abs_err": 0.0
+      },
+      "x2": {
+        "max_abs_err": 1.4210854715202004e-14
+      },
+      "y": {
+        "max_abs_err": 0.0
+      }
+    },
+    "spectral": {
+      "max_rel_err_lap9_k_le_pi2": 0.18943053086129635,
+      "max_rel_err_lap5_k_le_pi2": 0.18943053086129635,
+      "max_rel_err_grad_k_le_pi2": 0.3633802276324186,
+      "rel_err_lap9_at_pi": 0.5947152654306489,
+      "rel_err_lap5_at_pi": 0.5947152654306489,
+      "rel_err_grad_at_pi": 1.000000000000001
+    },
+    "isotropy": {
+      "k=0.200": {
+        "lap9_axis": 0.9966711079379249,
+        "lap9_diag": 0.9966733246107585,
+        "lap9_anisotropy": 2.2240765442660404e-06,
+        "lap5_anisotropy": 0.0016688916700113854,
+        "grad_axis": 0.993346653975307,
+        "grad_diag": 0.993353298450588,
+        "grad_anisotropy": 6.688979375280013e-06
+      },
+      "k=0.500": {
+        "lap9_axis": 0.9793395048770199,
+        "lap9_diag": 0.9794249634753849,
+        "lap9_anisotropy": 8.7261463403987e-05,
+        "lap5_anisotropy": 0.010504155541657845,
+        "grad_axis": 0.9588510772084058,
+        "grad_diag": 0.9591061153866681,
+        "grad_anisotropy": 0.00026598309614955795
+      },
+      "k=0.785": {
+        "lap9_axis": 0.949641203551786,
+        "lap9_diag": 0.9501496527248638,
+        "lap9_anisotropy": 0.0005354118704792299,
+        "lap5_anisotropy": 0.02624095320000719,
+        "grad_axis": 0.9003163161571068,
+        "grad_diag": 0.9018219766710398,
+        "grad_anisotropy": 0.0016723683520027954
+      }
+    },
+    "observed_order": {
+      "lap9": 1.9985573910361372,
+      "lap5": 1.9985573909592294,
+      "grad": 1.99783582874744
+    },
+    "symbols": {
+      "lap9": "1/6 [4*(sum of 4 axis neighbours) + (sum of 4 corners) - 20*centre]",
+      "grad_x": "1/3 (f(x+1)-f(x-1)) + 1/12 (f(x+1,y+1)+f(x+1,y-1)-f(x-1,y+1)-f(x-1,y-1))"
+    }
+  },
+  "ternary": {
+    "lambda": [
+      0.1,
+      0.1,
+      0.1
+    ],
+    "lambda_t": 0.1,
+    "bulk_term_at_pure_phases": {
+      "phi1": [
+        -0.0,
+        0.0,
+        0.0
+      ],
+      "phi2": [
+        0.0,
+        -0.0,
+        0.0
+      ],
+      "phi3": [
+        0.0,
+        0.0,
+        -0.0
+      ]
+    },
+    "max_abs_bulk_at_pure": 0.0,
+    "pure_phases_are_roots": true,
+    "note": "degenerate sigma (all 0.1) -> lambda=(0.1,0.1,0.1), lambda_t=0.1"
+  },
+  "allen_cahn": {
+    "w_c": 1.8867924528301885,
+    "tau_phi": 0.53,
+    "amplification_1_minus_wc": 0.8867924528301885,
+    "stable_over_relaxation": true,
+    "mobility_m": 0.01,
+    "interface_thickness_w": 4.0
+  },
+  "init_condition": {
+    "phi_sum_max_dev": 1.1102230246251565e-16,
+    "area_fraction_phi1": 0.05981130922049618,
+    "area_fraction_phi2": 0.059811309220496184,
+    "area_fraction_phi3": 0.8803773815590076,
+    "phi3_min": -5.551115123125783e-17,
+    "phi3_max": 1.0,
+    "rho_min": 100.0,
+    "rho_max": 999.9999999999997,
+    "rho_mean": 177.75470198664502,
+    "droplet_centre_distance": 70.0,
+    "tangent_if_distance_equals_2r": true,
+    "interface_10_90_width_lattice": 4.394449154672439,
+    "n_cells": 64516
+  },
+  "traffic": {
+    "bytes_per_node_streaming_as_coded": 768.0,
+    "bytes_per_node_streaming_fused": 384.0,
+    "streaming_traffic_ratio": 2.0,
+    "kernel_launches_per_step": 12,
+    "MiB_per_population_array": 4.5,
+    "MiB_per_temporary_array": 0.492218017578125,
+    "MiB_temporaries_total": 11.813232421875,
+    "n_population_arrays": 3,
+    "n_streaming_temporaries": 24,
+    "kernels_not_fused": 12,
+    "collide_stage_launches": 10
+  },
+  "figures": [
+    "cpf_fig1_init_condition.png",
+    "cpf_fig2_operator_symbols.png",
+    "cpf_fig3_traffic_model.png"
+  ],
+  "pointer_check": {
+    "ok": 141,
+    "bad": [],
+    "unasserted_catalog_entries": [],
+    "passed": true
+  }
+}
