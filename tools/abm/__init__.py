@@ -26,7 +26,10 @@ from .blind import BlindRegistry  # noqa: F401
 from .dimensions import DIMENSIONS, build_table, comparison_gate  # noqa: F401
 from .acceptance import evaluate  # noqa: F401
 from .six_dim_power import (  # noqa: F401
+    analytic_mde,
+    analytic_power_paired,
     cohens_d,
+    min_n_for_effect,
     paired_median_diff,
     permutation_test_six_dim,
     mde_curve,
@@ -52,10 +55,13 @@ __all__ = [
     "build_table",
     "comparison_gate",
     "evaluate",
+    "analytic_mde",
+    "analytic_power_paired",
     "cohens_d",
     "paired_median_diff",
     "permutation_test_six_dim",
     "mde_curve",
+    "min_n_for_effect",
     "solve_n_for_mde",
     "aa_false_positive_rate",
     "retrospective_power",
