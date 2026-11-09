@@ -1,10 +1,24 @@
 # 开放数字底座 - Docker & Python 管理脚本
 # Makefile for Docker and Python operations
 
-.PHONY: help build up down restart logs ps clean backup restore test coverage lint type-check format
+.PHONY: help build up down restart logs ps clean backup restore test coverage lint type-check format criteria-gate
 
 # 默认目标
 .DEFAULT_GOAL := help
+
+# 判据治理：结构门 + 漂移门 + C1–C7（红则非零退出）
+criteria-gate:
+	@python -m pytest tests/test_threshold_registry.py -q
+	@python -m tools.criteria.threshold_registry validate --registry data/criteria/threshold_registry.json --out artifacts/criteria/validate.json > /dev/null
+	@python -m tools.criteria.threshold_registry drift --registry data/criteria/threshold_registry.json --lock data/criteria/threshold_registry.lock.json --out artifacts/criteria/drift.json > /dev/null
+	@python -m tools.criteria.gate_report
+
+# 重新入册（改完源文件/新增阈值后）：harvest → lock → gate
+criteria-harvest:
+	@python -m tools.criteria.harvest --out data/criteria/threshold_registry.json
+	@python -m tools.criteria.threshold_registry lock --registry data/criteria/threshold_registry.json --out data/criteria/threshold_registry.lock.json > /dev/null
+	@python -m tools.criteria.threshold_registry gate --registry data/criteria/threshold_registry.json --lock data/criteria/threshold_registry.lock.json --out artifacts/criteria/gate_cli.json > /dev/null
+	@python -m tools.criteria.gate_report
 
 # 帮助信息
 help:
@@ -33,6 +47,10 @@ help:
 	@echo "  make lint        运行代码检查 (flake8)"
 	@echo "  make type-check  运行类型检查 (mypy)"
 	@echo "  make format      格式化代码 (black)"
+	@echo ""
+	@echo "判据治理 (P171W1-N06):"
+	@echo "  make criteria-gate      阈值口径注册表：结构门 + 漂移门 + C1-C7"
+	@echo "  make criteria-harvest   从现网活文件重新入册（改 data/criteria/*.json）"
 	@echo ""
 	@echo "清理:"
 	@echo "  make clean       清理未使用的镜像和容器"
