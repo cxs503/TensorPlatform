@@ -1,0 +1,124 @@
+{
+  "schema": "tp.integration.pairs/v1",
+  "campaign": "p158w2",
+  "notes": "每对互裁都给出：对照侧状态、逐检查结论、允许的证据等级上限。severity=advisory 的检查只入缺口不压等级。",
+  "pairs": [
+    {
+      "id": "ADJ-1-urn-propagation",
+      "title": "电力推进噪声链 URN 传播口径 × 既有 URN 节点",
+      "kind": "convention",
+      "capabilities": [
+        "ship.urn_underwater_propagation"
+      ],
+      "counterpart_status": "ABSENT_ON_MAIN：既有 URN 节点在 main 基线不可见（平台仓 backend/ 与 ship-performance-platform 主干均无 URN 导出），对照侧缺失",
+      "note": "n04 报告自述 URN 为 Simplified model；其水下 SPL 恒为 0，而同一次求解的辐射效率 σ>0 且舱室 SPL 非零 ⇒ 水下传播分支是占位实现，无法与任何 URN 口径互裁。",
+      "cap_level": "MOCK",
+      "checks": [
+        {
+          "check": "degenerate",
+          "driver_metric": "att:p158w2-n04-electric-propulsion-noise:G_radiation_efficiency_positive",
+          "response_metric": "att:p158w2-n04-electric-propulsion-noise:G_URN_underwater_spl_nonzero",
+          "driver_tol": 1e-12,
+          "severity": "blocking",
+          "note": "驱动量=Maidanik 辐射效率 σ>0；响应=水下 SPL。响应恒零 ⇒ DEGENERATE（占位实现）"
+        },
+        {
+          "check": "metric_below",
+          "metric": "att:p158w2-n04-electric-propulsion-noise:G1_kloss_torque_slip_rel_error",
+          "threshold": 0.01,
+          "severity": "advisory",
+          "counterpart": "data/campaigns/p158w2/nodes.json → ingest.criteria_map.G1（Kloss 闭式判据 ≤1%）",
+          "note": "同一节点的上游（机电）侧判据实测 1.31% > 1%，作为 advisory 记录：噪声链入口先越界"
+        }
+      ]
+    },
+    {
+      "id": "ADJ-2-ergun-dense-limit",
+      "title": "DEM 两向耦合 Ergun 稠密极限 × 既有 Ergun 节点（平台基线参考实现）",
+      "kind": "limit",
+      "capabilities": [],
+      "counterpart_status": "PRESENT_ON_MAIN：backend/services/ice_integration/nodes_downstream.py::ergun_pressure_gradient（平台主干已合并）",
+      "note": "三向对照：①两套独立实现的经典 Ergun 逐点一致；②稠密端（ε=0.4）极限值一致；③固相曳力 f=β·u 在稠密分支必须等于 ε·(dp/dz)，并在 Gidaspow 切换点检出不连续。",
+      "cap_level": null,
+      "checks": [
+        {
+          "check": "trace_agreement",
+          "a": "ergun_n02_classic",
+          "b": "ergun_platform_reference",
+          "tol": 1e-09,
+          "severity": "blocking",
+          "note": "n02 独立实现 vs 平台基线参考实现，ε∈[0.4,0.9] 全段"
+        },
+        {
+          "check": "endpoint_agreement",
+          "a": "ergun_n02_classic",
+          "b": "ergun_platform_reference",
+          "end": "min",
+          "tol": 1e-09,
+          "severity": "blocking",
+          "note": "稠密极限（最小孔隙率端 ε=0.4）：两口径的极限值一致性"
+        },
+        {
+          "check": "trace_agreement",
+          "a": "ergun_n02_classic",
+          "b": "ergun_dem_drag",
+          "transform": {
+            "op": "scale",
+            "power": 1.0,
+            "coef": 1.0
+          },
+          "param_subset": {
+            "min": 0.4,
+            "max": 0.79
+          },
+          "tol": 1e-09,
+          "severity": "blocking",
+          "note": "稠密分支（ε≤0.79）内 ε·(dp/dz) 必须精确等于 Gidaspow 混合曳力 f（Model-A 分组；a=经典压力梯度，变换乘 ε 后与 b=曳力体密度对齐）"
+        },
+        {
+          "check": "jump_ratio",
+          "trace": "ergun_dem_drag",
+          "max_ratio": 1.5,
+          "severity": "advisory",
+          "note": "Gidaspow 在 ε=0.8 处硬切换 → 曳力跳变；检出并量化（不压等级，作为下一波连续化提案依据）"
+        }
+      ]
+    },
+    {
+      "id": "ADJ-3-cht-energy-ledger",
+      "title": "CHT 能量账本 × 既有热力学/守恒约定（平台 1% 守恒门）",
+      "kind": "closure",
+      "capabilities": [],
+      "counterpart_status": "PRESENT_ON_MAIN：backend/services/ice_integration/gate.py:125 的守恒残差门 max_residual < 0.01（平台主干既有约定）",
+      "note": "n03 的能量账本 (inflow/outflow/imbalance) 必须满足平台既有守恒约定，并与一维导热的解析解（线性剖面 + Q=κΔT/L·H）逐点一致。",
+      "cap_level": null,
+      "checks": [
+        {
+          "check": "metric_below",
+          "metric": "cht_profile_node.normalized_imbalance",
+          "threshold": 0.01,
+          "severity": "blocking",
+          "counterpart": "backend/services/ice_integration/gate.py:125 (max_residual < 0.01)",
+          "note": "n03 账本归一化失衡 vs 平台既有 1% 守恒门"
+        },
+        {
+          "check": "metric_agreement",
+          "a_metric": "cht_profile_node.boundary_heat_rate_west",
+          "b_metric": "cht_profile_node.analytic_heat_rate_west",
+          "tol": 1e-09,
+          "severity": "blocking",
+          "note": "边界热流 vs 解析 Q=κ·ΔT/L·H（同一工况，两侧独立算）"
+        },
+        {
+          "check": "profile_deviation",
+          "a": "cht_profile_node",
+          "b": "cht_profile_analytic",
+          "tol": 1e-09,
+          "relative": true,
+          "severity": "blocking",
+          "note": "中心线温度剖面 vs 一维导热解析线性剖面"
+        }
+      ]
+    }
+  ]
+}

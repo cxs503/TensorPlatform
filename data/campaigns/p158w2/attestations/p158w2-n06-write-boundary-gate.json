@@ -1,0 +1,98 @@
+{
+  "schema": "tp.integration.attestation/v1",
+  "node": {
+    "ext_id": "p158w2-n06-write-boundary-gate",
+    "repo": "TensorPlatform",
+    "mission_id": 8497,
+    "branch": "agent/m8497",
+    "base_commit": null,
+    "head_commit": null
+  },
+  "source": {
+    "kind": "acceptance_json",
+    "ref": "artifact:TensorPlatform/artifacts/write_gate/acceptance.json",
+    "sha256": "0c9aee56b4a456442f888ad4e3ffc456c39de508cfe4fc68dd6d43c7a2f42a73",
+    "retrieved_at": "2026-11-09T08:49:02.352421+00:00"
+  },
+  "criteria": [
+    {
+      "id": "F1_whitelist_recall",
+      "measured": 1.0,
+      "op": ">=",
+      "threshold": 0.95,
+      "verdict": "PASS",
+      "unit": "recall",
+      "note": "criteria.whitelist: detected 10/10; artifact verdict PASS",
+      "role": "capability_gate"
+    },
+    {
+      "id": "F1b_cross_repo_recall",
+      "measured": 1.0,
+      "op": ">=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "recall",
+      "note": "criteria.cross_repo: detected 5/5; artifact verdict PASS",
+      "role": "capability_gate"
+    },
+    {
+      "id": "F1c_secrets_recall",
+      "measured": 1.0,
+      "op": ">=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "recall",
+      "note": "criteria.secrets: detected 3/3; artifact verdict PASS",
+      "role": "capability_gate"
+    },
+    {
+      "id": "F1d_false_positive_rate",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 0.05,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "161 条合规样本误杀率",
+      "path": "criteria.false_positive.rate",
+      "role": "capability_gate"
+    },
+    {
+      "id": "F5_wall_clock_seconds",
+      "measured": 0.3193,
+      "op": "<=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "s",
+      "note": "1000 changed_files 判定墙钟",
+      "path": "criteria.performance.seconds",
+      "role": "capability_gate"
+    },
+    {
+      "id": "F7_pytest_failed",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 0.0,
+      "verdict": "PASS",
+      "unit": "count",
+      "note": "节点自带测试失败数",
+      "path": "criteria.pytest.failed",
+      "role": "capability_gate"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "platform.write_boundary_gate",
+      "claim_level": "REAL",
+      "summary": "提交边界门：路径白名单/跨仓污染/凭证泄漏三合一，fail-closed + 确定性 verdict sha256",
+      "blocking_criteria": [
+        "F1_whitelist_recall",
+        "F1b_cross_repo_recall",
+        "F1c_secrets_recall",
+        "F1d_false_positive_rate",
+        "F7_pytest_failed"
+      ]
+    }
+  ],
+  "interface_contract": null,
+  "notes": "证据来自节点分支 agent/m8497 的验收工件快照（未并入 main → PROVISIONAL）。"
+}
