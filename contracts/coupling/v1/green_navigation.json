@@ -1,0 +1,73 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.green_navigation",
+  "version": 1,
+  "solver": "green-solver",
+  "discipline": "green_navigation",
+  "description": "绿色航行求解器对外端口：油耗/低热值/功率/航速 -> 能效指数/CO2 流量",
+  "ports": [
+    {
+      "name": "fuel_mass_flow",
+      "role": "input",
+      "unit": "kg/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "燃油质量流量"
+    },
+    {
+      "name": "fuel_lhv",
+      "role": "input",
+      "unit": "kJ/kg",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "燃油低热值"
+    },
+    {
+      "name": "shaft_power",
+      "role": "input",
+      "unit": "kW",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "轴功率"
+    },
+    {
+      "name": "service_speed",
+      "role": "input",
+      "unit": "kn",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "服务航速"
+    },
+    {
+      "name": "eedi",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "能效设计指数(无量纲化)"
+    },
+    {
+      "name": "co2_mass_flow",
+      "role": "output",
+      "unit": "kg/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "CO2 质量流量"
+    },
+    {
+      "name": "efficiency_index",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "综合能效比"
+    }
+  ],
+  "pi_groups": {
+    "power_balance": {
+      "shaft_power": 1,
+      "fuel_mass_flow": -1,
+      "fuel_lhv": -1
+    }
+  }
+}

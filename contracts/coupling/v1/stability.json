@@ -1,0 +1,72 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.stability",
+  "version": 1,
+  "solver": "stability-solver",
+  "discipline": "stability",
+  "description": "稳性求解器对外端口：排水量/重心高/初稳心高 -> 恢复力矩/极限角",
+  "ports": [
+    {
+      "name": "displacement_mass",
+      "role": "input",
+      "unit": "t",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "排水量(质量)"
+    },
+    {
+      "name": "centre_of_gravity_height",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "重心高 KG"
+    },
+    {
+      "name": "metacentric_height",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "初稳心高 GM"
+    },
+    {
+      "name": "beam",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "型宽"
+    },
+    {
+      "name": "righting_moment",
+      "role": "output",
+      "unit": "kN*m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "恢复力矩"
+    },
+    {
+      "name": "roll_limit_angle",
+      "role": "output",
+      "unit": "deg",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "极限横摇角"
+    },
+    {
+      "name": "gm_ratio",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "GM/B 无量纲比"
+    }
+  ],
+  "pi_groups": {
+    "gm_over_beam": {
+      "metacentric_height": 1,
+      "beam": -1
+    }
+  }
+}

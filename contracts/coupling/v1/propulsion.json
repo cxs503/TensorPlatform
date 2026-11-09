@@ -1,0 +1,88 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.propulsion",
+  "version": 1,
+  "solver": "propulsion-solver",
+  "discipline": "propulsion",
+  "description": "推进求解器对外端口：进流/转速/直径 -> 推力/扭矩/效率",
+  "ports": [
+    {
+      "name": "inflow_speed",
+      "role": "input",
+      "unit": "m/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "进流速度"
+    },
+    {
+      "name": "rotation_rate",
+      "role": "input",
+      "unit": "rpm",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "螺旋桨转速"
+    },
+    {
+      "name": "diameter",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "直径"
+    },
+    {
+      "name": "water_density",
+      "role": "input",
+      "unit": "kg/m^3",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "流体密度"
+    },
+    {
+      "name": "thrust",
+      "role": "output",
+      "unit": "kN",
+      "tensor_order": 1,
+      "required": true,
+      "semantic": "推力矢量",
+      "frame": "hull_fixed"
+    },
+    {
+      "name": "torque",
+      "role": "output",
+      "unit": "kN*m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "扭矩"
+    },
+    {
+      "name": "advance_ratio",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "进速系数 J"
+    },
+    {
+      "name": "shaft_power",
+      "role": "output",
+      "unit": "kW",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "轴功率"
+    }
+  ],
+  "pi_groups": {
+    "KT": {
+      "thrust": 1,
+      "water_density": -1,
+      "rotation_rate": -2,
+      "diameter": -4
+    },
+    "J": {
+      "inflow_speed": 1,
+      "rotation_rate": -1,
+      "diameter": -1
+    }
+  }
+}

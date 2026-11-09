@@ -1,0 +1,89 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.structure",
+  "version": 1,
+  "solver": "structure-solver",
+  "discipline": "structure",
+  "description": "结构求解器对外端口：板厚/材料/外载 -> 应力/变形/固有频率",
+  "ports": [
+    {
+      "name": "plate_thickness",
+      "role": "input",
+      "unit": "mm",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "板厚"
+    },
+    {
+      "name": "youngs_modulus",
+      "role": "input",
+      "unit": "MPa",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "弹性模量"
+    },
+    {
+      "name": "external_pressure",
+      "role": "input",
+      "unit": "kPa",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "外压"
+    },
+    {
+      "name": "span",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "跨距"
+    },
+    {
+      "name": "applied_force",
+      "role": "input",
+      "unit": "kN",
+      "tensor_order": 1,
+      "required": true,
+      "semantic": "外加力矢量",
+      "frame": "hull_fixed"
+    },
+    {
+      "name": "max_von_mises_stress",
+      "role": "output",
+      "unit": "MPa",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "最大 von Mises 应力"
+    },
+    {
+      "name": "max_deflection",
+      "role": "output",
+      "unit": "mm",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "最大变形"
+    },
+    {
+      "name": "natural_frequency",
+      "role": "output",
+      "unit": "Hz",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "一阶固有频率"
+    }
+  ],
+  "pi_groups": {
+    "stress_ratio": {
+      "max_von_mises_stress": 1,
+      "youngs_modulus": -1
+    },
+    "deflection_ratio": {
+      "max_deflection": 1,
+      "span": -1
+    },
+    "slenderness": {
+      "plate_thickness": 1,
+      "span": -1
+    }
+  }
+}

@@ -1,0 +1,53 @@
+{
+  "schema": "coupling-migrations/v1",
+  "description": "v1 -> v2 的显式迁移路径; 每条破坏性变更都必须被覆盖, 并在 tests 里真实执行",
+  "contracts": {
+    "solver.resistance": {
+      "old_version": 1,
+      "new_version": 2,
+      "migrations": [
+        {
+          "kind": "rename",
+          "port": "wake_speed",
+          "to_port": "advance_speed_out",
+          "note": "v2 语义澄清: 输出的是可供推进求解器使用的进流速度, 不是伴流分数"
+        },
+        {
+          "kind": "unit_rescale",
+          "port": "water_density",
+          "note": "v2 统一到 t/m^3 与工程制报表一致, 数值需乘 0.001"
+        },
+        {
+          "kind": "default_fill",
+          "port": "gravity",
+          "value": 9.80665,
+          "unit": "m/s^2",
+          "note": "v1 载荷没有重力加速度, 按标准重力补默认值"
+        }
+      ]
+    },
+    "solver.seakeeping": {
+      "old_version": 1,
+      "new_version": 2,
+      "migrations": [
+        {
+          "kind": "unit_rescale",
+          "port": "heading_angle",
+          "note": "v2 角度统一 rad, 下游三角函数不再做度数转换"
+        },
+        {
+          "kind": "rename",
+          "port": "added_resistance",
+          "to_port": "added_resistance_force",
+          "note": "v2 明确该输出是力(矢量方向另见 frame), 名字带 _force"
+        }
+      ]
+    },
+    "solver.propulsion": {
+      "old_version": 1,
+      "new_version": 2,
+      "migrations": [],
+      "note": "纯向后兼容扩展, 无需迁移"
+    }
+  }
+}
