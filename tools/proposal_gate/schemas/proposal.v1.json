@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "proposal-gate/proposal.v1.json",
+  "title": "proposal v1 — 历史口径（存量提案池 in-repo 形态）",
+  "description": "历史口径契约：只描述存量提案池实际存在的字段。内部一律经 compat 层（config: compat.v1_to_canonical）映射到 v2 规范模型，v1 语义不直接进入仲裁与去重。",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["proposal_id", "title", "hypothesis", "falsification_criteria"],
+  "properties": {
+    "proposal_id": {"type": "string", "minLength": 1},
+    "title": {"type": "string", "minLength": 1},
+    "hypothesis": {"type": "string", "minLength": 1},
+    "why_now": {"type": "string"},
+    "falsification_criteria": {
+      "type": "array",
+      "items": {"type": "string", "minLength": 1}
+    },
+    "expected_artifacts": {
+      "type": "array",
+      "items": {"type": "string"}
+    },
+    "controls": {"type": "array", "items": {"type": "string"}},
+    "gap_rule": {"type": "string"},
+    "budget_hint": {"type": "object"},
+    "triggered_by": {"type": ["object", "string", "null"]},
+    "generated_at": {"type": "string"},
+    "generator_version": {"type": "string"},
+    "evidence_refs": {"type": "array"}
+  }
+}
