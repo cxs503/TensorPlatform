@@ -1,0 +1,178 @@
+{
+  "repo": "/tmp/LUMA",
+  "head_sha": "5a5aa19d72056b88ff61359bdd396cbacd31e7a2",
+  "head_date": "2023-08-03",
+  "commit_count": 66,
+  "tags": [
+    "Release_1.7.10",
+    "Release_1.7.12",
+    "Release_1.7.3",
+    "Release_1.7.4",
+    "Release_1.7.5",
+    "Release_1.7.6",
+    "Release_1.7.7",
+    "Release_1.7.8",
+    "Release_1.7.9",
+    "Release_v1.7.11"
+  ],
+  "authors": [
+    [
+      "Adrian Harwood",
+      39
+    ],
+    [
+      "Ian Hinder",
+      20
+    ],
+    [
+      "yangzhou-10",
+      2
+    ],
+    [
+      "Marta Camps Santasmasas",
+      2
+    ],
+    [
+      "martacamps",
+      1
+    ]
+  ],
+  "luma_version": "1.7.12",
+  "license_header": "Apache License Version 2.0, January 2004 http://www.apache.org/licenses/",
+  "has_notice": true,
+  "has_ci": false,
+  "src_cpp_lines": 20069,
+  "inc_h_lines": 4690,
+  "file_count": 366,
+  "kernels": {
+    "LUMA/src/GridObj_ops_lbm_optimised.cpp": 1436,
+    "LUMA/src/GridObj_ops_lbm.cpp": 341,
+    "LUMA/src/ObjectManager_ops_ibm.cpp": 1142,
+    "LUMA/src/MpiManager.cpp": 1865,
+    "LUMA/src/GridObj_init_grids.cpp": 1379,
+    "LUMA/src/ObjectManager.cpp": 416,
+    "LUMA/src/GridObj_ops_io.cpp": 1375,
+    "LUMA/src/FEMBody.cpp": 439,
+    "LUMA/inc/definitions.h": 352,
+    "LUMA/inc/Enumerations.h": 183
+  },
+  "sweeps": {
+    "multiphase_any": 0,
+    "gpu_cuda": 0,
+    "autodiff_codegen": 0,
+    "kbc": 17,
+    "bgk": 9,
+    "smagorinsky": 8,
+    "guo_forcing": 5,
+    "regularised_bc": 17,
+    "zou_he": 1,
+    "halfway_bounceback": 29,
+    "interpolated_bounceback_bfl": 159,
+    "slip_specular": 11,
+    "ibm_deltakernel": 10,
+    "ibm_epsilon_rkpm": 5,
+    "mpi_halo_nb": 25,
+    "mpi_periodic_cart": 1,
+    "openmp": 1,
+    "grid_refinement": 122,
+    "fem_newmark": 38,
+    "openmp_or_mpi_any": 1404,
+    "porous_sparse": 0
+  },
+  "case_defs_files": 10,
+  "testsuite_cases": 9,
+  "ci_files": 0,
+  "test_diff_artifact": "io_lite.Lev0.Reg0.Rnk0.100.dat",
+  "mapping": [
+    {
+      "slug": "GAP-LBM-MCMP-POISEUILLE",
+      "target": "two-component layered Poiseuille",
+      "grep_key": "multiphase_any",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    },
+    {
+      "slug": "NEW:MCMP 高密度比",
+      "target": "MCMP high density ratio",
+      "grep_key": "multiphase_any",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    },
+    {
+      "slug": "NEW:自由面 LBM",
+      "target": "free-surface LBM",
+      "grep_key": "multiphase_any",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    },
+    {
+      "slug": "NEW:相场 Allen-Cahn",
+      "target": "phase-field Allen-Cahn",
+      "grep_key": "multiphase_any",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    },
+    {
+      "slug": "GPU 融合 kernel",
+      "target": "GPU fused kernel",
+      "grep_key": "gpu_cuda",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    },
+    {
+      "slug": "NEW:分布式多卡 (MPI+halo+负载均衡)",
+      "target": "distributed MPI (halo + load balance)",
+      "grep_key": "mpi_halo_nb",
+      "grep_hits": 25,
+      "grep_key2": "mpi_periodic_cart",
+      "grep_hits2": 1,
+      "status": 2
+    },
+    {
+      "slug": "稀疏/多孔",
+      "target": "sparse / porous",
+      "grep_key": "porous_sparse",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    },
+    {
+      "slug": "案例组织",
+      "target": "case organisation (compile-time defs + geometry.config)",
+      "grep_key": "case_defs_files",
+      "grep_hits": 10,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 2
+    },
+    {
+      "slug": "测试与验证面",
+      "target": "test & verification surface (regression diff)",
+      "grep_key": "testsuite_cases",
+      "grep_hits": 9,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 2
+    },
+    {
+      "slug": "CI",
+      "target": "continuous integration",
+      "grep_key": "ci_files",
+      "grep_hits": 0,
+      "grep_key2": null,
+      "grep_hits2": null,
+      "status": 0
+    }
+  ]
+}
