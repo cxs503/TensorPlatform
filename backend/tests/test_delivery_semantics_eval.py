@@ -271,6 +271,10 @@ class TestLayeredKpi:
     def test_definitions_carry_denominator(self):
         from api.kpi_delivery import get_delivery_kpi_definitions
 
-        for defn in get_delivery_kpi_definitions():
-            assert defn["denominator"] == "succeeded"
-            assert defn["description"].endswith("/ succeeded * 100")
+        defs = {d["key"]: d for d in get_delivery_kpi_definitions()}
+        # P92W3-N10: the binary success rate keeps its own (terminal) denominator;
+        # every delivery-rate KPI stays on the ``succeeded`` layer.
+        assert defs["success_rate"]["denominator"] == "terminal"
+        for key in ("complete_rate", "partial_rate", "forced_finish_rate", "forced_closure_rate"):
+            assert defs[key]["denominator"] == "succeeded"
+            assert defs[key]["description"].endswith("/ succeeded * 100")

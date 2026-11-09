@@ -35,7 +35,6 @@ class TestDeliveryStateClassifier:
         assessment = assess_delivery({})
         assert assessment.state == "suspect_undeclared"
         assert "changed_files" in assessment.missing
-        assert "checks" in assessment.missing
     
     def test_missing_changed_files_is_undeclared(self):
         """Negative control: missing changed_files → suspect_undeclared."""
@@ -47,14 +46,19 @@ class TestDeliveryStateClassifier:
         assert assessment.state == "suspect_undeclared"
         assert "changed_files" in assessment.missing
     
-    def test_missing_checks_is_undeclared(self):
-        """Negative control: missing checks → suspect_undeclared."""
+    def test_missing_checks_is_partial(self):
+        """Negative control: work product on disk but no verification → partial.
+
+        P92W3-N10: ``suspect_undeclared`` is reserved for "nothing on disk";
+        a mission that wrote files but recorded nothing about verification is a
+        partial delivery, and saying otherwise makes the state name a lie.
+        """
         result = {
             "changed_files": ["a.py"],
             "summary": {"text": "done"},
         }
         assessment = assess_delivery(result)
-        assert assessment.state == "suspect_undeclared"
+        assert assessment.state == "delivered_partial"
         assert "checks" in assessment.missing
     
     def test_empty_changed_files_is_undeclared(self):
@@ -396,8 +400,9 @@ class TestFailClosedNegativeControls:
         }
         assessment = assess_delivery(result)
         assert assessment.state != "delivered_complete"
-        assert assessment.state == "suspect_undeclared"
-    
+        assert assessment.state == "delivered_partial"
+        assert "checks" in assessment.missing
+
     def test_empty_mission_is_undeclared_not_complete(self):
         """Empty mission → undeclared with non-empty missing list."""
         result = {}
