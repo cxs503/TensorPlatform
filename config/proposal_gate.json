@@ -1,0 +1,83 @@
+{
+  "schema_version": "proposal-gate-config/1.0",
+  "purpose": "提案→战役播种供给链三道机器门的全部可调参数（schema 契约 / 跨提案去重 / 播种覆盖率账本）。零领域语义纪律：本文件是唯一参数与词表来源，代码内不得出现域词或散落常量。",
+  "repo_whitelist": [
+    "TensorLBM",
+    "TensorFEM",
+    "TensorFVM",
+    "TensorDEM",
+    "TensorBEM",
+    "TensorSPH",
+    "TensorDG",
+    "TensorCAD",
+    "TensorPlatform",
+    "TensorPhysics",
+    "TensorPapers",
+    "ship-performance-platform"
+  ],
+  "schemas": {
+    "v1": "tools/proposal_gate/schemas/proposal.v1.json",
+    "v2": "tools/proposal_gate/schemas/proposal.v2.json",
+    "default_version": "2.0"
+  },
+  "contract": {
+    "min_criteria": 3,
+    "numeric_pattern": "[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?",
+    "comparator_pattern": "≥|≤|>=|<=|>|<|=|＞|＜",
+    "quantifier_requirement": "number_with_comparator_or_symbol",
+    "unit_symbols": [
+      "%",
+      "‰"
+    ],
+    "title_min_length": 1,
+    "fail_closed": true
+  },
+  "compat": {
+    "v1_to_canonical": {
+      "title": "title",
+      "objective": "hypothesis",
+      "criteria": "falsification_criteria",
+      "dependencies_hint": "expected_artifacts",
+      "repo": "triggered_by.repo"
+    },
+    "v1_defaults": {
+      "repo": "TensorPlatform",
+      "is_maturity": true
+    }
+  },
+  "dedup": {
+    "shingle_size": 3,
+    "dup_threshold": 0.85,
+    "containment_enabled": true,
+    "containment_weight": 1.0,
+    "min_length_ratio": 0.5,
+    "twin_dependency_overlap": 0.8,
+    "coverage_match_threshold": 0.85,
+    "index_kinds": [
+      "campaign_node",
+      "proposal"
+    ],
+    "review_threshold": 0.55,
+    "review_band_note": "score ∈ [review_threshold, dup_threshold) → near_duplicate：不自动拒、也不直接入池，进隔离区待复核（四态里最贴近 quarantine 的语义：不进仲裁）"
+  },
+  "ledger": {
+    "table": "proposal_gate_ledger",
+    "historical_pool_mission_id": 0,
+    "quarantine_dir": "artifacts/proposal_gate/quarantine",
+    "events_file": "artifacts/proposal_gate/events.jsonl",
+    "artifacts_dir": "artifacts/proposal_gate"
+  },
+  "states": {
+    "accepted": "proposal",
+    "adopted": "adopted",
+    "duplicate": "dedup_rejected",
+    "twin": "dedup_rejected",
+    "quarantined": "quarantined",
+    "near_duplicate": "quarantined"
+  },
+  "kpi": {
+    "dup_rejected_key": "guide.proposal_dup_rejected",
+    "seed_coverage_key": "guide.proposal_seed_coverage"
+  },
+  "domain_vocab_file": "config/domain_word_denylist.json"
+}
