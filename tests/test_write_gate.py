@@ -405,7 +405,7 @@ def test_cli_exit_codes(tmp_path):
                         "--json", str(json_out), "--quiet", "paths", "../escape.py"])
     payload = json.loads(json_out.read_text(encoding="utf-8"))
     assert blocked.returncode == 2 and payload["verdict"] == "FAIL"
-    assert payload["schema"] == "tp.write_gate.verdict/v1"
+    assert payload["schema"] == "tp.write_gate.verdict/v2"
     assert payload["digest"]
 
     missing = _run_cli(["--policy", str(tmp_path / "nope.json"), "paths", "a.py"])

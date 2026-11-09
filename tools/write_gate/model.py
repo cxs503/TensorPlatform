@@ -3,7 +3,7 @@
 
 三条平台铁律
 ------------
-1. **零领域语义**：本包只认「路径 / 仓库边界 / 凭证形态」这三类平台通用概念。
+1. **零领域语义**：本包只认「路径 / 仓库边界 / 凭证形态 / 文件大小」这四类平台通用概念。
    白名单、仓边界规则、凭证模式**全部外置**到 ``data/write_gate/policy.json``；
    代码里不写任何学科/业务词条（由 ``tests/test_write_gate.py::test_package_carries_no_domain_terms``
    机器校验）。
@@ -19,12 +19,12 @@ import json
 from dataclasses import dataclass, field
 from typing import Any, Dict, List, Optional
 
-SCHEMA = "tp.write_gate.verdict/v1"
+SCHEMA = "tp.write_gate.verdict/v2"
 POLICY_SCHEMA = "write_gate/policy/v1"
 ACCEPTANCE_SCHEMA = "tp.write_gate.acceptance/v1"
 
-# 四类判决分类：边界类（cross_repo）优先归因——越界路径不再按白名单未命中重复计
-CATEGORIES = ("whitelist", "cross_repo", "secret", "invalid")
+# 五类判决分类：边界类（cross_repo）优先归因——越界路径不再按白名单未命中重复计
+CATEGORIES = ("whitelist", "cross_repo", "secret", "binary", "invalid")
 
 
 class WriteGateError(ValueError):
@@ -56,9 +56,12 @@ class Change:
                 "source": self.source, "has_content": self.content is not None}
 
 
-@dataclass(frozen=True)
+@dataclass
 class Violation:
-    """一条拦截记录。``excerpt`` 永远经过脱敏，绝不回显凭证原文。"""
+    """一条拦截记录。``excerpt`` 永远经过脱敏，绝不回显凭证原文。
+
+    ``evidence_sha256`` 为 patch 片段摘要（16 字符截断），用于审计溯源。
+    """
 
     code: str
     category: str
@@ -67,6 +70,7 @@ class Violation:
     detail: str = ""
     line: Optional[int] = None
     excerpt: Optional[str] = None
+    evidence_sha256: Optional[str] = None
 
     def to_json(self) -> Dict[str, Any]:
         out: Dict[str, Any] = {"code": self.code, "category": self.category,
@@ -75,6 +79,8 @@ class Violation:
             out["line"] = self.line
         if self.excerpt is not None:
             out["excerpt"] = self.excerpt
+        if self.evidence_sha256 is not None:
+            out["evidence_sha256"] = self.evidence_sha256
         return out
 
 
