@@ -1,0 +1,132 @@
+{
+  "bundle_id": "N04-lattice-volume-quadrupole",
+  "bundle_role": "analytic_criterion_source",
+  "physical_summary": "算子级体积四极子（二阶矩的无迹投影）在立方对称速度集上的各向同性恒等式、群不变性与细化收敛性，共 7 条判据。",
+  "provenance": {
+    "producer": "tools/criteria_governance/probes.py",
+    "registry": "data/criteria_governance/lattices.json",
+    "note": "N04 独立分支未合入本工作树（grep 0 命中），判据集按任务书 C1–C7 槽位在本节点重建为数据工件；数值全部由探针现场计算，非手抄。"
+  },
+  "criteria": [
+    {
+      "id": "N04-C1",
+      "title": "D3Q27 四极子张量算子级各向同性误差",
+      "statement": "速度集四点矩 M4_ijkl 与解析各向同性形 c_s^4(δδ+δδ+δδ) 的相对最大误差 ≤ 2%（算子级判据）。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "relative_max_error(M4, c_s^4 * isotropic4)",
+      "threshold": {"op": "<=", "value": 0.02, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "立方对称速度集（D3Q27）的四阶矩精确闭合于各向同性张量 c_s^4(δ_ijδ_kl+δ_ikδ_jl+δ_ilδ_jk)，c_s^2=1/3",
+        "parents": [],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "lattice_moment_isotropy", "params": {"lattice": "D3Q27", "order": 4, "cs2": 0.3333333333333333}},
+      "note": "算子级判据：不涉及任何流动求解，只裁判四极子算子本身的对称性。"
+    },
+    {
+      "id": "N04-C2",
+      "title": "D3Q19 二阶矩各向同性误差",
+      "statement": "D3Q19 二阶矩与 c_s^2 δ_ij 的相对最大误差 ≤ 1e-12。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "relative_max_error(M2, c_s^2 * delta)",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "D3Q19 权重组由二阶各向同性条件 Σw=1、Σw c_i c_j = (1/3)δ_ij 构造",
+        "parents": ["N04-C3"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "second_moment_isotropy", "params": {"lattice": "D3Q19", "cs2": 0.3333333333333333}},
+      "note": "指向 N04-C3 的权重归一化：链上父判据必须先成立。"
+    },
+    {
+      "id": "N04-C3",
+      "title": "权重集归一化",
+      "statement": "D2Q9/D3Q19/D3Q27 三个权重集的 |Σw − 1| ≤ 1e-12。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "abs(sum(w) - 1)",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "零阶矩守恒要求 Σw = 1（质量守恒对权重集的硬约束）",
+        "parents": [],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "weight_normalisation", "params": {"lattices": ["D2Q9", "D3Q19", "D3Q27"]}},
+      "note": "derivation 链的根节点之一。"
+    },
+    {
+      "id": "N04-C4",
+      "title": "体积四极子中点求积的观测衰减指数",
+      "statement": "余弦调制密度场 ρ=1+A cos(2πx/L) 的体积四极子数值相对误差随 h 衰减，实测指数与声明阶 2.0 的偏差 ≤ 0.3。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "observed_decay_exponent(err(N), N^-1)",
+      "threshold": {"op": "<=", "value": 0.04, "unit": "1"},
+      "derivation": {
+        "method": "refinement_scan",
+        "declared_exponent": 2.0,
+        "reference": "闭式解 Q_xx=-A L^5/(3π^2)、Q_yy=Q_zz=+A L^5/(6π^2)；复合中点法则对光滑非周期被积函数误差 O(h^2)（Euler–Maclaurin）",
+        "parents": [],
+        "tolerance": 0.3
+      },
+      "probe": {"name": "quadrupole_refinement", "params": {"resolutions": [16, 32, 64, 128], "length": 1.0, "amplitude": 0.5}},
+      "note": "threshold 记录最细网格相对误差（≤4%）；派生一致性由 declared_exponent 与 tolerance 裁判。"
+    },
+    {
+      "id": "N04-C5",
+      "title": "四极子无迹性",
+      "statement": "Q = M2 − c_s^2 δ 的无迹残差 |tr Q| / |tr M2| ≤ 1e-12（尺度取物理矩量级，避免 Q≡0 时 0/0 放大舍入噪声）。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "abs(trace(Q)) / abs(trace(M2))",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "各向同性二阶矩的迹 tr(c_s^2 δ)=3c_s^2=1 已全部进入球对称部分，故无迹投影恒为零迹",
+        "parents": ["N04-C2"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "trace_free_residual", "params": {"lattice": "D3Q27", "cs2": 0.3333333333333333}},
+      "note": "无迹性是四极子作为不可约张量分量的定义性要求。"
+    },
+    {
+      "id": "N04-C6",
+      "title": "椭球体积四极子的数值-闭式偏差",
+      "statement": "64^3 中点采样下椭球 (a,b,c)=(0.40,0.30,0.20) 的四极子张量与闭式解 V(a_i^2−Σa^2/3)/5 的相对最大偏差 ≤ 5%。",
+      "cohort": "empirical",
+      "source_type": "empirical",
+      "metric": "relative_max_error(Q_midpoint64, Q_closed_form)",
+      "threshold": {"op": "<=", "value": 0.05, "unit": "1"},
+      "derivation": {
+        "method": "sampled_observation",
+        "reference": "闭式解 V(a^2-b^2)/5；偏差来自硬指示函数的阶梯面误差（O(h) 面元权重），故用实测容差而非恒等式",
+        "parents": [],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "ellipsoid_quadrupole_error", "params": {"resolution": 64, "semi_axes": [0.40, 0.30, 0.20], "length": 1.0}},
+      "note": "经验型：不参与可派生率分子（可派生率只对 analytic 声明裁判）。"
+    },
+    {
+      "id": "N04-C7",
+      "title": "体积四极子的 90° 旋转协变性",
+      "statement": "绕 z 轴 90° 旋转下，四极子按 R Q Rᵀ 协变的残差 ≤ 1e-12。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "relative_max_error(R Q_before R^T, Q_after)",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "四极子是 2 阶张量，在立方群子群 C4z 下按 R Q R^T 变换；调制方向 x→y 的对称性是同一算例的精确等变",
+        "parents": ["N04-C1"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "rotation_invariance_90", "params": {"resolution": 48, "length": 1.0, "amplitude": 0.5}},
+      "note": "与 N05-C2/C3 的群不变性判据共享群论基底，但裁判对象是具体算例的四极子。"
+    }
+  ]
+}
