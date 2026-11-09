@@ -1,0 +1,408 @@
+{
+  "metadata": {
+    "scenario_key": "oss-cad-disc",
+    "mission_id": 8668,
+    "created": "2026-11-09",
+    "method": "GitHub API search (search/repositories) multi-round + manual curation, ≥20 repos, quality-filtered",
+    "tier_legend": {
+      "1": "几何内核/参数化 CAD/网格生成 (B-rep/NURBS/CSG/geometry repair, production-grade)",
+      "2": "可微/框架族 (differentiable, modern framework, cross-platform)",
+      "3": "专项能力 (specialized capability: IGA, mesh, web, educational)"
+    },
+    "focus_tags": [
+      "B-rep", "NURBS", "CSG", "parametric-CAD", "geometry-kernel",
+      "mesh-generation", "geometry-repair", "IGA", "differentiable",
+      "OCCT", "web-CAD", "HPC", "educational"
+    ]
+  },
+  "repositories": [
+    {
+      "repo": "FreeCAD/FreeCAD",
+      "tier": 1,
+      "focus": ["parametric-CAD", "B-rep", "geometry-kernel", "mesh", "OCCT", "Python-API"],
+      "lang": "C++",
+      "license": "LGPL-2.1",
+      "stars": 35296,
+      "last_commit": "2026-11-09",
+      "summary": "Open-source parametric CAD flagship; full B-rep kernel (OCCT), sketcher, mesh, Python scripting API; active since 2002; the de-facto open CAD standard."
+    },
+    {
+      "repo": "tangency-labs/solidcraft",
+      "tier": 1,
+      "focus": ["parametric-CAD", "B-rep", "geometry-kernel", "Rust", "constraint-solver"],
+      "lang": "Rust",
+      "license": "Apache-2.0",
+      "stars": 15198,
+      "last_commit": "2026-11-09",
+      "summary": "Modern Rust parametric CAD with constraint solver; B-rep kernel; fast-growing; web + desktop; active development."
+    },
+    {
+      "repo": "CadQuery/cadquery",
+      "tier": 1,
+      "focus": ["B-rep", "parametric-CAD", "OCCT", "Python", "STEP", "mesh"],
+      "lang": "Python",
+      "license": "NOASSERTION",
+      "stars": 6079,
+      "last_commit": "2026-11-09",
+      "summary": "Python B-rep CAD library on OCCT; fluent API for parametric geometry; STEP/IGES export; active since 2012; the standard Python CAD tool."
+    },
+    {
+      "repo": "xiangechen/chili3d",
+      "tier": 1,
+      "focus": ["parametric-CAD", "B-rep", "web", "TypeScript", "OCCT"],
+      "lang": "TypeScript",
+      "license": "AGPL-3.0",
+      "stars": 4977,
+      "last_commit": "2026-11-02",
+      "summary": "Web-based parametric CAD with OCCT kernel; TypeScript; browser-native; active development."
+    },
+    {
+      "repo": "solvespace/solvespace",
+      "tier": 1,
+      "focus": ["parametric-CAD", "constraint-solver", "B-rep", "C++", "educational"],
+      "lang": "C++",
+      "license": "GPL-3.0",
+      "stars": 4241,
+      "last_commit": "2026-11-06",
+      "summary": "Minimalist parametric CAD with 2D/3D constraint solver; B-rep; educational reference; active since 2008."
+    },
+    {
+      "repo": "gumyr/build123d",
+      "tier": 1,
+      "focus": ["B-rep", "parametric-CAD", "OCCT", "Python", "mesh"],
+      "lang": "Python",
+      "license": "Apache-2.0",
+      "stars": 3666,
+      "last_commit": "2026-11-08",
+      "summary": "Python B-rep CAD with OCCT; direct + parametric modeling; active development; successor to CadQuery."
+    },
+    {
+      "repo": "Open-Cascade-SAS/OCCT",
+      "tier": 1,
+      "focus": ["geometry-kernel", "B-rep", "NURBS", "CSG", "mesh", "STEP", "IGES"],
+      "lang": "C++",
+      "license": "LGPL-2.1",
+      "stars": 3147,
+      "last_commit": "2026-11-08",
+      "summary": "Open CASCADE Technology: the industrial-grade B-rep/NURBS/CSG geometry kernel; powers FreeCAD/CadQuery; active since 1999."
+    },
+    {
+      "repo": "dune3d/dune3d",
+      "tier": 1,
+      "focus": ["parametric-CAD", "constraint-solver", "B-rep", "C", "educational"],
+      "lang": "C",
+      "license": "GPL-3.0",
+      "stars": 2137,
+      "last_commit": "2026-10-17",
+      "summary": "3D parametric CAD with constraint solver; C implementation; active development."
+    },
+    {
+      "repo": "evanw/csg.js",
+      "tier": 1,
+      "focus": ["CSG", "JavaScript", "web", "geometry"],
+      "lang": "JavaScript",
+      "license": "MIT",
+      "stars": 1863,
+      "last_commit": "2019-10-05",
+      "summary": "Constructive Solid Geometry in JavaScript; classic CSG library; web-based geometry."
+    },
+    {
+      "repo": "Haskell-Things/ImplicitCAD",
+      "tier": 1,
+      "focus": ["CSG", "implicit", "parametric-CAD", "JavaScript", "Haskell"],
+      "lang": "JavaScript",
+      "license": "AGPL-3.0",
+      "stars": 1591,
+      "last_commit": "2026-11-03",
+      "summary": "Implicit CAD: CSG via implicit surfaces; Haskell + JS; active development."
+    },
+    {
+      "repo": "QymIs-Tech/QymCAD",
+      "tier": 1,
+      "focus": ["parametric-CAD", "B-rep", "Rust", "geometry-kernel"],
+      "lang": "Rust",
+      "license": "AGPL-3.0",
+      "stars": 922,
+      "last_commit": "2026-10-26",
+      "summary": "Rust parametric CAD with B-rep kernel; active development."
+    },
+    {
+      "repo": "MeshInspector/MeshLib",
+      "tier": 1,
+      "focus": ["mesh", "geometry-repair", "B-rep", "C++", "CAD", "analysis"],
+      "lang": "C++",
+      "license": "NOASSERTION",
+      "stars": 844,
+      "last_commit": "2026-11-09",
+      "summary": "Mesh processing + geometry repair library; B-rep conversion; CAD analysis; active development."
+    },
+    {
+      "repo": "orbingol/NURBS-Python",
+      "tier": 1,
+      "focus": ["NURBS", "B-spline", "Python", "geometry", "IGA"],
+      "lang": "Python",
+      "license": "MIT",
+      "stars": 769,
+      "last_commit": "2025-05-24",
+      "summary": "Pure-Python NURBS/B-spline library; evaluation, fitting, IGA; active since 2015."
+    },
+    {
+      "repo": "msteinbeck/tinyspline",
+      "tier": 1,
+      "focus": ["NURBS", "B-spline", "C", "geometry", "bindings"],
+      "lang": "C",
+      "license": "MIT",
+      "stars": 1357,
+      "last_commit": "2024-09-03",
+      "summary": "Tiny NURBS/B-spline library in C with Python/JS/Rust bindings; lightweight; active."
+    },
+    {
+      "repo": "gismo/gismo",
+      "tier": 1,
+      "focus": ["IGA", "NURBS", "B-spline", "C++", "geometry-analysis", "FEM"],
+      "lang": "C++",
+      "license": "MPL-2.0",
+      "stars": 441,
+      "last_commit": "2026-11-09",
+      "summary": "Isogeometric Analysis (IGA) library: NURBS/B-spline geometry + FEM; active since 2010."
+    },
+    {
+      "repo": "OpenGeometry-io/OpenGeometry",
+      "tier": 2,
+      "focus": ["geometry-kernel", "B-rep", "Rust", "web", "parametric"],
+      "lang": "Rust",
+      "license": "MPL-2.0",
+      "stars": 543,
+      "last_commit": "2026-11-09",
+      "summary": "Open-source geometry kernel in Rust; B-rep; web + desktop; active development."
+    },
+    {
+      "repo": "CadQuery/CQ-editor",
+      "tier": 2,
+      "focus": ["framework", "B-rep", "OCCT", "Python", "GUI"],
+      "lang": "Python",
+      "license": "Apache-2.0",
+      "stars": 1265,
+      "last_commit": "2026-11-03",
+      "summary": "CadQuery editor/GUI framework; visual B-rep modeling; active."
+    },
+    {
+      "repo": "CadQuery/OCP",
+      "tier": 2,
+      "focus": ["framework", "OCCT", "Python", "B-rep", "bindings"],
+      "lang": "C++",
+      "license": "Apache-2.0",
+      "stars": 213,
+      "last_commit": "2026-11-06",
+      "summary": "OCCT Python bindings for CadQuery; active."
+    },
+    {
+      "repo": "jimy-byerley/pymadcad",
+      "tier": 2,
+      "focus": ["framework", "CAD", "mesh", "Python", "B-rep"],
+      "lang": "Python",
+      "license": "LGPL-3.0",
+      "stars": 294,
+      "last_commit": "2026-10-25",
+      "summary": "Python CAD + mesh library; B-rep + mesh; active."
+    },
+    {
+      "repo": "timschmidt/csgrs",
+      "tier": 2,
+      "focus": ["CSG", "Rust", "geometry", "web"],
+      "lang": "Rust",
+      "license": "MIT",
+      "stars": 265,
+      "last_commit": "2026-11-09",
+      "summary": "CSG in Rust; web + desktop; active."
+    },
+    {
+      "repo": "victorpoughon/torchlensmaker",
+      "tier": 2,
+      "focus": ["differentiable", "CAD", "Python", "PyTorch", "geometry"],
+      "lang": "Python",
+      "license": "GPL-3.0",
+      "stars": 138,
+      "last_commit": "2026-07-06",
+      "summary": "Differentiable CAD in PyTorch; lens design; active."
+    },
+    {
+      "repo": "andrinr/cadjoint",
+      "tier": 2,
+      "focus": ["differentiable", "CAD", "Python", "adjoint", "geometry"],
+      "lang": "Python",
+      "license": "Apache-2.0",
+      "stars": 71,
+      "last_commit": "2026-11-08",
+      "summary": "Adjoint/differentiable CAD; active."
+    },
+    {
+      "repo": "anjanadev96/NURBS_Diff",
+      "tier": 2,
+      "focus": ["differentiable", "NURBS", "Python", "geometry"],
+      "lang": "Python",
+      "license": "BSD-3-Clause",
+      "stars": 52,
+      "last_commit": "2021-03-30",
+      "summary": "Differentiable NURBS; research prototype."
+    },
+    {
+      "repo": "david-kamensky/tIGAr",
+      "tier": 3,
+      "focus": ["IGA", "NURBS", "FEniCS", "Python", "FEM"],
+      "lang": "Python",
+      "license": "LGPL-3.0",
+      "stars": 117,
+      "last_commit": "2024-09-14",
+      "summary": "Isogeometric Analysis with FEniCS; NURBS + FEM; active."
+    },
+    {
+      "repo": "edwardvmills/Silk",
+      "tier": 3,
+      "focus": ["NURBS", "Python", "geometry", "CAD"],
+      "lang": "Python",
+      "license": "GPL-3.0",
+      "stars": 99,
+      "last_commit": "2026-08-16",
+      "summary": "NURBS-based CAD in Python; active."
+    },
+    {
+      "repo": "turbo-sim/nurbspy",
+      "tier": 3,
+      "focus": ["NURBS", "Python", "geometry", "IGA"],
+      "lang": "Python",
+      "license": "MIT",
+      "stars": 89,
+      "last_commit": "2026-11-08",
+      "summary": "NURBS Python library; active."
+    },
+    {
+      "repo": "ghadinehme/CADFit",
+      "tier": 3,
+      "focus": ["mesh", "CAD", "Python", "geometry"],
+      "lang": "Python",
+      "license": "NOASSERTION",
+      "stars": 91,
+      "last_commit": "2026-09-28",
+      "summary": "CAD mesh fitting; active."
+    },
+    {
+      "repo": "fusion-energy/paramak",
+      "tier": 3,
+      "focus": ["parametric-CAD", "Python", "fusion", "geometry"],
+      "lang": "Python",
+      "license": "MIT",
+      "stars": 110,
+      "last_commit": "2026-11-06",
+      "summary": "Parametric CAD for fusion energy; active."
+    },
+    {
+      "repo": "Macad3D/Macad3D",
+      "tier": 3,
+      "focus": ["CAD", "C#", "OCCT", "geometry"],
+      "lang": "C#",
+      "license": "MIT",
+      "stars": 587,
+      "last_commit": "2026-09-05",
+      "summary": "C# CAD on OCCT; active."
+    },
+    {
+      "repo": "kovacsv/occt-import-js",
+      "tier": 3,
+      "focus": ["OCCT", "import", "JavaScript", "B-rep", "web"],
+      "lang": "C++",
+      "license": "LGPL-2.1",
+      "stars": 296,
+      "last_commit": "2024-12-03",
+      "summary": "OCCT STEP/IGES import to JS; web CAD."
+    },
+    {
+      "repo": "trelau/pyOCCT",
+      "tier": 3,
+      "focus": ["OCCT", "Python", "B-rep", "bindings"],
+      "lang": "Python",
+      "license": "LGPL-2.1",
+      "stars": 260,
+      "last_commit": "2021-11-25",
+      "summary": "OCCT Python bindings; legacy."
+    },
+    {
+      "repo": "Nodi3d/nodi",
+      "tier": 3,
+      "focus": ["web", "CAD", "TypeScript", "geometry"],
+      "lang": "TypeScript",
+      "license": "Apache-2.0",
+      "stars": 241,
+      "last_commit": "2024-11-08",
+      "summary": "Web-based CAD; active."
+    },
+    {
+      "repo": "gkjohnson/three-bvh-csg",
+      "tier": 3,
+      "focus": ["CSG", "JavaScript", "three.js", "web", "geometry"],
+      "lang": "JavaScript",
+      "license": "MIT",
+      "stars": 963,
+      "last_commit": "2026-09-27",
+      "summary": "CSG with three.js BVH; web geometry; active."
+    }
+  ],
+  "gap_proposals": [
+    {
+      "gap_id": "GAP-CAD-BREP-VALIDATION",
+      "title": "B-rep 几何内核基准验证面 (OCCT/FreeCAD/CadQuery)",
+      "description": "对标 OCCT/FreeCAD/CadQuery 的 B-rep 几何内核标准验证面：布尔运算 (union/intersect/difference)、拓扑一致性、STEP/IGES 往返精度。目前无统一跨代码对比基准。",
+      "priority": "high",
+      "anchor_repos": ["Open-Cascade-SAS/OCCT", "FreeCAD/FreeCAD", "CadQuery/cadquery"]
+    },
+    {
+      "gap_id": "GAP-CAD-NURBS-CONVERGENCE",
+      "title": "NURBS/B-spline 拟合与 IGA 收敛验证",
+      "description": "NURBS 曲线/曲面拟合精度与 IGA 收敛性验证：控制点误差、L2 范数收敛、对标 gismo/tIGAr 文献值。",
+      "priority": "high",
+      "anchor_repos": ["orbingol/NURBS-Python", "gismo/gismo", "david-kamensky/tIGAr"]
+    },
+    {
+      "gap_id": "GAP-CAD-CSG-BENCHMARK",
+      "title": "CSG 布尔运算基准 (csg.js/ImplicitCAD/csgrs)",
+      "description": "CSG 布尔运算标准 benchmark：union/intersect/difference 精度与性能；对标 evanw/csg.js 与 ImplicitCAD 的 published results。",
+      "priority": "high",
+      "anchor_repos": ["evanw/csg.js", "Haskell-Things/ImplicitCAD", "timschmidt/csgrs"]
+    },
+    {
+      "gap_id": "GAP-CAD-DIFFERENTIABLE",
+      "title": "可微 CAD 反问题与伴随验证",
+      "description": "可微 CAD 梯度精度验证：torchlensmaker/cadjoint 的自动微分 vs 有限差分；反问题（几何参数辨识/优化）收敛性；对标 AD CAD 文献。",
+      "priority": "medium",
+      "anchor_repos": ["victorpoughon/torchlensmaker", "andrinr/cadjoint", "anjanadev96/NURBS_Diff"]
+    },
+    {
+      "gap_id": "GAP-CAD-MESH-REPAIR",
+      "title": "网格生成与几何修复基准",
+      "description": "CAD 网格生成与几何修复标准 benchmark：MeshLib/CADFit 的网格质量、拓扑修复、B-rep 到网格转换精度。",
+      "priority": "medium",
+      "anchor_repos": ["MeshInspector/MeshLib", "ghadinehme/CADFit", "jimy-byerley/pymadcad"]
+    },
+    {
+      "gap_id": "GAP-CAD-HPC-SCALING",
+      "title": "CAD 几何内核 HPC 扩展性基准",
+      "description": "跨代码 CAD 几何内核扩展性对比：OCCT/FreeCAD 的并行布尔运算、大规模装配、多核/GPU 加速。",
+      "priority": "medium",
+      "anchor_repos": ["Open-Cascade-SAS/OCCT", "FreeCAD/FreeCAD", "gismo/gismo"]
+    },
+    {
+      "gap_id": "GAP-CAD-ENGINEERING",
+      "title": "CAD 工程化与 Python API 基准",
+      "description": "CAD 工程化标准：Python API 一致性、STEP/IGES 互操作、参数化工作流；对标 CadQuery/build123d 的 API 设计。",
+      "priority": "medium",
+      "anchor_repos": ["CadQuery/cadquery", "gumyr/build123d", "CadQuery/CQ-editor"]
+    },
+    {
+      "gap_id": "GAP-CAD-WEB",
+      "title": "Web CAD 几何内核基准",
+      "description": "Web CAD 几何内核标准：浏览器端 B-rep/CSG 精度与性能；对标 chili3d/three-bvh-csg 的 published results。",
+      "priority": "low",
+      "anchor_repos": ["xiangechen/chili3d", "gkjohnson/three-bvh-csg", "Nodi3d/nodi"]
+    }
+  ]
+}
