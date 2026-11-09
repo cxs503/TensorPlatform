@@ -23,6 +23,12 @@ owner 渐退令（假设明天没有人类来）：
      `metadata.repo` 存在时，命中路径必须落在这个仓里（防同名工件跨仓误判）；
   C3 非治理门：`metadata.owner_only` 非真，且门名/goal 不含治理标记。
 
+C2b 判据内容（增量，仅当门 metadata 声明了 `gate_criteria.checks` /
+`acceptance_checks` 时生效）：逐条求值「工件里的某值必须满足某算子阈值」，三态裁决
+PASS / FAIL / WITHHELD（证据不足绝不折算成 PASS），任一非 PASS 即继续等，
+理由为 `content_fail` / `content_withheld`。未声明 checks 的门行为**完全不变**。
+实现见 `ops/taskplane/gate_content_criteria.py`（纯函数，可离线复算）。
+
 `no_criteria_declared`（一条判据路径都没声明）按「不满足」处理（只等不放），
 因为不可验证的判据不能自动放行。
 
@@ -48,6 +54,11 @@ import uuid
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any, Iterable, Mapping, Sequence
+
+try:  # 包内导入（python3 -m ops.taskplane.gate_auto_release / from ops.taskplane import ...）
+    from . import gate_content_criteria as content_criteria
+except ImportError:  # 直接以脚本或顶层模块方式加载（sys.path 含 ops/taskplane）
+    import gate_content_criteria as content_criteria  # type: ignore[no-redef]
 
 # ─────────────────────────── 常量 ───────────────────────────
 
@@ -289,12 +300,29 @@ def evaluate_gate(
     unresolved = [c for c in artifact_checks if not c.resolved]
     artifacts_ok = bool(artifact_checks) and not unresolved
 
+    # C2b 判据内容（仅在门显式声明 checks 时生效；声明不合法 → 只等不放，不静默跳过）
+    content_error: str | None = None
+    try:
+        content = content_criteria.evaluate_content(meta, roots, repo)
+    except content_criteria.SpecError as exc:
+        content = None
+        content_error = f"content_spec_invalid: {exc}"
+
     checks = {
         "upstream": {"dependencies": deps, "missing": missing,
                      "not_done": pending, "ok": upstream_ok},
         "artifacts": {"declared_by": crit.declared_by,
                       "items": [c.to_dict() for c in artifact_checks],
                       "ok": artifacts_ok},
+        "content": {"ok": True, "declared": False, "verdict": "NOT_DECLARED"}
+                   if (content is not None and not content.declared) else {
+            "ok": bool(content is not None and content.passed),
+            "error": content_error,
+            "declared": bool(content is not None and content.declared),
+            "verdict": content.verdict if content is not None else "SPEC_INVALID",
+            "digest": content.digest() if content is not None else None,
+            "checks": [c.to_dict() for c in (content.checks if content is not None else [])],
+        },
         "owner_only": {"flag": crit.owner_only, "reason": crit.owner_only_reason,
                        "ok": not crit.owner_only},
     }
@@ -309,6 +337,12 @@ def evaluate_gate(
                         "upstream_missing" if missing else "upstream_pending", crit, checks)
     if not artifacts_ok:
         return Decision(node_id, plan_id, name, ACTION_WAIT, "artifact_missing", crit, checks)
+    if content_error is not None:
+        return Decision(node_id, plan_id, name, ACTION_WAIT, "content_spec_invalid", crit, checks)
+    if content is not None and content.blocking:
+        reason = ("content_fail" if content.verdict == content_criteria.VERDICT_FAIL
+                  else "content_withheld")
+        return Decision(node_id, plan_id, name, ACTION_WAIT, reason, crit, checks)
     return Decision(node_id, plan_id, name, ACTION_RELEASE, "satisfied", crit, checks)
 
 
