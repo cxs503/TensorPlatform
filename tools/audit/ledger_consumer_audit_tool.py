@@ -25,6 +25,15 @@ if str(_ROOT) not in sys.path:
 from tools.audit import ledger_paths as LP  # noqa: E402
 
 
+#: 降级契约：无可读真值来源时，工具**必须**显式返回 UNKNOWN（而不是异常，也不是
+#: 看似正常的空表）。证据分级仪的失灵绝不能表现为「能力都正常」。
+UNKNOWN_HEADER = ("读取能力清单失败：无可用真值来源 —— 证据等级降级为 UNKNOWN"
+                  "（不把任何未证实能力当作已证实）。\n"
+                  "[证据等级] UNKNOWN\n"
+                  "[降级原因] NO_EVIDENCE_SOURCE\n"
+                  "[已尝试]")
+
+
 def ledger_ref() -> dict:
     """消费者契约访问器：台账身份（path/sha256/status/...）。"""
     return LP.resolve_ledger()
@@ -88,7 +97,7 @@ def audit_capabilities() -> str:
                     f"未证实={ref.get('unverified')} OVERCLAIM={ref.get('overclaim')} "
                     f"reasons={','.join(ref.get('reasons') or []) or '-'}")
         return f"{body}\n[真值来源] {path}\n{contract}"
-    return ("读取能力清单失败：无可用真值来源。已尝试：\n"
+    return (UNKNOWN_HEADER + "\n"
             + ("\n".join(tried) or "(无候选文件存在)"))
 
 
@@ -96,7 +105,8 @@ def render(ref: dict | None = None) -> str:
     """给定台账引用时的纯渲染（降级也要可读，绝不抛异常）。"""
     ref = ref or ledger_ref()
     if not ref.get("capabilities"):
-        return (f"能力台账 DEGRADED（reasons={','.join(ref.get('reasons') or [])}；"
+        return (f"[证据等级] UNKNOWN\n"
+                f"能力台账 DEGRADED（reasons={','.join(ref.get('reasons') or [])}；"
                 f"path={ref.get('path_rel') or ref.get('path')}）")
     return audit_capabilities()
 
