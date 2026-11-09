@@ -210,6 +210,31 @@ def build_goal(ext, name, meta, deps_done, deps_live, attempt):
     return "\n".join(parts)
 
 
+# ── 判据可裁决性派发前门（P151W1-N10；机制归 backend/quality/judgeability）────────────
+# 模式（env TP_JUDGEABILITY_GATE）：off 旁路 / advisory 只记录（默认）/
+#   enforce 缺 P1或P2 → 追加「证据槽位」建议块后照常派发 / block 硬拦。
+# 铁律：任何异常一律 fail-open（门坏了不许误伤派发）；只追加结构槽位，不改任务语义。
+JUDGEABILITY_MODE = os.getenv("TP_JUDGEABILITY_GATE", "advisory")
+
+
+def judgeability_gate(goal, meta=None):
+    """返回 (goal, decision_dict|None)。decision 为 None = 门未生效（导入失败/异常/off）。"""
+    mode = os.getenv("TP_JUDGEABILITY_GATE", JUDGEABILITY_MODE)
+    if mode == "off":
+        return goal, None
+    try:
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        from backend.quality.judgeability import gate as _jg     # 延迟导入：缺模块不影响派发
+        d = _jg.pre_dispatch(goal, mode=mode, meta=meta)
+        return d.goal, d.as_dict()
+    except Exception as e:
+        log(f"WARN judgeability gate 跳过（fail-open）: {type(e).__name__}: {str(e)[:120]}")
+        return goal, None
+
+
+
 def _hollow(mid, started_ep):
     """成果落盘门（m763 事故 2026-10-31；v5.4 竞态修正）：任务报成功但零提交=空转成功。
     修正：tp_pusher 会自动收编未跟踪成果（m779 实证 09:02 银行化晚于 08:57 判罚）——
@@ -329,8 +354,15 @@ def dispatch_one(nodes, st, nid, r, token):
     task_key = f"p{plan_id}-{ext}-a{int(fails or 0) + 1}"
     repo = meta.get("repo") or REPO.get(ext, "TensorPlatform")
     repo = REPO_ALIAS.get(repo, repo)
-    payload = {"goal": build_goal(ext, name, meta, deps_done, deps_live, int(fails or 0) + 1),
-               "repo": repo, "runner": "native",
+    goal = build_goal(ext, name, meta, deps_done, deps_live, int(fails or 0) + 1)
+    goal, jd = judgeability_gate(goal, meta=meta)
+    if jd and jd.get("action") == "refuse":
+        event("node_status_change", {"node": ext, "gate": "judgeability",
+                                     "action": "refuse", "mode": jd.get("mode"),
+                                     "hard_missing": jd.get("hard_missing")}, pid=int(plan_id))
+        log(f"GATE {ext} 拒发（judgeability {jd.get('mode')}，缺 {', '.join(jd.get('hard_missing') or [])}）")
+        return None
+    payload = {"goal": goal, "repo": repo, "runner": "native",
                "origin": "owner", "task_key": task_key, "budget": BUDGET}
     code, d = api("/api/v1/tensor/missions", payload, token)
     mid = d.get("id") or (d.get("mission") or {}).get("id")
@@ -344,9 +376,15 @@ def dispatch_one(nodes, st, nid, r, token):
     mode = "contract" if deps_live else "strict"
     q(f"UPDATE campaign_nodes SET mission_id={mid}, status='in-flight', "
       f"actual_start=now() WHERE id={nid}")
-    event("mission_dispatched", {"node": ext, "mission_id": int(mid),
-                                 "repo": repo, "plan": int(plan_id),
-                                 "attempt": int(fails or 0) + 1, "mode": mode}, pid=int(plan_id))
+    detail = {"node": ext, "mission_id": int(mid), "repo": repo, "plan": int(plan_id),
+              "attempt": int(fails or 0) + 1, "mode": mode}
+    if jd:
+        detail["judgeability"] = {"action": jd.get("action"), "mode": jd.get("mode"),
+                                  "verdict": jd.get("verdict"),
+                                  "hard_missing": jd.get("hard_missing"),
+                                  "injected": jd.get("injected"),
+                                  "advisory": jd.get("advisory")}
+    event("mission_dispatched", detail, pid=int(plan_id))
     log(f"DISPATCH {ext} → m{mid} ({repo}, {mode}, plan {plan_id})")
     return int(mid)
 
