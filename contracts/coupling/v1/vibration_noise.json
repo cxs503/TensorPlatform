@@ -1,0 +1,76 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.vibration_noise",
+  "version": 1,
+  "solver": "vibration-solver",
+  "discipline": "vibration_noise",
+  "description": "振动噪声求解器对外端口：激励/质量/阻尼/频率 -> 加速度/声压/辐射功率",
+  "ports": [
+    {
+      "name": "excitation_force",
+      "role": "input",
+      "unit": "kN",
+      "tensor_order": 1,
+      "required": true,
+      "semantic": "激励力矢量",
+      "frame": "hull_fixed"
+    },
+    {
+      "name": "structural_mass",
+      "role": "input",
+      "unit": "t",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "参与振动质量"
+    },
+    {
+      "name": "damping_ratio",
+      "role": "input",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "阻尼比"
+    },
+    {
+      "name": "excitation_frequency",
+      "role": "input",
+      "unit": "Hz",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "激励频率"
+    },
+    {
+      "name": "acceleration_level",
+      "role": "output",
+      "unit": "m/s^2",
+      "tensor_order": 1,
+      "required": true,
+      "semantic": "加速度矢量",
+      "frame": "hull_fixed"
+    },
+    {
+      "name": "sound_pressure",
+      "role": "output",
+      "unit": "Pa",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "声压"
+    },
+    {
+      "name": "radiated_power",
+      "role": "output",
+      "unit": "W",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "辐射声功率"
+    },
+    {
+      "name": "transmissibility",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "传递率"
+    }
+  ]
+}

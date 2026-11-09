@@ -1,0 +1,101 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.resistance",
+  "version": 1,
+  "solver": "resistance-solver",
+  "discipline": "resistance",
+  "description": "阻力求解器对外端口：给定航速/流体属性输出合力与无量纲系数",
+  "ports": [
+    {
+      "name": "advance_speed_in",
+      "role": "input",
+      "unit": "m/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "来流/航速"
+    },
+    {
+      "name": "water_density",
+      "role": "input",
+      "unit": "kg/m^3",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "流体密度"
+    },
+    {
+      "name": "kinematic_viscosity",
+      "role": "input",
+      "unit": "m^2/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "运动粘度"
+    },
+    {
+      "name": "waterline_length",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "水线长(参考长度)"
+    },
+    {
+      "name": "resistance_force",
+      "role": "output",
+      "unit": "kN",
+      "tensor_order": 1,
+      "required": true,
+      "semantic": "合力矢量(船体系)",
+      "frame": "hull_fixed"
+    },
+    {
+      "name": "friction_coefficient",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "无量纲阻力系数"
+    },
+    {
+      "name": "wetted_area",
+      "role": "output",
+      "unit": "m^2",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "湿表面积"
+    },
+    {
+      "name": "wake_speed",
+      "role": "output",
+      "unit": "m/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "伴流/进流速度(供推进求解器)"
+    }
+  ],
+  "pi_groups": {
+    "Re": {
+      "advance_speed_in": 1,
+      "waterline_length": 1,
+      "kinematic_viscosity": -1
+    },
+    "Cf": {
+      "resistance_force": 1,
+      "water_density": -1,
+      "advance_speed_in": -2,
+      "waterline_length": -2
+    },
+    "Cf_friction": {
+      "friction_coefficient": 1
+    },
+    "area_group": {
+      "advance_speed_in": 2,
+      "kinematic_viscosity": -2,
+      "wetted_area": 1
+    },
+    "wake_ratio": {
+      "advance_speed_in": -1,
+      "wake_speed": 1
+    }
+  },
+  "require_complete_pi": true
+}
