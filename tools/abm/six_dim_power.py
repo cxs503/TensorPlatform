@@ -31,7 +31,7 @@ import hashlib
 import math
 import random
 from statistics import NormalDist
-from typing import Any, Callable, Dict, List, Optional, Sequence
+from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
 
 # ---------------------------------------------------------------------------
 # 常量
@@ -320,20 +320,76 @@ def permutation_test_six_dim(
                 r["adjusted_p"] = r["raw_p"]
                 r["significant"] = r["raw_p"] < alpha
 
-    fwer_ok = all(
-        (r["adjusted_p"] is None or r["adjusted_p"] >= alpha or r["significant"])
-        for r in results
-    )
+    # 族系大小 = 实际做了检验的维数（样本不足的维没做检验，不该算进族系）
+    fwer = fwer_guarantee(correction, alpha, len(raw_ps))
 
     return {
         "dimensions": results,
         "n_dims_tested": len(dims),
-        "fwer_controlled": fwer_ok,
+        "fwer_controlled": bool(fwer["controlled"]),
+        "fwer": fwer,
+        "family_size": fwer["family_size"],
+        "n_untested": len(results) - len(raw_ps),
         "correction_method": correction,
         "alpha": alpha,
         "n_perm": n_perm,
         "seed": seed,
         "n_significant": sum(1 for r in results if r["significant"]),
+    }
+
+
+FWER_METHODS = ("none", "bonferroni", "bonferroni_holm")
+
+
+def fwer_guarantee(
+    correction: str = "bonferroni_holm",
+    alpha: float = DEFAULT_ALPHA,
+    n_tests: int = len(DIMENSIONS),
+) -> Dict[str, Any]:
+    """多重性校正后**实际**的族系错误率（FWER）保证——不是装饰字段。
+
+    - ``m <= 1``：只有一个检验，无多重性 → 控制 alpha。
+    - ``correction in {"bonferroni", "bonferroni_holm"}``：FWER ≤ alpha（任意相依结构下成立；
+      Bonferroni 更保守，Holm 在保持 alpha 上界的同时提高功效）。
+    - ``correction == "none"`` 且 ``m >= 2``：只控制**逐检验** alpha，族系上界膨胀到
+      ``1-(1-alpha)^m``（独立界）→ ``controlled=False``，调用方不得据此宣称"族系受控"。
+
+    返回 ``{controlled, family_size, alpha, alpha_per_comparison, fwer_bound, note}``；
+    ``alpha_per_comparison`` 为最严的逐检验阈值（Holm 的首个阈值即 alpha/m）。
+    """
+    if correction not in FWER_METHODS:
+        raise ValueError(f"未知校正方法 {correction!r}，可选 {FWER_METHODS}")
+    m = int(n_tests)
+    if m < 0:
+        raise ValueError("n_tests 不能为负")
+    if m <= 1:
+        return {
+            "controlled": True,
+            "family_size": m,
+            "alpha": float(alpha),
+            "alpha_per_comparison": float(alpha),
+            "fwer_bound": float(alpha),
+            "note": "族系大小<=1：无多重性，FWER=逐检验错误率=alpha",
+        }
+    if correction == "none":
+        bound = 1.0 - (1.0 - float(alpha)) ** m
+        return {
+            "controlled": False,
+            "family_size": m,
+            "alpha": float(alpha),
+            "alpha_per_comparison": float(alpha),
+            "fwer_bound": bound,
+            "note": (f"未校正 m={m} 族系：逐检验 alpha={alpha} 只保证单维错误率，"
+                     f"族系上界膨胀到 {bound:.4f}（独立假设）"),
+        }
+    return {
+        "controlled": True,
+        "family_size": m,
+        "alpha": float(alpha),
+        "alpha_per_comparison": float(alpha) / m,
+        "fwer_bound": float(alpha),
+        "note": (f"{correction} m={m}：FWER <= alpha={alpha}（任意相依结构），"
+                 f"最严逐检验阈值 alpha/m={float(alpha) / m:.5f}"),
     }
 
 
@@ -1503,6 +1559,94 @@ def null_family_sim(
         "pass_family_rate": bool(ge_ci["p_hat"] <= alpha),
         "pass_per_dim_rate": bool(max(v["p_hat"] for v in per_dim.values()) <= alpha),
     }
+
+
+def fwer_aa_sim(
+    *,
+    corrections: Sequence[str] = FWER_METHODS,
+    n_families: int = 120,
+    n_pairs: int = 12,
+    n_perm: int = 199,
+    alpha: float = DEFAULT_ALPHA,
+    seed: int = 0,
+    alternative: str = "greater",
+    dims: Sequence[str] = DIMENSIONS,
+) -> Dict[str, Any]:
+    """A/A 空对照下**实测**各校正方法的族系误报率——用来证伪/证实 ``fwer_guarantee``。
+
+    同一份零效应族数据（两臂同分布）跑遍全部校正方法，因此各方法之间是**配对可比**的
+    （同样的 p 值矩阵，只有判决阈值不同）。每族记录"≥1 维被拒"即一次族系误报。
+
+    返回 ``per_correction[method] = {fwer_guarantee, family_any, per_dim_max_rate,
+    mean_rejections_per_family, point_within_bound, within_bound, exceeds_alpha}``。
+
+    判读纪律：``point_within_bound`` 用点估计对比保证上界（证据弱，易被运气满足）；
+    ``within_bound`` 用 Clopper-Pearson **上界**对比保证上界（强判据）。族系校正方法的真误报率
+    通常只有 ~2%，n=160 族时其 95% 上界仍可能高于 alpha —— 此时 ``within_bound=False`` 是
+    **样本量不足**，不是校正失效，报告里必须如实写，不得拿点估计冒充。``exceeds_alpha``
+    才是"实测显著超过 alpha"（下界 > alpha）的那一侧。
+    """
+    if alternative not in ALTERNATIVES:
+        raise ValueError(f"未知备择 {alternative!r}")
+    methods = tuple(corrections)
+    for m_name in methods:
+        if m_name not in FWER_METHODS:
+            raise ValueError(f"未知校正方法 {m_name!r}，可选 {FWER_METHODS}")
+    n_families, n_pairs, n_perm = int(n_families), int(n_pairs), int(n_perm)
+    m = len(dims)
+    rng = random.Random(_derive_seed("fwer-aa", seed, n_pairs, n_perm, n_families,
+                                     alternative))
+    signs = _sign_matrix(n_perm, n_pairs,
+                         _derive_seed("fwer-aa-signs", seed, n_pairs, n_perm))
+    pmat: List[List[float]] = [[] for _ in range(n_families)]
+    for dim in dims:
+        sgn = DIMENSION_DIRECTION[dim]
+        for f in range(n_families):
+            xc = [rng.gauss(0.0, 1.0) for _ in range(n_pairs)]
+            xt = [rng.gauss(0.0, 1.0) for _ in range(n_pairs)]
+            pmat[f].append(_perm_pvalue([sgn * (t - c) for c, t in zip(xc, xt)],
+                                        signs, alternative))
+
+    per_correction: Dict[str, Any] = {}
+    for method in methods:
+        reject_rows = [_reject_row(pmat[f], alpha, method) for f in range(n_families)]
+        counts = [sum(1 for v in row if v) for row in reject_rows]
+        per_dim_rates = [binom_ci(int(sum(1 for r in reject_rows if r[j])), n_families)
+                         for j in range(m)]
+        any_ci = binom_ci(int(sum(1 for c in counts if c >= 1)), n_families)
+        guarantee = fwer_guarantee(method, alpha, m)
+        per_correction[method] = {
+            "fwer_guarantee": guarantee,
+            "family_any": any_ci,
+            "per_dim_max_rate": max(c["p_hat"] for c in per_dim_rates),
+            "mean_rejections_per_family": math.fsum(counts) / n_families,
+            "point_within_bound": bool(any_ci["p_hat"] <= guarantee["fwer_bound"]),
+            "within_bound": bool(any_ci["hi"] <= guarantee["fwer_bound"]),
+            "exceeds_alpha": bool(any_ci["lo"] > float(alpha)),
+        }
+    return {
+        "alpha": float(alpha),
+        "alternative": alternative,
+        "family_size": m,
+        "n_families": n_families,
+        "n_pairs": n_pairs,
+        "n_perm": n_perm,
+        "seed": int(seed),
+        "n_perm_resolution_ok": bool(n_perm >= min_perm_for_holm(alpha, m)),
+        "per_correction": per_correction,
+    }
+
+
+def _reject_row(ps: Sequence[float], alpha: float, method: str) -> List[bool]:
+    """按给定多重性校正方法把一族的 p 值折成逐维拒绝布尔（供 fwer_aa_sim 使用）。"""
+    p_list = [float(x) for x in ps]
+    m = len(p_list)
+    if method == "none":
+        return [x < alpha for x in p_list]
+    if method == "bonferroni":
+        return [min(x * m, 1.0) < alpha for x in p_list]
+    holm = holm_adjust({str(j): x for j, x in enumerate(p_list)}, alpha)
+    return [bool(holm["reject"][str(j)]) for j in range(m)]
 
 
 def aa_null_control(
