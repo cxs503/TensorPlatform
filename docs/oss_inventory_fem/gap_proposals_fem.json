@@ -1,0 +1,102 @@
+{
+ "metadata": {
+  "created": "2026-11-09",
+  "mission_id": 8692,
+  "anchor": "FEAT-OSS-INVENTORY-FEM",
+  "target_repo": "TensorFEM (PyTorch, verification-first) via TensorPhysics coordination",
+  "axes": ["基准验证面", "可微化", "HPC 扩展", "工程化"],
+  "rule": "每个 gap 的 anchor_repos 必须出现在本普查 registry（已 API 实查）；判据必须是可机器裁的数字"
+ },
+ "gap_proposals": [
+  {
+   "gap_id": "GAP-FEM-CODE-VERIFICATION-LADDER",
+   "title": "FEM 代码验证阶梯：patch test + manufactured solution + h/p 收敛阶",
+   "axis": "基准验证面",
+   "priority": "high",
+   "description": "TensorFEM 现有 benchmark registry 以标量校核为主（README: 'registry contains scalar checks; it does not certify complete stress fields'），缺统一的 ①单元 patch test（常应变/常应力再现）②manufactured solution（MMS，源项由解析解反推）③h/p 收敛阶回归（斜率 vs 理论阶 ±0.3）。成熟 OSS 项目把这三层做成 CI 门（deal.II regression_tests/performance_tests、MFEM 单元测试、FEniCSx 的 convergence demos），TensorFEM 需要同等阶梯才能把「求解器跑通」升级为「离散化正确」。",
+   "acceptance": "对 2D/3D 各一个单元族：patch test 相对误差 <1e-12；MMS 在 4 个网格上测得收敛阶与理论阶偏差 ≤0.3；全部纳入 pytest 且 CI 可见。",
+   "anchor_repos": ["dealii/dealii", "mfem/mfem", "FEniCS/dolfinx", "kinnala/scikit-fem"]
+  },
+  {
+   "gap_id": "GAP-FEM-ANALYTICAL-FIELD-BENCHMARKS",
+   "title": "解析场级对标集：Kirsch / Lamé / Timoshenko 梁 / Mindlin 板 / 瞬态热传导",
+   "axis": "基准验证面",
+   "priority": "high",
+   "description": "TensorFEM 已自报 SUBOFF 冰撞算例「mesh sensitivity still exceeds 3%; physical breaking-ice accuracy remains unqualified」。缺的是场级（不只是标量）解析对标：孔边应力集中 Kirsch、厚壁筒 Lamé、Timoshenko 梁挠度/剪切修正、Mindlin 板中心挠度、瞬态热传导解析解。把 5 个解析解的应力/温度场误差分布列入台账，才能定位 3% 偏差来自离散化还是接触/本构。",
+   "acceptance": "5 个算例各自给出 L2 相对误差与 L∞ 相对误差，网格加密后误差单调下降；关键标量（挠度/应力峰值）vs 解析解 <3%，不达标项进 honest-FAIL 台账。",
+   "anchor_repos": ["mfem/mfem", "adtzlr/felupe", "matnoel/EasyFEA", "weihuayi/fealpy"]
+  },
+  {
+   "gap_id": "GAP-FEM-SHELL-BUCKLING-REFERENCE-SET",
+   "title": "壳/屈曲经典参考解三件套（pinched cylinder / Scordelis-Lo / hemispherical shell）",
+   "axis": "基准验证面",
+   "priority": "medium",
+   "description": "TensorFEM 的壳单元与屈曲路径（arc-length、advanced_buckling、shell 相关模块）缺公认壳基准。文献标准三件套（pinched cylinder with end diaphragms、Scordelis-Lo roof、hemispherical shell with 18° hole）能同时检验薄膜/弯曲锁定与几何非线性，是判别壳公式对错的低成本高信噪比靶子。",
+   "acceptance": "三个算例参考值误差 <5%（薄壳弯曲主导的量）、网格收敛曲线给出；报告中显式标注是否满足 <3%。",
+   "anchor_repos": ["dealii/dealii", "mfem/mfem", "FrontISTR/FrontISTR"]
+  },
+  {
+   "gap_id": "GAP-FEM-AD-TANGENT-CONSISTENCY",
+   "title": "可微一致性三方对照：AD 切线 vs 解析切线 vs 中心差分",
+   "axis": "可微化",
+   "priority": "high",
+   "description": "TensorFEM 是 PyTorch 原生 FEM（含 ad_plastic_tangent 等模块），但缺「一致性验证面」：对同一本构，AD 切线、解析（手工）切线、中心差分切线三者的相对偏差需量化，并做 Newton 二次收敛速率检查。可微族 OSS（JAX-FEM、TensorMesh、felupe、jax-fenics-adjoint、torch-fenics）都把 AD 正确性当作对外承诺的核心，TensorFEM 需同等级证据。",
+   "acceptance": "≥3 个材料（线弹性 / J2 塑性 / 超弹）：AD vs FD 切线 max 相对误差 <1e-5；Newton 残差平方和逐迭代平方下降（收敛速率 ≥1.9）。",
+   "anchor_repos": ["deepmodeling/jax-fem", "camlab-ethz/TensorMesh", "adtzlr/felupe", "IvanYashchuk/jax-fenics-adjoint", "barkm/torch-fenics"]
+  },
+  {
+   "gap_id": "GAP-FEM-INVERSE-PROBLEM-GRADIENT-CHECK",
+   "title": "反问题梯度校验：可微 FEM 对材料参数/载荷的反演收敛",
+   "axis": "可微化",
+   "priority": "medium",
+   "description": "可微化只有落到反问题才算兑现：以「由合成观测反演弹性模量/黏聚参数」为靶，检查伴随/AD 梯度与有限差分梯度方向一致性（余弦相似度），以及反演在噪声观测下的收敛半径。JAX-FEM（topology-optimization 用例）、jax-fenics-adjoint、TensorMesh 都以此类用例自证；TensorFEM 尚无用例化证据。",
+   "acceptance": "梯度余弦相似度 >0.999；合成反演（1% 噪声）参数相对误差 <5%，并给出 5 次随机初值的收敛率。",
+   "anchor_repos": ["deepmodeling/jax-fem", "camlab-ethz/TensorMesh", "IvanYashchuk/jax-fenics-adjoint"]
+  },
+  {
+   "gap_id": "GAP-FEM-HPC-SCALING-BASELINE",
+   "title": "并行扩展基准：TensorFEM 在当前无 MPI 前提下的可扩展性实测与路线图",
+   "axis": "HPC 扩展",
+   "priority": "high",
+   "description": "普查显示 tier1 完整求解器几乎全部具备 MPI/GPU 并行（deal.II、MFEM、dolfinx、libMesh、FrontISTR、Kratos、FreeFEM），而 TensorFEM 目前未见 MPI 层。需要先量化现状（单节点多线程/GPU 弱扩展，loong64 双节点可用 256 核），再决定走 PETSc 后端、torch.distributed 分块装配，还是 deal.II 式 domain decomposition 参考架构。",
+   "acceptance": "给出 1/2/4/8/16 线程弱扩展效率曲线（100 万自由度规模）与并行效率数字；≥8 线程效率 >60% 或如实申报不达标并给出瓶颈（装配/求解器比例）。",
+   "anchor_repos": ["mfem/mfem", "dealii/dealii", "libMesh/libmesh", "FrontISTR/FrontISTR"]
+  },
+  {
+   "gap_id": "GAP-FEM-CONTACT-FRACTURE-VERIFICATION",
+   "title": "接触与断裂验证面：Hertz 接触 + 三点弯黏聚 + 冲击断裂",
+   "axis": "基准验证面",
+   "priority": "high",
+   "description": "冰撞结构算例的物理可信度卡在接触/黏聚/断裂，而 TensorFEM 现有该部分仅以守恒量与适用性检查记录（'Six saved runs pass conservation and applicability checks'）。需三段验证：Hertz 弹性接触力-压入深度解析对照、三点弯黏聚层载荷-位移 vs 参考解、动态冲击断裂（Kalthoff-Winkler 类）裂纹路径/起裂时刻对照。",
+   "acceptance": "Hertz 接触刚度误差 <5%；黏聚三点弯峰值载荷误差 <10%（未达标如实申报）；起裂时刻与文献参考偏差 <15% 并标注为不满足 <3% 的项。",
+   "anchor_repos": ["MatMechLab/AsFem", "FrontISTR/FrontISTR", "matnoel/EasyFEA"]
+  },
+  {
+   "gap_id": "GAP-FEM-MESH-QUALITY-SENSITIVITY-PROTOCOL",
+   "title": "网格质量/畸变敏感性协议（h-refinement + 畸变单元 + 质量指标）",
+   "axis": "工程化",
+   "priority": "medium",
+   "description": "TensorFEM 自报 SUBOFF 冰撞「mesh sensitivity still exceeds 3%」，但缺成文协议：加密序列（h-refinement 至少 3 级）、单元畸变注入（aspect ratio / 最小角退化）、质量指标与误差的相关性。没有协议，超标既无法归因也无法收敛。",
+   "acceptance": "对 ≥2 个算例给出 3 级 h-refinement 误差表与观测收敛阶（Richardson 外推），畸变扫描给出误差放大系数；若 mesh sensitivity 仍 >3%，输出「误差来源分解表」而非仅一句结论。",
+   "anchor_repos": ["krober10nd/SeismicMesh", "dealii/dealii", "weihuayi/fealpy"]
+  },
+  {
+   "gap_id": "GAP-FEM-INTEROP-FORMAT-CONFORMANCE",
+   "title": "互操作一致性：Abaqus/CalculiX 关键字与 VTK/XDMF 场输出往返测试",
+   "axis": "工程化",
+   "priority": "low",
+   "description": "TensorFEM 有 abaqus_io.py 与基准报告渲染链，但缺「写-读-再算」往返一致性测试（同一模型经 Abaqus 关键字导出再导入，刚度矩阵/载荷向量逐项对比）。工程化上这是能否把 TensorFEM 接进既有 CAE 流程的硬门；CalculiX/pycalculix 生态提供了可对照的关键字子集。",
+   "acceptance": "对一个 3D 实体算例：导出→导入后刚度矩阵 Frobenius 相对误差 <1e-9，边界条件/材料项全等；VTK/XDMF 场输出可被至少一个第三方读取器解析。",
+   "anchor_repos": ["GeneralElectric/CalculiX", "precice/precice"]
+  },
+  {
+   "gap_id": "GAP-FEM-LICENSE-DEPENDENCY-MATRIX",
+   "title": "许可证与依赖健康矩阵（GPL/LGPL 传染性 → 平台分发边界）",
+   "axis": "工程化",
+   "priority": "medium",
+   "description": "普查统计出 tier2 可微族里 GPL-3.0 占比高（JAX-FEM、felupe、EasyFEA、femwell 等），tier1 主流为 LGPL/BSD/Apache。若 TensorFEM 想复用其代码/测试向量或在分发链中捆绑，必须先有许可证矩阵结论（能否内联、能否仅作参考、能否作为可选后端）。当前无此台账，存在合规隐性风险。",
+   "acceptance": "产出 license×usage-mode 矩阵（内联/链接/可选后端/仅参考），覆盖本 registry 全部 GPL/LGPL 仓；对每个拟复用项给出「允许/禁止/需隔离」判定与依据条款。",
+   "anchor_repos": ["deepmodeling/jax-fem", "adtzlr/felupe", "matnoel/EasyFEA", "mfem/mfem"]
+  }
+ ]
+}
