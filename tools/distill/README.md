@@ -5,26 +5,46 @@
 机器自校验的 markdown 报告 + sha256 归档。
 
 ```
-campaign_bundle.json  →  campaign_distill.py  →  coverage_matrix.json   判据覆盖矩阵
-   （外部注入）                               →  knowledge_graph.json   实体/关系图
-                                              →  gaps.json               缺口 + 提案草案骨架
-                                              →  distill_summary.json    判据数字 + 违规清单
-                                              →  report.md               报告（零违规才退出 0）
-                                              →  verified/<case>/        工件 + manifest.json + SHA256SUMS
+plan_nodes.json  →  collect_evidence.py  →  campaign_bundle.json  证据包
+   + 各节点工作树                                              （外部注入）
+                                                                  ↓
+                            campaign_distill.py  →  coverage_matrix.json   判据覆盖矩阵
+                                                  →  knowledge_graph.json   实体/关系图
+                                                  →  gaps.json               缺口 + 提案草案骨架
+                                                  →  distill_summary.json    判据数字 + 违规清单
+                                                  →  report.md               报告（零违规才退出 0）
+                                                  →  verified/<case>/        工件 + manifest.json + SHA256SUMS
+                                                                  ↓
+                            make_figures.py      →  fig1_coverage_and_evidence.png
+                                                  →  fig2_knowledge_graph.png
+                                                  →  fig3_criteria_vs_threshold.png
 ```
 
 ## 本目录当前收录范围
 
-本 PR（TensorPlatform#740 重开第 1 轮，单一功能点＝**核心机裁件**）只收
-`campaign_distill.py` 一件。配套的上下游两段随后续小单元并入，届时本文档同步扩展：
+本 PR（TensorPlatform#836 重开第 1 轮，单一功能点＝**蒸馏管线三件**）收录
+完整管线三件：
 
 | 段 | 只做一件事 | 状态 |
 |---|---|---|
-| `collect_evidence.py` | 搬运证据：git 未跟踪/未提交变更逐件 sha256 + 新增测试的 pytest 探针结果；**不写结论** | 后续轮次 |
+| `collect_evidence.py` | 搬运证据：git 未跟踪/未提交变更逐件 sha256 + 新增测试的 pytest 探针结果；**不写结论** | **本 PR** |
 | `campaign_distill.py` | 机裁：判据状态只按"结论 + 来源"推导；图谱/缺口/报告/归档全部由数据算出 | **本 PR** |
-| `make_figures.py` | 把账本画成可核验的图，不重算任何数字 | 后续轮次 |
+| `make_figures.py` | 把账本画成可核验的图，不重算任何数字 | **本 PR** |
 
 ## 用法
+
+### 1. 采集证据
+
+```bash
+python3 tools/distill/collect_evidence.py \
+  --plan-nodes artifacts/<case>/sources/plan272_nodes.json \
+  --missions artifacts/<case>/sources/missions_raw.json \
+  --work-root work \
+  --out artifacts/<case>/inputs/campaign_bundle.json \
+  --probe
+```
+
+### 2. 蒸馏机裁
 
 ```bash
 python3 tools/distill/campaign_distill.py \
@@ -34,6 +54,15 @@ python3 tools/distill/campaign_distill.py \
   --out artifacts/<case>/out \
   --archive verified/<case> \
   --report docs/reports/<case>.md
+```
+
+### 3. 出图
+
+```bash
+python3 tools/distill/make_figures.py \
+  --out-dir artifacts/<case>/out \
+  --bundle artifacts/<case>/inputs/campaign_bundle.json \
+  --fig-dir artifacts/<case>/figures
 ```
 
 退出码：`0` = 报告/图谱/归档校验全通过；`1` = 有违规（违规清单落
