@@ -64,3 +64,7 @@ router.include_router(tensor_reconcile_router)
 
 # ── P155W1-N03: Negative Knowledge Registry (否定性知识台账) ──
 router.include_router(negative_knowledge_router)
+
+# ── PR#732: Proposal Gate — 提案→战役播种供给链机器门 ──
+from api.proposal_gate import router as proposal_gate_router          # prefix="/proposals"
+router.include_router(proposal_gate_router)
