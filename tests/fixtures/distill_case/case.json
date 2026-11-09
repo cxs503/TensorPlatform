@@ -1,0 +1,23 @@
+{
+ "id": "distill_case_fixture",
+ "bundle": "bundle.json",
+ "workdir": "out",
+ "archive_subdir": "verified",
+ "report": "report.md",
+ "figures": "figures",
+ "spec": {
+  "graph_min_entities": 10,
+  "graph_min_edges": 12,
+  "gaps_min": 3
+ },
+ "narrative": {
+  "summary": ["合成域夹具案例：本段为叙述注入，不含任何结论性数字。"],
+  "layout": ["结构说明由叙述注入（构件路径相对 bundle 所在目录解析）。"],
+  "coverage": ["覆盖矩阵逐条列出判据状态。"],
+  "graph": ["图谱由节点/判据/工件/缺口构成。"],
+  "gaps": ["缺口规则见上表，每条附提案草案。"],
+  "manifest": ["工件逐件 sha256 归档，并由 run_case 独立复核。"],
+  "limits": ["局限：合成域夹具，只用于验证机制，结论不外推到任何真实战役。"],
+  "limits_bullets": ["- 快照语义：仅代表采集时点。", "- 阈值经 case 内联 spec 下调，真实战役用默认阈值。"]
+ }
+}
