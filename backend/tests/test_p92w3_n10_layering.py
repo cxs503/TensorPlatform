@@ -293,9 +293,17 @@ class TestZeroDomainSemantics:
 # ───────────────────── (5) frozen corpus evidence ─────────────────────
 
 def _metrics(name: str) -> dict:
+    """Load a frozen evidence artifact — fail loud when it is missing.
+
+    These artifacts *are* the acceptance evidence: skipping on absence is how the
+    criteria silently disappeared between 2026-11-05 and 2026-11-09 (they had never
+    been merged while the suite stayed green). Presence is therefore asserted.
+    """
     path = RUN / name
-    if not path.exists():
-        pytest.skip(f"{name} absent in this checkout")
+    assert path.exists(), (
+        f"frozen evidence artifact missing: {path} — the acceptance criteria would "
+        "silently skip; commit runs/p92w3-n10/ with the change"
+    )
     return json.loads(path.read_text(encoding="utf-8"))
 
 
@@ -328,10 +336,15 @@ class TestFrozenEvaluation:
 
     def test_shadow_golden_regression(self):
         """Replayed classifier verdicts must match the frozen golden exactly."""
-        golden_path = RUN / "shadow_golden.json"
-        if not golden_path.exists():
-            pytest.skip("golden file absent in this checkout")
-        golden = json.loads(golden_path.read_text(encoding="utf-8"))
+        golden = _metrics("shadow_golden.json")
+        # A golden rebuilt without the frozen corpus silently degrades to its 12
+        # synthetic cases and still "passes" (measured 2026-11-09: 52 -> 12 cases,
+        # n_real 40 -> 0). Pin the real-case replay and the corpus it came from.
+        assert golden["n_real"] >= 40, f"golden has {golden['n_real']} real cases"
+        assert golden["corpus"]["sha256"] == _metrics("metrics.json")["corpus"]["sha256"], (
+            "golden and metrics disagree about the corpus they were measured on"
+        )
+        assert golden["deterministic"] is True and golden["input_mutated"] is False
         for case in golden["cases"]:
             assert assess_attested_delivery(case["result"]).state == case["state"]
             assert assess_delivery(case["result"]).state == case["artifact_state"]
