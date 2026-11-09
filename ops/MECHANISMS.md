@@ -140,3 +140,22 @@ rollback 还原，release↔rollback 4/4 配对、审计字段完整；治理门
 ③治理门判定要偏保守——误伤代价是「门等人 review」，误放代价是不可逆的治理越权；
 ④沙箱演练用同形目录（`<root>/<repo>/artifacts/…`）才能触发仓归属校验，否则
 repo_mismatch 会让演练假阴性。
+
+## 算例身份键与证据失效检测（IN99-N09，2026-11-08）
+
+**问题**：验证证据只有文本身份——同一算例多种写法、证据不带代码/依赖版本、上游改了公式
+下游仍"有效"。**机制**：`ops/taskplane/case_identity.py`（六表：
+`case_registry/case_version_pins/case_evidence/upstream_state/stale_events/recompute_tasks`，
+表结构单一真源同时生成 SQLite DDL 与 `backend/migrations/110_case_identity_evidence_staleness.sql`）。
+
+**判据**（全部机裁，`artifacts/m7341/case_identity_acceptance.json`）：C1 重复 ext_id 由
+DB UNIQUE 拒绝（应用层不做 if 判断）；C2 钉扎 = git sha + 依赖清单 + 证据 sha256；
+C3 上游指纹变更 → stale + 时延/SLA 记账（实测 1.0 h，SLA 24 h）；C4 stale → blocked +
+`UNIQUE(task_key)` 幂等重算任务；C5 负控「同版本号+代码 sha 变」指纹检测器命中 1 条 /
+只比版本号实现命中 0 条；回滚切回旧钉扎且**不复活**被上游腐化的证据。
+证据：`tests/test_case_identity.py`（45 条）、图 `artifacts/m7341/case_identity_{timeline,detector_matrix}.png`。
+
+**教训**：①唯一性权威放 DB 约束，放应用层 if 在并发下必漏；②"版本号相等 ⇒ 依赖没变"
+是伪等式，指纹必须含代码 sha 与工件摘要，否则同版本号内容漂移 100% 漏检；
+③回滚语义要保守——静默复活旧证据等于粉饰，被腐化的只能重算；
+④检测是拉模式，SLA 达成率取决于巡检频率，机制只保证"检测到即如实记时延"。
