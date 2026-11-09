@@ -1,0 +1,1001 @@
+{
+ "repo": "lssfau/walberla",
+ "head": "dc16f3130de2858f56e76bc9b8523710c94c23f0",
+ "head_date": "2026-08-04T16:04:19+02:00",
+ "modules_cpp": {
+  "core": {
+   "n_files": 189,
+   "loc": 111236
+  },
+  "lbm": {
+   "n_files": 202,
+   "loc": 54126
+  },
+  "mesa_pd": {
+   "n_files": 129,
+   "loc": 24018
+  },
+  "blockforest": {
+   "n_files": 67,
+   "loc": 21654
+  },
+  "lbm_generated": {
+   "n_files": 51,
+   "loc": 21278
+  },
+  "field": {
+   "n_files": 75,
+   "loc": 18427
+  },
+  "geometry": {
+   "n_files": 70,
+   "loc": 10452
+  },
+  "lbm_mesapd_coupling": {
+   "n_files": 52,
+   "loc": 8414
+  },
+  "gpu": {
+   "n_files": 55,
+   "loc": 7871
+  },
+  "boundary": {
+   "n_files": 8,
+   "loc": 6093
+  },
+  "python_coupling": {
+   "n_files": 37,
+   "loc": 5637
+  },
+  "mesh_common": {
+   "n_files": 19,
+   "loc": 5265
+  },
+  "vtk": {
+   "n_files": 17,
+   "loc": 4981
+  },
+  "pde": {
+   "n_files": 30,
+   "loc": 4950
+  },
+  "domain_decomposition": {
+   "n_files": 22,
+   "loc": 4536
+  },
+  "stencil": {
+   "n_files": 17,
+   "loc": 3457
+  },
+  "mesh": {
+   "n_files": 13,
+   "loc": 2164
+  },
+  "gather": {
+   "n_files": 13,
+   "loc": 1722
+  },
+  "timeloop": {
+   "n_files": 9,
+   "loc": 1620
+  },
+  "simd": {
+   "n_files": 9,
+   "loc": 1541
+  },
+  "postprocessing": {
+   "n_files": 5,
+   "loc": 934
+  },
+  "executiontree": {
+   "n_files": 4,
+   "loc": 654
+  },
+  "sqlite": {
+   "n_files": 2,
+   "loc": 639
+  },
+  "communication": {
+   "n_files": 4,
+   "loc": 412
+  },
+  "fft": {
+   "n_files": 2,
+   "loc": 182
+  }
+ },
+ "totals": {
+  "cpp_src": {
+   "n_files": 1103,
+   "loc": 322410
+  },
+  "apps_cpp": {
+   "n_files": 170,
+   "loc": 62707
+  },
+  "tests_cpp": {
+   "n_files": 350,
+   "loc": 71104
+  },
+  "python": {
+   "n_files": 119,
+   "loc": 10812
+  },
+  "sweepgen_python": {
+   "n_files": 19,
+   "loc": 4666
+  },
+  "lbm_cpp": {
+   "n_files": 202,
+   "loc": 54126
+  },
+  "free_surface_cpp": {
+   "n_files": 71,
+   "loc": 15063
+  },
+  "gpu_cpp": {
+   "n_files": 55,
+   "loc": 7871
+  },
+  "boundary_cpp": {
+   "n_files": 31,
+   "loc": 10153
+  }
+ },
+ "lattice_model_files": [
+  "CollisionModel.h",
+  "D2Q9.h",
+  "D3Q15.h",
+  "D3Q19.h",
+  "D3Q27.h",
+  "EquilibriumDistribution.h",
+  "ForceModel.h",
+  "LatticeModelBase.h",
+  "NeighborsStencil.h",
+  "SmagorinskyLES.h",
+  "all.h"
+ ],
+ "lattice_classes": {
+  "src/lbm/lattice_model/D2Q9.h": [
+   {
+    "line": 36,
+    "text": "class D2Q9 : public LatticeModelBase< CollisionModel_T, Compressible, ForceModel_T, EquilibriumAccuracyOrder >"
+   }
+  ],
+  "src/lbm/lattice_model/D3Q15.h": [
+   {
+    "line": 37,
+    "text": "class D3Q15 : public LatticeModelBase< CollisionModel_T, Compressible, ForceModel_T, EquilibriumAccuracyOrder >"
+   }
+  ],
+  "src/lbm/lattice_model/D3Q19.h": [
+   {
+    "line": 36,
+    "text": "class D3Q19 : public LatticeModelBase< CollisionModel_T, Compressible, ForceModel_T, EquilibriumAccuracyOrder >"
+   }
+  ],
+  "src/lbm/lattice_model/D3Q27.h": [
+   {
+    "line": 36,
+    "text": "class D3Q27 : public LatticeModelBase< CollisionModel_T, Compressible, ForceModel_T, EquilibriumAccuracyOrder >"
+   }
+  ]
+ },
+ "collision_model_classes": [
+  {
+   "line": 80,
+   "text": "class SRT"
+  },
+  {
+   "line": 138,
+   "text": "class SRTField"
+  },
+  {
+   "line": 212,
+   "text": "class TRT"
+  },
+  {
+   "line": 333,
+   "text": "class D3Q19MRT"
+  },
+  {
+   "line": 583,
+   "text": "class D3Q27Cumulant"
+  }
+ ],
+ "collision_tags": [
+  {
+   "line": 40,
+   "text": "struct SRT_tag {};"
+  },
+  {
+   "line": 41,
+   "text": "struct TRT_tag {};"
+  },
+  {
+   "line": 42,
+   "text": "struct MRT_tag {};"
+  },
+  {
+   "line": 43,
+   "text": "struct Cumulant_tag{};"
+  }
+ ],
+ "collision_variants_present": {
+  "kbc": 0,
+  "regularized": 0,
+  "shan_chen": 0
+ },
+ "force_model_classes": [
+  {
+   "line": 142,
+   "text": "class None"
+  },
+  {
+   "line": 179,
+   "text": "class SimpleConstant"
+  },
+  {
+   "line": 246,
+   "text": "class EDMField"
+  },
+  {
+   "line": 338,
+   "text": "class LuoConstant"
+  },
+  {
+   "line": 405,
+   "text": "class LuoField"
+  },
+  {
+   "line": 461,
+   "text": "class GuoConstant"
+  },
+  {
+   "line": 561,
+   "text": "class GuoField"
+  },
+  {
+   "line": 649,
+   "text": "class Correction"
+  }
+ ],
+ "force_model_tags": [
+  {
+   "line": 103,
+   "text": "struct None_tag {};"
+  },
+  {
+   "line": 104,
+   "text": "struct Simple_tag {}; // Refers to a simple force model which introduces the following additional force density term in "
+  },
+  {
+   "line": 108,
+   "text": "struct EDM_tag {};    // Refers to the exact difference method by Kupershtokh"
+  },
+  {
+   "line": 110,
+   "text": "struct Luo_tag {};    // Refers to the force model by Luo which introduces a more complex force density term in the coll"
+  },
+  {
+   "line": 113,
+   "text": "struct Guo_tag {};    // Refers to the force model by Guo which introduces a more complex force density term in the coll"
+  },
+  {
+   "line": 117,
+   "text": "struct Correction_tag{}; // refers to correction terms proposed in Jonas Latt's thesis"
+  }
+ ],
+ "lbm_boundary_classes": {
+  "Curved.h": [
+   {
+    "line": 49,
+    "text": "class Curved : public Boundary< typename FlagField_T::flag_t >"
+   }
+  ],
+  "DiffusionDirichlet.h": [
+   {
+    "line": 49,
+    "text": "class DiffusionDirichlet : public Boundary<flag_t>"
+   }
+  ],
+  "DynamicUBB.h": [
+   {
+    "line": 55,
+    "text": "class DynamicUBB : public Boundary<flag_t>"
+   }
+  ],
+  "FreeDiffusion.h": [],
+  "FreeSlip.h": [
+   {
+    "line": 46,
+    "text": "class FreeSlip : public Boundary< typename FlagField_T::flag_t > {"
+   }
+  ],
+  "NoDiffusion.h": [],
+  "NoSlip.h": [
+   {
+    "line": 46,
+    "text": "class NoSlip : public Boundary<flag_t>"
+   }
+  ],
+  "Outlet.h": [
+   {
+    "line": 47,
+    "text": "class Outlet : public Boundary< typename FlagField_T::flag_t > {"
+   }
+  ],
+  "ParserUBB.h": [
+   {
+    "line": 51,
+    "text": "class ParserUBB : public Boundary<flag_t>"
+   }
+  ],
+  "Pressure.h": [
+   {
+    "line": 49,
+    "text": "class Pressure : public Boundary<flag_t>"
+   }
+  ],
+  "SimpleDiffusionDirichlet.h": [
+   {
+    "line": 49,
+    "text": "class SimpleDiffusionDirichlet : public Boundary<flag_t>"
+   }
+  ],
+  "SimplePAB.h": [
+   {
+    "line": 54,
+    "text": "class SimplePAB : public Boundary<typename FlagFieldT::flag_t>"
+   }
+  ],
+  "SimplePressure.h": [
+   {
+    "line": 49,
+    "text": "class SimplePressure : public Boundary<flag_t>"
+   }
+  ],
+  "SimpleUBB.h": [
+   {
+    "line": 49,
+    "text": "class SimpleUBB : public Boundary<flag_t>"
+   }
+  ],
+  "SimpleVelocityBoundary.h": [
+   {
+    "line": 48,
+    "text": "class SimpleVelocityBoundary : public Boundary<flag_t>"
+   }
+  ],
+  "UBB.h": [
+   {
+    "line": 50,
+    "text": "class UBB : public Boundary<flag_t>"
+   }
+  ],
+  "VelocityBoundary.h": [
+   {
+    "line": 49,
+    "text": "class VelocityBoundary : public Boundary<flag_t>"
+   }
+  ],
+  "all.h": []
+ },
+ "generic_boundary_classes": [
+  {
+   "line": 52,
+   "text": "class BHUIDGenerator : public uid::IndexGenerator< BHUIDGenerator, uint_t >{};"
+  },
+  {
+   "line": 58,
+   "text": "class BoundaryHandling"
+  },
+  {
+   "line": 73,
+   "text": "class BlockSweep {"
+  }
+ ],
+ "free_surface": {
+  "reconstruction_models": {
+   "file": "src/lbm/free_surface/dynamics/PdfReconstructionModel.h",
+   "enum_line": 62,
+   "members": [
+    {
+     "line": 63,
+     "name": "NormalBasedReconstructCenter"
+    },
+    {
+     "line": 64,
+     "name": "NormalBasedKeepCenter"
+    },
+    {
+     "line": 65,
+     "name": "OnlyMissing"
+    },
+    {
+     "line": 66,
+     "name": "All"
+    },
+    {
+     "line": 67,
+     "name": "OnlyMissingMin"
+    }
+   ]
+  },
+  "refilling_models": {
+   "file": "src/lbm/free_surface/dynamics/PdfRefillingModel.h",
+   "enum_line": 61,
+   "members": [
+    {
+     "line": 62,
+     "name": "EquilibriumRefilling"
+    },
+    {
+     "line": 63,
+     "name": "AverageRefilling"
+    },
+    {
+     "line": 64,
+     "name": "EquilibriumAndNonEquilibriumRefilling"
+    },
+    {
+     "line": 65,
+     "name": "ExtrapolationRefilling"
+    },
+    {
+     "line": 66,
+     "name": "GradsMomentsRefilling"
+    }
+   ]
+  },
+  "excess_mass_models": {
+   "file": "src/lbm/free_surface/dynamics/ExcessMassDistributionModel.h",
+   "enum_line": 85,
+   "members": [
+    {
+     "line": 86,
+     "name": "EvenlyAllInterface"
+    },
+    {
+     "line": 87,
+     "name": "EvenlyNewInterface"
+    },
+    {
+     "line": 88,
+     "name": "EvenlyOldInterface"
+    },
+    {
+     "line": 89,
+     "name": "WeightedAllInterface"
+    },
+    {
+     "line": 90,
+     "name": "WeightedNewInterface"
+    },
+    {
+     "line": 91,
+     "name": "WeightedOldInterface"
+    },
+    {
+     "line": 92,
+     "name": "EvenlyAllInterfaceAndLiquid"
+    },
+    {
+     "line": 93,
+     "name": "EvenlyAllInterfaceFallbackLiquid"
+    },
+    {
+     "line": 94,
+     "name": "EvenlyNewInterfaceFallbackLiquid"
+    }
+   ]
+  },
+  "curvature_models": [
+   {
+    "line": 31,
+    "text": "class SurfaceGeometryHandler;"
+   },
+   {
+    "line": 42,
+    "text": "class FiniteDifferenceMethod"
+   },
+   {
+    "line": 59,
+    "text": "class LocalTriangulation"
+   },
+   {
+    "line": 76,
+    "text": "class SimpleFiniteDifferenceMethod"
+   }
+  ],
+  "sweep_order": [
+   {
+    "line": 140,
+    "sweep": "Sweep: boundary handling"
+   },
+   {
+    "line": 142,
+    "sweep": "Empty sweep: boundary handling"
+   },
+   {
+    "line": 155,
+    "sweep": "Sweep: force weighting"
+   },
+   {
+    "line": 157,
+    "sweep": "Empty sweep: force weighting"
+   },
+   {
+    "line": 165,
+    "sweep": "Sweep: force weighting"
+   },
+   {
+    "line": 167,
+    "sweep": "Empty sweep: force weighting"
+   },
+   {
+    "line": 188,
+    "sweep": "Sweep: StreamReconstructAdvect"
+   },
+   {
+    "line": 189,
+    "sweep": "Empty sweep: StreamReconstructAdvect"
+   },
+   {
+    "line": 220,
+    "sweep": "Sweep: collision (generated)"
+   },
+   {
+    "line": 222,
+    "sweep": "Sweep: streamCollide (generated)"
+   },
+   {
+    "line": 223,
+    "sweep": "Empty sweep: streamCollide (generated)"
+   },
+   {
+    "line": 239,
+    "sweep": "Stream sweep"
+   },
+   {
+    "line": 240,
+    "sweep": "Deactivated Stream sweep"
+   },
+   {
+    "line": 254,
+    "sweep": "Sweep: collision after Smagorinsky sweep"
+   },
+   {
+    "line": 264,
+    "sweep": "Sweep: collision"
+   },
+   {
+    "line": 266,
+    "sweep": "Sweep: streamCollide"
+   },
+   {
+    "line": 267,
+    "sweep": "Empty sweep: streamCollide"
+   },
+   {
+    "line": 280,
+    "sweep": "Sweep: cell conversion"
+   },
+   {
+    "line": 281,
+    "sweep": "Empty sweep: cell conversion"
+   },
+   {
+    "line": 298,
+    "sweep": "Sweep: EquilibriumRefilling"
+   },
+   {
+    "line": 299,
+    "sweep": "Empty sweep: EquilibriumRefilling"
+   },
+   {
+    "line": 307,
+    "sweep": "Sweep: AverageRefilling"
+   },
+   {
+    "line": 308,
+    "sweep": "Empty sweep: AverageRefilling"
+   },
+   {
+    "line": 320,
+    "sweep": "Empty sweep: EquilibriumAndNonEquilibriumRefilling"
+   },
+   {
+    "line": 329,
+    "sweep": "Sweep: ExtrapolationRefilling"
+   },
+   {
+    "line": 331,
+    "sweep": "Empty sweep: ExtrapolationRefilling"
+   },
+   {
+    "line": 339,
+    "sweep": "Sweep: GradsMomentRefilling"
+   },
+   {
+    "line": 340,
+    "sweep": "Empty sweep: GradsMomentRefilling"
+   },
+   {
+    "line": 358,
+    "sweep": "Sweep: excess mass distribution"
+   },
+   {
+    "line": 359,
+    "sweep": "Empty sweep: distribute excess mass"
+   },
+   {
+    "line": 378,
+    "sweep": "Sweep: excess mass distribution"
+   },
+   {
+    "line": 379,
+    "sweep": "Empty sweep: distribute excess mass"
+   },
+   {
+    "line": 400,
+    "sweep": "Sweep: excess mass distribution"
+   },
+   {
+    "line": 401,
+    "sweep": "Sweep: excess mass distribution"
+   },
+   {
+    "line": 402,
+    "sweep": "Empty sweep: distribute excess mass"
+   },
+   {
+    "line": 417,
+    "sweep": "Sweep: conversion flag reset"
+   },
+   {
+    "line": 418,
+    "sweep": "Empty sweep: conversion flag reset"
+   },
+   {
+    "line": 425,
+    "sweep": "Sweep: block state update"
+   }
+  ]
+ },
+ "multiphase": {
+  "showcase_apps": [
+   "Antidunes",
+   "FlowAroundSphere",
+   "FluidizedBed",
+   "FreeSurface",
+   "HeatConduction",
+   "KelvinHelmholtzInstability",
+   "LightRisingParticleInFluidAMR",
+   "Mixer",
+   "ParticlePacking",
+   "PegIntoSphereBed",
+   "PhaseFieldAllenCahn",
+   "Piping",
+   "Thermocapillary"
+  ],
+  "phasefield_apps": [
+   "PhaseFieldAllenCahn",
+   "Thermocapillary"
+  ],
+  "codegen_imports": [
+   "apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_RTI_3D.py:9:from lbmpy.phasefield_allen_cahn.parameter_calculation import calculate_parameters_rti",
+   "apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_codegen.py:11:from lbmpy.phasefield_allen_cahn.contact_angle import ContactAngle",
+   "apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_codegen.py:12:from lbmpy.phasefield_allen_cahn.kernel_equations import initializer_kernel_phase_field_lb, \\",
+   "apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_codegen.py:15:from lbmpy.phasefield_allen_cahn.parameter_calculation import AllenCahnParameters",
+   "apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_rising_bubble.py:6:from lbmpy.phasefield_allen_cahn.parameter_calculation import calculate_dimensionless_rising_bubble",
+   "apps/showcases/Thermocapillary/droplet_migration2D.py:9:from lbmpy.phasefield_allen_cahn.parameter_calculation import calculate_parameters_droplet_migration",
+   "apps/showcases/Thermocapillary/droplet_migration3D.py:9:from lbmpy.phasefield_allen_cahn.parameter_calculation import calculate_parameters_droplet_migration",
+   "apps/showcases/Thermocapillary/microchannel2D.py:8:from lbmpy.phasefield_allen_cahn.analytical import analytical_solution_microchannel",
+   "apps/showcases/Thermocapillary/microchannel3D.py:8:from lbmpy.phasefield_allen_cahn.analytical import analytical_solution_microchannel",
+   "apps/showcases/Thermocapillary/thermocapillary_codegen.py:17:from lbmpy.phasefield_allen_cahn.contact_angle import ContactAngle",
+   "apps/showcases/Thermocapillary/thermocapillary_codegen.py:18:from lbmpy.phasefield_allen_cahn.kernel_equations import initializer_kernel_phase_field_lb, \\",
+   "apps/showcases/Thermocapillary/thermocapillary_codegen.py:21:from lbmpy.phasefield_allen_cahn.numerical_solver import get_runge_kutta_update_assignments",
+   "apps/showcases/Thermocapillary/thermocapillary_codegen.py:22:from lbmpy.phasefield_allen_cahn.parameter_calculation import ThermocapillaryParameters"
+  ],
+  "sc_absent_hits": 0
+ },
+ "parallel": {
+  "gpu_files": [
+   "AddGPUFieldToStorage.h",
+   "AddGPUFieldToStorage.impl.h",
+   "AlignedAllocation.h",
+   "DeviceSelectMPI.h",
+   "DeviceWrapper.h",
+   "ErrorChecking.h",
+   "FieldAccessor.h",
+   "FieldAccessor3D.h",
+   "FieldAccessorXYZ.h",
+   "FieldCopy.h",
+   "FieldIndexing.h",
+   "FieldIndexing.impl.h",
+   "FieldIndexing3D.h",
+   "FieldIndexing3D.impl.h",
+   "FieldIndexingXYZ.h",
+   "FieldIndexingXYZ.impl.h",
+   "GPUCopy.h",
+   "GPUField.h",
+   "GPUField.impl.h",
+   "GPURAII.h",
+   "GPUWrapper.h",
+   "HostFieldAllocator.h",
+   "Kernel.h",
+   "NVTX.h",
+   "ParallelStreams.h",
+   "ShiftedPeriodicity.cu",
+   "ShiftedPeriodicity.h",
+   "CustomMemoryBuffer.h",
+   "CustomMemoryBuffer.impl.h",
+   "GPUPackInfo.h",
+   "GeneratedGPUPackInfo.h",
+   "GeneratedNonUniformGPUFieldPackInfo.h",
+   "GeneratedNonUniformGPUFieldPackInfo.impl.h",
+   "GeneratedNonUniformGPUPackInfo.h",
+   "MemcpyPackInfo.h",
+   "MemcpyPackInfo.impl.h",
+   "NonUniformGPUScheme.h",
+   "UniformGPUScheme.h",
+   "UniformGPUScheme.impl.h",
+   "CombinedInPlaceGpuPackInfo.h",
+   "GPUSweepBase.h",
+   "DeviceSweepTimeloop.h",
+   "DeviceTimeLoop.h",
+   "DeviceSynchronizePolicy.h",
+   "DeviceTimer.h",
+   "DeviceTimingNode.h",
+   "DeviceTimingPool.h",
+   "DeviceTimingTree.h"
+  ],
+  "gpu_comm_files": [
+   "CustomMemoryBuffer.h",
+   "CustomMemoryBuffer.impl.h",
+   "GPUPackInfo.h",
+   "GeneratedGPUPackInfo.h",
+   "GeneratedNonUniformGPUFieldPackInfo.h",
+   "GeneratedNonUniformGPUFieldPackInfo.impl.h",
+   "GeneratedNonUniformGPUPackInfo.h",
+   "MemcpyPackInfo.h",
+   "MemcpyPackInfo.impl.h",
+   "NonUniformGPUScheme.h",
+   "UniformGPUScheme.h",
+   "UniformGPUScheme.impl.h"
+  ],
+  "layouts": [
+   "fzyx"
+  ],
+  "gpu_target_codegen": 17,
+  "mpi_partition_files": [
+   "BlockCounter.h",
+   "BlockDataHandling.h",
+   "BlockDataID.h",
+   "BlockStorage.h",
+   "BlockSweepWrapper.h",
+   "IBlock.h",
+   "IBlockID.h",
+   "MakeBlockDataInitFunction.h",
+   "MapPointToPeriodicDomain.h",
+   "PeriodicIntersect.h",
+   "PeriodicIntersectionVolume.h",
+   "SharedSweep.h",
+   "StructuredBlockStorage.h",
+   "StructuredBlockStorageCellMapping.h",
+   "all.h"
+  ],
+  "load_balancing": [
+   {
+    "line": 51,
+    "text": "class GlobalLoadBalancing {"
+   },
+   {
+    "line": 56,
+    "text": "class MetisConfiguration {"
+   }
+  ]
+ },
+ "codegen": {
+  "sweepgen_files": [
+   "sweepgen/src/sweepgen/__init__.py",
+   "sweepgen/src/sweepgen/_version.py",
+   "sweepgen/src/sweepgen/api.py",
+   "sweepgen/src/sweepgen/boundaries/__init__.py",
+   "sweepgen/src/sweepgen/boundaries/grid_aligned.py",
+   "sweepgen/src/sweepgen/boundaries/sparse.py",
+   "sweepgen/src/sweepgen/build_config.py",
+   "sweepgen/src/sweepgen/communication/__init__.py",
+   "sweepgen/src/sweepgen/communication/pack_infos.py",
+   "sweepgen/src/sweepgen/core/__init__.py",
+   "sweepgen/src/sweepgen/core/blockforest_extraction.py",
+   "sweepgen/src/sweepgen/core/properties.py",
+   "sweepgen/src/sweepgen/core/reflection.py",
+   "sweepgen/src/sweepgen/core/suppress_diagnostics.py",
+   "sweepgen/src/sweepgen/flow.py",
+   "sweepgen/src/sweepgen/prefabs/__init__.py",
+   "sweepgen/src/sweepgen/prefabs/lbm_bulk.py",
+   "sweepgen/src/sweepgen/sweep.py",
+   "sweepgen/src/sweepgen/symbolic.py"
+  ],
+  "pystencils_walberla": [
+   "__init__.py",
+   "additional_data_handler.py",
+   "boundary.py",
+   "cmake_integration.py",
+   "function_generator.py",
+   "jinja_filters.py",
+   "kernel_info.py",
+   "kernel_selection.py",
+   "pack_info.py",
+   "sweep.py",
+   "templates",
+   "tests",
+   "utility.py"
+  ],
+  "lbmpy_walberla": [
+   "__init__.py",
+   "additional_data_handler.py",
+   "alternating_sweeps.py",
+   "boundary.py",
+   "boundary_collection.py",
+   "function_generator.py",
+   "packinfo.py",
+   "packing_kernels.py",
+   "sparse.py",
+   "storage_specification.py",
+   "sweep_collection.py",
+   "templates",
+   "tests",
+   "utility.py",
+   "walberla_lbm_generation.py",
+   "walberla_lbm_package.py"
+  ],
+  "lbm_generated": [
+   "boundary",
+   "communication",
+   "evaluation",
+   "field",
+   "gpu",
+   "refinement",
+   "storage_specification",
+   "sweep_collection"
+  ],
+  "generated_sweeps": [
+   "CMakeLists.txt",
+   "D3Q19SRT.cpp",
+   "D3Q19SRT.h",
+   "D3Q27SRT.cpp",
+   "D3Q27SRT.h",
+   "sweep_collection_generation_script.py"
+  ]
+ },
+ "tests_ci_apps": {
+  "test_cpp": {
+   "n_files": 328,
+   "loc": 68631
+  },
+  "test_dirs": [
+   "blockforest",
+   "boundary",
+   "core",
+   "domain_decomposition",
+   "executiontree",
+   "fft",
+   "field",
+   "gather",
+   "geometry",
+   "gpu",
+   "lbm",
+   "lbm_generated",
+   "lbm_mesapd_coupling",
+   "mesa_pd",
+   "mesh",
+   "pde",
+   "postprocessing",
+   "python_coupling",
+   "simd",
+   "sqlite",
+   "stencil",
+   "sweepgen",
+   "timeloop",
+   "v8"
+  ],
+  "test_lbm_files": [
+   "BoundaryHandlingCommunication.cpp",
+   "CMakeLists.txt",
+   "DiffusionTest.cpp",
+   "PdfFieldInitializerTest.prm",
+   "SweepEquivalenceTest.cpp",
+   "UnrollTest.cpp",
+   "boundary",
+   "codegen",
+   "diff_packinfos.sh",
+   "evaluations",
+   "field",
+   "free_surface",
+   "geometry",
+   "initializer",
+   "refinement"
+  ],
+  "ci_files": [
+   ".gitlab-ci.yml"
+  ],
+  "github_dir": [
+   "workflows"
+  ],
+  "apps_toplevel": [
+   "CMakeLists.txt",
+   "benchmarks",
+   "examples",
+   "pythonmodule",
+   "showcases",
+   "tools",
+   "tutorials"
+  ],
+  "apps_examples": [
+   "AdaptiveMeshRefinementExample",
+   "DoubleShearLayer",
+   "FlowAroundSphere",
+   "MeshRefinementExample",
+   "ParallelPlates",
+   "TimingPool"
+  ],
+  "apps_showcases": [
+   "Antidunes",
+   "FlowAroundSphere",
+   "FluidizedBed",
+   "FreeSurface",
+   "HeatConduction",
+   "KelvinHelmholtzInstability",
+   "LightRisingParticleInFluidAMR",
+   "Mixer",
+   "ParticlePacking",
+   "PegIntoSphereBed",
+   "PhaseFieldAllenCahn",
+   "Piping",
+   "Thermocapillary"
+  ],
+  "apps_benchmarks": [
+   "CNT",
+   "ComplexGeometry",
+   "CouetteFlow",
+   "FieldCommunication",
+   "FluidParticleCoupling",
+   "FluidParticleCouplingWithLoadBalancing",
+   "FluidizedBed",
+   "FreeSurfaceAdvection",
+   "GranularGas",
+   "IntegratorAccuracy",
+   "MeshDistance",
+   "NonUniformGrid",
+   "NonUniformGridCPU",
+   "NonUniformGridGPU",
+   "Percolation",
+   "PhaseFieldAllenCahn",
+   "PoiseuilleChannel",
+   "ProbeVsExtraMessage",
+   "SchaeferTurek",
+   "TurbulentChannel",
+   "UniformGrid",
+   "UniformGridCPU",
+   "UniformGridGPU"
+  ],
+  "apps_tutorials": [
+   "basics",
+   "codegen",
+   "gpu",
+   "lbm",
+   "mesa_pd",
+   "pde"
+  ]
+ },
+ "license": {
+  "copying_head": [
+   "GNU GENERAL PUBLIC LICENSE",
+   "Version 3, 29 June 2007",
+   ""
+  ]
+ }
+}

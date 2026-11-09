@@ -1,0 +1,49 @@
+report            : REPORT_walberla.md
+source tree       : /tmp/walberla_src
+explicit pointers : 143 verified, 0 FAILED
+shorthand pointers: 35 resolved in-line, 0 out of range
+total checkable   : 178
+
+--- sample of resolved pointers (report line -> source line) ---
+  md:4    README.md:21                                         | ## Get involved
+  md:8    CHANGELOG.md:5                                       | ### CMake & C++
+  md:18   CHANGELOG.md:5                                       | ### CMake & C++
+  md:22   COPYING.txt:1                                        | GNU GENERAL PUBLIC LICENSE
+  md:23   CHANGELOG.md:3                                       | ## [7.3] - 2026-07-21
+  md:36   apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_codegen.py:11 | from lbmpy.phasefield_allen_cahn.contact_angle import ContactAngle
+  md:51   src/lbm/free_surface/dynamics/SurfaceDynamicsHandler.h:118 | "D3Q27 setup. This comes from the distribution of excess mass, where the number of available neighbo
+  md:53   apps/showcases/Thermocapillary/thermocapillary_codegen.py:49 | stencil_thermal = LBStencil(Stencil.D3Q7)
+  md:54   src/lbm/lattice_model/CollisionModel.h:47            | /// Returns the relaxation parameter for level 'targetLevel' given the relaxation parameter 'paramet
+  md:54   src/lbm/lattice_model/CollisionModel.h:93            | /// Omega is adapted to the "right", level-dependent omega once "configure" is called
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:64             | const real_t omega1 = src->latticeModel().collisionModel().omega1();
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:217 (shorthand) | // transformation to moment space done now , transform to cumulant space
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:230 (shorthand) | // defining the cumulant space constants
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:261 (shorthand) | // collision happens in cumulant space
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:274 (shorthand) | const real_t CS_200__m__CS020 = (omega_trm1) * (C_200 - C_020) - 3.0_r * updated
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:266 (shorthand) | const real_t CS_110 = omega_trm1 * C_110 ;
+  md:66   src/lbm/cumulant/CellwiseSweep.impl.h:392 (shorthand) | // transform from velocity space to moment space and then to cumulant space , pe
+  md:86   src/lbm/srt/cell_operations/DefaultCellOperation.impl.h:165 | const real_t force_trm = 3.0_r * LatticeModel_T::w[ d.toIdx() ] * ( 1_r - 0.5_r * omega_ ) *
+  md:86   src/lbm/srt/cell_operations/DefaultCellOperation.impl.h:189 (shorthand) | const real_t force_trm = 3.0_r * LatticeModel_T::w[ d.toIdx() ] * ( 1_r - 0.5_r 
+  md:86   src/lbm/srt/cell_operations/DefaultCellOperation.impl.h:114 (shorthand) | 
+  md:87   src/lbm/lattice_model/ForceModel.h:498               | DirectionIndependentTerms_T directionIndependentTerms( const cell_idx_t /*x*/, const cell_idx_t /*y*
+  md:87   src/lbm/lattice_model/ForceModel.h:508 (shorthand)   | common * (2_r*one_over_d) ) * 0.5_r * ( 2_r - omega )
+  md:87   src/lbm/lattice_model/ForceModel.h:509 (shorthand)   | + common * ( one_over_d * ( 2_r - omega_bulk ) );
+  md:87   src/lbm/lattice_model/ForceModel.h:121 (shorthand)   | struct NoDirectionIndependentTerms {};
+  md:93   src/lbm/lattice_model/SmagorinskyLES.h:43            | class SmagorinskyLES
+  md:93   src/lbm/free_surface/dynamics/SurfaceDynamicsHandler.h:254 | << Sweep(lbm::makeCollideSweep(lbmSweep), "Sweep: collision after Smagorinsky sweep")
+  md:101  src/boundary/BoundaryHandling.h:58                   | class BoundaryHandling
+  md:101  src/lbm/boundary/UBB.h:110                           | inline void treatDirection( const cell_idx_t  x, const cell_idx_t  y, const cell_idx_t  z, const ste
+  md:101  src/lbm/boundary/UBB.h:100                           | template< typename Buffer_T >
+  md:102  apps/tutorials/lbm/06_LBBoundaryCondition.cpp:136    | using SimplePAB_T       = lbm::SimplePAB< LatticeModel_T, FlagField_T >;
+  md:109  src/lbm/boundary/NoSlip.h:46                         | class NoSlip : public Boundary<flag_t>
+  md:109  src/lbm/boundary/NoSlip.h:95 (shorthand)             | inline void treatDirection( const cell_idx_t  x, const cell_idx_t  y, const cell
+  md:110  src/lbm/boundary/SimpleUBB.h:49                      | class SimpleUBB : public Boundary<flag_t>
+  md:110  src/lbm/boundary/SimpleUBB.h:48 (shorthand)          | template< typename LatticeModel_T, typename flag_t, bool AdaptVelocityToExternal
+  md:110  src/lbm/boundary/SimpleUBB.h:70 (shorthand)          | if (StoreForce)
+  md:110  src/lbm/boundary/SimpleUBB.h:48 (shorthand)          | template< typename LatticeModel_T, typename flag_t, bool AdaptVelocityToExternal
+  md:111  src/lbm/boundary/UBB.h:50                            | class UBB : public Boundary<flag_t>
+  md:111  src/lbm/boundary/UBB.h:49 (shorthand)                | template< typename LatticeModel_T, typename flag_t, bool AdaptVelocityToExternal
+  md:111  src/lbm/boundary/UBB.h:55 (shorthand)                | using VelField = GhostLayerField<Vector3<real_t>, 1>;
+  md:112  src/lbm/boundary/DynamicUBB.h:55                     | class DynamicUBB : public Boundary<flag_t>
+
+RESULT: OK
