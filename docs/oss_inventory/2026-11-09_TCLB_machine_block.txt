@@ -1,0 +1,110 @@
+[OSS-INV]
+repo: CFD-GO/TCLB
+lang: C++/CUDA + R template code generator (embedded Python sympy/lbmpy)
+license: GPL-3.0
+methods: D2Q9/D3Q7/D3Q15/D3Q19/D3Q27; collision=SRT-BGK/MRT/WMRT/TRT/Cumulant (no KBC, no regularized); forcing=Guo half-force+moment-space, Kupershtokh EDM, Lycett-Luo, pressure-gradient
+multiphase: SCMP pseudopotential (models/multiphase/d2q9_scmp/Dynamics.c.Rt:497-510 EDM force, :543-555 CS-EOS psi, :800-858 Lycett-Luo force) + MCMP two-component (models/multiphase/experimental/d2q9_pp_MCMP/Dynamics.c.Rt:162-176 cross force, :189-211 psi/wall Gad) + conservative Allen-Cahn phase field with pressure evolution (models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:580 density-from-phi, :586-599 pressure-as-zeroth-moment, :649-662 h update, :171-228 chemical potential) + CSF colour-gradient (models/multiphase/d2q9_csf/Dynamics.c.Rt:503-521); no free-energy, no free-surface
+boundary: full bounce-back (src/lib/boundary.R:33-53), symbolic Zou-He (src/lib/boundary.R:143-198), symmetry (src/lib/boundary.R:37-52), moving wall (models/multiphase/d2q9_scmp/Dynamics.c.Rt:390-402), Bouzidi interpolated bounce-back with cut-link (models/flow/d3q27_cumulant/Dynamics.c.Rt:179-232), curved-wall geometric wetting contact angle (models/multiphase/d3q27_pf_velocity/Boundary.c.Rt:674-780), Neumann/convective outflow (models/multiphase/d3q27_pf_velocity/Boundary.c.Rt:704-717); no IBM
+gpu: per-margin segmented arrays with pocket pointer-shift streaming (src/Global.h.Rt:64-72, src/LatticeAccess.inc.cpp.Rt:70-80), border/interior kernel split with async D2H overlap (src/Lattice.cu.Rt:500-530), 27-direction MPI buffers Irecv/Isend+Waitany pipelining (src/Lattice.cu.Rt:327-386), storage_bits 16/32/64 compression (src/LatticeAccess.inc.cpp.Rt:13-33); one MPI rank per GPU
+summary: TCLB 把 LBM 模型写成 R/Python 声明式模板，自动符号推导平衡态与边界条件再生成 CUDA/CPU kernel，是"代码生成即框架"的典范；多相侧伪势(EDM+Lycett-Luo)、双组元 MCMP、保守 Allen-Cahn 相场+压力演化的高密度比路线齐全且各有文件级配方，但无 free-energy/free-surface/IBM/KBC，且 GPL-3.0 只能干净室重写不可搬码。
+[/OSS-INV]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:GAP-LBM-MCMP-HIGHDENSITY
+tag: pressure-evolution-allencahn-phasefield
+method: 水动力分布零阶矩存压力、密度由相场 phi 代数映射，界面用保守 Allen-Cahn（含反扩散系数 1/W 的 Fphi 项），表面力取 mu*grad(phi) 并加 (0.5-tau)(rho_h-rho_l)(tau_ij*grad(phi)) 黏性力，配合 force_fixed_iterator 定点迭代自洽；是绕开伪势高密度比瓶颈的正解配方。
+files: models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:580, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:586-599, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:649-662, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:639-647
+conventions: Density_h/Density_l 高低温相密度；IntWidth=界面宽度 W；sigma=表面张力；M(Mobility)->omega_phi=1/(3M+0.5)；force_fixed_iterator 默认 2；d3q27 水动力 + d3q15/d3q27(hPops) 界面
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: GAP-LBM-MCMP-POISEUILLE
+tag: layered-poiseuille-analytic-inlet
+method: 分层 Poiseuille 解析剖面直接作为初始/入口条件（U=6*Uavg*Y*(H-Y)/H^2，圆管 2*Uavg*(1-(r/R)^2)），并由 updateMyGlobals 把两相流量、动能、界面位置积成 globals 做误差度量；可复用于两组分分层 Poiseuille 解析对标。
+files: models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:266, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:270, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:721-750, models/multiphase/d3q27_pf_velocity/Dynamics.R:219-225
+conventions: HEIGHT=通道高；Uavg=平均速度(zonal 可设)；developedFlow/developedPipeFlow 开关；剖面在 lattice units
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:GAP-LBM-MCMP-HIGHDENSITY
+tag: shan-chen-edm-lycett-luo
+method: 伪势路线配方：psi=sqrt(-p_cs(rho)+rho/3) 由 C-S 型 EOS 给出，互作用力按 stencil 权重求和并用 EDM 精确差分展开，再叠 Lycett-Luo 高阶力项（含非平衡应力 Phi 与 gamma 修正）与粘度-密度平滑关系；壁面用虚拟密度 VirtualRhoWBC 控接触角。
+files: models/multiphase/d2q9_scmp/Dynamics.c.Rt:497-510, models/multiphase/d2q9_scmp/Dynamics.c.Rt:800-858, models/multiphase/d2q9_scmp/Dynamics.c.Rt:543-555, models/multiphase/d2q9_scmp/Dynamics.c.Rt:428-440
+conventions: gs=(0,1,1,1,1,1/4,1/4,1/4,1/4) stencil 权重；Kupershtokh_A 默认 -0.152（stencil 类型）；Kupershtokh_K 缩放 EOS 压力；LBL_kappa/LBL_epsilon0；omega_l/omega_v 或 nu_l/nu_v 双粘度
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:GAP-LBM-MCMP-HIGHDENSITY
+tag: mcmp-two-component-cross-force
+method: 双组元 MCMP：湿/干两套 D2Q9 分布各自 MRT 碰撞，交叉作用力 F_k=-Gc*psi_k(x)*sum_i w_i*psi_k'(x+e_i)*e_i（sympy 生成 C 代码），壁面用 psi=Gad/Gc 设接触角，公共速度按 rho_k/omega_k 加权，压力 P=rho/3+Gc*psi_f*psi_g/3。
+files: models/multiphase/experimental/d2q9_pp_MCMP/Dynamics.c.Rt:162-176, models/multiphase/experimental/d2q9_pp_MCMP/Dynamics.c.Rt:189-211, models/multiphase/experimental/d2q9_pp_MCMP/Dynamics.c.Rt:93-115, models/multiphase/experimental/d2q9_pp_MCMP/Dynamics.c.Rt:181-187
+conventions: Gc=组元间作用强度；Gad1/Gad2=壁面作用(湿/干)；Density/Density_dry 初密度；psi=rho 线性伪势（EOS 接入为 TO-DO，勿当已验证）
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:CAP-LBM-PF-ALLENCAHN
+tag: conservative-allen-cahn-h-population
+method: 相场用第三套分布 h 承载：heq=C*feq(u)，界面力 Fphi=w_i*((1-4(C-0.5)^2)/W)*(e_i.n)，更新 h - omega_phi*(h-heq+0.5*Fphi) + Fphi；化学势 mu=4*(12*sigma/W)*(C-phi_l)*(C-phi_h)*(C-phi_avg)-1.5*sigma*W*laplace(C)，laplace 用各向同性 27 点模板。
+files: models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:649-662, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:171-228, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:211-213, models/multiphase/d3q27_pf_velocity/Dynamics.c.Rt:528-560
+conventions: PhaseField_h=1/PhaseField_l=0；IntWidth 默认 4；M 默认 0.02->omega_phi；sigma 表面张力（可温变 sigma_T/sigma_TT）；minGradient 1e-8 截断法向
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:CAP-LBM-GPU-FUSED-KERNEL
+tag: per-margin-arrays-pointer-shift-streaming
+method: 每个 stencil margin 一个独立数组（FTabs 按 NonEmptyMargin 生成），流式不搬数据而是把该 margin 的指针按方向平移（move.pocket），相邻线程读同向数组相邻地址以保证合并访问；迭代切成 border/interior 两个 kernel，border kernel 后立即发起异步 D2H 让 interior kernel 覆盖通信。
+files: src/Global.h.Rt:64-72, src/LatticeAccess.inc.cpp.Rt:70-80, src/Lattice.cu.Rt:500-530, src/LatticeAccess.inc.cpp.Rt:13-33
+conventions: STORAGE_BITS 16/32/64 可选压缩；DIRECT_MEM 走 pinned host 内存；双缓冲 in/out FTabs
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:CAP-LBM-MPI-MULTIGPU
+tag: async-copy-waitany-overlap
+method: 27 方向独立 MPI 缓冲；每步先用 outStream 异步 D2H，再 Irecv/Isend 全量发起并 MPI_Waitany 收一个拷一个（H2D 走 inStream），中间插入 interior kernel 覆盖通信；单 rank 单 GPU，多卡靠 MPI 域分解。
+files: src/Lattice.cu.Rt:327-386, src/Lattice.cu.Rt:496-530, src/Lattice.h.Rt:70-72
+conventions: bufsize/bufnumber 仅按实际邻居分配；CROSS_MPI_WAITANY 编译开关切换流水/批量；MPMD 与 LAMMPS 通过 RemoteForceInterface 耦合
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:CAP-LBM-VALIDATION-SURFACE
+tag: instruction-dsl-tests-sh
+method: 测试用指令式 DSL 描述：run/fail/exists/sha1/csvconcatenate 等行内命令，测试脚本放 tests/external/<model>/*.test（git submodule），逐条打印 OK/FAIL 并计时，配合 tools/csvdiff 做阈值比较。
+files: tools/tests.sh:154-190, tools/tests.sh:121-140, .github/actions/test/action.yaml:1-12, tests/solid/main.cpp
+conventions: 测试按模型目录组织；断言 via sha1/csvdiff（阈值比较）；负测试用 run 前缀 '!' 表示应当失败
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:CAP-LBM-CASE-ORGANIZATION
+tag: model-dir-as-build-and-ci-unit
+method: 每个模型一个目录 models/<物理类>/<格子>_<方法>/，三件套 Dynamics.R（声明密度/设置/节点类型/输出量）+ Dynamics.c.Rt（模板内核）+ conf.mk（编译选项），算例独立放 example/<类>/<name>.xml；make <model> 即编该模型，模型名同时是 CI 矩阵键。
+files: models/flow/d2q9/Dynamics.R:1-84, models/multiphase/d3q27_pf_velocity/conf.mk, README.md:20-33, example/multiphase/d3q27_pf_velocity/ContactAngle_45.xml
+conventions: Dynamics.R 声明 AddDensity(dx,dy,dz)/AddSetting/AddNodeType/AddQuantity/AddGlobal；AddSetting 可写 derived 表达式（如 ReviewRate='1.0/(3*Viscosity+0.5)'）；conf.mk 开 Options（q27/TRT/BGK/geometric 等）
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: CFD-GO/TCLB
+slug: NEW:CAP-LBM-CI
+tag: model-matrix-ci-plus-coverage
+method: CI 以模型为矩阵项：CPU 流水线对 16 个模型做 configure->compile->tests.sh->gcov 覆盖；GPU/HIP 流水线只做编译守卫；另一条流水线跑 tests/solid 独立单测。
+files: .github/workflows/cpu_test.yml:7-30, .github/workflows/gpu_comp.yml, .github/workflows/other_tests.yml:1-35, .github/actions/test/action.yaml:1-12
+conventions: 矩阵项=模型名（d2q9/d3q27_pf_velocity/d3q27_cumulant_AVG_IB_SMAG/d3q27_PSM_NEBB 等）；paranoid 编译开关；coverage 汇总到 codecov
+transfer: reference
+[/OSS-SOL]
