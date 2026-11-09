@@ -1,0 +1,225 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cxs503/TensorPlatform/contracts/domain_interface_contract.json",
+  "title": "Cross-Domain Interface Contract v1",
+  "description": "Formal interface contract for ship performance platform domains: resistance, propulsion, seakeeping, manoeuvring, stability, ice, green navigation. Defines canonical parameter names, units, dimensions, and valid ranges for cross-domain data flow verification.",
+  "version": "1.0.0",
+  "canonical_ship_parameters": {
+    "description": "Canonical naming for hull principal particulars shared across all domains",
+    "length_m": {
+      "aliases": ["length", "L", "Lpp", "length_between_perpendiculars"],
+      "unit": "m",
+      "dimension": "[L]",
+      "range": [1.0, 500.0],
+      "description": "Length between perpendiculars (m)"
+    },
+    "beam_m": {
+      "aliases": ["beam", "B", "breadth", "breadth_moulded"],
+      "unit": "m",
+      "dimension": "[L]",
+      "range": [0.5, 100.0],
+      "description": "Moulded breadth (m)"
+    },
+    "draft_m": {
+      "aliases": ["draft", "T", "mean_draft"],
+      "unit": "m",
+      "dimension": "[L]",
+      "range": [0.2, 30.0],
+      "description": "Mean draft (m)"
+    },
+    "cb": {
+      "aliases": ["Cb", "block_coefficient", "cb"],
+      "unit": "1",
+      "dimension": "[1]",
+      "range": [0.3, 0.95],
+      "description": "Block coefficient (dimensionless)"
+    },
+    "speed_ms": {
+      "aliases": ["speed", "design_speed", "U0", "v_ref"],
+      "unit": "m/s",
+      "dimension": "[L][T]^-1",
+      "range": [0.0, 30.0],
+      "description": "Ship speed (m/s). NOTE: EEDI domain uses knots (v_ref_kn) per IMO convention."
+    },
+    "water_density_kg_m3": {
+      "aliases": ["water_density", "rho", "rho_water"],
+      "unit": "kg/m^3",
+      "dimension": "[M][L]^-3",
+      "range": [990.0, 1030.0],
+      "description": "Water density (kg/m^3). Default: 1025 for seawater, 998 for freshwater."
+    },
+    "displacement_t": {
+      "aliases": ["displacement", "Delta"],
+      "unit": "t",
+      "dimension": "[M]",
+      "range": [1.0, 500000.0],
+      "description": "Displacement (metric tonnes). Must satisfy: displacement_t ≈ Cb * L * B * T * rho / 1000"
+    },
+    "kinematic_viscosity_m2_s": {
+      "aliases": ["kinematic_viscosity", "nu"],
+      "unit": "m^2/s",
+      "dimension": "[L]^2[T]^-1",
+      "range": [1.0e-7, 2.0e-5],
+      "description": "Kinematic viscosity of water (m^2/s)"
+    }
+  },
+  "domain_interfaces": {
+    "resistance": {
+      "module": "backend.api.calculations",
+      "endpoint": "POST /api/v1/calculations/resistance",
+      "request_model": "ResistanceRequest",
+      "input_params": {
+        "ship_type": {"type": "str", "canonical": "ship_type"},
+        "speed_ms": {"type": "float", "canonical": "speed_ms", "unit": "m/s"},
+        "length": {"type": "float", "canonical": "length_m", "unit": "m"},
+        "beam": {"type": "float", "canonical": "beam_m", "unit": "m"},
+        "draft": {"type": "float", "canonical": "draft_m", "unit": "m"},
+        "cb": {"type": "float", "canonical": "cb", "unit": "1"},
+        "water_density": {"type": "float", "canonical": "water_density_kg_m3", "unit": "kg/m^3"},
+        "kinematic_viscosity": {"type": "float", "canonical": "kinematic_viscosity_m2_s", "unit": "m^2/s"}
+      },
+      "output_params": {
+        "total_resistance_n": {"unit": "N", "dimension": "[M][L][T]^-2"},
+        "frictional_resistance_n": {"unit": "N", "dimension": "[M][L][T]^-2"},
+        "form_resistance_n": {"unit": "N", "dimension": "[M][L][T]^-2"}
+      }
+    },
+    "propulsion_actuator_disk": {
+      "module": "backend.api.calculations",
+      "endpoint": "POST /api/v1/calculations/propulsion/actuator_disk",
+      "request_model": "ActuatorDiskRequest",
+      "input_params": {
+        "speed_ms": {"type": "float", "canonical": "speed_ms", "unit": "m/s"},
+        "thrust_n": {"type": "float", "canonical": "thrust_n", "unit": "N"},
+        "diameter_m": {"type": "float", "canonical": "diameter_m", "unit": "m"},
+        "water_density": {"type": "float", "canonical": "water_density_kg_m3", "unit": "kg/m^3"}
+      },
+      "output_params": {
+        "disk_area_m2": {"unit": "m^2"},
+        "thrust_coefficient": {"unit": "1"},
+        "ideal_efficiency": {"unit": "1"},
+        "pressure_jump_pa": {"unit": "Pa"}
+      }
+    },
+    "seakeeping": {
+      "module": "backend.api.domain.ship_seakeeping",
+      "endpoint": "POST /api/v1/calculations/seakeeping_rao",
+      "request_model": "RAORequest (hull: HullCondition)",
+      "input_params": {
+        "L": {"type": "float", "canonical": "length_m", "unit": "m", "NOTE": "uses short name L instead of length"},
+        "B": {"type": "float", "canonical": "beam_m", "unit": "m", "NOTE": "uses short name B instead of beam"},
+        "T": {"type": "float", "canonical": "draft_m", "unit": "m", "NOTE": "uses short name T instead of draft"},
+        "Cb": {"type": "float", "canonical": "cb", "unit": "1", "NOTE": "uses Cb instead of cb"},
+        "rho": {"type": "float", "canonical": "water_density_kg_m3", "unit": "kg/m^3", "NOTE": "uses rho instead of water_density"},
+        "displacement_t": {"type": "float", "canonical": "displacement_t", "unit": "t"}
+      },
+      "output_params": {
+        "omega": {"unit": "rad/s"},
+        "rao_heave_m": {"unit": "m/m"},
+        "rao_pitch_rad": {"unit": "rad/m"}
+      },
+      "naming_inconsistencies": [
+        "L vs length (other domains use 'length')",
+        "B vs beam (other domains use 'beam')",
+        "T vs draft (other domains use 'draft')",
+        "Cb vs cb (other domains use 'cb')",
+        "rho vs water_density (other domains use 'water_density')"
+      ]
+    },
+    "manoeuvring": {
+      "module": "backend.api.domain.manoeuvring",
+      "endpoint": "POST /api/v1/calculations/manoeuvring",
+      "request_model": "ManoeuvringRequest",
+      "input_params": {
+        "length": {"type": "float", "canonical": "length_m", "unit": "m"},
+        "beam": {"type": "float", "canonical": "beam_m", "unit": "m"},
+        "draft": {"type": "float", "canonical": "draft_m", "unit": "m"},
+        "cb": {"type": "float", "canonical": "cb", "unit": "1"},
+        "design_speed": {"type": "float", "canonical": "speed_ms", "unit": "m/s", "NOTE": "uses design_speed instead of speed_ms"},
+        "displacement_t": {"type": "float", "canonical": "displacement_t", "unit": "t"},
+        "water_density": {"type": "float", "canonical": "water_density_kg_m3", "unit": "kg/m^3"}
+      },
+      "output_params": {
+        "advance_speed_ms": {"unit": "m/s"},
+        "yaw_rate_deg_s": {"unit": "deg/s"},
+        "tactical_diameter_m": {"unit": "m"}
+      }
+    },
+    "stability": {
+      "module": "backend.api.calculations",
+      "endpoint": "POST /api/v1/calculations/stability",
+      "request_model": "StabilityRequest",
+      "input_params": {
+        "ship_type": {"type": "str", "canonical": "ship_type"},
+        "displacement_t": {"type": "float", "canonical": "displacement_t", "unit": "t"},
+        "gm_m": {"type": "float", "canonical": "gm_m", "unit": "m"},
+        "beam_m": {"type": "float", "canonical": "beam_m", "unit": "m", "NOTE": "accepts beam_m or beam"},
+        "draft_m": {"type": "float", "canonical": "draft_m", "unit": "m", "NOTE": "accepts draft_m or draft"},
+        "heel_angle_deg": {"type": "float", "canonical": "heel_angle_deg", "unit": "deg"}
+      },
+      "output_params": {
+        "gz_m": {"unit": "m"},
+        "righting_moment_Nm": {"unit": "N·m"}
+      }
+    },
+    "green_eedi": {
+      "module": "backend.api.domain.ship_green",
+      "endpoint": "POST /api/v1/eedi",
+      "request_model": "EediRequest",
+      "input_params": {
+        "ship_type": {"type": "str", "canonical": "ship_type"},
+        "capacity_t": {"type": "float", "canonical": "capacity_t", "unit": "t"},
+        "v_ref_kn": {"type": "float", "canonical": "speed_kn", "unit": "kn", "NOTE": "USES KNOTS per IMO convention - different from other domains"},
+        "p_me_kw": {"type": "float", "canonical": "p_me_kw", "unit": "kW"}
+      },
+      "output_params": {
+        "eedi": {"unit": "g CO2/t·nm"},
+        "required_attained": {"unit": "g CO2/t·nm"}
+      },
+      "unit_notes": "EEDI uses knots for speed per IMO MEPC.308(73) convention. Conversion: 1 kn = 0.514444 m/s"
+    },
+    "ice": {
+      "module": "backend.api.domain.ship_icing",
+      "endpoint": "POST /api/v1/ship/icing/accumulate",
+      "request_model": "AccumulateRequest",
+      "input_params": {
+        "t_air_c": {"type": "float", "canonical": "t_air_c", "unit": "°C"},
+        "wind_speed": {"type": "float", "canonical": "wind_speed_ms", "unit": "m/s"},
+        "ship_speed": {"type": "float", "canonical": "speed_ms", "unit": "m/s"},
+        "salinity": {"type": "float", "canonical": "salinity_ppt", "unit": "ppt"}
+      },
+      "output_params": {
+        "ice_thickness_mm": {"unit": "mm"},
+        "gm_loss_m": {"unit": "m"}
+      }
+    }
+  },
+  "cross_domain_consistency_rules": [
+    {
+      "rule_id": "CDR-001",
+      "description": "Ship principal particulars (L, B, T, Cb) must be identical when passed to all domains for the same vessel",
+      "severity": "ERROR"
+    },
+    {
+      "rule_id": "CDR-002",
+      "description": "Displacement must satisfy: |displacement_t - Cb*L*B*T*rho/1000| / displacement_t < 0.03 (3% tolerance)",
+      "severity": "ERROR"
+    },
+    {
+      "rule_id": "CDR-003",
+      "description": "Speed units must be explicitly converted when crossing domain boundaries (m/s <-> knots)",
+      "severity": "WARNING",
+      "conversion": "1 knot = 0.514444 m/s"
+    },
+    {
+      "rule_id": "CDR-004",
+      "description": "Water density default must be consistent: 1025 kg/m³ for seawater domains, 998 kg/m³ for freshwater",
+      "severity": "WARNING"
+    },
+    {
+      "rule_id": "CDR-005",
+      "description": "All force outputs must be in Newtons [N]; all moments in N·m; all lengths in m",
+      "severity": "ERROR"
+    }
+  ]
+}
