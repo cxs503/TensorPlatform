@@ -220,3 +220,23 @@ def get_guide_tracker(db: Session = Depends(get_db), _user: dict = Depends(requi
     result = {"kpis": kpis, "count": len(kpis), "cached": False}
     _set_cached(result)
     return result
+
+
+@router.get("/delivery_layers")
+def get_delivery_layers(db: Session = Depends(get_db), _user: dict = Depends(require_auth)):
+    """分层交付 KPI：每个比率都带显式分母（denominator_key / denominators）。
+
+    与 ``mission_success_rate`` 并行使用：前者回答「任务是否成功」，本视图回答
+    「声称成功的任务有多少是真交付」。分母分层：terminal / succeeded /
+    succeeded_with_payload；失败单不再混入交付质量分母。
+    """
+    from api.kpi_delivery import compute_delivery_kpis, get_delivery_kpi_definitions
+
+    delivery = compute_delivery_kpis(db)
+    return {
+        "denominator_key": delivery["denominator_key"],
+        "denominators": delivery["denominators"],
+        "rates": delivery["rates"],
+        "layers": delivery["layers"],
+        "definitions": get_delivery_kpi_definitions(),
+    }
