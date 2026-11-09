@@ -1,0 +1,103 @@
+name: threshold-registry-gate
+
+# P171W1-N06：验收阈值口径注册表 + 派生一致性门 + 漂移门。
+#
+# 为什么放在 CI：阈值漂移（改阈值不改出处）只有在 PR 上跑才有约束力。
+# 本地跑 / 作者自觉都不是门。
+#
+# 三道阻塞门：
+#   1. 结构门 —— 注册表必须符合 schemas/threshold_registry.schema.json，且每条
+#      threshold 等于自己 derivation 表达式在 reference_h 处的取值（口径自洽）。
+#   2. 漂移门 —— data/criteria/threshold_registry.lock.json 存语义指纹；
+#      阈值被改而 source_ref 未变 / 出处指针腐烂（sha 不符、文件消失）→ 红。
+#   3. 判据门 —— C1–C7 七条验收判据全部 PASS（含 20 次篡改注入检出、20 次格式
+#      变更零误报、同义反复负控、重推导闭环、覆盖率账本）。
+#
+# 另有一条**非阻塞**审计步：注册表相对现网源文件是否已陈旧（会随他人改 tools/**
+# 而变红，因此只告警 + 上传工件，不拦别人的 PR）。
+on:
+  pull_request:
+    paths:
+      - "tools/criteria/**"
+      - "schemas/threshold_registry.schema.json"
+      - "data/criteria/**"
+      - "tests/test_threshold_registry.py"
+      - "config/*.json"
+      - ".github/workflows/threshold-registry-gate.yml"
+  schedule:
+    - cron: "17 3 * * *"  # 每天一次全树巡检（阈值会随别人改源文件而腐烂）
+  workflow_dispatch:
+
+jobs:
+  threshold-registry-gate:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: install deps
+        run: |
+          python -m pip install --upgrade pip
+          python -m pip install pytest jsonschema matplotlib numpy
+
+      - name: 单元 + 集成测试（含反事实：错的必须判红）
+        run: python -m pytest tests/test_threshold_registry.py -q
+
+      - name: 结构门（schema + 口径自洽 + 可裁标注不许说谎）
+        run: |
+          python -m tools.criteria.threshold_registry validate \
+            --registry data/criteria/threshold_registry.json \
+            --out artifacts/criteria/validate.json
+
+      - name: 漂移门（阈值改动无出处变更 → 红）
+        run: |
+          python -m tools.criteria.threshold_registry drift \
+            --registry data/criteria/threshold_registry.json \
+            --lock data/criteria/threshold_registry.lock.json \
+            --out artifacts/criteria/drift.json
+
+      - name: 判据门 C1–C7（派生一致性 / 重推导闭环 / 覆盖率账本 / 控制实验）
+        run: |
+          python -m tools.criteria.gate_report
+          python - <<'PY'
+          import json
+          d = json.load(open("artifacts/criteria/threshold_registry_report.json"))
+          assert d["verdict"] == "CLEAR", {k: d[k]["statement"] for k in ("C1","C2","C3","C4","C5","C6","C7")}
+          assert d["C1"]["n_criteria"] >= 30, d["C1"]["n_criteria"]
+          assert d["C1"]["source_type_missing_rate"] == 0.0, d["C1"]
+          assert d["C2"]["max_deviation"] <= 0.3, d["C2"]
+          assert d["C3"]["n_detected"] == 20, d["C3"]["n_detected"]
+          assert d["C4"]["n_false_positive"] == 0, d["C4"]["n_false_positive"]
+          assert d["C5"]["n_checked"] >= 3, d["C5"]["n_checked"]
+          assert d["C6"]["sourced_ratio"] is not None and d["C6"]["derivable_ratio"] is not None, d["C6"]
+          assert d["C7"]["ok"], d["C7"]
+          print("criteria ledger:", json.dumps({k: d[k]["statement"] for k in ("C1","C2","C3","C4","C5","C6","C7")}, ensure_ascii=False))
+          PY
+
+      - name: 注册表陈旧审计（非阻塞：他人改 tools/** 会触发，只告警）
+        continue-on-error: true
+        run: |
+          python - <<'PY'
+          import json
+          from tools.criteria import harvest, threshold_registry as reg
+          cur = reg.load_registry(reg.DEFAULT_REGISTRY)
+          fresh = harvest.build_registry(reg.ROOT, cur["harvest"]["generated_on"])
+          same = reg.registry_sha(fresh) == reg.registry_sha(cur)
+          print("registry fresh:", same)
+          if not same:
+              ids_cur = {e["criterion_id"] for e in cur["criteria"]}
+              ids_new = {e["criterion_id"] for e in fresh["criteria"]}
+              print("new candidates:", sorted(ids_new - ids_cur))
+              print("vanished:", sorted(ids_cur - ids_new))
+              print("::warning::注册表相对现网源文件已陈旧：请 re-harvest 并复核 source_ref/复核日期")
+          PY
+
+      - name: upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: threshold-registry-artifacts
+          path: |
+            artifacts/criteria/
+            docs/criteria/threshold_registry.md
