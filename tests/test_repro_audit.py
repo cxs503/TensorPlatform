@@ -225,3 +225,251 @@ def test_run_command_timeout_is_reported(tmp_path):
     res = core.run_command([sys.executable, "-c", "import time; time.sleep(5)"],
                            str(tmp_path), timeout=1)
     assert res["timed_out"] is True and res["exit_code"] is None
+
+
+# ─────────────────────────── canonical 模块 ───────────────────────────
+
+def test_canonical_normalize_mission_id():
+    from tools.repro_audit import canonical
+    assert canonical.normalize_mission_id(42) == 42
+    assert canonical.normalize_mission_id("m42") == 42
+    assert canonical.normalize_mission_id("mission-123") == 123
+    assert canonical.normalize_mission_id(None) is None
+    assert canonical.normalize_mission_id("no_number") is None
+
+
+def test_canonical_normalize_artifact_path():
+    from tools.repro_audit import canonical
+    result = canonical.normalize_artifact_path("artifacts/m7/report.json", mission_id=7)
+    assert result["type"] == "json"
+    assert result["mission_scoped"] is True
+    assert result["rel_path"] == "artifacts/m7/report.json"
+
+    result2 = canonical.normalize_artifact_path("/absolute/path/test.py", mission_id=99)
+    assert result2["type"] == "py"
+    assert result2["mission_scoped"] is False
+    assert result2["rel_path"] == "absolute/path/test.py"
+
+
+def test_canonical_normalize_criteria():
+    from tools.repro_audit import canonical
+    criteria = canonical.normalize_criteria(["误差<5%", "收敛 tolerance ≤1e-6"])
+    assert len(criteria) == 2
+    assert criteria[0]["tolerances"] == [0.05]
+    assert criteria[0]["category"] == "numerical_accuracy"
+    assert criteria[1]["category"] == "convergence"
+
+
+def test_canonical_canonicalize_node():
+    from tools.repro_audit import canonical
+    node = {"mission_id": 42, "name": "test", "status": "done",
+            "metadata": {"repo": "repoA", "acceptance_criteria": ["<1%"]}}
+    result = canonical.canonicalize_node(node)
+    assert result["mission_id"] == 42
+    assert result["repo"] == "repoA"
+    assert len(result["criteria"]) == 1
+    assert len(result["sha256"]) == 16
+
+
+def test_canonical_batch_and_dedup():
+    from tools.repro_audit import canonical
+    nodes = [
+        {"mission_id": 1, "status": "done", "metadata": {"repo": "A"}},
+        {"mission_id": 2, "status": "done", "metadata": {"repo": "B"}},
+        {"mission_id": 1, "status": "done", "metadata": {"repo": "A"}},  # duplicate
+    ]
+    batch = canonical.batch_canonicalize(nodes)
+    assert len(batch) == 3  # batch doesn't dedup, just filters+sorts
+    deduped = canonical.deduplicate_by_sha256(batch)
+    assert len(deduped) == 2  # dedup removes the duplicate
+
+
+# ─────────────────────────── scan_select 模块 ───────────────────────────
+
+def test_scan_select_is_test_file():
+    from tools.repro_audit import scan_select
+    assert scan_select.is_test_file("tests/test_a.py")
+    assert scan_select.is_test_file("test_b.py")
+    assert not scan_select.is_test_file("src/main.py")
+    assert not scan_select.is_test_file("tests/data.json")
+
+
+def test_scan_select_scan_candidates():
+    from tools.repro_audit import scan_select
+    nodes = [
+        _node(1, "repoA", 2025),
+        _node(2, "repoB", 2025),
+        {"id": 3, "mission_id": 3, "status": "pending", "metadata": {"repo": "repoA"}},  # not done
+    ]
+    candidates = scan_select.scan_candidates(nodes)
+    assert len(candidates) == 2
+    assert all(c["mission_id"] in [1, 2] for c in candidates)
+
+
+def test_scan_select_strategies():
+    from tools.repro_audit import scan_select
+    nodes = [_node(i, f"repo{i % 3}", 2025) for i in range(1, 21)]
+    candidates = scan_select.scan_candidates(nodes)
+
+    # stratified
+    sel1 = scan_select.select_stratified(candidates, 5, seed="s")
+    assert len(sel1) == 5
+
+    # priority
+    sel2 = scan_select.select_priority(candidates, 5, seed="s")
+    assert len(sel2) == 5
+
+    # coverage
+    sel3 = scan_select.select_coverage(candidates, 5, seed="s")
+    assert len(sel3) == 5
+
+    # random
+    sel4 = scan_select.select_random(candidates, 5, seed="s")
+    assert len(sel4) == 5
+
+    # deterministic
+    sel1b = scan_select.select_stratified(candidates, 5, seed="s")
+    assert [c["mission_id"] for c in sel1] == [c["mission_id"] for c in sel1b]
+
+
+def test_scan_select_coverage_computation():
+    from tools.repro_audit import scan_select
+    nodes = [_node(i, f"repo{i % 3}", 2025) for i in range(1, 11)]
+    candidates = scan_select.scan_candidates(nodes)
+    selected = candidates[:5]
+    coverage = scan_select.compute_coverage(selected, candidates)
+    assert coverage["total"] == 10
+    assert coverage["selected"] == 5
+    assert coverage["coverage_rate"] == pytest.approx(0.5)
+
+
+# ─────────────────────────── probe_runner 模块 ───────────────────────────
+
+def test_probe_runner_criteria_parseable():
+    from tools.repro_audit import probe_runner
+    node = {"mission_id": 1, "metadata": {"acceptance_criteria": ["<5%", "≤1e-6"]}}
+    result = probe_runner.probe_criteria_parseable(node)
+    assert result.ok is True
+    assert result.probe_type == "criteria_parseable"
+
+    node_bad = {"mission_id": 2, "metadata": {"acceptance_criteria": ["no numbers here"]}}
+    result_bad = probe_runner.probe_criteria_parseable(node_bad)
+    assert result_bad.ok is False
+
+
+def test_probe_runner_test_file_syntax(tmp_path):
+    from tools.repro_audit import probe_runner
+    # valid
+    test_file = tmp_path / "test_valid.py"
+    test_file.write_text("def test_ok(): assert True\n")
+    result = probe_runner.probe_test_file_syntax(str(tmp_path), ["test_valid.py"])
+    assert result.ok is True
+
+    # invalid syntax
+    test_bad = tmp_path / "test_bad.py"
+    test_bad.write_text("def test_bad(:\n")
+    result_bad = probe_runner.probe_test_file_syntax(str(tmp_path), ["test_bad.py"])
+    assert result_bad.ok is False
+
+
+def test_probe_runner_json_wellformed(tmp_path):
+    from tools.repro_audit import probe_runner
+    # valid
+    json_file = tmp_path / "data.json"
+    json_file.write_text('{"key": "value"}')
+    result = probe_runner.probe_json_wellformed(str(tmp_path), ["data.json"])
+    assert result.ok is True
+
+    # invalid
+    json_bad = tmp_path / "bad.json"
+    json_bad.write_text("{invalid json}")
+    result_bad = probe_runner.probe_json_wellformed(str(tmp_path), ["bad.json"])
+    assert result_bad.ok is False
+
+
+def test_probe_runner_run_all_probes(tmp_path):
+    from tools.repro_audit import probe_runner
+    _init_repo(str(tmp_path / "repo"))
+    node = {"mission_id": 7, "metadata": {"acceptance_criteria": ["<1%"]}}
+    results = probe_runner.run_all_probes(node, str(tmp_path / "repo"))
+    assert len(results) == len(probe_runner.ALL_PROBES)
+    summary = probe_runner.summarize_probes(results)
+    assert "total" in summary
+    assert "pass_rate" in summary
+
+
+# ─────────────────────────── make_report 模块 ───────────────────────────
+
+def test_make_report_render_probe_section():
+    from tools.repro_audit import make_report
+    probe_results = [
+        {"mission_id": 1, "passed_all_probes": True, "probe_summary": {"failed_count": 0}},
+        {"mission_id": 2, "passed_all_probes": False, "probe_summary": {"failed_count": 2}, "error": "test"},
+    ]
+    section = make_report.render_probe_section(probe_results)
+    assert "1" in section
+    assert "2" in section
+    assert "✓" in section
+    assert "✗" in section
+
+
+def test_make_report_render_verdict_table():
+    from tools.repro_audit import make_report
+    audit_results = [
+        {"mission_id": 1, "verdict": "pass", "repo": "A", "checked": 5, "passed": 5, "drifted": 0},
+        {"mission_id": 2, "verdict": "blocked", "repo": "B", "checked": 0, "passed": 0, "drifted": 0},
+    ]
+    table = make_report.render_verdict_table(audit_results)
+    assert "pass" in table
+    assert "blocked" in table
+
+
+def test_make_report_render_report():
+    from tools.repro_audit import make_report
+    pipeline_result = {
+        "plan": {"candidates_count": 100, "selected_count": 10, "strategy": "stratified",
+                 "seed": "s", "coverage": {"total": 100, "selected": 10, "coverage_rate": 0.1,
+                                            "strata_total": 5, "strata_covered": 3, "strata_coverage": 0.6}},
+        "probe_results": [],
+        "audit_results": [],
+        "kpi": {"total": 10, "counts": {"pass": 5, "drift": 2, "fail": 1, "blocked": 2},
+                "repro_rate": 0.625, "blocked_share": 0.2},
+        "duration_sec": 10.5,
+    }
+    report = make_report.render_report(pipeline_result)
+    assert "复证审计报告" in report
+    assert "62.50%" in report or "0.62" in report
+
+
+# ─────────────────────────── shims 模块 ───────────────────────────
+
+def test_shims_safe_conversions():
+    from tools.repro_audit import shims
+    assert shims.safe_int("42") == 42
+    assert shims.safe_int("invalid", default=0) == 0
+    assert shims.safe_float("3.14") == pytest.approx(3.14)
+    assert shims.safe_float("invalid", default=0.0) == 0.0
+    assert shims.safe_json_loads('{"key": "value"}') == {"key": "value"}
+    assert shims.safe_json_loads("invalid", default={}) == {}
+
+
+def test_shims_parse_pytest_summary():
+    from tools.repro_audit import shims
+    text = "1 failed, 3 passed, 2 warnings in 0.10s"
+    counts = shims.parse_pytest_summary(text)
+    assert counts.get("failed") == 1
+    assert counts.get("passed") == 3
+
+
+def test_shims_normalize_api_response():
+    from tools.repro_audit import shims
+    # v2 format
+    resp = {"data": {"items": [1, 2, 3]}}
+    normalized = shims.normalize_api_response(resp, "/tensor/campaigns/plans")
+    assert "items" in normalized
+    assert normalized["items"] == [1, 2, 3]
+
+    # list format
+    resp2 = [1, 2, 3]
+    normalized2 = shims.normalize_api_response(resp2, "/tensor/campaigns/plans/1/nodes")
+    assert normalized2 == {"items": [1, 2, 3]}
