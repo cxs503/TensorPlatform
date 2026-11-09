@@ -631,6 +631,72 @@ def get_kpi(
     }
 
 
+# ───────────────────── Audit KPI (抽样式重跑复证) ─────────────────────
+
+class AuditKpiItem(BaseModel):
+    mission_id: int = Field(ge=1)
+    verdict: str = Field(pattern="^(pass|drift|fail|blocked)$")
+
+
+class AuditKpiCreate(BaseModel):
+    """抽样式重跑复证的 KPI 回写请求。
+
+    服务器端**按逐项判决复算** rate，与 ``metric_value`` 不一致（>1e-9）即 422：
+    KPI 与明细脱钩是最常见的计量造假形态，必须在写库前拦下。
+    blocked 不进分母（工件缺失/环境不可得≠不复现）。
+    """
+    metric_value: float
+    items: list[AuditKpiItem]
+    items_sha256: str = Field(default="", max_length=128)
+    captured_at: str | None = Field(default=None, max_length=64)
+
+
+def recompute_audit_rate(items: list[AuditKpiItem]) -> tuple[float | None, dict[str, int]]:
+    counts = {"pass": 0, "drift": 0, "fail": 0, "blocked": 0}
+    for item in items:
+        counts[item.verdict] = counts.get(item.verdict, 0) + 1
+    denom = counts["pass"] + counts["drift"] + counts["fail"]
+    return ((counts["pass"] / denom) if denom else None), counts
+
+
+@router.post("/audit-kpi", dependencies=[Depends(require_role("ADMIN", "MANAGER"))])
+def post_audit_kpi(
+    body: AuditKpiCreate,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    org_id = resolved_org(None, user, db)
+    rate, counts = recompute_audit_rate(body.items)
+    if rate is None:
+        raise HTTPException(422, "no countable items: repro_rate undefined")
+    if abs(rate - body.metric_value) > 1e-9:
+        raise HTTPException(422, f"KPI/detail mismatch: submitted {body.metric_value} vs recomputed {rate}")
+    snap = datetime.now(timezone.utc).replace(minute=0, second=0, microsecond=0)
+    if body.captured_at:
+        try:
+            snap = datetime.fromisoformat(body.captured_at).astimezone(timezone.utc).replace(
+                minute=0, second=0, microsecond=0)
+        except ValueError:
+            pass
+    blocked_share = counts["blocked"] / len(body.items) if body.items else 0.0
+    for key, value, target in (("repro_rate", rate, 0.95),
+                               ("repro_audit_blocked_share", blocked_share, None)):
+        db.execute(
+            text("""
+                INSERT INTO tensor_guide_tracker (organization_id, metric_key, metric_value, target_value, snapshot_at)
+                VALUES (:org, :key, :val, :target, :snap)
+                ON CONFLICT (organization_id, metric_key, snapshot_at) DO UPDATE
+                SET metric_value = EXCLUDED.metric_value
+            """),
+            {"org": org_id, "key": key, "val": value, "target": target, "snap": snap},
+        )
+    db.commit()
+    return {"metric_key": "repro_rate", "repro_rate": round(rate, 12),
+            "repro_rate_target": 0.95, "blocked_share": round(blocked_share, 12),
+            "counts": counts, "items": len(body.items), "items_sha256": body.items_sha256,
+            "snapshot_at": snap.isoformat(), "metric_value_submitted": body.metric_value}
+
+
 # ───────────────────────── Statistics (revoked ≠ failed) ─────────────────────────
 
 @router.get("/stats", dependencies=[Depends(require_auth)])
