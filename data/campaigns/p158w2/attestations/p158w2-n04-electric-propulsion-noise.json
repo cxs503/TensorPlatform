@@ -1,0 +1,83 @@
+{
+  "schema": "tp.integration.attestation/v1",
+  "node": {
+    "ext_id": "p158w2-n04-electric-propulsion-noise",
+    "repo": "ship-performance-platform",
+    "mission_id": 8495,
+    "branch": null,
+    "base_commit": null,
+    "head_commit": null
+  },
+  "source": {
+    "kind": "platform_report",
+    "ref": "platform_report:9769",
+    "sha256": "82849eb1ab8982905b133ab87cfc0f890123b826e59acc50f9b1bd1973076c0e",
+    "retrieved_at": "2026-11-09T08:49:02.345939+00:00"
+  },
+  "criteria": [
+    {
+      "id": "G1_kloss_torque_slip_rel_error",
+      "measured": 0.013066242277846663,
+      "op": "<=",
+      "threshold": 0.01,
+      "verdict": "FAIL",
+      "unit": "-",
+      "note": "Kloss 闭式 vs 等效电路数值解转矩-转差（s=0.03 单点）：判据 ≤1%",
+      "key": "kloss.rel_error",
+      "role": "capability_gate"
+    },
+    {
+      "id": "G_URN_underwater_spl_nonzero",
+      "measured": 0.0,
+      "op": ">=",
+      "threshold": 1.0,
+      "verdict": "FAIL",
+      "unit": "dB",
+      "note": "水下辐射噪声必须是有限非零量；本门设 1 dB 下限，0 表示该分支未建模",
+      "key": "radiation.SPL_underwater",
+      "role": "capability_gate"
+    },
+    {
+      "id": "G_cabin_spl_nonzero",
+      "measured": 33.6694699977025,
+      "op": ">=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "dB",
+      "note": "舱室 SPL 非零（证明辐射链确实算到声学端）",
+      "key": "radiation.SPL_cabin",
+      "role": "capability_gate"
+    },
+    {
+      "id": "G_radiation_efficiency_positive",
+      "measured": 0.04395065254911287,
+      "op": ">=",
+      "threshold": 1e-06,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "Maidanik 辐射效率为正（与 URN 分支的 0 dB 形成矛盾对照）",
+      "key": "radiation.sigma",
+      "role": "capability_gate"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "ship.electric_propulsion_noise_chain",
+      "claim_level": "REAL",
+      "summary": "电力推进谐波激励→气隙力波→圆柱壳模态→舱室 SPL 全链（Kloss/PWM/Maxwell/Maidanik/ISO6954）",
+      "blocking_criteria": [
+        "G1_kloss_torque_slip_rel_error"
+      ]
+    },
+    {
+      "id": "ship.urn_underwater_propagation",
+      "claim_level": "REAL",
+      "summary": "水下辐射噪声传播口径（URN）",
+      "blocking_criteria": [
+        "G_URN_underwater_spl_nonzero"
+      ]
+    }
+  ],
+  "interface_contract": null,
+  "notes": "判据由本门从报告 JSON 载荷重算，不采信报告自述结论；URN 分支在报告里自述 Simplified model 且 SPL_underwater=0。"
+}

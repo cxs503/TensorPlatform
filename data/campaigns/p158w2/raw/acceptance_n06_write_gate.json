@@ -1,0 +1,386 @@
+{
+  "schema": "tp.write_gate.acceptance/v1",
+  "verdict": "PASS",
+  "criteria": {
+    "whitelist": {
+      "required": 10,
+      "detected": 10,
+      "rate": 1.0,
+      "pass": true,
+      "rows": [
+        {
+          "id": "P01_prefix_sibling",
+          "path": "tools/write_gate_evil/mod.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P02_parent_traversal",
+          "path": "tools/write_gate/../../backend/api/leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P03_dot_segments",
+          "path": "./tools/./../backend/leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P04_backslash",
+          "path": "tools\\write_gate\\..\\..\\backend\\leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P05_unicode_fullwidth",
+          "path": "tools／write_gate／．．／backend／leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P06_percent_encoded",
+          "path": "tools/write_gate/%2e%2e/%2e%2e/backend/leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P07_double_encoded",
+          "path": "tools/write_gate/%252e%252e/backend/leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P08_nul_truncation",
+          "path": "tools/write_gate/ok.py\u0000/../../../backend/leak.py",
+          "blocked": true,
+          "codes": [
+            "path_nul_byte"
+          ],
+          "categories": [
+            "invalid"
+          ]
+        },
+        {
+          "id": "P09_doubled_separator",
+          "path": "tools//write_gate//..//..//backend/leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        },
+        {
+          "id": "P10_case_variant",
+          "path": "Tools/Write_Gate/../Backend/leak.py",
+          "blocked": true,
+          "codes": [
+            "allow_list_miss"
+          ],
+          "categories": [
+            "whitelist"
+          ]
+        }
+      ]
+    },
+    "cross_repo": {
+      "required": 5,
+      "detected": 5,
+      "rate": 1.0,
+      "pass": true,
+      "extra_scenarios": 2,
+      "extra_detected": 2,
+      "rows": [
+        {
+          "id": "C1_root_escape",
+          "expect": "root_escape",
+          "path": "../../etc/hosts",
+          "codes": [
+            "root_escape"
+          ],
+          "hit": true,
+          "required": true
+        },
+        {
+          "id": "C2_absolute_foreign",
+          "expect": "absolute_path",
+          "path": "/tmp/write_gate_final/write_gate_accept_dq25yiq1/other_repo/backend/x.py",
+          "codes": [
+            "absolute_path",
+            "foreign_root"
+          ],
+          "hit": true,
+          "required": true
+        },
+        {
+          "id": "C3_nested_repo_marker",
+          "expect": "nested_repo_marker",
+          "path": "vendor/subrepo/src/x.py",
+          "codes": [
+            "nested_repo_marker"
+          ],
+          "hit": true,
+          "required": true
+        },
+        {
+          "id": "C4_git_internals",
+          "expect": "git_internals",
+          "path": ".git/config",
+          "codes": [
+            "git_internals"
+          ],
+          "hit": true,
+          "required": true
+        },
+        {
+          "id": "C5_symlink_escape",
+          "expect": "symlink_escape",
+          "path": "link/secret.txt",
+          "codes": [
+            "symlink_escape"
+          ],
+          "hit": true,
+          "required": true
+        },
+        {
+          "id": "C6_repo_mismatch",
+          "expect": "repo_mismatch",
+          "path": "tools/a.py",
+          "codes": [
+            "repo_mismatch"
+          ],
+          "hit": true,
+          "required": false
+        },
+        {
+          "id": "C7_foreign_root_glob",
+          "expect": "foreign_root",
+          "path": "../m8000/backend/x.py",
+          "codes": [
+            "foreign_root",
+            "root_escape"
+          ],
+          "hit": true,
+          "required": false
+        }
+      ]
+    },
+    "secrets": {
+      "required": 3,
+      "detected": 3,
+      "rate": 1.0,
+      "pass": true,
+      "extra_patterns": 3,
+      "extra_detected": 3,
+      "redaction_ok": true,
+      "rows": [
+        {
+          "rule_id": "private_key_block",
+          "detected": true,
+          "hit_rules": [
+            "private_key_block"
+          ],
+          "redacted": true,
+          "required": true
+        },
+        {
+          "rule_id": "credential_assignment",
+          "detected": true,
+          "hit_rules": [
+            "credential_assignment"
+          ],
+          "redacted": true,
+          "required": true
+        },
+        {
+          "rule_id": "url_credentials",
+          "detected": true,
+          "hit_rules": [
+            "url_credentials"
+          ],
+          "redacted": true,
+          "required": true
+        },
+        {
+          "rule_id": "jwt_bearer",
+          "detected": true,
+          "hit_rules": [
+            "jwt_bearer"
+          ],
+          "redacted": true,
+          "required": false
+        },
+        {
+          "rule_id": "cloud_access_key_id",
+          "detected": true,
+          "hit_rules": [
+            "cloud_access_key_id"
+          ],
+          "redacted": true,
+          "required": false
+        },
+        {
+          "rule_id": "high_entropy_blob",
+          "detected": true,
+          "hit_rules": [
+            "high_entropy_blob"
+          ],
+          "redacted": true,
+          "required": false
+        }
+      ]
+    },
+    "false_positive": {
+      "samples": 161,
+      "false_positives": 0,
+      "rate": 0.0,
+      "budget": 0.01,
+      "pass": true,
+      "blocked_items": [],
+      "corpus_sha256": "7cfba4a6384188d42fa271a12190e60349b855069365000dba0b50e4effbbeb3"
+    },
+    "determinism": {
+      "runs": 3,
+      "identical": true,
+      "digest": "8b5cb8de4b7f2c72063aafbaa56a61e72089100014f640267c565b8d7fdd5c41",
+      "pass": true
+    },
+    "fail_closed": {
+      "probes": [
+        {
+          "probe": "missing_root",
+          "verdict": "FAIL",
+          "decision": "unknown",
+          "codes": [
+            "root_unreadable"
+          ],
+          "closed": true
+        },
+        {
+          "probe": "bad_policy_rejected",
+          "detail": [
+            true,
+            true,
+            true
+          ],
+          "closed": true
+        },
+        {
+          "probe": "missing_policy",
+          "closed": true
+        }
+      ],
+      "pass": true
+    },
+    "semantics": {
+      "targets": [
+        "tools/write_gate/__init__.py",
+        "tools/write_gate/acceptance.py",
+        "tools/write_gate/binary_gate.py",
+        "tools/write_gate/cli.py",
+        "tools/write_gate/crossrepo.py",
+        "tools/write_gate/gate.py",
+        "tools/write_gate/gen_doc.py",
+        "tools/write_gate/gen_figure.py",
+        "tools/write_gate/ledger.py",
+        "tools/write_gate/model.py",
+        "tools/write_gate/pathnorm.py",
+        "tools/write_gate/policy.py",
+        "tools/write_gate/samples.py",
+        "tools/write_gate/secrets.py",
+        "tools/write_gate/whitelist.py",
+        "data/write_gate/fp_corpus.json",
+        "data/write_gate/policy.json",
+        "data/write_gate/scenarios.json"
+      ],
+      "hits": [],
+      "pass": true
+    },
+    "pytest": {
+      "returncode": 0,
+      "summary": "50 passed, 1 warning in 1.59s",
+      "passed": 50,
+      "failed": 0,
+      "pass": true
+    },
+    "performance": {
+      "changes": 1000,
+      "seconds": 0.3193,
+      "microseconds_per_change": 319.3,
+      "blocked": 0,
+      "pass": true
+    },
+    "allow_samples": {
+      "samples": 6,
+      "passed": 6,
+      "pass": true
+    }
+  },
+  "policy": {
+    "path": "data/write_gate/policy.json",
+    "sha256": "60ff649854d0221c90c78158ba042ed0046e100c7083e1c704f4071d80516a4d",
+    "config_digest": "dd2732e5ef2c21d6fdce478cf9c07704b81363188f6d1d969eb3ffed2a340b21"
+  },
+  "scenarios": {
+    "path": "data/write_gate/scenarios.json",
+    "sha256": "c3567353f27910d90ff19f5a7e232c30637be6944b9b89dd66eabc6dedf9f774"
+  },
+  "code": {
+    "__init__.py": "b783086c5e48b7e44bd890ac43c6417116966c3fbbf53f89f7e0afbd59cf38af",
+    "acceptance.py": "a023e35e7c25cbba5bdc3098f8b018d71f5a5969213871df93479555c2bb6027",
+    "binary_gate.py": "7a98c36a3167ebb39de5224c9b20a802a62ea73cdf44e774c8c74efb2f844d5f",
+    "cli.py": "3d8154080da4673cfaea34fe6da1c0e85b1ce7bd35327ca322d6bee3e3621b87",
+    "crossrepo.py": "edc53e8ed25ea67574f0af9dc208e56b03f3a6327e1888c5fd7b71a0af895a94",
+    "gate.py": "6d980e07788db6a04bff0977339215020754f77ad590a02eb0f415269c4bcc12",
+    "gen_doc.py": "8ab6d5bfc396d7ed9c904f129cfcf0e6c92da623f90649ef1d44c6cdccc66d0d",
+    "gen_figure.py": "52bd42cd50f407f7a6bef5616d8b7f73d66192c808ad62777b01dc0da48e32c1",
+    "ledger.py": "4097a225cc29dbe4f259ccc950b318fee49c1b7fd8f22ebd47f9dfd523681c0a",
+    "model.py": "b2f49edcddd2657f23d4eba20d03bfc951914b7dca46a85cf875777240f5f4f9",
+    "pathnorm.py": "d8742b7fd54fde02747d85ddddadee6a113e92dae3ac27ff9aea3f136874f0a7",
+    "policy.py": "84bd51660c6d1ab0fe0e58c27f28517c930266200593c7126ff7cee216e219f2",
+    "samples.py": "cb24fed2bd0bfe4f20e79f29dfb04e380f05da36c1fe345f010f02d0bf21503c",
+    "secrets.py": "3c1beff6e230841234a28cfa1f43ec1e11530167e23f103a144313971c737448",
+    "whitelist.py": "3c950811478f1a5386014be9138c3d85510aa6323cdbf89431ab2f7874dd6a29"
+  },
+  "environment": {
+    "python": "3.11.6",
+    "platform": "linux"
+  }
+}
