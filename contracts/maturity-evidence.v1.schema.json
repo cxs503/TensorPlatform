@@ -1,0 +1,75 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Campaign node maturity evidence document (v1)",
+  "description": "战役节点向上游交付『可复算证据』的唯一格式。平台 maturity gate 只认这个格式：判断依据是 criteria.<id>.values 里的数字，而不是报告里的形容词。所有路径相对节点仓库工作树。",
+  "type": "object",
+  "required": ["evidence_schema_version", "node_key", "repo", "criteria"],
+  "additionalProperties": true,
+  "properties": {
+    "evidence_schema_version": {
+      "type": "string",
+      "const": "1.0"
+    },
+    "node_key": {
+      "type": "string",
+      "description": "与 campaign_plans.nodes.metadata.ext_id 一致（例：p54w3-n02-brash-ice-evolution）"
+    },
+    "repo": {
+      "type": "string",
+      "description": "交付仓库名（例：TensorDEM）"
+    },
+    "commit": {
+      "type": "string",
+      "description": "交付 commit sha（可选，建议填；便于证据与代码树对齐）"
+    },
+    "criteria": {
+      "type": "object",
+      "description": "键 = 判据 id（a/b/c/...），与战役节点 acceptance_criteria 顺序一致",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["values", "pass"],
+        "properties": {
+          "values": {
+            "type": "object",
+            "description": "可复算数字集合，键名由该判据自然定义（如 rel_error / closure / alpha）",
+            "additionalProperties": {"type": ["number", "boolean", "string", "array", "null"]}
+          },
+          "pass": {
+            "type": "boolean",
+            "description": "上游自述结论。maturity gate 会按自己声明的阈值复算；两者不一致记 claim_mismatch 并进台账。"
+          },
+          "unit": {"type": "string"},
+          "artifact": {
+            "type": "string",
+            "description": "产出该数字的脚本/表格/图片路径（可选，指向可重跑的产物）"
+          },
+          "method": {
+            "type": "string",
+            "description": "一句话方法（可选，报告会引用）"
+          }
+        }
+      }
+    },
+    "pytest": {
+      "type": "object",
+      "description": "该节点全链测试的机器可读结论（判据『pytest 全链通过』只认这一块，不认报告文字）",
+      "required": ["returncode", "passed", "failed"],
+      "properties": {
+        "returncode": {"type": "integer"},
+        "passed": {"type": "integer"},
+        "failed": {"type": "integer"},
+        "skipped": {"type": "integer"},
+        "duration_s": {"type": "number"},
+        "command": {"type": "string"}
+      }
+    },
+    "energy_closure": {
+      "type": "object",
+      "description": "可选：能量账本闭合量（closure = |ΔE|/E0），供跨节点一致性检查引用",
+      "properties": {
+        "closure": {"type": "number"},
+        "e0": {"type": "number"}
+      }
+    }
+  }
+}
