@@ -73,11 +73,17 @@ EXPECTED_FIELDS_PARTIAL = {
     "evidence",       # Evidence bundle
 }
 
-# Negative control: if these are missing, must be undeclared (fail-closed)
+# Negative control: if these are missing, must be undeclared (fail-closed).
+# ``checks`` is deliberately NOT here (P92W3-N10 defect fix): "worked but did not
+# verify" is a *partial* delivery, not an undeclared one. Reserve
+# ``suspect_undeclared`` for the case with no work product on disk at all —
+# otherwise the state name lies and honest partial deliveries are counted as
+# false claims in the KPI.
 CRITICAL_FIELDS = {
-    "changed_files",  # No files = no implementation
-    "checks",         # No checks = no verification
+    "changed_files",  # No files = no implementation = nothing delivered
 }
+#: Verification artifact: graded (down to ``delivered_partial``), never critical.
+GRADED_VERIFICATION_FIELD = "checks"
 
 # Alternative keys observed in the production result payload (calibration split).
 IMPLEMENTATION_KEYS = ("changed_files", "on_disk_changes")
@@ -315,12 +321,10 @@ def assess_delivery(result: dict[str, Any] | None) -> DeliveryAssessment:
 
     facts = normalize_artifacts(result)
 
-    # Fail-closed critical checks
+    # Fail-closed critical checks: only the work product is critical.
     missing_critical = []
     if not facts.implementation_present:
         missing_critical.append("changed_files")
-    if not facts.verification_present:
-        missing_critical.append("checks")
     if missing_critical:
         return DeliveryAssessment(
             state="suspect_undeclared",
@@ -337,7 +341,13 @@ def assess_delivery(result: dict[str, Any] | None) -> DeliveryAssessment:
     # Critical artifacts present: judge verification quality and claim artifact.
     missing = []
     reasons = []
-    if not facts.verification_concrete:
+    if not facts.verification_present:
+        missing.append(GRADED_VERIFICATION_FIELD)
+        reasons.append(
+            "Implementation present but no verification artifact at all "
+            "(nothing was run or nothing was recorded)"
+        )
+    elif not facts.verification_concrete:
         missing.append("verification_machine_checkable")
         reasons.append(
             "Verification field present but carries no machine-checkable statement "
@@ -425,6 +435,196 @@ def compute_delivery_metrics(
         "undeclared_rate": round(undeclared / total * 100, 2) if total > 0 else 0.0,
         "avg_confidence": round(sum(a.confidence for a in assessments) / total, 3),
     }
+
+
+
+
+# ---------------------------------------------------------------------------
+# Attested layering (P92W3-N10): artifact facts x closure integrity
+# ---------------------------------------------------------------------------
+# A terminal ``succeeded`` can be reached in two very different ways: the worker
+# delivered and *then* reported, or the worker was pushed to report by a
+# forced-closure prompt at the end of its budget. Artifact facts alone record
+# *what* was written; they cannot record *how* the claim was obtained. The
+# closure fact is a harness-observed process fact (``fail_stage``), and the
+# layering below combines both dimensions with an explicit, fail-closed table.
+CLOSURE_FIELD = "fail_stage"
+CLOSURE_FORCED_TOKEN = "forced_finish"
+CLOSURE_CLEAN = "clean"
+CLOSURE_FORCED = "forced"
+CLOSURE_UNKNOWN = "unknown"
+CLOSURE_STATES = (CLOSURE_CLEAN, CLOSURE_FORCED, CLOSURE_UNKNOWN)
+
+#: Layering table: (artifact_state, closure_state) -> attested terminal state.
+#: Fail-closed: a complete artifact set with *unattested* closure is NOT
+#: promoted to ``delivered_complete`` — missing telemetry is not evidence.
+ATTESTED_TABLE: dict[tuple[str, str], str] = {
+    ("delivered_complete", CLOSURE_CLEAN): "delivered_complete",
+    ("delivered_complete", CLOSURE_FORCED): "delivered_partial",
+    # P92W3-N10 deviation D1: an *unattested* closure is a telemetry gap, not a
+    # delivery defect. Downgrading it would reclassify every mission from a
+    # harness that predates this fact (276 of 6327 = 4.4%) and manufacture a
+    # complete_rate drop attributable to missing telemetry. It is therefore
+    # surfaced as an optional/coverage item, never as a downgrade.
+    ("delivered_complete", CLOSURE_UNKNOWN): "delivered_complete",
+    ("delivered_partial", CLOSURE_CLEAN): "delivered_partial",
+    ("delivered_partial", CLOSURE_FORCED): "delivered_partial",
+    ("delivered_partial", CLOSURE_UNKNOWN): "delivered_partial",
+    ("suspect_undeclared", CLOSURE_CLEAN): "suspect_undeclared",
+    ("suspect_undeclared", CLOSURE_FORCED): "suspect_undeclared",
+    ("suspect_undeclared", CLOSURE_UNKNOWN): "suspect_undeclared",
+}
+
+#: Item appended to the ``missing`` enumeration for each closure state.
+CLOSURE_MISSING_ITEM = {
+    CLOSURE_FORCED: "closure_integrity",
+    CLOSURE_UNKNOWN: "closure_attestation",
+}
+
+CLOSURE_REASON = {
+    CLOSURE_FORCED: (
+        "Closure was extracted under budget duress (forced-closure marker in the "
+        "process facts): artifacts may be complete but the claim is not attested"
+    ),
+    CLOSURE_UNKNOWN: (
+        "Closure integrity unattested (no process fact recording how the terminal "
+        "claim was made) — fail-closed: not promoted to complete"
+    ),
+}
+
+
+def classify_closure(result: dict[str, Any] | None) -> str:
+    """Classify closure integrity from the harness-observed process facts.
+
+    Returns
+    -------
+    str
+        ``forced`` when the forced-closure marker is present, ``clean`` when the
+        field is present without it, ``unknown`` when the field is absent.
+
+    Examples
+    --------
+    >>> classify_closure({"fail_stage": "budget_exhausted+forced_finish"})
+    'forced'
+    >>> classify_closure({"fail_stage": ""})
+    'clean'
+    >>> classify_closure({})
+    'unknown'
+    """
+    if not isinstance(result, dict) or CLOSURE_FIELD not in result:
+        return CLOSURE_UNKNOWN
+    value = _as_text(result.get(CLOSURE_FIELD))
+    if CLOSURE_FORCED_TOKEN in value:
+        return CLOSURE_FORCED
+    return CLOSURE_CLEAN
+
+
+def layer_attested_state(
+    artifact_state: str, closure_state: str
+) -> tuple[str, list[str], float]:
+    """Combine an artifact verdict with a closure verdict.
+
+    Parameters
+    ----------
+    artifact_state : str
+        One of the three artifact states.
+    closure_state : str
+        One of ``clean`` / ``forced`` / ``unknown``.
+
+    Returns
+    -------
+    tuple
+        ``(state, extra_missing_items, confidence)``
+
+    Examples
+    --------
+    >>> layer_attested_state("delivered_complete", "forced")[0]
+    'delivered_partial'
+    >>> layer_attested_state("delivered_complete", "clean")[0]
+    'delivered_complete'
+    """
+    if closure_state not in CLOSURE_STATES:
+        closure_state = CLOSURE_UNKNOWN
+    state = ATTESTED_TABLE.get((artifact_state, closure_state), "suspect_undeclared")
+    extra = [CLOSURE_MISSING_ITEM[closure_state]] if closure_state == CLOSURE_FORCED else []
+    confidence = {"delivered_complete": 1.0, "delivered_partial": 0.7,
+                  "suspect_undeclared": 1.0}[state]
+    if closure_state == CLOSURE_UNKNOWN and state == "delivered_complete":
+        confidence = 0.9   # downgraded confidence, not downgraded state
+    return state, extra, confidence
+
+
+def assess_attested_delivery(result: dict[str, Any] | None) -> DeliveryAssessment:
+    """Classify the *attested* delivery state (artifacts x closure integrity).
+
+    The artifact-only verdict is computed first (``assess_delivery``) so that the
+    two layers stay separable in every report; the closure fact can only
+    downgrade, never upgrade.
+
+    Examples
+    --------
+    >>> a = assess_attested_delivery({"changed_files": ["a.py"], "checks": "12 passed",
+    ...                               "summary": "done", "fail_stage": ""})
+    >>> a.state
+    'delivered_complete'
+    >>> b = assess_attested_delivery({"changed_files": ["a.py"], "checks": "12 passed",
+    ...                               "summary": "done",
+    ...                               "fail_stage": "budget_exhausted+forced_finish"})
+    >>> b.state, b.missing
+    ('delivered_partial', ['closure_integrity'])
+    """
+    artifact = assess_delivery(result)
+    closure = classify_closure(result)
+    state, extra_missing, confidence = layer_attested_state(artifact.state, closure)
+    missing = list(artifact.missing)
+    reasons = list(artifact.reasons)
+    for item in extra_missing:
+        if item not in missing:
+            missing.append(item)
+    if closure != CLOSURE_CLEAN:
+        reasons.append(CLOSURE_REASON[closure])
+    if state == artifact.state and closure == CLOSURE_CLEAN:
+        confidence = artifact.confidence
+
+    missing_optional = list(artifact.missing_optional)
+    if closure == CLOSURE_UNKNOWN and CLOSURE_MISSING_ITEM[CLOSURE_UNKNOWN] not in missing_optional:
+        missing_optional.append(CLOSURE_MISSING_ITEM[CLOSURE_UNKNOWN])
+    facts = dict(artifact.facts)
+    facts["closure"] = closure
+    facts["artifact_state"] = artifact.state
+    return DeliveryAssessment(
+        state=state,
+        missing=missing,
+        reasons=reasons,
+        confidence=confidence,
+        missing_optional=missing_optional,
+        facts=facts,
+    )
+
+
+def compute_missing_item_counts(
+    assessments: list[DeliveryAssessment], top_n: int = 8
+) -> list[dict[str, Any]]:
+    """Aggregate the ``missing`` enumerations into a ranked list.
+
+    Parameters
+    ----------
+    assessments : list[DeliveryAssessment]
+        Assessments to aggregate.
+    top_n : int
+        How many items to return.
+
+    Returns
+    -------
+    list[dict]
+        ``[{"item": str, "count": int}]`` sorted by count descending, ties by name.
+    """
+    counter: dict[str, int] = {}
+    for assessment in assessments:
+        for item in assessment.missing:
+            counter[item] = counter.get(item, 0) + 1
+    ranked = sorted(counter.items(), key=lambda kv: (-kv[1], kv[0]))
+    return [{"item": item, "count": count} for item, count in ranked[:top_n]]
 
 
 # Domain semantics scanner (for audit)
