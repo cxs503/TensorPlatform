@@ -10,20 +10,27 @@
 6. 回溯性功效计算
 7. 六维功效门集成判决
 8. 边界条件与异常处理
+9. m8646 回归：MDE 塌陷 / 回溯功效膨胀 / 跨进程可复现 / 门校准与欠功效 / 零方差退化
 """
 
 from __future__ import annotations
 
 import math
+import os
 import random
+import subprocess
+import sys
 
 import pytest
 
 from tools.abm.six_dim_power import (
     DIMENSIONS,
     aa_false_positive_rate,
+    analytic_mde,
+    analytic_power_paired,
     cohens_d,
     mde_curve,
+    min_n_for_effect,
     paired_median_diff,
     permutation_test_six_dim,
     retrospective_power,
@@ -237,7 +244,7 @@ class TestRetrospectivePower:
 
     def test_small_effect_low_power(self):
         """小效应量 + 大噪声 → 回溯功效应较低。
-        
+
         使用有真实方差的数据：diff 均值小但方差大。
         """
         rng = random.Random(555)
@@ -292,14 +299,31 @@ class TestSixDimPowerGate:
         assert result["gate_verdict"] == "pass"
 
     def test_fail_verdict(self):
-        """无效应 → fail。"""
-        ctrl, treat = self._make_data(shift=0.0, n=15)
+        """无效应且样本量充足（n=60 ≥ 检出 d=0.5 所需 n）→ fail（证否）。
+
+        m8646 语义修正：修复前 n=15 的无效应数据一律判 fail，等于把
+        "检验没本事看出 0.5 的效应" 说成 "没有效应"。
+        """
+        ctrl, treat = self._make_data(shift=0.0, n=60)
         result = six_dim_power_gate(
             ctrl, treat,
             alpha=0.05, n_perm=200, seed=42,
             run_aa_check=False, run_mde=False, run_retrospective=False,
         )
+        assert result["sample_underpowered"] is False
         assert result["gate_verdict"] == "fail"
+
+    def test_underpowered_no_effect_is_inconclusive(self):
+        """无效应 + 样本量不足 → inconclusive（证据不足 ≠ 证否）。"""
+        ctrl, treat = self._make_data(shift=0.0, n=8)
+        result = six_dim_power_gate(
+            ctrl, treat,
+            alpha=0.05, n_perm=200, seed=42,
+            run_aa_check=False, run_mde=False, run_retrospective=False,
+        )
+        assert result["sample_underpowered"] is True
+        assert result["gate_verdict"] == "inconclusive"
+        assert "证据不足" in result["gate_reason"]
 
     def test_aa_check_included(self):
         """AA 检查应包含在结果中。"""
@@ -376,3 +400,188 @@ class TestEdgeCases:
         r2 = permutation_test_six_dim(ctrl, treat, n_perm=200, seed=999)
         assert "raw_p" in r1["dimensions"][0]
         assert "raw_p" in r2["dimensions"][0]
+
+
+# ---------------------------------------------------------------------------
+# 9. m8646 回归：五处实质缺陷（每条都能在修复前跑红）
+# ---------------------------------------------------------------------------
+
+@pytest.fixture(scope="module")
+def mde_small_grid():
+    """MDE(n) 小网格（模块级缓存：一次 ~8 s，三条回归共用）。"""
+    return mde_curve(alpha=0.05, power=0.8, n_range=[6, 20, 100], n_perm=300, seed=42)
+
+
+class TestMdeNotCollapsed:
+    """缺陷 1：`_estimate_power` 造出的配对差没有方差（d=inf），
+    MDE(n) 曲线整体塌到搜索下界 —— n=6 与 n=200 都报 ~0.01，与解析 MDE 差两个数量级。"""
+
+    def test_mde_tracks_sample_size(self, mde_small_grid):
+        curve = mde_small_grid
+        m = {pt["n"]: pt["mde"] for pt in curve}
+        assert all(v is not None for v in m.values()), m
+        assert m[6] > 1.0, f"n=6 的 MDE 应 >1.0，实得 {m[6]}（修复前 ~0.01）"
+        assert m[20] > 0.5, m
+        assert m[100] < 0.45, m
+
+    def test_mde_monotone_decreasing(self, mde_small_grid):
+        m = [pt["mde"] for pt in mde_small_grid]
+        assert all(m[i] <= m[i - 1] for i in range(1, len(m))), m
+
+    def test_mde_within_15pct_of_analytic(self, mde_small_grid):
+        errs = {
+            pt["n"]: abs(pt["mde"] - pt["mde_analytic"]) / pt["mde_analytic"]
+            for pt in mde_small_grid
+            if pt["n"] >= 10
+        }
+        for n, e in errs.items():
+            assert e <= 0.15, f"n={n} 相对解析 MDE 误差 {e:.1%} > 15%"
+
+
+class TestRetrospectivePowerCalibrated:
+    """缺陷 2：回溯功效模拟把噪声写成 std_diff*0.1，模拟 diff 的 std 只有观测的 1/10，
+    功效被系统性高估（实测把 0.53 的真值报成 1.0）。"""
+
+    @staticmethod
+    def _paired(seed=1234, n=12, mean=0.45, sd=1.0):
+        rng = random.Random(seed)
+        ctrl = [rng.gauss(0.0, 1.0) for _ in range(n)]
+        treat = [c + rng.gauss(mean, sd) for c in ctrl]
+        return ctrl, treat
+
+    def test_no_longer_saturates(self):
+        ctrl, treat = self._paired()
+        power = retrospective_power(
+            {"accuracy": ctrl}, {"accuracy": treat},
+            n_perm=200, seed=42, n_sim_power=200,
+        )["dimensions"][0]["retrospective_power"]
+        assert power < 0.9, f"n=12、小效应下的回溯功效不应饱和，实得 {power}（修复前 1.0）"
+
+    def test_matches_direct_resampling(self):
+        """与"按观测 diff 分布直接重抽"的独立实现对比，差距 ≤ 0.12。"""
+        ctrl, treat = self._paired()
+        n = len(ctrl)
+        result = retrospective_power(
+            {"accuracy": ctrl}, {"accuracy": treat},
+            n_perm=200, seed=42, n_sim_power=200,
+        )["dimensions"][0]
+        diffs = [t - c for c, t in zip(ctrl, treat)]
+        m = sum(diffs) / n
+        sd = math.sqrt(sum((d - m) ** 2 for d in diffs) / (n - 1))
+        rng = random.Random(424242)
+        n_rej = 0
+        n_sim = 200
+        for sim in range(n_sim):
+            base = [rng.gauss(0.0, 1.0) for _ in range(n)]
+            tr = [c + rng.gauss(m, sd) for c in base]
+            from tools.abm.six_dim_power import _permutation_p_value
+            n_rej += int(_permutation_p_value(base, tr, n_perm=200, seed=42 + sim) < 0.05)
+        truth = n_rej / n_sim
+        assert abs(result["retrospective_power"] - truth) <= 0.12, (result, truth)
+        # 同时给解析功效对照
+        assert abs(result["analytic_power_same_effect"] - truth) <= 0.2, (result, truth)
+
+    def test_cross_process_reproducible(self):
+        """跨进程可复现：子种子不能用内建 hash()（受 PYTHONHASHSEED 随机化）。"""
+        code = (
+            "import random\n"
+            "from tools.abm.six_dim_power import retrospective_power\n"
+            "rng = random.Random(10)\n"
+            "n = 12\n"
+            "c = [rng.gauss(0, 1) for _ in range(n)]\n"
+            "t = [x + rng.gauss(0.05, 1.0) for x in c]\n"
+            "r = retrospective_power({'accuracy': c, 'stability': c},"
+            " {'accuracy': t, 'stability': t}, n_perm=200, seed=42, n_sim_power=120)\n"
+            "print([d['retrospective_power'] for d in r['dimensions']])\n"
+        )
+        outs = []
+        for hs in ("0", "1"):
+            env = dict(os.environ, PYTHONHASHSEED=hs)
+            out = subprocess.run(
+                [sys.executable, "-c", code],
+                capture_output=True, text=True, env=env,
+                cwd=os.getcwd(), check=True,
+            ).stdout.strip()
+            outs.append(out)
+        assert outs[0] == outs[1], f"跨进程结果不一致：{outs}"
+
+
+class TestGateCalibration:
+    """缺陷 3：aa_check 只落库不参与判决 —— A/A 校准失控时仍给出 pass/fail。"""
+
+    def test_broken_aa_blocks_verdict(self, monkeypatch):
+        rng = random.Random(400)
+        ctrl, treat = {}, {}
+        for d in DIMENSIONS:
+            base = [rng.gauss(0, 1) for _ in range(15)]
+            ctrl[d] = base
+            treat[d] = [c + rng.gauss(0, 0.3) for c in base]
+
+        import tools.abm.six_dim_power as sdp
+
+        def _broken(**_kw):
+            return {
+                "false_positive_rate": 0.5, "nominal_alpha": 0.05,
+                "fpr_within_nominal": False, "n_sim": 10, "n_perm": 100,
+                "n": 20, "n_dims": 6, "total_tests": 60, "n_reject": 30, "seed": 42,
+            }
+
+        monkeypatch.setattr(sdp, "aa_false_positive_rate", _broken)
+        res = sdp.six_dim_power_gate(
+            ctrl, treat, n_perm=200, seed=42,
+            run_aa_check=True, run_mde=False, run_retrospective=False,
+        )
+        assert res["calibration_ok"] is False
+        assert res["gate_verdict"] == "fail"
+        assert "校准失控" in res["gate_reason"]
+
+
+class TestZeroVarianceDegeneracy:
+    """退化行为护栏：配对差为 0 方差（常值偏移）时 Cohen's d=inf。
+
+    这里的显式分支是防御性改动（实测基线与新分支 p 值一致，都触到
+    1/(n_perm+1) 下限），目标是让 p 值由符号排列结构决定，
+    而不是依赖 inf >= inf 的浮点比较。测试用于锁定该行为不被后续重构破坏。
+    """
+
+    def test_constant_shift_is_significant(self):
+        res = permutation_test_six_dim(
+            {"accuracy": [0.0] * 25}, {"accuracy": [1.0] * 25},
+            n_perm=2000, seed=42,
+        )
+        d = res["dimensions"][0]
+        assert d["significant"] is True, d
+        assert d["raw_p"] < 0.01, d
+
+    def test_normal_case_unaffected(self):
+        rng = random.Random(11)
+        c = [rng.gauss(0, 1) for _ in range(20)]
+        t = [x + rng.gauss(0.1, 1.0) for x in c]
+        res = permutation_test_six_dim({"accuracy": c}, {"accuracy": t}, n_perm=1000, seed=42)
+        assert res["dimensions"][0]["raw_p"] > 0.05
+
+
+class TestAnalyticHelpers:
+    """解析对照（独立于置换模拟）自身的性质。"""
+
+    def test_power_monotone_in_n(self):
+        ps = [analytic_power_paired(0.5, n) for n in (6, 10, 20, 40, 80)]
+        assert all(ps[i] > ps[i - 1] for i in range(1, len(ps))), ps
+
+    def test_mde_power_round_trip(self):
+        for n in (10, 20, 50):
+            d = analytic_mde(n, alpha=0.05, power=0.8)
+            assert abs(analytic_power_paired(d, n, alpha=0.05) - 0.8) < 0.02
+
+    def test_min_n_for_effect_consistent(self):
+        n_req = min_n_for_effect(0.5, alpha=0.05, power=0.8)
+        assert n_req is not None
+        assert analytic_power_paired(0.5, n_req) >= 0.8
+        assert analytic_power_paired(0.5, n_req - 1) < 0.8
+
+    def test_analytic_close_to_simulated(self):
+        """解析功效 vs 置换模拟功效（同一 n、同一 d）误差 ≤ 0.15。"""
+        from tools.abm.six_dim_power import _estimate_power
+        sim = _estimate_power(0.5, 20, 0.05, 400, 42, cohens_d, 1.0, n_rep=200)
+        ana = analytic_power_paired(0.5, 20, alpha=0.05)
+        assert abs(sim - ana) <= 0.15, (sim, ana)

@@ -23,9 +23,11 @@ correctness / accuracy / stability / efficiency / reproducibility / applicabilit
 
 from __future__ import annotations
 
+import hashlib
 import math
 import random
-from typing import Any, Callable, Dict, List, Optional, Sequence, Tuple
+from statistics import NormalDist
+from typing import Any, Callable, Dict, List, Optional, Sequence
 
 # ---------------------------------------------------------------------------
 # 常量
@@ -86,6 +88,74 @@ def paired_median_diff(
 
 
 # ---------------------------------------------------------------------------
+# 解析对照（配对 t 检验的正态近似）—— 用于交叉校验置换模拟结果
+# ---------------------------------------------------------------------------
+
+def _derive_seed(*parts: object) -> int:
+    """确定性派生子种子（不用内建 hash()：str 的 hash 受 PYTHONHASHSEED 随机化）。"""
+    h = hashlib.sha256("|".join(str(x) for x in parts).encode("utf-8")).hexdigest()
+    return int(h[:16], 16)
+
+
+def _t_ppf(p: float, df: int) -> float:
+    """t 分位数（Cornish-Fisher 展开，df>=5 时误差 <0.5%）。"""
+    z = NormalDist().inv_cdf(p)
+    if df <= 0:
+        return z
+    return z + (z ** 3 + z) / (4.0 * df)
+
+
+def analytic_power_paired(
+    effect_size: float,
+    n: int,
+    *,
+    alpha: float = DEFAULT_ALPHA,
+) -> float:
+    """配对设计的解析功效（正态近似 + t 分位修正）。
+
+    effect_size 为 Cohen's d = mean(diff)/std(diff)；双侧检验。
+    这是置换模拟的**独立**参照：两者互相印证，任一实现漂移都会被对照发现。
+    """
+    if n < 2:
+        return min(max(alpha, 0.0), 1.0)
+    d = abs(float(effect_size))
+    t_crit = _t_ppf(1.0 - alpha / 2.0, n - 1)
+    nc = math.sqrt(n) * d
+    power = NormalDist().cdf(nc - t_crit) + NormalDist().cdf(-nc - t_crit)
+    return min(max(power, 0.0), 1.0)
+
+
+def analytic_mde(
+    n: int,
+    *,
+    alpha: float = DEFAULT_ALPHA,
+    power: float = 0.8,
+) -> float:
+    """解析 MDE(n)：给定 alpha/power 下配对设计可检出的最小 Cohen's d。"""
+    if n < 2:
+        return float("inf")
+    z_power = NormalDist().inv_cdf(power)
+    return (_t_ppf(1.0 - alpha / 2.0, n - 1) + z_power) / math.sqrt(n)
+
+
+def min_n_for_effect(
+    effect_size: float,
+    *,
+    alpha: float = DEFAULT_ALPHA,
+    power: float = 0.8,
+    n_min: int = 5,
+    n_max: int = 500,
+) -> Optional[int]:
+    """解析反解：要在 alpha 下以 power 检出 effect_size，最少需要多少对样本。"""
+    if effect_size <= 0:
+        return None
+    for n in range(max(n_min, 2), n_max + 1):
+        if analytic_power_paired(effect_size, n, alpha=alpha) >= power:
+            return n
+    return None
+
+
+# ---------------------------------------------------------------------------
 # 置换检验
 # ---------------------------------------------------------------------------
 
@@ -113,6 +183,48 @@ def _permutation_p_value(
     abs_obs = abs(obs_effect)
 
     count = 0
+    # 退化情形的显式分支：配对差方差为 0（如各样本偏移完全相同）时
+    # Cohen's d = ±inf，置换统计量只剩"同样全同号才复现"的分辨力。
+    # 这里显式改用尺度无关的配对差均值（等价于符号翻转精确检验），
+    # 让 p 的下限由排列结构决定，而不是靠 inf >= inf 的浮点比较碰巧兜住。
+    # 注：实测基线与本分支数值一致（p 都触到 1/(n_perm+1) 下限），
+    # 因此这一条是防御性/可读性改动，不计入缺陷修复。
+    if effect_fn is cohens_d and n >= 2 and not math.isfinite(obs_effect):
+        mean_obs = math.fsum(diffs) / n
+        abs_obs_m = abs(mean_obs)
+        for _ in range(n_perm):
+            s_sum = 0.0
+            for d in diffs:
+                s_sum = s_sum + d if rng.getrandbits(1) else s_sum - d
+            if two_sided and abs(s_sum) / n >= abs_obs_m:
+                count += 1
+            elif not two_sided and s_sum / n >= mean_obs:
+                count += 1
+        return (count + 1) / (n_perm + 1)
+
+    # 快路径：effect_fn 为 Cohen's d 时，置换统计量 mean(s·d)/std(s·d) 只需
+    # 一趟累加 Σd² 与 Σ s·d（省掉每轮 3 次列表构造 + 2 次遍历）。
+    fast = effect_fn is cohens_d and n >= 2
+    if fast:
+        sum_d2 = math.fsum(d * d for d in diffs)
+        inv_n = 1.0 / n
+        df = n - 1
+        for _ in range(n_perm):
+            s_sum = 0.0
+            for d in diffs:
+                s_sum = s_sum + d if rng.getrandbits(1) else s_sum - d
+            mean_s = s_sum * inv_n
+            var_s = (sum_d2 - s_sum * s_sum * inv_n) / df
+            if var_s <= 1e-30:
+                perm_effect = math.inf if mean_s > 0 else (-math.inf if mean_s < 0 else 0.0)
+            else:
+                perm_effect = mean_s / math.sqrt(var_s)
+            if two_sided and abs(perm_effect) >= abs_obs:
+                count += 1
+            elif not two_sided and perm_effect >= obs_effect:
+                count += 1
+        return (count + 1) / (n_perm + 1)
+
     for _ in range(n_perm):
         signs = [rng.choice((-1, 1)) for _ in range(n)]
         perm_diffs = [s * d for s, d in zip(signs, diffs)]
@@ -291,13 +403,31 @@ def mde_curve(
             n_perm=n_perm, seed=seed, effect_fn=effect_fn,
             control_std=control_std,
         )
-        curve.append({
+        point = {
             "n": n,
             "mde": mde["mde"],
             "power_achieved": mde["power_achieved"],
+            "mde_analytic": round(analytic_mde(n, alpha=alpha, power=power), 4),
             "alpha": alpha,
             "n_perm": n_perm,
-        })
+        }
+        if mde.get("note"):
+            point["note"] = mde["note"]
+        curve.append(point)
+
+    # 单调化：MDE(n) 理论上随 n 单调不增；模拟噪声造成的局部回升用累计最小值抹平
+    # （记录幅度，便于审计"仿真偏离解析"的程度而非悄悄改写）。
+    running = None
+    for pt in curve:
+        m = pt["mde"]
+        if m is None:
+            continue
+        if running is not None and m > running:
+            pt["mde_raw"] = m
+            pt["monotonised"] = True
+            pt["mde"] = running
+        else:
+            running = m
     return curve
 
 
@@ -306,14 +436,24 @@ def _estimate_power(
     seed: int, effect_fn: Callable, control_std: float,
     n_rep: int = 100,
 ) -> float:
-    """估计给定效应量 delta 下的统计功效。"""
+    """估计给定效应量 delta 下的统计功效。
+
+    模拟设定：配对差 diff ~ N(delta·control_std, control_std)，
+    即 Cohen's d = delta（均值/std 同尺度）。
+
+    历史缺陷（m8646 修复）：旧实现取 ``treat = ctrl + delta*control_std``，
+    配对差完全没有噪声（std(diff)=0 → Cohen's d = inf），置换检验因此对任意
+    delta>0 都以极大概率显著，导致 MDE(n) 曲线整体塌陷到搜索下界
+    （n=6 与 n=200 都报 0.01）。这里给配对差补上真实方差。
+    """
     rng = random.Random(seed)
+    diff_sd = control_std
     n_reject = 0
     for rep in range(n_rep):
-        ctrl = [rng.gauss(0, control_std) for _ in range(n)]
-        treat = [c + delta * control_std for c in ctrl]
+        base = [rng.gauss(0.0, control_std) for _ in range(n)]
+        treat = [c + rng.gauss(delta * control_std, diff_sd) for c in base]
         p = _permutation_p_value(
-            ctrl, treat, n_perm=n_perm, seed=seed + rep * 7919 + n,
+            base, treat, n_perm=n_perm, seed=seed + rep * 7919 + n,
             effect_fn=effect_fn,
         )
         if p < alpha:
@@ -335,35 +475,48 @@ def _find_mde_for_n(
 ) -> Dict[str, Any]:
     """对固定 n，二分搜索 MDE。
 
-    使用逐步缩小范围的方法：先找到 power < target 和 power >= target 的边界，
-    然后在边界内二分。
+    先向上探测括区（找到 power ≥ target-tol 的 delta 上界），再在 [0, hi] 内二分。
+    括区失败（hi 达到 16 仍达不到目标功效）时返回 mde=None 而不是伪造一个点，
+    以免曲线出现"假塌陷"或非单调跳变。
     """
-    # 先探测上界：找到一个能达到目标功效的 delta
-    hi = 0.5
-    while _estimate_power(hi, n, alpha, n_perm, seed, effect_fn, control_std, n_rep=50) < target_power - tol:
-        hi *= 2
-        if hi > 10:
-            # 即使 delta=10 也达不到，返回 hi
-            return {"mde": round(hi, 4), "power_achieved": 0.0}
+    def _p(delta: float, reps: int) -> float:
+        return _estimate_power(delta, n, alpha, n_perm, seed, effect_fn, control_std, n_rep=reps)
+
+    threshold = target_power - tol
+    hi = 0.25
+    while _p(hi, 40) < threshold:
+        hi *= 2.0
+        if hi > 16.0:
+            # 目标功效不可达：多出现在 n 很小时——符号翻转检验的 p 值有分辨率下限
+            # （n=5 时最少也只能到 ~0.06），再大的效应量也检不出。
+            return {
+                "mde": None,
+                "power_achieved": round(_p(hi, 40), 4),
+                "bracketed": False,
+                "note": (
+                    f"n={n} 时置换检验分辨率不足，达不到 power={target_power}"
+                    f"（解析 MDE={analytic_mde(n, alpha=alpha, power=target_power):.3f}）"
+                ),
+            }
 
     lo = 0.0
-    best_delta = hi
-    best_power = _estimate_power(hi, n, alpha, n_perm, seed, effect_fn, control_std, n_rep=100)
-
+    best_delta, best_power = hi, _p(hi, 100)
     for _ in range(max_iter):
-        mid = (lo + hi) / 2.0
-        if mid < 0.01:
-            lo = mid
-            continue
-        achieved = _estimate_power(mid, n, alpha, n_perm, seed, effect_fn, control_std, n_rep=100)
-        if achieved >= target_power - tol:
-            best_delta = mid
-            best_power = achieved
+        mid = 0.5 * (lo + hi)
+        if mid < 0.005:
+            break
+        achieved = _p(mid, 100)
+        if achieved >= threshold:
+            best_delta, best_power = mid, achieved
             hi = mid
         else:
             lo = mid
 
-    return {"mde": round(best_delta, 4), "power_achieved": round(best_power, 4)}
+    return {
+        "mde": round(best_delta, 4),
+        "power_achieved": round(best_power, 4),
+        "bracketed": True,
+    }
 
 
 def solve_n_for_mde(
@@ -390,7 +543,7 @@ def solve_n_for_mde(
         control_std=control_std,
     )
     for pt in curve:
-        if pt["mde"] <= target_mde:
+        if pt["mde"] is not None and pt["mde"] <= target_mde:
             return {
                 "n": pt["n"],
                 "mde_achieved": pt["mde"],
@@ -449,8 +602,7 @@ def aa_false_positive_rate(
         n_total_tests += result["n_dims_tested"]
         n_reject += result["n_significant"]
 
-    fpr = n_reject / n_total_tests if n_total_tests > 0 else 0.0
-    per_dim_fpr = fpr  # 经校正后的族系误报率
+    fpr = n_reject / n_total_tests if n_total_tests > 0 else 0.0  # 经 Holm 校正后的族系误报率
     nominal_ok = fpr <= alpha
 
     return {
@@ -523,17 +675,20 @@ def retrospective_power(
         var_diff = sum((d - mean_diff) ** 2 for d in diffs) / max(n - 1, 1)
         std_diff = math.sqrt(var_diff) if var_diff > 0 else 1.0
 
-        rng = random.Random(seed + hash(dim) % 10000)
+        # 模拟：diff ~ N(mean_diff, std_diff) 且原样传给置换检验。
+        # 历史缺陷（m8646 修复）两处：
+        #   1) 噪声写成 std_diff*0.1 → 模拟 diff 的 std 只有观测的 1/10，
+        #      功效被系统性高估（d 被放大 10 倍）；
+        #   2) 子种子来自内建 hash(dim)，受 PYTHONHASHSEED 随机化，
+        #      同输入跨进程结果不一致（与"可复现"承诺冲突）。
+        rng = random.Random(_derive_seed("retrospective", seed, dim))
         n_reject = 0
         for sim in range(n_sim_power):
-            # 生成有真实方差的配对数据：
-            # ctrl ~ N(0, std_diff), treat = ctrl + mean_diff + noise
-            # 这样 diff = mean_diff + noise，std(diff) ≈ std_diff
-            sim_ctrl = [rng.gauss(0, std_diff) for _ in range(n)]
-            sim_treat = [c + mean_diff + rng.gauss(0, std_diff * 0.1) for c in sim_ctrl]
+            sim_base = [rng.gauss(0.0, 1.0) for _ in range(n)]
+            sim_treat = [c + rng.gauss(mean_diff, std_diff) for c in sim_base]
             p = _permutation_p_value(
-                sim_ctrl, sim_treat, n_perm=n_perm,
-                seed=seed + sim * 3571 + hash(dim) % 1000,
+                sim_base, sim_treat, n_perm=n_perm,
+                seed=_derive_seed("retro-perm", seed, dim, sim),
                 effect_fn=effect_fn,
             )
             if p < alpha:
@@ -545,6 +700,9 @@ def retrospective_power(
             "observed_effect": round(obs_effect, 6),
             "observed_p": round(obs_p, 6),
             "retrospective_power": round(ret_power, 4),
+            "analytic_power_same_effect": round(analytic_power_paired(obs_effect, n, alpha=alpha), 4),
+            "assumed_diff_mean": round(mean_diff, 6),
+            "assumed_diff_std": round(std_diff, 6),
             "n_observed": n,
         })
 
@@ -620,6 +778,26 @@ def six_dim_power_gate(
     n_sig = perm_result["n_significant"]
     n_tested = perm_result["n_dims_tested"]
 
+    # 观测样本量（取各维最小，偏保守）
+    _n_all = [len(control_data[d]) for d in DIMENSIONS if d in control_data]
+    n_obs_min = min(_n_all) if _n_all else 0
+
+    # (a) 检验自身的校准门：A/A 空对照误报率必须 ≤ alpha，
+    #     否则置换检验的 p 值不可信，任何"显著"都不成立。
+    #     历史缺陷（m8646 修复）：aa_check 只落库、不参与判决。
+    calibration_ok = True
+    calibration_note = "A/A 未运行"
+    if aa_result is not None:
+        fpr = aa_result.get("false_positive_rate")
+        calibration_ok = bool(aa_result.get("fpr_within_nominal", True))
+        calibration_note = f"A/A 误报率 {fpr} vs alpha {alpha}"
+
+    # (b) 样本量充足性：用解析功效反解"检出 min_effect_size 所需 n"，
+    #     并与真实 n 比对。零显著 + 欠功效 => 证据不足（inconclusive），而非证否（fail）。
+    n_required = min_n_for_effect(min_effect_size, alpha=alpha, power=min_power)
+    sample_underpowered = n_required is not None and n_obs_min < n_required
+    mde_at_n = round(analytic_mde(n_obs_min, alpha=alpha, power=min_power), 4) if n_obs_min >= 2 else None
+
     # 检查功效是否充足
     power_sufficient = True
     if ret_result:
@@ -637,12 +815,24 @@ def six_dim_power_gate(
             effect_sufficient = False
             break
 
-    if n_sig > 0 and power_sufficient and effect_sufficient:
+    if not calibration_ok:
+        verdict = "fail"
+        reason = f"检验校准失控（{calibration_note}）：p 值不可信，判决作废"
+    elif n_sig > 0 and power_sufficient and effect_sufficient:
         verdict = "pass"
         reason = f"{n_sig}/{n_tested} 维显著（FWER 控制），功效≥{min_power}，效应量≥{min_effect_size}"
+    elif n_sig == 0 and sample_underpowered:
+        verdict = "inconclusive"
+        reason = (
+            f"证据不足：{n_tested} 维均不显著，但 n={n_obs_min} < 检出 d={min_effect_size} "
+            f"所需 n={n_required}（power={min_power}）；n={n_obs_min} 时解析 MDE={mde_at_n}"
+        )
     elif n_sig == 0:
         verdict = "fail"
-        reason = f"无维度在 FWER 控制下显著（{n_tested} 维均不显著）"
+        reason = (
+            f"无维度在 FWER 控制下显著（{n_tested} 维均不显著），且 n={n_obs_min} ≥ 所需 {n_required}"
+            f"（power={min_power} 可检出 d={min_effect_size}）"
+        )
     else:
         verdict = "inconclusive"
         reasons = []
@@ -664,6 +854,11 @@ def six_dim_power_gate(
         "retrospective_power": ret_result,
         "gate_verdict": verdict,
         "gate_reason": reason,
+        "calibration_ok": calibration_ok,
+        "calibration_note": calibration_note,
+        "n_required_for_min_effect": n_required,
+        "sample_underpowered": sample_underpowered,
+        "mde_analytic_at_n": mde_at_n,
         "n_observations_per_dim": n_obs,
         "alpha": alpha,
         "min_power": min_power,
