@@ -1,0 +1,148 @@
+{
+  "schema": "radar-bench/v1",
+  "purpose": "Replay set for the whitespace radar: fixed topics, frozen labels, machine-checkable accuracy. Not an independent test set - it is the regression guard for the adjudication rule (see docs/whitespace_radar/README.md §6).",
+  "pool": {
+    "manifest": "data/whitespace_radar/pool/manifest.json",
+    "n_kinds": {"proposal": 3, "doc": 509, "module": 1365}
+  },
+  "sampling": {
+    "method": "random.Random(seed).sample over the sorted doc_id list of pool kind=doc, then re-sorted by doc_id",
+    "seed": 20261108,
+    "n_pool_docs": 509,
+    "n_sampled": 12,
+    "run_at": "2026-11-08"
+  },
+  "label_protocol": {
+    "covered": "topic authored by reading the sampled doc; it must literally share >= 2 content phrases (>=2 CJK chars or >=3 latin chars) with that doc's text, verified by the adjudicator's literal probe test",
+    "partial": "topic has a novel core (all core phrases absent from every pool doc) but at least one adjacent generic phrase exists, so the honest answer is 'narrow the claim', not 'blank'",
+    "blank": "every discriminative probe (4-char CJK window / latin token with df/N <= 0.02) is machine-verified absent, i.e. each probe's df == 0 over all pool docs"
+  },
+  "topics": [
+    {
+      "id": "C01",
+      "label": "covered",
+      "topic": "campaign_plans.budget_actual 从不回写 实耗 计划上限",
+      "provenance": "docs/IN27-H4/evidence/EB-01_budget_actual_never_written.md",
+      "note": "sampled doc #1; shared phrases: 从不回写, 计划上限"
+    },
+    {
+      "id": "C02",
+      "label": "covered",
+      "topic": "耐波切片理论 端点 硬编码表 MOCK 能力判决",
+      "provenance": "docs/benchmarks/seakeeping_strip_verdict.md",
+      "note": "sampled doc #2; shared phrases: 切片理论, 硬编码表, 能力判决"
+    },
+    {
+      "id": "C03",
+      "label": "covered",
+      "topic": "社区输入 公平 推断 准入",
+      "provenance": "docs/engineering/RESIDENT_INBOX_EXTRACTION_2026-10-25.md",
+      "note": "sampled doc #3; shared phrases: 公平, 推断, 准入"
+    },
+    {
+      "id": "C04",
+      "label": "covered",
+      "topic": "引导回路 评价牵引 派发 接线",
+      "provenance": "docs/guidance_loop/README.md",
+      "note": "sampled doc #4; shared phrases: 引导回路, 评价牵引"
+    },
+    {
+      "id": "C05",
+      "label": "covered",
+      "topic": "四中心 最小视图 能力台账 评价流",
+      "provenance": "docs/m5023_four_centers_minimal_views.md",
+      "note": "sampled doc #5; shared phrases: 四中心, 最小视图, 能力台账, 评价流"
+    },
+    {
+      "id": "C06",
+      "label": "covered",
+      "topic": "规划师权限阶梯 advisory shadow 升权 owner 审批",
+      "provenance": "docs/planner/permission_ladder.md",
+      "note": "sampled doc #6; shared phrases: 权限阶梯, 升权, 审批, advisory"
+    },
+    {
+      "id": "C07",
+      "label": "covered",
+      "topic": "MMG 3-DOF 时域 稳态 双解 一致性审计",
+      "provenance": "docs/reports/m1676_manoeuvring_identity_audit.md",
+      "note": "sampled doc #7; shared phrases: 时域, 稳态, 双解, 一致性审计"
+    },
+    {
+      "id": "C08",
+      "label": "covered",
+      "topic": "耐波 响应谱矩 频率窗 截断 回归护栏",
+      "provenance": "docs/reports/m1696_seakeeping_window_bias.md",
+      "note": "sampled doc #8; shared phrases: 响应谱矩, 频率窗, 回归护栏"
+    },
+    {
+      "id": "C09",
+      "label": "covered",
+      "topic": "结构域 服务面 独立复核 DEPLOY_DRIFT 闭式判据",
+      "provenance": "docs/ship_structure_deploy_drift_m1667.md",
+      "note": "sampled doc #9; shared phrases: 结构域, 服务面, 闭式判据, deploy"
+    },
+    {
+      "id": "C10",
+      "label": "covered",
+      "topic": "几何一致性 修正 审计 数据集 v1.1",
+      "provenance": "docs/superseded/m1404_geometry_consistency.md",
+      "note": "sampled doc #10; shared phrases: 几何一致/何一致性, 数据集"
+    },
+    {
+      "id": "C11",
+      "label": "covered",
+      "topic": "稳性引擎 箱形驳船 解析基准 复核",
+      "provenance": "docs/verification/stability_engine_verification_m1597.md",
+      "note": "sampled doc #11; shared phrases: 稳性引擎, 箱形驳船"
+    },
+    {
+      "id": "C12",
+      "label": "covered",
+      "topic": "绿色航行 EEDI EEXI CII 证据分级",
+      "provenance": "docs/verify/GREEN_NAVIGATION_V1.md",
+      "note": "sampled doc #12; shared phrases: 绿色航行, eedi, eexi, cii"
+    },
+    {
+      "id": "P01",
+      "label": "partial",
+      "topic": "提案去重门 跨组织 联邦学习 语义相似度",
+      "provenance": "authored adversarially: mechanism words from the pool + a novel core",
+      "note": "only 跨组织 exists; 提案去重门 / 联邦学习 / 语义相似度 are absent -> honest answer is 'narrow the claim'"
+    },
+    {
+      "id": "P02",
+      "label": "partial",
+      "topic": "Merkle 包含证明 零知识电路 压缩",
+      "provenance": "authored adversarially: real pool concept (merkle) + absent cryptography core",
+      "note": "merkle and 压缩 exist; 含证/零知识电路 absent (specific coverage 0.40 < 0.50)"
+    },
+    {
+      "id": "P03",
+      "label": "partial",
+      "topic": "地下水 溶质 运移 反演 不确定性",
+      "provenance": "authored adversarially: generic numerical words exist, the subject does not",
+      "note": "known limitation case: 反演/不确定性 exist so the radar says partial, never blank; see README §7 failure modes"
+    },
+    {
+      "id": "B01",
+      "label": "blank",
+      "topic": "超导磁体失超传播数值模拟",
+      "provenance": "machine-verified zero-hit: every discriminative probe df=0",
+      "note": "zero-hit probes: 超导磁体, 磁体失超, 失超传播, 传播数值"
+    },
+    {
+      "id": "B02",
+      "label": "blank",
+      "topic": "地幔对流谱元法并行求解",
+      "provenance": "machine-verified zero-hit: every discriminative probe df=0",
+      "note": "zero-hit probes: 地幔对流, 对流谱元, 谱元法并, 法并行求; 并行求解 is generic (df/N > 0.02)"
+    },
+    {
+      "id": "B03",
+      "label": "blank",
+      "topic": "深海热液喷口 化能合成 微生物 群落 演替",
+      "provenance": "machine-verified zero-hit: every discriminative probe df=0",
+      "note": "zero-hit probes: 深海热液, 热液喷口, 化能合成, 微生物, 群落, 演替"
+    }
+  ]
+}

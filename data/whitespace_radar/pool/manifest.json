@@ -1,0 +1,40 @@
+{
+  "schema": "radar-pool/v1",
+  "description": "Whitespace-radar pool: which ecosystem artifacts count as evidence of prior work. Paths are relative to the repo root; every source is data, never code. exclude_globs drops artifacts that quote the radar's own benchmark topics, which would otherwise let the radar find evidence it manufactured itself.",
+  "sources": [
+    {
+      "type": "proposal_json",
+      "kind_tag": "proposal",
+      "glob": "agent_work/rmg/proposals/*.json",
+      "id_field": "proposal_id",
+      "title_field": "title",
+      "text_fields": [
+        "title",
+        "hypothesis",
+        "why_now",
+        "what_we_would_do",
+        "evidence_refs"
+      ]
+    },
+    {
+      "type": "markdown",
+      "kind_tag": "doc",
+      "glob": "docs/**/*.md"
+    },
+    {
+      "type": "module_manifest",
+      "kind_tag": "module",
+      "path": "data/whitespace_radar/pool/module_manifest.json"
+    },
+    {
+      "type": "campaign_export",
+      "kind_tag": "campaign",
+      "path": "data/whitespace_radar/pool/campaign_export.json"
+    }
+  ],
+  "exclude_globs": [
+    "docs/whitespace_radar/*",
+    "artifacts/whitespace_radar/*"
+  ],
+  "snapshot_note": "module_manifest.json is a point-in-time snapshot of the capability surface (repo digests are inside it). Refresh with: python3 tools/whitespace_radar.py --build-manifest --repo TensorPlatform=. --include backend/ --include tools/ --include src/ --include api/ --include harness_gateway/ --include quality/ ; a refresh changes pool_digest, so re-run --bench --calibrate before merging."
+}

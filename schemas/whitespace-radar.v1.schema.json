@@ -1,0 +1,134 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform/schemas/whitespace-radar.v1.schema.json",
+  "title": "whitespace radar verdict (radar/v1)",
+  "description": "Output contract of tools/whitespace_radar.py. Consumers must reject unknown major versions; additive keys inside v1 are allowed.",
+  "type": "object",
+  "required": ["schema", "topic", "verdict", "reason", "thresholds", "query", "hits", "top", "zero_hit_proof", "digest"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "radar/v1"},
+    "topic": {"type": "string", "minLength": 1},
+    "verdict": {"enum": ["covered", "partial", "blank"]},
+    "reason": {"type": "string"},
+    "as_of": {"type": "string", "description": "content-derived clock, e.g. pool:<digest16>"},
+    "pool_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "thresholds": {
+      "type": "object",
+      "required": ["s_floor", "s_covered", "c_covered", "min_existing_probes", "rare_frac", "window", "stride"],
+      "additionalProperties": true,
+      "properties": {
+        "s_floor": {"type": "number"},
+        "s_covered": {"type": "number"},
+        "c_covered": {"type": "number", "minimum": 0, "maximum": 1},
+        "min_existing_probes": {"type": "integer", "minimum": 1},
+        "rare_frac": {"type": "number", "minimum": 0, "maximum": 1},
+        "window": {"type": "integer", "minimum": 2},
+        "stride": {"type": "integer", "minimum": 1}
+      }
+    },
+    "query": {
+      "type": "object",
+      "required": ["raw", "terms", "probes", "n_specific", "n_existing_specific", "specific_coverage"],
+      "additionalProperties": true,
+      "properties": {
+        "raw": {"type": "string"},
+        "terms": {"type": "array", "items": {"type": "string"}},
+        "probes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["probe", "type", "df", "specific"],
+            "properties": {
+              "probe": {"type": "string"},
+              "type": {"enum": ["window", "token"]},
+              "df": {"type": "integer", "minimum": 0},
+              "specific": {"type": "boolean"},
+              "docs": {"type": "array", "items": {"type": "string"}}
+            }
+          }
+        },
+        "specific_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "dropped_terms": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "hits": {
+      "type": "object",
+      "required": ["count", "floor", "docs"],
+      "properties": {
+        "count": {"type": "integer", "minimum": 0},
+        "floor": {"type": "number"},
+        "docs": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["doc_id", "score", "ref"],
+            "properties": {
+              "doc_id": {"type": "string"},
+              "score": {"type": "number"},
+              "kind": {"type": "string"},
+              "title": {"type": "string"},
+              "ref": {"type": "string"}
+            }
+          }
+        }
+      }
+    },
+    "top": {
+      "type": "object",
+      "required": ["score", "matched_terms"],
+      "properties": {
+        "doc_id": {"type": ["string", "null"]},
+        "score": {"type": "number"},
+        "matched_terms": {"type": "array", "items": {"type": "string"}},
+        "matched_specific_probes": {"type": "array", "items": {"type": "string"}}
+      }
+    },
+    "zero_hit_proof": {
+      "type": "object",
+      "required": ["rule", "n_specific", "n_existing_specific", "existence_hits", "statement"],
+      "properties": {
+        "rule": {"type": "string"},
+        "probe_kind": {"type": "string"},
+        "window": {"type": "integer"},
+        "stride": {"type": "integer"},
+        "specific_probes": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["probe", "type", "df"],
+            "properties": {
+              "probe": {"type": "string"},
+              "type": {"enum": ["window", "token"]},
+              "df": {"type": "integer", "minimum": 0}
+            }
+          }
+        },
+        "n_specific": {"type": "integer", "minimum": 0},
+        "n_existing_specific": {"type": "integer", "minimum": 0},
+        "existence_hits": {"type": "integer", "minimum": 0},
+        "bm25_hits": {"type": "integer", "minimum": 0},
+        "statement": {"type": "string"}
+      }
+    },
+    "index": {
+      "type": "object",
+      "properties": {
+        "n_docs": {"type": "integer", "minimum": 1},
+        "n_terms": {"type": "integer", "minimum": 0},
+        "n_tokens": {"type": "integer", "minimum": 0},
+        "k1": {"type": "number"},
+        "b": {"type": "number"}
+      }
+    },
+    "digest": {
+      "type": "object",
+      "required": ["alg", "scope", "sha256"],
+      "properties": {
+        "alg": {"const": "sha256"},
+        "scope": {"type": "string"},
+        "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+      }
+    }
+  }
+}
