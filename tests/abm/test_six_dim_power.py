@@ -36,6 +36,9 @@ from tools.abm.six_dim_power import (
     build_pairs,
     cohens_d,
     family_decision_power_curve,
+    FWER_METHODS,
+    fwer_aa_sim,
+    fwer_guarantee,
     holm_adjust,
     mde_coefficient,
     mde_curve,
@@ -889,3 +892,137 @@ class TestMdeCoefficient:
     def test_matches_published_constants(self):
         assert mde_coefficient(0.05, 0.8, two_sided=True) == pytest.approx(2.8016, abs=2e-4)
         assert mde_coefficient(0.05, 0.8, two_sided=False) == pytest.approx(2.4865, abs=2e-4)
+
+
+# ---------------------------------------------------------------------------
+# m8724：fwer_controlled 从"恒真装饰字段"改为可证伪的真实保证
+# ---------------------------------------------------------------------------
+
+def _null_arms(n=8, seed=0):
+    rng = random.Random(seed)
+    ctrl = {d: [rng.gauss(0.0, 1.0) for _ in range(n)] for d in DIMENSIONS}
+    treat = {d: [rng.gauss(0.0, 1.0) for _ in range(n)] for d in DIMENSIONS}
+    return ctrl, treat
+
+
+class TestFwerGuarantee:
+    def test_single_test_controls_alpha(self):
+        g = fwer_guarantee("none", 0.05, 1)
+        assert g["controlled"] is True
+        assert g["fwer_bound"] == pytest.approx(0.05)
+
+    def test_no_tests_vacuously_controlled(self):
+        g = fwer_guarantee("none", 0.05, 0)
+        assert g["controlled"] is True and g["family_size"] == 0
+
+    def test_uncorrected_multiplicity_not_controlled(self):
+        g = fwer_guarantee("none", 0.05, 6)
+        assert g["controlled"] is False
+        # 独立界 1-(1-alpha)^m
+        assert g["fwer_bound"] == pytest.approx(1.0 - 0.95 ** 6, rel=1e-12)
+        assert g["fwer_bound"] > 5 * 0.05
+
+    @pytest.mark.parametrize("method", ["bonferroni", "bonferroni_holm"])
+    def test_family_methods_control_at_alpha(self, method):
+        g = fwer_guarantee(method, 0.05, 6)
+        assert g["controlled"] is True
+        assert g["fwer_bound"] == pytest.approx(0.05)
+        assert g["alpha_per_comparison"] == pytest.approx(0.05 / 6)
+
+    def test_bound_monotone_in_family_size(self):
+        bounds = [fwer_guarantee("none", 0.05, m)["fwer_bound"] for m in range(2, 9)]
+        assert bounds == sorted(bounds)
+
+    def test_unknown_method_raises(self):
+        with pytest.raises(ValueError):
+            fwer_guarantee("holm-typo", 0.05, 6)
+
+    def test_negative_family_size_raises(self):
+        with pytest.raises(ValueError):
+            fwer_guarantee("none", 0.05, -1)
+
+
+class TestFwerControlledFieldIsFalsifiable:
+    """对照修复前后：旧实现恒返回 True（不可证伪）；新实现在未校正族系上返回 False。"""
+
+    def test_uncorrected_family_reports_false(self):
+        ctrl, treat = _null_arms(n=8, seed=1)
+        r = permutation_test_six_dim(ctrl, treat, n_perm=299, correction="none")
+        assert r["family_size"] == len(DIMENSIONS)
+        assert r["fwer_controlled"] is False
+        assert r["fwer"]["fwer_bound"] > 0.2
+
+    @pytest.mark.parametrize("method", ["bonferroni", "bonferroni_holm"])
+    def test_corrected_family_reports_true(self, method):
+        ctrl, treat = _null_arms(n=8, seed=1)
+        r = permutation_test_six_dim(ctrl, treat, n_perm=299, correction=method)
+        assert r["fwer_controlled"] is True
+        assert r["fwer"]["fwer_bound"] == pytest.approx(0.05)
+
+    def test_field_is_not_constant_across_configs(self):
+        """字段必须随配置变化——恒真字段在这里会直接失败。"""
+        ctrl, treat = _null_arms(n=8, seed=2)
+        seen = {
+            m: permutation_test_six_dim(ctrl, treat, n_perm=199, correction=m)["fwer_controlled"]
+            for m in FWER_METHODS
+        }
+        assert seen["none"] is False
+        assert seen["bonferroni"] is True and seen["bonferroni_holm"] is True
+
+    def test_family_size_counts_tested_dims_only(self):
+        """样本不足的维不入族系：只剩 1 维可检验时，未校正也不构成多重性。"""
+        ctrl, treat = _null_arms(n=8, seed=3)
+        ctrl = {d: ctrl[d] for d in list(DIMENSIONS)[:2]}
+        treat = {d: treat[d] for d in list(DIMENSIONS)[:2]}
+        short = list(ctrl)[0]
+        ctrl[short] = ctrl[short][:1]  # 长度 1 → 不足 2 对，不检验
+        r = permutation_test_six_dim(ctrl, treat, n_perm=199, correction="none")
+        assert r["n_untested"] == 1
+        assert r["family_size"] == 1
+        assert r["fwer_controlled"] is True
+
+
+@pytest.fixture(scope="module")
+def fwer_sim():
+    """实测 A/A 族系误报率（一次生成，全部方法共用同一份零数据 → 配对可比）。"""
+    return fwer_aa_sim(n_families=160, n_pairs=12, n_perm=199, seed=0, dims=DIMENSIONS)
+
+
+class TestFwerEmpiricalAA:
+    """实测 A/A 族系误报率，验证 fwer_guarantee 的保证不是空话。"""
+
+    @pytest.fixture()
+    def sim(self, fwer_sim):
+        return fwer_sim
+
+    def test_uncorrected_family_error_exceeds_alpha(self, sim):
+        row = sim["per_correction"]["none"]
+        assert row["family_any"]["p_hat"] >= 0.10, row["family_any"]
+        assert row["exceeds_alpha"] is True
+        assert row["fwer_guarantee"]["controlled"] is False
+
+    def test_holm_within_declared_bound(self, sim):
+        row = sim["per_correction"]["bonferroni_holm"]
+        # 点估计落在 alpha 内（强判据 within_bound 受 n=160 样本量限制，见 doc）
+        assert row["point_within_bound"] is True
+        assert row["family_any"]["p_hat"] <= 0.05
+        assert row["family_any"]["hi"] <= 0.10
+        assert row["exceeds_alpha"] is False
+
+    def test_uncorrected_rate_far_above_holm(self, sim):
+        assert (sim["per_correction"]["none"]["family_any"]["p_hat"]
+                > 3 * sim["per_correction"]["bonferroni_holm"]["family_any"]["p_hat"])
+
+    def test_all_methods_share_one_null_dataset(self, sim):
+        assert set(sim["per_correction"]) == set(FWER_METHODS)
+        assert sim["family_size"] == len(DIMENSIONS)
+        assert sim["n_families"] == 160
+
+    def test_unknown_correction_raises(self):
+        with pytest.raises(ValueError):
+            fwer_aa_sim(corrections=("bh_typo",), n_families=3, n_perm=49)
+
+    def test_deterministic_across_calls(self):
+        a = fwer_aa_sim(n_families=20, n_pairs=8, n_perm=99, seed=9)
+        b = fwer_aa_sim(n_families=20, n_pairs=8, n_perm=99, seed=9)
+        assert a["per_correction"] == b["per_correction"]
