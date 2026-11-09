@@ -219,6 +219,45 @@ def shear_error_constant_ratio(params: Dict) -> Dict:
             "detail": {"constants": constants, "shear": shear, "exponent": exponent}}
 
 
+
+# --------------------------------------------------------------------------- #
+# 来源绑定类探针（阈值注册表 ↔ 现网代码常量，零领域语义）
+# --------------------------------------------------------------------------- #
+def source_constant(params: Dict) -> Dict:
+    """读取指定源文件里某个模块级数值常量，用于"注册阈值 == 源码阈值"的机器裁决。
+
+    只做 AST 解析（不 import 目标文件，避免副作用）；路径与符号名一律来自 ``params``。
+    """
+    import ast
+    from pathlib import Path
+
+    rel = str(params["path"])
+    symbol = str(params["symbol"])
+    root = Path(__file__).resolve().parents[2]
+    target = Path(rel)
+    if not target.is_absolute():
+        target = root / rel
+    if not target.is_file():
+        raise FileNotFoundError(f"source file missing: {rel}")
+    tree = ast.parse(target.read_text(encoding="utf-8"), filename=str(target))
+    for node in ast.walk(tree):
+        if not isinstance(node, (ast.Assign, ast.AnnAssign)):
+            continue
+        targets = node.targets if isinstance(node, ast.Assign) else [node.target]
+        names = [t.id for t in targets if isinstance(t, ast.Name)]
+        if symbol not in names:
+            continue
+        value = node.value
+        sign = 1.0
+        if isinstance(value, ast.UnaryOp) and isinstance(value.op, ast.USub):
+            sign, value = -1.0, value.operand
+        if isinstance(value, ast.Constant) and isinstance(value.value, (int, float)) \
+                and not isinstance(value.value, bool):
+            return {"kind": "identity", "value": sign * float(value.value),
+                    "detail": {"path": rel, "symbol": symbol, "line": node.lineno}}
+    raise KeyError(f"symbol {symbol!r} not found as numeric constant in {rel}")
+
+
 PROBES: Dict[str, Callable[[Dict], Dict]] = {
     "lattice_moment_isotropy": lattice_moment_isotropy,
     "weight_normalisation": weight_normalisation,
@@ -234,6 +273,7 @@ PROBES: Dict[str, Callable[[Dict], Dict]] = {
     "skew_slot_refinement": skew_slot_refinement,
     "shear_sweep_order_stability": shear_sweep_order_stability,
     "shear_error_constant_ratio": shear_error_constant_ratio,
+    "source_constant": source_constant,
 }
 
 
