@@ -14,6 +14,17 @@ from .evidence_chain import (  # noqa: F401
     verify_artifacts,
 )
 
+from .backfill_wiring import (  # noqa: F401
+    CHAIN_E1,
+    CHAIN_E2,
+    CHAIN_E3,
+    BackfillReport,
+    RunBackfillResult,
+    backfill_runs,
+    backfill_single_run,
+    write_report,
+)
+
 __all__ = [
     "EXIT_FATAL",
     "EXIT_ISOLATED",
@@ -23,4 +34,12 @@ __all__ = [
     "build_manifest",
     "ingest",
     "verify_artifacts",
+    "CHAIN_E1",
+    "CHAIN_E2",
+    "CHAIN_E3",
+    "BackfillReport",
+    "RunBackfillResult",
+    "backfill_runs",
+    "backfill_single_run",
+    "write_report",
 ]
