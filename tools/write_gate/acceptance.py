@@ -101,6 +101,8 @@ def crit_cross_repo(cfg, scenarios, root: Path, tmp: Path) -> Dict[str, Any]:
                                         root=root, active_repo="TensorPlatform")
         codes = sorted({v.code for v in verdict.violations})
         rows.append({"id": item["id"], "expect": item["expect_code"], "path": path,
+                     # 文档渲染用稳定显示路径：临时目录名带随机后缀，会让生成物每次漂移
+                     "path_display": path.replace(str(tmp), "<work>"),
                      "codes": codes, "hit": item["expect_code"] in codes,
                      "required": item["id"] in scenarios["required_cross_repo"]})
     required_rows = [r for r in rows if r["required"]]
@@ -254,6 +256,115 @@ def crit_content_scope(work_dir: Path) -> Dict[str, Any]:
             "pass": all(r["pass"] for r in rows)}
 
 
+def crit_deletes(work_dir: Path, scenarios: Dict[str, Any]) -> Dict[str, Any]:
+    """破坏性写入（删除 / 改名源）必须与新增改动受同一套路径判据。
+
+    修复前的采集口是 ``git diff --cached --diff-filter=ACMRT``：``D`` 根本不入列，
+    ``R`` 只留目标路径 ⇒ 越界删除与越界改名的源文件消失**零可见**（实测判决
+    ``changes=0``、``allow``）。本判据用真 git 索引复现四个预注册场景。
+    """
+    root = Path(tempfile.mkdtemp(prefix="write_gate_deletes_", dir=str(work_dir)))
+    seed = {
+        "tools/write_gate/mod.py": "A = 1\n",
+        "backend/api.py": "B = 2\n",
+        "docs/spec/guide.md": "# guide\n",
+    }
+    for rel, text in seed.items():
+        target = root / rel
+        target.parent.mkdir(parents=True, exist_ok=True)
+        target.write_text(text, encoding="utf-8")
+    _git(root, "init", "-q")
+    _git(root, "add", "-A")
+    _git(root, "commit", "-q", "-m", "seed")
+
+    edit_whitelist = scenarios["edit_whitelist"]
+    cfg_wl = policy_mod.load_policy(POLICY_PATH,
+                                    overrides={"whitelist": {"allow_globs": edit_whitelist}})
+    cfg_ro = policy_mod.load_policy(
+        POLICY_PATH, overrides={"whitelist": {"allow_globs": edit_whitelist,
+                                              "read_only_globs": ["docs/**"]}})
+
+    def reset() -> None:
+        _git(root, "reset", "-q", "--hard")
+        _git(root, "clean", "-qfd")
+
+    def row(item: Dict[str, Any], verdict) -> Dict[str, Any]:
+        payload = verdict.to_json()
+        out = {"id": item["id"], "operation": item["operation"], "expected": item["expected"],
+               "verdict": payload["verdict"], "decision": payload["decision"],
+               "changes": payload["meta"]["changes"],
+               "codes": sorted({v["code"] for v in payload["violations"]}),
+               "paths": sorted({v["path"] for v in payload["violations"]})}
+        out["hit"] = (payload["verdict"] == item["expected"]
+                      and (item["expected"] == "PASS" or out["paths"] == sorted(item["paths"])))
+        return out
+
+    rows: List[Dict[str, Any]] = []
+
+    # D1 白名单外删除（修复前：changes=0 → 直接放行）
+    (root / "backend" / "api.py").unlink()
+    _git(root, "add", "-A")
+    rows.append(row({"id": "D1_delete_outside_whitelist", "operation": "删除白名单外文件",
+                     "expected": "FAIL", "paths": ["backend/api.py"]},
+                    gate.evaluate_staged(root, cfg_wl, active_repo="TensorPlatform")))
+    reset()
+
+    # D2 白名单内删除（合法清理必须放行，否则门会把正常工作流卡死）
+    (root / "tools" / "write_gate" / "mod.py").unlink()
+    _git(root, "add", "-A")
+    rows.append(row({"id": "D2_delete_inside_whitelist", "operation": "删除白名单内文件",
+                     "expected": "PASS", "paths": []},
+                    gate.evaluate_staged(root, cfg_wl, active_repo="TensorPlatform")))
+    reset()
+
+    # D3 改名：源在白名单外、目标在白名单内（修复前只判目标 → 放行）
+    _git(root, "mv", "backend/api.py", "tools/write_gate/api.py")
+    rows.append(row({"id": "D3_rename_source_outside", "operation": "改名（源越界）",
+                     "expected": "FAIL", "paths": ["backend/api.py"]},
+                    gate.evaluate_staged(root, cfg_wl, active_repo="TensorPlatform")))
+    reset()
+
+    # D4 只读区删除（read_only 判据对删除同样生效）
+    (root / "docs" / "spec" / "guide.md").unlink()
+    _git(root, "add", "-A")
+    rows.append(row({"id": "D4_delete_read_only_zone", "operation": "删除只读区文件",
+                     "expected": "FAIL", "paths": ["docs/spec/guide.md"]},
+                    gate.evaluate_staged(root, cfg_ro, active_repo="TensorPlatform")))
+    reset()
+
+    required = list(scenarios["deletes"]["required"])
+    detected_ids = sorted(r["id"] for r in rows if r["hit"])
+    return {"rows": rows, "detected": len(detected_ids), "required": len(required),
+            "missing": sorted(set(required) - set(detected_ids)),
+            "changes_seen": sum(r["changes"] for r in rows),
+            "pass": set(required) <= set(detected_ids) and len(detected_ids) == len(rows)}
+
+
+def crit_encoding(work_dir: Path) -> Dict[str, Any]:
+    """可判性筛选：8KB 切片截断在多字节字符中间，不得把文本判成二进制。
+
+    修复前 ``looks_binary`` 对 ``data[:8192]`` 做严格 ``decode``：切点落在 CJK/emoji
+    字符中间即抛 ``UnicodeDecodeError`` → 整份内容被 ``binary_skipped`` 跳过凭证扫描
+    （中文源码/文档的高概率事件 = 凭证判据 fail-open）。三个探针锁死该行为。
+    """
+    cjk = "中文注释".encode() * 2000                      # 24000 字节，切点必落在字内
+    invalid = b"\xff\xfe not utf-8 at all"
+    nul = b"text\x00binary"
+    probes = [
+        {"probe": "cjk_truncated_tail", "bytes": len(cjk),
+         "is_binary": secrets_mod.looks_binary(cjk),
+         "expect": False},
+        {"probe": "invalid_utf8", "bytes": len(invalid),
+         "is_binary": secrets_mod.looks_binary(invalid), "expect": True},
+        {"probe": "nul_byte", "bytes": len(nul),
+         "is_binary": secrets_mod.looks_binary(nul), "expect": True},
+    ]
+    for probe in probes:
+        probe["hit"] = probe["is_binary"] is probe["expect"]
+    return {"probes": probes, "detected": sum(1 for x in probes if x["hit"]),
+            "required": len(probes), "pass": all(x["hit"] for x in probes)}
+
+
 def crit_pytest(timeout: int = 900) -> Dict[str, Any]:
     proc = subprocess.run([sys.executable, "-m", "pytest", "tests/test_write_gate.py",
                                    "tests/test_write_gate_content_scope.py", "-q"],
@@ -308,6 +419,8 @@ def run(out_dir: Path, work_dir: Path) -> Dict[str, Any]:
         "pytest": crit_pytest(),
         "performance": crit_performance(cfg_default, REPO_ROOT),
         "content_scope": crit_content_scope(fixture_parent),
+        "deletes": crit_deletes(fixture_parent, scenarios),
+        "encoding": crit_encoding(fixture_parent),
         "allow_samples": {"samples": len(scenarios["allow_samples"]),
                           "passed": sum(1 for f in allow_verdict.files if f["status"] == "allow"),
                           "pass": allow_verdict.verdict == "PASS"},

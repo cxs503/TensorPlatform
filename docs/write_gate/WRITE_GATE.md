@@ -33,7 +33,7 @@
 
 **工具链**：`tools/write_gate/`（`pathnorm` 规范化内核 → `whitelist` / `crossrepo` / `secrets`
 三判据 → `gate` 编排 → `cli` 入口），`data/write_gate/*.json`（策略/预注册场景/正常写入语料），
-`tests/test_write_gate.py`（64 条用例），`scripts/hooks/pre-commit`（钩子包装）。
+`tests/test_write_gate.py`（77 条用例），`scripts/hooks/pre-commit`（钩子包装）。
 
 **关键设计（三个决定成败的选择）**
 
@@ -66,12 +66,14 @@
 | 跨仓污染防护 | 5/5（100%） | 5/5 （100.00%），扩展场景 2/2 | PASS |
 | 凭证泄漏捕获 | 3/3（100%） | 3/3 （100.00%），扩展规则 3/3 | PASS |
 | 误报率 | ≤1% | 0/161 = 0.00% | PASS |
-| 确定性/幂等 | 三次重跑逐字节一致 | 一致（digest `53576d9a452a8f85…`） | PASS |
+| 确定性/幂等 | 三次重跑逐字节一致 | 一致（digest `a87636035e7b8555…`） | PASS |
 | fail-closed | 判不了必须拦 | 3/3 探针闭合 | PASS |
 | 零领域语义 | 预注册词表零命中 | 命中 0 | PASS |
 | 内容范围两档 | 3/3 场景 | 3/3（full 拦历史 / added 只拦新增且留痕） | PASS |
-| pytest 回归 | 全绿 | `64 passed, 1 warning in 1.53s` | PASS |
-| 性能 | 1000 变更 < 30s | 0.3424s（342.4 µs/变更） | PASS |
+| 可判性筛选（UTF-8 截断） | 3/3 探针 | 3/3（文本文件不得判成二进制而跳过凭证扫描） | PASS |
+| 破坏性写入（删除/改名源） | 4/4 场景 | 4/4（越界删除与改名源同受路径判据） | PASS |
+| pytest 回归 | 全绿 | `77 passed, 1 warning in 1.72s` | PASS |
+| 性能 | 1000 变更 < 30s | 0.3094s（309.4 µs/变更） | PASS |
 
 **白名单越界 10 种写法逐条明细**（全部拦截）：
 
@@ -88,12 +90,22 @@
 | `P09_doubled_separator` | `tools//write_gate//..//..//backend/leak.py` | 拦截 | allow_list_miss | whitelist |
 | `P10_case_variant` | `Tools/Write_Gate/../Backend/leak.py` | 拦截 | allow_list_miss | whitelist |
 | `C1_root_escape` | `../../etc/hosts` | 拦截 | root_escape | cross_repo |
-| `C2_absolute_foreign` | `/tmp/wg_accept_8750c/write_gate_accept_xjxzpdj5/other_repo/backend/x.py` | 拦截 | absolute_path, foreign_root | cross_repo |
+| `C2_absolute_foreign` | `<work>/other_repo/backend/x.py` | 拦截 | absolute_path, foreign_root | cross_repo |
 | `C3_nested_repo_marker` | `vendor/subrepo/src/x.py` | 拦截 | nested_repo_marker | cross_repo |
 | `C4_git_internals` | `.git/config` | 拦截 | git_internals | cross_repo |
 | `C5_symlink_escape` | `link/secret.txt` | 拦截 | symlink_escape | cross_repo |
 | `C6_repo_mismatch`（扩展） | `tools/a.py` | 拦截 | repo_mismatch | cross_repo |
 | `C7_foreign_root_glob`（扩展） | `../m8000/backend/x.py` | 拦截 | foreign_root, root_escape | cross_repo |
+
+**破坏性写入（删除 / 改名源）逐条明细**（真 git 索引；修复前 `D` 不入采集口，此表四行全为
+「未拦截」）：
+
+| 场景 | 操作 | 期望 | 实测 | 违规路径 | 变更数 |
+|---|---|---|---|---|---|
+| `D1_delete_outside_whitelist` | 删除白名单外文件 | FAIL | FAIL | `backend/api.py` | 1 |
+| `D2_delete_inside_whitelist` | 删除白名单内文件 | PASS | PASS | — | 1 |
+| `D3_rename_source_outside` | 改名（源越界） | FAIL | FAIL | `backend/api.py` | 2 |
+| `D4_delete_read_only_zone` | 删除只读区文件 | FAIL | FAIL | `docs/spec/guide.md` | 1 |
 
 **凭证规则明细**（前三条为机器判据指定泄漏面）：
 
@@ -140,6 +152,17 @@
    都是治理动作；本节点只保证"调用即判定"。
 7. **策略可调 ⇒ 可被治理层放宽**：白名单/规则集是配置，放宽会即时改变判决——因此判决里带
    `policy.sha256`，审计链能定位"是哪版策略放行的"。
+9. **8KB 切片把中文文件判成二进制，等于关掉了凭证扫描（本轮修复）。** `looks_binary`
+   原来对 `data[:8192]` 做严格解码：只要切点落在某个 CJK/emoji 字符的中间就抛
+   `UnicodeDecodeError` → 整份内容 `binary_skipped`，凭证判据静默 fail-open；本仓的
+   中文源码/文档正是高发区（本轮提交里 `gen_doc.py`、`WRITE_GATE.md` 都被跳过）。
+   修法是增量解码器 `final=False`：尾部不完整序列放行，真正非法字节序仍判二进制。
+8. **删除与改名源曾经整类漏判（本轮修复）。** 采集口原用 `git diff --cached
+   --diff-filter=ACMRT`：`D` 不入列 ⇒ `git rm 白名单外/文件` 判成 `changes=0 / allow`；
+   `R` 只保留目标路径 ⇒ `git mv 白名单外/文件 白名单内/文件` 的源文件消失零可见
+   （两者都实测复现，见 §3 明细表）。修法是采集口请求 `ACDMRT` + `R` 展开成
+   `DELETE(源) + MODIFY(目标)`，删除事件只过路径判据（R1/R2，索引里已无 blob 可扫）。
+   附带修掉 `decision` 字段与 `verdict` 不同向（`FAIL` 却写 `allow`）的审计矛盾。
 
 ## 6. 误差判定
 
@@ -152,7 +175,9 @@
 | 跨仓污染防护率 | 100.00%（5/5） | 100% | 0.00% | **是（0%）** |
 | 凭证捕获率 | 100.00%（3/3） | 100% | 0.00% | **是（0%）** |
 | 误报率 | 0.00%（0/161） | ≤1% | −1.00%（低于预算） | **是（0% < 3%）** |
-| 判决确定性 | 3/3 次逐字节一致，digest `53576d9a452a8f85…` | 100% 一致 | 0 | **是** |
+| 文本/二进制判据 | 3/3 探针 | 3/3 | 0 | **是** |
+| 删除/改名源检出率 | 100.00%（4/4） | 100% | 0.00% | **是（0%）** |
+| 判决确定性 | 3/3 次逐字节一致，digest `a87636035e7b8555…` | 100% 一致 | 0 | **是** |
 
 **总判决：PASS**（全部判据 通过）。
 **声明**：上述"基准"是机器判据而非实验/文献参考值；本节点不含物理仿真量，故不存在与实验对标的
@@ -162,7 +187,7 @@
 ## 7. 复现
 
 ```bash
-python3 -m pytest tests/test_write_gate.py tests/test_write_gate_content_scope.py -q  # 64 passed
+python3 -m pytest tests/test_write_gate.py tests/test_write_gate_content_scope.py -q  # 77 passed
 # 只拦本次新增的凭证（旧内容降级为 advisory）
 python3 -m tools.write_gate.cli --content-scope added staged --root .
 python3 tools/write_gate/acceptance.py --out artifacts/write_gate

@@ -28,8 +28,18 @@ def scenario_table(data: dict) -> str:
                     f"| {', '.join(row['codes'])} | {', '.join(row['categories'])} |")
     for row in data["criteria"]["cross_repo"]["rows"]:
         mark = "" if row["required"] else "（扩展）"
-        rows.append(f"| `{row['id']}`{mark} | `{row['path'].replace('|', chr(92) + '|')}` "
+        shown = row.get("path_display", row["path"]).replace('|', chr(92) + '|')
+        rows.append(f"| `{row['id']}`{mark} | `{shown}` "
                     f"| {'拦截' if row['hit'] else '**漏**'} | {', '.join(row['codes'])} | cross_repo |")
+    return "\n".join(rows)
+
+
+def deletes_table(data: dict) -> str:
+    rows = ["| 场景 | 操作 | 期望 | 实测 | 违规路径 | 变更数 |", "|---|---|---|---|---|---|"]
+    for row in data["criteria"]["deletes"]["rows"]:
+        rows.append(f"| `{row['id']}` | {row['operation']} | {row['expected']} "
+                    f"| {row['verdict']} | {', '.join(f'`{x}`' for x in row['paths']) or '—'} "
+                    f"| {row['changes']} |")
     return "\n".join(rows)
 
 
@@ -67,6 +77,12 @@ def criteria_table(data: dict) -> str:
     rows.append(f"| 内容范围两档 | 3/3 场景 | {c['content_scope']['detected']}/{c['content_scope']['required']}"
                 f"（full 拦历史 / added 只拦新增且留痕） | "
                 f"{'PASS' if c['content_scope']['pass'] else 'FAIL'} |")
+    rows.append(f"| 可判性筛选（UTF-8 截断） | 3/3 探针 | {c['encoding']['detected']}/"
+                f"{c['encoding']['required']}（文本文件不得判成二进制而跳过凭证扫描） | "
+                f"{'PASS' if c['encoding']['pass'] else 'FAIL'} |")
+    rows.append(f"| 破坏性写入（删除/改名源） | 4/4 场景 | {c['deletes']['detected']}/"
+                f"{c['deletes']['required']}（越界删除与改名源同受路径判据） | "
+                f"{'PASS' if c['deletes']['pass'] else 'FAIL'} |")
     rows.append(f"| pytest 回归 | 全绿 | `{c['pytest']['summary']}` | "
                 f"{'PASS' if c['pytest']['pass'] else 'FAIL'} |")
     rows.append(f"| 性能 | 1000 变更 < 30s | {c['performance']['seconds']}s"
@@ -147,6 +163,11 @@ def render(data: dict) -> str:
 
 {scenario_table(data)}
 
+**破坏性写入（删除 / 改名源）逐条明细**（真 git 索引；修复前 `D` 不入采集口，此表四行全为
+「未拦截」）：
+
+{deletes_table(data)}
+
 **凭证规则明细**（前三条为机器判据指定泄漏面）：
 
 {secret_table(data)}
@@ -185,6 +206,17 @@ def render(data: dict) -> str:
    都是治理动作；本节点只保证"调用即判定"。
 7. **策略可调 ⇒ 可被治理层放宽**：白名单/规则集是配置，放宽会即时改变判决——因此判决里带
    `policy.sha256`，审计链能定位"是哪版策略放行的"。
+9. **8KB 切片把中文文件判成二进制，等于关掉了凭证扫描（本轮修复）。** `looks_binary`
+   原来对 `data[:8192]` 做严格解码：只要切点落在某个 CJK/emoji 字符的中间就抛
+   `UnicodeDecodeError` → 整份内容 `binary_skipped`，凭证判据静默 fail-open；本仓的
+   中文源码/文档正是高发区（本轮提交里 `gen_doc.py`、`WRITE_GATE.md` 都被跳过）。
+   修法是增量解码器 `final=False`：尾部不完整序列放行，真正非法字节序仍判二进制。
+8. **删除与改名源曾经整类漏判（本轮修复）。** 采集口原用 `git diff --cached
+   --diff-filter=ACMRT`：`D` 不入列 ⇒ `git rm 白名单外/文件` 判成 `changes=0 / allow`；
+   `R` 只保留目标路径 ⇒ `git mv 白名单外/文件 白名单内/文件` 的源文件消失零可见
+   （两者都实测复现，见 §3 明细表）。修法是采集口请求 `ACDMRT` + `R` 展开成
+   `DELETE(源) + MODIFY(目标)`，删除事件只过路径判据（R1/R2，索引里已无 blob 可扫）。
+   附带修掉 `decision` 字段与 `verdict` 不同向（`FAIL` 却写 `allow`）的审计矛盾。
 
 ## 6. 误差判定
 
@@ -197,6 +229,8 @@ def render(data: dict) -> str:
 | 跨仓污染防护率 | {_pct(c['cross_repo']['rate'])}（{c['cross_repo']['detected']}/{c['cross_repo']['required']}） | 100% | 0.00% | **是（0%）** |
 | 凭证捕获率 | {_pct(c['secrets']['rate'])}（{c['secrets']['detected']}/{c['secrets']['required']}） | 100% | 0.00% | **是（0%）** |
 | 误报率 | {_pct(c['false_positive']['rate'])}（{c['false_positive']['false_positives']}/{c['false_positive']['samples']}） | ≤1% | −1.00%（低于预算） | **是（0% < 3%）** |
+| 文本/二进制判据 | {c['encoding']['detected']}/{c['encoding']['required']} 探针 | 3/3 | 0 | **是** |
+| 删除/改名源检出率 | {_pct(c['deletes']['detected'] / c['deletes']['required'] if c['deletes']['required'] else 0)}（{c['deletes']['detected']}/{c['deletes']['required']}） | 100% | 0.00% | **是（0%）** |
 | 判决确定性 | 3/3 次逐字节一致，digest `{c['determinism']['digest'][:16]}…` | 100% 一致 | 0 | **是** |
 
 **总判决：{data['verdict']}**（全部判据 {'通过' if data['verdict'] == 'PASS' else '未通过'}）。
