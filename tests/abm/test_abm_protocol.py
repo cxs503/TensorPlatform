@@ -190,3 +190,47 @@ def test_acceptance_flags_missing_arm_dimensions(tmp_path):
     acc = evaluate(ledger=led, gate_sequence=gates, blind=reg, dim_table=thin, legs=legs)
     assert acc["pass"] is False
     assert any(c["id"] == "C1_two_arm_dims" for c in acc["criteria"] if not c["pass"])
+
+# ----------------------------------------------------- acceptance E 环（统计功效）
+def _power_gate(decision_pass=True):
+    return {
+        "rule": "G25: 六维中 >= 2 维在 Holm(alpha=0.05) 下显著优于对照（备择=greater）",
+        "dimensions": {
+            "accuracy": {"n_pairs": 10, "p_perm": 0.001, "p_holm": 0.006,
+                         "significant_better": True, "effect": {"cohen_dz": 1.5}},
+            "efficiency": {"n_pairs": 10, "p_perm": 0.002, "p_holm": 0.008,
+                           "significant_better": True, "effect": {"cohen_dz": 1.2}},
+        },
+        "n_significant_better": 2 if decision_pass else 0,
+        "decision_pass": decision_pass,
+        "min_dims": 2,
+        "alpha": 0.05,
+        "alternative": "greater",
+        "n_perm": 999,
+        "n_perm_resolution_ok": True,
+    }
+
+
+def test_acceptance_power_gate_pass(tmp_path):
+    led, gates, reg, table, legs = _full_run(tmp_path)
+    acc = evaluate(ledger=led, gate_sequence=gates, blind=reg, dim_table=table, legs=legs,
+                   power_gate=_power_gate(True))
+    e1 = next(c for c in acc["criteria"] if c["id"] == "E1_six_dim_advantage_statistical")
+    assert e1["pass"] is True
+    assert e1["observed"]["n_significant_better"] == 2
+    assert e1["observed"]["per_dim"]["accuracy"]["p_holm"] == 0.006
+    assert acc["pass"] is True
+
+
+def test_acceptance_power_gate_blocks_false_advantage(tmp_path):
+    led, gates, reg, table, legs = _full_run(tmp_path)
+    acc = evaluate(ledger=led, gate_sequence=gates, blind=reg, dim_table=table, legs=legs,
+                   power_gate=_power_gate(False))
+    assert acc["pass"] is False
+    assert "E1_six_dim_advantage_statistical" in acc["failed_criteria"]
+
+
+def test_acceptance_without_power_gate_unchanged(tmp_path):
+    led, gates, reg, table, legs = _full_run(tmp_path)
+    acc = evaluate(ledger=led, gate_sequence=gates, blind=reg, dim_table=table, legs=legs)
+    assert not any(c["id"].startswith("E1") for c in acc["criteria"])
