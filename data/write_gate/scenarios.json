@@ -1,0 +1,42 @@
+{
+  "schema": "write_gate/scenarios/v1",
+  "note": "预注册对抗场景（append-only：只增不改，防「调参到绿」）。拦截类必须全中，放行类必须全通。",
+  "edit_whitelist": [
+    "tools/write_gate/**",
+    "docs/write_gate/**",
+    "tests/test_write_gate.py",
+    "data/write_gate/**",
+    "artifacts/write_gate/**"
+  ],
+  "whitelist_escapes": [
+    {"id": "P01_prefix_sibling", "path": "tools/write_gate_evil/mod.py"},
+    {"id": "P02_parent_traversal", "path": "tools/write_gate/../../backend/api/leak.py"},
+    {"id": "P03_dot_segments", "path": "./tools/./../backend/leak.py"},
+    {"id": "P04_backslash", "path": "tools\\write_gate\\..\\..\\backend\\leak.py"},
+    {"id": "P05_unicode_fullwidth", "path": "tools／write_gate／．．／backend／leak.py"},
+    {"id": "P06_percent_encoded", "path": "tools/write_gate/%2e%2e/%2e%2e/backend/leak.py"},
+    {"id": "P07_double_encoded", "path": "tools/write_gate/%252e%252e/backend/leak.py"},
+    {"id": "P08_nul_truncation", "path": "tools/write_gate/ok.py\u0000/../../../backend/leak.py"},
+    {"id": "P09_doubled_separator", "path": "tools//write_gate//..//..//backend/leak.py"},
+    {"id": "P10_case_variant", "path": "Tools/Write_Gate/../Backend/leak.py"}
+  ],
+  "cross_repo": [
+    {"id": "C1_root_escape", "kind": "path", "path": "../../etc/hosts", "expect_code": "root_escape"},
+    {"id": "C2_absolute_foreign", "kind": "absolute", "expect_code": "absolute_path"},
+    {"id": "C3_nested_repo_marker", "kind": "path", "path": "vendor/subrepo/src/x.py", "expect_code": "nested_repo_marker"},
+    {"id": "C4_git_internals", "kind": "path", "path": ".git/config", "expect_code": "git_internals"},
+    {"id": "C5_symlink_escape", "kind": "path", "path": "link/secret.txt", "expect_code": "symlink_escape"},
+    {"id": "C6_repo_mismatch", "kind": "path", "path": "tools/a.py", "repo": "TensorFEM", "expect_code": "repo_mismatch"},
+    {"id": "C7_foreign_root_glob", "kind": "path", "path": "../m8000/backend/x.py", "expect_code": "foreign_root"}
+  ],
+  "required_cross_repo": ["C1_root_escape", "C2_absolute_foreign", "C3_nested_repo_marker",
+                          "C4_git_internals", "C5_symlink_escape"],
+  "allow_samples": [
+    "tools/write_gate/gate.py",
+    "tools/write_gate/sub/deep/module.py",
+    "docs/write_gate/WRITE_GATE.md",
+    "tests/test_write_gate.py",
+    "data/write_gate/policy.json",
+    "artifacts/write_gate/verdict.json"
+  ]
+}
