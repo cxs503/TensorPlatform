@@ -36,6 +36,16 @@ DEFAULTS: dict = {
         "prescreen": True,                  # 先用 changed_files 交集筛候选对
         "detail_limit": 2000,               # 报告里逐对明细上限（其余只计数，防 40 并发下报告爆内存）
     },
+    "scheduler": {
+        "state_path": "artifacts/tenancy_gate/scheduler_state.json",
+        "on_conflict": "queue",             # queue | refuse | downgrade_readonly
+        "queue_limit": 64,                  # 排队上限（满后新冲突任务 refuse）
+        "max_finishes": 256,                # 状态文件里保留的收单记录条数
+        "on_merge_clean": "auto_merge",     # 可自动合并 → 放行
+        "on_merge_conflict": "manual_arbitration",   # 内容冲突 → 人工仲裁
+        "on_unknown": "rollback",           # 无法判定 → 回滚（fail-closed）
+        "record_ledger": True,              # 裁决是否入 append-only 台账
+    },
     "ledger": {"path": "artifacts/tenancy_gate/ledger.jsonl"},
     "semantics": {"denylist_path": "tools/tenancy_gate/domain_denylist.json"},
 }
@@ -81,5 +91,19 @@ def _validate(cfg: dict) -> None:
             raise TenancyError(f"negative_{key}")
     if int(cfg["rehearsal"]["timeout_seconds"]) <= 0:
         raise TenancyError("bad_timeout")
+    scheduler = cfg.get("scheduler")
+    if scheduler is None:
+        raise TenancyError("missing_scheduler_section")
+    if scheduler["on_conflict"] not in ("queue", "refuse", "downgrade_readonly"):
+        raise TenancyError("bad_scheduler_on_conflict")
+    if scheduler["on_merge_clean"] != "auto_merge":
+        raise TenancyError("bad_scheduler_on_merge_clean")
+    if scheduler["on_merge_conflict"] not in ("manual_arbitration", "rollback"):
+        raise TenancyError("bad_scheduler_on_merge_conflict")
+    if scheduler["on_unknown"] not in ("rollback", "manual_arbitration"):
+        raise TenancyError("bad_scheduler_on_unknown")
+    for key in ("queue_limit", "max_finishes"):
+        if int(scheduler[key]) < 0:
+            raise TenancyError(f"negative_{key}")
     if not cfg["lease"]["writable_roots"]:
         raise TenancyError("empty_writable_roots")
