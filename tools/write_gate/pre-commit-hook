@@ -1,0 +1,57 @@
+#!/usr/bin/env bash
+# 写入边界门 pre-commit 钩子
+# 
+# 安装方法：
+#   cp tools/write_gate/pre-commit-hook .git/hooks/pre-commit
+#   chmod +x .git/hooks/pre-commit
+#
+# 或符号链接：
+#   ln -sf ../../tools/write_gate/pre-commit-hook .git/hooks/pre-commit
+#
+# 功能：
+#   - 读暂存区变更（git diff --cached）
+#   - 四合一判决：白名单越界 + 跨仓污染 + 凭证泄漏 + 大文件拦截
+#   - BLOCK 时退出非 0，阻止提交
+#   - 自动写事件到账本（runs/write_gate/events.jsonl）
+#
+# 环境变量：
+#   EDIT_WHITELIST  - 逗号分隔的白名单 glob（覆盖策略默认值）
+#   WRITE_GATE_POLICY - 策略文件路径（默认 data/write_gate/policy.json）
+#   WRITE_GATE_ACTIVE_REPO - 本工作树所属仓名
+#   WRITE_GATE_QUIET - 非空时只输出错误
+
+set -euo pipefail
+
+# 定位仓库根
+REPO_ROOT="$(git rev-parse --show-toplevel)"
+cd "$REPO_ROOT"
+
+# 默认值
+POLICY="${WRITE_GATE_POLICY:-data/write_gate/policy.json}"
+ACTIVE_REPO="${WRITE_GATE_ACTIVE_REPO:-}"
+QUIET="${WRITE_GATE_QUIET:-}"
+
+# 构建参数
+ARGS=("staged" "--root" "." "--policy" "$POLICY")
+if [[ -n "$ACTIVE_REPO" ]]; then
+    ARGS+=("--active-repo" "$ACTIVE_REPO")
+fi
+if [[ -n "$QUIET" ]]; then
+    ARGS+=("--quiet")
+fi
+
+# 白名单从环境变量注入（CLI 会自动读 $EDIT_WHITELIST）
+# 也可通过 --edit-whitelist 显式传入
+
+# 运行门判决
+if python3 -m tools.write_gate.cli "${ARGS[@]}"; then
+    exit 0
+else
+    echo ""
+    echo "═══════════════════════════════════════════════════════════════"
+    echo "  写入边界门拦截：提交被阻止"
+    echo "  详见上方 BLOCK 条目，或运行："
+    echo "    python3 -m tools.write_gate.cli staged --format json"
+    echo "═══════════════════════════════════════════════════════════════"
+    exit 1
+fi

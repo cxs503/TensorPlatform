@@ -1,0 +1,84 @@
+name: Write Gate
+
+on:
+  push:
+    branches: [main, "agent/**"]
+    paths:
+      - "tools/write_gate/**"
+      - "data/write_gate/**"
+      - "tests/test_write_gate*.py"
+      - "tests/test_boundary*.py"
+  pull_request:
+    paths:
+      - "tools/write_gate/**"
+      - "data/write_gate/**"
+      - "tests/test_write_gate*.py"
+      - "tests/test_boundary*.py"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  write-gate:
+    name: Write Boundary Gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install pytest
+      
+      - name: Run write gate unit tests
+        run: |
+          python -m pytest tests/test_write_gate.py tests/test_boundary_gates.py \
+            tests/test_boundary_adversarial.py tests/test_boundary_gate_recall.py \
+            -v --tb=short
+      
+      - name: Run write gate CLI self-check
+        run: |
+          # 白名单内路径应放行
+          python -m tools.write_gate.cli paths \
+            --edit-whitelist "tools/**,docs/**,tests/**" \
+            tools/write_gate/gate.py docs/README.md tests/test_write_gate.py
+          
+          # .git 内部应拦截
+          if python -m tools.write_gate.cli paths .git/config 2>/dev/null; then
+            echo "FAIL: .git/config should be blocked"
+            exit 1
+          fi
+          
+          # 绝对路径应拦截
+          if python -m tools.write_gate.cli paths /etc/passwd 2>/dev/null; then
+            echo "FAIL: absolute path should be blocked"
+            exit 1
+          fi
+      
+      - name: Run write gate acceptance
+        run: |
+          python tools/write_gate/acceptance.py --out artifacts/write_gate --work /tmp/write_gate_ci
+      
+      - name: Check acceptance results
+        run: |
+          python3 -c "
+          import json, sys
+          data = json.load(open('artifacts/write_gate/acceptance.json'))
+          failed = [k for k, v in data['criteria'].items() if not v.get('pass', True)]
+          if failed:
+              print(f'FAIL: criteria not passed: {failed}')
+              sys.exit(1)
+          print(f'All {len(data[\"criteria\"])} criteria passed')
+          "
+      
+      - name: Upload acceptance artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: write-gate-acceptance
+          path: artifacts/write_gate/
+          retention-days: 30
