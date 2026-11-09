@@ -1,0 +1,159 @@
+[OSS-SOL]
+repo: lbm-principles-practice/code
+slug: GAP-LBM-MCMP-POISEUILLE
+tag: scmp-two-component-planar-interface
+method: [综合推荐 F01 两组分分层 Poiseuille 对标] 唯一 MIT 的可搬两组分 SC 骨架：单格子多组分分布 + 平面界面初值，最小可验证（原表即 adapt：通道几何/边界需改写，故不升 fits）；路线：以 lbm-principles-practice/code（MIT）的双组分 SC + Zou-He 反算为母版起最小可证单元：单通道 D2Q9、两组分各自演化、界面位置与分相流量由积分量输出；解析锚用 TCLB 的分层剖面 U=6·Uavg·Y(H−Y)/H²（reference，仅取公式）。力项注入取 lbmpy 的重心 Guo 形式，速度混合取 listLBM 的策略化写法并显式记录「谁混合、按 ρσ 还是按 τ」这一自由度。
+files: chapter9/shanchen.cpp:29-36, chapter9/shanchen.cpp:79-109, chapter9/shanchen.cpp:142-161, chapter9/shanchen.cpp:191-197, chapter9/shanchen.cpp:215-229, chapter9/shanchen.cpp:261-263, chapter6/force_poiseuille_BB.m:129-137, chapter6/force_poiseuille_BB.m:157-198, chapter6/force_poiseuille_BB.m:229-235
+conventions: rho0=1 pseudopotential reference; tau=1 gives nu=(2tau-1)/6=1/6; force term carries the (1-omega/2) factor for 2nd-order spatial discretisation; reported velocity is u+0.5F/rho while momenta() stores raw momentum; the ch9 file is fully periodic so a walled channel must be added; interface initialised with rho_A/rho_B=0.1/0.9 and total density 1
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lbm-principles-practice/code
+slug: NEW:scmp-young-laplace-calibrator-with-guardrails
+tag: shan-chen-laplace-pressure-calibration
+method: [综合推荐 F02 伪势 SCMP/MCMP 力项与势函数] MIT 且自带『标定器 + 护栏』：把 ψ/EOS/G 与 Laplace 压差一起校准，正是 GAP-LBM-MCMP 验收要的工装形态；路线：伪势层拆成三个可插拔点：ψ(ρ) 策略、互作用力 stencil（含 EDM 展开）、力项注入（Guo/EDM）。标定护栏直接吃 lbm-principles 的 Young-Laplace 标定器（fits），先钉 σ 再谈密度比。
+files: chapter9/shanchen.cpp:126-139, chapter9/shanchen.cpp:326-377, chapter9/shanchen.cpp:355-369, chapter9/shanchen.cpp:358
+conventions: 4x4 node averaging boxes; radius from the rho_av crossing with linear interpolation; interaction term needs the 1/6 factor; the shipped estimator declares rad uninitialised at :358 and does not check whether the scan found a crossing, so gamma is printed from undefined memory when the droplet merges with its periodic image (measured gamma=-4.86 at R_init=24) - reuse must add a validity guard
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/walberla
+slug: MCMP 高密度比
+tag: variable-density-equilibrium-linear-in-C
+method: [综合推荐 F03 高密度比与界面通量路线] 唯一把密度直接写进平衡态与体力、并把黏度随相变参数化的配方（ρ 比可至 1000）；路线：主路线走『相场/变密度平衡态』而不是死磕伪势 EOS：walberla 的 ρ=ρ_L+C(ρ_H−ρ_L) 线性映射 + TCLB 的压力演化格式组合，可同时保住密度比与 Mach 限制。伪势侧仅保留 MPLBM-UT 的低密度比基线作对照。
+files: apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_codegen.py:59-66, apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_codegen.py:72-74, apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_RTI_3D.py:45-46, apps/showcases/PhaseFieldAllenCahn/CPU/multiphase_taylor_bubble.py:20-21
+conventions: rho_L/rho_H 为格点单位；粘度比 100(RTI)/4236(Taylor)；界面宽 3 格可跑；Morton 0.015；g 为格点加速度乘局部密度
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/walberla
+slug: NEW:自由面多余质量分配模型族（9 种可切换）
+tag: excess-mass-9-family
+method: [综合推荐 F04 自由面（fill-level / VOF / mass tracking）] 把『多余质量怎么分配』显式做成 9 种可切换模型族——这正是自由面实现最容易悄悄错的地方；路线：自由面按三件套拆解实现：状态机（flag 转移）、质量账本（F→I→G 转移与超额质量分配）、界面分布重建（法向由 fill level 差分 + 非平衡反弹）。质量分配必须做成可选模型族并带守恒断言（Σmass 漂移）。
+files: src/lbm/free_surface/dynamics/ExcessMassDistributionModel.h:85-94, src/lbm/free_surface/dynamics/SurfaceDynamicsHandler.h:358
+conventions: 模型名即枚举名（EvenlyAllInterface / WeightedAllInterface / ...FallbackLiquid）；分配发生在 cell conversion 之后、回填之前
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: ludwig-cf/ludwig
+slug: 相场 Allen-Cahn
+tag: cahn-hilliard-only
+method: [综合推荐 F05 相场 Allen-Cahn / Cahn-Hilliard] BSD-3 可搬：守恒 CH 的面通量形式 + 守恒漂移补偿 PHI_CONSERVE_* 是可直接落地的方程骨架；路线：方程骨架取 ludwig（BSD，可搬），力项分层取 walberla 的双力项分离（重写），三元/顺序参数取 CudaPhaseField 的保守 AC + 调和 λ 构造（公式）；解析锚用自由能 kink 解。
+files: `src/free_energy.h:45`, `src/fe_ternary.c:6`
+conventions: mobility M 为常数参数; phi in [-1,1]; 守恒修正开关 PHI_CONSERVE_DEFAULT/COMPENSATED/GLOBAL_SUBTRACT
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lanl/MF-LBM
+slug: NEW:geometrical-wetting-normal-rotation
+tag: akai2018-geometrical-wetting
+method: [综合推荐 F06 润湿 / 接触角] BSD-3 可搬：几何法把色梯度绕 n_w 旋转到 θ，无需 G_ads 吸附系数标定；路线：两条腿：几何法（MF-LBM，法向旋转，适配任意多相路线）作默认；吸附系数反演（MPLBM-UT 公式）作标定与交叉验证。壁面法向用 iso8 平滑预处理，否则阶梯壁面会把接触角误差放大。
+files: Phase_gradient.F90:209-265, Phase_gradient.F90:238-259
+conventions: θ 为以润湿相量取的局部接触角；仅当该格 |C|>1e-6 才施加；候选择优用 distP<=distM 判据；仅适用 θ<90°（几何旋转无法表达疏水侧更强的反转）
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lettucecfd/lettuce
+slug: NEW:gpu-fused-kernel-codegen
+tag: component-protocol-template-codegen
+method: [综合推荐 F07 GPU 融合 kernel 与存储压缩] MIT：算子按组件模板生成、JIT 可选，Python 侧落地成本最低；路线：近期（可运行）：lettuce/vivsim 的框架内融合（MIT，fits）＋ A-A pattern 省一半内存；中期（性能）：照 walberla/lbmpy 的生成式 sweep 设计自研 codegen（禁止搬码）；存储压缩按 FluidX3D FP16 的公开算法自行实现。
+files: lettuce/base.py:30-52, lettuce/cuda_native/_generator.py:46-127, lettuce/cuda_native/_template.py:39, lettuce/cuda_native/_template.py:55-81, lettuce/cuda_native/_default_code_gen.py:92-114
+conventions: block 16x16(2D)/8x8x8(3D)；nvcc --use_fast_math --maxrregcount=128 -O3；扩展名=内容哈希前 8 hex，版本变更即重编译
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: cfdemons/LUMA
+slug: NEW:分布式 MPI（Cart 分区 + 智能负载均衡 + halo 非阻塞交换）
+tag: mpi-cart-smart-decompose-halo
+method: [综合推荐 F08 分布式多卡 / MPI] Apache-2.0 可搬：MPI_Cart 拓扑 + 按活跃单元数的 smart decomposition 择优，正是体素多孔域要的负载均衡；路线：分区层用 LUMA 的 Cart + 活跃单元负载评估（Apache，可搬）；通信层先把 halo 做成显式 non-blocking post/wait 两段（ludwig 的 post-wait-split）以便插计算遮盖，再图 ghost 交换融合。
+files: LUMA/src/MpiManager.cpp:107-136, LUMA/src/MpiManager.cpp:1220, LUMA/src/MpiManager.cpp:1457, LUMA/src/MpiManager.cpp:1400, LUMA/src/MpiManager.cpp:631, LUMA/src/MpiManager.cpp:718, LUMA/src/MpiManager.cpp:789, LUMA/src/MpiManager.cpp:822, LUMA/src/ObjectManager.cpp:105-110
+conventions: 三维周期笛卡尔拓扑; halo 厚度 1 层; 消息尺寸先协商（Mpi_buffer_size_send/recv.cpp）; MPI_DOUBLE、f 缓冲按方向分段; 无通信/计算重叠（Waitall 同步）
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: sorush-khajepor/listLBM
+slug: NEW:多孔介质稀疏索引集（子链表分类+显式邻接表+固体节点剔除）
+tag: sparse-sublist-neighbor-list
+method: [综合推荐 F09 稀疏 / 多孔介质几何] 子链表分类 + 显式邻接表 + 固体节点剔除，是唯一带『体素图像→孔隙率报表』全链路的实现；路线：几何摄入走『体素/图像 → EDT 分层 → tag 压缩』（MPLBM-UT fits）；存储走 list 型子链表 + 显式邻接表（listLBM 算法级重写）；亚网格层预留 PSB 钩子（lettuce 公式）。
+files: lists/parts/part_mod.f90:14-42, lists/base/mainlist_mod.f90:104-119, lists/base/mainlist_mod.f90:111, collision/base/collisionBGK_mod.f90:77-83, lists/kinds/walllist_mod.f90:20-48, imgproc/imgproc2d_mod.f90:197-211
+conventions: neilist 索引为 0 基方向 × cell 索引；halfqs 为每格子「半边方向」表(lattice_mod.f90:87,194,257)；子链表用 istinmlist/indinmlist 界定；实测 4 个 26x26 盒子使活跃流体 15876→13172(-17.0%)、600 步 wall clock 7.286→6.347s(-12.9%)
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: 2b-t/LB-t
+slug: NEW:案例配置七段式 JSON schema + LBM↔SI 三基准量换算
+tag: case-schema-json-units-converter
+method: [综合推荐 F10 案例组织与运行管理] MIT：七段式 JSON schema + LBM↔SI 三基准量换算，是唯一把单位换算内建进案例格式的；路线：案例格式取 LB-t 的 JSON schema（含单位换算与三基准量），配置对象取 lbmpy 的单一事实源写法，运行管理取 MF-LBM 的 checkpoint 状态机；把 listLBM 的单文件算例明确列为反例（不迁移）。
+files: include/lbt/simulation/simulation.hpp:682, include/lbt/converter.hpp:35, src/main.cpp:39, examples/test_1/settings.json
+conventions: 三基准量 (Length, Velocity, Density) 定标; 压力因子=rho_f*u_f^2; 时间因子=len_f/vel_f
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:测试与验证面（逐点参考回归 + 解析解 + 符号 Chapman-Enskog）
+tag: pointwise-reference-regression
+method: [综合推荐 F11 测试与验证面] 逐点参考回归（沿中心线 64 点 np.allclose 对比外部参考实现）——比单一积分量误差强得多；路线：验证面按三层建：符号层（等价方程/稳定性，pylbm 公式）、解析剖面层（lettuce 式 1% 门）、逐点参考场层（lbmpy 式中枢线/剖面 np.allclose）。基准数据集一律取论文原表（如 Ghia 1982），不取无许可证仓库的数据文件。
+files: tests/shan_chen/test_shan_chen_two_phase.py:85-92, tests/shan_chen/test_shan_chen_two_component.py:174-175, src/lbmpy/analytical_solutions.py:1, src/lbmpy/chapman_enskog/chapman_enskog.py:1
+conventions: 参考值来自 lbm-principles-practice/chapter9/shanchen.cpp（1000 步）；allclose 默认 rtol/atol；CE 展开到 epsilon^2 以上易爆炸，建议仅做一次性方法族门禁
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: ludwig-cf/ludwig
+slug: CI
+tag: per-lattice-matrix-ci
+method: [综合推荐 F12 CI 分级门禁] 按格子分 job 并行构建+回归，矩阵化最彻底；路线：四层门禁：lint → unit → regression（短回归构建，palabos 的 PLB_REGRESSION 宏做法）→ full-matrix（按格子/按物理能力）。反例入册：Fingering_dynamics 无 tests/ 无 CI 无断言。
+files: `.github/workflows/regression.yml:31`, `.github/workflows/codecov.yml:14`
+conventions: cp config/github-gcc.mk config.mk; sed 切换 D3Q19->D2Q9 等目标格子
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: cfdemons/LUMA
+slug: NEW:IBM 直接力 + RKPM ε 守恒校正 + 强耦合子迭代
+tag: ibm-direct-forcing-rkpm-epsilon
+method: [综合推荐 F13 IBM / 流固耦合与受力] Apache-2.0：Peskin 3 点核 + RKPM ε 守恒校正 + 强耦合子迭代，谱系最完整且可搬；路线：实现层先用 vivsim 的预计算 stencil（MIT 可直接搬），物理层照 LUMA 的三件套（力→ε 校正→子迭代）补上『力守恒』这一常被省略的环节；强耦合收敛判据取 LIFE 的 Aitken 形式。
+files: LUMA/src/ObjectManager_ops_ibm.cpp:255-272, LUMA/src/ObjectManager_ops_ibm.cpp:479-482, LUMA/src/ObjectManager_ops_ibm.cpp:498-596, LUMA/src/ObjectManager_ops_ibm.cpp:598-616, LUMA/src/ObjectManager_ops_ibm.cpp:621-694, LUMA/src/ObjectManager_ops_ibm.cpp:773-880, LUMA/src/ObjectManager_ops_ibm.cpp:111-140, LUMA/inc/definitions.h:228-231
+conventions: δ 支撑 1.5Δx（3 点）; 体积尺度 volWidth=ε, volDepth=ds; 子迭代 TOL=1e-4, MAXIT=10; 可选 L_UNIVERSAL_EPSILON_CALC 全局统一 ε; 力系数 2 隐含 Δt=1
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: 2b-t/LB-t
+slug: NEW:TRT 两松弛算子与 magic 参数 λ=0.25
+tag: trt-two-relaxation-magic-lambda
+method: [综合推荐 F14 碰撞算子族] MIT：TRT 双松弛 + magic λ=0.25 的显式写法（壁面位置无关的经典取值）；路线：碰撞算子按『SRT→TRT(magic)→MRT/central-moment』三级推进，先固定 magic 取值（λ=0.25 与 3/16 各跑一遍，记录壁面滑移差），再上 central-moment（LIFE 公式）与 KBC。
+files: src/population/collision/collision_trt.hpp:61, src/population/collision/collision_trt.hpp:66, src/population/collision/collision_trt.hpp:195, src/population/collision/collision_trt.hpp:209, src/population/collision/collision_trt.hpp:217
+conventions: CS=1/sqrt(3); tau=nu/CS^2+1/2; λ=0.25 为推荐 magic 值; 计算代价≈BGK+一次加减
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lbm-principles-practice/code
+slug: NEW:scalar-dirichlet-boundary-library
+tag: anti-bounce-back-inamuro-wetnode
+method: [综合推荐 F15 边界算子族] MIT：反反弹 + Inamuro 湿节点，标量 Dirichlet（速度/压力）最干净的实现；路线：边界库按『壁面（半程 BB / 插值 BB / 正则化）→ 出入口（Zou-He 反算 / 反反弹 Dirichlet / EE）→ 特殊（Lees-Edwards 剪切、湿节点固定密度、平衡态外插 EE）』三组收编；每组附壁面偏移与角点处理约定。EE 的实现只见于无许可证仓（hietwll/LBM_Taichi，all-rights-reserved），只可按公式自写。
+files: chapter8/film_antibb.cpp:152-205, chapter8/film_inamuro.cpp:157-215, chapter5/couette_wetnode.m:111-146, chapter5/couette_wetnode.m:116-123, chapter8/cylinder.cpp:214-227
+conventions: anti-bounce-back uses the opposite direction from the post-streaming array (f2), Inamuro uses the pre-streaming array (f); wet-node scheme selector wetnode=1 equilibrium / 2 non-equilibrium extrapolation / else non-equilibrium bounce-back; free-wall/specular is a mirrored copy of the neighbouring populations plus rho_corner=rho_neighbour
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: cfdemons/LUMA
+slug: NEW:重叠网格加密界面算子（explode/coalesce + 2:1 子循环）
+tag: overlapping-grid-refinement-explode-coalesce
+method: [综合推荐 F16 网格加密 / 可微与生成式框架] Apache-2.0：重叠网格 explode/coalesce + 2:1 子循环，块加密的工程化写法；路线：加密路线取 LUMA 的重叠网格（Apache 可搬）+ walberla 的等值面流式修正公式；可微/涨落路线只做设计预留（LOL 的 BPTT 与 ludwig 的 ghost-mode 涨落），两者许可证/框架均不可搬。
+files: LUMA/src/GridObj_ops_lbm_optimised.cpp:36-47, LUMA/src/GridObj_ops_lbm_optimised.cpp:270-290, LUMA/src/GridObj_ops_lbm_optimised.cpp:598-620, LUMA/src/GridObj_ops_lbm_optimised.cpp:145-147, LUMA/src/GridObj_init_grids.cpp:399-441, LUMA/src/GridObj_init_grids.cpp:526, LUMA/inc/Enumerations.h:103-115
+conventions: 加密比固定 2; 每粗步=2 细子循环; 标签 eRefined/eTransitionToCoarser/eTransitionToFiner/eFluid; 体力乘 refinement_ratio=1/2^level
+transfer: adapt
+[/OSS-SOL]

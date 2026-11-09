@@ -1,0 +1,105 @@
+{
+ "C1_all_rows_assigned": {
+  "rows": 196,
+  "assigned": 196,
+  "pass_": true
+ },
+ "C2_recommendation_traceable": {
+  "picks": 49,
+  "unresolved": [],
+  "pass_": true
+ },
+ "C3_transfer_vocab": {
+  "raw_values": [
+   "adapt",
+   "fits",
+   "none",
+   "reference",
+   "reject",
+   "reject-as-is"
+  ],
+  "canonical": [
+   "adapt",
+   "fits",
+   "none",
+   "reference",
+   "reject"
+  ],
+  "noncanonical": [
+   "reject-as-is"
+  ]
+ },
+ "C4_line_pointer": {
+  "rows": 196,
+  "without_line": [
+   "lssfau/walberla | CI | .gitlab-ci.yml",
+   "espressomd/espresso | GPU 融合 kernel | src/walberla_bridge/src/lattice_boltzmann/generated_kernels/StreamColl",
+   "hietwll/LBM_Taichi | NEW:ghia-1982-cavity-validation-data | data/ghia1982.dat",
+   "pylbm/pylbm | NEW:test-organization | tests/test_*.py, tests/baseline/, tests/reference/",
+   "joconnor22/LIFE | test-verification-surface | testing/run-tests.sh, testing/store-ref-data.sh",
+   "espressomd/espresso | 测试与验证面 | testsuite/python/lb_poiseuille.py, testsuite/python/lb_couette_xy.py, "
+  ],
+  "coverage": "96.9%"
+ },
+ "C5_repo_coverage": {
+  "inventoried": 29,
+  "with_solutions": 24,
+  "ratio": "82.8%",
+  "missing": [
+   "Autodesk/XLB",
+   "JuliusWeinmiller/ThermalMultiphaseOpenLB",
+   "UvaCsl/HemoCell",
+   "geoelements/mcmp-lbm",
+   "hemelb-codes/hemelb",
+   "openLB/openLB"
+  ]
+ },
+ "C6_family_size": {
+  "F01": 18,
+  "F02": 3,
+  "F03": 8,
+  "F04": 6,
+  "F05": 7,
+  "F06": 5,
+  "F07": 18,
+  "F08": 14,
+  "F09": 16,
+  "F10": 16,
+  "F11": 21,
+  "F12": 7,
+  "F13": 5,
+  "F14": 6,
+  "F15": 9,
+  "F16": 6
+ },
+ "C7_fits_vs_license": {
+  "fits_total": 46,
+  "fits_on_permissive": 25,
+  "fits_on_copyleft_or_restricted": 21,
+  "copyable_rows": 25,
+  "share_of_all_rows": "12.8%",
+  "detail": [
+   "omalaspinas/palabos|CI|format-gate-ccache-matrix-ci|copyleft-strong(AGPL)",
+   "lssfau/lbmpy|GAP-LBM-MCMP-POISEUILLE|shan-chen-mcmp-barycentric-guo|copyleft(GPL)",
+   "je-santos/MPLBM-UT|NEW: 准静态排驱压力阶梯 + 断点续算协议|quasi-static-pc-ladder-with-checkpoint|copyleft(GPL)",
+   "joconnor22/LIFE|NEW:CAP-LBM-VALIDATION-SURFACE|bitwise-refdata-regression-plus-benchmark-cases|copyleft(GPL)",
+   "ebinan92/Fingering_dynamics|NEW:GAP-LBM-PHASEFIELD-FREEENERGY|free-energy-cahn-hilliard-core|no-license",
+   "ebinan92/Fingering_dynamics|NEW:GAP-LBM-WETTING-DIFFUSE|diffuse-interface-wetting-via-wall-order-parameter|no-license",
+   "joconnor22/LIFE|NEW:LBM-IBM-MDF-STENCIL|ibm-epsilon-gram-implicit-correction|copyleft(GPL)",
+   "hietwll/LBM_Taichi|NEW:ghia-1982-cavity-validation-data|ghia-1982-lid-cavity-reference|no-license",
+   "ProjectPhysX/FluidX3D|NEW:动量交换固体受力面(阻力/扭矩)|momentum-exchange-solid-force-and-torque|restricted",
+   "lssfau/lbmpy|NEW:案例组织（单点配置对象 + 场景工厂）|lbmconfig-single-point-config|copyleft(GPL)",
+   "lssfau/lbmpy|NEW:测试与验证面（逐点参考回归 + 解析解 + 符号 Chapman-Enskog）|pointwise-reference-regression|copyleft(GPL)",
+   "joconnor22/LIFE|test-verification-surface|regression-test-framework|copyleft(GPL)",
+   "je-santos/MPLBM-UT|案例组织|yml-driven-xml-template-pipeline|copyleft(GPL)",
+   "lssfau/walberla|案例组织|apps-4layer-plus-prm-plus-scenario-class|copyleft(GPL)",
+   "omalaspinas/palabos|案例组织|examples-taxonomy|copyleft-strong(AGPL)",
+   "ProjectPhysX/FluidX3D|测试与验证面|analytic-anchored-in-situ-l2-convergence|restricted",
+   "omalaspinas/palabos|测试与验证面|plb-regression-flag-asan|copyleft-strong(AGPL)",
+   "sailfish-team/sailfish|测试与验证面|analytic-profile-error-curve-plus-golden-fields|copyleft-weak(LGPL)",
+   "omalaspinas/palabos|稀疏 / 多孔|partial-bounce-back-porous|copyleft-strong(AGPL)",
+   "je-santos/MPLBM-UT|稀疏/多孔|edt-two-segment-geometry-tag-compression|copyleft(GPL)",
+   "omalaspinas/palabos|自由面|thuerey-mass-tracking-free-surface|copyleft-strong(AGPL)"
+  ]
+ }
+}
