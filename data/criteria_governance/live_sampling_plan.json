@@ -1,0 +1,223 @@
+{
+  "schema": "criteria-governance/live-sampling-plan/v1",
+  "note": "现网判据抽样计划：文件与符号名是**数据**（领域出处只以字符串形式注入），机制代码零领域语义。抽样对象=平台里已经生效的数值验收阈值常量；source_type 由取证窗口内的 DOI/标准/标定措辞程序化判定，证据不足一律 heuristic（不可裁）。",
+  "sources": [
+    {
+      "path": "tools/verifier/geometry_audit.py",
+      "symbols": [
+        "TOL_HARD",
+        "TOL_TIGHT"
+      ]
+    },
+    {
+      "path": "tools/validation/references_stdmodels.py",
+      "symbols": [
+        "TOL_PASS",
+        "TOL_REJECT",
+        "TOL_DENSITY_WARN",
+        "MODEL_SCALE_LPP_MAX"
+      ]
+    },
+    {
+      "path": "tools/verify/propeller_open_water/bem_benchmark.py",
+      "symbols": [
+        "GATE_PLATFORM_PCT",
+        "GATE_PAPER_PCT"
+      ]
+    },
+    {
+      "path": "tools/verify/propeller_open_water/audit_bem_vs_bseries.py",
+      "symbols": [
+        "TOL_PCT"
+      ]
+    },
+    {
+      "path": "tools/verify/seakeeping/crosspath_adjudication.py",
+      "symbols": [
+        "THRESHOLD_PCT"
+      ]
+    },
+    {
+      "path": "tools/verify_digital_twin_surrogates.py",
+      "symbols": [
+        "THRESHOLD_PCT",
+        "R2_MIN",
+        "SPEEDUP_MIN"
+      ]
+    },
+    {
+      "path": "tools/vv/reference_registry.py",
+      "symbols": [
+        "DEFAULT_GATE_TOL",
+        "DEFAULT_MIN_COVERAGE"
+      ]
+    },
+    {
+      "path": "tools/evidence/backlog_extraction/dedup.py",
+      "symbols": [
+        "SEM_THRESHOLD",
+        "NEAR_THRESHOLD"
+      ]
+    },
+    {
+      "path": "tools/external_validity/acceptance.py",
+      "symbols": [
+        "MIN_BIN_N",
+        "INFLATION_MIN_DAY_N"
+      ]
+    },
+    {
+      "path": "tools/evaluation_ops/intervention_trials.py",
+      "symbols": [
+        "NEGATIVE_CONTROL_MIN",
+        "MAX_ABS_COHEN_D",
+        "MIN_SAMPLE_PER_ARM"
+      ]
+    },
+    {
+      "path": "tools/coordinator_shadow/maturation.py",
+      "symbols": [
+        "TARGET_MATCH_RATE"
+      ]
+    },
+    {
+      "path": "tools/criteria_governance/maturity.py",
+      "symbols": [
+        "GATE_THRESHOLD"
+      ]
+    },
+    {
+      "path": "tools/diversity/roster.py",
+      "symbols": [
+        "MIN_FAMILIES",
+        "MIN_FRAMINGS"
+      ]
+    },
+    {
+      "path": "backend/services/benchmark_canon.py",
+      "symbols": [
+        "TOL_IDENTITY",
+        "TOL_FROUDE",
+        "TOL_DISPLACEMENT"
+      ]
+    },
+    {
+      "path": "backend/services/ship_proxy.py",
+      "symbols": [
+        "POLICY_MAX_TOLERANCE_PCT"
+      ]
+    },
+    {
+      "path": "backend/services/reference_recovery.py",
+      "symbols": [
+        "ACCURACY_GATE_PCT"
+      ]
+    },
+    {
+      "path": "backend/services/ship_hydrostatics.py",
+      "symbols": [
+        "CB_MIN"
+      ]
+    },
+    {
+      "path": "tools/scorer_guard/score.py",
+      "symbols": [
+        "E_MAX_DEFAULT",
+        "UNIT_DECADE_TOL"
+      ]
+    },
+    {
+      "path": "tools/ref_probe_8001.py",
+      "symbols": [
+        "BEM_RAO_MIN_POINTS",
+        "BEM_RAO_MIN_POINTWISE_REL",
+        "BEM_RAO_MAX_CORRELATION",
+        "BEM_RAO_MIN_PEAK_SHIFT_REL"
+      ]
+    },
+    {
+      "path": "tools/structure_audit/criteria.py",
+      "symbols": [
+        "PHYSICAL_UTIL_MAX"
+      ]
+    },
+    {
+      "path": "tools/verifier/propeller_bseries_benchmark.py",
+      "symbols": [
+        "PRIMARY_TOL",
+        "SECONDARY_TOL"
+      ]
+    },
+    {
+      "path": "tools/gen_ref_anchors.py",
+      "symbols": [
+        "TOL_10KQ",
+        "TOL_RT_KVLCC2",
+        "TOL_RT_KCS"
+      ]
+    },
+    {
+      "path": "tools/probe_open_water_debt.py",
+      "symbols": [
+        "IDENTITY_TOL_PCT"
+      ]
+    },
+    {
+      "path": "tools/ops/stability_gz_benchmark.py",
+      "symbols": [
+        "TOL_PCT"
+      ]
+    },
+    {
+      "path": "tools/gci/core.py",
+      "symbols": [
+        "FS_THREE_GRID"
+      ],
+      "comparators": {
+        "FS_THREE_GRID": ">="
+      }
+    },
+    {
+      "path": "tools/audit/baseline_integrity.py",
+      "symbols": [
+        "MIN_FORM_FACTOR"
+      ],
+      "comparators": {
+        "MIN_FORM_FACTOR": ">="
+      }
+    },
+    {
+      "path": "tools/audit/structure_deploy_drift_audit.py",
+      "symbols": [
+        "SIGMA_PERM_IACS"
+      ],
+      "comparators": {
+        "SIGMA_PERM_IACS": "<="
+      }
+    },
+    {
+      "path": "tools/verifier/mmg_zigzag_anchor.py",
+      "symbols": [
+        "RATE_DPS"
+      ],
+      "comparators": {
+        "RATE_DPS": "<="
+      }
+    },
+    {
+      "path": "backend/services/digital_twin/models/fatigue.py",
+      "symbols": [
+        "HS_IACS"
+      ],
+      "comparators": {
+        "HS_IACS": "<="
+      }
+    }
+  ],
+  "provenance_patterns": {
+    "note": "出处取证的正则词表（数据，不在代码里）：DOI 前缀、标准/规范编号族、经验标定措辞。改这里等于改取证口径。",
+    "doi": "10\\.\\d{4,9}/[^\\s,;)\"'`]+",
+    "standard": "(?:ITTC(?:[\\s-]?\\d+(?:-\\d+)*)?|ISO\\s?\\d{3,5}|IEC\\s?\\d{3,5}|IACS(?:\\s?UR\\s?[A-Z]\\d+)?|GB/?T\\s?\\d{3,5}|ASTM\\s?[A-Z]-?\\d+|API\\s?(?:RP|Spec)\\s?\\d+)",
+    "empirical": "(?:calibrat|measured|measurement|fitted|fit[- ]to|regression|observation|empirical|实测|拟合|标定)"
+  }
+}
