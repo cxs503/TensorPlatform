@@ -1,0 +1,177 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorplatform.local/schemas/threshold_registry.schema.json",
+  "title": "验收阈值口径注册表（threshold registry）",
+  "description": "每条验收阈值必须带：出处（source_type + source_ref 指针）、依赖量（depends_on 的 param/exponent）、可选的 C·h^p 重推导表达式（derivation）、复核日期，以及显式的可裁/不可裁判定（decidable）。零领域语义：本契约只谈量、比较符与依赖，不谈任何具体领域对象；领域语义只能出现在 source_ref 字符串里。",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "criteria"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "threshold-registry/1.0"
+    },
+    "purpose": {
+      "type": "string",
+      "description": "注释类字段，不参与语义指纹"
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "$ref": "#/$defs/criterion"
+      }
+    },
+    "harvest": {
+      "type": "object",
+      "description": "入册溯源（不参与语义指纹）：抽样种子与候选分布，供审计重放",
+      "additionalProperties": true
+    }
+  },
+  "$defs": {
+    "criterion": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": [
+        "criterion_id",
+        "quantity",
+        "comparator",
+        "threshold",
+        "source_type",
+        "source_ref",
+        "depends_on",
+        "review_date",
+        "decidable"
+      ],
+      "properties": {
+        "criterion_id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_.:/#-]{2,120}$",
+          "description": "全局唯一判据 id（小写）"
+        },
+        "quantity": {
+          "type": "string",
+          "minLength": 1,
+          "description": "被裁的量（自由文本，禁领域词；用于人去读，机器只保证非空）"
+        },
+        "comparator": {
+          "enum": [
+            "<=",
+            ">=",
+            "<",
+            ">",
+            "==",
+            "!="
+          ],
+          "description": "量·比较符·阈值 构成可判真假的断言"
+        },
+        "threshold": {
+          "type": "number",
+          "description": "阈值本体；若给 derivation，则必须等于表达式在 reference_h 处的取值"
+        },
+        "source_type": {
+          "enum": [
+            "analytic",
+            "literature",
+            "standard",
+            "empirical",
+            "heuristic"
+          ],
+          "description": "出处类别：解析界 / 文献 / 规范条款 / 实测标定 / 拍脑袋。后两类一律不可裁"
+        },
+        "source_ref": {
+          "type": "string",
+          "minLength": 1,
+          "pattern": "^[^#]+#sha256:[0-9a-f]{8,64}#.+$",
+          "description": "出处指针：<仓内相对路径>#sha256:<hex>#<指针>（JSON Pointer / 符号名 / 探针 id）。指针腐烂或 sha 不符即失去『有来源』资格"
+        },
+        "source_note": {
+          "type": "string",
+          "description": "注释类字段：出处的自然语言说明，不参与语义指纹"
+        },
+        "depends_on": {
+          "type": "array",
+          "description": "依赖量与指数：阈值 = f(h^p, N, ε, …)",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": [
+              "param",
+              "exponent"
+            ],
+            "properties": {
+              "param": {
+                "enum": [
+                  "h",
+                  "p",
+                  "N",
+                  "eps",
+                  "none"
+                ],
+                "description": "h=网格/步长分辨率，p=阶数，N=统计样本数，eps=相对容差，none=不依赖任何量（常数阈值，须显式承认）"
+              },
+              "exponent": {
+                "type": "number",
+                "description": "该依赖量的幂次（none 类固定为 0）"
+              }
+            }
+          }
+        },
+        "derivation": {
+          "description": "重推导表达式 C·h^p（null 表示不可派生）",
+          "oneOf": [
+            {
+              "type": "null"
+            },
+            {
+              "type": "object",
+              "additionalProperties": false,
+              "required": [
+                "expression",
+                "coefficient",
+                "reference_h"
+              ],
+              "properties": {
+                "expression": {
+                  "type": "string",
+                  "description": "只允许 + - * / ** 与括号、常量 C、变量 h 的表达式，例如 C*h**2"
+                },
+                "coefficient": {
+                  "type": "number",
+                  "description": "常数 C 的取值（解析界常数，必须能由 source_ref 复核）"
+                },
+                "reference_h": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "标定 threshold 的参考分辨率；threshold 必须等于表达式在此处的取值"
+                }
+              }
+            }
+          ]
+        },
+        "probe": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "description": "合成算子探针 id（tools/criteria/probes.py）。给了探针，派生一致性与同义反复检测才能实测"
+        },
+        "decidable": {
+          "type": "boolean",
+          "description": "显式可裁标注。必须与引擎判定一致：heuristic/empirical/无出处/同义反复 ⇒ 必须为 false"
+        },
+        "notes": {
+          "type": "string",
+          "description": "注释类字段，不参与语义指纹"
+        },
+        "review_date": {
+          "type": "string",
+          "pattern": "^\\d{4}-\\d{2}-\\d{2}$",
+          "description": "上次复核日期（ISO-8601，UTC 日历日）"
+        }
+      }
+    }
+  }
+}
