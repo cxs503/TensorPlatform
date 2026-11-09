@@ -491,6 +491,15 @@ from api import review_budget as _review_budget  # noqa: E402
 
 app.include_router(_review_budget.router, prefix="/api/v1")
 
+# ── 提案→战役播种供给链机器门（契约 / 去重 / 覆盖率账本，零领域语义）──
+try:
+    from api import proposal_gate as _proposal_gate  # noqa: E402
+
+    app.include_router(_proposal_gate.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("proposal_gate router 接线跳过: %s", _exc)
+
+
 # ── 多保真级联打分器（IN59-N10，m6604）──
 # Low→Medium→High fidelity cascade with physics-consistency gates and
 # budget-adaptive sampling.  Addresses wall_exhausted failure mode
