@@ -105,9 +105,30 @@
       }
     ]
   },
+  "binary": {
+    "enabled": true,
+    "max_bytes": 5242880,
+    "allow_globs": [
+      "artifacts/**",
+      "data/**",
+      "**/*.png",
+      "**/*.jpg",
+      "**/*.jpeg",
+      "**/*.gif",
+      "**/*.pdf",
+      "**/*.woff",
+      "**/*.woff2",
+      "**/*.ttf"
+    ],
+    "case_sensitive": true
+  },
   "output": {
     "max_excerpt_chars": 60,
     "redact_keep_prefix": 4,
     "max_violations_per_file": 50
+  },
+  "ledger": {
+    "enabled": true,
+    "path": "runs/write_gate/events.jsonl"
   }
 }

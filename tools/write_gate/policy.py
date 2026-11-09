@@ -51,7 +51,17 @@ DEFAULTS: Dict[str, Any] = {
         },
         "rules": [],
     },
+    "binary": {
+        "enabled": True,
+        "max_bytes": 5 * 1024 * 1024,  # 5 MB
+        "allow_globs": ["artifacts/**", "data/**", "*.png", "*.jpg", "*.gif", "*.pdf"],
+        "case_sensitive": True,
+    },
     "output": {"max_excerpt_chars": 60, "redact_keep_prefix": 4, "max_violations_per_file": 50},
+    "ledger": {
+        "enabled": True,
+        "path": "runs/write_gate/events.jsonl",
+    },
 }
 
 
@@ -90,6 +100,11 @@ def _validate(cfg: Dict[str, Any]) -> None:
         raise WriteGateError("bad_max_excerpt_chars")
     if cfg["whitelist"]["treat_deny_as"] not in ("cross_repo", "whitelist"):
         raise WriteGateError("bad_treat_deny_as")
+    # binary 组校验
+    bin_cfg = cfg.get("binary", {})
+    if isinstance(bin_cfg, dict) and bin_cfg.get("enabled", False):
+        if not isinstance(bin_cfg.get("max_bytes"), (int, float)) or bin_cfg["max_bytes"] <= 0:
+            raise WriteGateError("bad_binary_max_bytes")
 
 
 def load_policy(path: Optional[str | Path] = None,
