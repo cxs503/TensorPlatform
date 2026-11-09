@@ -1,0 +1,1252 @@
+{
+ "metadata": {
+  "scenario_key": "oss-fvm-disc",
+  "mission_id": 8666,
+  "created": "2026-11-09",
+  "protocol_basis": "m8638 oss-sph-disc (same schema/tiering discipline)",
+  "method": "GitHub search API: 10 thematic queries + 24 repo:owner/name detail lookups + 6 in:name recovery probes; raw payloads persisted in artifacts/oss-fvm/raw/; unique candidate pool 420 repos; curated 34 repos after quality filter (no forks, substantive code, FVM/FV-adjacent).",
+  "selection_criteria": [
+   "tier1: complete production FV/DG solver with flux-scheme library, order-control, AMR or hybrid DG path",
+   "tier2: differentiable / generic PDE framework family",
+   "tier3: specialised capability layer (adjoint, ROM, physics add-on, tooling)"
+  ],
+  "tier_legend": {
+   "1": "完整求解器 (flux schemes / order / AMR / hybrid DG)",
+   "2": "可微/框架族 (differentiable or generic PDE framework)",
+   "3": "专项能力 (adjoint, ROM, niche physics, tooling)"
+  },
+  "capability_basis_legend": {
+   "D": "asserted in repo description/topics (API payload)",
+   "E": "domain-knowledge assertion, not in payload"
+  },
+  "focus_tags": [
+   "AMR",
+   "AMR-AMRClaw",
+   "AMR-block",
+   "C++-library",
+   "DMD",
+   "FSI-coupling",
+   "FVM-unstructured",
+   "FW-H",
+   "Fortran",
+   "GPU",
+   "GPU-CUDA",
+   "GPU-CUDA-OpenCL-HIP",
+   "GPU-offload",
+   "JAX",
+   "Julia",
+   "LLM-agent",
+   "MDO",
+   "ML-data-pipeline",
+   "ML-integration",
+   "MPI",
+   "MPI-GPU",
+   "OpenFOAM-addon",
+   "OpenFOAM-fork",
+   "POD",
+   "POD-Galerkin",
+   "Python",
+   "Python-API",
+   "Python-Fortran",
+   "Python-coupling",
+   "Python-frontend",
+   "Python-postprocessing",
+   "ROM",
+   "Riemann-solvers",
+   "Taichi-TensorFlow-PyTorch-JAX",
+   "WENO",
+   "actuator-line",
+   "adjoint-shape-opt",
+   "advection-schemes",
+   "aeroacoustics",
+   "automation",
+   "block-structured-AMR",
+   "block-structured-AMR-framework",
+   "blockMesh",
+   "case-generation",
+   "case-management",
+   "compressible",
+   "compressible-FV",
+   "coupled-solvers",
+   "detonation",
+   "differentiable",
+   "differentiable-Enzyme",
+   "differentiable-FV",
+   "differentiable-PDE-framework",
+   "discrete-adjoint",
+   "dynamic-AMR",
+   "exascale",
+   "finite-volume-primitives",
+   "flux-schemes-library",
+   "foaming-flows",
+   "generic-FVM-PDE-framework",
+   "geometry-automation",
+   "high-order-DG",
+   "high-order-FR-DG",
+   "high-resolution-Godunov",
+   "hybrid-FV-DG",
+   "hyperbolic-FV",
+   "hypersonic",
+   "immersed-boundary",
+   "implicit",
+   "in-situ-analysis",
+   "incompressible+compressible",
+   "incompressible-FV",
+   "inverse-design",
+   "large-eddy-simulation",
+   "level-set-multiphase",
+   "matrix-free",
+   "meshing",
+   "moving-bodies",
+   "multigrid",
+   "multiphase",
+   "multiphase-Lagrangian",
+   "multiphase-VOF",
+   "multiphysics",
+   "multiphysics-coupling",
+   "non-Newtonian",
+   "ocean-circulation",
+   "openFOAM-addon",
+   "openFOAM-fork",
+   "openFOAM-library",
+   "openFOAM-toolbox",
+   "openFOAM-tooling",
+   "operator-splitting",
+   "polyhedral",
+   "porous-media",
+   "preCICE-adapter",
+   "projection-method",
+   "rarefied-gas",
+   "real-time-aero",
+   "reduced-order-model",
+   "research-framework",
+   "shape-optimisation",
+   "shock-physics",
+   "signed-distance-field",
+   "sparse-linear-solver",
+   "spectral-FV",
+   "staggered-grid",
+   "structure-preserving",
+   "surface-tension",
+   "thermochemistry",
+   "turbulence-LES-RANS",
+   "unstructured-mesh",
+   "unstructured-mixed-mesh",
+   "variable-density",
+   "verification-suite",
+   "viscoelastic",
+   "well-balanced",
+   "wind-turbine"
+  ],
+  "candidate_pool_size": 420,
+  "queries": {
+   "thematic": [
+    "finite volume cfd",
+    "OpenFOAM",
+    "compressible flow solver",
+    "discontinuous galerkin cfd",
+    "adaptive mesh refinement fluid",
+    "jax cfd differentiable",
+    "incompressible navier stokes solver",
+    "cfd solver c++",
+    "cfd python",
+    "large eddy simulation solver",
+    "high order accurate cfd",
+    "shallow water finite volume",
+    "gpu cfd solver",
+    "adjoint optimization cfd",
+    "overset mesh cfd",
+    "combustion cfd solver"
+   ],
+   "named_repo_lookups": 34,
+   "recovery_probes": [
+    "Nektar++ in:name",
+    "nalu-wind in:name",
+    "Oceananigans in:name",
+    "foam-extend in:name",
+    "Basilisk in:name language:C",
+    "taichi fluid in:name,description"
+   ]
+  },
+  "stats": {
+   "by_tier": {
+    "1": 12,
+    "2": 6,
+    "3": 16
+   },
+   "by_lang": {
+    "C++": 15,
+    "Python": 10,
+    "Fortran": 1,
+    "Julia": 2,
+    "C": 4,
+    "Jupyter Notebook": 1,
+    "unknown": 1
+   },
+   "by_license": {
+    "NOASSERTION": 15,
+    "GPL-2.0": 1,
+    "BSD-3-Clause": 1,
+    "GPL-3.0": 7,
+    "MIT": 6,
+    "none/NOASSERTION": 2,
+    "Apache-2.0": 1,
+    "LGPL-3.0": 1
+   },
+   "capability_coverage": {
+    "flux_schemes": 23,
+    "high_order": 23,
+    "amr": 22,
+    "multiphase": 21,
+    "differentiable": 6,
+    "gpu_parallel": 19,
+    "adjoint_opt": 8,
+    "validation": 31
+   },
+   "total_repos": 34
+  }
+ },
+ "repositories": [
+  {
+   "repo": "OpenFOAM/OpenFOAM-dev",
+   "tier": 1,
+   "focus": [
+    "FVM-unstructured",
+    "polyhedral",
+    "flux-schemes-library",
+    "dynamic-AMR",
+    "multiphase-VOF",
+    "MPI"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 2297,
+   "last_commit": "2026-11-08",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2014-12-10",
+   "forks": 741,
+   "archived": false,
+   "api_description": "OpenFOAM Foundation development repository",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "D",
+    "gpu_parallel": "E",
+    "adjoint_opt": "E",
+    "validation": "E"
+   },
+   "summary": "Foundation development line of OpenFOAM: cell-centred FVM on arbitrary polyhedral meshes with a pluggable flux/limiter library (upwind..linearUpwind, limited schemes), dynamicRefineFvMesh AMR, VOF/Lagrangian multiphase, MPI domain decomposition. Reference implementation for the whole OpenFOAM family and the de-facto engineering baseline for ship hydrodynamics cases."
+  },
+  {
+   "repo": "su2code/SU2",
+   "tier": 1,
+   "focus": [
+    "compressible-FV",
+    "hybrid-FV-DG",
+    "Riemann-solvers",
+    "adjoint-shape-opt",
+    "unstructured-mesh",
+    "MPI"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 1855,
+   "last_commit": "2026-11-07",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2013-06-28",
+   "forks": 1026,
+   "archived": false,
+   "api_description": "SU2: An Open-Source Suite for Multiphysics Simulation and Design",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "E",
+    "gpu_parallel": "E",
+    "adjoint_opt": "D",
+    "validation": "D"
+   },
+   "summary": "SU2 multiphysics suite: unstructured compressible FV solver (Roe/AUSM/HLLC family Riemann solvers, MUSCL limiters) with an available high-order DG/FEM path in the same code base, discrete+continuous adjoint for shape optimisation, MPI. Closest single OSS reference for a FV<->DG hybrid interface."
+  },
+  {
+   "repo": "CliMA/Oceananigans.jl",
+   "tier": 1,
+   "focus": [
+    "incompressible-FV",
+    "staggered-grid",
+    "GPU-CUDA",
+    "Julia",
+    "ocean-circulation",
+    "large-eddy-simulation"
+   ],
+   "lang": "Julia",
+   "license": "MIT",
+   "stars": 1449,
+   "last_commit": "2026-11-09",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2018-10-13",
+   "forks": 308,
+   "archived": false,
+   "api_description": "🌊  Julia software for fast, friendly, flexible, ocean-flavored fluid dynamics on CPUs and GPUs",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "E",
+    "gpu_parallel": "D",
+    "adjoint_opt": "E",
+    "validation": "D"
+   },
+   "summary": "Oceananigans.jl: incompressible Boussinesq FV on staggered grids in Julia, runs the same code on CPU and GPU; production ocean modelling (CliMA) with documented LES/validation cases - the most active GPU-FV reference outside the OpenFOAM ecosystem."
+  },
+  {
+   "repo": "WaterLily-jl/WaterLily.jl",
+   "tier": 1,
+   "focus": [
+    "incompressible-FV",
+    "immersed-boundary",
+    "GPU",
+    "Julia",
+    "differentiable-Enzyme"
+   ],
+   "lang": "Julia",
+   "license": "NOASSERTION",
+   "stars": 857,
+   "last_commit": "2026-11-08",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2020-06-19",
+   "forks": 116,
+   "archived": false,
+   "api_description": "Fast and simple fluid simulator in Julia",
+   "capabilities": {
+    "flux_schemes": "E",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "E",
+    "differentiable": "D",
+    "gpu_parallel": "D",
+    "validation": "D"
+   },
+   "summary": "WaterLily.jl: fast incompressible FV solver with immersed-boundary geometry and GPU execution in Julia; designed so the whole time step is differentiable (Enzyme AD), giving a minimal, readable FV kernel suitable as a verification/differentiation test bed."
+  },
+  {
+   "repo": "PyFR/PyFR",
+   "tier": 1,
+   "focus": [
+    "high-order-FR-DG",
+    "unstructured-mixed-mesh",
+    "GPU-CUDA-OpenCL-HIP",
+    "MPI",
+    "Python-frontend"
+   ],
+   "lang": "Python",
+   "license": "NOASSERTION",
+   "stars": 584,
+   "last_commit": "2026-11-09",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2013-01-16",
+   "forks": 240,
+   "archived": false,
+   "api_description": "PyFR",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "E",
+    "gpu_parallel": "D",
+    "validation": "D"
+   },
+   "summary": "PyFR: high-order flux-reconstruction / DG solver for advection-diffusion systems on mixed unstructured meshes with pluggable GPU back-ends (CUDA/OpenCL/HIP) and MPI; the reference OSS demonstration that high-order accuracy and GPU throughput coexist."
+  },
+  {
+   "repo": "cselab/aphros",
+   "tier": 1,
+   "focus": [
+    "incompressible-FV",
+    "multiphase",
+    "surface-tension",
+    "AMR-block",
+    "foaming-flows"
+   ],
+   "lang": "C++",
+   "license": "MIT",
+   "stars": 463,
+   "last_commit": "2026-10-26",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2020-01-08",
+   "forks": 53,
+   "archived": false,
+   "api_description": "Finite volume solver for incompressible multiphase flows with surface tension. Foaming flows in complex geometries.",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "D",
+    "multiphase": "D",
+    "gpu_parallel": "E",
+    "validation": "D"
+   },
+   "summary": "Aphros: FV solver for incompressible multiphase flows with surface tension (foaming flows in complex geometry), block-structured AMR and MPI; VOF/level-set style interface handling with published Taylor-Couette / foam validation."
+  },
+  {
+   "repo": "code-saturne/code_saturne",
+   "tier": 1,
+   "focus": [
+    "FVM-unstructured",
+    "polyhedral",
+    "AMR",
+    "multiphase-Lagrangian",
+    "turbulence-LES-RANS",
+    "MPI"
+   ],
+   "lang": "C++",
+   "license": "GPL-2.0",
+   "stars": 312,
+   "last_commit": "2026-11-09",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2018-04-03",
+   "forks": 105,
+   "archived": false,
+   "api_description": "code_saturne public mirror",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "D",
+    "gpu_parallel": "E",
+    "validation": "D"
+   },
+   "summary": "EDF code_saturne: collocated FVM on hybrid/polyhedral meshes with co-located velocity-pressure coupling, RANS/LES turbulence, Lagrangian multiphase (coal/pulverised fuel), mesh refinement and MPI parallelism; strong industrial-verification culture (EDF QA + validation test-suite)."
+  },
+  {
+   "repo": "clawpack/clawpack",
+   "tier": 1,
+   "focus": [
+    "hyperbolic-FV",
+    "high-resolution-Godunov",
+    "AMR-AMRClaw",
+    "well-balanced",
+    "Python-Fortran",
+    "verification-suite"
+   ],
+   "lang": "Python",
+   "license": "BSD-3-Clause",
+   "stars": 210,
+   "last_commit": "2026-11-05",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2012-04-19",
+   "forks": 105,
+   "archived": false,
+   "api_description": "Package for solving hyperbolic systems of partial differential equations",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "D",
+    "multiphase": "E",
+    "gpu_parallel": "E",
+    "validation": "D"
+   },
+   "summary": "Clawpack: high-resolution Godunov-type FV solvers for hyperbolic systems (Riemann solvers + wave propagation limiters), with AMRClaw (Berger-Colella AMR), GeoClaw shallow-water and a published verification suite; Python driver around Fortran kernels."
+  },
+  {
+   "repo": "exadg/exadg",
+   "tier": 1,
+   "focus": [
+    "high-order-DG",
+    "matrix-free",
+    "multigrid",
+    "incompressible+compressible",
+    "exascale",
+    "MPI"
+   ],
+   "lang": "C++",
+   "license": "GPL-3.0",
+   "stars": 194,
+   "last_commit": "2026-09-17",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2020-08-17",
+   "forks": 55,
+   "archived": false,
+   "api_description": "ExaDG - High-Order Discontinuous Galerkin for the Exa-Scale",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "E",
+    "gpu_parallel": "E",
+    "validation": "D"
+   },
+   "summary": "ExaDG: matrix-free high-order DG for incompressible/compressible flow, convection-diffusion and structure, built on deal.II; geometric+algebraic multigrid preconditioners targeted at exascale MPI runs."
+  },
+  {
+   "repo": "horses-framework/horses3d",
+   "tier": 1,
+   "focus": [
+    "high-order-DG",
+    "compressible",
+    "multiphysics",
+    "Fortran",
+    "MPI"
+   ],
+   "lang": "Fortran",
+   "license": "MIT",
+   "stars": 167,
+   "last_commit": "2026-11-06",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2021-01-21",
+   "forks": 31,
+   "archived": false,
+   "api_description": "HORSES3D: A high-order discontinuous Galerkin solver for flow simulations and multi-physics applications",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "E",
+    "gpu_parallel": "E",
+    "validation": "D"
+   },
+   "summary": "HORSES3D: high-order DG solver for compressible flow and multi-physics (Fortran, MPI); includes curved-element handling and shock-capturing strategies for high-order FV/DG comparisons."
+  },
+  {
+   "repo": "AMReX-Fluids/IAMR",
+   "tier": 1,
+   "focus": [
+    "incompressible-FV",
+    "block-structured-AMR",
+    "projection-method",
+    "variable-density",
+    "MPI-GPU"
+   ],
+   "lang": "C++",
+   "license": null,
+   "stars": 105,
+   "last_commit": "2026-10-13",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2017-05-04",
+   "forks": 101,
+   "archived": false,
+   "api_description": "A parallel, adaptive mesh refinement (AMR) code that solves the variable-density incompressible Navier-Stokes equations.",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "D",
+    "multiphase": "E",
+    "gpu_parallel": "D",
+    "validation": "D"
+   },
+   "summary": "IAMR (incflo): variable-density incompressible Navier-Stokes solver on the AMReX block-structured AMR framework (Berger-Colella), projection method with GPU offload; the canonical example of a production FV solver whose AMR machinery is a reusable library."
+  },
+  {
+   "repo": "Unofficial-Extend-Project-Mirror/foam-extend-foam-extend-4.0",
+   "tier": 1,
+   "focus": [
+    "FVM-unstructured",
+    "OpenFOAM-fork",
+    "coupled-solvers",
+    "immersed-boundary",
+    "multiphase-VOF"
+   ],
+   "lang": "C",
+   "license": "GPL-3.0",
+   "stars": 66,
+   "last_commit": "2022-09-16",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2016-12-26",
+   "forks": 53,
+   "archived": false,
+   "api_description": "Unofficial mirror of git://git.code.sf.net/p/foam-extend/foam-extend-4.0",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "D",
+    "gpu_parallel": "E",
+    "validation": "E"
+   },
+   "summary": "foam-extend 4.0 (community OpenFOAM fork, unofficial GitHub mirror): block-coupled solvers, immersed-boundary, VOF multiphase and extended fvSchemes library. Metadata shows the mirror is frozen since 2022 - capability reference only, not a live upstream."
+  },
+  {
+   "repo": "tum-pbs/PhiFlow",
+   "tier": 2,
+   "focus": [
+    "differentiable-PDE-framework",
+    "operator-splitting",
+    "advection-schemes",
+    "ML-integration",
+    "Taichi-TensorFlow-PyTorch-JAX"
+   ],
+   "lang": "Python",
+   "license": "MIT",
+   "stars": 1954,
+   "last_commit": "2026-07-16",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2019-12-04",
+   "forks": 236,
+   "archived": false,
+   "api_description": "A differentiable PDE solving framework for machine learning",
+   "capabilities": {
+    "flux_schemes": "E",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "E",
+    "differentiable": "D",
+    "gpu_parallel": "D",
+    "adjoint_opt": "D",
+    "validation": "D"
+   },
+   "summary": "ΦFlow: differentiable PDE solving framework with multiple advection schemes (semi-Lagrangian, Mac Cormack, BFECC), mesh and particle domains, and interchangeable TensorFlow/PyTorch/JAX/Taichi back-ends - the most widely used differentiable-FV stack."
+  },
+  {
+   "repo": "google/jax-cfd",
+   "tier": 2,
+   "focus": [
+    "differentiable-FV",
+    "JAX",
+    "spectral-FV",
+    "research-framework"
+   ],
+   "lang": "Jupyter Notebook",
+   "license": "Apache-2.0",
+   "stars": 968,
+   "last_commit": "2026-10-25",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2021-03-22",
+   "forks": 145,
+   "archived": false,
+   "api_description": "Computational Fluid Dynamics in JAX",
+   "capabilities": {
+    "flux_schemes": "E",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "E",
+    "differentiable": "D",
+    "gpu_parallel": "D",
+    "adjoint_opt": "D",
+    "validation": "D"
+   },
+   "summary": "jax-cfd: CFD research framework in JAX - incompressible FV/spectral solvers written as JIT-compiled, end-to-end differentiable programs; reference for autodiff-compatible FV operators."
+  },
+  {
+   "repo": "AMReX-Codes/amrex",
+   "tier": 2,
+   "focus": [
+    "block-structured-AMR-framework",
+    "C++-library",
+    "GPU-offload",
+    "MPI",
+    "finite-volume-primitives"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 830,
+   "last_commit": "2026-11-09",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2017-04-28",
+   "forks": 499,
+   "archived": false,
+   "api_description": "AMReX: Software Framework for Block Structured AMR",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "D",
+    "multiphase": "E",
+    "gpu_parallel": "D",
+    "validation": "D"
+   },
+   "summary": "AMReX: C++ framework providing block-structured AMR, mesh data, FV primitives, MPI+GPU parallelism and linear solvers, used by IAMR/PeleC/Nyx. Framework (not solver) - the reference design for AMR infrastructure a TensorFVM-style code would have to match."
+  },
+  {
+   "repo": "tumaer/JAXFLUIDS",
+   "tier": 2,
+   "focus": [
+    "compressible-FV",
+    "differentiable",
+    "WENO",
+    "level-set-multiphase",
+    "JAX"
+   ],
+   "lang": "Python",
+   "license": "NOASSERTION",
+   "stars": 667,
+   "last_commit": "2026-08-28",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2022-03-21",
+   "forks": 115,
+   "archived": false,
+   "api_description": "Differentiable Fluid Dynamics Package",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "D",
+    "amr": "E",
+    "multiphase": "D",
+    "differentiable": "D",
+    "gpu_parallel": "D",
+    "adjoint_opt": "D",
+    "validation": "D"
+   },
+   "summary": "JAX-Fluids: fully differentiable compressible FV solver in JAX with WENO reconstruction, HLLC/Riemann fluxes, level-set multiphase and immersed boundaries; closest OSS analogue of a differentiable high-order compressible FV core."
+  },
+  {
+   "repo": "usnistgov/fipy",
+   "tier": 2,
+   "focus": [
+    "generic-FVM-PDE-framework",
+    "Python",
+    "implicit",
+    "multiphysics-coupling"
+   ],
+   "lang": "Python",
+   "license": "NOASSERTION",
+   "stars": 647,
+   "last_commit": "2026-11-02",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2014-08-25",
+   "forks": 184,
+   "archived": false,
+   "api_description": "FiPy is a Finite Volume PDE solver written in Python",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "E",
+    "gpu_parallel": "E",
+    "validation": "D"
+   },
+   "summary": "FiPy: Python finite-volume PDE framework (cell-centred FV on structured/unstructured meshes) with implicit multiphysics coupling; the generic 'assembly + solve' reference for FV discretisation APIs, not a flow solver."
+  },
+  {
+   "repo": "arriemeijer-creator/AeroJAX",
+   "tier": 2,
+   "focus": [
+    "differentiable",
+    "structure-preserving",
+    "real-time-aero",
+    "inverse-design",
+    "JAX"
+   ],
+   "lang": "Python",
+   "license": "NOASSERTION",
+   "stars": 333,
+   "last_commit": "2026-10-07",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2026-03-27",
+   "forks": 36,
+   "archived": false,
+   "api_description": "AeroJAX: A differentiable, structure-preserving framework for real-time flow simulation, control, and inverse design. Architected for neural operator integration and latent-space acceleration. Built w",
+   "capabilities": {
+    "flux_schemes": "E",
+    "high_order": "E",
+    "differentiable": "D",
+    "gpu_parallel": "E",
+    "adjoint_opt": "D",
+    "validation": "E"
+   },
+   "summary": "AeroJAX: differentiable, structure-preserving aero framework for real-time flow simulation, control and inverse design; small-footprint example of AD-through-solver for aerodynamic design loops."
+  },
+  {
+   "repo": "SimFlowCFD/RapidCFD-dev",
+   "tier": 3,
+   "focus": [
+    "GPU-CUDA",
+    "openFOAM-fork",
+    "sparse-linear-solver"
+   ],
+   "lang": "C",
+   "license": "NOASSERTION",
+   "stars": 416,
+   "last_commit": "2025-04-18",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2015-02-12",
+   "forks": 109,
+   "archived": false,
+   "api_description": "RapidCFD is an OpenFOAM fork running fully on CUDA platform. Brought to you by",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "D",
+    "gpu_parallel": "D",
+    "validation": "E"
+   },
+   "summary": "RapidCFD: OpenFOAM fork with a fully CUDA sparse linear-solver / matrix path, i.e. an existing attempt to port a mature FVM stack to GPU; evidence of where GPU offload pays off in FV codes."
+  },
+  {
+   "repo": "mdolab/dafoam",
+   "tier": 3,
+   "focus": [
+    "discrete-adjoint",
+    "OpenFOAM-addon",
+    "MDO",
+    "shape-optimisation"
+   ],
+   "lang": "C",
+   "license": "NOASSERTION",
+   "stars": 367,
+   "last_commit": "2026-11-06",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2019-05-11",
+   "forks": 120,
+   "archived": false,
+   "api_description": "DAFoam: Discrete Adjoint with OpenFOAM for High-fidelity Multidisciplinary Design Optimization",
+   "capabilities": {
+    "differentiable": "E",
+    "adjoint_opt": "D",
+    "validation": "D"
+   },
+   "summary": "DAFoam: discrete adjoint + MDO layer on OpenFOAM giving analytic derivatives of CFD objectives (high-fidelity aerodynamic shape optimisation); reference for adjoint-based gradient verification."
+  },
+  {
+   "repo": "csml-rpi/Foam-Agent",
+   "tier": 3,
+   "focus": [
+    "LLM-agent",
+    "automation",
+    "openFOAM-tooling",
+    "case-generation"
+   ],
+   "lang": "Python",
+   "license": "MIT",
+   "stars": 364,
+   "last_commit": "2026-11-07",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2025-05-06",
+   "forks": 77,
+   "archived": false,
+   "api_description": "Foam-Agent: A large language model-based multi-agent framework for automating computational fluid dynamics workflows. Published in Computer Methods in Applied Mechanics and Engineering (CMAME).",
+   "capabilities": {
+    "validation": "E"
+   },
+   "summary": "Foam-Agent: LLM-based multi-agent framework automating CFD workflows on OpenFOAM (case setup, run, debug); evidence that case orchestration is emerging as a first-class engineering layer."
+  },
+  {
+   "repo": "synthetik-technologies/blastfoam",
+   "tier": 3,
+   "focus": [
+    "compressible",
+    "detonation",
+    "shock-physics",
+    "OpenFOAM-fork"
+   ],
+   "lang": "C",
+   "license": "NOASSERTION",
+   "stars": 314,
+   "last_commit": "2026-03-17",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2019-10-22",
+   "forks": 126,
+   "archived": false,
+   "api_description": "A CFD solver for multi-component compressible flow with application to high-explosive detonation, explosive safety and air blast",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "D",
+    "validation": "D"
+   },
+   "summary": "blastfoam: OpenFOAM-based multi-component compressible solver for detonation/blast and shock physics (explosive safety); reference for stiff compressible verification (Sod, Woodward-Colella)."
+  },
+  {
+   "repo": "hystrath/hyStrath",
+   "tier": 3,
+   "focus": [
+    "hypersonic",
+    "rarefied-gas",
+    "openFOAM-fork",
+    "thermochemistry"
+   ],
+   "lang": "C++",
+   "license": "GPL-3.0",
+   "stars": 279,
+   "last_commit": "2023-07-05",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2016-12-04",
+   "forks": 133,
+   "archived": false,
+   "api_description": "Hypersonic / Rarefied gas dynamics code developments (GPL-3.0)",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "validation": "E"
+   },
+   "summary": "hyStrath: hypersonic / rarefied-gas extensions for OpenFOAM (thermochemical non-equilibrium, DSMC-like modules); niche-physics reference for high-Mach compressible FV."
+  },
+  {
+   "repo": "damogranlabs/classy_blocks",
+   "tier": 3,
+   "focus": [
+    "meshing",
+    "blockMesh",
+    "Python-API",
+    "geometry-automation"
+   ],
+   "lang": "Python",
+   "license": "MIT",
+   "stars": 234,
+   "last_commit": "2026-11-06",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2020-02-01",
+   "forks": 56,
+   "archived": false,
+   "api_description": "Python classes for easier creation of OpenFOAM's blockMesh dictionaries.",
+   "capabilities": {},
+   "summary": "classy_blocks: Python classes generating OpenFOAM blockMesh dictionaries (parametric hex meshing); reference for scriptable geometry->mesh pipelines."
+  },
+  {
+   "repo": "gerlero/foamlib",
+   "tier": 3,
+   "focus": [
+    "Python-API",
+    "case-management",
+    "openFOAM-tooling"
+   ],
+   "lang": "Python",
+   "license": "GPL-3.0",
+   "stars": 233,
+   "last_commit": "2026-11-05",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2024-03-18",
+   "forks": 34,
+   "archived": false,
+   "api_description": "✨ A modern Python package for interacting with OpenFOAM",
+   "capabilities": {},
+   "summary": "foamlib: modern Python package for interacting with OpenFOAM (case setup, execution, field I/O); reference for a Pythonic driver API over a C++ FVM solver."
+  },
+  {
+   "repo": "ITHACA-FV/ITHACA-FV",
+   "tier": 3,
+   "focus": [
+    "reduced-order-model",
+    "POD-Galerkin",
+    "OpenFOAM-addon"
+   ],
+   "lang": "C++",
+   "license": "LGPL-3.0",
+   "stars": 216,
+   "last_commit": "2026-11-06",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2017-11-08",
+   "forks": 110,
+   "archived": false,
+   "api_description": "Reduced order modelling techniques for OpenFOAM",
+   "capabilities": {
+    "validation": "D"
+   },
+   "summary": "ITHACA-FV: reduced-order modelling toolbox for OpenFOAM (POD/POD-DEIM Galerkin ROMs) with error/energy metrics; reference for ROM-based acceleration of FV campaigns."
+  },
+  {
+   "repo": "fppimenta/rheoTool",
+   "tier": 3,
+   "focus": [
+    "viscoelastic",
+    "non-Newtonian",
+    "openFOAM-fork"
+   ],
+   "lang": "C++",
+   "license": "GPL-3.0",
+   "stars": 215,
+   "last_commit": "2024-02-25",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2016-12-06",
+   "forks": 76,
+   "archived": false,
+   "api_description": "Toolbox to simulate GNF and viscoelastic fluid flows in OpenFOAM®",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "E",
+    "validation": "D"
+   },
+   "summary": "rheoTool: OpenFOAM toolbox for generalised Newtonian and viscoelastic flows (constitutive-model library + stabilised discretisation); reference for complex-rheology FV verification."
+  },
+  {
+   "repo": "ChenguangZhang/sdfibm",
+   "tier": 3,
+   "focus": [
+    "immersed-boundary",
+    "signed-distance-field",
+    "openFOAM-addon",
+    "moving-bodies"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 203,
+   "last_commit": "2025-06-23",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2019-06-18",
+   "forks": 64,
+   "archived": false,
+   "api_description": "Immersed boundary method empowered by signed distance field, and OpenFOAM.",
+   "capabilities": {
+    "validation": "D"
+   },
+   "summary": "sdfibm: immersed-boundary method driven by signed-distance-field geometry on OpenFOAM, for moving/complex bodies; reference for cut-cell/IBM alternative to body-fitted meshing."
+  },
+  {
+   "repo": "unicfdlab/libAcoustics",
+   "tier": 3,
+   "focus": [
+    "aeroacoustics",
+    "FW-H",
+    "openFOAM-library"
+   ],
+   "lang": null,
+   "license": null,
+   "stars": 187,
+   "last_commit": "2026-10-19",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2015-10-19",
+   "forks": 68,
+   "archived": false,
+   "api_description": "libAcoustics - OpenFOAM library for far-field noise computation",
+   "capabilities": {
+    "validation": "D"
+   },
+   "summary": "libAcoustics: OpenFOAM library for far-field noise computation (Ffowcs Williams-Hawkings analogy); reference for coupled CFD->acoustics post-processing validation."
+  },
+  {
+   "repo": "AndreWeiner/flowtorch",
+   "tier": 3,
+   "focus": [
+    "ROM",
+    "DMD",
+    "POD",
+    "Python-postprocessing"
+   ],
+   "lang": "Python",
+   "license": "GPL-3.0",
+   "stars": 182,
+   "last_commit": "2026-11-03",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2020-06-24",
+   "forks": 50,
+   "archived": false,
+   "api_description": "flowTorch - a Python library for analysis and reduced-order modeling of fluid flows",
+   "capabilities": {
+    "validation": "D"
+   },
+   "summary": "flowTorch: Python library for analysis and reduced-order modelling of fluid flows (POD/DMD/manifold learning) with OpenFOAM readers; reference for post-processing and ROM tooling."
+  },
+  {
+   "repo": "argonne-lcf/PythonFOAM",
+   "tier": 3,
+   "focus": [
+    "in-situ-analysis",
+    "Python-coupling",
+    "ML-data-pipeline",
+    "openFOAM-addon"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 181,
+   "last_commit": "2023-12-10",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2021-03-16",
+   "forks": 52,
+   "archived": false,
+   "api_description": "In-situ data analyses and machine learning with OpenFOAM and Python",
+   "capabilities": {},
+   "summary": "PythonFOAM: in-situ data analysis and machine learning coupled to OpenFOAM through Python (shared-memory coupling); reference for solver<->Python data exchange without file I/O."
+  },
+  {
+   "repo": "precice/openfoam-adapter",
+   "tier": 3,
+   "focus": [
+    "FSI-coupling",
+    "preCICE-adapter",
+    "multiphysics-coupling"
+   ],
+   "lang": "C++",
+   "license": "GPL-3.0",
+   "stars": 176,
+   "last_commit": "2026-09-14",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2017-11-26",
+   "forks": 120,
+   "archived": false,
+   "api_description": "OpenFOAM-preCICE adapter",
+   "capabilities": {
+    "validation": "D"
+   },
+   "summary": "openfoam-adapter: preCICE coupling adapter for OpenFOAM enabling partitioned FSI/conjugate heat transfer with other solvers; reference for solver-agnostic coupling interfaces."
+  },
+  {
+   "repo": "phorgue/porousMultiphaseFoam",
+   "tier": 3,
+   "focus": [
+    "porous-media",
+    "multiphase",
+    "openFOAM-toolbox"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 161,
+   "last_commit": "2026-09-22",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2014-06-23",
+   "forks": 64,
+   "archived": false,
+   "api_description": "A porous multiphase toolbox for OpenFOAM",
+   "capabilities": {
+    "flux_schemes": "D",
+    "high_order": "E",
+    "amr": "E",
+    "multiphase": "D",
+    "validation": "D"
+   },
+   "summary": "porousMultiphaseFoam: porous-media multiphase toolbox for OpenFOAM (Darcy/Richards/IMPCES solvers); reference for porous/ice-mushy analogue modelling."
+  },
+  {
+   "repo": "turbinesFoam/turbinesFoam",
+   "tier": 3,
+   "focus": [
+    "actuator-line",
+    "wind-turbine",
+    "openFOAM-addon"
+   ],
+   "lang": "C++",
+   "license": "NOASSERTION",
+   "stars": 159,
+   "last_commit": "2026-04-04",
+   "last_commit_source": "github_search_api:pushed_at",
+   "created": "2014-06-24",
+   "forks": 80,
+   "archived": false,
+   "api_description": "Actuator line modeling for OpenFOAM.",
+   "capabilities": {
+    "validation": "D"
+   },
+   "summary": "turbinesFoam: actuator-line/actuator-disk models for wind/marine turbines inside OpenFOAM; reference for body-force propulsion-representation modelling (propeller/rudder analogues)."
+  }
+ ],
+ "gaps": [
+  {
+   "id": "GAP-FVM-001",
+   "axis": "基准验证面",
+   "priority": "P0",
+   "need": "TensorFVM 缺统一的解析解/基准回归面（Sod 激波管、Ghia 顶盖驱动、Taylor-Green 涡、Martin-Moyce 溃坝、channel-flow log-law），无法把格式改动与精度退化绑定。",
+   "evidence_repos": [
+    "clawpack/clawpack",
+    "PyFR/PyFR",
+    "su2code/SU2",
+    "OpenFOAM/OpenFOAM-dev"
+   ],
+   "proposal": "建立 benchmarks/ 目录 + 每算例 YAML（网格/CFL/格式/参考值/容差），CI 上跑 1D/2D 小网格，回归判据用 L1/L2 相对误差阈值（<3%）与收敛阶斜率（实测阶 vs 理论阶 ±0.2）。",
+   "acceptance": "≥5 个算例入 CI，实测收敛阶与理论阶偏差 ≤0.2，基准量误差 <3%。"
+  },
+  {
+   "id": "GAP-FVM-002",
+   "axis": "通量格式/精度阶",
+   "priority": "P0",
+   "need": "Riemann 通量（Roe/HLLC/AUSM+/Godunov）与高阶重构（MUSCL/minmod-vanLeer、WENO5）需作为可插拔、可单测的组件；现状为黑箱或单一格式。",
+   "evidence_repos": [
+    "su2code/SU2",
+    "tumaer/JAXFLUIDS",
+    "clawpack/clawpack",
+    "OpenFOAM/OpenFOAM-dev"
+   ],
+   "proposal": "抽 flux/ 与 reconstruction/ 为纯函数（无全局状态），每个通量配一致性与对称性单测（F(U,U)=物理通量、旋转不变性、熵条件），再用 GAP-FVM-001 算例测精度阶。",
+   "acceptance": "≥4 通量 × ≥3 重构组合可插拔，单测全绿，WENO5 实测阶 ≥4.5。"
+  },
+  {
+   "id": "GAP-FVM-003",
+   "axis": "混合 DG/FV 界面",
+   "priority": "P1",
+   "need": "FV 与 DG 块的守恒界面（mortar/数值通量匹配、阶跃处精度不退化）在开源中主要由 SU2 的FV+DG 双路径与 PyFR/ExaDG/HORSES3D 的纯 DG 各自覆盖，缺可复用混合界面实现。",
+   "evidence_repos": [
+    "su2code/SU2",
+    "PyFR/PyFR",
+    "exadg/exadg",
+    "horses-framework/horses3d"
+   ],
+   "proposal": "先做 1D 两区块（左 FV 右 DG-p）守恒性单测：界面通量单一取值、总质量/动量守恒到机器精度；再做 2D 平板边界层混合网格验证。",
+   "acceptance": "界面通量唯一性单测通过，跨界面守恒误差 <1e-12（相对），算例与纯 FV 解差 <3%。"
+  },
+  {
+   "id": "GAP-FVM-004",
+   "axis": "HPC 扩展/AMR",
+   "priority": "P1",
+   "need": "块结构 AMR（Berger-Colella 嵌套 + 通量回插 + 荷载均衡）与 GPU offload 路径缺失，现有实现限于单层均匀网格/单卡。",
+   "evidence_repos": [
+    "AMReX-Codes/amrex",
+    "AMReX-Fluids/IAMR",
+    "clawpack/clawpack",
+    "PyFR/PyFR",
+    "SimFlowCFD/RapidCFD-dev"
+   ],
+   "proposal": "参照 AMReX 的分层数据结构实现两级 patch AMR 最小闭环（细化判据→通量回插→守恒检查），并在集群 loong64 双节点上测 weak/strong scaling（32→128 核）。",
+   "acceptance": "两级 AMR 质量/动量守恒误差 <1e-10，128 核并行效率 ≥70%（对照 32 核基线）。"
+  },
+  {
+   "id": "GAP-FVM-005",
+   "axis": "可微化",
+   "priority": "P0",
+   "need": "FV 内核需对设计变量可导（Riemann 通量与限幅器的自定义 VJP/隐函数微分），开源已有 JAX 栈（jax-cfd/PhiFlow/JAX-FLUIDS/AeroJAX）与 Enzyme 路线（WaterLily）可对标。",
+   "evidence_repos": [
+    "google/jax-cfd",
+    "tum-pbs/PhiFlow",
+    "tumaer/JAXFLUIDS",
+    "arriemeijer-creator/AeroJAX",
+    "WaterLily-jl/WaterLily.jl",
+    "mdolab/dafoam"
+   ],
+   "proposal": "以 1D Sod 与 2D 圆柱绕流为目标，实现（a）有限差分梯度 vs （b）离散伴随/AD 梯度的一致性测试：方向导数相对误差 <1e-6；再与 DAFoam 类伴随结果做交叉核对。",
+   "acceptance": "AD 与有限差分梯度相对误差 <1e-6（≥5 个方向），端到端反演 10 步内收敛。"
+  },
+  {
+   "id": "GAP-FVM-006",
+   "axis": "工程化",
+   "priority": "P1",
+   "need": "用例/网格/边界条件的声明式配置与 Python 驱动层（case 管理、场 I/O、批量参数扫描）缺失，导致基准回归与战役化批量计算难自动化。",
+   "evidence_repos": [
+    "gerlero/foamlib",
+    "damogranlabs/classy_blocks",
+    "csml-rpi/Foam-Agent",
+    "precice/openfoam-adapter"
+   ],
+   "proposal": "实现 config→case 生成器（YAML schema + 校验）与结果落盘规范（provenance: 输入/版本/网格哈希），对齐本平台证据纪律（零手抄、数字 SQL/文件溯源）。",
+   "acceptance": "1 份 YAML 生成可跑算例 + provenance 完整字段覆盖 100%，同一 case 二次运行结果位级可复现。"
+  },
+  {
+   "id": "GAP-FVM-007",
+   "axis": "多相/自由面验证",
+   "priority": "P1",
+   "need": "VOF/level-set 界面（表面张力、界面锐化）在多相溃坝/气泡上缺验证面；开源 aphros/OpenFOAM interFoam 提供对照基线。",
+   "evidence_repos": [
+    "cselab/aphros",
+    "OpenFOAM/OpenFOAM-dev",
+    "tumaer/JAXFLUIDS"
+   ],
+   "proposal": "引入 Martin-Moyce 2D 溃坝（含/不含障碍）与静水压平衡算例，判据：前沿位置相对误差、界面锐化度、质量守恒。",
+   "acceptance": "溃坝前沿位置与基准实验相对误差 <15%（工程可接受线），质量守恒误差 <1e-8。"
+  },
+  {
+   "id": "GAP-FVM-008",
+   "axis": "可微化/设计优化闭环",
+   "priority": "P2",
+   "need": "伴随/形状优化闭环（目标函数→梯度→几何更新）无端到端示例，无法证明可微化路线在工程目标上",
+   "evidence_repos": [
+    "mdolab/dafoam",
+    "arriemeijer-creator/AeroJAX",
+    "google/jax-cfd"
+   ],
+   "proposal": "以 2D 翼型/船体剖面阻力最小化为目标，串起 \"求解→梯度→参数更新\" 闭环，与有限差分核对。",
+   "acceptance": "目标函数单调下降 ≥80% 迭代，梯度与有限差分相对误差 <1e-4。"
+  },
+  {
+   "id": "GAP-FVM-009",
+   "axis": "GPU/异构后端",
+   "priority": "P2",
+   "need": "GPU 后端（CUDA/HIP/SYCL）与统一的 kernel 抽象缺失；PyFR 后端插件式设计、Oceananigans 的同码跨 CPU/GPU 是两条可借鉴路线。",
+   "evidence_repos": [
+    "PyFR/PyFR",
+    "CliMA/Oceananigans.jl",
+    "SimFlowCFD/RapidCFD-dev",
+    "AMReX-Codes/amrex"
+   ],
+   "proposal": "先做单卡 kernel 移植（通量+重构热点），用 roofline 分析确定瓶颈，再决定是否引入后端抽象层。",
+   "acceptance": "单卡热点 kernel 相对 CPU 单核加速 ≥10×，结果与 CPU 版相对误差 <1e-10。"
+  }
+ ]
+}
