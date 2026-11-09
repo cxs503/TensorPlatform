@@ -1,0 +1,160 @@
+{
+ "campaign": "osssph-w2",
+ "repo": "InteractiveComputerGraphics/SPlisHSPlasH",
+ "commit_sha": "dba6b26b9387ab6bdd187d6df0a7c9d490d03500",
+ "shell_counts": [
+  100,
+  1000,
+  10000,
+  100000
+ ],
+ "kernel_constants": {
+  "Cubic 3D": {
+   "dim": 3,
+   "source": "SPHKernels.h:31",
+   "m_k_power_of_R": 3,
+   "m_k_times_R_pow_q": 2.5464790894703255,
+   "textbook_sigma_times_2_pow_q": 2.5464790894703255,
+   "integrals": [
+    1.0,
+    1.0000000000000002,
+    1.0,
+    1.0
+   ],
+   "max_abs_error": 2.220446049250313e-16,
+   "constant_ratio_vs_textbook": 1.0
+  },
+  "Wendland C2 3D": {
+   "dim": 3,
+   "source": "SPHKernels.h:290",
+   "m_k_power_of_R": 3,
+   "m_k_times_R_pow_q": 3.3422538049298023,
+   "textbook_sigma_times_2_pow_q": 3.3422538049298023,
+   "integrals": [
+    1.000000000000969,
+    1.0,
+    1.0,
+    1.0
+   ],
+   "max_abs_error": 9.690026558928366e-13,
+   "constant_ratio_vs_textbook": 1.0
+  },
+  "Spiky 3D": {
+   "dim": 3,
+   "source": "SPHKernels.h:209",
+   "m_k_power_of_R": 6,
+   "m_k_times_R_pow_q": 4.7746482927568605,
+   "textbook_sigma_times_2_pow_q": 4.7746482927568605,
+   "integrals": [
+    1.00000000875,
+    1.000000000000875,
+    1.0000000000000002,
+    0.9999999999999999
+   ],
+   "max_abs_error": 8.750000057844431e-09,
+   "constant_ratio_vs_textbook": 1.0
+  },
+  "Cubic 2D": {
+   "dim": 2,
+   "source": "SPHKernels.h:479",
+   "m_k_power_of_R": 2,
+   "m_k_times_R_pow_q": 1.8189136353359467,
+   "textbook_sigma_times_2_pow_q": 1.8189136353359467,
+   "integrals": [
+    1.0000476257142856,
+    1.000000476191143,
+    1.0000000047619049,
+    1.000000000047619
+   ],
+   "max_abs_error": 4.762571428562623e-05,
+   "constant_ratio_vs_textbook": 1.0
+  },
+  "Wendland C2 2D": {
+   "dim": 2,
+   "source": "SPHKernels.h:562",
+   "m_k_power_of_R": 2,
+   "m_k_times_R_pow_q": 2.228169203286535,
+   "textbook_sigma_times_2_pow_q": 2.228169203286535,
+   "integrals": [
+    1.0000583435403751,
+    1.0000005833343542,
+    1.0000000058333336,
+    1.0000000000583336
+   ],
+   "max_abs_error": 5.834354037514977e-05,
+   "constant_ratio_vs_textbook": 1.0
+  }
+ },
+ "lattice_consistency": {
+  "smoothing": "regular cubic lattice, particle volume dx^3, R = 1, cubic spline kernel",
+  "offsets": [
+   [
+    0.37,
+    0.61,
+    0.29
+   ],
+   [
+    0.11,
+    0.83,
+    0.52
+   ],
+   [
+    0.73,
+    0.19,
+    0.41
+   ]
+  ],
+  "dx_per_support_radius": [
+   6.0,
+   8.0,
+   12.0,
+   16.0,
+   24.0,
+   32.0
+  ],
+  "interior_rho_over_rho0": [
+   1.000001900462921,
+   0.9999998111439988,
+   1.0000000077156106,
+   1.0000000059330827,
+   0.9999999997333218,
+   0.9999999997435376
+  ],
+  "interior_abs_error": [
+   1.900462921033963e-06,
+   1.8885600117091172e-07,
+   7.715610594871691e-09,
+   5.933082691811364e-09,
+   2.666782350502217e-10,
+   2.5646240686683086e-10
+  ],
+  "observed_orders_interior": [
+   8.025762371459958,
+   7.8865952596478825,
+   0.9131667452161176,
+   7.651105661703173,
+   0.13577741295248508
+  ],
+  "observed_orders_interior_note": "pairs whose both ends are above the float64 summation floor (~3e-10) are the meaningful ones",
+  "wall_point_height": 0.5,
+  "wall_rho_over_rho0": [
+   0.7242489474033609,
+   0.6711411941205911,
+   0.615515317570268,
+   0.5870130667938849,
+   0.558188843684075,
+   0.5436890114630635
+  ],
+  "wall_deficiency": [
+   0.2757510525966391,
+   0.32885880587940886,
+   0.384484682429732,
+   0.4129869332061151,
+   0.44181115631592505,
+   0.4563109885369365
+  ],
+  "note": "wall row = semi-infinite half space, i.e. the error a boundary model (Akinci2012 / Koschier2017 density maps / Bender2019 volume maps) has to compensate"
+ },
+ "all_constants_integrate_to_one": false,
+ "all_constants_match_textbook_for_R_equals_2h": true
+}
