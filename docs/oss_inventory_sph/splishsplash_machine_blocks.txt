@@ -1,0 +1,81 @@
+Canonical machine blocks for the SPlisHSPlasH deep-dive (m8650 / osssph-w2).
+Format = key:value, validated by tools/oss_inventory/machine_blocks.py --anchor-prefix GAP-SPH-
+(the campaign protocol asks for JSON blocks inside the report; this file carries the same
+records in the parser's canonical shape so both ingestion paths stay consistent).
+
+[OSS-INV]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+lang: C++
+license: MIT
+methods: WCSPH; PCISPH; PBF; IISPH; DFSPH (two-stage divergence+pressure); PF projective fluids; ICSPH implicit compressible; XSPH velocity filter
+multiphase: multi FluidModel with density-ratio rescaling (SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:177); no delta-SPH density diffusion anywhere in tree
+boundary: Akinci2012 (SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:186); Koschier2017 density maps (SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:194); Bender2019 volume maps default (SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:202); NoginaSellan2026 tube maps under USE_THIRD_PARTY_METHODS (SPlisHSPlasH/Simulation.h:173)
+gpu: no GPU solver kernel; OpenMP default ON (CMake/Common.cmake:75) + AVX kernels (CMake/Common.cmake:29-44); optional cuNSearch GPU neighbor search only (CMake/NeighborhoodSearch.cmake:11-17); no MPI
+summary: commit dba6b26b (2.19.1, 2026-10-28), 1959 stars, MIT; 7 pressure solvers + 4 boundary models with file:line evidence; validation surface is kernel unit tests (Tests/Kernel/KernelTests.cpp:44) plus 55 figure-level replicability scenes, with zero quantitative error data or convergence studies.
+[/OSS-INV]
+
+[OSS-SOL]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+slug: GAP-SPH-ISPH-CONVERGENCE
+tag: dfsph-two-stage-solver
+method: DFSPH splits each step into divergenceSolve then pressureSolve, each with its own maxIterations/maxError (0.1%% divergence, 0.01%% density) exposed as solver parameters; threshold conversion is eta = maxError*0.01*rho0.
+files: SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp:167, SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp:214, SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp:336, SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp:386
+conventions: maxError is given in percent; convergence test avg_density_err <= eta; velocity-stage and pressure-stage iterates are independent
+transfer: adapt
+evidence: MIT (LICENSE:1) so adaptation is allowed with attribution; solver structure only, no data assets copied
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+slug: GAP-SPH-WCSPH-VALIDATION
+tag: wcsph-tait-eos-adaptive-step
+method: WCSPH evaluates Tait EOS pressure with a density floor (density = max(density, density0)) and advances semi-implicitly; the adaptive step is a maximum-displacement criterion dt = cflFactor*0.4*(2*r_particle)/sqrt(max ||v + a*dt||^2), clamped to [1e-4, 5e-3].
+files: SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:106, SPlisHSPlasH/Simulation.cpp:499, SPlisHSPlasH/Simulation.cpp:502
+conventions: cflFactor default 0.5; no explicit sound-speed term, weakly-compressible stiffness is bounded only by the max step size
+transfer: adapt
+evidence: MIT library code; measured in this mission - regular-lattice density summation reaches |rho/rho0-1| = 1.9e-06 at dx=R/6, so lattice tests are not evidence (docs/oss_inventory_sph/splishsplash_kernel_check.json)
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+slug: GAP-SPH-FSI-BENCHMARK
+tag: boundary-handling-taxonomy
+method: Three boundary treatments share one branch site in every solver (Akinci2012 boundary-particle forces, Koschier2017 SDF density maps, Bender2019 volume maps, optional NoginaSellan2026 tube maps); the support-deficiency error they must compensate was measured here as rho/rho0 -> 0.544 at 0.5R from a wall.
+files: SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:186, SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:202, SPlisHSPlasH/TimeStep.cpp:181
+conventions: boundaryHandlingMethod default = Bender2019 (SPlisHSPlasH/Simulation.cpp:92); volume maps need a precomputed SDF from Discregrid
+transfer: adapt
+evidence: MIT library code; mesh assets under data/ are third-party provenance and stay reference-only
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+slug: GAP-SPH-MULTIPHASE
+tag: multiphase-density-ratio
+method: Multiple FluidModels carry independent density0 and the neighbour loop rescales density_j*rho0_i/rho0_j, giving density-contrast multiphase without changing the kernel; interface tension stays a separate SurfaceTension_* model.
+files: SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp:177, SPlisHSPlasH/Simulation.cpp:708, SPlisHSPlasH/FluidModel.h:84
+conventions: per-model rho0; neighbour density rescaled to the evaluating particle's reference density
+transfer: adapt
+evidence: MIT library code; scenes DoubleDamBreakMultiPhase.json / MultiPhaseColoring.json reproduce the setup
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+slug: GAP-SPH-GPU-SCALING
+tag: global-projection-cost-baseline
+method: Projective Fluids solves a global Poisson system each step with an AVX Cholesky solver and iteration tolerances, giving a CPU cost baseline for global versus local pressure solves; the repo has no GPU solver kernel, only an optional cuNSearch GPU neighbour search.
+files: SPlisHSPlasH/PF/TimeStepPF.cpp:246, SPlisHSPlasH/PF/TimeStepPF.cpp:259, CMake/NeighborhoodSearch.cmake:11
+conventions: solver tolerance drops to 1e-32 on the first iterations then 1e-10
+transfer: reference
+evidence: MIT; used as architecture/cost reference only, no GPU code to port
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: InteractiveComputerGraphics/SPlisHSPlasH
+slug: GAP-SPH-DELTA-SPH
+tag: icsph-weakly-compressible
+method: ICSPH implements an implicit compressible solver with a_ii = -rho0/lambda - dt^2*... including boundary terms, which is the closest in-tree reference for quantifying compressibility dissipation; the repo has no delta-SPH density-diffusion term.
+files: SPlisHSPlasH/ICSPH/TimeStepICSPH.cpp:99, SPlisHSPlasH/ICSPH/TimeStepICSPH.cpp:328, Changelog.txt:134
+conventions: lambda is a stiffness parameter (default 200000); comparison must state that delta-SPH is absent
+transfer: reference
+evidence: MIT; reference only because the delta-SPH correction itself is not implemented here
+[/OSS-SOL]

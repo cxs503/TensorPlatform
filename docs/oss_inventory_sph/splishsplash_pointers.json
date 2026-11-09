@@ -1,0 +1,475 @@
+{
+ "campaign": "osssph-w2",
+ "repo": "InteractiveComputerGraphics/SPlisHSPlasH",
+ "ref_requested": "master",
+ "commit_sha": "dba6b26b9387ab6bdd187d6df0a7c9d490d03500",
+ "n_claims": 63,
+ "n_failed": 0,
+ "file_sha256": {
+  "SPlisHSPlasH/Simulation.h": "11b319bc275771509aee50ee8d62d9d9fe7f411f1850b47b75f7be458e556275",
+  "SPlisHSPlasH/Simulation.cpp": "00432c136175186b8bd79b7a9a78de1437c1f6351aa60ede3cc29c623325d8c8",
+  "SPlisHSPlasH/TimeStep.cpp": "a41933ddb79940fbed3cea224d57341a70647d2541e11e63f4401561b8d21f5d",
+  "SPlisHSPlasH/FluidModel.h": "22406cd58080a706d9ca06021ac6d669fbba43a5f4d49793c6e763c582f18577",
+  "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp": "e109ea52118ff4281ccaa54407ff3919ae09e3f14143f6cf5a07b423797fa6bc",
+  "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp": "46197aff646e70c3e2e5533d8fc76b995477b4499b19a9976a21130675ac361b",
+  "SPlisHSPlasH/IISPH/TimeStepIISPH.cpp": "73aa9156450e8b875cf0e5afecd346abd09444324569561b36649ba88ec497c0",
+  "SPlisHSPlasH/PCISPH/TimeStepPCISPH.cpp": "a1ef8cd208429fae9f91ba9cf99261848815da2073dfdbfc8cc8d1e3094f43e0",
+  "SPlisHSPlasH/PBF/TimeStepPBF.cpp": "d5dbf23dc640193402c410ca0cd73950ed741a7620057ace1a8037ae9e933753",
+  "SPlisHSPlasH/PF/TimeStepPF.cpp": "2abf4fdfc321fda056ab73c64b04b58c1666d44f144faeee236a908ae8210b55",
+  "SPlisHSPlasH/ICSPH/TimeStepICSPH.cpp": "0580148fcdc3bd9fc6f10e23fdefc5cf710f6b5bbb3a02619b647312ebc55e79",
+  "SPlisHSPlasH/SPHKernels.h": "b4cc0631c171b4d25a298ae320828058fa52445a7c5bf7f4517119727f9c3819",
+  "SPlisHSPlasH/NeighborhoodSearch.h": "098aa375585acbbfacc848598b93a82572aa6300317b471db8920113352785b3",
+  "SPlisHSPlasH/XSPH.cpp": "9bb9fec716eb437bbca2c60015d3df315252ceb07cf2df42e9314eb6485c9f88",
+  "SPlisHSPlasH/NonPressureForceRegistration.cpp": "2ee129ad8c70124b2d6845423dfab718f30adef70424b89c836643af8fb94b29",
+  "CMake/Common.cmake": "5573b0ca000294cd0feeed14a03025b524bbdff8dbdb158898008a93b9af3e02",
+  "CMake/NeighborhoodSearch.cmake": "9805d7e4a8b1bc2a323b78f5d237504d35ad4e72c4e8dac5989f0704b43c11a4",
+  "Tests/Kernel/KernelTests.cpp": "7d0bfdb7eabd5c6dff3bd77b66154d8bbd33f5a6992a01639d22f7fcdb34ab3b",
+  "Tests/CMakeLists.txt": "8865da4cfe08c39ebd1e4f6a10d84822899e744dd61d818b6746a9ad51ee1d25",
+  ".github/workflows/build-linux.yml": "244c556636df0d48cb3525c962ba7f9829ad7eacb035f3015d937b8f33ca5261",
+  "doc/replicability.md": "b6090046687670e88d4b6b2040c0097f8c7c2d905207659de052a26728fa3f8c",
+  "Changelog.txt": "95be5b8502685b0b7b4909fc1af0f2953043afbf7c042e27fd4b007f9b82c78e"
+ },
+ "claims": [
+  {
+   "path": "SPlisHSPlasH/Simulation.h",
+   "line": 170,
+   "must_contain": "enum class SimulationMethods",
+   "text": "enum class SimulationMethods { WCSPH = 0, PCISPH, PBF, IISPH, DFSPH, PF, ICSPH, NumSimulationMethods };",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.h",
+   "line": 171,
+   "must_contain": "enum class BoundaryHandlingMethods",
+   "text": "enum class BoundaryHandlingMethods { Akinci2012 = 0, Koschier2017, Bender2019,",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.h",
+   "line": 173,
+   "must_contain": "NoginaSellan2026",
+   "text": "NoginaSellan2026,",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.h",
+   "line": 193,
+   "must_contain": "KERNEL_METHOD",
+   "text": "static int KERNEL_METHOD;",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 70,
+   "must_contain": "m_cflMethod = 1",
+   "text": "m_cflMethod = 1;",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 73,
+   "must_contain": "m_cflMaxTimeStepSize",
+   "text": "m_cflMaxTimeStepSize = static_cast<Real>(0.005);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 92,
+   "must_contain": "BoundaryHandlingMethods::Bender2019",
+   "text": "m_boundaryHandlingMethod = static_cast<int>(BoundaryHandlingMethods::Bender2019);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 427,
+   "must_contain": "updateTimeStepSizeCFL",
+   "text": "void Simulation::updateTimeStepSizeCFL()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 550,
+   "must_contain": "SimulationMethods::WCSPH",
+   "text": "if ((method < SimulationMethods::WCSPH) || (method >= SimulationMethods::NumSimulationMethods))",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 563,
+   "must_contain": "new TimeStepWCSPH()",
+   "text": "m_timeStep = new TimeStepWCSPH();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 591,
+   "must_contain": "new TimeStepDFSPH()",
+   "text": "m_timeStep = new TimeStepDFSPH();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 598,
+   "must_contain": "new TimeStepPF()",
+   "text": "m_timeStep = new TimeStepPF();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 606,
+   "must_contain": "new TimeStepICSPH()",
+   "text": "m_timeStep = new TimeStepICSPH();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 708,
+   "must_contain": "addFluidModel",
+   "text": "void Simulation::addFluidModel(const std::string &id, const unsigned int nFluidParticles, Vector3r* fluidParticles, Vector3r* fluidVelocities, unsigned int* fluidObjectIds, const unsigned int nMaxEmitterParticles)",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 499,
+   "must_contain": "m_cflFactor * static_cast<Real>(0.4)",
+   "text": "h = m_cflFactor * static_cast<Real>(0.4) * (diameter / (sqrt(maxVel)));",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/Simulation.cpp",
+   "line": 502,
+   "must_contain": "m_cflMinTimeStepSize",
+   "text": "h = max(h, m_cflMinTimeStepSize);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/TimeStep.cpp",
+   "line": 181,
+   "must_contain": "computeVolumeAndBoundaryX",
+   "text": "void TimeStep::computeVolumeAndBoundaryX()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/TimeStep.cpp",
+   "line": 353,
+   "must_contain": "computeDensityAndGradient",
+   "text": "void TimeStep::computeDensityAndGradient()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/FluidModel.h",
+   "line": 84,
+   "must_contain": "DENSITY0",
+   "text": "static int DENSITY0;",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 68,
+   "must_contain": "void TimeStepWCSPH::step",
+   "text": "void TimeStepWCSPH::step()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 106,
+   "must_contain": "pow(density / density0, m_exponent)",
+   "text": "m_simulationData.getPressure(fluidModelIndex, i) = m_stiffness * (pow(density / density0, m_exponent) - static_cast<Real>(1.0));",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 177,
+   "must_contain": "fm_neighbor->getDensity0()",
+   "text": "const Real density_j = fm_neighbor->getDensity(neighborIndex) * density0 / fm_neighbor->getDensity0();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 186,
+   "must_contain": "Akinci2012",
+   "text": "if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Akinci2012)",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 194,
+   "must_contain": "usesDensityMaps",
+   "text": "else if (sim->usesDensityMaps())",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 202,
+   "must_contain": "Bender2019",
+   "text": "else if (sim->getBoundaryHandlingMethod() == BoundaryHandlingMethods::Bender2019)",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/WCSPH/TimeStepWCSPH.cpp",
+   "line": 99,
+   "must_contain": "#pragma omp parallel",
+   "text": "#pragma omp parallel default(shared)",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 36,
+   "must_contain": "m_maxIterations = 100",
+   "text": "m_maxIterations = 100;",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 37,
+   "must_contain": "m_maxError",
+   "text": "m_maxError = static_cast<Real>(0.01);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 41,
+   "must_contain": "m_maxErrorV",
+   "text": "m_maxErrorV = static_cast<Real>(0.1);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 167,
+   "must_contain": "divergenceSolve()",
+   "text": "divergenceSolve();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 214,
+   "must_contain": "pressureSolve()",
+   "text": "pressureSolve();",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 336,
+   "must_contain": "maxError is given in percent",
+   "text": "const Real eta = m_maxError * static_cast<Real>(0.01) * density0;  // maxError is given in percent",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/DFSPH/TimeStepDFSPH.cpp",
+   "line": 386,
+   "must_contain": "divergenceSolve",
+   "text": "void TimeStepDFSPH::divergenceSolve()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/IISPH/TimeStepIISPH.cpp",
+   "line": 170,
+   "must_contain": "getDii",
+   "text": "Vector3r &dii = m_simulationData.getDii(fluidModelIndex, i);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/IISPH/TimeStepIISPH.cpp",
+   "line": 279,
+   "must_contain": "aii",
+   "text": "aii += fm_neighbor->getVolume(neighborIndex) * (dii - dji).dot(kernel);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/IISPH/TimeStepIISPH.cpp",
+   "line": 321,
+   "must_contain": "m_maxIterations",
+   "text": "while ((!chk || (m_iterations < m_minIterations)) && (m_iterations < m_maxIterations))",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/PCISPH/TimeStepPCISPH.cpp",
+   "line": 169,
+   "must_contain": "m_maxIterations",
+   "text": "while ((!chk || (m_iterations < m_minIterations)) && (m_iterations < m_maxIterations))",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/PBF/TimeStepPBF.cpp",
+   "line": 125,
+   "must_contain": "Solve density constraint",
+   "text": "// Solve density constraint",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/PF/TimeStepPF.cpp",
+   "line": 246,
+   "must_contain": "m_maxIterations",
+   "text": "for (m_iterations = 0u; m_iterations < m_maxIterations; m_iterations++)",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/PF/TimeStepPF.cpp",
+   "line": 259,
+   "must_contain": "setTolerance",
+   "text": "m_solver.setTolerance(m_iterations < min_iter ? static_cast<Real>(1e-32) : static_cast<Real>(1e-10));",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/ICSPH/TimeStepICSPH.cpp",
+   "line": 328,
+   "must_contain": "m_lambda",
+   "text": "aii = -density0 / m_lambda - dt2 * Vi_Vj_gradW2 - dt2 * (Vj_gradW + m_psi * Vb_gradW).dot(Vj_gradW + Vb_gradW);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/ICSPH/TimeStepICSPH.cpp",
+   "line": 99,
+   "must_contain": "void TimeStepICSPH::step",
+   "text": "void TimeStepICSPH::step()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/SPHKernels.h",
+   "line": 31,
+   "must_contain": "m_k = static_cast<Real>(8.0) / (pi*h3)",
+   "text": "m_k = static_cast<Real>(8.0) / (pi*h3);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/SPHKernels.h",
+   "line": 209,
+   "must_contain": "static_cast<Real>(15.0) / (pi*radius6)",
+   "text": "m_k = static_cast<Real>(15.0) / (pi*radius6);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/SPHKernels.h",
+   "line": 290,
+   "must_contain": "static_cast<Real>(21.0)",
+   "text": "m_k = static_cast<Real>(21.0) / (static_cast<Real>(2.0)*pi*h3);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/SPHKernels.h",
+   "line": 479,
+   "must_contain": "static_cast<Real>(40.0)",
+   "text": "m_k = static_cast<Real>(40.0) / (static_cast<Real>(7.0) * (pi*h2));",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/SPHKernels.h",
+   "line": 562,
+   "must_contain": "static_cast<Real>(7.0) / (pi*h2)",
+   "text": "m_k = static_cast<Real>(7.0) / (pi*h2);",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/NeighborhoodSearch.h",
+   "line": 9,
+   "must_contain": "cuNSearch::NeighborhoodSearch",
+   "text": "typedef cuNSearch::NeighborhoodSearch NeighborhoodSearch;",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/NeighborhoodSearch.h",
+   "line": 12,
+   "must_contain": "CompactNSearch::NeighborhoodSearch",
+   "text": "typedef CompactNSearch::NeighborhoodSearch NeighborhoodSearch;",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/NeighborhoodSearch.h",
+   "line": 14,
+   "must_contain": "TreeNSearch",
+   "text": "#include \"TreeNSearch.h\"",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/XSPH.cpp",
+   "line": 46,
+   "must_contain": "void XSPH::step",
+   "text": "void XSPH::step()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/NonPressureForceRegistration.cpp",
+   "line": 35,
+   "must_contain": "registerNonpressureForces",
+   "text": "void Simulation::registerNonpressureForces()",
+   "ok": true
+  },
+  {
+   "path": "SPlisHSPlasH/NonPressureForceRegistration.cpp",
+   "line": 59,
+   "must_contain": "addViscosityMethod",
+   "text": "addViscosityMethod(Viscosity_Standard::METHOD_NAME, Viscosity_Standard::creator);",
+   "ok": true
+  },
+  {
+   "path": "CMake/Common.cmake",
+   "line": 75,
+   "must_contain": "USE_OpenMP",
+   "text": "option(USE_OpenMP \"Use OpenMP\" ON)",
+   "ok": true
+  },
+  {
+   "path": "CMake/Common.cmake",
+   "line": 82,
+   "must_contain": "OPENMP_FOUND",
+   "text": "if(OPENMP_FOUND)",
+   "ok": true
+  },
+  {
+   "path": "CMake/NeighborhoodSearch.cmake",
+   "line": 11,
+   "must_contain": "USE_cuNSearch",
+   "text": "add_definitions( -DUSE_cuNSearch)",
+   "ok": true
+  },
+  {
+   "path": "CMake/NeighborhoodSearch.cmake",
+   "line": 17,
+   "must_contain": "enable_language(CUDA)",
+   "text": "enable_language(CUDA)",
+   "ok": true
+  },
+  {
+   "path": "Tests/Kernel/KernelTests.cpp",
+   "line": 17,
+   "must_contain": "3D Kernel is normalized",
+   "text": "TEMPLATE_TEST_CASE(\"3D Kernel is normalized, positive\", \"\", CubicKernel, Poly6Kernel, SpikyKernel, WendlandQuinticC2Kernel, PrecomputedKernel<CubicKernel>)",
+   "ok": true
+  },
+  {
+   "path": "Tests/Kernel/KernelTests.cpp",
+   "line": 44,
+   "must_contain": "REQUIRE(fabs(sum - 1.0) < eps)",
+   "text": "REQUIRE(fabs(sum - 1.0) < eps);",
+   "ok": true
+  },
+  {
+   "path": "Tests/CMakeLists.txt",
+   "line": 1,
+   "must_contain": "add_subdirectory(Kernel)",
+   "text": "add_subdirectory(Kernel)",
+   "ok": true
+  },
+  {
+   "path": ".github/workflows/build-linux.yml",
+   "line": 23,
+   "must_contain": "./KernelTests",
+   "text": "run: cd bin && ./KernelTests && ./ReadWriteStateTests",
+   "ok": true
+  },
+  {
+   "path": "doc/replicability.md",
+   "line": 1,
+   "must_contain": "Replicability",
+   "text": "# Replicability",
+   "ok": true
+  },
+  {
+   "path": "Changelog.txt",
+   "line": 5,
+   "must_contain": "Nogina and Sellan",
+   "text": "- added implementation of boundary handling method: Nogina and Sellan, \"Tube Maps: Fast SPH Boundary Handling with Tubular Coordinates\", SIGGRAPH Conference Papers, 2026 (thanks to Daria Nogina)",
+   "ok": true
+  }
+ ]
+}
