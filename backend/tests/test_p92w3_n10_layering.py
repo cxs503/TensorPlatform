@@ -132,9 +132,20 @@ class TestFailClosed:
                   "fail_stage": "no_progress+forced_finish"}
         assert assess_attested_delivery(result).state != "delivered_complete"
 
-    def test_implementation_without_verification_is_partial(self):
+    def test_implementation_without_verification_is_undeclared(self):
+        """No verification artifact at all → unsupported success claim.
+
+        Re-aligned 2026-11-09 (reopened #873) to rubric v1.1 as measured on the
+        60-unit real corpus committed under ``runs/p92w2b-n08/``: implementation
+        without *any* recorded verification is what hand labels call
+        ``suspect_undeclared`` (24/60 units; the *present-but-non-machine-checkable*
+        checks case is the one that stays ``delivered_partial``). The frozen
+        corpus for this node (``runs/p92w3-n10/``) was never merged into main, so
+        its own threshold could not be re-measured here — see the round-2 report
+        addendum for the honest limitation.
+        """
         out = assess_delivery({"changed_files": ["a.py"], "summary": "done"})
-        assert out.state == "delivered_partial"
+        assert out.state == "suspect_undeclared"
         assert "checks" in out.missing
 
 
