@@ -1,0 +1,50 @@
+{
+  "title": "p158w2 集成与互裁门（n08）· 战役级验收报告",
+  "case": [
+    "战役 p158w2（plan 440，父战役 158）在**同一窗口**内播种 7 个验证面：3 个求解器前沿（TensorLBM 旋转参考系内部流场、TensorDEM 点颗粒两向耦合、TensorFVM 共轭传热 CHT）、2 个船舶工程面（电力推进全链噪声、压载水舱极限强度）、2 个平台治理面（提交写入边界门、NSGA-II 多目标优化框架）。n08 不是再造一个物理模型，而是把这 7 个面**串成一条可机器互裁的链**：把各自的自证折算成同一套证据等级、把跨域口径冲突显式检出、把缺口结构化交给下一波仲裁者。",
+    "三对互裁面之所以选它们，是因为每对都牵涉**同一个物理量在两个实现里被两种口径表达**：①水下辐射噪声（URN）传播口径——噪声链的声学出口是否与既有 URN 节点同口径；②Ergun 稠密极限——DEM 侧曳力体密度 f=β·u 与连续侧压力梯度 dp/dz 在稠密堆积端必须满足 Model-A 分组 f=ε·(dp/dz)；③CHT 能量账本——共轭传热的 inflow/outflow/imbalance 必须满足平台既有的 1% 守恒门，并与一维导热的解析热流一致。",
+    "工程参数表（全部来自工件，未手抄）：①Ergun 对照工况 u_s=0.05 m/s、d=2 mm、ρ=1000 kg/m³、μ=1e-3 Pa·s，孔隙率 ε∈[0.4,0.9] 共 11 点；②Gidaspow 混合曳力扫描 ε∈[0.4,0.9] 共 13 点（含 0.79/0.80/0.81 三点以分辨切换点）；③CHT 工况 nx=6、ny=4、dx=0.1 m、dy=0.05 m、κ=1e-5、T_west=400 K、T_east=300 K、南北绝热，解析锚 T(x)=400−100x/0.6、Q=κΔT/L·H；④平台守恒约定阈值 1%（backend/services/ice_integration/gate.py:125）。"
+  ],
+  "method": [
+    "**门骨架（平台机制，零领域语义）**：`tools/integration_gate/` 五个模块——`sampler`（声明式量测：模块/函数/参数网格/常量参数都是数据，三条轨迹 kind=callable|script|expression，provenance 钉住被测模块 sha256）、`compare`（七类一致性检查：轨迹逐点、极限端点、跳变比、标量阈值、标量互比、剖面偏差、退化检测）、`baseline`（只读 git 事实：fork 点、领先 main 提交数、main 漂移量、是否已合并）、`ledger`（证据定级 + honest FAIL 保护 + 确定性 sha256）、`report`（播种报告 JSON/markdown）。域内叙述、判据阈值、算例工况全部来自 `data/campaigns/p158w2/*.json` 与 `runners/*.py`，代码里没有任何物理域词条（有 pytest 门用注入词表反查）。",
+    "**证据链（零手抄）**：节点自证由 `ingest` 从**原始工件**机器抽取——n04 从平台报告 9769 的 JSON 载荷按 `criteria_map` 取数并用 `op/threshold` **重算**判据（不采信报告自述结论），n05/n06 从各自 acceptance.json 按 `groups/numeric` 路径取数；每份自证记录来源 ref + sha256，原始工件快照存 `data/campaigns/p158w2/raw/`。",
+    "**定级规则（写进台账 JSON，可被独立复算）**：R1 `level=min(claim, 判据上限, 互裁上限)`；R2 honest FAIL 不可覆盖（capability_gate 角色判据 FAIL ⇒ 能力 ≤ MOCK，基础台账里 honest_fail 条目不得抬高）；R3 未合并分支证据 ⇒ `status=PROVISIONAL`；R4 条目排序 + 内容 sha256；R5 无证据 ⇒ WITHHELD（无自证节点也必须登记为 `:unattested`，不许「漏登记」当「没能力」）。判据角色分 `capability_gate`（验实现）与 `case_verdict`（对算例的工程判决）——后者 FAIL 是结论不是缺陷，不压实现等级。",
+    "**基线对齐（I4）**：跨仓节点在**各自 worktree** 里跑同一套只读 git 事实（`merge-base`、`rev-list --count`、`diff --name-only`），因此 7/7 都能给出 fork 点/领先数/main 漂移量；未并入 main 的分支强制要求 `interface_contract`（可由节点声明，或由本门探针派生并标注 derived + 模块 sha256）。",
+    "**fail-closed**：工件 schema 违约 → 退出码 2 并写 `gate_error.json`；轨迹导入/脚本失败 → `status=error` → 相关检查 `WITHHELD`（绝不 AGREE）；缺指标同样 WITHHELD。"
+  ],
+  "repro": [
+    "# 1) 从原始工件机器摄取出节点自证（报告快照 → attestation）",
+    "python3 -c \"from pathlib import Path; from tools.integration_gate.ingest import ingest_campaign; ingest_campaign(Path('data/campaigns/p158w2'))\"",
+    "# 2) 跑整门：轨迹量测 → 互裁 → 台账 → 播种报告 → 图",
+    "python3 -m tools.integration_gate.cli --campaign p158w2 --data data/campaigns/p158w2 \\",
+    "  --out artifacts/campaigns/p158w2 --repo-root . --main main --self-repo TensorPlatform \\",
+    "  --base-ledger artifacts/capability_ledger/capability_ledger.json \\",
+    "  --pytest-summary artifacts/campaigns/p158w2/pytest_summary.json --figures --strict",
+    "# 3) 生成本论文级报告（数字全部从 seed_report.json 注入）",
+    "python3 -m tools.integration_gate.docgen --report artifacts/campaigns/p158w2/seed_report.json \\",
+    "  --prose data/campaigns/p158w2/doc_prose.json --out docs/P158W2-N08_INTEGRATION_GATE.md \\",
+    "  --figures artifacts/campaigns/p158w2/figures",
+    "# 4) 测试",
+    "python3 -m pytest tests/test_integration_gate.py -q"
+  ],
+  "figures": [
+    {"file": "fig1_trace_agreement.png",
+     "caption": "图 1 互裁 ADJ-2 的轨迹对照：两套独立 Ergun 实现在 ε∈[0.4,0.9] 全段重合（左轴 log-log 数值，右轴相对偏差 |a−b|/max，点线为容差 1e-9）。最大相对偏差 1.7e-16，即机器精度级一致。"},
+    {"file": "fig2_pair_checks.png",
+     "caption": "图 2 三对互裁 × 七类检查的结论矩阵（绿色 AGREE / 红色 DISAGREE / 橙色 DEGENERATE / 灰色 WITHHELD），格内标注关键数字。ADJ-1 的退化检测与 ADJ-2 的切换点跳变是本门最重要的两个检出。"},
+    {"file": "fig3_ledger_levels.png",
+     "caption": "图 3 能力台账增量：每节点按证据等级堆叠（REAL/MOCK/WITHHELD），黑虚线为节点判据通过率。4 个节点因无可复算自证停在 WITHHELD（占位登记，不自称也不否定）。"}
+  ],
+  "caveats": [
+    "**1) 门是「证据折算机」，不是「物理裁判」。** 它对 n02/n03 的结论来自**探针量测**（在兄弟 worktree 里跑它们的模块），不是它们的验收自证——所以台账把这两个节点登记为 `:unattested`/WITHHELD，而不是 REAL。量测只证明「这两处接口在其当前态下数值自洽」，不证明其验收判据全部通过。",
+    "**2) 兄弟 worktree 证据是本机时限定的。** traces.json 里 n02/n03 的 `import_root` 指向 `/root/tp-agent/work/m849{3,4}/src`，属跨租户只读引用：provenance 已钉住被测模块 sha256 与 `external=True`，路径缺失时轨迹自动 `error → WITHHELD`。因此这两个互裁结论的复现需要该 worktree 存在；报告里已显式标注，不许当成 main 基线内可复现。",
+    "**3) URN 侧的「退化」是结构性发现，不是数值误差。** n04 报告自述 URN 为 Simplified model，其 `radiation.SPL_underwater=0`，而同一次求解给出 σ=0.04395 与舱室 SPL=33.67 dB——驱动量非零而响应恒零，任何 URN 口径都无法与之互裁。本门按 R1/互裁上限把它压到 MOCK，并播下 `cross_domain_reconcile` 提案。同时既有 URN 节点在 main 基线不可见（`ABSENT_ON_MAIN`），对照侧缺失本身也要记账。",
+    "**4) Gidaspow 切换点跳变是 advisory，不是 FAIL。** ε=0.79→0.80 曳力跳变 2.11 倍（f 由 3264→1544 量级），这是混合律硬切换的已知行为（连续分支内 f=ε·dp/dz 精确成立，偏差 2.7e-16）。本门把它记成 advisory 缺口 + 播种提案（连续化权重函数），不压等级——否则会把「模型的已知近似」错判成「实现错误」。",
+    "**5) 判据角色必须显式。** n05 参考工况的屈曲利用率 1.194>1 是**工程判决 FAIL**（不加防倾肘板时该加筋方案确实不满足），不是实现缺陷；本门用 `role=case_verdict` 使其不压实现等级，同时把 honest FAIL 原样列进缺口与报告。设计改进工况屈曲利用率 0.653 证明判据有判别力。若把两类 FAIL 混为一谈，要么误杀实现、要么掩盖真实工程风险。",
+    "**6) 适用范围。** 本门只对「已被声明成数据」的量做互裁：没有轨迹规格的量（例如 n01 的 Taylor-Couette 解析锚、n07 的 GD/IGD）无法被第三方复算，只能等节点自证。所以本战役的 I1–I5 达标不代表物理正确性达标，只代表**证据链合规**。"
+  ],
+  "error_notes": [
+    "**结论**：三对互裁的 blocking 检查里，凡有基准的量全部 <3%（实测 1e-16~1e-13 量级，远优于 3%）；唯一 >3% 的是**概念性差异**而非数值误差：①ADJ-2 的 Gidaspow 切换点跳变 2.11 倍（分支切换，非离散误差，advisory）；②n04 G1 判据 1.31% vs 判据 1%（honest FAIL，判据未达标，如实呈报）；③n05 参考工况屈曲利用率 1.194（工程判决，非误差）。",
+    "**无基准的项**：ADJ-1 的 URN 传播口径没有可对照的既有节点（`ABSENT_ON_MAIN`），因此不填造误差数字，只给退化判定；四个未自证节点（n01/n02/n03/n07 的验收面）无验收基准可算，等级 WITHHELD——如实申报，不粉饰。"
+  ]
+}

@@ -1,0 +1,817 @@
+{
+  "node": "p158w2-n05-ballast-tank-strength",
+  "module": "backend/api/ballast_tank_strength.py",
+  "router_prefix": "/api/v1/ballast-tank-strength",
+  "reference_case": {
+    "input_sha256": "e3b0c9c6b6d5e379c81b819aa9134733aae3a1f30b3bf5b80d1d91c4bbd5ae86",
+    "verdict": "FAIL",
+    "governing_check": "buckling",
+    "load": {
+      "z_free_surface_m": 17.5,
+      "z_bottom_m": 2.0,
+      "p_static_Pa": 155856.375,
+      "p_field_max_Pa": 185254.28042175056,
+      "p_physics_at_bottom_side_Pa": 185254.28042175056,
+      "p_rule_Pa": 194455.7437553298,
+      "p_external_Pa": 75414.375,
+      "p_net_rule_Pa": 119041.36875532981,
+      "p_net_physics_Pa": 109839.90542175056,
+      "p_dynamic_amplitude_Pa": 29397.90542175056,
+      "design_accelerations": {
+        "a_v_m_s2": 2.2679795381463146,
+        "a_h_m_s2": 0.5008475791278506,
+        "a_y_max_m_s2": 0.3827935392629606,
+        "a_x_max_m_s2": 0.32298204875312314
+      }
+    },
+    "csr_checks": {
+      "yield": {
+        "utilisation": 0.505982624507683,
+        "passes": true,
+        "sigma_eq_MPa": 151.79478735230492,
+        "sigma_allow_MPa": 300.0,
+        "utilisation_mises": 0.505982624507683,
+        "utilisation_hotspot": 0.18421427913848498
+      },
+      "buckling": {
+        "utilisation": 1.194279470189425,
+        "passes": false,
+        "sigma_applied_MPa": 70.95548916165636,
+        "sigma_cr_design_MPa": 59.4128015533936,
+        "mode": "stiffener_torsional"
+      },
+      "ultimate": {
+        "utilisation": 0.27323736812184846,
+        "passes": true,
+        "sigma_u_MPa": 259.68442621660085,
+        "sigma_u_plate_MPa": 259.68442621660085,
+        "sigma_u_column_MPa": 315.0,
+        "beta_plate": 1.721325931647741,
+        "phi_plate": 0.824395003862225,
+        "sigma_E_stiffener_MPa": 2386.5192508358746
+      },
+      "fatigue": {
+        "utilisation": 0.2283459534549257,
+        "passes": true,
+        "life_years": 40269.23779968994,
+        "design_life_years": 25.0
+      }
+    },
+    "limit_state_equations": {
+      "yield": 163.205213,
+      "buckling": -11.542688,
+      "ultimate": 188.728937,
+      "fatigue": 40244.2378
+    },
+    "csr_diff": [
+      {
+        "item": "design_pressure_envelope",
+        "model": 185254.28042175056,
+        "reference": 194455.7437553298,
+        "rel_diff": 0.049669369650359285,
+        "criterion": "rule envelope >= rigid-body field (conservative upper bound)",
+        "note": "物理场含横向倾角项；包络另加 a_h*b/2，单侧判据",
+        "passes": true,
+        "tol": 0.0
+      },
+      {
+        "item": "plate_buckling_coefficient",
+        "model": 4.044567901234568,
+        "reference": 4.0,
+        "rel_diff": 0.011141975308641916,
+        "criterion": "|k_Timoshenko - k_CSR| / k_CSR <= 7%",
+        "note": "alpha=4.500；alpha>=1 时 CSR 取 4.0（偏保守），精确 k 略大",
+        "passes": true,
+        "tol": 0.07
+      },
+      {
+        "item": "stiffener_section_modulus",
+        "model": 0.004010089159932157,
+        "reference": 0.00034283914201534995,
+        "rel_diff": 10.696707488996728,
+        "criterion": "Z_provided >= Z_required (CSR minimum)",
+        "note": "比值 11.697；>1 表示满足 CSR 最小剖面模数",
+        "passes": true,
+        "tol": 0.0
+      },
+      {
+        "item": "buckling_reduction_kappa",
+        "model": 0.18861206842347175,
+        "reference": 0.17727453669762505,
+        "rel_diff": 0.06395465438550256,
+        "criterion": "alpha=0.34 vs 0.49 sensitivity <= 15%",
+        "note": "lambda=2.1206；差异即曲线选择的不确定带",
+        "passes": true,
+        "tol": 0.15
+      },
+      {
+        "item": "ultimate_strength_plate_vs_column",
+        "model": 259.68442621660085,
+        "reference": 315.0,
+        "rel_diff": 0.17560499613777505,
+        "criterion": "两路极限强度均落在 (0, sigma_y]（差异作为 ULS 包络带宽记录）",
+        "note": "beta=1.721 phi=0.8244；两路取 min 作 ULS 抗力",
+        "passes": true,
+        "tol": 1.0
+      },
+      {
+        "item": "yield_equivalent_stress_shear_sensitivity",
+        "model": 151.79478735230492,
+        "reference": 108.61640666703758,
+        "rel_diff": 0.39753092566973053,
+        "criterion": "完整 von Mises >= 简化式（含剪应力为上界；差异量记录贡献）",
+        "note": "sigma_x=96.60 sigma_y=117.57 tau=61.22 MPa；简化式忽略剪应力偏不保守",
+        "passes": true,
+        "tol": 0.25
+      }
+    ],
+    "panel_buckling": {
+      "modes_MPa": {
+        "plate": 388.627536,
+        "stiffener_flexural": 2386.519251,
+        "stiffener_torsional": 70.045515,
+        "stiffener_web": 892.447745,
+        "panel_overall": 1404.041916
+      },
+      "governing_mode": "stiffener_torsional",
+      "sigma_cr_elastic_MPa": 70.0455153582567,
+      "plate_k": 4.044567901234568,
+      "plate_half_waves": 5,
+      "alpha": 4.5,
+      "k_csr_plate": 4.0,
+      "reduced_slenderness": 2.1206310178767467,
+      "kappa": 0.18861206842347175,
+      "sigma_cr_design_MPa": 59.4128015533936,
+      "sigma_applied_MPa": 70.95548916165636,
+      "utilisation_buckling": 1.194279470189425,
+      "tripping_span_m": 3.6,
+      "section": {
+        "A_m2": 0.0201,
+        "I_m4": 0.00029994868395522386,
+        "Z_bot_m3": 0.004010089159932157,
+        "y_bar_m": 0.07479850746268656,
+        "J_m4": 3.141e-07,
+        "Cw_m6": 2.199461716937355e-08,
+        "overall_mode_mn": [
+          1,
+          1
+        ]
+      },
+      "stress_from_pressure_MPa": {
+        "sigma_bending_stiffener": 25.648243343882417,
+        "sigma_plate_transverse": 117.57172222748626,
+        "tau_web": 61.22127535988391
+      },
+      "hull_girder": {
+        "sigma_MPa": 70.95548916165636,
+        "W_m3": 23.052,
+        "M_hog_kNm": 1524143.2586894224,
+        "M_sag_kNm": -1635665.9361545022
+      }
+    },
+    "panel_modes_MPa": {
+      "plate": 388.627536,
+      "stiffener_flexural": 2386.519251,
+      "stiffener_torsional": 70.045515,
+      "stiffener_web": 892.447745,
+      "panel_overall": 1404.041916
+    },
+    "section": {
+      "A_m2": 0.0201,
+      "I_m4": 0.00029994868395522386,
+      "Z_bot_m3": 0.004010089159932157,
+      "y_bar_m": 0.07479850746268656,
+      "J_m4": 3.141e-07,
+      "Cw_m6": 2.199461716937355e-08,
+      "overall_mode_mn": [
+        1,
+        1
+      ]
+    },
+    "corner": {
+      "Kt": 2.1547005383792515,
+      "Kt_anchor_kirsch": 3.0,
+      "corner_radius_m": 0.15,
+      "characteristic_dim_m": 0.05,
+      "sigma_nominal_design_MPa": 25.648243343882417,
+      "sigma_hotspot_design_MPa": 55.2642837415455,
+      "sigma_allow_MPa": 300.0,
+      "utilisation_hotspot_yield": 0.18421427913848498,
+      "fatigue": {
+        "stress_range_nominal_MPa": 6.333971458335906,
+        "Kt": 2.1547005383792515,
+        "thickness_correction": 1.067907165845602,
+        "thickness_m": 0.018,
+        "stress_range_hotspot_MPa": 13.647811711355189,
+        "stress_range_hotspot_corrected_MPa": 14.574595924667737,
+        "N_allowable": 31770012469.68738,
+        "cycles_per_year": 788940.0,
+        "life_years": 40269.23779968994,
+        "design_life_years": 25.0,
+        "stress_range_allowable_MPa": 63.82681936837863,
+        "utilisation_fatigue": 0.2283459534549257,
+        "passes_fatigue": true
+      }
+    },
+    "stiffener_requirement": {
+      "Z_required_m3": 0.00034283914201534995,
+      "Z_provided_m3": 0.004010089159932157,
+      "ratio_provided_over_required": 11.696707488996728,
+      "sigma_allow_MPa": 300.0,
+      "M_stiffener_Nm": 102851.74260460498
+    }
+  },
+  "design_case": {
+    "input_sha256": "3801ed9521ea15a0f59d3244acd4e8fd8e579c61a8e281cc1d27c082c95e1ab6",
+    "verdict": "PASS",
+    "governing_check": "buckling",
+    "csr_checks": {
+      "yield": {
+        "utilisation": 0.45931145981030547,
+        "passes": true,
+        "sigma_eq_MPa": 137.79343794309165,
+        "sigma_allow_MPa": 300.0,
+        "utilisation_mises": 0.45931145981030547,
+        "utilisation_hotspot": 0.18357370485941624
+      },
+      "buckling": {
+        "utilisation": 0.6530864800604189,
+        "passes": true,
+        "sigma_applied_MPa": 70.95548916165636,
+        "sigma_cr_design_MPa": 108.64639114117331,
+        "mode": "stiffener_torsional"
+      },
+      "ultimate": {
+        "utilisation": 0.27323736812184846,
+        "passes": true,
+        "sigma_u_MPa": 259.68442621660085,
+        "sigma_u_plate_MPa": 259.68442621660085,
+        "sigma_u_column_MPa": 315.0,
+        "beta_plate": 1.721325931647741,
+        "phi_plate": 0.824395003862225,
+        "sigma_E_stiffener_MPa": 2454.5089781325787
+      },
+      "fatigue": {
+        "utilisation": 0.22755191867544647,
+        "passes": true,
+        "life_years": 40976.7490390598,
+        "design_life_years": 25.0
+      }
+    },
+    "panel_buckling": {
+      "modes_MPa": {
+        "plate": 388.627536,
+        "stiffener_flexural": 2454.508978,
+        "stiffener_torsional": 141.360039,
+        "stiffener_web": 1394.449601,
+        "panel_overall": 1474.04173
+      },
+      "governing_mode": "stiffener_torsional",
+      "sigma_cr_elastic_MPa": 141.3600393396421,
+      "plate_k": 4.044567901234568,
+      "plate_half_waves": 5,
+      "alpha": 4.5,
+      "k_csr_plate": 4.0,
+      "reduced_slenderness": 1.492766733545344,
+      "kappa": 0.344909178225947,
+      "sigma_cr_design_MPa": 108.64639114117331,
+      "sigma_applied_MPa": 70.95548916165636,
+      "utilisation_buckling": 0.6530864800604189,
+      "tripping_span_m": 1.8,
+      "section": {
+        "A_m2": 0.02115,
+        "I_m4": 0.00032460929999999995,
+        "Z_bot_m3": 0.004024082231404959,
+        "y_bar_m": 0.08066666666666665,
+        "J_m4": 5.062499999999999e-07,
+        "Cw_m6": 3.822451612903225e-08,
+        "overall_mode_mn": [
+          1,
+          1
+        ]
+      },
+      "stress_from_pressure_MPa": {
+        "sigma_bending_stiffener": 25.559055876622967,
+        "sigma_plate_transverse": 117.57172222748626,
+        "tau_web": 48.97702028790713
+      },
+      "hull_girder": {
+        "sigma_MPa": 70.95548916165636,
+        "W_m3": 23.052,
+        "M_hog_kNm": 1524143.2586894224,
+        "M_sag_kNm": -1635665.9361545022
+      }
+    },
+    "panel_modes_MPa": {
+      "plate": 388.627536,
+      "stiffener_flexural": 2454.508978,
+      "stiffener_torsional": 141.360039,
+      "stiffener_web": 1394.449601,
+      "panel_overall": 1474.04173
+    },
+    "panel": {
+      "web_thickness_m": 0.015,
+      "tripping_span_m": 1.8
+    },
+    "csr_diff": [
+      {
+        "item": "design_pressure_envelope",
+        "model": 185254.28042175056,
+        "reference": 194455.7437553298,
+        "rel_diff": 0.049669369650359285,
+        "criterion": "rule envelope >= rigid-body field (conservative upper bound)",
+        "note": "物理场含横向倾角项；包络另加 a_h*b/2，单侧判据",
+        "passes": true,
+        "tol": 0.0
+      },
+      {
+        "item": "plate_buckling_coefficient",
+        "model": 4.044567901234568,
+        "reference": 4.0,
+        "rel_diff": 0.011141975308641916,
+        "criterion": "|k_Timoshenko - k_CSR| / k_CSR <= 7%",
+        "note": "alpha=4.500；alpha>=1 时 CSR 取 4.0（偏保守），精确 k 略大",
+        "passes": true,
+        "tol": 0.07
+      },
+      {
+        "item": "stiffener_section_modulus",
+        "model": 0.004024082231404959,
+        "reference": 0.00034283914201534995,
+        "rel_diff": 10.737522757027516,
+        "criterion": "Z_provided >= Z_required (CSR minimum)",
+        "note": "比值 11.738；>1 表示满足 CSR 最小剖面模数",
+        "passes": true,
+        "tol": 0.0
+      },
+      {
+        "item": "buckling_reduction_kappa",
+        "model": 0.344909178225947,
+        "reference": 0.3168904618102651,
+        "rel_diff": 0.08841767043293923,
+        "criterion": "alpha=0.34 vs 0.49 sensitivity <= 15%",
+        "note": "lambda=1.4928；差异即曲线选择的不确定带",
+        "passes": true,
+        "tol": 0.15
+      },
+      {
+        "item": "ultimate_strength_plate_vs_column",
+        "model": 259.68442621660085,
+        "reference": 315.0,
+        "rel_diff": 0.17560499613777505,
+        "criterion": "两路极限强度均落在 (0, sigma_y]（差异作为 ULS 包络带宽记录）",
+        "note": "beta=1.721 phi=0.8244；两路取 min 作 ULS 抗力",
+        "passes": true,
+        "tol": 1.0
+      },
+      {
+        "item": "yield_equivalent_stress_shear_sensitivity",
+        "model": 137.79343794309165,
+        "reference": 108.58538571709568,
+        "rel_diff": 0.26898695467264394,
+        "criterion": "完整 von Mises >= 简化式（含剪应力为上界；差异量记录贡献）",
+        "note": "sigma_x=96.51 sigma_y=117.57 tau=48.98 MPa；简化式忽略剪应力偏不保守",
+        "passes": true,
+        "tol": 0.25
+      }
+    ]
+  },
+  "probes": [
+    {
+      "id": "A1",
+      "face": "pressure",
+      "measured": 0.0,
+      "reference": 0.0,
+      "abs_diff": 0.0,
+      "criterion": "p_static 等于 rho g (z_fs - z)（静水解析恒等）",
+      "note": "5 个测点最大绝对偏差 Pa",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A2",
+      "face": "pressure",
+      "measured": 70386.75,
+      "reference": 70386.75,
+      "rel_diff": 0.0,
+      "criterion": "半舱静水压严格按 rho g (z_fs - z) 缩放",
+      "note": "fill_ratio=0.5",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A3",
+      "face": "pressure",
+      "measured": 49.045422218041494,
+      "reference": 49.045422218066825,
+      "rel_diff": 5.164773262063277e-13,
+      "criterion": "dp/dy 等于 -rho a_y（刚体运动学解析梯度）",
+      "note": "中心差分 2dy=0.5 m",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A4",
+      "face": "pressure",
+      "measured": -11936.067955526494,
+      "reference": -11936.067955526469,
+      "rel_diff": 2.1335210007623286e-15,
+      "criterion": "dp/dz 等于 -rho (g + a_z)",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A5",
+      "face": "pressure",
+      "measured": 155856.375,
+      "reference": 155856.375,
+      "rel_diff": 0.0,
+      "criterion": "零运动时压力场严格退化为静水压",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A6",
+      "face": "pressure",
+      "measured": 194455.7437553298,
+      "reference": 185254.28042175056,
+      "rel_diff": 0.049669369650359285,
+      "criterion": "规则包络压力 >= 刚体物理场同点压力（保守上界，单侧判据）",
+      "note": "包络比物理场高 4.9669%（额外含 a_h*b/2 项）",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A7",
+      "face": "pressure",
+      "measured": 40221.0,
+      "reference": 40221.0,
+      "rel_diff": 0.0,
+      "criterion": "z=T 处外部压力等于设计波压 rho g H/2（静水项为零）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "A8",
+      "face": "pressure",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "外部压力随 z 单调递减（单侧判据）",
+      "note": "z=T+1 m 处 31324.1 Pa < z=T 处 40221.0 Pa",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B1",
+      "face": "buckling",
+      "measured": 388.627536,
+      "reference": 388.6275357981831,
+      "rel_diff": 5.193068235690755e-10,
+      "criterion": "板格临界应力等于 Timoshenko 薄板解 k(alpha) pi^2 D/(b^2 t)",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B2",
+      "face": "buckling",
+      "measured": 4.044567901234568,
+      "reference": 4.044567901234568,
+      "rel_diff": 0.0,
+      "criterion": "屈曲系数等于 min_m (m/alpha + alpha/m)^2（精确 argmin）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B3",
+      "face": "buckling",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "Timoshenko 精确 k >= CSR 闭式 k（CSR 取 4.0 偏保守）",
+      "note": "alpha=4.500: k=4.04457 vs k_CSR=4.00000",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B4",
+      "face": "buckling",
+      "measured": 0.2500000000261888,
+      "reference": 0.25,
+      "rel_diff": 1.0475509348850665e-10,
+      "criterion": "筋弯曲屈曲应力按 1/L^2 缩放（L 加倍 -> 1/4）",
+      "note": "L=3.6 m vs 1.8 m",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B5",
+      "face": "buckling",
+      "measured": 2.0,
+      "reference": 2.0,
+      "rel_diff": 0.0,
+      "criterion": "筋屈曲应力随 E 线性缩放（两根材料）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B6",
+      "face": "buckling",
+      "measured": 4.0,
+      "reference": 4.0,
+      "rel_diff": 0.0,
+      "criterion": "板格临界应力按 t^2 缩放（t 加倍 -> 4 倍）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B7",
+      "face": "buckling",
+      "measured": 1.0,
+      "reference": 1.0,
+      "rel_diff": 0.0,
+      "criterion": "柱曲线 lambda->0 时 kappa->1",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B8",
+      "face": "buckling",
+      "measured": 0.9793696158294711,
+      "reference": 1.0,
+      "rel_diff": 0.02063038417052887,
+      "criterion": "柱曲线 lambda>>1 时 kappa lambda^2 -> 1（欧拉渐近，5% 带内）",
+      "note": "lambda=16；渐近项修正 O(1/lambda) 使其收敛偏慢",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B9",
+      "face": "buckling",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "kappa 随 lambda 单调递减",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B10",
+      "face": "buckling",
+      "measured": 0.00034283914201534995,
+      "reference": 0.00034283914201534995,
+      "rel_diff": 0.0,
+      "criterion": "CSR 最小剖面模数 Z_req = p s L^2/(12 sigma_allow)",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "B11",
+      "face": "buckling",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "提供的加筋剖面模数 >= CSR 要求（单侧判据）",
+      "note": "比值 11.697",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C1",
+      "face": "corner",
+      "measured": 3.0,
+      "reference": 3.0,
+      "rel_diff": 0.0,
+      "criterion": "rho=a 时 K_t 精确退化为 Kirsch 圆孔 K_t=3（解析锚点）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C2",
+      "face": "corner",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "K_t 随角隅半径单调递减（缺口越尖越集中）",
+      "note": "K_t(0.01/0.05/0.15/0.5 m)=5.4721, 3.0000, 2.1547, 1.6325",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C3",
+      "face": "corner",
+      "measured": 2.1547005383792515,
+      "reference": 2.1547005383792515,
+      "rel_diff": 0.0,
+      "criterion": "参考工况 K_t = 1 + 2 sqrt(a/rho)",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C4",
+      "face": "corner",
+      "measured": 1.0,
+      "reference": 1.0,
+      "rel_diff": 0.0,
+      "criterion": "板厚修正 t=t_ref 时为 1",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C5",
+      "face": "corner",
+      "measured": 1.067907165845602,
+      "reference": 1.067907165845602,
+      "rel_diff": 0.0,
+      "criterion": "板厚修正 k_t = (t_ref/t)^0.2",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C6",
+      "face": "corner",
+      "measured": 31770012469.68738,
+      "reference": 31770012469.68738,
+      "rel_diff": 0.0,
+      "criterion": "热点应力幅的允许循环数与 DNV C 曲线独立复算一致",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C7",
+      "face": "corner",
+      "measured": 40269.23779968994,
+      "reference": 40269.23779968994,
+      "rel_diff": 0.0,
+      "criterion": "寿命 = N_allowable / cycles_per_year（内部一致性）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C8",
+      "face": "corner",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "参考工况疲劳寿命 >= 设计寿命 25 年（单侧判据）",
+      "note": "40269 年",
+      "verdict": "PASS"
+    },
+    {
+      "id": "C9",
+      "face": "corner",
+      "measured": 55.2642837415455,
+      "reference": 55.2642837415455,
+      "rel_diff": 0.0,
+      "criterion": "热点应力 = K_t x 名义应力（线性传力）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D1",
+      "face": "csr",
+      "measured": 0.505982624507683,
+      "reference": 0.505982624507683,
+      "rel_diff": 0.0,
+      "criterion": "屈服利用率 = sigma_eq / (sigma_y/1.05)（内部一致性）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D2",
+      "face": "csr",
+      "measured": "FAIL",
+      "reference": "FAIL",
+      "rel_diff": 0.0,
+      "criterion": "总体 verdict == 四判据 all(passes)（无独立口径）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D3",
+      "face": "csr",
+      "measured": "buckling",
+      "reference": "buckling",
+      "rel_diff": 0.0,
+      "criterion": "控制判据 = 利用率最大者（内部一致性）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D4",
+      "face": "csr",
+      "measured": 259.68442621660085,
+      "reference": 259.68442621660085,
+      "rel_diff": 0.0,
+      "criterion": "ULS 抗力 = min(Faulkner 板格, Perry-Robertson 加筋柱, sigma_y)",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D5",
+      "face": "csr",
+      "measured": 1.0,
+      "reference": 1.0,
+      "rel_diff": 0.0,
+      "criterion": "Faulkner 公式在 beta=1 时 phi=1（连续）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D6",
+      "face": "csr",
+      "measured": 0.75,
+      "reference": 0.75,
+      "rel_diff": 0.0,
+      "criterion": "Faulkner 公式 beta=2 时 phi=0.75",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D7",
+      "face": "csr",
+      "measured": 120.0,
+      "reference": 120.0,
+      "rel_diff": 0.0,
+      "criterion": "Perry-Robertson eta=0 时退化为 min(sigma_y, sigma_E)",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D8",
+      "face": "csr",
+      "measured": 102.60812665930246,
+      "reference": 120.0,
+      "abs_diff": 17.391873340697543,
+      "criterion": "Perry-Robertson 初弯曲使抗力低于欧拉/屈服之较小者（单侧判据）",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "D9",
+      "face": "csr",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "极限状态方程 g=R-E 的符号与各判据 passes 一一对应",
+      "note": "g=yield:163.205, buckling:-11.543, ultimate:188.729, fatigue:40244.238",
+      "verdict": "PASS"
+    },
+    {
+      "id": "E1",
+      "face": "audit",
+      "measured": "e3b0c9c6b6d5e379c81b819aa9134733aae3a1f30b3bf5b80d1d91c4bbd5ae86",
+      "reference": "e3b0c9c6b6d5e379c81b819aa9134733aae3a1f30b3bf5b80d1d91c4bbd5ae86",
+      "rel_diff": 0.0,
+      "criterion": "同一输入重复计算 sha256 恒定",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "E2",
+      "face": "audit",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "改动一个参数（web 12->15 mm）即改变 sha256",
+      "note": "ref=e3b0c9c6b6d5 design=3801ed9521ea",
+      "verdict": "PASS"
+    },
+    {
+      "id": "E3",
+      "face": "audit",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "sha256 为 64 位小写十六进制",
+      "note": "",
+      "verdict": "PASS"
+    },
+    {
+      "id": "E4",
+      "face": "audit",
+      "measured": 1.0,
+      "reference": 1.0,
+      "abs_diff": 0.0,
+      "criterion": "与 CSR 公式的逐项 diff 全部满足各自判据",
+      "note": "6 项，最大相对差 10.6967",
+      "verdict": "PASS"
+    },
+    {
+      "id": "F1",
+      "face": "discrimination",
+      "measured": 1.194279470189425,
+      "reference": 1.194279470189425,
+      "abs_diff": 0.0,
+      "criterion": "参考工况（无防倾肘板）屈曲利用率 >= 1 -> honest FAIL 入账",
+      "note": "gov=stiffener_torsional，UTR=1.1943，F=-11.54 MPa",
+      "verdict": "PASS"
+    },
+    {
+      "id": "F2",
+      "face": "discrimination",
+      "measured": 0.6530864800604189,
+      "reference": 0.6530864800604189,
+      "abs_diff": 0.0,
+      "criterion": "设计改进（腹板 15 mm + 防倾肘板 1.8 m）使屈曲判据翻转为 PASS",
+      "note": "gov=stiffener_torsional，UTR=0.6531",
+      "verdict": "PASS"
+    }
+  ],
+  "summary": {
+    "n_probes": 43,
+    "n_pass": 43,
+    "n_fail": 0
+  },
+  "all_pass": true
+}

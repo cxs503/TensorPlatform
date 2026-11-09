@@ -1,0 +1,60 @@
+{
+  "schema": "tp.integration.traces/v1",
+  "campaign": "p158w2",
+  "notes": "轨迹=可复算量测。callable 直接跑节点/基线里的函数；script 跑 data/ 下的域算例脚本；expression 是解析锚。provenance 里钉住模块 sha256。",
+  "traces": [
+    {
+      "id": "ergun_n02_classic",
+      "kind": "callable",
+      "import_root": "/root/tp-agent/work/m8493/src",
+      "module": "tensordem.two_way_coupling.ergun_sweep",
+      "func": "ergun_pressure_gradient_classic",
+      "grid": {"param": "voidage", "values": [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9]},
+      "kwargs": {"superficial_velocity": 0.05, "diameter": 0.002, "rho_fluid": 1000.0, "mu": 0.001},
+      "meta": {"node": "p158w2-n02-dem-two-way-coupling",
+               "quantity": "dp/dz classic Ergun (Pa/m)",
+               "case": "u_s=0.05 m/s, d=2 mm, rho=1000 kg/m3, mu=1e-3 Pa.s"}
+    },
+    {
+      "id": "ergun_platform_reference",
+      "kind": "callable",
+      "import_root": ".",
+      "module": "backend.services.ice_integration.nodes_downstream",
+      "func": "ergun_pressure_gradient",
+      "grid": {"param": "eps", "values": [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.8, 0.85, 0.9]},
+      "kwargs": {"u": 0.05, "d": 0.002, "mu": 0.001, "rho": 1000.0},
+      "meta": {"node": "platform-main-reference",
+               "quantity": "dp/dz Ergun (Pa/m)",
+               "case": "same operating point as ergun_n02_classic"}
+    },
+    {
+      "id": "ergun_dem_drag",
+      "kind": "script",
+      "path": "data/campaigns/p158w2/runners/dem_drag_runner.py",
+      "grid": {"param": "voidage", "values": [0.4, 0.45, 0.5, 0.55, 0.6, 0.65, 0.7, 0.75, 0.79, 0.8, 0.81, 0.85, 0.9]},
+      "timeout_s": 180,
+      "meta": {"node": "p158w2-n02-dem-two-way-coupling",
+               "quantity": "Gidaspow blended inter-phase force per unit volume (N/m3)",
+               "case": "u_rel=0.05 m/s, d=2 mm"}
+    },
+    {
+      "id": "cht_profile_node",
+      "kind": "script",
+      "path": "data/campaigns/p158w2/runners/cht_profile_runner.py",
+      "grid": {"param": "x_m", "values": [0.05, 0.15, 0.25, 0.35, 0.45, 0.55]},
+      "timeout_s": 300,
+      "meta": {"node": "p158w2-n03-fvm-conjugate-heat",
+               "quantity": "centreline temperature (K) of 1-D conduction case",
+               "case": "nx=6, ny=4, dx=0.1 m, dy=0.05 m, kappa=1e-5, T_west=400 K, T_east=300 K, adiabatic N/S"}
+    },
+    {
+      "id": "cht_profile_analytic",
+      "kind": "expression",
+      "expr": "400.0 - 100.0 * x_m / 0.6",
+      "grid": {"param": "x_m", "values": [0.05, 0.15, 0.25, 0.35, 0.45, 0.55]},
+      "meta": {"node": "analytic-anchor",
+               "quantity": "linear conduction profile (K)",
+               "case": "same boundary conditions"}
+    }
+  ]
+}
