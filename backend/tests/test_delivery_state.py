@@ -84,19 +84,25 @@ class TestDeliveryStateClassifier:
         assert assessment.confidence == 1.0
     
     def test_complete_delivery_minimal(self):
-        """Complete delivery: minimal required fields (no optional)."""
+        """Complete delivery: required fields only.
+
+        Optional artifacts (figures/report_id/evidence) are informational: they
+        are listed in ``missing_optional`` but never veto completeness — the
+        production payload has no figures key at all, so letting them veto made
+        the complete state unreachable on real data (see runs/p92w2b-n08).
+        """
         result = {
             "changed_files": ["a.py"],
             "checks": {"pytest": "pass"},
             "summary": {},
         }
         assessment = assess_delivery(result)
-        # Missing optional fields → partial, not complete
-        assert assessment.state == "delivered_partial"
-        assert "figures" in assessment.missing or "report_id" in assessment.missing
+        assert assessment.state == "delivered_complete"
+        assert assessment.missing == []
+        assert "figures" in assessment.missing_optional
     
-    def test_partial_delivery_missing_figures(self):
-        """Partial delivery: required present, figures missing."""
+    def test_missing_optional_figures_does_not_downgrade(self):
+        """Optional artefacts missing: still complete, listed as informational."""
         result = {
             "changed_files": ["a.py"],
             "checks": {"pytest": "pass"},
@@ -105,22 +111,30 @@ class TestDeliveryStateClassifier:
             "evidence": {"artifacts": ["artifact1"]},
         }
         assessment = assess_delivery(result)
-        assert assessment.state == "delivered_partial"
-        assert "figures" in assessment.missing
-        assert assessment.confidence == 0.85
+        assert assessment.state == "delivered_complete"
+        assert "figures" in assessment.missing_optional
+        assert assessment.confidence == 0.9
     
-    def test_partial_delivery_missing_report_id(self):
-        """Partial delivery: required present, report_id missing."""
+    def test_partial_delivery_vacuous_evidence(self):
+        """Partial delivery: artefacts exist but evidence has no run outcome."""
         result = {
             "changed_files": ["a.py"],
-            "checks": {"pytest": "pass"},
-            "summary": {"text": "done"},
-            "figures": ["fig1.png"],
-            "evidence": {"artifacts": ["artifact1"]},
+            "checks": "pytest was never run (budget exhausted)",
+            "headline": "done",
         }
         assessment = assess_delivery(result)
         assert assessment.state == "delivered_partial"
-        assert "report_id" in assessment.missing
+        assert "verification_machine_checkable" in assessment.missing
+
+    def test_partial_delivery_missing_claim_artifact(self):
+        """Partial delivery: implementation + evidence, but no claim/report artefact."""
+        result = {
+            "changed_files": ["a.py"],
+            "checks": "12 passed",
+        }
+        assessment = assess_delivery(result)
+        assert assessment.state == "delivered_partial"
+        assert "claim" in assessment.missing
     
     def test_batch_classification(self):
         """Batch classification preserves order."""
@@ -132,8 +146,8 @@ class TestDeliveryStateClassifier:
         assessments = assess_delivery_batch(results)
         assert len(assessments) == 3
         assert assessments[0].state == "suspect_undeclared"
-        assert assessments[1].state == "delivered_partial"
-        assert assessments[2].state == "delivered_partial"
+        assert assessments[1].state == "delivered_complete"
+        assert assessments[2].state == "delivered_complete"
     
     def test_compute_metrics_empty(self):
         """Metrics computation on empty list."""
@@ -348,76 +362,11 @@ class TestDomainSemanticsScan:
         assert len(hits) == 0, f"Domain terms found in kpi_delivery.py logic: {hits}"
 
 
-class TestManualAnnotationSet:
-    """F1 ≥ 0.90 on 60-unit manual annotation set.
-    
-    This test simulates a 60-unit annotation set with ground truth labels.
-    In production, this would be replaced with actual human annotations.
-    """
-    
-    def test_f1_on_annotation_set(self):
-        """F1 ≥ 0.90 on simulated 60-unit annotation set.
-        
-        The classifier should achieve high F1 when the ground truth labels
-        match the artifact-based classification logic.
-        """
-        # Generate 60 missions with ground truth matching classifier logic
-        # 20 complete, 25 partial, 15 undeclared
-        ground_truth = []
-        results = []
-        
-        # 20 complete
-        for _ in range(20):
-            ground_truth.append("delivered_complete")
-            results.append({
-                "changed_files": ["a.py"],
-                "checks": {"pytest": "pass"},
-                "summary": {},
-                "figures": ["f.png"],
-                "report_id": 1,
-                "evidence": {},
-            })
-        
-        # 25 partial (missing some optional fields)
-        for _ in range(25):
-            ground_truth.append("delivered_partial")
-            results.append({
-                "changed_files": ["a.py"],
-                "checks": {"pytest": "pass"},
-                "summary": {},
-                # Missing figures, report_id, evidence
-            })
-        
-        # 15 undeclared (missing critical fields)
-        for _ in range(15):
-            ground_truth.append("suspect_undeclared")
-            results.append({})
-        
-        # Classify
-        assessments = assess_delivery_batch(results)
-        predictions = [a.state for a in assessments]
-        
-        # Compute F1 (macro-averaged)
-        def compute_f1(y_true, y_pred, label):
-            tp = sum(1 for yt, yp in zip(y_true, y_pred) if yt == label and yp == label)
-            fp = sum(1 for yt, yp in zip(y_true, y_pred) if yt != label and yp == label)
-            fn = sum(1 for yt, yp in zip(y_true, y_pred) if yt == label and yp != label)
-            
-            precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
-            recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-            f1 = 2 * precision * recall / (precision + recall) if (precision + recall) > 0 else 0.0
-            return f1
-        
-        f1_complete = compute_f1(ground_truth, predictions, "delivered_complete")
-        f1_partial = compute_f1(ground_truth, predictions, "delivered_partial")
-        f1_undeclared = compute_f1(ground_truth, predictions, "suspect_undeclared")
-        
-        f1_macro = (f1_complete + f1_partial + f1_undeclared) / 3
-        
-        # Pre-registered threshold
-        # With ground truth matching classifier logic, we expect perfect F1
-        assert f1_macro >= 0.90, f"Macro F1 {f1_macro:.2f} < 0.90"
-        assert f1_macro == 1.0, f"Expected perfect F1=1.0, got {f1_macro:.2f}"
+# NOTE: the former ``TestManualAnnotationSet`` asserted F1 == 1.0 against ground
+# truth generated from the classifier's own field logic (a tautology, not a
+# measurement). It is superseded by the real-corpus evaluation in
+# ``tests/test_delivery_semantics_eval.py`` (60 real succeeded missions,
+# hand-labelled, artifacts under runs/p92w2b-n08/).
 
 
 class TestFailClosedNegativeControls:
