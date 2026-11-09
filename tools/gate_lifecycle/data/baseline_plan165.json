@@ -1,0 +1,109 @@
+{
+  "schema": "gate-lifecycle-baseline/v1",
+  "plan_id": 165,
+  "plan_name": "P27-W3-seed",
+  "provenance": {
+    "source": "production PostgreSQL tables campaign_plans / campaign_nodes / campaign_events",
+    "sql": [
+      "select id, name, status, created_at from campaign_plans where id = 165;",
+      "select id, status, dependencies, actual_start, actual_end, planned_start, planned_end, round(extract(epoch from (actual_end - actual_start))::numeric, 3) as duration_s from campaign_nodes where plan_id = 165 order by id;",
+      "select event_type, count(*) from campaign_events where plan_id = 165 group by 1;",
+      "select event_type, created_at from campaign_events where plan_id = 165 order by created_at;"
+    ],
+    "anonymisation": "node ids replaced by n01..n08 in this fixture; no titles, no domain vocabulary retained"
+  },
+  "wall_clock_s": 6277.697,
+  "wall_clock_window": [
+    "2026-11-08T06:58:59.199415+00:00",
+    "2026-11-08T08:43:36.896110+00:00"
+  ],
+  "planned_times_present": false,
+  "nodes": [
+    {
+      "src_id": 1039,
+      "duration_s": 2952.0,
+      "offset_s": 2328.0,
+      "status": "blocked",
+      "deps": []
+    },
+    {
+      "src_id": 1040,
+      "duration_s": 5874.0,
+      "offset_s": 0.0,
+      "status": "done",
+      "deps": []
+    },
+    {
+      "src_id": 1041,
+      "duration_s": 2687.0,
+      "offset_s": 3071.0,
+      "status": "done",
+      "deps": []
+    },
+    {
+      "src_id": 1042,
+      "duration_s": 3471.0,
+      "offset_s": 0.708,
+      "status": "done",
+      "deps": []
+    },
+    {
+      "src_id": 1043,
+      "duration_s": 43.0,
+      "offset_s": 5715.0,
+      "status": "blocked",
+      "deps": []
+    },
+    {
+      "src_id": 1044,
+      "duration_s": 3738.0,
+      "offset_s": 1.144,
+      "status": "done",
+      "deps": []
+    },
+    {
+      "src_id": 1045,
+      "duration_s": 6277.0,
+      "offset_s": 1.343,
+      "status": "done",
+      "deps": []
+    },
+    {
+      "src_id": 1046,
+      "duration_s": 5401.0,
+      "offset_s": 1.541,
+      "status": "done",
+      "deps": [
+        1,
+        2,
+        3,
+        4,
+        5,
+        6,
+        7
+      ]
+    }
+  ],
+  "events": {
+    "mission_dispatched": 14,
+    "plan_updated": 2,
+    "total": 16,
+    "interventions_per_node": 2.0
+  },
+  "calibration": {
+    "inter_dispatch_gaps_s": [
+      58.45,
+      59.42,
+      61.82,
+      743.09,
+      2464.27
+    ],
+    "median_handoff_s": 61.82,
+    "note": "gaps measured between consecutive mission_dispatched events after the initial burst (8 dispatches within 1.5 s); median used as the per-hand-off cost in the serial baseline model"
+  },
+  "observations": [
+    "planned_start / planned_end are NULL on all 8 nodes: the baseline ran without a schedule (no critical path, no capacity model)",
+    "the summary node declares 7 dependencies but was dispatched at the same instant as its parents (offset 1.5 s) and finished before the longest parent -> declared dependency not enforced",
+    "14 dispatch events for 8 nodes -> 1.75 retries/dispatches per node; 2 plan_updated -> 2.0 coordinator-authored events per node"
+  ]
+}
