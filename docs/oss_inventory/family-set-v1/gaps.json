@@ -1,0 +1,136 @@
+[
+ {
+  "id": "E-1",
+  "kind": "仓已盘点但零谱系归集",
+  "detail": "oss_inventory.status=inventoried 而 oss_solutions 无行；本版方式集对这些仓无发言权",
+  "items": [
+   "Autodesk/XLB",
+   "JuliusWeinmiller/ThermalMultiphaseOpenLB",
+   "UvaCsl/HemoCell",
+   "geoelements/mcmp-lbm",
+   "hemelb-codes/hemelb",
+   "openLB/openLB"
+  ]
+ },
+ {
+  "id": "E-2",
+  "kind": "盘点报告占位/空壳",
+  "detail": "markdown 长度 <200 的 oss-inventory 报告",
+  "items": [
+   "9561\t【盘点】Autodesk/XLB — 开源 LBM 技术深盘\t76",
+   "9844\t【盘点】geoelements/mcmp-lbm: 3D多组元多相LBM（MRT）+ Taichi稀疏存储\t58"
+  ]
+ },
+ {
+  "id": "E-3",
+  "kind": "报告数据卫生",
+  "detail": "标题为占位串（tttt…）的 oss-inventory 报告，应清理或改判",
+  "items": [
+   "9921\ttttttttttttttttttttt\t42823",
+   "9923\ttttttttttttttttttttt\t42840",
+   "9924\ttttttttttttttttttttt\t42841"
+  ]
+ },
+ {
+  "id": "E-4",
+  "kind": "slug 别名分裂（同一手法多处登记）",
+  "detail": "8 组 slug 经归一后语义相同（去掉 NEW:/CAP-/GAP- 前缀与括注后同形），会让守护线按 (repo,feature_slug,tag) 的去重失效、统计口径漂移",
+  "items": {
+   "CI | GAP-LBM-CI | NEW:CAP-LBM-CI": "F12",
+   "MCMP 高密度比 | NEW:MCMP 高密度比（两组分 Poiseuille 之外的高密度比分层流）": "F03",
+   "稀疏 / 多孔 | 稀疏/多孔": "F09",
+   "NEW:测试与验证面（逐点参考回归 + 解析解 + 符号 Chapman-Enskog） | 测试与验证面": "F11",
+   "NEW:案例组织（单点配置对象 + 场景工厂） | 案例组织": "F10",
+   "NEW:分布式多卡（ghost 交换融合进生成 kernel） | 分布式多卡": "F08",
+   "NEW:相场 Allen-Cahn（含 CSF 表面张力与热毛细） | 相场 Allen-Cahn": "F05",
+   "自由面 | 自由面（free surface）": "F04"
+  }
+ },
+ {
+  "id": "E-5",
+  "kind": "transfer 词表未强制",
+  "detail": "oss_solutions.transfer 出现非规范取值，统计与守护线判据会误读",
+  "items": [
+   "reject-as-is"
+  ]
+ },
+ {
+  "id": "E-6",
+  "kind": "文件指针非行级",
+  "detail": "files 为目录级（多为 CI/测试目录），无法行级复核",
+  "items": [
+   "lssfau/walberla | CI | .gitlab-ci.yml",
+   "espressomd/espresso | GPU 融合 kernel | src/walberla_bridge/src/lattice_boltzmann/generated_kernels/StreamColl",
+   "hietwll/LBM_Taichi | NEW:ghia-1982-cavity-validation-data | data/ghia1982.dat",
+   "pylbm/pylbm | NEW:test-organization | tests/test_*.py, tests/baseline/, tests/reference/",
+   "joconnor22/LIFE | test-verification-surface | testing/run-tests.sh, testing/store-ref-data.sh",
+   "espressomd/espresso | 测试与验证面 | testsuite/python/lb_poiseuille.py, testsuite/python/lb_couette_xy.py, "
+  ]
+ },
+ {
+  "id": "E-7",
+  "kind": "整仓代码不可搬（许可证）",
+  "detail": "无许可证或自定义受限许可：只能人工读算法，禁止入库/蒸馏其代码文本",
+  "items": [
+   "Maarten-vd-Sande/lbm",
+   "PorousMediaSimulation/openLBMPM",
+   "ProjectPhysX/FluidX3D",
+   "ebinan92/Fingering_dynamics",
+   "hietwll/LBM_Taichi",
+   "loliverhennigh/Lattice-Boltzmann-fluid-flow-in-Tensorflow"
+  ]
+ },
+ {
+  "id": "E-8",
+  "kind": "LBM 域内功能点无覆盖",
+  "detail": "本轮 16 功能点之外、与未完成锚点相关的空白",
+  "items": [
+   "幂律/非牛顿悬浮流变（H2-FRAZIL-RHEOLOGY）——零盘点",
+   "热-流/共轭传热 LBM——仅 ThermalMultiphaseOpenLB 报告在但零归集",
+   "球面/曲面力法的定量 Cd 对标（GAP-LBM-SPHERE）——仅有实现，无定量验证数据",
+   "自由能三元以上/高密度比组合——ludwig 三元有实现但无密度比"
+  ]
+ },
+ {
+  "id": "E-9",
+  "kind": "账本状态与产出不一致",
+  "detail": "oss_inventory.status 未随盘点产出更新：有谱系行的仓仍标 pending，反之亦然",
+  "items": [
+   "PorousMediaSimulation/openLBMPM (status=done, solutions=5)",
+   "Autodesk/XLB (status=inventoried, solutions=0)",
+   "JuliusWeinmiller/ThermalMultiphaseOpenLB (status=inventoried, solutions=0)",
+   "UvaCsl/HemoCell (status=inventoried, solutions=0)",
+   "geoelements/mcmp-lbm (status=inventoried, solutions=0)",
+   "hemelb-codes/hemelb (status=inventoried, solutions=0)",
+   "openLB/openLB (status=inventoried, solutions=0)"
+  ]
+ },
+ {
+  "id": "E-10",
+  "kind": "transfer=fits 与许可证口径混用（最重要）",
+  "detail": "oss_solutions.transfer 的 fits 在盘点期表达的是『技术可迁移』而非『法律可搬码』：21/46 条 fits 落在 GPL/AGPL/无许可/受限仓上。本报告把两轴拆开：技术轴保留原值，法律轴另立『可搬码行』子集，并据此把推荐里的 fits 收紧为 adapt/reference。",
+  "items": [
+   "omalaspinas/palabos|CI|format-gate-ccache-matrix-ci|copyleft-strong(AGPL)",
+   "lssfau/lbmpy|GAP-LBM-MCMP-POISEUILLE|shan-chen-mcmp-barycentric-guo|copyleft(GPL)",
+   "je-santos/MPLBM-UT|NEW: 准静态排驱压力阶梯 + 断点续算协议|quasi-static-pc-ladder-with-checkpoint|copyleft(GPL)",
+   "joconnor22/LIFE|NEW:CAP-LBM-VALIDATION-SURFACE|bitwise-refdata-regression-plus-benchmark-cases|copyleft(GPL)",
+   "ebinan92/Fingering_dynamics|NEW:GAP-LBM-PHASEFIELD-FREEENERGY|free-energy-cahn-hilliard-core|no-license",
+   "ebinan92/Fingering_dynamics|NEW:GAP-LBM-WETTING-DIFFUSE|diffuse-interface-wetting-via-wall-order-parameter|no-license",
+   "joconnor22/LIFE|NEW:LBM-IBM-MDF-STENCIL|ibm-epsilon-gram-implicit-correction|copyleft(GPL)",
+   "hietwll/LBM_Taichi|NEW:ghia-1982-cavity-validation-data|ghia-1982-lid-cavity-reference|no-license",
+   "ProjectPhysX/FluidX3D|NEW:动量交换固体受力面(阻力/扭矩)|momentum-exchange-solid-force-and-torque|restricted",
+   "lssfau/lbmpy|NEW:案例组织（单点配置对象 + 场景工厂）|lbmconfig-single-point-config|copyleft(GPL)",
+   "lssfau/lbmpy|NEW:测试与验证面（逐点参考回归 + 解析解 + 符号 Chapman-Enskog）|pointwise-reference-regression|copyleft(GPL)",
+   "joconnor22/LIFE|test-verification-surface|regression-test-framework|copyleft(GPL)",
+   "je-santos/MPLBM-UT|案例组织|yml-driven-xml-template-pipeline|copyleft(GPL)",
+   "lssfau/walberla|案例组织|apps-4layer-plus-prm-plus-scenario-class|copyleft(GPL)",
+   "omalaspinas/palabos|案例组织|examples-taxonomy|copyleft-strong(AGPL)",
+   "ProjectPhysX/FluidX3D|测试与验证面|analytic-anchored-in-situ-l2-convergence|restricted",
+   "omalaspinas/palabos|测试与验证面|plb-regression-flag-asan|copyleft-strong(AGPL)",
+   "sailfish-team/sailfish|测试与验证面|analytic-profile-error-curve-plus-golden-fields|copyleft-weak(LGPL)",
+   "omalaspinas/palabos|稀疏 / 多孔|partial-bounce-back-porous|copyleft-strong(AGPL)",
+   "je-santos/MPLBM-UT|稀疏/多孔|edt-two-segment-geometry-tag-compression|copyleft(GPL)",
+   "omalaspinas/palabos|自由面|thuerey-mass-tracking-free-surface|copyleft-strong(AGPL)"
+  ]
+ }
+]
