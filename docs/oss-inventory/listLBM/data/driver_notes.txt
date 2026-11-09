@@ -1,0 +1,25 @@
+m8285 listLBM 运行期实验说明（2026-11-09）
+=========================================
+目的：对 sorush-khajepor/listLBM 的 SC 伪势实现做独立数值验证（不是仓内测试，仓内无测试）。
+这两个 driver 是本单自写的验证脚本（只调用其模块 API），不进入 TensorLBM，不构成其衍生作品。
+
+编译（gfortran 12.3.0）：
+  1) sed -i "s/stop'/stop '/g" collision/pseudopotential/{ppot_mod,mcmp_mod}.f90   # 修其源码 stop 语法缺陷（本地副本）
+  2) 迭代编译库模块（排除 writeout/ 与 examples/，因 writeout 依赖 VTKFortran）：
+     for pass in 1..6: 对尚未生成 .o 的 .f90 逐个 gfortran -O2 -ffree-line-length-none -J. -c
+     结果：43 个模块全部编译成功（首轮 41/43，2 个因 stop 语法失败）
+  3) gfortran -O2 <objs> driver_laplace.o -o laplace ; 同理 porous
+
+运行：
+  ./laplace <rad> <nsteps>   # 2D D2Q9 SCMP 液滴，128x128，y 周期/x 通道，rho_wall=1.4，G=-1.5，tau=1
+  ./porous  <0|1> <nsteps>   # 0=无固体, 1=加 4 个 26x26 盒子；输出 imgproc.rep 的孔隙率报表
+
+实测（raw_runs.txt 为原始 stdout）：
+  R=8  4000步: rho_l=1.435701 rho_v=0.226462 ratio=6.340 |u|max=0.006254 dp=0.001662  44.4s
+  R=8  8000步: rho_l=1.435717 rho_v=0.226329 ratio=6.344 |u|max=0.006231 dp=0.001649  91.2s
+  R=12 4000步: rho_l=1.444624 rho_v=0.227094 ratio=6.361 |u|max=0.026780 dp=0.001164  40.6s
+  R=16 4000步: rho_l=1.450542 rho_v=0.228235 ratio=6.355 |u|max=0.058423 dp=0.000891  46.9s
+  Laplace: 纯 sigma/R 拟合 max err 4.50% ; 引入有效半径 delta=1.28 后 max err 0.21% ;
+           盲测(R=8,16 定 delta,sigma -> 预测 R=12) err 0.33%
+  稀疏：无固体 15876 fluid/0 wall -> 7.286s(600步)；4 盒子 13172 fluid/400 wall/2304 black剔除 -> 6.347s（-12.9%）
+  吞吐：128x128x4000 步 = 65.5M cell-updates / 46.9s ≈ 1.40 MCUPS 单核（OO 虚调用开销大，不可作性能参考）
