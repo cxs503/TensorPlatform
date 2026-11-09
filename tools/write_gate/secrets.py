@@ -14,6 +14,8 @@
 """
 from __future__ import annotations
 
+import codecs
+
 import math
 import re
 from dataclasses import dataclass
@@ -143,12 +145,20 @@ def scan_text(text: str, cfg: Dict[str, Any], *,
 
 
 def looks_binary(data: bytes) -> bool:
-    """粗略二进制判据：前 8KB 内出现 NUL 或解码失败。"""
+    """粗略二进制判据：前 8KB 内出现 NUL，或含**非法** UTF-8 字节序。
+
+    判据必须容忍「切片截断在多字节字符中间」：直接把 ``data[:8192]`` 严格解码，
+    只要第 8192 字节落在某个 CJK/emoji 字符的中间，就会抛 ``UnicodeDecodeError``
+    → 整个文件被当二进制 → **静默跳过凭证扫描**（中文源码/文档命中率极高，
+    这是 fail-open）。因此用增量解码器 ``final=False``：尾部不完整序列放行，
+    真正非法的字节序仍判二进制。
+    """
     head = data[:8192]
     if b"\x00" in head:
         return True
+    decoder = codecs.getincrementaldecoder("utf-8")()
     try:
-        head.decode("utf-8")
+        decoder.decode(head, final=False)
     except UnicodeDecodeError:
         return True
     return False

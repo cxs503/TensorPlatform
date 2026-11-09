@@ -103,6 +103,10 @@ class Verdict:
         self.violations.append(violation)
         if violation.category == "invalid":
             self.decision = "unknown"
+        elif self.decision != "unknown":
+            # 判决字段必须与 ``verdict`` 同向：``FAIL`` 却写 ``decision=allow`` 会让下游
+            # （钩子/账本/面板）把拦截读成放行，等于给审计留了一条自相矛盾的口子
+            self.decision = "block"
         self.verdict = "FAIL"
 
     @property

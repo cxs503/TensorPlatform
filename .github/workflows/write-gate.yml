@@ -42,20 +42,24 @@ jobs:
       
       - name: Run write gate CLI self-check
         run: |
-          # 白名单内路径应放行
-          python -m tools.write_gate.cli paths \
-            --edit-whitelist "tools/**,docs/**,tests/**" \
+          # 白名单内路径应放行（--edit-whitelist 是顶层选项，必须写在子命令之前）
+          python -m tools.write_gate.cli --edit-whitelist "tools/**,docs/**,tests/**" paths \
             tools/write_gate/gate.py docs/README.md tests/test_write_gate.py
-          
-          # .git 内部应拦截
-          if python -m tools.write_gate.cli paths .git/config 2>/dev/null; then
-            echo "FAIL: .git/config should be blocked"
+
+          # 拦截类判决必须**精确**是退出码 2（blocked）；3=内部错误、2=argparse 语法错误
+          # 都不是"拦住了"。只判「非零」会把写错的命令行当成通过（本 workflow 曾这样自欺）。
+          set +e
+          python -m tools.write_gate.cli paths .git/config 2>/dev/null
+          git_config=$?
+          python -m tools.write_gate.cli paths /etc/passwd 2>/dev/null
+          absolute=$?
+          set -e
+          if [ "$git_config" -ne 2 ]; then
+            echo "FAIL: .git/config expected exit 2 (blocked), got $git_config"
             exit 1
           fi
-          
-          # 绝对路径应拦截
-          if python -m tools.write_gate.cli paths /etc/passwd 2>/dev/null; then
-            echo "FAIL: absolute path should be blocked"
+          if [ "$absolute" -ne 2 ]; then
+            echo "FAIL: /etc/passwd expected exit 2 (blocked), got $absolute"
             exit 1
           fi
       
