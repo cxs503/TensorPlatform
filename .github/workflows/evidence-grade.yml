@@ -1,0 +1,74 @@
+name: Evidence grade
+
+# Machine-recomputable evidence grading (m7794 / P350W1-N05).
+# The node's acceptance criteria are executable: 30/30 reproduction, 6/6
+# same-source trap detection, Cohen's kappa >= 0.9, emitted reconciliation
+# ledger, zero domain-vocabulary hits, UNKNOWN degrade regression.
+on:
+  push:
+    branches: [main]
+    paths:
+      - "schemas/evidence_contract.schema.json"
+      - "tools/evidence_*.py"
+      - "tools/evidence_domain_lexicon.json"
+      - "tests/evidence/**"
+      - "artifacts/evidence_grade/**"
+      - ".github/workflows/evidence-grade.yml"
+  pull_request:
+    paths:
+      - "schemas/evidence_contract.schema.json"
+      - "tools/evidence_*.py"
+      - "tools/evidence_domain_lexicon.json"
+      - "tests/evidence/**"
+      - "artifacts/evidence_grade/**"
+      - ".github/workflows/evidence-grade.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  evidence-grade:
+    name: evidence grade engine
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip && pip install pytest jsonschema matplotlib numpy
+
+      - name: Regenerate fixtures, grades, reconciliation, metrics
+        run: python tools/evidence_grade.py run-all
+
+      - name: Acceptance criteria gate
+        run: |
+          python - <<'PY'
+          import json, sys
+          m = json.load(open("artifacts/evidence_grade/metrics.json"))
+          bad = {k: v for k, v in m["criteria"].items() if not v.get("pass")}
+          for k, v in m["criteria"].items():
+              print(f"{k}: {'PASS' if v.get('pass') else 'FAIL'} value={v.get('value')}")
+          sys.exit(1 if bad else 0)
+          PY
+
+      - name: Fixture determinism (regenerate and diff contract bytes)
+        run: |
+          python tools/evidence_grade.py gen-fixtures --out /tmp/fx >/dev/null
+          rc=0
+          for d in /tmp/fx/case-*; do
+            n=$(basename "$d")
+            diff -q "$d/contract.json" "artifacts/evidence_grade/fixtures/$n/contract.json" || rc=1
+          done
+          diff -q /tmp/fx/labels.json artifacts/evidence_grade/fixtures/labels.json || rc=1
+          exit $rc
+
+      - name: Domain-vocabulary scan (must be zero hits)
+        run: python tools/evidence_domain_scan.py
+
+      - name: Tests
+        run: python -m pytest -q tests/evidence/
+
+      - name: Figures (report evidence)
+        run: python tools/evidence_grade_figures.py
