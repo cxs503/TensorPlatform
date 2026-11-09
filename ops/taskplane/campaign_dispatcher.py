@@ -8,7 +8,7 @@
           → 仲裁者聚合去重播种 draft 战役 → 本守护**机器门**验证后激活）。
 战役内容 100% 由上层智能体生成；本守护只编排「谁思考」，不写「思考什么」。
 """
-import json, os, subprocess, time, urllib.request, urllib.error, datetime
+import json, os, subprocess, sys, time, urllib.request, urllib.error, datetime
 
 API = os.getenv("TP_API", "http://127.0.0.1:8010")
 PSQL = ["runuser", "-u", "postgres", "--", "psql", "-d", "tensorplatform", "-t", "-A",
@@ -608,6 +608,35 @@ def _validate_new_plan(pid):
     mat = sum(1 for r in nodes if "成熟化" in (r[3] or ""))
     if mat < 2:
         reasons.append(f"成熟化单 {mat} < 2")
+    # ── 谱系继承契约机检（m8058）：父波 honest-FAIL/KPI 缺口必须有子波判据覆盖，否则拦截播种。
+    #    只读（不写表）；机检自身异常一律降级 WARN，不让门成为播种的单点故障。
+    #    环境变量：TP_INHERITANCE_CONTRACT_OFF=1 关闭；TP_INHERITANCE_CONTRACT_CONFIG=<json> 注入配置。
+    try:
+        _root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        if _root not in sys.path:
+            sys.path.insert(0, _root)
+        from ops.taskplane import inheritance_contract as _ic
+        try:
+            _cmeta = json.loads(rows[0][1] or "{}")
+        except (TypeError, ValueError):
+            _cmeta = {}
+        _ppid = _cmeta.get("parent_plan")
+        if _ppid and not os.getenv("TP_INHERITANCE_CONTRACT_OFF"):
+            _cfg_path = os.getenv("TP_INHERITANCE_CONTRACT_CONFIG")
+            _cfg = {}
+            if _cfg_path:
+                with open(_cfg_path, encoding="utf-8") as _fh:
+                    _cfg = json.load(_fh) or {}
+            _ic_ok, _ic_reasons, _ic_rep = _ic.seeding_gate_from_db(
+                int(pid), q, _cfg, parent_plan_id=int(_ppid))
+            log(f"继承契约机检 plan {pid}←{_ppid}: verdict={_ic_rep.get('verdict')} "
+                f"缺口={(_ic_rep.get('summary') or {}).get('n_gaps')} "
+                f"拦截={(_ic_rep.get('summary') or {}).get('n_intercepted')} "
+                f"digest={str(_ic_rep.get('matrix_digest'))[:12]}")
+            if not _ic_ok:
+                reasons.extend(_ic_reasons)
+    except Exception as _e:
+        log(f"WARN 继承契约机检跳过（不阻断播种）：{type(_e).__name__}: {str(_e)[:160]}")
     return (not reasons), reasons
 
 
