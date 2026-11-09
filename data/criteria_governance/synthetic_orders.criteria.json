@@ -1,0 +1,157 @@
+{
+  "bundle_id": "synthetic-orders",
+  "bundle_role": "synthetic_order_reference",
+  "physical_summary": "纯数学合成算例：阈值随分辨率按 h^p 收缩，用于验证重推导闭环机制。",
+  "provenance": {
+    "generator": "tools/criteria_governance/gen_synthetic_bundle.py",
+    "safety_factor": 1.2,
+    "note": "阈值由生成器在探针 detail 上程序化计算，无手抄数字。",
+    "entries_sha256": "aa371f0696fb86d8126ad736e458b5ae4b79464c0e18e0b81ac061d69859ab58"
+  },
+  "criteria": [
+    {
+      "criterion_id": "SYN-C1",
+      "title": "2 点中心差分导数算子的二阶误差界",
+      "statement": "周期正弦的一阶导数用 2 点中心差分逼近，最细网格实测最大误差必须落在 threshold(h)=SF·C·h^2 的界内。",
+      "quantity": "max_abs_derivative_error",
+      "comparator": "<=",
+      "threshold": {
+        "op": "<=",
+        "value": 0.00012047856934923531,
+        "unit": "1"
+      },
+      "source_type": "analytic",
+      "source_ref": {
+        "kind": "analytic_identity",
+        "identifier": "synthetic_order_analytic:linear_operator_refinement::stencil=2",
+        "locator": "data/criteria_governance/synthetic_orders.criteria.json"
+      },
+      "depends_on": [
+        {
+          "param": "h",
+          "exponent": 2.0
+        }
+      ],
+      "derivation": {
+        "method": "refinement_scan",
+        "reference": "离散算子主误差项解析式（Taylor 展开首项），常数由探针 detail 现场计算",
+        "parents": [],
+        "expression": "SF*C*h**2",
+        "declared_exponent": 2.0,
+        "tolerance": 0.3,
+        "safety_factor": 1.2,
+        "note": "threshold(h)=SF*C*h^2，SF=1.2，C=0.166666666667，h_ref=0.0245436926062"
+      },
+      "probe": {
+        "name": "linear_operator_refinement",
+        "params": {
+          "stencil": 2,
+          "wavenumber": 1.0,
+          "resolutions": [
+            32,
+            64,
+            128,
+            256
+          ]
+        }
+      },
+      "review_date": "2026-11-09"
+    },
+    {
+      "criterion_id": "SYN-C2",
+      "title": "5 点差分导数算子的四阶误差界",
+      "statement": "周期正弦的一阶导数用 5 点 stencil 逼近，最细网格实测最大误差必须落在 threshold(h)=SF·C·h^4 的界内（阶次由探针序列自行重算）。",
+      "quantity": "max_abs_derivative_error",
+      "comparator": "<=",
+      "threshold": {
+        "op": "<=",
+        "value": 1.4515085672438505e-08,
+        "unit": "1"
+      },
+      "source_type": "analytic",
+      "source_ref": {
+        "kind": "analytic_identity",
+        "identifier": "synthetic_order_analytic:linear_operator_refinement::stencil=4",
+        "locator": "data/criteria_governance/synthetic_orders.criteria.json"
+      },
+      "depends_on": [
+        {
+          "param": "h",
+          "exponent": 4.0
+        }
+      ],
+      "derivation": {
+        "method": "refinement_scan",
+        "reference": "离散算子主误差项解析式（Taylor 展开首项），常数由探针 detail 现场计算",
+        "parents": [],
+        "expression": "SF*C*h**4",
+        "declared_exponent": 4.0,
+        "tolerance": 0.3,
+        "safety_factor": 1.2,
+        "note": "threshold(h)=SF*C*h^4，SF=1.2，C=0.0333333333333，h_ref=0.0245436926062"
+      },
+      "probe": {
+        "name": "linear_operator_refinement",
+        "params": {
+          "stencil": 4,
+          "wavenumber": 1.0,
+          "resolutions": [
+            32,
+            64,
+            128,
+            256
+          ]
+        }
+      },
+      "review_date": "2026-11-09"
+    },
+    {
+      "criterion_id": "SYN-C3",
+      "title": "复合梯形求积的二阶误差界",
+      "statement": "指数函数在单位区间上的复合梯形积分误差必须落在 threshold(h)=SF·C·h^2 的界内（C 取解析误差常数 (e-1)/12）。",
+      "quantity": "abs_integration_error",
+      "comparator": "<=",
+      "threshold": {
+        "op": "<=",
+        "value": 1.048755998815335e-05,
+        "unit": "1"
+      },
+      "source_type": "analytic",
+      "source_ref": {
+        "kind": "analytic_identity",
+        "identifier": "synthetic_order_analytic:integration_refinement::stencil=n/a",
+        "locator": "data/criteria_governance/synthetic_orders.criteria.json"
+      },
+      "depends_on": [
+        {
+          "param": "h",
+          "exponent": 2.0
+        }
+      ],
+      "derivation": {
+        "method": "refinement_scan",
+        "reference": "离散算子主误差项解析式（Taylor 展开首项），常数由探针 detail 现场计算",
+        "parents": [],
+        "expression": "SF*C*h**2",
+        "declared_exponent": 2.0,
+        "tolerance": 0.3,
+        "safety_factor": 1.2,
+        "note": "threshold(h)=SF*C*h^2，SF=1.2，C=0.143190152372，h_ref=0.0078125"
+      },
+      "probe": {
+        "name": "integration_refinement",
+        "params": {
+          "lower": 0.0,
+          "upper": 1.0,
+          "resolutions": [
+            16,
+            32,
+            64,
+            128
+          ]
+        }
+      },
+      "review_date": "2026-11-09"
+    }
+  ]
+}
