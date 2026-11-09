@@ -66,7 +66,7 @@
   "comparator": ">=",
   "threshold": 3.0,
   "source_type": "heuristic",
-  "source_ref": "config/proposal_gate.json#sha256:4745e48f006e75a0bf6fa800ccc117483dc0bb38e36c43e878d4d85dc9276de1#/contract/min_criteria",
+  "source_ref": "config/proposal_gate.json#sha256:780c42631df4c8ec84adf4c7f76e068f3098438cf15509c53a7ba8613df3cd53#/contract/min_criteria",
   "source_note": "配置值，源文件内无文献/规范/解析出处 → 保守判 heuristic（不可裁）",
   "depends_on": [],
   "derivation": null,
@@ -204,8 +204,8 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
 
 | 产物 | bytes | sha256 |
 |---|---|---|
-| `data/criteria/threshold_registry.json` | 43299 | `7a4372e18fd1cc596d4f9e20a1229e2d8370af8d48e7882a1594336341ec1c7a` |
-| `data/criteria/threshold_registry.lock.json` | 28112 | `5ce60929fd9ef0c259c178bd07a1dc3e1998587c1c51022c9f89947cce0fd491` |
+| `data/criteria/threshold_registry.json` | 43299 | `d9e1695d18ac7286d9c1031333ba0269130f0f0bf1d7672c4c1b2cdab81682f6` |
+| `data/criteria/threshold_registry.lock.json` | 28112 | `d1f15bd4b121155ce07db5818308840f10bf840b9eb7ea04630713ad9a03aac3` |
 | `schemas/threshold_registry.schema.json` | 6073 | `8f3b803c5296712ec48908c7b42e59fe6ab463f5d3b9b2b0a88d5aed05a6d3b7` |
 | `tools/criteria/threshold_registry.py` | 38640 | `23110399c2ff932051e368e7790c5d5f529fe14861f20f5b6fbd2583bbfe22b6` |
 | `tools/criteria/probes.py` | 5565 | `8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e` |
