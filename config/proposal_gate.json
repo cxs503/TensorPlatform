@@ -79,5 +79,29 @@
     "dup_rejected_key": "guide.proposal_dup_rejected",
     "seed_coverage_key": "guide.proposal_seed_coverage"
   },
-  "domain_vocab_file": "config/domain_word_denylist.json"
+  "domain_vocab_file": "config/domain_word_denylist.json",
+  "review": {
+    "purpose": "复核带裁决通道：near_duplicate（score ∈ [review_threshold, dup_threshold)）既不自动拒也不入池，必须由复核人显式裁决后才能出带；契约失败（fail-closed）行不可经此通道放行，须重新提交合规载荷。",
+    "queue_states": [
+      "quarantined"
+    ],
+    "queue_verdicts": [
+      "near_duplicate"
+    ],
+    "decisions": {
+      "admit": {
+        "state": "proposal",
+        "verdict": "accepted"
+      },
+      "reject": {
+        "state": "dedup_rejected",
+        "verdict": "near_duplicate"
+      }
+    },
+    "min_note_length": 8,
+    "reviewer_required": true,
+    "adopt_allowed_states": [
+      "proposal"
+    ]
+  }
 }
