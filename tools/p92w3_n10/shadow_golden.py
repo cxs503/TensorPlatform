@@ -12,6 +12,7 @@ Run: python3 tools/p92w3_n10/shadow_golden.py
 """
 from __future__ import annotations
 
+import argparse
 import hashlib
 import json
 import pathlib
@@ -62,15 +63,31 @@ def _payload(record: dict):
     return value if isinstance(value, dict) else None
 
 
-def build_cases() -> list[dict]:
+def _require_corpus(corpus: pathlib.Path) -> pathlib.Path:
+    corpus = pathlib.Path(corpus)
+    if not corpus.exists():
+        # A missing corpus used to degrade this golden to its 12 synthetic cases
+        # while still reporting success (measured 2026-11-09: 52 -> 12 cases, n_real 40
+        # -> 0). Refuse instead: the real-case replay is the whole point.
+        raise SystemExit(
+            f"corpus missing: {corpus}\n"
+            "the frozen golden must be rebuilt from the pinned corpus "
+            "(sha256 in runs/p92w3-n10/corpus/missions_succeeded.sha256) — pass --corpus PATH"
+        )
+    return corpus
+
+
+def build_cases(corpus: pathlib.Path | None = None) -> list[dict]:
+    corpus = _require_corpus(CORPUS if corpus is None else corpus)
     cases = [{"kind": "synthetic", "id": None, "result": payload} for payload in SYNTHETIC]
-    if CORPUS.exists():
-        records = sorted(json.loads(CORPUS.read_text(encoding="utf-8")),
-                         key=lambda r: r.get("id") or 0)
-        rng = random.Random(SEED)
-        for record in rng.sample(records, min(N_REAL, len(records))):
-            cases.append({"kind": "real", "id": record.get("id"),
-                          "result": _payload(record)})
+    records = sorted(json.loads(corpus.read_text(encoding="utf-8")),
+                     key=lambda r: r.get("id") or 0)
+    if not records:
+        raise SystemExit(f"corpus {corpus} is empty — nothing to replay")
+    rng = random.Random(SEED)
+    for record in rng.sample(records, min(N_REAL, len(records))):
+        cases.append({"kind": "real", "id": record.get("id"),
+                      "result": _payload(record)})
     for case in cases:
         case["state"] = assess_attested_delivery(case["result"]).state
         case["artifact_state"] = assess_delivery(case["result"]).state
@@ -87,9 +104,16 @@ def purity_report() -> dict:
     return findings
 
 
-def main() -> None:
-    cases_a = build_cases()
-    cases_b = build_cases()
+def main(argv: list[str] | None = None) -> None:
+    parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--corpus", type=pathlib.Path, default=CORPUS,
+                        help="frozen succeeded-missions corpus (41 MB, sha256 pinned)")
+    args = parser.parse_args(argv)
+    _require_corpus(args.corpus)
+    corpus_sha256 = hashlib.sha256(args.corpus.read_bytes()).hexdigest()
+    n_records = len(json.loads(args.corpus.read_text(encoding="utf-8")))
+    cases_a = build_cases(args.corpus)
+    cases_b = build_cases(args.corpus)
     digest_a = hashlib.sha256(json.dumps(cases_a, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
     digest_b = hashlib.sha256(json.dumps(cases_b, sort_keys=True, ensure_ascii=False).encode()).hexdigest()
 
@@ -101,6 +125,7 @@ def main() -> None:
 
     payload = {
         "seed": SEED,
+        "corpus": {"sha256": corpus_sha256, "n_records": n_records},
         "n_cases": len(cases_a),
         "n_real": sum(1 for c in cases_a if c["kind"] == "real"),
         "digest_run_1": digest_a,
