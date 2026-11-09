@@ -1,0 +1,100 @@
+[OSS-INV]
+repo: lssfau/lbmpy
+lang: Python (SymPy 符号推导 + pystencils 代码生成; src/lbmpy 105 文件 23365 行; HEAD 0afc9d5 2026-07-22)
+license: GPL-3.0-or-later
+methods: stencils=D2Q9/D3Q7/D3Q15/D3Q19/D3Q27 + Custom/Lehmann-ordering (velocityspace/standardstencils.py:53,:93,:124,:178,:241); collision=SRT/TRT/TRT-magic/MRT-raw/MRT-orthogonal/KBC/central-moment/cumulant(monomial,polynomial)/entropic-Newton-omega (methods/creationfunctions.py:227,:255,:285,:310,:339,:387,:466,:532,:567,:589; methods/momentbased/entropic.py:8,:90); force=Simple/Luo/Guo/He/Schiller/Buick/EDM/ShanChen/CentralMoment (forcemodels.py:179,:235,:273,:319,:441,:453,:493,:521,:213); equilibrium=discrete+continuous Maxwellian (methods/creationfunctions.py:81,:121); RR 无命名入口
+multiphase: ShanChen 力项 forcemodels.py:521; SCMP 指数势 psi=r0(1-exp(-rho/r0)) + Guo 力 tests/shan_chen/test_shan_chen_two_phase.py:33,:38-39 (g_aa=-4.7, 密度比~14); MCMP 两组分逐组分力 + 重均速度 u_bary tests/shan_chen/test_shan_chen_two_component.py:23-25,:55-59,:73-81,:85-89; Cahn-Hilliard n 相解析自由能 phasefield/analytical.py:101,:231,:243 + 内核 phasefield/kerneleqs.py:13,:24,:32,:70,:92 + 驱动 phasefield/phasefieldstep.py:20; 高密度比自由能(EOS积分+Maxwell等压) phasefield/high_density_ratio_model.py:8-46 + phasefield/eos.py:8,:23,:53; n 相 Nestler/Boyer phasefield/nphase_nestler.py:46, n_phase_boyer.py:17,:57; Allen-Cahn 力链 phasefield_allen_cahn/kernel_equations.py:19,:55,:78,:112,:133,:169,:213 + 参数标定 parameter_calculation.py:256,:264,:265,:277-282(密度比1000),:341-342(水/空 828:1); 接触角 2.0 回归 tests/phasefield_allen_cahn/test_contact_angle.py:13-15 skipif; 自由面=无(grep free.surface 仅 fieldaccess.py:374 注释); spurious-current 抑制=无(grep 0 命中)
+boundary: NoSlip/NoSlipLinearBouzidi/QuadraticBounceBack/FreeSlip/WallFunctionBounce/UBB(Zou-He 速度型)/FixedDensity(Zou-He 密度型)/SimpleExtrapolationOutflow/ExtrapolationOutflow/DiffusionDirichlet/NeumannByCopy/StreamInConstant (boundaries/boundaryconditions.py:110,:149,:232,:371,:500,:788,:1127,:927,:977,:1187,:1270,:1294); 边界力=动量交换 boundaryhandling.py:100,:108,:128; IBM=无, 替代 PSM 部分饱和固体 partially_saturated_cells.py:11,:48,:115; 曲率修正=无(靠壁距 q 插值 :174,:259)
+gpu: pystencils 生成 C/CUDA(HIP), OpenCL 已移除 CHANGELOG.md:5-6; SoA layout fzyx updatekernels.py:146; AA-pattern fieldaccess.py:136,:148; esotwist/eso-pull/eso-push 压缩布局 fieldaccess.py:160-281; 融合 kernel_type creationfunctions.py:298,:306 + updatekernels.py:13,:87; 稀疏 list-based AoS sparse/mapping.py:14,:158 + sparse/update_rule_sparse.py:8,:22; MPI 仅 ghost 交换编译进 kernel advanced_streaming/communication.py:20,:121,:185(无域分解/无通信隐藏); autograd=无(torch/jax 0 命中)
+summary: 方法定义谱系最全的符号式 LBM 前端（13 碰撞工厂/9 力项/12 边界/5 格 + 相场与自动 Chapman-Enskog 工具链），但多相只有教程+逐点回归级的 Shan-Chen（指数势，密度比~14）与相场研究代码（CH/AC，密度比声明到 1000），自由面与 spurious-current 抑制完全空白。GPL-3.0-or-later 强 copyleft，对我们只可「参考实现、重写落地」不可复制源码；本环境与集群均无 pystencils（不在 PyPI）故全部结论为静态源码证据，58 个 file:line 指针经 verify_pointers.py 全量校验通过。
+[/OSS-INV]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: GAP-LBM-MCMP-POISEUILLE
+tag: shan-chen-mcmp-barycentric-guo
+method: 每组分的力 F_sigma = -psi_sigma(x) * sum_{sigma'} g_{sigma sigma'} * sum_d w_d psi_sigma'(x+c_d) c_d，psi 用指数势 rho0*(1-exp(-rho/rho0))；两套 LBMConfig 各自 density_input 但共享 velocity_input = u_bary = sum(rho_sigma u_sigma)/sum(rho_sigma)，各配 Guo 力项、collide_only 内核 + 独立 pull streaming，每步前同步 rho 的 halo。
+files: tests/shan_chen/test_shan_chen_two_component.py:55-59, tests/shan_chen/test_shan_chen_two_component.py:73-81, tests/shan_chen/test_shan_chen_two_component.py:85-89, src/lbmpy/forcemodels.py:521, src/lbmpy/forcemodels.py:273
+conventions: g_aa=g_bb=0, g_ab=g_ba=6.0（排斥分相）；D2Q9，cs^2=1/3；rho_a/rho_b 初值 0.1/0.9 分层；omega=1.0；力在碰撞前用邻居 rho 计算，故需 halo 同步；力项 Guo 的 (1-omega/2) 修正；格子单位 dt=dx=1
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:MCMP 高密度比（两组分 Poiseuille 之外的高密度比分层流）
+tag: pf-eos-maxwell-high-density-ratio
+method: 高密度比不走 psi(rho) 势，而是由 EOS 积分得游离能 psi_eos=int(p/rho^2 drho)，再用 Maxwell 等压条件 psi_eos(rho_g)=psi_eos(rho_l) 解积分常数，得 f_bulk=lambda/2*(psi_eos-psi_0)^2 + kappa 界面项；力由压力张量 pi_ab=(f-sum phi mu)delta_ab - kappa d_a phi d_b phi 取散度施加。
+files: src/lbmpy/phasefield/high_density_ratio_model.py:8, src/lbmpy/phasefield/high_density_ratio_model.py:33-46, src/lbmpy/phasefield/eos.py:42, src/lbmpy/phasefield/eos.py:53, src/lbmpy/phasefield/kerneleqs.py:70
+conventions: eos 必须只依赖密度一个符号（:25 assert）；lambda/kappa 与 EOS 项/液相项同序；共存密度由 maxwell_construction 数值求得；密度比能力到 1000 量级（parameter_calculation.py:282 默认值，非收敛上限）
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:相场 Allen-Cahn（含 CSF 表面张力与热毛细）
+tag: allen-cahn-csf-force-chain
+method: 化学势 mu = d f/d phi - kappa*laplacian(phi) 符号生成，界面演化用 interface_tracking_force 并入碰撞规则；流体侧力分解为 pressure_force(由 rho(phi) 差) + viscous_force(按 tau 与密度比) + surface_tension_force(CSF) + 可选 thermocapillary_surface_tension_force(sigma(T) 线性)；相场方程用 RK 推进。
+files: src/lbmpy/phasefield_allen_cahn/kernel_equations.py:19, src/lbmpy/phasefield_allen_cahn/kernel_equations.py:112, src/lbmpy/phasefield_allen_cahn/kernel_equations.py:133, src/lbmpy/phasefield_allen_cahn/kernel_equations.py:169, src/lbmpy/phasefield_allen_cahn/numerical_solver.py:15
+conventions: 界面宽度由 beta/kappa 控制；参数标定 gravity=L/(T^2*A)、sigma=mu*U/Ca、mobility=U*L/Pe（parameter_calculation.py:256,:264,:265）；接触角能力在 2.0 回归，勿用
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:GPU 融合 kernel 与压缩布局
+tag: fused-kernel-type-selector
+method: 用单一 kernel_type 选择器在「碰撞+宏观量输出+流式」之间融合或分离（default_stream_collide / collide_only / esotwist），pdf 数组按 fzyx（逐方向连续 SoA）布局，AA-pattern 单数组原地省一半内存免 swap，esotwist 只访问必要方向。
+files: src/lbmpy/creationfunctions.py:298, src/lbmpy/creationfunctions.py:306, src/lbmpy/updatekernels.py:13, src/lbmpy/updatekernels.py:146, src/lbmpy/fieldaccess.py:136
+conventions: layout='fzyx' 时 Q 为最快变化维；AA/esotwist 仅支持 D2Q9/D3Q15/D3Q19/D3Q27 且需 Lehmann ordering；仓内无性能门禁，加速比须自测
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:分布式多卡（ghost 交换融合进生成 kernel）
+tag: mpi-ghost-exchange-kernel-fused
+method: 本仓不做域分解，只把周期边界 ghost 交换编译进生成 kernel（拿 src/dst slice 直接生成 CUDA copy kernel），注释称比 cupy 数组拷贝快近 2 倍；域分解交给 pystencils DataHandling/waLBerla。无异步通信隐藏。
+files: src/lbmpy/advanced_streaming/communication.py:20, src/lbmpy/advanced_streaming/communication.py:121, src/lbmpy/advanced_streaming/communication.py:185
+conventions: 仅周期边界；D3Q27 编译耗时可达 20 s（:38-39）；cupy_direct_copy 开关；GPU 下需 target=GPU
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:稀疏/多孔 LBM（list-based AoS）
+tag: sparse-list-based-aos-lbm
+method: 由 flag 场映射出「流体单元列表 + 每方向邻居索引」index array，pdf 存成 pdf_arr[n_fluid_cells, Q]（AoS），碰撞流式在 1D 索引空间一次完成（streaming 变成索引查表），边界另用 SparseLbBoundaryMapper 出 UBB 赋值 kernel。
+files: src/lbmpy/sparse/mapping.py:14, src/lbmpy/sparse/mapping.py:158, src/lbmpy/sparse/update_rule_sparse.py:8, src/lbmpy/sparse/update_rule_sparse.py:22
+conventions: index array dtype uint32；需要 ghost_layers=1；稀疏+GPU+UBB 组合未实现（notebook 里显式 NotImplementedError）；与 dense 解对齐用 assert_almost_equal
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:案例组织（单点配置对象 + 场景工厂）
+tag: lbmconfig-single-point-config
+method: 用一个 dataclass LBMConfig 集中全部方法/数值/输出配置（stencil, method, relaxation_rates, compressible, zero_centered, equilibrium_order, c_s_sq, force_model, force, kernel_type, streaming_pattern, output, velocity_input, density_input ...），场景工厂只负责几何与初边值，step 对象负责时间推进组合。
+files: src/lbmpy/creationfunctions.py:105-317, src/lbmpy/scenarios.py:38, src/lbmpy/scenarios.py:109, src/lbmpy/lbstep.py:1
+conventions: 配置可 JSON 序列化做快照 diff（tests/test_json_serializer.py）；force 既可为元组也可为字段访问；kernel_type 决定数据布局与是否融合
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:测试与验证面（逐点参考回归 + 解析解 + 符号 Chapman-Enskog）
+tag: pointwise-reference-regression
+method: 每个物理能力配「与外部参考实现逐点比对」的回归测试（SC 单/双组分各与 C++ 参考实现沿中心线 64 点 rho 剖面 np.allclose），另配解析解库（Poiseuille/ShearWave/Taylor-Green）与自动符号 Chapman-Enskog 推导（按 epsilon 阶展开验证粘性与守恒律恢复）。
+files: tests/shan_chen/test_shan_chen_two_phase.py:85-92, tests/shan_chen/test_shan_chen_two_component.py:174-175, src/lbmpy/analytical_solutions.py:1, src/lbmpy/chapman_enskog/chapman_enskog.py:1
+conventions: 参考值来自 lbm-principles-practice/chapter9/shanchen.cpp（1000 步）；allclose 默认 rtol/atol；CE 展开到 epsilon^2 以上易爆炸，建议仅做一次性方法族门禁
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: lssfau/lbmpy
+slug: NEW:CI 分级门禁
+tag: gitlab-ci-staged-gates
+method: GitLab CI 分 8 个 stage（Code Quality / Unit Tests / Reporting / Prerelease-Tests / integration / nightly / docs / deploy），lint 用 nox -s lint，单测带 coverage 产物，nightly 由变量开关控制，docs 单独构建。
+files: .gitlab-ci.yml:1-8, .gitlab-ci.yml:13, .gitlab-ci.yml:31
+conventions: 绑定 FAU 私有 GitLab 镜像与自建 runner（i10git.cs.fau.de:5005）；matplotlib 强制 template backend 以便无头跑测试
+transfer: reference
+[/OSS-SOL]
