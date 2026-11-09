@@ -121,6 +121,115 @@ class TestRealCorpusCriteria:
         assert recorded["primary"]["criterion_a_met"] is (macro >= 0.90)
 
 
+# ───────────────── regression guard (A/B against the demoted rule) ─────────────────
+
+def _demoted_assess_delivery(result):
+    """The P92W3-N10 variant: ``checks`` demoted from critical to graded.
+
+    Kept here as an executable counter-hypothesis, not as production logic: the
+    A/B below is what makes "which rule is right" a measurement instead of an
+    opinion.
+    """
+    if not isinstance(result, dict) or not result:
+        return "suspect_undeclared"
+    facts = normalize_artifacts(result)
+    if not facts.implementation_present:
+        return "suspect_undeclared"
+    if (not facts.verification_present or not facts.verification_concrete
+            or not facts.claim_present):
+        return "delivered_partial"
+    return "delivered_complete"
+
+
+class TestRegressionGuard:
+    """Re-measure both rules on the same frozen 60-unit corpus.
+
+    Measured (2026-11-09, reruns of #873):
+      * fail-closed rule (current):  macro-F1 0.9226
+      * demoted rule (P92W3-N10):    macro-F1 0.5512 — 18/24 hand-labelled
+        ``suspect_undeclared`` units flipped to ``delivered_partial``
+    """
+
+    def test_demoted_rule_fails_the_criterion_it_would_restore(self):
+        raw, labels = _load()
+        ids = sorted(labels)
+        y_true = [labels[i] for i in ids]
+        y_demoted = [_demoted_assess_delivery((raw[str(i)] or {}).get("result")) for i in ids]
+        y_current = [assess_delivery((raw[str(i)] or {}).get("result")).state for i in ids]
+        _, macro_demoted = _metrics(y_true, y_demoted)
+        _, macro_current = _metrics(y_true, y_current)
+        assert macro_demoted < 0.90 <= macro_current, (
+            f"demoted={macro_demoted:.4f} current={macro_current:.4f} — the guard "
+            "only holds while the fail-closed rule is the better one"
+        )
+
+    def test_flips_are_unsupported_claims_only(self):
+        """Every unit the demotion re-labels is a hand-labelled success claim w/o evidence."""
+        raw, labels = _load()
+        ids = sorted(labels)
+        flips = [(i, labels[i], _demoted_assess_delivery((raw[str(i)] or {}).get("result")))
+                 for i in ids
+                 if assess_delivery((raw[str(i)] or {}).get("result")).state
+                 != _demoted_assess_delivery((raw[str(i)] or {}).get("result"))]
+        assert flips, "no flips — the A/B is vacuous"
+        for mission_id, label, demoted_state in flips:
+            assert label == "suspect_undeclared", (mission_id, label, demoted_state)
+            assert demoted_state == "delivered_partial", (mission_id, label, demoted_state)
+        assert len(flips) == 18
+
+
+# ───────────────── evidence presence (anti-silent-skip) ─────────────────
+
+class TestEvidenceIsCommitted:
+    """The acceptance evidence must live in the repo, not in a document.
+
+    Round-2 (#873) defect this guards against: between 2026-11-05 and 2026-11-09
+    every corpus-dependent test above *skipped* (the artifacts had never been
+    merged), so a later change that demoted ``checks`` from critical to graded
+    silently moved the measured macro-F1 from 0.9226 to 0.5512 with a fully green
+    suite. Presence + hash pinning makes the skip loud in the canonical repo.
+    """
+
+    REQUIRED = ("preregistration.json", "corpus_population.json",
+                "corpus_eval.json", "corpus_eval_raw.json",
+                "labels_human.json", "metrics.json")
+
+    def test_evidence_artifacts_are_committed(self):
+        assert RUN.is_dir(), f"evidence directory missing: {RUN}"
+        missing = [n for n in self.REQUIRED if not (RUN / n).exists()]
+        assert not missing, (
+            "delivery-semantics evidence artifacts missing from the repo: "
+            f"{missing} — the acceptance criteria would silently skip"
+        )
+
+    def test_metrics_pins_match_committed_artifacts(self):
+        """metrics.json hashes the corpus/labels it was computed from (no hand-copy)."""
+        recorded = json.loads(METRICS.read_text(encoding="utf-8"))
+        for key, path_key, sha_key in (
+            ("preregistration", "path", "sha256"),
+            ("corpus", "path", "sha256"),
+            ("labels", None, None),
+        ):
+            if key not in recorded:
+                continue
+            block = recorded[key] if isinstance(recorded[key], dict) else None
+            if block and block.get(path_key):
+                target = REPO_ROOT / block[path_key]
+                assert target.exists(), f"pinned artifact absent: {target}"
+                digest = hashlib.sha256(target.read_bytes()).hexdigest()
+                assert digest == block[sha_key], (
+                    f"{target} changed since the metrics were produced "
+                    "(re-run runs/p92w2b-n08/tools/evaluate.py)"
+                )
+        label_sha = recorded["corpus"]["label_sha256"]
+        assert hashlib.sha256(LABELS.read_bytes()).hexdigest() == label_sha
+
+    def test_primary_criterion_is_artifact_backed(self):
+        recorded = json.loads(METRICS.read_text(encoding="utf-8"))
+        assert recorded["primary"]["macro_f1"] >= recorded["primary"]["threshold"]
+        assert recorded["primary"]["criterion_a_met"] is True
+
+
 # ───────────────────────── criterion c ─────────────────────────
 
 class TestFailClosed:
