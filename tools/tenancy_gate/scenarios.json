@@ -1,0 +1,173 @@
+{
+  "schema": "tenancy_gate/scenarios/v1",
+  "note": "预注册合成场景集（判定前先写死期望值）：detect=必须检出冲突，clear=必须零假阳性放行。本文件不含任何业务/学科词条。",
+  "detect": [
+    {
+      "id": "L1",
+      "kind": "lease",
+      "desc": "同一仓同一条路径的写租约",
+      "active": [{"repo": "TenantA", "path_glob": "tools/gate/engine.py", "mission_id": "m1001", "ts": "2026-11-08T22:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "tools/gate/engine.py", "mission_id": "m1002", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "lease_conflict", "conflicts": 1}
+    },
+    {
+      "id": "L2",
+      "kind": "lease",
+      "desc": "目录前缀租约 vs 其内部文件",
+      "active": [{"repo": "TenantA", "path_glob": "src/**", "mission_id": "m1003", "ts": "2026-11-08T23:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "src/core/engine.py", "mission_id": "m1004", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "lease_conflict", "conflicts": 1}
+    },
+    {
+      "id": "L3",
+      "kind": "lease",
+      "desc": "globstar 尾部租约 vs 深层文件",
+      "active": [{"repo": "TenantA", "path_glob": "tests/**", "mission_id": "m1005", "ts": "2026-11-08T23:30:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "tests/unit/test_a.py", "mission_id": "m1006", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "lease_conflict", "conflicts": 1}
+    },
+    {
+      "id": "L4",
+      "kind": "lease",
+      "desc": "段内通配 docs/m*/report.md vs 具体任务目录",
+      "active": [{"repo": "TenantA", "path_glob": "docs/m*/report.md", "mission_id": "m1007", "ts": "2026-11-08T20:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "docs/m7876/report.md", "mission_id": "m1008", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "lease_conflict", "conflicts": 1}
+    },
+    {
+      "id": "L5",
+      "kind": "lease",
+      "desc": "全仓写租约 ** 与任意写租约冲突",
+      "active": [{"repo": "TenantA", "path_glob": "**", "mission_id": "m1009", "ts": "2026-11-08T21:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "pkg/mod.py", "mission_id": "m1010", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "lease_conflict", "conflicts": 1}
+    },
+    {
+      "id": "L6",
+      "kind": "lease",
+      "desc": "受保护路径（版本库元数据）",
+      "active": [],
+      "candidate": {"repo": "TenantA", "path_glob": ".git/config", "mission_id": "m1011", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "protected_path", "conflicts": 0}
+    },
+    {
+      "id": "L7",
+      "kind": "lease",
+      "desc": "中段 globstar 嵌套租约",
+      "active": [{"repo": "TenantA", "path_glob": "pkg/**/internal/*.py", "mission_id": "m1012", "ts": "2026-11-08T19:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "pkg/a/internal/b.py", "mission_id": "m1013", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "lease_conflict", "conflicts": 1}
+    },
+    {
+      "id": "L8",
+      "kind": "lease",
+      "desc": "预留越出可写根（配置注入 writable_roots）",
+      "config": {"lease": {"writable_roots": ["pkg/**"]}},
+      "active": [],
+      "candidate": {"repo": "TenantA", "path_glob": "legacy/x.py", "mission_id": "m1014", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": false, "reason": "outside_writable_roots", "conflicts": 0}
+    },
+    {
+      "id": "I1",
+      "kind": "intake",
+      "desc": "同窗口同一文件被两任务改动",
+      "finish": {"mission_id": "m2001", "repo": "TenantA", "changed_files": ["tools/gate/model.py"], "ts": "2026-11-09T00:00:00Z"},
+      "peers": [{"mission_id": "m2002", "repo": "TenantA", "changed_files": ["tools/gate/model.py"], "ts": "2026-11-08T23:00:00Z"}],
+      "expect": {"decision": "block", "reason": "conflict_detected", "conflict_pairs": 1}
+    },
+    {
+      "id": "I2",
+      "kind": "intake",
+      "desc": "三个同窗口任务里两个文件重叠、一个不重叠",
+      "finish": {"mission_id": "m2011", "repo": "TenantA", "changed_files": ["a.py", "b.py", "c.py"], "ts": "2026-11-09T00:00:00Z"},
+      "peers": [
+        {"mission_id": "m2012", "repo": "TenantA", "changed_files": ["a.py"], "ts": "2026-11-08T22:00:00Z"},
+        {"mission_id": "m2013", "repo": "TenantA", "changed_files": ["z.py", "b.py"], "ts": "2026-11-08T23:30:00Z"},
+        {"mission_id": "m2014", "repo": "TenantA", "changed_files": ["q.py"], "ts": "2026-11-08T21:00:00Z"}
+      ],
+      "expect": {"decision": "block", "reason": "conflict_detected", "conflict_pairs": 2}
+    },
+    {
+      "id": "I3",
+      "kind": "intake",
+      "desc": "改到对方的事件留（lease_breach），对方提交列表尚未包含该文件",
+      "finish": {"mission_id": "m2021", "repo": "TenantA", "changed_files": ["pkg/engine.py"], "ts": "2026-11-09T00:00:00Z"},
+      "peers": [{"mission_id": "m2022", "repo": "TenantA", "changed_files": [], "ts": "2026-11-08T20:00:00Z", "lease": {"repo": "TenantA", "path_glob": "pkg/**", "mission_id": "m2022", "ts": "2026-11-08T20:00:00Z", "mode": "write"}}],
+      "expect": {"decision": "block", "reason": "conflict_detected", "conflict_pairs": 1, "lanes": ["lease_breach"]}
+    },
+    {
+      "id": "I4",
+      "kind": "intake",
+      "desc": "收单文件越出自己声明的预留面",
+      "finish": {"mission_id": "m2031", "repo": "TenantA", "changed_files": ["docs/readme.md"], "ts": "2026-11-09T00:00:00Z", "path_globs": ["pkg/**"]},
+      "peers": [],
+      "expect": {"decision": "block", "reason": "scope_violation", "conflict_pairs": 0}
+    }
+  ],
+  "clear": [
+    {
+      "id": "P1",
+      "kind": "lease",
+      "desc": "同仓兄弟目录互不相交",
+      "active": [{"repo": "TenantA", "path_glob": "pkg/a/**", "mission_id": "m3001", "ts": "2026-11-08T22:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "pkg/b/**", "mission_id": "m3002", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": true, "reason": "admitted", "conflicts": 0}
+    },
+    {
+      "id": "P2",
+      "kind": "lease",
+      "desc": "只读租约不阻塞写租约",
+      "active": [{"repo": "TenantA", "path_glob": "pkg/**", "mission_id": "m3011", "ts": "2026-11-08T22:00:00Z", "mode": "read"}],
+      "candidate": {"repo": "TenantA", "path_glob": "pkg/x.py", "mission_id": "m3012", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": true, "reason": "admitted", "conflicts": 0}
+    },
+    {
+      "id": "P3",
+      "kind": "lease",
+      "desc": "过期租约不参与判定（记录到 expired_dropped）",
+      "active": [{"repo": "TenantA", "path_glob": "pkg/**", "mission_id": "m3021", "ts": "2026-11-01T00:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "pkg/y.py", "mission_id": "m3022", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": true, "reason": "admitted", "conflicts": 0, "expired_dropped": 1}
+    },
+    {
+      "id": "P4",
+      "kind": "lease",
+      "desc": "同目录下不相交的通配前缀",
+      "active": [{"repo": "TenantA", "path_glob": "docs/a*.md", "mission_id": "m3031", "ts": "2026-11-08T22:00:00Z", "mode": "write"}],
+      "candidate": {"repo": "TenantA", "path_glob": "docs/b*.md", "mission_id": "m3032", "ts": "2026-11-09T00:00:00Z", "mode": "write"},
+      "expect": {"admitted": true, "reason": "admitted", "conflicts": 0}
+    },
+    {
+      "id": "P5",
+      "kind": "intake",
+      "desc": "同窗口但变更文件互不相交",
+      "finish": {"mission_id": "m4001", "repo": "TenantA", "changed_files": ["tools/gate/lease.py"], "ts": "2026-11-09T00:00:00Z"},
+      "peers": [{"mission_id": "m4002", "repo": "TenantA", "changed_files": ["tools/gate/intake.py"], "ts": "2026-11-08T23:00:00Z"}],
+      "expect": {"decision": "admit", "conflict_pairs": 0}
+    },
+    {
+      "id": "P6",
+      "kind": "intake",
+      "desc": "同文件但对方在窗口之外",
+      "finish": {"mission_id": "m4011", "repo": "TenantA", "changed_files": ["tools/gate/x.py"], "ts": "2026-11-09T00:00:00Z"},
+      "peers": [{"mission_id": "m4012", "repo": "TenantA", "changed_files": ["tools/gate/x.py"], "ts": "2026-11-01T00:00:00Z"}],
+      "expect": {"decision": "admit", "conflict_pairs": 0, "peers_out_of_window": 1}
+    },
+    {
+      "id": "P7",
+      "kind": "intake",
+      "desc": "不同仓同路径不算冲突（工作树互不共享）",
+      "finish": {"mission_id": "m4021", "repo": "TenantA", "changed_files": ["tools/gate/y.py"], "ts": "2026-11-09T00:00:00Z"},
+      "peers": [{"mission_id": "m4022", "repo": "TenantB", "changed_files": ["tools/gate/y.py"], "ts": "2026-11-08T23:00:00Z"}],
+      "expect": {"decision": "admit", "conflict_pairs": 0}
+    },
+    {
+      "id": "P8",
+      "kind": "intake",
+      "desc": "路径模式相交但文件级无重叠、且不落在对方写留内：只记风险不阻塞",
+      "finish": {"mission_id": "m4031", "repo": "TenantA", "changed_files": ["pkg/engine.py"], "ts": "2026-11-09T00:00:00Z", "path_globs": ["pkg/**"]},
+      "peers": [{"mission_id": "m4032", "repo": "TenantA", "changed_files": ["pkg/other/z.py"], "ts": "2026-11-08T23:00:00Z", "lease": {"repo": "TenantA", "path_glob": "pkg/other/**", "mission_id": "m4032", "ts": "2026-11-08T23:00:00Z", "mode": "write"}}],
+      "expect": {"decision": "admit", "reason": "risk_recorded_only", "conflict_pairs": 0, "risk_pairs": 1}
+    }
+  ]
+}

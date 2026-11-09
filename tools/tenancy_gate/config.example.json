@@ -1,0 +1,27 @@
+{
+  "schema": "tenancy_gate/config/v1",
+  "lease": {
+    "on_conflict": "refuse",
+    "ttl_seconds": 21600,
+    "writable_roots": ["**"],
+    "protected_globs": [".git/**", ".github/workflows/**"],
+    "allow_read_leases": true
+  },
+  "intake": {
+    "window_seconds": 86400,
+    "on_conflict": "block",
+    "require_lease_coverage": true,
+    "cross_repo_check": false
+  },
+  "rehearsal": {
+    "timeout_seconds": 30,
+    "max_merge_tree_calls": 600,
+    "total_budget_seconds": 120,
+    "hunk_detail": true,
+    "require_clean": true,
+    "prescreen": true,
+    "detail_limit": 2000
+  },
+  "ledger": {"path": "artifacts/tenancy_gate/ledger.jsonl"},
+  "semantics": {"denylist_path": "tools/tenancy_gate/domain_denylist.json"}
+}
