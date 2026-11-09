@@ -1,0 +1,113 @@
+{
+  "schema": "write_gate/policy/v1",
+  "repo": {
+    "name": null,
+    "root_markers": [
+      ".git"
+    ]
+  },
+  "whitelist": {
+    "enabled": true,
+    "allow_globs": [
+      "**"
+    ],
+    "deny_globs": [],
+    "read_only_globs": [],
+    "case_sensitive": true,
+    "treat_deny_as": "cross_repo"
+  },
+  "cross_repo": {
+    "enabled": true,
+    "forbid_absolute": true,
+    "forbid_escaped_root": true,
+    "forbid_git_internals": true,
+    "forbid_nested_repo_markers": true,
+    "check_symlinks": true,
+    "require_repo_match": true,
+    "foreign_root_globs": [
+      "../**",
+      "/**",
+      "~/**"
+    ],
+    "repo_boundary_markers": [
+      ".git"
+    ]
+  },
+  "secrets": {
+    "enabled": true,
+    "max_blob_bytes": 2000000,
+    "max_line_chars": 4000,
+    "allow_line_patterns": [
+      "(?i)data:image/",
+      "(?i)png_base64",
+      "(?i)\\bplaceholder\\b",
+      "(?i)\\bredacted\\b"
+    ],
+    "entropy": {
+      "enabled": true,
+      "min_length": 40,
+      "min_entropy_bits_per_char": 4.2,
+      "require_mixed_case": true,
+      "require_digit": true,
+      "min_digit_ratio": 0.1
+    },
+    "rules": [
+      {
+        "id": "private_key_block",
+        "pattern": "-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY(?: BLOCK)?-----",
+        "allow": [
+          "-----BEGIN [A-Z ]*PUBLIC KEY-----"
+        ]
+      },
+      {
+        "id": "cloud_access_key_id",
+        "pattern": "(?:AKIA|ASIA|AGPA|AIDA|AROA|ANPA|ANVA)[0-9A-Z]{16}",
+        "allow": [
+          "(?i)\\bexample\\b",
+          "(?i)example\\.invalid"
+        ]
+      },
+      {
+        "id": "credential_assignment",
+        "pattern": "(?i)(?:api[_-]?key|apikey|secret[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password|passwd)\\s*[:=]\\s*['\"]?([A-Za-z0-9_\\-+/=]{16,})",
+        "allow": [
+          "(?i)\\b(?:os\\.environ|getenv|environ\\[|settings\\.|config\\.|self\\.)",
+          "<[^>]{1,40}>",
+          "\\$\\{",
+          "\\{\\{",
+          "(?i)x{6,}",
+          "\\*{3,}",
+          "(?i)\\bnone\\b",
+          "(?i)\\boptional\\["
+        ]
+      },
+      {
+        "id": "url_credentials",
+        "pattern": "\\b[a-z][a-z0-9+.\\-]*://[^/\\s:@'\"]+:[^/\\s:@'\"]{3,}@",
+        "allow": [
+          "(?i)example\\.invalid",
+          "(?i)\\$\\{",
+          "<[^>]{1,40}>"
+        ]
+      },
+      {
+        "id": "jwt_bearer",
+        "pattern": "eyJ[A-Za-z0-9_\\-]{8,}\\.[A-Za-z0-9_\\-]{8,}\\.[A-Za-z0-9_\\-]{4,}",
+        "allow": []
+      },
+      {
+        "id": "high_entropy_blob",
+        "pattern": "(?<![A-Za-z0-9+/=])[A-Za-z0-9+/=]{40,}(?![A-Za-z0-9+/=])",
+        "allow": [
+          "(?i)\\b(?:sha1|sha256|sha512|sha224|md5|digest|checksum|integrity|fingerprint)\\b"
+        ],
+        "entropy": true
+      }
+    ]
+  },
+  "output": {
+    "max_excerpt_chars": 60,
+    "redact_keep_prefix": 4,
+    "max_violations_per_file": 50
+  }
+}

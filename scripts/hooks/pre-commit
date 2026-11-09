@@ -1,0 +1,18 @@
+#!/bin/sh
+# 三合一写入边界门 —— pre-commit 钩子包装（可选强制防线）。
+#
+# 纪律：本文件**不**写进 .git；安装属人工/治理动作（见 docs/write_gate/WRITE_GATE.md §4）。
+#   cp scripts/hooks/pre-commit .git/hooks/pre-commit && chmod +x .git/hooks/pre-commit
+#
+# 退出码：0=放行，2=拦截（提交被 git 中止），3=内部错误（策略缺失等，同样拦截）。
+set -u
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    echo "write-gate: 无法定位仓库根，按 fail-closed 拦截" >&2
+    exit 2
+}
+cd "$repo_root" || exit 2
+
+# WRITE_GATE_ARGS 可注入 --active-repo / --policy / --edit-whitelist 等参数
+# shellcheck disable=SC2086
+exec python3 -m tools.write_gate.cli staged --root "$repo_root" --format text ${WRITE_GATE_ARGS:-}
