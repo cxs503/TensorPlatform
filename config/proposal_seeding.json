@@ -1,0 +1,65 @@
+{
+  "schema_version": "proposal-seeding/1.0",
+  "purpose": "多提案者聚合 → 仲裁 → 战役 DAG 播种 → 自回归增长 的全部可调参数唯一来源。零领域语义纪律：代码内不得出现物理域词、域判据、域算例；成熟化标记、仓白名单、阈值全部在此注入。",
+  "repo_whitelist": [
+    "TensorLBM",
+    "TensorFEM",
+    "TensorFVM",
+    "TensorDEM",
+    "TensorBEM",
+    "TensorSPH",
+    "TensorDG",
+    "TensorCAD",
+    "TensorPlatform",
+    "TensorPhysics",
+    "TensorPapers",
+    "ship-performance-platform"
+  ],
+  "similarity": {
+    "shingle_size": 3,
+    "merge_threshold": 0.55,
+    "containment_weight": 0.5,
+    "min_length_ratio": 0.7,
+    "merge_rule": "jaccard_only",
+    "merge_rule_note": "判据口径即 3-gram Jaccard ≥ merge_threshold；containment/score 只作为证据列记录，不参与合并决策（防止长文本吞并短文本）。"
+  },
+  "plan": {
+    "node_count_min": 5,
+    "node_count_max": 12,
+    "milestone_count": 3,
+    "min_maturity_nodes": 2,
+    "reserve_platform_slot": true,
+    "chain_within_milestone": true,
+    "platform_deps": "previous_milestone_tails"
+  },
+  "maturity_marker": "成熟化",
+  "platform_repo": "TensorPlatform",
+  "ext_id": {
+    "index_width": 2,
+    "max_slug_tokens": 3,
+    "min_slug_token_length": 3,
+    "fallback_prefix": "cap"
+  },
+  "repro": {
+    "match_threshold": 0.3,
+    "note": "人工播种结果 ↔ 机器聚合结果的可复现判定阈值（标题 3-gram Jaccard）。0.30 为经验值，报告给出 0.20/0.30/0.40/0.55 的敏感性表，避免单一阈值结论。"
+  },
+  "input_sources": {
+    "auto_discover_globs": [
+      "prop-*.json",
+      "proposal*.json",
+      "*proposals*.json"
+    ],
+    "reject_missing_fields": [
+      "title",
+      "repo",
+      "goal"
+    ]
+  },
+  "criteria_section_markers": [
+    "判据",
+    "criteria",
+    "acceptance",
+    "验收"
+  ]
+}
