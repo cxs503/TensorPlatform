@@ -1,0 +1,123 @@
+{
+ "bundle_version": "1.0",
+ "campaign": {
+  "plan_id": 9107,
+  "title": "Synthetic Fixture Wave Summary",
+  "label": "plan 9107",
+  "wave": 2
+ },
+ "snapshot_utc": "2026-01-01T12:00:00Z",
+ "generated_by": "tests/fixtures/distill_case/bundle.json (合成域，域无关)",
+ "bundle_path": "tests/fixtures/distill_case/bundle.json",
+ "nodes": [
+  {
+   "node_key": "NA",
+   "mission_id": 91071,
+   "repo": "synthetic/alpha",
+   "title": "alpha node",
+   "physics_domain": "synthetic",
+   "status": "in-flight",
+   "actual_start": "2026-01-01T03:00:00Z",
+   "depends_on": [],
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "alpha criterion one"
+    },
+    {
+     "id": "C2",
+     "text": "alpha criterion two"
+    }
+   ],
+   "evidence": {
+    "files": [
+     {
+      "path": "worktree/alpha_impl.py",
+      "kind": "impl",
+      "rel_path": "worktree/alpha_impl.py"
+     },
+     {
+      "path": "worktree/test_alpha_impl.py",
+      "kind": "test",
+      "rel_path": "worktree/test_alpha_impl.py"
+     }
+    ],
+    "probes": [
+     {
+      "name": "pytest::worktree/test_alpha_impl.py",
+      "exit_code": 0,
+      "summary": "1 passed"
+     }
+    ],
+    "claims": [
+     {
+      "criterion": "C1",
+      "metric": "rel_err",
+      "value": 0.01,
+      "ok": true,
+      "grade": "REAL",
+      "source": "worktree/test_alpha_impl.py#test_ok"
+     },
+     {
+      "criterion": "C2",
+      "metric": "rel_err",
+      "value": 0.22,
+      "ok": false,
+      "grade": "REAL",
+      "source": "worktree/alpha_impl.py#THRESHOLD"
+     }
+    ]
+   }
+  },
+  {
+   "node_key": "NB",
+   "mission_id": 91072,
+   "repo": "synthetic/beta",
+   "title": "beta node（引用共享工件：同一探针被两个节点引用）",
+   "physics_domain": "synthetic",
+   "status": "in-flight",
+   "actual_start": "2026-01-01T11:00:00Z",
+   "depends_on": [
+    "NA"
+   ],
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "beta criterion one"
+    }
+   ],
+   "evidence": {
+    "files": [
+     {
+      "path": "worktree/test_alpha_impl.py",
+      "kind": "test",
+      "rel_path": "worktree/test_alpha_impl.py"
+     }
+    ],
+    "probes": [],
+    "claims": []
+   }
+  },
+  {
+   "node_key": "NC",
+   "mission_id": 91073,
+   "repo": "synthetic/gamma",
+   "title": "gamma node",
+   "physics_domain": "synthetic",
+   "status": "failed",
+   "actual_start": "2026-01-01T01:00:00Z",
+   "depends_on": [],
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "gamma criterion one"
+    }
+   ],
+   "evidence": {
+    "files": [],
+    "probes": [],
+    "claims": []
+   }
+  }
+ ]
+}
