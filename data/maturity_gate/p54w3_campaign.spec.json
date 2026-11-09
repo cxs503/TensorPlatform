@@ -1,0 +1,688 @@
+{
+  "schema_version": "1.0",
+  "spec_id": "p54w3-maturity-integration",
+  "title": "Plan 432 (ice-nav-wave-30) 上游节点交付整合：判据 → 证据 → 台账 → 契约 → 报告",
+  "notes": "本文件是**数据工件**（战役内容注入），不含任何代码语义。evidence 路径相对节点工作树 artifacts/ 或按交付契约 artifacts/p54w3_evidence/<node_key>.json；pointer 指向证据文档内可复算数字。",
+  "criteria_pass_threshold": 0.8,
+  "nodes": [
+    {
+      "node_key": "p54w3-n01-my-ice-resistance",
+      "title": "多年冰MY与混合冰场阻力模型扩展",
+      "repo": "TensorDEM",
+      "mission_id": 8410,
+      "capability": "mixed_ice_resistance_model",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "MY冰阻力系数 vs 文献实验数据误差 < 15%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n01-my-ice-resistance.json",
+              "pointer": "criteria.a.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.15,
+              "claim": "criteria.a.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "混合冰场阻力随MY冰比例单调递增(Spearman相关系数=+1)",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n01-my-ice-resistance.json",
+              "pointer": "criteria.b.values.spearman",
+              "comparator": "eq",
+              "threshold": 1.0,
+              "tolerance": 1e-06,
+              "claim": "criteria.b.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "纯FY冰工况退化到已有模型误差 < 5%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n01-my-ice-resistance.json",
+              "pointer": "criteria.c.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.05,
+              "claim": "criteria.c.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "pytest全链通过含反向测试",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n01-my-ice-resistance.json",
+              "pointer": "pytest.returncode",
+              "comparator": "eq",
+              "threshold": 0
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n01-my-ice-resistance.json",
+              "pointer": "pytest.failed",
+              "comparator": "le",
+              "threshold": 0
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "能量守恒闭合 < 5%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n01-my-ice-resistance.json",
+              "pointer": "criteria.e.values.closure",
+              "comparator": "le",
+              "threshold": 0.05,
+              "claim": "criteria.e.pass"
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "node_key": "p54w3-n02-brash-ice-evolution",
+      "title": "碎冰航道阻力时间演化烧结与再冻结",
+      "repo": "TensorDEM",
+      "mission_id": 8411,
+      "capability": "brash_ice_channel_evolution",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "烧结颈生长 vs Frenkel理论指数拟合误差 < 10%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "criteria.a_sintering_frenkel.exponent_rel_error",
+              "comparator": "le",
+              "threshold": 0.1,
+              "claim": "criteria.a_sintering_frenkel.pass",
+              "sha256": "1681bc2584588c0c8fcb4292f8fdb66f8cf59a8bc0f4c3d3d3fad4b6ba1bec03"
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "孔隙率下降 vs 再冻结理论拟合误差 < 15%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "criteria.b_refreezing_exponential.max_rel_error",
+              "comparator": "le",
+              "threshold": 0.15,
+              "claim": "criteria.b_refreezing_exponential.pass",
+              "sha256": "1681bc2584588c0c8fcb4292f8fdb66f8cf59a8bc0f4c3d3d3fad4b6ba1bec03"
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "碎冰场宏观强度增长 vs 文献实验数据 < 25%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "criteria.c_strength_literature.rel_error",
+              "comparator": "le",
+              "threshold": 0.25,
+              "claim": "criteria.c_strength_literature.pass",
+              "sha256": "1681bc2584588c0c8fcb4292f8fdb66f8cf59a8bc0f4c3d3d3fad4b6ba1bec03"
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "阻力衰减曲线单调递增且α∈[0.05,0.2]",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "criteria.d_resistance_growth.alpha",
+              "comparator": "between",
+              "threshold": [0.05, 0.2],
+              "sha256": "1681bc2584588c0c8fcb4292f8fdb66f8cf59a8bc0f4c3d3d3fad4b6ba1bec03"
+            },
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "criteria.d_resistance_growth.monotone",
+              "comparator": "eq",
+              "threshold": true,
+              "sha256": "1681bc2584588c0c8fcb4292f8fdb66f8cf59a8bc0f4c3d3d3fad4b6ba1bec03"
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "能量守恒闭合 < 10%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "criteria.e_energy_closure.closure",
+              "comparator": "le",
+              "threshold": 0.1,
+              "claim": "criteria.e_energy_closure.pass",
+              "sha256": "1681bc2584588c0c8fcb4292f8fdb66f8cf59a8bc0f4c3d3d3fad4b6ba1bec03"
+            }
+          ]
+        },
+        {
+          "criterion_id": "f",
+          "statement": "pytest全链通过含无烧结退化测试",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/brash_ice_evolution/study.json",
+              "pointer": "pytest.returncode",
+              "comparator": "eq",
+              "threshold": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "node_key": "p54w3-n03-energy-ledger-convergence",
+      "title": "刚性碰撞能量账本收敛阶认证成熟化",
+      "repo": "TensorDEM",
+      "mission_id": 8412,
+      "capability": "collision_energy_ledger_convergence",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "通量口径残差 < 1e-9 (SI归一化/E0)",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "criteria.a.values.residual",
+              "comparator": "le",
+              "threshold": 1e-09,
+              "claim": "criteria.a.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "显式口径斜率 |slope-1| < 0.2 且梯形口径 |slope-2| < 0.2",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "criteria.b.values.slope_explicit_minus1_abs",
+              "comparator": "le",
+              "threshold": 0.2
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "criteria.b.values.slope_trapezoid_minus2_abs",
+              "comparator": "le",
+              "threshold": 0.2
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "恢复系数实测 vs 目标 < 1e-3",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "criteria.c.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.001,
+              "claim": "criteria.c.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "5球Newton摆总动量守恒 < 1e-12",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "criteria.d.values.momentum_residual",
+              "comparator": "le",
+              "threshold": 1e-12,
+              "claim": "criteria.d.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "给出m5404的5.111e-07显式判定(口径vs实现)",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "criteria.e.values.adjudicated",
+              "comparator": "eq",
+              "threshold": true
+            }
+          ]
+        },
+        {
+          "criterion_id": "f",
+          "statement": "判据全部pytest化含失败回归守卫",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "pytest.returncode",
+              "comparator": "eq",
+              "threshold": 0
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n03-energy-ledger-convergence.json",
+              "pointer": "pytest.failed",
+              "comparator": "le",
+              "threshold": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "node_key": "p54w3-n04-ice-load-pod",
+      "title": "冰载荷空间相关性POD分析与低维重构",
+      "repo": "ship-performance-platform",
+      "mission_id": 8413,
+      "capability": "ice_load_field_pod_reconstruction",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "POD模态正交性误差 < 1e-10",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n04-ice-load-pod.json",
+              "pointer": "criteria.a.values.orthogonality_error",
+              "comparator": "le",
+              "threshold": 1e-10,
+              "claim": "criteria.a.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "能量谱单调递减 E_1 > E_2 > ...",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n04-ice-load-pod.json",
+              "pointer": "criteria.b.values.monotone",
+              "comparator": "eq",
+              "threshold": true,
+              "claim": "criteria.b.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "K_95% < 20 (前20阶模态捕获>95%能量)",
+          "unit": "modes",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n04-ice-load-pod.json",
+              "pointer": "criteria.c.values.k95",
+              "comparator": "lt",
+              "threshold": 20,
+              "claim": "criteria.c.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "空间相关性长度与冰厚正相关 l_c ∝ h^α, α∈[0.5,1.5]",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n04-ice-load-pod.json",
+              "pointer": "criteria.d.values.alpha",
+              "comparator": "between",
+              "threshold": [0.5, 1.5],
+              "claim": "criteria.d.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "POD重构应力 vs 全载荷场应力 < 10%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n04-ice-load-pod.json",
+              "pointer": "criteria.e.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.1,
+              "claim": "criteria.e.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "f",
+          "statement": "pytest全链通过含均匀载荷退化测试",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n04-ice-load-pod.json",
+              "pointer": "pytest.returncode",
+              "comparator": "eq",
+              "threshold": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "node_key": "p54w3-n05-plate-limit-analysis",
+      "title": "冰带板格塑性极限分析上下限夹逼",
+      "repo": "ship-performance-platform",
+      "mission_id": 8414,
+      "capability": "plate_panel_limit_analysis_bound",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "上限≥下限且相对间隙 < 5%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.a.values.upper_ge_lower",
+              "comparator": "eq",
+              "threshold": true
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.a.values.rel_gap",
+              "comparator": "le",
+              "threshold": 0.05
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "均布载荷简支方板上限 vs 经典解 < 2%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.b.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.02,
+              "claim": "criteria.b.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "固支方板Pu与简支解之比≈2倍(容差10%)",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.c.values.ratio",
+              "comparator": "between",
+              "threshold": [1.8, 2.2],
+              "claim": "criteria.c.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "离散加密后Pu变化 < 1%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.d.values.change",
+              "comparator": "le",
+              "threshold": 0.01,
+              "claim": "criteria.d.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "面积效应指数beta附95%置信区间",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.e.values.beta_ci",
+              "comparator": "nonempty"
+            }
+          ]
+        },
+        {
+          "criterion_id": "f",
+          "statement": "负控测试通过(Mp→0时Pu→0)",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n05-plate-limit-analysis.json",
+              "pointer": "criteria.f.values.negative_control_pass",
+              "comparator": "eq",
+              "threshold": true
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "node_key": "p54w3-n06-ridge-pipeline-dem",
+      "title": "冰脊触底载荷与海底管道交互DEM验证",
+      "repo": "TensorDEM",
+      "mission_id": 8415,
+      "capability": "ridge_pipeline_interaction_dem",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "DEM竖向载荷 vs ISO19906 N_q理论 < 20%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n06-ridge-pipeline-dem.json",
+              "pointer": "criteria.a.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.2,
+              "claim": "criteria.a.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "水平向载荷 vs ISO19906 N_c理论 < 25%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n06-ridge-pipeline-dem.json",
+              "pointer": "criteria.b.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.25,
+              "claim": "criteria.b.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "管道覆土失稳判据与理论预测一致",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n06-ridge-pipeline-dem.json",
+              "pointer": "criteria.c.values.consistent",
+              "comparator": "eq",
+              "threshold": true,
+              "claim": "criteria.c.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "能量守恒闭合 < 5%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n06-ridge-pipeline-dem.json",
+              "pointer": "criteria.d.values.closure",
+              "comparator": "le",
+              "threshold": 0.05,
+              "claim": "criteria.d.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "网格无关性(颗粒数翻倍)载荷变化 < 5%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n06-ridge-pipeline-dem.json",
+              "pointer": "criteria.e.values.change",
+              "comparator": "le",
+              "threshold": 0.05,
+              "claim": "criteria.e.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "f",
+          "statement": "pytest全链通过含无土壤退化测试",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n06-ridge-pipeline-dem.json",
+              "pointer": "pytest.returncode",
+              "comparator": "eq",
+              "threshold": 0
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "node_key": "p54w3-n07-energy-optimal-route",
+      "title": "冰区能量最优航线航速规划成熟化",
+      "repo": "ship-performance-platform",
+      "mission_id": 8416,
+      "capability": "ice_zone_energy_optimal_routing",
+      "criteria": [
+        {
+          "criterion_id": "a",
+          "statement": "DP与穷举(≤2000节点小图)最优值相对差 < 1e-6",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.a.values.rel_diff",
+              "comparator": "le",
+              "threshold": 1e-06,
+              "claim": "criteria.a.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "b",
+          "statement": "账本各项非负总能耗闭合 < 1%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.b.values.all_nonnegative",
+              "comparator": "eq",
+              "threshold": true
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.b.values.closure",
+              "comparator": "le",
+              "threshold": 0.01
+            }
+          ]
+        },
+        {
+          "criterion_id": "c",
+          "statement": "冰浓度升⇒最优航速降油耗升(Spearman单调性)",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.c.values.spearman_speed",
+              "comparator": "eq",
+              "threshold": -1.0,
+              "tolerance": 1e-06
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.c.values.spearman_fuel",
+              "comparator": "eq",
+              "threshold": 1.0,
+              "tolerance": 1e-06
+            }
+          ]
+        },
+        {
+          "criterion_id": "d",
+          "statement": "≥20点Pareto前沿非支配性逐点检验通过",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.d.values.dominated_points",
+              "comparator": "le",
+              "threshold": 0
+            },
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.d.values.front_size",
+              "comparator": "ge",
+              "threshold": 20
+            }
+          ]
+        },
+        {
+          "criterion_id": "e",
+          "statement": "时间桶离散收敛(桶数加倍)最优油耗变化 < 2%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.e.values.change",
+              "comparator": "le",
+              "threshold": 0.02,
+              "claim": "criteria.e.pass"
+            }
+          ]
+        },
+        {
+          "criterion_id": "f",
+          "statement": "全敞水退化经典最省航速误差 < 5%",
+          "unit": "-",
+          "checks": [
+            {
+              "doc": "artifacts/p54w3_evidence/p54w3-n07-energy-optimal-route.json",
+              "pointer": "criteria.f.values.rel_error",
+              "comparator": "le",
+              "threshold": 0.05,
+              "claim": "criteria.f.pass"
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}

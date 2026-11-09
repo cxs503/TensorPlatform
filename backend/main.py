@@ -484,6 +484,11 @@ except Exception as _exc:  # pragma: no cover - 部署面兜底
 
 # ── 公共实况展示面（免登录只读，owner 2026-10-22）──
 from api import public  # noqa: E402
+
+# ── 战役成熟化整合门（判据→证据→台账→契约 的通用裁判，p54w3-n08 交付）──
+from api import maturity_gate as _maturity_gate  # noqa: E402
+
+app.include_router(_maturity_gate.router, prefix="/api/v1")
 app.include_router(public.router, prefix="/api/v1")
 
 # SPEC §6.5 审查预算账本（测量先行）：四类审查记账 + 周聚合查询
