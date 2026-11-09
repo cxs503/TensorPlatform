@@ -14,6 +14,7 @@
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
@@ -39,6 +40,48 @@ MEMORY_MAX_CHARS = int(os.environ.get("MEMORY_MAX_CHARS", "8500"))
 REPORT_GATE_FOOTER = """
 
 ★报告纪律（owner 常设指令，每单必报）：finish 前必须发布论文级进展报告——用 run 工具: curl -s -X POST $TENSOR_API_BASE/tensor/reports -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' -d @/tmp/report.json（先 curl 登录 $TENSOR_AGENT_USER/$TENSOR_AGENT_PASS 拿 token；/tmp/report.json 内容: title/summary/scenario_key/mission_id:577/tags/markdown/figures）。报告要求（可发表论文质量，owner 2026-10-29 升级）：六要素=①案例介绍（物理背景/几何/参数表）；②怎么做的（方法/流程/关键设置/工具链）；③计算结果（数字表，程序化注入零手抄）；④结果图=场量云图+与解析解/文献/基线的比较曲线（matplotlib 生成 png 后 figures:[{name,caption,png_base64}] 内嵌；纯文档/后端任务无图必须写明理由）；⑤注意点（踩过的坑/局限/适用范围）；⑥误差判定：关键量 vs 基准误差逐项列出并显式回答「是否<3%」（无基准须声明原因，不许含糊）；honest-FAIL 如实写不得粉饰。报告未发=本单未完成（守望线会自动派补报单并记欠账）。"""
+
+
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def gate_preflight(repo: str, write_paths, mission_key: str) -> dict:
+    """平台派单前的并发写门（tenancy_gate）：路径预留冲突则按模式排队/拒派。
+
+    零领域语义：只看"这批路径模式是否与同仓在册预留相交"，不看路径叫什么。
+    运行模式由 ``TENANCY_GATE_MODE`` 控制（off|report|enforce，默认 report：
+    只判定/记台账，不拦单）。本函数自身不抛异常——派单链路不能被门拖死；
+    异常语义见 tools/tenancy_gate/dispatch_hook.py。
+    """
+    try:
+        import sys as _sys
+
+        if str(REPO_ROOT) not in _sys.path:
+            _sys.path.insert(0, str(REPO_ROOT))
+        from tools.tenancy_gate.dispatch_hook import pre_dispatch
+
+        return pre_dispatch(repo=repo, write_paths=write_paths, mission_key=mission_key)
+    except Exception as exc:  # noqa: BLE001
+        return {"schema": "tenancy_gate/dispatch_hook/v1", "mode": "degraded",
+                "enforced": False, "blocked": False, "exit_code": 0,
+                "error": f"{type(exc).__name__}:{exc}"[:300], "gate": None}
+
+
+def gate_post_finish(repo: str, mission_id, changed_files, **kwargs) -> dict:
+    """派单收尾门：changed_files 交集 + 三方合并 dry-run（未启用时恒 pass）。"""
+    try:
+        import sys as _sys
+
+        if str(REPO_ROOT) not in _sys.path:
+            _sys.path.insert(0, str(REPO_ROOT))
+        from tools.tenancy_gate.dispatch_hook import post_finish
+
+        return post_finish(repo=repo, mission_id=mission_id,
+                           changed_files=changed_files, **kwargs)
+    except Exception as exc:  # noqa: BLE001
+        return {"schema": "tenancy_gate/dispatch_hook/v1", "mode": "degraded",
+                "enforced": False, "blocked": False, "exit_code": 0,
+                "error": f"{type(exc).__name__}:{exc}"[:300], "gate": None}
 
 
 def api(method: str, path: str, body: dict | None = None, tok: str | None = None):
@@ -160,6 +203,9 @@ def main() -> int:
     ap.add_argument("--origin", default="owner", choices=["owner", "agent"],
                     help="mission 归属：owner 代派（默认）或 agent 自主派发"
                          "（operator 值班班次用 agent——审计上区分谁发起）")
+    ap.add_argument("--write-paths", default="",
+                    help="本次任务声明的写面（逗号分隔的路径/glob，如 src/**,docs/x.md）。"
+                         "非空时派单前过 tenancy_gate 路径预留门（模式由 TENANCY_GATE_MODE 定）")
     ap.add_argument("--memory-key", default="",
                     help="常驻记忆键（如 wedge-icebreaking）：注入身份+工作记忆"
                          "+事实尾部，并登记路由（终态/裁决自动入账、交接门生效）")
@@ -196,12 +242,36 @@ def main() -> int:
     if args.co_repos:
         body["co_repos"] = [r for r in args.co_repos.split(",") if r]
 
+    write_paths = [p.strip() for p in args.write_paths.split(",") if p.strip()]
+    gate = {"mode": "off", "exit_code": 0, "blocked": False}
+    if write_paths:
+        pending_key = "pending:" + hashlib.sha256(goal.encode("utf-8")).hexdigest()[:16]
+        gate = gate_preflight(args.repo, write_paths, pending_key)
+        _brief = {k: gate.get(k) for k in
+                  ("mode", "exit_code", "resolution", "blocked", "error")}
+        print("[tenancy_gate] " + json.dumps(_brief, ensure_ascii=False), file=sys.stderr)
+        if gate.get("blocked"):
+            print(json.dumps({"status": "blocked_by_tenancy_gate", "gate": gate},
+                             ensure_ascii=False))
+            return 3
+    else:
+        pending_key = ""
+
     out = api("POST", "/tensor/missions", body, tok=tok)
+    if pending_key and out.get("id"):
+        try:
+            from tools.tenancy_gate.dispatch_hook import adopt_mission
+
+            adopt_mission(pending_key, out["id"], args.repo)
+        except Exception:  # noqa: BLE001 —— 改挂失败不影响派单，预留仍以占位 id 留痕
+            pass
     if args.memory_key and out.get("id"):
         write_route(int(out["id"]), args.memory_key, args.repo)
     print(json.dumps({"id": out.get("id"), "status": out.get("status"),
                       "memory_injected": bool(memory),
-                      "memory_key": args.memory_key or None},
+                      "memory_key": args.memory_key or None,
+                      "tenancy_gate": {k: gate.get(k) for k in
+                                       ("mode", "exit_code", "resolution", "blocked")}},
                      ensure_ascii=False))
     return 0
 
