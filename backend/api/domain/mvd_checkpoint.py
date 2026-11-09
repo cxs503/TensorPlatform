@@ -28,6 +28,8 @@ import time
 from dataclasses import dataclass, field
 from typing import Any, Literal
 
+from api.domain.delivery_state import normalize_artifacts
+
 # Checkpoint trigger threshold (70% budget)
 BUDGET_THRESHOLD = 0.70
 
@@ -168,27 +170,23 @@ def evaluate_mvd_checkpoint(
         )
     
     # Threshold reached, evaluate MVD requirements
+    # Artifact facts come from the shared normaliser so the checkpoint and the
+    # delivery classifier can never disagree about payload shape
+    # (production results carry ``checks`` as plain text and no ``summary`` key).
+    facts = normalize_artifacts(result if isinstance(result, dict) else None)
     missing = []
-    
-    # Check implementation (changed_files)
-    if result is None or not isinstance(result, dict):
+
+    if not facts.implementation_present:
         missing.append("implementation")
-    else:
-        changed_files = result.get("changed_files")
-        if not changed_files or not isinstance(changed_files, list) or len(changed_files) == 0:
-            missing.append("implementation")
-        
-        # Check evidence (checks)
-        checks = result.get("checks")
-        if not checks or not isinstance(checks, dict) or len(checks) == 0:
-            missing.append("evidence")
-        
-        # Check report (summary OR negative-control explanation)
-        summary = result.get("summary")
-        negative_control = result.get("negative_control")
-        if not summary and not negative_control:
-            missing.append("report")
-    
+    if not facts.verification_present:
+        missing.append("evidence")
+    elif not facts.verification_concrete:
+        missing.append("evidence_machine_checkable")
+    if not facts.claim_present and not (
+        isinstance(result, dict) and result.get("negative_control")
+    ):
+        missing.append("report")
+
     passed = len(missing) == 0
     
     if passed:

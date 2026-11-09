@@ -488,6 +488,18 @@ def list_missions(
     return {"items": [_mission_row(r) for r in rows], "total": total}
 
 
+@router.get("/mvd-checkpoint/stats", dependencies=[Depends(require_auth)])
+def mvd_checkpoint_stats(user: dict = Depends(require_auth)):
+    """Aggregate shadow statistics of the 70% MVD closure checkpoint."""
+    from api.domain.mvd_checkpoint import compute_checkpoint_stats, get_checkpoint_log
+
+    return {
+        "mode": os.environ.get(MVD_CHECKPOINT_ENV, "shadow").strip().lower(),
+        "stats": compute_checkpoint_stats(),
+        "recent": get_checkpoint_log(limit=20),
+    }
+
+
 @router.get("/{mission_id}", dependencies=[Depends(require_auth)])
 def get_mission(
     mission_id: int,
@@ -692,7 +704,8 @@ def _authorize_agent(db: Session, mission_id: int, claim_token: str, user: dict)
     require_factory_agent(user)
     row = db.execute(
         text("""
-            SELECT id, status, claim_token, claimed_by, claimed_user_id, organization_id, session_id, runner
+            SELECT id, status, claim_token, claimed_by, claimed_user_id,
+                   organization_id, session_id, runner, budget, created_at
             FROM tensor_dev_missions WHERE id = :mid FOR UPDATE
         """),
         {"mid": mission_id},
@@ -707,6 +720,67 @@ def _authorize_agent(db: Session, mission_id: int, claim_token: str, user: dict)
     if not row["claim_token"] or str(row["claim_token"]) != claim_token:
         raise HTTPException(status_code=403, detail="invalid claim token")
     return row
+
+
+
+# ── 70% budget MVD closure checkpoint (p92w2b-n08) ────────────────────────
+# Contract: agents may report ``{"tool_calls": int, "wall_seconds": float}`` in
+# the heartbeat ``progress`` payload. Missing fields fall back to wall time
+# elapsed since creation, so the checkpoint fires even for silent agents.
+# Modes: TP_MVD_CHECKPOINT=off|shadow (default shadow). Shadow = attach the
+# closure instruction to the heartbeat response and record it in an in-memory
+# log; it never blocks and never writes to the database.
+MVD_CHECKPOINT_ENV = "TP_MVD_CHECKPOINT"
+MVD_CLOSURE_INSTRUCTION = (
+    "MVD_CLOSURE_CHECKPOINT: 70% of the mission budget is consumed. Before "
+    "using the remaining budget, make the delivery self-describing so it can "
+    "be graded from artifact facts: (1) list every artefact you touched in "
+    "result.changed_files; (2) put at least one machine-checkable verification "
+    "statement in result.checks (test counts, PASS/FAIL list, exit code, hash "
+    "or a/b criterion count) - 'not run yet' must be stated explicitly as such; "
+    "(3) attach the claim/report artifact (report id, headline or evidence "
+    "bundle). Anything not finished by then must be declared as partial rather "
+    "than claimed complete."
+)
+
+
+def _mvd_heartbeat_checkpoint(row: Any, progress: dict[str, Any]) -> dict[str, Any] | None:
+    """Evaluate the 70% MVD checkpoint for a heartbeat; returns None when off."""
+    mode = os.environ.get(MVD_CHECKPOINT_ENV, "shadow").strip().lower()
+    if mode == "off":
+        return None
+    from api.domain.mvd_checkpoint import (
+        evaluate_mvd_checkpoint,
+        log_checkpoint,
+    )
+
+    budget = row.get("budget") or {}
+    max_tool_calls = int(budget.get("max_tool_calls") or 0)
+    max_wall_seconds = float(budget.get("max_wall_seconds") or 0)
+    tool_calls = int(progress.get("tool_calls") or 0)
+    wall_seconds = float(progress.get("wall_seconds") or 0.0)
+    if wall_seconds <= 0 and row.get("created_at") is not None:
+        wall_seconds = max(
+            0.0,
+            (datetime.now(timezone.utc) - row["created_at"].replace(
+                tzinfo=row["created_at"].tzinfo or timezone.utc)).total_seconds(),
+        )
+    # The result payload is not read here (heartbeat runs before completion);
+    # the checkpoint therefore grades the declared progress facts only.
+    res = evaluate_mvd_checkpoint(
+        {"changed_files": progress.get("changed_files"),
+         "checks": progress.get("checks"),
+         "headline": progress.get("headline"),
+         "report_id": progress.get("report_id")} if progress else {},
+        tool_calls, max_tool_calls, wall_seconds, max_wall_seconds,
+        shadow_mode=(mode != "enforce"),
+    )
+    log_checkpoint(int(row["id"]), res)
+    out = res.to_dict()
+    out["mode"] = mode
+    if res.triggered and not res.passed:
+        out["closure_instruction"] = MVD_CLOSURE_INSTRUCTION
+    return out
 
 
 class StartRequest(BaseModel):
@@ -763,8 +837,12 @@ def heartbeat_mission(
         {"mid": mission_id, "prog": _dumps(body.progress or None)},
     )
     db.commit()
-    return {"id": mission_id, "status": row["status"],
-            "action": "continue" if row["status"] in ("claimed", "running") else "stop"}
+    response = {"id": mission_id, "status": row["status"],
+                "action": "continue" if row["status"] in ("claimed", "running") else "stop"}
+    checkpoint = _mvd_heartbeat_checkpoint(row, body.progress or {})
+    if checkpoint is not None:
+        response["mvd_checkpoint"] = checkpoint
+    return response
 
 
 class CompleteRequest(BaseModel):
