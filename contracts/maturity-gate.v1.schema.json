@@ -1,0 +1,56 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Maturity gate request/response contract (v1)",
+  "description": "POST /api/v1/tensor/campaigns/maturity-gate 的请求与响应体。裁判是无状态的：调用方自带战役规格与证据文档（可来自任意仓库），服务端只做判定，不落库、不读盘。",
+  "type": "object",
+  "required": ["spec_id", "nodes", "evidence_docs"],
+  "additionalProperties": false,
+  "properties": {
+    "spec_id": {
+      "type": "string",
+      "description": "战役/整合批次标识"
+    },
+    "criteria_pass_threshold": {
+      "type": "number",
+      "description": "节点绿线：判据通过率下限，缺省 0.8，落在 (0,1]",
+      "default": 0.8
+    },
+    "nodes": {
+      "type": "array",
+      "description": "战役节点规格数组（结构见 tools/maturity_gate/spec.py 与 data/maturity_gate/*.spec.json）",
+      "items": {"type": "object"}
+    },
+    "evidence_docs": {
+      "type": "object",
+      "description": "doc 名 → 证据文档 JSON 载荷。doc 名必须与节点规格里 checks[].doc 完全一致；sha256 钉桩按 canonical_json(载荷) 计算（键排序、无空格、UTF-8）。",
+      "additionalProperties": {"type": "object"}
+    },
+    "gate": {
+      "type": "object",
+      "description": "响应体：判定结果（服务端填充）",
+      "properties": {
+        "gate_schema_version": {"type": "string"},
+        "spec_id": {"type": "string"},
+        "input_digest": {
+          "type": "string",
+          "description": "规格规范化 + 全部被读证据文档 sha256 的 sha256；同一输入逐字节稳定"
+        },
+        "nodes": {"type": "array"},
+        "node_summaries": {"type": "array"},
+        "campaign": {
+          "type": "object",
+          "properties": {
+            "verdict": {"type": "string", "enum": ["PASS", "FAIL", "WITHHELD"]},
+            "criterion_a_all_nodes_ge_threshold": {"type": "boolean"},
+            "nodes_total": {"type": "integer"},
+            "nodes_delivered": {"type": "integer"},
+            "claim_mismatch_total": {"type": "integer"},
+            "blocking": {"type": "array"}
+          }
+        },
+        "ledger": {"type": "object"},
+        "contracts": {"type": "object"}
+      }
+    }
+  }
+}

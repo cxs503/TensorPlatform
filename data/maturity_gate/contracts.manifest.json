@@ -1,0 +1,58 @@
+{
+  "schema_version": "1.0",
+  "manifest_id": "p54w3-maturity-integration-contracts",
+  "note": "契约完整性检查清单（数据工件）。required_sections 逐字作为 markdown 标题匹配；required_keys 用点号路径解析 JSON schema。",
+  "documents": [
+    {
+      "id": "evidence-schema",
+      "path": "contracts/maturity-evidence.v1.schema.json",
+      "kind": "jsonschema",
+      "required_keys": [
+        "$schema",
+        "title",
+        "required",
+        "properties.node_key",
+        "properties.repo",
+        "properties.criteria",
+        "properties.pytest",
+        "properties.evidence_schema_version"
+      ]
+    },
+    {
+      "id": "gate-schema",
+      "path": "contracts/maturity-gate.v1.schema.json",
+      "kind": "jsonschema",
+      "required_keys": [
+        "$schema",
+        "title",
+        "required",
+        "properties.spec_id",
+        "properties.nodes",
+        "properties.evidence_docs",
+        "properties.gate"
+      ]
+    },
+    {
+      "id": "integration-contract",
+      "path": "docs/contracts/maturity-integration-v1.md",
+      "kind": "markdown",
+      "min_chars": 2500,
+      "required_sections": [
+        "## 1. 端点契约",
+        "## 2. 证据契约",
+        "## 3. 裁定语义",
+        "## 4. 错误码与降级",
+        "## 5. 台账契约",
+        "## 6. 版本与兼容",
+        "## 7. 最小可用示例"
+      ]
+    }
+  ],
+  "routes": {
+    "doc": "docs/contracts/maturity-integration-v1.md",
+    "endpoints": [
+      "POST /api/v1/tensor/campaigns/maturity-gate",
+      "GET /api/v1/tensor/campaigns/maturity-gate/spec-schema"
+    ]
+  }
+}
