@@ -5,7 +5,8 @@
 * ``GET  /proposals/gate/stats``    —— 四态计数 + 重复率 + KPI（``guide.proposal_dup_rejected``…）
 * ``GET  /proposals/gate/ledger``   —— 账本行（可按 state / mission_id 过滤，含 SQL 溯源）
 * ``POST /proposals/gate/evaluate`` —— 送一份提案过门（fail-closed；隔离区落盘 + 事件）
-* ``POST /proposals/gate/adopt``    —— 标记某提案已被战役播种采纳（状态上行留痕）
+* ``POST /proposals/gate/adopt``    —— 标记某提案已被战役播种采纳（状态上行留痕；
+  仅 ``review.adopt_allowed_states`` 内的 state 可采纳，复核带行须先裁决）
 * ``GET  /proposals/gate/coverage`` —— 播种覆盖率账本（采纳提案 ↔ 真库战役节点名）
 * ``GET  /proposals/gate/config``   —— 当前生效阈值/白名单（全部来自配置文件）
 
@@ -26,7 +27,7 @@ from api.deps import require_auth, require_role
 from database.config import get_db
 
 from tools.proposal_gate.config import GateConfig, load_config
-from tools.proposal_gate.gate import ProposalGate
+from tools.proposal_gate.gate import GateTransitionError, ProposalGate
 from tools.proposal_gate.index import IndexEntry, ProposalIndex
 from tools.proposal_gate.ledger import LedgerStore, sql_trace
 from tools.proposal_gate.sources import load_campaign_nodes, populate_index
@@ -94,6 +95,19 @@ class AdoptRequest(BaseModel):
     plan_id: int | None = None
 
 
+class ReviewResolveRequest(BaseModel):
+    mission_id: int = Field(..., ge=0)
+    sha256: str = Field(..., min_length=64, max_length=64)
+    decision: str = Field(..., min_length=1, max_length=32)
+    reviewer: str = Field(..., min_length=1, max_length=128)
+    note: str = Field(..., max_length=2000)
+
+
+def _conflict(exc: GateTransitionError) -> HTTPException:
+    """复核纪律拒绝 → 409（带机器可裁原因码，不吞成人话字符串）。"""
+    return HTTPException(status_code=409, detail=exc.as_dict())
+
+
 @router.get("/gate/stats", dependencies=[Depends(require_auth)])
 def gate_stats(db: Session = Depends(get_db)) -> dict[str, Any]:
     cfg = _config()
@@ -145,8 +159,55 @@ def gate_adopt(req: AdoptRequest, db: Session = Depends(get_db)) -> dict[str, An
     if store.get(req.mission_id, req.sha256) is None:
         raise HTTPException(status_code=404, detail="ledger_row_not_found")
     gate = ProposalGate(cfg, store)
-    row = gate.adopt(mission_id=req.mission_id, sha256=req.sha256, plan_id=req.plan_id)
+    try:
+        row = gate.adopt(mission_id=req.mission_id, sha256=req.sha256, plan_id=req.plan_id)
+    except GateTransitionError as exc:
+        raise _conflict(exc) from exc
     return {"row": row.as_dict()}
+
+
+@router.get("/gate/review", dependencies=[Depends(require_auth)])
+def gate_review(limit: int = 200, db: Session = Depends(get_db)) -> dict[str, Any]:
+    """复核带队列：进了带（near_duplicate）却无人处置的提案在这里可见。"""
+    cfg = _config()
+    store = _store(db, cfg)
+    gate = ProposalGate(cfg, store)
+    items = gate.review_band(limit=min(int(limit), 2000))
+    review = dict(cfg.need("review"))
+    return {
+        "items": items,
+        "count": len(items),
+        "queue_states": list(review["queue_states"]),
+        "queue_verdicts": list(review["queue_verdicts"]),
+        "decisions": sorted(dict(review["decisions"])),
+        "sql_trace": sql_trace(store, review["queue_states"][0]) if review["queue_states"] else "",
+    }
+
+
+@router.post(
+    "/gate/review/resolve",
+    dependencies=[Depends(require_role("ADMIN", "MANAGER"))],
+)
+def gate_review_resolve(
+    req: ReviewResolveRequest, db: Session = Depends(get_db)
+) -> dict[str, Any]:
+    """复核裁决：把一行迁出复核带（admit → 入池 / reject → 拒）。"""
+    cfg = _config()
+    store = _store(db, cfg)
+    if store.get(req.mission_id, req.sha256) is None:
+        raise HTTPException(status_code=404, detail="ledger_row_not_found")
+    gate = ProposalGate(cfg, store)
+    try:
+        row = gate.adjudicate(
+            mission_id=req.mission_id,
+            sha256=req.sha256,
+            decision=req.decision,
+            reviewer=req.reviewer,
+            note=req.note,
+        )
+    except GateTransitionError as exc:
+        raise _conflict(exc) from exc
+    return {"row": row.as_dict(), "remaining": len(gate.review_band(limit=2000))}
 
 
 @router.get("/gate/coverage", dependencies=[Depends(require_auth)])
@@ -166,6 +227,13 @@ def gate_config() -> dict[str, Any]:
         "repo_whitelist_size": len(cfg.repo_whitelist),
         "table": cfg.table_name,
         "states": cfg.state_map,
+        "review": {
+            "queue_states": list(cfg.get("review.queue_states") or []),
+            "queue_verdicts": list(cfg.get("review.queue_verdicts") or []),
+            "decisions": sorted(dict(cfg.get("review.decisions") or {})),
+            "min_note_length": cfg.get("review.min_note_length"),
+            "adopt_allowed_states": list(cfg.get("review.adopt_allowed_states") or []),
+        },
         "kpi_keys": {
             "dup_rejected": cfg.get("kpi.dup_rejected_key"),
             "seed_coverage": cfg.get("kpi.seed_coverage_key"),

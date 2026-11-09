@@ -44,6 +44,21 @@ def payload_sha256(payload: Any) -> str:
     return hashlib.sha256(raw.encode("utf-8")).hexdigest()
 
 
+class GateTransitionError(RuntimeError):
+    """状态迁移被复核纪律拒绝（fail-closed）。
+
+    ``code`` 是机器可裁的原因码（API 层映射 409），``detail`` 供人读。
+    """
+
+    def __init__(self, code: str, detail: str = "") -> None:
+        super().__init__(f"{code}: {detail}" if detail else code)
+        self.code = code
+        self.detail = detail
+
+    def as_dict(self) -> dict[str, Any]:
+        return {"code": self.code, "detail": self.detail}
+
+
 @dataclass(frozen=True)
 class GateResult:
     verdict: str
@@ -444,6 +459,13 @@ class ProposalGate:
 
     # ── 采纳（播种）─────────────────────────────────────────────────────
     def adopt(self, *, mission_id: int, sha256: str, plan_id: int | None = None) -> LedgerRow:
+        """把提案标为已采纳（播种落点留痕）。
+
+        守卫：只有 ``review.adopt_allowed_states`` 里的 state 可被直接采纳——
+        复核带（``near_duplicate``）与契约隔离（fail-closed）行必须先走
+        :meth:`adjudicate`，否则「不自动拒也不入池」的纪律可被 adopt 一步绕过。
+        """
+        self._assert_adoptable(mission_id, sha256)
         row = self.ledger.set_state(
             mission_id=mission_id,
             sha256=sha256,
@@ -457,6 +479,107 @@ class ProposalGate:
             {"sha256": sha256, "mission_id": mission_id, "plan_id": plan_id},
         )
         return row
+
+    def _assert_adoptable(self, mission_id: int, sha256: str) -> None:
+        allowed = tuple(self.cfg.get("review.adopt_allowed_states") or ())
+        if not allowed:
+            return
+        row = self.ledger.get(mission_id, sha256)
+        if row is None:  # 不存在的情形由调用方给 404，这里不越权代答
+            return
+        if row.state not in allowed:
+            raise GateTransitionError(
+                "adopt_requires_state",
+                f"当前 state={row.state} 不在允许集合 {list(allowed)}；"
+                "复核带/隔离行须先 POST /proposals/gate/review/resolve 裁决",
+            )
+
+    # ── 复核带（near_duplicate 的处置通道）───────────────────────────────
+    def review_band(self, *, limit: int = 200) -> list[dict[str, Any]]:
+        """在带待裁决的行（配置驱动：``review.queue_states`` × ``review.queue_verdicts``）。
+
+        排序按 ``score`` 降序（最像重复的先看），同分按写入先后；
+        素材全部来自账本列，不重算相似度 → 队列视图与判定口径同源。
+        """
+        queue_states = tuple(self.cfg.need("review.queue_states"))
+        queue_verdicts = set(self.cfg.need("review.queue_verdicts"))
+        decisions = sorted(dict(self.cfg.need("review.decisions")))
+        items: list[dict[str, Any]] = []
+        for state in queue_states:
+            for row in self.ledger.rows(state=state, limit=100_000):
+                if queue_verdicts and row.verdict not in queue_verdicts:
+                    continue
+                item = row.as_dict()
+                item["decisions"] = decisions
+                items.append(item)
+        items.sort(key=lambda d: (-(d.get("score") or 0.0), int(d.get("id") or 0)))
+        return items[: int(limit)]
+
+    def adjudicate(
+        self,
+        *,
+        mission_id: int,
+        sha256: str,
+        decision: str,
+        reviewer: str,
+        note: str,
+    ) -> LedgerRow:
+        """复核带裁决：把 ``near_duplicate`` 行显式迁出带（``admit`` / ``reject``）。
+
+        纪律（全部 fail-closed）：
+        * 只在带上（state/verdict 双条件）的行可裁 —— 契约失败行**不可**经此放行；
+        * ``reviewer`` 必填、``note`` 长度 ≥ ``review.min_note_length``（留痕可审计）；
+        * 裁决理由与前后状态一并追加进 ``reasons``，并写事件流。
+        """
+        review = dict(self.cfg.need("review"))
+        decisions = dict(review["decisions"])
+        if decision not in decisions:
+            raise GateTransitionError(
+                "unknown_decision", f"未登记裁决：{decision}；可选 {sorted(decisions)}"
+            )
+        row = self.ledger.get(mission_id, sha256)
+        if row is None:
+            raise KeyError(f"账本无此行：mission_id={mission_id} sha256={sha256}")
+        queue_states = tuple(review["queue_states"])
+        queue_verdicts = set(review["queue_verdicts"])
+        if row.state not in queue_states or (queue_verdicts and row.verdict not in queue_verdicts):
+            raise GateTransitionError(
+                "not_in_review_band",
+                f"state={row.state} verdict={row.verdict} 不在复核带；"
+                "契约失败行须重新提交合规载荷",
+            )
+        if review.get("reviewer_required", True) and not str(reviewer or "").strip():
+            raise GateTransitionError("reviewer_required", "复核人必填（审计留痕）")
+        min_note = int(review.get("min_note_length") or 0)
+        if len(str(note or "").strip()) < min_note:
+            raise GateTransitionError("note_too_short", f"note 至少 {min_note} 字")
+        target = dict(decisions[decision])
+        reason = (
+            f"review_decision={decision} reviewer={str(reviewer).strip()} at={_now_iso()} "
+            f"prev_state={row.state} prev_verdict={row.verdict} note={str(note).strip()}"
+        )
+        updated = self.ledger.set_state(
+            mission_id=mission_id,
+            sha256=sha256,
+            state=str(target["state"]),
+            verdict=target.get("verdict"),
+            reason=reason,
+        )
+        self.emit_event(
+            "proposal_review_adjudicated",
+            {
+                "sha256": sha256,
+                "mission_id": mission_id,
+                "decision": decision,
+                "reviewer": str(reviewer).strip(),
+                "prev_state": row.state,
+                "prev_verdict": row.verdict,
+                "state": updated.state,
+                "verdict": updated.verdict,
+                "score": updated.score,
+            },
+        )
+        return updated
 
     # ── 播种覆盖率账本 ──────────────────────────────────────────────────
     def coverage(self, *, index: ProposalIndex | None = None) -> dict[str, Any]:
