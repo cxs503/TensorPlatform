@@ -383,6 +383,146 @@ def test_staged_gate_blocks_out_of_whitelist_in_real_repo(tmp_path):
     assert "whitelist" in _categories(verdict)
 
 
+# ─────────── 6a. 可判性筛选：UTF-8 截断不得把文本判成二进制 ───────────
+def test_looks_binary_tolerates_truncated_utf8_tail():
+    """8KB 切片正好切在多字节字符中间时，不得判成二进制（否则凭证扫描静默跳过）。"""
+    blob = "中".encode() * 3000            # 9000 字节：8192 落在第二个字节中间
+    assert len(blob) > 8192
+    assert secrets_mod.looks_binary(blob) is False
+
+
+def test_looks_binary_still_catches_invalid_sequences():
+    assert secrets_mod.looks_binary(b"\xff\xfe not utf-8") is True
+    assert secrets_mod.looks_binary(b"ok\x00binary") is True
+
+
+def test_cjk_blob_with_secret_beyond_8k_is_scanned(tmp_path):
+    """中文文件 + 8KB 之后的凭证：修复前整份跳过（binary_skipped）⇒ 漏判。"""
+    repo = make_repo(tmp_path / "cjk_repo")
+    filler = "# " + "中文注释填充\n" * 900          # 远超 8192 字节，且切点落在字内
+    (repo / "notes.py").write_text(filler + _assigned_token() + "\n", encoding="utf-8")
+    git(repo, "add", "-A")
+    verdict = gate.evaluate_staged(repo, cfg_default(), active_repo="TensorPlatform")
+    payload = verdict.to_json()
+    assert payload["verdict"] == "FAIL", payload["advisories"]
+    assert "credential_assignment" in [v["rule_id"] for v in payload["violations"]
+                                       if v["category"] == "secret"]
+    assert payload["advisories"] == [], "文本文件不得再出现 binary_skipped"
+
+
+# ─────────── 6b. 破坏性写入：越界删除与改名源 ───────────
+def _destructive_repo(tmp_path: Path, name: str = "delrepo") -> Path:
+    """真 git 仓：白名单内一个文件、白名单外一个文件、只读区一个文件（均已提交）。"""
+    repo = make_repo(tmp_path / name)
+    (repo / "tools" / "write_gate").mkdir(parents=True)
+    (repo / "backend").mkdir()
+    (repo / "docs" / "spec").mkdir(parents=True)
+    (repo / "tools" / "write_gate" / "mod.py").write_text("A = 1\n", encoding="utf-8")
+    (repo / "backend" / "api.py").write_text("B = 2\n", encoding="utf-8")
+    (repo / "docs" / "spec" / "guide.md").write_text("# guide\n", encoding="utf-8")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "seed")
+    return repo
+
+
+def test_parse_name_status_expands_rename_source_as_delete():
+    """``R`` 是「目标新增 + 源删除」两件事：源路径不入列 ⇒ ``git mv`` 成了越界暗道。"""
+    changes = gate.parse_name_status_z(b"R100\0backend/api.py\0tools/write_gate/api.py\0")
+    assert [(c.path, c.kind) for c in changes] == [
+        ("backend/api.py", "DELETE"), ("tools/write_gate/api.py", "MODIFY")]
+
+
+def test_parse_name_status_copy_keeps_source_intact():
+    changes = gate.parse_name_status_z(b"C100\0a.py\0b.py\0")
+    assert [(c.path, c.kind) for c in changes] == [("b.py", "ADD")]
+
+
+def test_staged_delete_outside_whitelist_is_blocked(tmp_path):
+    repo = _destructive_repo(tmp_path)
+    (repo / "backend" / "api.py").unlink()
+    git(repo, "add", "-A")
+    verdict = gate.evaluate_staged(repo, cfg_whitelisted(), active_repo="TensorPlatform")
+    payload = verdict.to_json()
+    assert payload["verdict"] == "FAIL", payload
+    assert payload["decision"] == "block"
+    assert payload["meta"]["changes"] == 1, "删除事件必须入列，不能是 changes=0"
+    assert [v["path"] for v in payload["violations"]] == ["backend/api.py"]
+    assert "whitelist" in _categories(verdict)
+
+
+def test_staged_delete_inside_whitelist_allowed(tmp_path):
+    repo = _destructive_repo(tmp_path, "delrepo2")
+    (repo / "tools" / "write_gate" / "mod.py").unlink()
+    git(repo, "add", "-A")
+    verdict = gate.evaluate_staged(repo, cfg_whitelisted(), active_repo="TensorPlatform")
+    assert verdict.verdict == "PASS", verdict.to_json()["violations"]
+    assert [(f["path"], f["kind"]) for f in verdict.files] == [
+        ("tools/write_gate/mod.py", "DELETE")]
+
+
+def test_rename_source_outside_whitelist_is_blocked(tmp_path):
+    repo = _destructive_repo(tmp_path, "delrepo3")
+    git(repo, "mv", "backend/api.py", "tools/write_gate/api.py")
+    verdict = gate.evaluate_staged(repo, cfg_whitelisted(), active_repo="TensorPlatform")
+    payload = verdict.to_json()
+    assert payload["verdict"] == "FAIL", payload
+    assert [v["path"] for v in payload["violations"]] == ["backend/api.py"]
+    statuses = {f["path"]: f["status"] for f in payload["files"]}
+    assert statuses == {"backend/api.py": "block", "tools/write_gate/api.py": "allow"}
+
+
+def test_rename_inside_whitelist_allowed(tmp_path):
+    repo = _destructive_repo(tmp_path, "delrepo4")
+    git(repo, "mv", "tools/write_gate/mod.py", "tools/write_gate/mod2.py")
+    verdict = gate.evaluate_staged(repo, cfg_whitelisted(), active_repo="TensorPlatform")
+    assert verdict.verdict == "PASS", verdict.to_json()["violations"]
+
+
+def test_staged_delete_in_read_only_zone_is_blocked(tmp_path):
+    repo = _destructive_repo(tmp_path, "delrepo5")
+    (repo / "docs" / "spec" / "guide.md").unlink()
+    git(repo, "add", "-A")
+    cfg = policy_mod.load_policy(
+        POLICY_PATH, overrides={"whitelist": {"allow_globs": EDIT_WHITELIST,
+                                              "read_only_globs": ["docs/**"]}})
+    verdict = gate.evaluate_staged(repo, cfg, active_repo="TensorPlatform")
+    payload = verdict.to_json()
+    assert payload["verdict"] == "FAIL"
+    assert [v["code"] for v in payload["violations"]] == ["read_only_glob"]
+
+
+def test_staged_delete_skips_content_scan(tmp_path):
+    """删除事件无 blob 可扫：不得因「读不到索引 blob」升级为拦截或告警。"""
+    repo = make_repo(tmp_path / "delrepo6")
+    (repo / "leaky.py").write_text(_assigned_token() + "\n", encoding="utf-8")
+    git(repo, "add", "-A")
+    git(repo, "commit", "-q", "-m", "seed secret")
+    (repo / "leaky.py").unlink()
+    git(repo, "add", "-A")
+    verdict = gate.evaluate_staged(repo, cfg_default(), active_repo="TensorPlatform")
+    payload = verdict.to_json()
+    assert payload["verdict"] == "PASS", payload["violations"]
+    assert payload["advisories"] == []
+
+
+def test_staged_delete_does_not_mutate_index_and_is_deterministic(tmp_path):
+    repo = _destructive_repo(tmp_path, "delrepo7")
+    (repo / "backend" / "api.py").unlink()
+    git(repo, "add", "-A")
+    before = git(repo, "diff", "--cached", "--name-status")
+    first = gate.evaluate_staged(repo, cfg_whitelisted()).to_json()
+    second = gate.evaluate_staged(repo, cfg_whitelisted()).to_json()
+    after = git(repo, "diff", "--cached", "--name-status")
+    assert before == after, "write_gate must not mutate the index"
+    assert first == second
+
+
+def test_clean_verdict_reports_allow_decision(worktree):
+    verdict = gate.evaluate_paths(["tools/write_gate/x.py"], cfg_whitelisted(), root=worktree)
+    payload = verdict.to_json()
+    assert payload["verdict"] == "PASS" and payload["decision"] == "allow"
+
+
 # ─────────────────── 7. CLI ───────────────────
 def _run_cli(args, cwd=REPO_ROOT):
     env = dict(os.environ, PYTHONPATH=str(REPO_ROOT))

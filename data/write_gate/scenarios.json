@@ -38,5 +38,14 @@
     "tests/test_write_gate.py",
     "data/write_gate/policy.json",
     "artifacts/write_gate/verdict.json"
-  ]
+  ],
+  "deletes": {
+    "note": "破坏性写入（删除/改名源）：采集口必须请求 --diff-filter 的 D，R 需展开源删除；append-only 追加块",
+    "required": [
+      "D1_delete_outside_whitelist",
+      "D2_delete_inside_whitelist",
+      "D3_rename_source_outside",
+      "D4_delete_read_only_zone"
+    ]
+  }
 }
