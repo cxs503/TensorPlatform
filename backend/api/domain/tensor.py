@@ -28,6 +28,7 @@ from api.tensor_repro import router as tensor_repro_router                 # pre
 from api.execution_lineage import router as execution_lineage_router       # prefix="/lineage"
 from api.kpi import router as kpi_router                                   # prefix="/tensor/kpi" (m5121 KPI guide tracker)
 from api.failure_postmortems import router as failure_postmortems_router   # prefix="/tensor/failure-postmortems" (IN59-A4)
+from api.tensor_reconcile import router as tensor_reconcile_router         # prefix="/tensor/reconcile" (p254w1-n01 报告对账门)
 
 router.include_router(tensor_scenarios_router)
 router.include_router(tensor_executions_router)
@@ -56,3 +57,6 @@ from api.truth_gates import router as truth_gates_router              # prefix="
 router.include_router(truth_gates_router)
 router.include_router(tensor_repro_router)
 router.include_router(execution_lineage_router)
+
+# ── p254w1-n01: Report Reconciliation Gate ──
+router.include_router(tensor_reconcile_router)
