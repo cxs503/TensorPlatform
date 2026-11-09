@@ -286,6 +286,8 @@ REPO_WHITELIST = (
     "TensorSPH", "TensorDG", "TensorCAD", "TensorBEM", "TensorPapers",
     # owner 2026-11-01 裁定：船舶业务留本地私有仓（不上 GitHub），经共性平台派发落此仓
     "ship-performance-platform",
+    # owner 2026-11-09 知识质量试验令（TP#779 预检/#790 试点）
+    "TensorKnowledge",
 )
 
 # ── 仓可解析性门（fail-fast）：worker 侧 tp_worker.prepare_worktree 的同款解析，
