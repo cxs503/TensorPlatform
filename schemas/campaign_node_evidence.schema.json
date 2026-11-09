@@ -1,0 +1,49 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "campaign_node_evidence.v1.schema.json",
+  "title": "campaign node evidence bundle v1（跨仓战役主发布通道）",
+  "description": "平台报告 `inheritance_evidence` 证据包的形状契约。用于跨仓节点：本地工件路径在别的仓里解析不到，唯一能随快照全量到手的是报告证据包本身，故把『证据包形状』当工件校验。字段语义见 docs/specs/inheritance_evidence_contract.md。",
+  "type": "object",
+  "required": ["acceptance", "artifacts"],
+  "additionalProperties": true,
+  "properties": {
+    "acceptance": {
+      "type": "object",
+      "description": "逐条验收判据的测量值：{normalized_key: {value|measured, unit, tol?}}",
+      "minProperties": 1,
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {"type": "number"},
+          "unit": {"type": "string"},
+          "tol": {"type": "number"},
+          "type": {"type": "string"}
+        }
+      }
+    },
+    "quantities": {
+      "type": "object",
+      "description": "跨节点互裁/接口供给用的关键量",
+      "additionalProperties": {
+        "type": "object",
+        "required": ["value"],
+        "properties": {
+          "value": {"type": "number"},
+          "unit": {"type": "string"},
+          "type": {"type": "string"},
+          "tol": {"type": "number"},
+          "reference": {"type": "number"},
+          "rtol": {"type": "number"}
+        }
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "description": "复算入口：数值表 / pytest 日志 / 图。空数组=不可复算，不满足契约。",
+      "minItems": 1,
+      "items": {"type": "string", "minLength": 1}
+    },
+    "notes": {"type": "string"}
+  }
+}
