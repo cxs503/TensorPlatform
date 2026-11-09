@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0",
+  "purpose": "提案→战役播种供给链机器门配置（零领域语义）",
+  "schema_contract": {
+    "supported_versions": ["v1", "v2"],
+    "default_version": "v2",
+    "validation_rules": {
+      "title_min_length": 1,
+      "title_max_length": 500,
+      "goal_min_count": 3,
+      "goal_threshold_required": true
+    }
+  },
+  "repo_whitelist": [
+    "TensorLBM",
+    "TensorFEM",
+    "TensorFVM",
+    "TensorDEM",
+    "TensorBEM",
+    "TensorSPH",
+    "TensorDG",
+    "TensorCAD",
+    "TensorPlatform",
+    "TensorPhysics",
+    "ship-performance-platform",
+    "TensorPapers"
+  ],
+  "deduplicator": {
+    "normalization": "NFKC",
+    "ngram_size": 3,
+    "jaccard_threshold": 0.7,
+    "dependency_overlap_threshold": 0.8,
+    "enabled": true
+  },
+  "ledger": {
+    "table_name": "proposal_gate_ledger",
+    "idempotency_key": ["mission_id", "sha256"],
+    "verdicts": ["accepted", "rejected", "quarantined", "duplicate"]
+  },
+  "quarantine": {
+    "directory": "quarantine/proposals",
+    "emit_event": true
+  }
+}
