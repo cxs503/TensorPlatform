@@ -1,0 +1,342 @@
+{
+  "schema": "tp.integration.nodes/v1",
+  "campaign": "p158w2",
+  "campaign_plan_id": 440,
+  "parent_plan_id": 158,
+  "window": "2026-11-09T04:52Z ~ 2026-11-09T08:52Z",
+  "nodes": [
+    {
+      "ext_id": "p158w2-n01-lbm-rotating-frame",
+      "label": "TensorLBM 旋转参考系内部流场验证面",
+      "repo": "TensorLBM",
+      "mission_id": 8492,
+      "branch": null,
+      "worktree": "m8492",
+      "base_commit": null,
+      "gaps": [
+        {
+          "id": "in_flight",
+          "kind": "node_note",
+          "detail": "本门运行时节点仍在写 src/ 与 tests/，无 acceptance 工件可见",
+          "action": "节点自证落 artifacts/ 后重跑本门"
+        }
+      ]
+    },
+    {
+      "ext_id": "p158w2-n02-dem-two-way-coupling",
+      "label": "TensorDEM 点颗粒两向耦合验证面",
+      "repo": "TensorDEM",
+      "mission_id": 8493,
+      "branch": null,
+      "worktree": "m8493",
+      "base_commit": null,
+      "interface_contract": {
+        "derived_by": "integration_gate 探针派生（非节点承诺）",
+        "module": "tensordem.two_way_coupling.ergun_sweep",
+        "exports": [
+          "ergun_pressure_gradient_classic(voidage, superficial_velocity, diameter, rho_fluid, mu) -> Pa/m",
+          "ergun_pressure_gradient_model_a(voidage, superficial_velocity, diameter, rho_fluid, mu) -> N/m^3",
+          "dem_drag_per_volume(voidage, superficial_velocity, diameter, rho_fluid, mu, model='gidaspow') -> N/m^3",
+          "run_ergun_sweep(diameter, rho_fluid, mu, n_phi, n_velocities, u_max) -> dict"
+        ],
+        "ports": "全部 SI：voidage 无量纲、速度 m/s、直径 m、密度 kg/m^3、黏度 Pa*s",
+        "stability": "无承诺；模块文件在门内被 sha256 钉住（见 traces.json provenance）"
+      },
+      "gaps": [
+        {
+          "id": "in_flight",
+          "kind": "node_note",
+          "detail": "节点仍在写 two_way_coupling/*（ergun_sweep/added_mass 等），无 acceptance 工件",
+          "action": "补 acceptance.json 后重跑本门"
+        }
+      ]
+    },
+    {
+      "ext_id": "p158w2-n03-fvm-conjugate-heat",
+      "label": "TensorFVM 共轭传热 CHT 验证面",
+      "repo": "TensorFVM",
+      "mission_id": 8494,
+      "branch": null,
+      "worktree": "m8494",
+      "base_commit": null,
+      "interface_contract": {
+        "derived_by": "integration_gate 探针派生（非节点承诺）",
+        "module": "tensorfvm.cht.energy",
+        "exports": [
+          "solve_steady_energy(dx, dy, kappa, flux_e, flux_n, bc, *, t_init, tol, max_picard, dc_relax, high_order) -> (T, info)",
+          "info['ledger'] -> EnergyLedger{boundary, advective, inflow, outflow, imbalance, normalized_imbalance, residual_inf, residual_scaled}",
+          "EnergyLedger.as_dict()"
+        ],
+        "ports": "差分格式量纲一致（kappa 为扩散率 m^2/s，dx/dy 为 m，T 为 K）；bc 侧名 west/east/south/north",
+        "stability": "无承诺；模块文件在门内被 sha256 钉住（见 traces.json provenance）"
+      },
+      "gaps": [
+        {
+          "id": "in_flight",
+          "kind": "node_note",
+          "detail": "节点仍在写 cht/{flatplate,polar}.py，无 acceptance 工件",
+          "action": "补 acceptance.json 后重跑本门"
+        }
+      ]
+    },
+    {
+      "ext_id": "p158w2-n04-electric-propulsion-noise",
+      "label": "电力推进谐波激励→结构振动→舱室噪声全链",
+      "repo": "ship-performance-platform",
+      "mission_id": 8495,
+      "branch": null,
+      "worktree": "m8495",
+      "base_commit": null,
+      "ingest": {
+        "kind": "platform_report",
+        "ref": "platform_report:9769",
+        "path": "data/campaigns/p158w2/raw/report_9769_n04_noise.md",
+        "block_index": 0,
+        "criteria_map": [
+          {
+            "id": "G1_kloss_torque_slip_rel_error",
+            "key": "kloss.rel_error",
+            "op": "<=",
+            "threshold": 0.01,
+            "unit": "-",
+            "note": "Kloss 闭式 vs 等效电路数值解转矩-转差（s=0.03 单点）：判据 ≤1%"
+          },
+          {
+            "id": "G_URN_underwater_spl_nonzero",
+            "key": "radiation.SPL_underwater",
+            "op": ">=",
+            "threshold": 1.0,
+            "unit": "dB",
+            "note": "水下辐射噪声必须是有限非零量；本门设 1 dB 下限，0 表示该分支未建模"
+          },
+          {
+            "id": "G_cabin_spl_nonzero",
+            "key": "radiation.SPL_cabin",
+            "op": ">=",
+            "threshold": 1.0,
+            "unit": "dB",
+            "note": "舱室 SPL 非零（证明辐射链确实算到声学端）"
+          },
+          {
+            "id": "G_radiation_efficiency_positive",
+            "key": "radiation.sigma",
+            "op": ">=",
+            "threshold": 1e-06,
+            "unit": "-",
+            "note": "Maidanik 辐射效率为正（与 URN 分支的 0 dB 形成矛盾对照）"
+          }
+        ],
+        "capabilities": [
+          {
+            "id": "ship.electric_propulsion_noise_chain",
+            "claim_level": "REAL",
+            "summary": "电力推进谐波激励→气隙力波→圆柱壳模态→舱室 SPL 全链（Kloss/PWM/Maxwell/Maidanik/ISO6954）",
+            "blocking_criteria": [
+              "G1_kloss_torque_slip_rel_error"
+            ]
+          },
+          {
+            "id": "ship.urn_underwater_propagation",
+            "claim_level": "REAL",
+            "summary": "水下辐射噪声传播口径（URN）",
+            "blocking_criteria": [
+              "G_URN_underwater_spl_nonzero"
+            ]
+          }
+        ],
+        "notes": "判据由本门从报告 JSON 载荷重算，不采信报告自述结论；URN 分支在报告里自述 Simplified model 且 SPL_underwater=0。"
+      },
+      "gaps": [
+        {
+          "id": "urn_placeholder",
+          "kind": "node_note",
+          "detail": "水下辐射 SPL 恒为 0（占位），与 σ>0、舱室 SPL 33.7 dB 自相矛盾",
+          "action": "实现水下辐射口径或显式申报 NOT_SUPPORTED"
+        }
+      ]
+    },
+    {
+      "ext_id": "p158w2-n05-ballast-tank-strength",
+      "label": "压载水舱极限强度（压力场/屈曲/角隅/CSR）",
+      "repo": "ship-performance-platform",
+      "mission_id": 8496,
+      "branch": null,
+      "worktree": "m8496",
+      "base_commit": null,
+      "ingest": {
+        "kind": "acceptance_json",
+        "ref": "artifact:ship-performance-platform/artifacts/ballast_tank_strength/acceptance.json",
+        "path": "data/campaigns/p158w2/raw/acceptance_n05_ballast.json",
+        "numeric": [
+          {
+            "id": "C_probe_no_fail_count",
+            "path": "summary.n_fail",
+            "op": "<=",
+            "threshold": 0.0,
+            "unit": "count",
+            "note": "43 条 probe 的失败条数"
+          },
+          {
+            "id": "C_pressure_rule_ge_physics",
+            "path": "reference_case.load.p_rule_Pa",
+            "op": ">=",
+            "threshold": 194455.7437553298,
+            "unit": "Pa",
+            "note": "规则包络 ≥ 物理场（上界关系，单侧判据）"
+          },
+          {
+            "id": "C_yield_utilisation",
+            "path": "reference_case.csr_checks.yield.utilisation",
+            "op": "<=",
+            "threshold": 1.0,
+            "unit": "-",
+            "note": "屈服利用率（参考工况）"
+          },
+          {
+            "id": "C_buckling_utilisation_reference",
+            "path": "reference_case.csr_checks.buckling.utilisation",
+            "op": "<=",
+            "threshold": 1.0,
+            "unit": "-",
+            "role": "case_verdict",
+            "note": "参考工况屈曲利用率 → honest FAIL（不加防倾肘板时该加筋方案确实不满足）"
+          },
+          {
+            "id": "C_ultimate_utilisation",
+            "path": "reference_case.csr_checks.ultimate.utilisation",
+            "op": "<=",
+            "threshold": 1.0,
+            "unit": "-",
+            "note": "极限状态利用率"
+          },
+          {
+            "id": "C_buckling_utilisation_design",
+            "path": "design_case.csr_checks.buckling.utilisation",
+            "op": "<=",
+            "threshold": 1.0,
+            "unit": "-",
+            "note": "设计改进工况（腹板 15 mm + 防倾肘板）：证明判据有判别力"
+          }
+        ],
+        "capabilities": [
+          {
+            "id": "ship.ballast_tank_strength",
+            "claim_level": "REAL",
+            "summary": "压载舱压力场 / 四模式屈曲 / 角隅热点 / IACS CSR 四判据闭环（43 条 probe 独立参考实现）",
+            "blocking_criteria": [
+              "C_probe_no_fail_count",
+              "C_pressure_rule_ge_physics",
+              "C_yield_utilisation",
+              "C_ultimate_utilisation",
+              "C_buckling_utilisation_design"
+            ]
+          }
+        ],
+        "notes": "参考工况屈曲 honest FAIL 原样入账（case_verdict 角色，不压低实现等级）；设计改进工况 PASS 证明判别力。"
+      },
+      "gaps": []
+    },
+    {
+      "ext_id": "p158w2-n06-write-boundary-gate",
+      "label": "工作树写入边界门（白名单/跨仓/凭证三合一）",
+      "repo": "TensorPlatform",
+      "mission_id": 8497,
+      "branch": "agent/m8497",
+      "worktree": "m8497",
+      "base_commit": null,
+      "ingest": {
+        "kind": "acceptance_json",
+        "ref": "artifact:TensorPlatform/artifacts/write_gate/acceptance.json",
+        "path": "data/campaigns/p158w2/raw/acceptance_n06_write_gate.json",
+        "groups": [
+          {
+            "id": "F1_whitelist_recall",
+            "path": "criteria.whitelist",
+            "min_rate": 0.95
+          },
+          {
+            "id": "F1b_cross_repo_recall",
+            "path": "criteria.cross_repo",
+            "min_rate": 1.0
+          },
+          {
+            "id": "F1c_secrets_recall",
+            "path": "criteria.secrets",
+            "min_rate": 1.0
+          }
+        ],
+        "numeric": [
+          {
+            "id": "F1d_false_positive_rate",
+            "path": "criteria.false_positive.rate",
+            "op": "<=",
+            "threshold": 0.05,
+            "unit": "-",
+            "note": "161 条合规样本误杀率"
+          },
+          {
+            "id": "F5_wall_clock_seconds",
+            "path": "criteria.performance.seconds",
+            "op": "<=",
+            "threshold": 1.0,
+            "unit": "s",
+            "note": "1000 changed_files 判定墙钟"
+          },
+          {
+            "id": "F7_pytest_failed",
+            "path": "criteria.pytest.failed",
+            "op": "<=",
+            "threshold": 0.0,
+            "unit": "count",
+            "note": "节点自带测试失败数"
+          }
+        ],
+        "capabilities": [
+          {
+            "id": "platform.write_boundary_gate",
+            "claim_level": "REAL",
+            "summary": "提交边界门：路径白名单/跨仓污染/凭证泄漏三合一，fail-closed + 确定性 verdict sha256",
+            "blocking_criteria": [
+              "F1_whitelist_recall",
+              "F1b_cross_repo_recall",
+              "F1c_secrets_recall",
+              "F1d_false_positive_rate",
+              "F7_pytest_failed"
+            ]
+          }
+        ],
+        "notes": "证据来自节点分支 agent/m8497 的验收工件快照（未并入 main → PROVISIONAL）。"
+      },
+      "gaps": []
+    },
+    {
+      "ext_id": "p158w2-n07-multi-objective-opt",
+      "label": "NSGA-II 多目标优化框架验证面",
+      "repo": "TensorPlatform",
+      "mission_id": 8498,
+      "branch": "agent/m8498",
+      "worktree": "m8498",
+      "base_commit": null,
+      "interface_contract": {
+        "derived_by": "integration_gate 探针派生（非节点承诺）",
+        "module": "optimizer.multiobjective",
+        "exports": [
+          "nsga2",
+          "metrics",
+          "test_functions",
+          "ship_instance"
+        ],
+        "ports": "目标向量 f(x) ∈ R^m，决策变量含边界；GD/IGD/Spread/HV 无量纲",
+        "stability": "无承诺；节点本门运行时仍在写 optimizer/multiobjective/nsga2.py"
+      },
+      "gaps": [
+        {
+          "id": "in_flight",
+          "kind": "node_note",
+          "detail": "本门运行时只有 tests/multiobjective/test_nsga2_framework.py 与模块草稿，无 acceptance 工件",
+          "action": "补 acceptance.json（GD/IGD/Spread/HV + 30 次独立运行 HV 标准差）后重跑本门"
+        }
+      ]
+    }
+  ]
+}

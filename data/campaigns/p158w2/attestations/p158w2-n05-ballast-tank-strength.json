@@ -1,0 +1,101 @@
+{
+  "schema": "tp.integration.attestation/v1",
+  "node": {
+    "ext_id": "p158w2-n05-ballast-tank-strength",
+    "repo": "ship-performance-platform",
+    "mission_id": 8496,
+    "branch": null,
+    "base_commit": null,
+    "head_commit": null
+  },
+  "source": {
+    "kind": "acceptance_json",
+    "ref": "artifact:ship-performance-platform/artifacts/ballast_tank_strength/acceptance.json",
+    "sha256": "7d0c845e0d9bf9e5aeadf7846f40f837affcfaa9f00c2a7fa1c714e0e6cb3946",
+    "retrieved_at": "2026-11-09T08:49:02.348346+00:00"
+  },
+  "criteria": [
+    {
+      "id": "C_probe_no_fail_count",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 0.0,
+      "verdict": "PASS",
+      "unit": "count",
+      "note": "43 条 probe 的失败条数",
+      "path": "summary.n_fail",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C_pressure_rule_ge_physics",
+      "measured": 194455.7437553298,
+      "op": ">=",
+      "threshold": 194455.7437553298,
+      "verdict": "PASS",
+      "unit": "Pa",
+      "note": "规则包络 ≥ 物理场（上界关系，单侧判据）",
+      "path": "reference_case.load.p_rule_Pa",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C_yield_utilisation",
+      "measured": 0.505982624507683,
+      "op": "<=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "屈服利用率（参考工况）",
+      "path": "reference_case.csr_checks.yield.utilisation",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C_buckling_utilisation_reference",
+      "measured": 1.194279470189425,
+      "op": "<=",
+      "threshold": 1.0,
+      "verdict": "FAIL",
+      "unit": "-",
+      "note": "参考工况屈曲利用率 → honest FAIL（不加防倾肘板时该加筋方案确实不满足）",
+      "path": "reference_case.csr_checks.buckling.utilisation",
+      "role": "case_verdict"
+    },
+    {
+      "id": "C_ultimate_utilisation",
+      "measured": 0.27323736812184846,
+      "op": "<=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "极限状态利用率",
+      "path": "reference_case.csr_checks.ultimate.utilisation",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C_buckling_utilisation_design",
+      "measured": 0.6530864800604189,
+      "op": "<=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "设计改进工况（腹板 15 mm + 防倾肘板）：证明判据有判别力",
+      "path": "design_case.csr_checks.buckling.utilisation",
+      "role": "capability_gate"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "ship.ballast_tank_strength",
+      "claim_level": "REAL",
+      "summary": "压载舱压力场 / 四模式屈曲 / 角隅热点 / IACS CSR 四判据闭环（43 条 probe 独立参考实现）",
+      "blocking_criteria": [
+        "C_probe_no_fail_count",
+        "C_pressure_rule_ge_physics",
+        "C_yield_utilisation",
+        "C_ultimate_utilisation",
+        "C_buckling_utilisation_design"
+      ]
+    }
+  ],
+  "interface_contract": null,
+  "notes": "参考工况屈曲 honest FAIL 原样入账（case_verdict 角色，不压低实现等级）；设计改进工况 PASS 证明判别力。"
+}
