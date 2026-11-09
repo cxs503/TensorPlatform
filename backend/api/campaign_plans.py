@@ -15,6 +15,7 @@ Red team 验证:
 from __future__ import annotations
 
 import json
+import logging
 import math
 from datetime import datetime, timedelta, timezone
 from typing import Any
@@ -29,6 +30,7 @@ from api.domain.tensor_common import resolved_org
 from database.config import get_db
 
 router = APIRouter(prefix="/tensor/campaigns", tags=["战役总管"])
+logger = logging.getLogger(__name__)
 
 # ───────────────────────── helpers ─────────────────────────
 
@@ -96,9 +98,16 @@ class NodeCreate(BaseModel):
 
 
 class NodeVerdictUpdate(BaseModel):
-    """更新节点复现判决结果。"""
+    """更新节点复现判决结果。
+
+    ``metrics`` 可选携带本次验收实测指标（如 ``{"max_rel_err": 0.03}``）。
+    带指标时判决落库后立即触发战役条件路由（门控 → 分支/自适应重试），
+    判决与路由在同一次 API 调用内闭环，无需外部 agent 再发一次路由请求。
+    """
     reproduction_verdict: str = Field(pattern="^(pass|fail)$")
     block_reason: str | None = None
+    metrics: dict[str, float] | None = None
+    metric_name: str = Field(default="max_rel_err", min_length=1, max_length=100)
 
 
 @router.post("/plans", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
@@ -353,6 +362,13 @@ def update_node_verdict(
         },
     )
 
+    # 本次判决实测指标（可选）：同时用于事件审计与门控路由
+    metric_value = None
+    if body.metrics:
+        metric_value = body.metrics.get(body.metric_name)
+        if metric_value is None and len(body.metrics) == 1:
+            metric_value = next(iter(body.metrics.values()))
+
     # 记录事件
     db.execute(
         text("""
@@ -363,12 +379,40 @@ def update_node_verdict(
         {
             "org": org_id, "pid": node["plan_id"],
             "detail": _dumps({"node_id": node_id, "verdict": verdict, "status": new_status,
-                              "consecutive_fails": new_fails}),
+                              "consecutive_fails": new_fails,
+                              "metric_value": metric_value,
+                              "metric_name": body.metric_name}),
         },
     )
 
     db.commit()
-    return {"node_id": node_id, "status": new_status, "consecutive_fails": new_fails}
+
+    # ── Verdict-driven conditional routing ──────────────────────────────
+    # A verdict that carries a measured metric is the natural trigger of the
+    # campaign gate router: the node just became done/failed, exactly the
+    # transition conditional edges are defined on. Unconditional (legacy)
+    # plans short-circuit inside route_after_verdict without side effects, so
+    # this hook cannot change the behaviour of existing DAGs.
+    routing = None
+    if metric_value is not None:
+        try:
+            from api.campaign_routing import route_after_verdict
+
+            routing = route_after_verdict(
+                db, node_id, float(metric_value), body.metric_name,
+            )
+        except Exception:  # routing failure must never lose the verdict
+            logger.warning("verdict routing failed for node %s", node_id, exc_info=True)
+            routing = {"evaluated": False, "action": "error",
+                       "detail": {"reason": "routing evaluation raised"}}
+
+    return {
+        "node_id": node_id,
+        "status": new_status,
+        "consecutive_fails": new_fails,
+        "metric_value": metric_value,
+        "routing": routing,
+    }
 
 
 # ───────────────────────── Snapshots ─────────────────────────

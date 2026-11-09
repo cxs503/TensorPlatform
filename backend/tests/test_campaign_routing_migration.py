@@ -15,7 +15,7 @@ from sqlalchemy import create_engine, text
 
 BACKEND = Path(__file__).resolve().parents[1]
 BASE_REV = "ca5e2b2ff9e3"
-HEAD_REV = "109_campaign_cond_dag"
+HEAD_REV = "110_campaign_routing_events"
 
 LEGACY_SCHEMA = [
     """CREATE TABLE campaign_plans (
