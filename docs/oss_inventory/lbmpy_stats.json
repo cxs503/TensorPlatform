@@ -1,0 +1,268 @@
+{
+  "head": "0afc9d52896e23210874b4d56d2d11f4f934e0e8|Wed Jul 22 14:00:55 2026 +0200|Merge branch 'janirudh/stencil-refactoring' into 'master'",
+  "n_py_src": 105,
+  "src_loc_total": 23365,
+  "n_py_all": 195,
+  "all_py_loc": 33837,
+  "top_modules": [
+    [
+      "boundaries/boundaryconditions.py",
+      1323
+    ],
+    [
+      "moment_transforms/centralmomenttransforms.py",
+      1057
+    ],
+    [
+      "moments.py",
+      969
+    ],
+    [
+      "creationfunctions.py",
+      965
+    ],
+    [
+      "methods/creationfunctions.py",
+      777
+    ],
+    [
+      "_version.py",
+      683
+    ],
+    [
+      "chapman_enskog/chapman_enskog.py",
+      629
+    ],
+    [
+      "forcemodels.py",
+      597
+    ],
+    [
+      "methods/conservedquantitycomputation.py",
+      521
+    ],
+    [
+      "lbstep.py",
+      465
+    ],
+    [
+      "moment_transforms/rawmomenttransforms.py",
+      444
+    ],
+    [
+      "phasefield_allen_cahn/kernel_equations.py",
+      438
+    ],
+    [
+      "phasefield_allen_cahn/parameter_calculation.py",
+      435
+    ],
+    [
+      "methods/momentbased/momentbasedmethod.py",
+      420
+    ]
+  ],
+  "families": {
+    "stencils": [
+      "velocityspace/standardstencils.py:6",
+      "velocityspace/standardstencils.py:53",
+      "velocityspace/standardstencils.py:93",
+      "velocityspace/standardstencils.py:124",
+      "velocityspace/standardstencils.py:178",
+      "velocityspace/standardstencils.py:241"
+    ],
+    "collision_factories": [
+      [
+        "methods/creationfunctions.py:81",
+        "create_with_discrete_maxwellian_equilibrium"
+      ],
+      [
+        "methods/creationfunctions.py:121",
+        "create_with_continuous_maxwellian_equilibrium"
+      ],
+      [
+        "methods/creationfunctions.py:161",
+        "create_from_equilibrium"
+      ],
+      [
+        "methods/creationfunctions.py:227",
+        "create_srt"
+      ],
+      [
+        "methods/creationfunctions.py:255",
+        "create_trt"
+      ],
+      [
+        "methods/creationfunctions.py:285",
+        "create_trt_with_magic_number"
+      ],
+      [
+        "methods/creationfunctions.py:310",
+        "create_mrt_raw"
+      ],
+      [
+        "methods/creationfunctions.py:339",
+        "create_central_moment"
+      ],
+      [
+        "methods/creationfunctions.py:387",
+        "create_trt_kbc"
+      ],
+      [
+        "methods/creationfunctions.py:466",
+        "create_mrt_orthogonal"
+      ],
+      [
+        "methods/creationfunctions.py:532",
+        "create_cumulant"
+      ],
+      [
+        "methods/creationfunctions.py:567",
+        "create_with_monomial_cumulants"
+      ],
+      [
+        "methods/creationfunctions.py:589",
+        "create_with_default_polynomial_cumulants"
+      ]
+    ],
+    "force_models": [
+      [
+        "forcemodels.py:105",
+        "AbstractForceModel"
+      ],
+      [
+        "forcemodels.py:179",
+        "Simple"
+      ],
+      [
+        "forcemodels.py:213",
+        "CentralMoment"
+      ],
+      [
+        "forcemodels.py:235",
+        "Luo"
+      ],
+      [
+        "forcemodels.py:273",
+        "Guo"
+      ],
+      [
+        "forcemodels.py:319",
+        "He"
+      ],
+      [
+        "forcemodels.py:441",
+        "Schiller"
+      ],
+      [
+        "forcemodels.py:453",
+        "Buick"
+      ],
+      [
+        "forcemodels.py:493",
+        "EDM"
+      ],
+      [
+        "forcemodels.py:521",
+        "ShanChen"
+      ]
+    ],
+    "boundaries": [
+      [
+        "boundaries/boundaryconditions.py:110",
+        "NoSlip"
+      ],
+      [
+        "boundaries/boundaryconditions.py:149",
+        "NoSlipLinearBouzidi"
+      ],
+      [
+        "boundaries/boundaryconditions.py:232",
+        "QuadraticBounceBack"
+      ],
+      [
+        "boundaries/boundaryconditions.py:371",
+        "FreeSlip"
+      ],
+      [
+        "boundaries/boundaryconditions.py:500",
+        "WallFunctionBounce"
+      ],
+      [
+        "boundaries/boundaryconditions.py:788",
+        "UBB"
+      ],
+      [
+        "boundaries/boundaryconditions.py:927",
+        "SimpleExtrapolationOutflow"
+      ],
+      [
+        "boundaries/boundaryconditions.py:977",
+        "ExtrapolationOutflow"
+      ],
+      [
+        "boundaries/boundaryconditions.py:1127",
+        "FixedDensity"
+      ],
+      [
+        "boundaries/boundaryconditions.py:1187",
+        "DiffusionDirichlet"
+      ],
+      [
+        "boundaries/boundaryconditions.py:1270",
+        "NeumannByCopy"
+      ],
+      [
+        "boundaries/boundaryconditions.py:1294",
+        "StreamInConstant"
+      ]
+    ]
+  },
+  "multiphase_hits": {
+    "SCMP (single-component two-phase)": 1,
+    "Cahn-Hilliard (conserved, n-phase)": 3,
+    "Allen-Cahn (non-conserved, contact angle)": 2,
+    "EOS-driven free energy (C-S / vdW)": 3,
+    "high density ratio free energy": 1,
+    "pressure-tensor forcing": 3,
+    "free surface (fill fraction / VOF)": 0,
+    "spurious-current suppression": 0
+  },
+  "multiphase_detail": {
+    "SCMP (single-component two-phase)": [
+      "forcemodels.py:521"
+    ],
+    "Cahn-Hilliard (conserved, n-phase)": [
+      "phasefield/analytical.py:64",
+      "phasefield/analytical.py:101",
+      "phasefield/phasefieldstep.py:20"
+    ],
+    "Allen-Cahn (non-conserved, contact angle)": [
+      "phasefield_allen_cahn/kernel_equations.py:19",
+      "phasefield_allen_cahn/kernel_equations.py:112"
+    ],
+    "EOS-driven free energy (C-S / vdW)": [
+      "phasefield/eos.py:8",
+      "phasefield/eos.py:23",
+      "phasefield/eos.py:53"
+    ],
+    "high density ratio free energy": [
+      "phasefield/high_density_ratio_model.py:8"
+    ],
+    "pressure-tensor forcing": [
+      "phasefield/kerneleqs.py:32",
+      "phasefield/kerneleqs.py:48",
+      "phasefield_allen_cahn/kernel_equations.py:55"
+    ],
+    "free surface (fill fraction / VOF)": [],
+    "spurious-current suppression": []
+  },
+  "n_test_files": 84,
+  "n_test_notebooks": 28,
+  "n_notebooks_doc": 23,
+  "has_gitlab_ci": true,
+  "license": [
+    "GNU GENERAL PUBLIC LICENSE",
+    "Version 3, 29 June 2007"
+  ]
+}
