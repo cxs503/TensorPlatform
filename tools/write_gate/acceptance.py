@@ -10,7 +10,7 @@
 5. 确定/幂等              → ``criteria.determinism``（三次重跑逐字节比对）
 6. fail-closed            → ``criteria.fail_closed``（仓根不可读 / 策略非法）
 7. 零领域语义             → ``criteria.semantics``（预注册词表 grep 包源码与策略数据）
-8. pytest 用例数          → ``criteria.pytest``（子进程跑本模块测试取摘要行）
+8. pytest 用例数          → ``criteria.pytest``（子进程跑 `test_write_gate*.py` 取摘要行）
 9. 性能                   → ``criteria.performance``（1000 路径判决耗时）
 
 用法::
@@ -207,8 +207,56 @@ def crit_semantics() -> Dict[str, Any]:
             "pass": hits == []}
 
 
+def crit_content_scope(work_dir: Path) -> Dict[str, Any]:
+    """凭证判据的两档内容范围（``secrets.content_scope``）：预注册 3 个场景。
+
+    (a) ``full``  ：文件里有历史遗留凭证 + 无关改动 → 必须拦（最严口径不退化）；
+    (b) ``added`` ：同一改动 → 放行，但旧内容命中必须留 ``pre_existing_content`` 痕迹；
+    (c) ``added`` ：本次新增行里写凭证 → 必须拦且行号对得上。
+    """
+    root = Path(tempfile.mkdtemp(prefix="write_gate_scope_", dir=str(work_dir)))
+    secret = "-----BEGIN RSA " + "PRIVATE KEY-----"  # 拼接：本文件自身也要过门
+    (root / "app").mkdir(parents=True, exist_ok=True)
+    target = root / "app" / "settings.py"
+    _git(root, "init", "-q")
+    target.write_text(f"# legacy\n{secret}\nMODE = 'dev'\n", encoding="utf-8")
+    _git(root, "add", "-A")
+    _git(root, "commit", "-q", "-m", "seed")
+
+    cfg_full = policy_mod.load_policy(POLICY_PATH, overrides={"secrets": {"content_scope": "full"}})
+    cfg_added = policy_mod.load_policy(POLICY_PATH, overrides={"secrets": {"content_scope": "added"}})
+    rows: List[Dict[str, Any]] = []
+
+    # (a)(b) 无关改动：历史遗留凭证在旧行，改动只加一行正常代码
+    target.write_text(f"# legacy\n{secret}\nMODE = 'dev'\nEXTRA = 1\n", encoding="utf-8")
+    _git(root, "add", str(target))
+    v_full = gate.evaluate_staged(root, cfg_full)
+    rows.append({"scenario": "legacy_secret_unrelated_edit", "scope": "full", "expected": "FAIL",
+                 "verdict": v_full.verdict, "lines": [v.line for v in v_full.violations],
+                 "pass": v_full.verdict == "FAIL" and [v.line for v in v_full.violations] == [2]})
+    v_added = gate.evaluate_staged(root, cfg_added)
+    advisories = [a for a in v_added.advisories if a["reason"] == "pre_existing_content"]
+    rows.append({"scenario": "legacy_secret_unrelated_edit", "scope": "added",
+                 "expected": "PASS+advisory", "verdict": v_added.verdict,
+                 "pre_existing_advisories": len(advisories),
+                 "pass": v_added.verdict == "PASS" and len(advisories) == 1
+                         and advisories[0]["line"] == 2})
+
+    # (c) 本次新增行里写凭证
+    target.write_text(f"# legacy\n{secret}\nMODE = 'dev'\nEXTRA = 1\nHDR = '{secret}'\n",
+                      encoding="utf-8")
+    _git(root, "add", str(target))
+    v_new = gate.evaluate_staged(root, cfg_added)
+    rows.append({"scenario": "secret_added_in_this_commit", "scope": "added", "expected": "FAIL",
+                 "verdict": v_new.verdict, "lines": [v.line for v in v_new.violations],
+                 "pass": v_new.verdict == "FAIL" and [v.line for v in v_new.violations] == [5]})
+    return {"rows": rows, "detected": sum(1 for r in rows if r["pass"]), "required": len(rows),
+            "pass": all(r["pass"] for r in rows)}
+
+
 def crit_pytest(timeout: int = 900) -> Dict[str, Any]:
-    proc = subprocess.run([sys.executable, "-m", "pytest", "tests/test_write_gate.py", "-q"],
+    proc = subprocess.run([sys.executable, "-m", "pytest", "tests/test_write_gate.py",
+                                   "tests/test_write_gate_content_scope.py", "-q"],
                           cwd=str(REPO_ROOT), capture_output=True, text=True, timeout=timeout,
                           env=dict(os.environ, PYTHONPATH=str(REPO_ROOT)))
     tail = (proc.stdout or "") + (proc.stderr or "")
@@ -259,6 +307,7 @@ def run(out_dir: Path, work_dir: Path) -> Dict[str, Any]:
         "semantics": crit_semantics(),
         "pytest": crit_pytest(),
         "performance": crit_performance(cfg_default, REPO_ROOT),
+        "content_scope": crit_content_scope(fixture_parent),
         "allow_samples": {"samples": len(scenarios["allow_samples"]),
                           "passed": sum(1 for f in allow_verdict.files if f["status"] == "allow"),
                           "pass": allow_verdict.verdict == "PASS"},
