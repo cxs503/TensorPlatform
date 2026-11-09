@@ -329,3 +329,111 @@ Figures (see `artifacts/campaign_routing/`):
 - No end-to-end dispatcher integration test: the router decides and activates,
   but whether the campaign dispatcher honours `action="loop_retry"` /
   `"escalated"` is outside this node's acceptance line.
+
+---
+
+## Addendum (mission m8337): PostgreSQL compatibility + verdict-driven routing
+
+The section above closed with the residual risk *"Tests and the study run on
+SQLite; PostgreSQL JSONB behaviour is only covered by the migration DDL path,
+not by a live PG instance"*. That risk turned out to be a **production outage
+of the whole feature**, not a testing gap: every one of the 12 routing
+endpoints failed on the platform database (modelled on migration 095 + 108).
+
+### A. Baseline: the feature was dead on PostgreSQL
+
+Reproduced on a live PostgreSQL 15.5 server (schema built from
+`migrations/095_campaign_plans.sql` + `108_campaign_edge_conditions.sql`,
+i.e. the real production shape):
+
+```
+sqlalchemy.exc.ProgrammingError: (psycopg.errors.SyntaxError)
+syntax error at or near "AUTOINCREMENT"
+[SQL: CREATE TABLE IF NOT EXISTS campaign_edge_conditions (
+        id INTEGER PRIMARY KEY AUTOINCREMENT, ... )]
+```
+
+| # | dialect defect | where | production effect |
+|---|---|---|---|
+| D1 | `PRAGMA table_info(campaign_nodes)` bootstrap | `_ensure_routing_columns` | aborts the PG transaction |
+| D2 | `INTEGER PRIMARY KEY AUTOINCREMENT` / `datetime('now')` DDL | `_ensure_edge_conditions_table` | table never created on PG |
+| D3 | `campaign_events.event_type` CHECK (migration 095) lacks the 4 routing event types | `_log_routing_event` | audit insert violates constraint → whole routing tx rolls back |
+| D4 | `CAST(:detail AS TEXT)` into `detail JSONB` | `_log_routing_event` | invalid JSONB binding |
+| D5 | `enabled = 1` on a `BOOLEAN` column (write **and** read) | edge CRUD / evaluation query | operator does not exist: boolean = integer |
+| D6 | JSON *strings* bound into `JSONB` columns (`condition_expr`, `condition`, `convergence_check`) | edge CRUD, `PUT /nodes/{id}/condition`, retry creation | column is jsonb but expression is character varying |
+| D7 | `dependencies` bound as JSON text into `INTEGER[]` | `POST /nodes/{id}/create-retry` | malformed array literal |
+
+Before/after (same tests, same server):
+`tests/test_campaign_routing_pg.py` **12/12 FAIL → 13/13 PASS**,
+`tests/test_campaign_routing_dialect.py` **14 FAIL → 14 PASS**.
+
+### B. Fix (minimal, dialect-dispatched)
+
+* `_dialect_name()` / `_is_pg()` / `_json_sql()` — one place that decides how a
+  JSON string is bound (`CAST(:x AS jsonb)` on PG, bare placeholder elsewhere).
+* `_ensure_routing_columns()` — PG: `ADD COLUMN IF NOT EXISTS ... JSONB`; SQLite:
+  the original `PRAGMA` probe (unchanged, still covered by its own control test).
+* `_ensure_edge_conditions_table()` — PG: `BIGSERIAL` / `JSONB` / `BOOLEAN` /
+  `TIMESTAMPTZ ... DEFAULT now()` + the two indexes; SQLite: unchanged.
+* `_ensure_event_types()` — PG only: re-creates the `event_type` CHECK with the
+  **union** of its existing literals and the routing event types (never drops a
+  literal, idempotent once satisfied). SQLite (no such whitelist) is a no-op.
+* Boolean flags and timestamps are bound as real `bool` / aware `datetime`
+  instead of `1|0` / ISO strings; `dependencies` is bound as a list on PG.
+* `alembic/versions/110_campaign_routing_event_types.py` performs the same
+  whitelist widening at schema level so a freshly migrated database is correct
+  before the first routing call (tested idempotent).
+
+### C. Verdict-driven routing (the loop closes without an extra agent turn)
+
+New optional fields on `POST /tensor/campaigns/nodes/{id}/verdict`:
+`metrics: {name: value}` and `metric_name` (default `max_rel_err`). When a
+metric is supplied, the verdict — i.e. exactly the `done`/`failed` transition
+conditional edges are defined on — immediately triggers the gate router:
+
+```json
+{"reproduction_verdict": "fail", "metrics": {"max_rel_err": 0.08}}
+→ {"status": "failed", "metric_value": 0.08,
+   "routing": {"evaluated": true, "action": "loop_retry", ...,
+               "detail": {"trigger": "verdict",
+                          "retry_node": {"name": "N1_retry_2", "iteration": 1}}}}
+```
+
+`ConditionExpr.auto_retry` (default `false`) makes a failed self-loop materialise
+the retry node (grid refinement 2x) in the same call, so
+*verify → judge → refine → re-verify* runs inside one request per round.
+`route_after_verdict()` is the reusable hook; on a node without any condition
+(legacy DAG) it returns `{"evaluated": false, "action": "no_condition"}` and
+writes **no** event, so unconditional plans keep byte-identical behaviour. A
+routing failure is caught and logged — it can never lose a verdict.
+
+### D. Acceptance evidence on live PostgreSQL 15.5
+
+`CAMPAIGN_PG_DSN=postgresql+psycopg://... pytest backend/tests/test_campaign_routing_pg.py -q` → **13 passed**
+
+| # | criterion | evidence on PG | result |
+|---|---|---|---|
+| 1 | conditional routing correctness | err 0.03 → on_true node 2; err 0.08 → on_false node 3 (inline and edge-table forms) | PASS |
+| 2 | adaptive loop | verdict fail 0.08 → `loop_retry` + `N1_retry_2`; fail 0.06 → `N1_retry_3`; pass 0.004 → `activated` node 2; all retries `grid_multiplier=2.0` | PASS |
+| 3 | convergence guard | 4 verdicts → actions `[loop_retry, loop_retry, loop_retry, escalated]`, node `blocked`, 3 retries only | PASS |
+| 4 | concurrency | 2 threads × 10 evaluations → 20 `routing_evaluated` events, 0 errors | PASS |
+| 5 | backward compatibility | condition-less verdict → `routing=None`, 0 routing events; metric-carrying verdict → `no_condition`, 0 events | PASS |
+| 6 | negative controls (3) | null condition → `no_condition`; `on_true == on_false` → same target both ways; missing source node → HTTP 404 and `route_after_verdict` → `skipped` | PASS |
+| 7 | idempotency | repeat POST → same id, `status='updated'`, 1 row | PASS |
+| 8 | audit trail | 2 evaluations → 2 `routing_evaluated` rows, JSONB detail parsed back with `metric_name`/`activated_node_id`; `/plans/{id}/routing` exposes the tail | PASS |
+| 9 | migration 110 | narrow 095 whitelist → rewritten, idempotent, pre-existing literals preserved, routing event insertable | PASS |
+
+### E. Residual risks (updated)
+
+* **Closed**: PostgreSQL JSONB/DDL behaviour is now covered by a live PG run
+  (`test_campaign_routing_pg.py`, skipped when `CAMPAIGN_PG_DSN` is unset — CI
+  without a PG service will still skip it; the dialect-SQL tests
+  `test_campaign_routing_dialect.py` run everywhere and are the guard rail).
+* **Open**: the per-plan lock is still in-process; multi-worker deployments need
+  `pg_advisory_xact_lock(plan_id)`.
+* **Open**: a verdict-driven `loop_retry` materialises the retry node but does
+  not dispatch it; honouring the activated node is the dispatcher's job and is
+  outside this node's acceptance line.
+* **Open**: `POST /nodes/{id}/verdict` itself still uses `now()`/`jsonb` casts
+  (PostgreSQL-only SQL), so the verdict path remains PG-exclusive; the routing
+  hooks it calls are dialect-neutral.

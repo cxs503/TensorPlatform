@@ -13,6 +13,7 @@ from __future__ import annotations
 
 import json
 import logging
+import re
 import threading
 from datetime import datetime, timezone
 from typing import Any, Optional
@@ -101,8 +102,60 @@ def _row_to_dict(r: Any) -> dict:
     return out
 
 
+# ───────────────────────── Dialect shims ─────────────────────────
+# The routing layer bootstraps its own storage on first use so that an agent
+# can enable conditional routing on a database whose migrations have not been
+# applied yet. That bootstrap must speak the dialect of the *platform*
+# database (PostgreSQL in production, SQLite in the embedded/test runtime):
+# emitting SQLite-only DDL (PRAGMA / AUTOINCREMENT / datetime('now')) on
+# PostgreSQL aborts the transaction and takes every routing endpoint down.
+
+_ROUTING_EVENT_TYPES = (
+    "edge_condition_created",
+    "edge_condition_deleted",
+    "routing_evaluated",
+    "retry_node_created",
+)
+
+
+def _dialect_name(db: Session) -> str:
+    try:
+        bind = db.get_bind()
+    except Exception:  # pragma: no cover - defensive
+        return "sqlite"
+    return getattr(getattr(bind, "dialect", None), "name", "sqlite")
+
+
+def _is_pg(db: Session) -> bool:
+    return _dialect_name(db) == "postgresql"
+
+
+def _json_sql(db: Session, placeholder: str) -> str:
+    """Bind a JSON *string* into a JSON/JSONB column of the current dialect."""
+    return f"CAST({placeholder} AS jsonb)" if _is_pg(db) else placeholder
+
+
+def _json_value(value: Any) -> Any:
+    """Normalise a (possibly already-parsed) JSON value for binding."""
+    if value is None or isinstance(value, str):
+        return value
+    return _dumps(value)
+
+
 def _ensure_routing_columns(db: Session) -> None:
-    """Ensure routing columns exist on campaign_nodes (SQLite compat)."""
+    """Ensure routing columns exist on campaign_nodes (dialect-aware)."""
+    if _is_pg(db):
+        db.execute(text("""
+            ALTER TABLE campaign_nodes
+                ADD COLUMN IF NOT EXISTS condition JSONB,
+                ADD COLUMN IF NOT EXISTS convergence_check JSONB,
+                ADD COLUMN IF NOT EXISTS iteration_count INTEGER NOT NULL DEFAULT 0,
+                ADD COLUMN IF NOT EXISTS parent_node_id BIGINT
+                    REFERENCES campaign_nodes(id)
+        """))
+        db.commit()
+        return
+
     cols = db.execute(text("PRAGMA table_info(campaign_nodes)")).fetchall()
     col_names = {row[1] for row in cols}
     if "condition" not in col_names:
@@ -117,7 +170,32 @@ def _ensure_routing_columns(db: Session) -> None:
 
 
 def _ensure_edge_conditions_table(db: Session) -> None:
-    """Ensure campaign_edge_conditions table exists (SQLite compat)."""
+    """Ensure campaign_edge_conditions table exists (dialect-aware)."""
+    if _is_pg(db):
+        db.execute(text("""
+            CREATE TABLE IF NOT EXISTS campaign_edge_conditions (
+                id BIGSERIAL PRIMARY KEY,
+                plan_id BIGINT NOT NULL REFERENCES campaign_plans(id) ON DELETE CASCADE,
+                source_node_id BIGINT NOT NULL REFERENCES campaign_nodes(id) ON DELETE CASCADE,
+                condition_expr JSONB NOT NULL DEFAULT '{}'::jsonb,
+                priority INTEGER NOT NULL DEFAULT 0,
+                enabled BOOLEAN NOT NULL DEFAULT TRUE,
+                created_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                updated_at TIMESTAMPTZ NOT NULL DEFAULT now(),
+                UNIQUE(plan_id, source_node_id, priority)
+            )
+        """))
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_campaign_edge_conditions_plan
+                ON campaign_edge_conditions (plan_id)
+        """))
+        db.execute(text("""
+            CREATE INDEX IF NOT EXISTS ix_campaign_edge_conditions_source
+                ON campaign_edge_conditions (source_node_id, enabled)
+        """))
+        db.commit()
+        return
+
     db.execute(text("""
         CREATE TABLE IF NOT EXISTS campaign_edge_conditions (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -134,6 +212,51 @@ def _ensure_edge_conditions_table(db: Session) -> None:
     db.commit()
 
 
+_EVENT_TYPE_CONSTRAINT_SQL = """
+    SELECT c.conname AS conname, pg_get_constraintdef(c.oid) AS cdef
+    FROM pg_constraint c
+    JOIN pg_class t ON t.oid = c.conrelid
+    JOIN pg_namespace n ON n.oid = t.relnamespace
+    WHERE t.relname = 'campaign_events'
+      AND c.contype = 'c'
+      AND pg_get_constraintdef(c.oid) LIKE '%event_type%'
+"""
+
+
+def _ensure_event_types(db: Session, required: tuple[str, ...] = _ROUTING_EVENT_TYPES) -> None:
+    """Widen the campaign_events.event_type CHECK to accept routing events.
+
+    Production ``campaign_events`` carries a CHECK whitelist (migration 095)
+    that predates conditional routing, so inserting ``routing_evaluated`` /
+    ``edge_condition_created`` would violate it and abort the routing
+    transaction. PostgreSQL cannot ALTER a CHECK in place, so the constraint is
+    re-created with the union of its existing literals and the required types.
+    Idempotent: nothing is touched once every required type is whitelisted.
+    """
+    if not _is_pg(db):
+        return  # SQLite schema used by tests/embedded runtime has no whitelist
+    try:
+        rows = db.execute(text(_EVENT_TYPE_CONSTRAINT_SQL)).mappings().all()
+    except Exception:  # pragma: no cover - table absent / no permission
+        logger.warning("campaign_events event_type introspection failed", exc_info=True)
+        return
+
+    wanted = set(required)
+    for row in rows:
+        existing = set(re.findall(r"'([^']*)'", row["cdef"] or ""))
+        if wanted <= existing:
+            continue
+        allowed = sorted(existing | wanted)
+        values = ", ".join(f"'{v}'" for v in allowed)
+        db.execute(text(f'ALTER TABLE campaign_events DROP CONSTRAINT "{row["conname"]}"'))
+        db.execute(text(
+            "ALTER TABLE campaign_events "
+            "ADD CONSTRAINT campaign_events_event_type_check "
+            f"CHECK (event_type IN ({values}))"
+        ))
+    db.commit()
+
+
 def _log_routing_event(
     db: Session,
     org_id: int,
@@ -141,18 +264,24 @@ def _log_routing_event(
     event_type: str,
     detail: dict,
 ) -> None:
-    """Log a routing evaluation event to campaign_events."""
+    """Log a routing evaluation event to campaign_events (audit trail)."""
+    try:
+        _ensure_event_types(db, (event_type,))
+    except Exception:  # pragma: no cover - audit must not be blocked by DDL
+        logger.warning("event type whitelist widening failed", exc_info=True)
+
+    detail_sql = _json_sql(db, ":detail")
     db.execute(
-        text("""
+        text(f"""
             INSERT INTO campaign_events (organization_id, plan_id, event_type, detail, created_at)
-            VALUES (:org, :pid, :etype, CAST(:detail AS TEXT), :ts)
+            VALUES (:org, :pid, :etype, {detail_sql}, :ts)
         """),
         {
             "org": org_id,
             "pid": plan_id,
             "etype": event_type,
             "detail": _dumps(detail),
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(timezone.utc),
         },
     )
     db.commit()
@@ -168,6 +297,11 @@ class ConditionExpr(BaseModel):
     threshold: float
     on_true: int = Field(ge=1, description="Node ID to activate when condition is true")
     on_false: int = Field(ge=1, description="Node ID to activate when condition is false")
+    auto_retry: bool = Field(
+        default=False,
+        description="When on_false loops back to this node, materialise the retry "
+                    "node (grid refinement 2x) automatically on the failed round",
+    )
 
     @validator("on_false")
     def validate_on_false(cls, v, values):
@@ -298,19 +432,20 @@ def create_edge_condition(
         {"pid": body.plan_id, "snid": body.source_node_id, "pri": body.priority},
     ).mappings().first()
 
+    expr_sql = _json_sql(db, ":expr")
     if existing:
         # Update existing (idempotent)
         db.execute(
-            text("""
+            text(f"""
                 UPDATE campaign_edge_conditions
-                SET condition_expr = :expr, enabled = :en, updated_at = :ts
+                SET condition_expr = {expr_sql}, enabled = :en, updated_at = :ts
                 WHERE id = :id
             """),
             {
                 "id": existing["id"],
                 "expr": _dumps(body.condition.dict()),
-                "en": 1 if body.enabled else 0,
-                "ts": datetime.now(timezone.utc).isoformat(),
+                "en": bool(body.enabled),
+                "ts": datetime.now(timezone.utc),
             },
         )
         db.commit()
@@ -319,18 +454,18 @@ def create_edge_condition(
     # Create new
     new_id = _insert_returning_id(
         db,
-        """
+        f"""
             INSERT INTO campaign_edge_conditions
                 (plan_id, source_node_id, condition_expr, priority, enabled, created_at, updated_at)
-            VALUES (:pid, :snid, :expr, :pri, :en, :ts, :ts)
+            VALUES (:pid, :snid, {expr_sql}, :pri, :en, :ts, :ts)
         """,
         {
             "pid": body.plan_id,
             "snid": body.source_node_id,
             "expr": _dumps(body.condition.dict()),
             "pri": body.priority,
-            "en": 1 if body.enabled else 0,
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "en": bool(body.enabled),
+            "ts": datetime.now(timezone.utc),
         },
     )
     db.commit()
@@ -446,18 +581,18 @@ def update_node_condition(
     params: dict[str, Any] = {"nid": node_id}
 
     if body.condition is not None:
-        updates.append("condition = :cond")
+        updates.append("condition = " + _json_sql(db, ":cond"))
         params["cond"] = _dumps(body.condition.dict())
 
     if body.convergence_check is not None:
-        updates.append("convergence_check = :conv")
+        updates.append("convergence_check = " + _json_sql(db, ":conv"))
         params["conv"] = _dumps(body.convergence_check.dict())
 
     if not updates:
         raise HTTPException(400, "no fields to update")
 
     updates.append("updated_at = :ts")
-    params["ts"] = datetime.now(timezone.utc).isoformat()
+    params["ts"] = datetime.now(timezone.utc)
 
     db.execute(
         text(f"UPDATE campaign_nodes SET {', '.join(updates)} WHERE id = :nid"),
@@ -602,7 +737,7 @@ def _evaluate_routing_inner(
     edge_conditions = db.execute(
         text("""
             SELECT * FROM campaign_edge_conditions
-            WHERE source_node_id = :nid AND enabled = 1
+            WHERE source_node_id = :nid AND enabled = TRUE
             ORDER BY priority DESC
         """),
         {"nid": node_id},
@@ -657,7 +792,7 @@ def _evaluate_routing_inner(
                         {
                             "nid": node_id,
                             "reason": f"convergence exhausted after {conv_result['max_iterations']} iterations",
-                            "ts": datetime.now(timezone.utc).isoformat(),
+                            "ts": datetime.now(timezone.utc),
                         },
                     )
                     db.commit()
@@ -673,7 +808,7 @@ def _evaluate_routing_inner(
                             SET iteration_count = iteration_count + 1, updated_at = :ts
                             WHERE id = :nid
                         """),
-                        {"nid": node_id, "ts": datetime.now(timezone.utc).isoformat()},
+                        {"nid": node_id, "ts": datetime.now(timezone.utc)},
                     )
                     db.commit()
                 elif conv_result.get("action") == "converged":
@@ -688,7 +823,7 @@ def _evaluate_routing_inner(
                             SET status = 'done', updated_at = :ts
                             WHERE id = :nid
                         """),
-                        {"nid": node_id, "ts": datetime.now(timezone.utc).isoformat()},
+                        {"nid": node_id, "ts": datetime.now(timezone.utc)},
                     )
                     db.commit()
                 else:
@@ -724,7 +859,7 @@ def _evaluate_routing_inner(
                     SET status = 'pending', updated_at = :ts
                     WHERE id = :nid
                 """),
-                {"nid": activated_node_id, "ts": datetime.now(timezone.utc).isoformat()},
+                {"nid": activated_node_id, "ts": datetime.now(timezone.utc)},
             )
             db.commit()
 
@@ -749,6 +884,89 @@ def _evaluate_routing_inner(
             "metric_name": body.metric_name,
         },
     ).dict()
+
+
+# ───────────────────────── Verdict-driven routing hook ─────────────────────────
+
+def has_conditional_routing(db: Session, node_id: int) -> bool:
+    """True when this node participates in conditional routing at all."""
+    try:
+        _ensure_routing_columns(db)
+        _ensure_edge_conditions_table(db)
+        row = db.execute(
+            text("SELECT condition FROM campaign_nodes WHERE id = :nid"),
+            {"nid": node_id},
+        ).mappings().first()
+        if row and row.get("condition"):
+            return True
+        edge = db.execute(
+            text("""
+                SELECT 1 FROM campaign_edge_conditions
+                WHERE source_node_id = :nid AND enabled = TRUE LIMIT 1
+            """),
+            {"nid": node_id},
+        ).first()
+        return edge is not None
+    except Exception:  # pragma: no cover - never block the verdict path
+        logger.warning("conditional-routing probe failed for node %s", node_id, exc_info=True)
+        return False
+
+
+def route_after_verdict(
+    db: Session,
+    node_id: int,
+    metric_value: float,
+    metric_name: str = "max_rel_err",
+    auto_retry: bool = True,
+) -> dict:
+    """Gate router entry point for a ``done``/``failed`` status transition.
+
+    This is what closes the self-adaptive research loop without a human (or an
+    extra agent turn) in the middle: a mission reporting its verification
+    verdict also carries the measured metric, and the router immediately
+    evaluates the node's gate, activates the winning branch, and — when the
+    gate fails into a self-loop whose condition sets ``auto_retry`` — creates
+    the refined retry node.
+
+    Legacy DAGs (no inline condition, no enabled edge condition) return
+    ``{"evaluated": False, "action": "no_condition"}`` *without* writing any
+    event, so unconditional plans keep their exact previous behaviour.
+    """
+    node = db.execute(
+        text("""
+            SELECT n.id, n.plan_id, n.status, n.condition, n.convergence_check,
+                   n.iteration_count, n.parent_node_id, p.organization_id
+            FROM campaign_nodes n
+            JOIN campaign_plans p ON n.plan_id = p.id
+            WHERE n.id = :nid
+        """),
+        {"nid": node_id},
+    ).mappings().first()
+    if not node:
+        return {"evaluated": False, "action": "skipped", "detail": {"reason": "node not found"}}
+
+    if not has_conditional_routing(db, node_id):
+        return {
+            "evaluated": False,
+            "action": "no_condition",
+            "detail": {"reason": "unconditional DAG — legacy routing untouched"},
+        }
+
+    body = RoutingEvaluationRequest(
+        node_id=node_id, metric_value=metric_value, metric_name=metric_name,
+    )
+    lock = _get_plan_lock(int(node["plan_id"]))
+    with lock:
+        result = _evaluate_routing_inner(db, node, body, int(node["organization_id"]))
+        detail = result.setdefault("detail", {})
+        detail["trigger"] = "verdict"
+
+        condition = _loads(node.get("condition")) if node.get("condition") else None
+        if (auto_retry and result.get("action") == "loop_retry"
+                and isinstance(condition, dict) and condition.get("auto_retry")):
+            retry = create_retry_node(node_id, None, db=db, user=None)
+            detail["retry_node"] = retry
+    return result
 
 
 # ───────────────────────── Adaptive Loop Management ─────────────────────────
@@ -805,15 +1023,21 @@ def create_retry_node(
             except (TypeError, ValueError):
                 pass
 
+    # PostgreSQL stores dependencies as INTEGER[] and the routing/meta columns
+    # as JSONB; the SQLite runtime keeps them as TEXT. Bind each column in the
+    # representation its dialect accepts (a JSON string is not an array, and a
+    # bare str is not JSONB).
+    deps_value = [node_id] if _is_pg(db) else _dumps([node_id])
     new_id = _insert_returning_id(
         db,
-        """
+        f"""
             INSERT INTO campaign_nodes
                 (plan_id, milestone_id, mission_id, name, node_type,
                  dependencies, status, condition, convergence_check,
                  iteration_count, parent_node_id, metadata, created_at, updated_at)
             VALUES (:pid, :mid, :moid, :name, :ntype, :deps, 'pending',
-                    :cond, :conv, :iter, :parent, :meta, :ts, :ts)
+                    {_json_sql(db, ':cond')}, {_json_sql(db, ':conv')},
+                    :iter, :parent, {_json_sql(db, ':meta')}, :ts, :ts)
         """,
         {
             "pid": original["plan_id"],
@@ -821,9 +1045,9 @@ def create_retry_node(
             "moid": original.get("mission_id"),
             "name": retry_name,
             "ntype": original["node_type"],
-            "deps": _dumps([node_id]),  # Depends on original
-            "cond": original.get("condition"),
-            "conv": original.get("convergence_check"),
+            "deps": deps_value,  # Depends on original
+            "cond": _json_value(original.get("condition")),
+            "conv": _json_value(original.get("convergence_check")),
             "iter": parent_iteration,
             "parent": node_id,
             "meta": _dumps({
@@ -833,7 +1057,7 @@ def create_retry_node(
                 "grid_refine_factor": float(req.grid_refine_factor),
                 "params": params,
             }),
-            "ts": datetime.now(timezone.utc).isoformat(),
+            "ts": datetime.now(timezone.utc),
         },
     )
     db.commit()
@@ -1086,6 +1310,8 @@ def get_plan_routing(
     routing-related event types, newest first — this is what makes every
     routing decision traceable after the fact.
     """
+    if not isinstance(limit, int):  # called programmatically: Query object leaked
+        limit = 50
     view = get_plan_routing_status(plan_id=plan_id, db=db, user=user)
     try:
         rows = db.execute(
