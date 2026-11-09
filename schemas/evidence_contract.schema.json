@@ -1,0 +1,161 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorplatform.local/schemas/evidence_contract.schema.json",
+  "title": "Evidence contract (structural, domain-neutral) v1.0",
+  "description": "Structural contract from which an evidence grade can be recomputed by machine. The schema carries no domain vocabulary and no domain thresholds: units, formulas and tolerances arrive through the artifact values and the optional claim.tolerance block supplied by the producer. Grades are derived by tools/evidence_grade.py; a declaration by an author is never itself an input to grading.",
+  "type": "object",
+  "required": ["schema_version", "capability_id", "claim", "artifacts"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "evidence-contract/1.0"
+    },
+    "capability_id": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_.-]{1,63}$",
+      "description": "Stable identifier of the claimed capability. Opaque to the engine."
+    },
+    "claim": {
+      "type": "object",
+      "required": ["kind", "statement"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": ["numeric", "interface_only"],
+          "description": "numeric = a scalar is asserted; interface_only = only an entry point is asserted."
+        },
+        "statement": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "tolerance": {
+          "$ref": "#/$defs/tolerance"
+        }
+      },
+      "if": {
+        "properties": { "kind": { "const": "numeric" } }
+      },
+      "then": {
+        "required": ["tolerance"]
+      }
+    },
+    "artifacts": {
+      "type": "array",
+      "minItems": 1,
+      "items": { "$ref": "#/$defs/artifact" }
+    },
+    "repro_cmd": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 1000,
+      "description": "Command that regenerates the numeric artifacts. Absence of this field is a grader-level downgrade to MOCK, not a schema error."
+    },
+    "provenance": {
+      "$ref": "#/$defs/provenance"
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "tolerance": {
+      "type": "object",
+      "required": ["metric", "limit"],
+      "additionalProperties": false,
+      "properties": {
+        "metric": {
+          "enum": ["rel_abs_diff", "abs_diff"],
+          "description": "rel_abs_diff = |anchor - path| / |anchor|; abs_diff = |anchor - path|."
+        },
+        "limit": {
+          "type": "number",
+          "exclusiveMinimum": 0
+        }
+      }
+    },
+    "source": {
+      "type": "object",
+      "required": ["kind"],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "enum": ["file", "url", "inline", "stdout"]
+        },
+        "ref": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500
+        },
+        "sha256": { "$ref": "#/$defs/sha256" }
+      }
+    },
+    "artifact": {
+      "type": "object",
+      "required": ["id", "kind", "source"],
+      "additionalProperties": false,
+      "properties": {
+        "id": {
+          "type": "string",
+          "pattern": "^[a-z0-9][a-z0-9_-]{0,63}$"
+        },
+        "kind": {
+          "enum": ["anchor", "independent_path", "residual", "negative_control", "interface"]
+        },
+        "source": { "$ref": "#/$defs/source" },
+        "value": {
+          "type": ["number", "null"]
+        },
+        "method": {
+          "type": "string",
+          "maxLength": 200
+        },
+        "derived_from": {
+          "type": "array",
+          "items": { "type": "string" },
+          "uniqueItems": true
+        },
+        "expectation": {
+          "enum": ["must_fail", "must_pass", "none"]
+        },
+        "outcome": {
+          "enum": ["fail", "pass", "not_run", "unknown"]
+        },
+        "notes": {
+          "type": "string",
+          "maxLength": 500
+        }
+      },
+      "allOf": [
+        {
+          "if": { "properties": { "kind": { "const": "residual" } } },
+          "then": { "required": ["value", "method"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "negative_control" } } },
+          "then": { "required": ["expectation", "outcome"] }
+        },
+        {
+          "if": { "properties": { "kind": { "const": "interface" } } },
+          "then": { "properties": { "value": { "type": "null" } } }
+        }
+      ]
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["sha256"],
+      "additionalProperties": false,
+      "properties": {
+        "sha256": {
+          "$ref": "#/$defs/sha256",
+          "description": "Digest recomputed from the sorted (artifact id, source sha256) pairs; see tools/evidence_grade.py::provenance_digest."
+        },
+        "tool": {
+          "type": "string",
+          "maxLength": 200
+        }
+      }
+    }
+  }
+}
