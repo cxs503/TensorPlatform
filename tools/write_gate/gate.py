@@ -215,7 +215,13 @@ def _git(root: Path, *args: str) -> bytes:
 
 
 def parse_name_status_z(raw: bytes) -> List[Change]:
-    """解析 ``git diff --cached --name-status -z``（含 R/C 的双路径形态）。"""
+    """解析 ``git diff --cached --name-status -z``（含 R/C 的双路径形态）。
+
+    **改名展开成两条事件**：``R``（rename）意味着源路径在工作树里**消失**，这是一次真实
+    的破坏性写入；只判目标路径就等于给 ``git mv 白名单外/文件 白名单内/文件`` 留了暗道
+    （源文件的删除零可见）。因此 ``R`` 展开为 ``DELETE(源)`` + ``MODIFY(目标)``。
+    ``C``（copy）源文件仍在，不算删除，只产生目标路径事件。
+    """
     parts = raw.split(b"\x00")
     changes: List[Change] = []
     i = 0
@@ -225,9 +231,11 @@ def parse_name_status_z(raw: bytes) -> List[Change]:
             i += 1
             continue
         code = status[0]
+        source_path: Optional[str] = None
         if code in ("R", "C"):
             if i + 2 >= len(parts):
                 break
+            source_path = parts[i + 1].decode("utf-8", "replace")
             path = parts[i + 2].decode("utf-8", "replace")
             i += 3
         else:
@@ -235,6 +243,8 @@ def parse_name_status_z(raw: bytes) -> List[Change]:
                 break
             path = parts[i + 1].decode("utf-8", "replace")
             i += 2
+        if code == "R" and source_path is not None:
+            changes.append(Change(path=source_path, kind="DELETE", source="staged"))
         changes.append(Change(path=path, kind=_KIND_BY_STATUS.get(code, "MODIFY"), source="staged"))
     return changes
 
@@ -242,12 +252,17 @@ def parse_name_status_z(raw: bytes) -> List[Change]:
 def collect_staged(root: str | Path, cfg: Dict[str, Any]) -> Tuple[List[Change], List[Dict[str, Any]]]:
     """采集暂存区变更（只读 git，不动索引/工作树），带内容用于凭证扫描。"""
     root_path = crossrepo.resolve_root(root)
-    raw = _git(root_path, "diff", "--cached", "--name-status", "-z", "--diff-filter=ACMRT")
+    # ``D`` 必须在采集口就请求：越界删除与改名源同属破坏性写入，漏采即零拦截
+    raw = _git(root_path, "diff", "--cached", "--name-status", "-z", "--diff-filter=ACDMRT")
     advisories: List[Dict[str, Any]] = []
     out: List[Change] = []
     max_bytes = int(cfg["secrets"]["max_blob_bytes"])
     scope_mode = str(cfg["secrets"].get("content_scope", "full"))
     for change in parse_name_status_z(raw):
+        if change.kind == "DELETE":
+            # 索引里已无该路径的 blob：删除事件只判路径（R1/R2），内容判据无对象可判
+            out.append(Change(path=change.path, kind="DELETE", content=None, source="staged"))
+            continue
         content: Optional[str] = None
         try:
             blob = _git(root_path, "show", f":{change.path}")
