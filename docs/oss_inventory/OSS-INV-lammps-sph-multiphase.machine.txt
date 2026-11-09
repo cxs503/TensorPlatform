@@ -1,0 +1,58 @@
+# machine blocks (campaign validator: python -m tools.oss_inventory.machine_blocks --strict)
+# source: docs/oss_inventory/OSS-INV-lammps-sph-multiphase.md  pin: 7d420ddc8bf4bcf46664e9d7dcf2943d7dbffaca
+
+
+[OSS-INV]
+repo: slitvinov/lammps-sph-multiphase
+lang: C++
+license: none
+methods: WCSPH weakly-compressible core: quintic-spline kernel, support 3h (MULTIPHASE/sph_multiphase.h:17, MULTIPHASE/sph_multiphase.h:12); Tait EOS p=B[(rho/rho0)^gamma-rbackground] with B=c^2 rho0/gamma (MULTIPHASE/sph_multiphase.h:47, MULTIPHASE/pair_sph_taitwater_multiphase.cpp:141); density by kernel summation with self term (MULTIPHASE/pair_sph_rhosum_multiphase.cpp:61, MULTIPHASE/pair_sph_rhosum_multiphase.cpp:78); pressure + viscosity pair forces, volume-symmetric (V_i^2+V_j^2) form (MULTIPHASE/pair_sph_taitwater_multiphase.cpp:89, MULTIPHASE/pair_sph_taitwater_multiphase.cpp:88); colour-gradient surface tension, CSF stress projection, no curvature fit (MULTIPHASE/pair_sph_colorgradient.cpp:84, MULTIPHASE/pair_sph_surfacetension.cpp:18, MULTIPHASE/pair_sph_surfacetension.cpp:97); multi-material heat conduction with optional one-sided Dirichlet temperature (MULTIPHASE/pair_sph_heatconduction_phasechange.cpp:80, MULTIPHASE/pair_sph_heatconduction_phasechange.cpp:78); latent-heat phase change: energy-probability evaporation + kernel-weighted mass donation (MULTIPHASE/fix_phase_change.cpp:156, MULTIPHASE/fix_phase_change.cpp:197, MULTIPHASE/fix_phase_change.cpp:206); explicit integration by LAMMPS core fix sph plus script-level multi-criterion dt (examples/bubble_on_wall/bubble.lmp:74, examples/bubble_on_wall/settimestep.lmp:11, examples/bubble_on_wall/settimestep.lmp:2, examples/bubble_on_wall/settimestep.lmp:7); compute sph/de/atom exposes the per-atom energy change of the conduction operator (MULTIPHASE/pair_sph_heatconduction_phasechange.cpp:80)
+multiphase: two-phase liquid/vapour boiling and evaporation: colour-gradient surface tension (MULTIPHASE/pair_sph_surfacetension.cpp:97) + heat conduction (MULTIPHASE/pair_sph_heatconduction_phasechange.cpp:80) + latent-heat phase change (MULTIPHASE/fix_phase_change.cpp:206)
+boundary: frozen boundary particles on 'boundary f' walls with prescribed rho and e (examples/bubble_on_wall/bubble.lmp:56, examples/bubble_on_wall/bubble.lmp:71); periodic elsewhere (examples/bubble_on_wall/bubble.lmp:17); insertion ownership covers periodic images (MULTIPHASE/fix_phase_change.cpp:257); no mirror particles, no boundary-integral or ghost-fluid extrapolation (curvature/extrapolation probes in the added sources: 0 hits)
+gpu: none: no CUDA/Kokkos/OpenMP in the added sources (0 hits for CUDA|Kokkos|GPU, 0 hits for OpenMP); parallelism is LAMMPS MPI domain decomposition plus custom forward/reverse comm (MULTIPHASE/pair_sph_colorgradient.cpp:140, MULTIPHASE/fix_phase_change.cpp:384)
+summary: LAMMPS extension package (6 pair styles + 1 fix + 1 compute for boiling and evaporation with multiphase WCSPH); quantitative validation exists but is manual; no licence file, no CI, no GPU
+[/OSS-INV]
+
+[OSS-SOL]
+repo: slitvinov/lammps-sph-multiphase
+slug: GAP-SPH-MULTIPHASE
+tag: sph-colorgradient-surface-tension
+method: Colour-gradient surface tension without curvature estimation: interface colour function stored as a 3-component atom property (MULTIPHASE/sph_multiphase.h:55), per-type-pair interface coefficient alpha_ij (MULTIPHASE/pair_sph_colorgradient.cpp:84), force from the projected CSF stress tensor (MULTIPHASE/pair_sph_surfacetension.cpp:18, MULTIPHASE/pair_sph_surfacetension.cpp:97). Portable as an interface-only force term that needs first kernel derivatives only; licence = none, so clean-room re-implementation.
+files: MULTIPHASE/pair_sph_colorgradient.cpp:84, MULTIPHASE/pair_sph_surfacetension.cpp:18, MULTIPHASE/pair_sph_surfacetension.cpp:97
+conventions: alpha_ij = interface tension coefficient per type pair; cg = colour function (3 components); TO-DO: wetting only through alpha_dw, no explicit contact-angle model
+transfer: adapt
+evidence: MULTIPHASE/pair_sph_colorgradient.cpp:84, MULTIPHASE/pair_sph_surfacetension.cpp:18, MULTIPHASE/pair_sph_surfacetension.cpp:97
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: slitvinov/lammps-sph-multiphase
+slug: GAP-SPH-MULTIPHASE
+tag: sph-latent-heat-phase-change
+method: Latent-heat phase-change operator with exact energy bookkeeping: evaporation probability from excess sensible energy above saturation (MULTIPHASE/fix_phase_change.cpp:156), interface gate (MULTIPHASE/fix_phase_change.cpp:157), donor mass taken kernel-weighted from liquid neighbours (MULTIPHASE/fix_phase_change.cpp:186, MULTIPHASE/fix_phase_change.cpp:197), energy update minus m*Hwv (MULTIPHASE/fix_phase_change.cpp:206), drained-liquid conversion (MULTIPHASE/fix_phase_change.cpp:219), MPI-safe insertion (MULTIPHASE/fix_phase_change.cpp:257, MULTIPHASE/fix_phase_change.cpp:278) and restart-safe RNG (MULTIPHASE/fix_phase_change.cpp:354). The delta-E = -m*Hwv identity is re-verified here to machine precision.
+files: MULTIPHASE/fix_phase_change.cpp:156, MULTIPHASE/fix_phase_change.cpp:197, MULTIPHASE/fix_phase_change.cpp:206
+conventions: Hwv = latent heat per unit mass; to_mass = vapour particle mass; Tc = saturation temperature; change_chance / phase_change_rate = evaporation probability knob
+transfer: adapt
+evidence: MULTIPHASE/fix_phase_change.cpp:156, MULTIPHASE/fix_phase_change.cpp:197, MULTIPHASE/fix_phase_change.cpp:206
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: slitvinov/lammps-sph-multiphase
+slug: GAP-SPH-WCSPH-VALIDATION
+tag: sph-wcsp-validation-baselines
+method: Validation baselines consumable as GAP anchors without touching the code: transient reverse-Poiseuille analytic series (examples/poiseuille/poiseuille.awk:8), digitised Morris-1997 FEM cylinder profiles (examples/flow_around_cylinder/flow.gp:8), VanSant two-material slab closed form generated by a CAS script (examples/slub/infslab.mac:3), and a symbolic kernel library with exact normalisations for quintic/bspline/Wendland/Lucy families (examples/scripts/sph-kernel.mac:10, examples/scripts/sph-kernel.mac:59). Reference-only: cite the values, do not copy code.
+files: examples/poiseuille/poiseuille.awk:8, examples/flow_around_cylinder/flow.gp:8, examples/slub/infslab.mac:3, examples/scripts/sph-kernel.mac:10
+conventions: nu = kinematic viscosity; L = channel half width; Fo = Fourier number; reference data are digitised curves, the repo stores no numeric tolerance
+transfer: reference
+evidence: examples/poiseuille/poiseuille.awk:8, examples/flow_around_cylinder/flow.gp:8, examples/slub/infslab.mac:3, examples/scripts/sph-kernel.mac:10
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: slitvinov/lammps-sph-multiphase
+slug: GAP-SPH-WCSPH-VALIDATION
+tag: sph-explicit-dt-envelope
+method: Reusable explicit stability envelope: three time-step limits computed in the input deck and reduced by min() -- acoustic CFL (examples/bubble_on_wall/settimestep.lmp:11), viscous (examples/bubble_on_wall/settimestep.lmp:2), thermal diffusion (examples/bubble_on_wall/settimestep.lmp:7) -> examples/bubble_on_wall/settimestep.lmp:15. Fits an explicit WCSPH solver's timestep policy directly and supplies the stability domain that must be quoted next to any convergence study; the formulas are textbook, the value is the combined envelope.
+files: examples/bubble_on_wall/settimestep.lmp:11, examples/bubble_on_wall/settimestep.lmp:2, examples/bubble_on_wall/settimestep.lmp:7
+conventions: dx = particle spacing; eta = dynamic viscosity; alpha = thermal diffusivity; c = numerical sound speed
+transfer: fits
+evidence: examples/bubble_on_wall/settimestep.lmp:11, examples/bubble_on_wall/settimestep.lmp:2, examples/bubble_on_wall/settimestep.lmp:7
+[/OSS-SOL]
