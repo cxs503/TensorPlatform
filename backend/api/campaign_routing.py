@@ -69,6 +69,21 @@ def _iso(value: Any) -> str | None:
     return str(value)
 
 
+def _insert_returning_id(db: Session, sql_insert: str, params: dict) -> int:
+    """Insert a row and return its primary key.
+
+    ``SELECT last_insert_rowid()`` is connection-scoped and therefore wrong as
+    soon as the session's connection is reused (observed: an edge created as
+    row 3 reported id 50). PostgreSQL gets ``RETURNING id``; SQLite/others use
+    the cursor's ``lastrowid`` from the very statement that inserted the row.
+    """
+    if db.get_bind().dialect.name == "postgresql":
+        result = db.execute(text(f"{sql_insert} RETURNING id"), params)
+        return int(result.scalar())
+    result = db.execute(text(sql_insert), params)
+    return int(result.lastrowid)
+
+
 def _row_to_dict(r: Any) -> dict:
     out = {}
     for k, v in dict(r).items():
@@ -211,6 +226,32 @@ class NodeConditionUpdate(BaseModel):
     convergence_check: ConvergenceCheckConfig | None = None
 
 
+class PlanEdgeCreateRequest(BaseModel):
+    """Body of POST /plans/{plan_id}/edges (plan id comes from the path)."""
+    source_node_id: int = Field(ge=1)
+    condition: ConditionExpr
+    priority: int = Field(default=0, ge=0)
+    enabled: bool = True
+
+
+class NodeEvaluateRequest(BaseModel):
+    """Body of POST /nodes/{node_id}/evaluate (node id comes from the path)."""
+    metric_value: float
+    metric_name: str = Field(default="max_rel_err", min_length=1, max_length=100)
+
+
+class RetryNodeRequest(BaseModel):
+    """Optional body of POST /nodes/{node_id}/create-retry.
+
+    Adaptive loop parameter adjustment: the retry node inherits the original
+    node's parameters with the grid refinement multiplier scaled by
+    ``grid_refine_factor`` (default 2x) and any explicit ``parameter_adjust``
+    overrides applied on top.
+    """
+    parameter_adjust: dict[str, Any] | None = None
+    grid_refine_factor: float = Field(default=2.0, gt=1.0, le=8.0)
+
+
 # ───────────────────────── Edge Condition CRUD ─────────────────────────
 
 @router.post("/edge-conditions", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
@@ -276,12 +317,13 @@ def create_edge_condition(
         return {"id": existing["id"], "status": "updated", "message": "idempotent update"}
 
     # Create new
-    row = db.execute(
-        text("""
+    new_id = _insert_returning_id(
+        db,
+        """
             INSERT INTO campaign_edge_conditions
                 (plan_id, source_node_id, condition_expr, priority, enabled, created_at, updated_at)
             VALUES (:pid, :snid, :expr, :pri, :en, :ts, :ts)
-        """),
+        """,
         {
             "pid": body.plan_id,
             "snid": body.source_node_id,
@@ -292,9 +334,6 @@ def create_edge_condition(
         },
     )
     db.commit()
-
-    # Get the inserted ID
-    new_id = db.execute(text("SELECT last_insert_rowid()")).scalar()
 
     # Log event
     _log_routing_event(db, org_id, body.plan_id, "edge_condition_created", {
@@ -637,6 +676,21 @@ def _evaluate_routing_inner(
                         {"nid": node_id, "ts": datetime.now(timezone.utc).isoformat()},
                     )
                     db.commit()
+                elif conv_result.get("action") == "converged":
+                    # Adaptive loop reached its convergence target: stop looping
+                    # instead of re-activating the retry branch (an activated
+                    # retry would re-enter the loop forever).
+                    action = "converged"
+                    activated_node_id = None
+                    db.execute(
+                        text("""
+                            UPDATE campaign_nodes
+                            SET status = 'done', updated_at = :ts
+                            WHERE id = :nid
+                        """),
+                        {"nid": node_id, "ts": datetime.now(timezone.utc).isoformat()},
+                    )
+                    db.commit()
                 else:
                     activated_node_id = condition.get("on_false")
                     action = "activated"
@@ -702,6 +756,7 @@ def _evaluate_routing_inner(
 @router.post("/nodes/{node_id}/create-retry", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
 def create_retry_node(
     node_id: int,
+    body: RetryNodeRequest | None = None,
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
@@ -723,18 +778,43 @@ def create_retry_node(
     if not original:
         raise HTTPException(404, "node not found")
 
-    # Create retry node
-    retry_name = f"{original['name']}_retry_{original.get('iteration_count', 0) + 1}"
+    # Create retry node.
+    # Iteration accounting: iteration_count = number of failed rounds already
+    # consumed for this verification chain, and it is incremented exactly once
+    # per failed round at routing evaluation time. The retry node therefore
+    # inherits the parent's (already incremented) count verbatim — incrementing
+    # again here double-counted and made max_iterations guard fire a round early.
+    parent_iteration = original.get("iteration_count", 0) or 0
+    retry_name = f"{original['name']}_retry_{parent_iteration + 1}"
 
-    row = db.execute(
-        text("""
+    # Adaptive-loop parameter adjustment (grid refinement 2x by default).
+    req = body or RetryNodeRequest()
+    orig_meta = _loads(original.get("metadata")) or {}
+    if not isinstance(orig_meta, dict):
+        orig_meta = {}
+    base_multiplier = float(orig_meta.get("grid_multiplier", 1.0) or 1.0)
+    params = dict(orig_meta.get("params") or {}) if isinstance(orig_meta.get("params"), dict) else {}
+    if req.parameter_adjust:
+        params.update(req.parameter_adjust)
+    grid_multiplier = base_multiplier * float(req.grid_refine_factor)
+    params["grid_multiplier"] = grid_multiplier
+    for key in ("nx", "ny", "nz", "n_grid", "grid_size", "grid_points"):
+        if key in params:
+            try:
+                params[key] = int(round(float(params[key]) * float(req.grid_refine_factor)))
+            except (TypeError, ValueError):
+                pass
+
+    new_id = _insert_returning_id(
+        db,
+        """
             INSERT INTO campaign_nodes
                 (plan_id, milestone_id, mission_id, name, node_type,
                  dependencies, status, condition, convergence_check,
                  iteration_count, parent_node_id, metadata, created_at, updated_at)
             VALUES (:pid, :mid, :moid, :name, :ntype, :deps, 'pending',
                     :cond, :conv, :iter, :parent, :meta, :ts, :ts)
-        """),
+        """,
         {
             "pid": original["plan_id"],
             "mid": original.get("milestone_id"),
@@ -744,25 +824,32 @@ def create_retry_node(
             "deps": _dumps([node_id]),  # Depends on original
             "cond": original.get("condition"),
             "conv": original.get("convergence_check"),
-            "iter": (original.get("iteration_count", 0) or 0) + 1,
+            "iter": parent_iteration,
             "parent": node_id,
-            "meta": _dumps({"is_retry": True, "parent_node_id": node_id}),
+            "meta": _dumps({
+                "is_retry": True,
+                "parent_node_id": node_id,
+                "grid_multiplier": grid_multiplier,
+                "grid_refine_factor": float(req.grid_refine_factor),
+                "params": params,
+            }),
             "ts": datetime.now(timezone.utc).isoformat(),
         },
     )
     db.commit()
-
-    new_id = db.execute(text("SELECT last_insert_rowid()")).scalar()
 
     # Log event
     org_id = original.get("organization_id") or 1
     _log_routing_event(db, org_id, original["plan_id"], "retry_node_created", {
         "original_node_id": node_id,
         "retry_node_id": new_id,
-        "iteration": (original.get("iteration_count", 0) or 0) + 1,
+        "iteration": parent_iteration,
+        "grid_multiplier": grid_multiplier,
+        "grid_refine_factor": float(req.grid_refine_factor),
+        "parameter_adjust": req.parameter_adjust,
     })
 
-    return {"id": new_id, "name": retry_name, "iteration": (original.get("iteration_count", 0) or 0) + 1}
+    return {"id": new_id, "name": retry_name, "iteration": parent_iteration}
 
 
 # ───────────────────────── Routing Status Query ─────────────────────────
@@ -952,3 +1039,102 @@ def validate_dag(
         "node_count": len(nodes),
         "edge_condition_count": len(edge_conditions),
     }
+
+
+# ───────────────────────── Spec-aligned endpoints ─────────────────────────
+# The endpoints below are the contractual surface of the campaign conditional
+# DAG (mission spec (e)). They are thin adapters: argument translation plus
+# audit summary only, so the routing semantics stay in exactly one place
+# (create_edge_condition / evaluate_routing / get_plan_routing_status).
+
+@router.post("/plans/{plan_id}/edges", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
+def create_plan_edge(
+    plan_id: int,
+    body: PlanEdgeCreateRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Create (or idempotently update) a conditional edge of a plan.
+
+    Idempotency key = (plan_id, source_node_id, priority): repeating the same
+    POST returns ``status="updated"`` with the same edge id instead of creating
+    a duplicate row.
+    """
+    payload = EdgeConditionCreate(
+        plan_id=plan_id,
+        source_node_id=body.source_node_id,
+        condition=body.condition,
+        priority=body.priority,
+        enabled=body.enabled,
+    )
+    result = create_edge_condition(body=payload, db=db, user=user)
+    out = dict(result)
+    out["plan_id"] = plan_id
+    return out
+
+
+@router.get("/plans/{plan_id}/routing", dependencies=[Depends(require_auth)])
+def get_plan_routing(
+    plan_id: int,
+    limit: int = Query(default=50, ge=1, le=500),
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Routing view of a plan: node conditions, edge conditions and the audit tail.
+
+    ``events`` is the routing audit trail (campaign_events) restricted to
+    routing-related event types, newest first — this is what makes every
+    routing decision traceable after the fact.
+    """
+    view = get_plan_routing_status(plan_id=plan_id, db=db, user=user)
+    try:
+        rows = db.execute(
+            text("""
+                SELECT id, event_type, detail, created_at
+                FROM campaign_events
+                WHERE plan_id = :pid
+                  AND event_type IN ('routing_evaluated', 'edge_condition_created',
+                                     'retry_node_created', 'edge_condition_deleted')
+                ORDER BY id DESC
+                LIMIT :lim
+            """),
+            {"pid": plan_id, "lim": limit},
+        ).mappings().all()
+        events = [
+            {
+                "id": r["id"],
+                "event_type": r["event_type"],
+                "detail": _loads(r["detail"]),
+                "created_at": _iso(r["created_at"]),
+            }
+            for r in rows
+        ]
+    except Exception:  # pragma: no cover - audit table absent → view still usable
+        logger.warning("campaign_events audit query failed for plan %s", plan_id, exc_info=True)
+        events = []
+
+    out = dict(view)
+    out["events"] = events
+    out["event_count"] = len(events)
+    return out
+
+
+@router.post("/nodes/{node_id}/evaluate", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
+def evaluate_node_routing(
+    node_id: int,
+    body: NodeEvaluateRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Evaluate the routing condition of one node (path-parameter form).
+
+    Semantics are identical to POST /routing/evaluate; this form exists so a
+    dispatching agent that already knows the node id does not have to restate
+    it in the body (and cannot restate it wrongly).
+    """
+    payload = RoutingEvaluationRequest(
+        node_id=node_id,
+        metric_value=body.metric_value,
+        metric_name=body.metric_name,
+    )
+    return evaluate_routing(body=payload, db=db, user=user)
