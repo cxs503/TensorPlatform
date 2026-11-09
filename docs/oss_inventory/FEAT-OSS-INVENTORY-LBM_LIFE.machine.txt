@@ -1,0 +1,101 @@
+[OSS-INV]
+repo: joconnor22/LIFE
+lang: C++ (C++11 + OpenMP; 依赖 LAPACK + Boost.Filesystem)
+license: GPL-3.0
+methods: D2Q9（硬编码 src/Grid.cpp:1246-1250）；BGK/SRT（src/Grid.cpp:236-244）+ 中心矩部分松弛算子（#ifdef CENTRAL_MOMENTS, src/Grid.cpp:106-233，四阶 Hermite 平衡态 :257-259）；力项 Guo 半分分裂 (1-0.5ω)F（:243）+ u+0.5F/ρ（:297-298），离散式 :267-279
+multiphase: 无（单组分单相：仅一套 f/rho，inc/Grid.h:78-84；无 ψ/序参量/表面张力/recoloring 符号，反向 grep 0 命中）
+boundary: 正则化速度/压力/自由滑移/角点边界（Latt 2008 家族，src/Grid.cpp:387-465）+ 对流出口 Yang 2013（:468-495）+ 周期=壁面 eFluid 取模；无 bounce-back（grep 0 命中）、无 Zou-He、无曲壁插值反弹；固体壁靠 IBM（src/IBMNode.cpp:26-136）
+gpu: 无（0 CUDA/OpenCL/MPI；OpenMP 27 处 pragma，push 算法 + 逐点 AoS f[id*9+v]，atomic/ORDERED 二选一保确定性）
+summary: 2D 单相 D2Q9 LBM + 3 点 δ 浸没边界（ε 守恒校正解 Aε=1，Pinelli 2010）+ 共旋梁 FEM/Newmark 的细长结构 FSI 求解器，OpenMP 共享内存、无 MPI/GPU/多相。
+         可吸收价值集中在 IBM ε 隐式校正（总力守恒 11-37% → 1e-16）、正则化统一边界、中心矩算子、位移 Aitken 耦合与位精确回归测试面。
+[/OSS-INV]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:LBM-IBM-MDF-STENCIL
+tag: ibm-epsilon-gram-implicit-correction
+method: 3 点 Roma/Peskin δ 核（支撑 1.5Δx，2D 最多 3×3=9 点）插值 ρ 与动量到标记点，取恢复力 F=2(ρ_i u_body − m_i)（Δt=1），铺展时乘 ε_i·ds_i；ε 由稠密系统 A_ij=Σ_s δ_i(x_s)δ_j(x_s)ds_j、Aε=1 一次解出（LAPACK dgetrf/dgetrs），使「插值→铺展→再插值」在标记点上还原总力；可选把所有体合成一个大系统。
+files: src/Objects.cpp:235, src/Objects.cpp:283, src/Objects.cpp:303, src/Objects.cpp:306, src/IBMNode.cpp:26, src/IBMNode.cpp:51, src/IBMNode.cpp:61, src/IBMNode.cpp:73, src/IBMNode.cpp:139, inc/Utils.h:220, src/Utils.cpp:288
+conventions: 3 点核（非 4 点），|d|>1.5 截断；每维最多 3 点、2D 最多 9 点 = suppSize（inc/defs.h:39）；ds 单位 Δx；力系数 2 隐含 Δt=1 与半分分裂；ε 解用 trans='T' 抵消 LAPACK 列主序；实测总力守恒：无 ε 11-37%，有 ε ≤9e-16；cond(A) 在 ds=0.5Δx 处 2.5e16（奇异）
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:LBM-REGULARISED-BC-YUFAN
+tag: regularised-bc-nonequilibrium-stress-reconstruction
+method: 把边界格 f 拆成法向入射 f⁺ 与切向 f⁰：速度型用 ρ=(2f⁺+f⁰)/(1−n·u) 闭合，压力型用 u_n=n(1−(2f⁺+f⁰)/ρ) 反解；未知方向先按 feq+(f_opp−feq_opp) 建非平衡，求和得 Sxx/Syy/Sxy，再用 w/(2c_s⁴)[(cx²−c_s²)Sxx+(cy²−c_s²)Syy+2cxcySxy] 重建并叠加平衡态；角点只外推密度/切向速度。配套二阶单侧差分的对流出口。
+files: src/Grid.cpp:315, src/Grid.cpp:338, src/Grid.cpp:355, src/Grid.cpp:387, src/Grid.cpp:404, src/Grid.cpp:416, src/Grid.cpp:421, src/Grid.cpp:457, src/Grid.cpp:462, src/Grid.cpp:468, src/Grid.cpp:477, src/Grid.cpp:498
+conventions: cs²=1/3；法向由 i==0/Nx-1/j==0/Ny-1 判定；压力 BC 固定 rho_in（本仓 ≡1，不携带 Δp）；对流出口仅右边界；D2Q9 专用（重构张量硬编码 2D 分量）
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:LBM-CENTRAL-MOMENT-COLLISION
+tag: central-moment-partial-relaxation
+method: 以局部速度 u_n 为原点把 9 个分布变换到中心矩 k0..k8：k0=ρ、k1/k2=F/2、k3=2ρc_s²、k4=(1−ω)·Σf(cx²−cy²)、k5=(1−ω)·Σf cx cy、k6/k7=½F c_s²、k8=ρc_s⁴，再逆变换回 fStar（显式展开 9 个方向）；平衡态用四阶 Hermite 乘积形式 ¼ρw(9cx²ux²+6cx ux−3ux²+2)(…)。等价两松弛率（剪切矩松弛、其余瞬时）。
+files: src/Grid.cpp:106, src/Grid.cpp:109, src/Grid.cpp:125, src/Grid.cpp:129, src/Grid.cpp:140, src/Grid.cpp:225, src/Grid.cpp:257, inc/params.h:28
+conventions: 需 #ifdef CENTRAL_MOMENTS 开启；仅 D2Q9；F 含 force_xy+force_ibm；作者只在该仓 Re=5000 方腔用过（examples/LidDrivenCavity/params.h:31），无独立验证面
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:LBM-FSI-BLOCK-GS-AITKEN
+tag: displacement-aitken-underrelaxation-fixed-point
+method: 每时间步内 do{预测(2.5U_n−2U_nm1+0.5U_nm2)→插值→FEM 全量重解(Newton-Raphson, TOL=1e-10, MAXIT=20)→残差}while(res>1e-8 且 it<20)；子迭代 k≥2 时用 Aitken：relax=−relax·(r_{k−1}·(r_k−r_{k−1}))/|r_k−r_{k−1}|²，位移 U=U_km1+relax·(U−U_km1)，残差范数按 ref_L·√(DOF) 归一。收敛后一次性铺展 IBM 力。
+files: src/Objects.cpp:26, src/Objects.cpp:30, src/Objects.cpp:52, src/Objects.cpp:152, src/Objects.cpp:175, src/Objects.cpp:189, src/Objects.cpp:199, src/FEMBody.cpp:26, src/FEMBody.cpp:40, src/FEMBody.cpp:244, src/FEMBody.cpp:254, src/FEMBody.cpp:259
+conventions: MAXIT=20（src/Objects.cpp:30）、subTol=1e-8（inc/params.h:81）；relaxMax=1.0（inc/params.h:80） 且首步裁剪 |relax|≤relaxMax；注意流体场在本步内冻结（非全隐式，见 R4）；ORDERED 保证归约可复现
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:LBM-COROTATIONAL-BEAM-FEM
+tag: corotational-2node-beam-newmark-newton
+method: 2 节点 3 自由度（u,v,θ）平面梁：局部内力只用轴向伸长 u=(L²−L0²)/(L+L0) 与端弯矩 M1=2EI/L0(2θ1+θ2)、M2=2EI/L0(θ1+2θ2)，几何非线性由 K_NL 的 V0/L0、F0/L0 项承担；M 用一致质量（ρAL/420 的 140/156/22L0/54/13L0…），K_L 为标准梁刚度；Newmark-β(α=0.25,δ=0.5) 做时间积分，牛顿-拉夫逊线性化解 LAPACK。IBM 标记点按 ζ 映射到单元并用形函数插值位移/速度。
+files: src/FEMElement.cpp:72, src/FEMElement.cpp:75, src/FEMElement.cpp:80, src/FEMElement.cpp:109, src/FEMElement.cpp:120, src/FEMElement.cpp:202, src/FEMElement.cpp:216, src/FEMElement.cpp:231, src/FEMElement.cpp:255, src/FEMBody.cpp:112, src/FEMBody.cpp:129, src/FEMBody.cpp:147, src/FEMBody.cpp:292
+conventions: 无剪切变形（Euler-Bernoulli 系，2 节点 3 DOF）；A=Δx·h、I=Δx·h³/12（厚度 h 取 geometry.config 第 8 列）；只输入 E 与 ρ（无泊松比，2D 梁不需要）；CLAMPED/SUPPORTED 两种 BC 由 bcDOFs 裁行
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:CAP-LBM-VALIDATION-SURFACE
+tag: bitwise-refdata-regression-plus-benchmark-cases
+method: 基线生成脚本把 nSteps/tinfo/tVTK/tRestart 统一改写为 500 后跑出 Results/ 并连同 params.h+geometry.config 存为 RefData；回归脚本逐案例 make clean && make、跑 2 次（TurekHron 二次测 restart）、再用 diff -r Results RefData 做逐字节比对，全绿才算过；配合 #ifdef ORDERED 让 OpenMP 归约可复现，使位精确比对可行。物理验证面=7 个算例（含 Turek-Hron FSI2 公开基准）+ TotalForces.out 的 Cd/Cl（0.5ρU²L 归一）。
+files: testing/store-ref-data.sh:27, testing/store-ref-data.sh:33, testing/run-tests.sh:56, testing/run-tests.sh:100, inc/params.h:38, src/Objects.cpp:491, src/Objects.cpp:531, src/IBMNode.cpp:76
+conventions: 基线 nSteps 固定 500；比对为字节级（无容差）；RefData 不入库（.gitignore:6）→ 无 CI；Cd/Cl 用 ND=0.5·ref_rho·ref_U²·ref_L；restart 用二进制快照 + 头部一致性校验（src/Grid.cpp:1084-1104）
+transfer: fits
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:CAP-LBM-CASE-ORGANIZATION
+tag: compiletime-params-plus-runtime-geometry-config
+method: 一个算例=一个目录，两份输入：params.h（网格/物性/边界类型/ω/步数，编译期常量，改则须重编译）+ input/geometry.config（运行期文本：CIRCLE/FILAMENT 关键字行，含编号、起始坐标、阵列间距、半径或 长度/厚度/角度/FLEX|RIGID/单元数/BC/密度/E）；geometryReadIn 先扫一遍算 body/node 数预留内存，再逐行构造；重启时可就地增删体。
+files: inc/params.h:43, inc/params.h:85, input/geometry.config:9, input/geometry.config:13, input/geometry.config:18, input/geometry.config:19, src/Objects.cpp:324, src/Objects.cpp:358, src/Objects.cpp:410, src/Objects.cpp:430, examples/run-example.sh:38
+conventions: 关键字 6 列通用 + 2~9 列专用；间距为 0 表示单体；角度单位=度（读入后 ×π/180）；FLEXIBLE 才会创建 FEMBody；改 params.h 必须 make clean；运行期只支持 input/geometry.config 这一个约定路径
+transfer: adapt
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: GAP-LBM-MCMP-POISEUILLE
+tag: single-phase-periodic-x-plus-constant-dpdx-driving
+method: 本仓无多相，但提供了该 slug 所需驱动子机制的单相实现：左右壁设 eFluid 得到 x 周期，压差以常体积力 dpdx 注入（force_xy=(ρ·Drho·gravityX+dpdx)·ΔxΔt²/Δm，每格一次、不随 ρ 更新），配合正则化壁面对上下边界闭合，形成压力驱动的通道层流；重启/输出正常。
+files: examples/PELskin/params.h:47, examples/PELskin/params.h:52, src/Grid.cpp:1042, src/Grid.cpp:924, src/Grid.cpp:387
+conventions: dpdx 单位 Pa/m；周期靠把边界类型改成 eFluid（无独立周期标志）；本仓压力 BC 不携带 Δp，压差只能走体积力；ρ 变化时体积力不重算（若 g≠0 需注意）
+transfer: reference
+[/OSS-SOL]
+
+[OSS-SOL]
+repo: joconnor22/LIFE
+slug: NEW:LBM-IBM-STATIC-OBSTACLE-SET
+tag: static-immersed-marker-obstacles
+method: 「稀疏/多孔/复杂几何」在本仓用静态刚性 IBM 标记环表达：geometry.config 的 CIRCLE 行按周长生成等距标记点（num=floor(2πr/Δx)），可一行写多体、按间距阵列（space_x/space_y），标记点速度恒 0 即为无滑移障碍；配合 3 点 δ 核 + ε 校正把障碍力铺到格子，等价于任意曲线/栅板/植被阵列的多孔障碍，但**不是** mask bounce-back、也无稀疏索引压缩。
+files: src/IBMBody.cpp:55, src/IBMBody.cpp:64, src/IBMNode.cpp:218, src/Objects.cpp:410, src/Objects.cpp:866, input/geometry.config:18
+conventions: 标记间距 = 2πr/floor(2πr/Δx) ≈ Δx；<0.5Δx 的标记会被删（刚性-刚性谁删谁不确定）；刚性体无自由度（不能动）；体间重叠只做标记去重，不做几何求交
+transfer: reference
+[/OSS-SOL]
