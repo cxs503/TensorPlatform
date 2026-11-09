@@ -17,7 +17,7 @@ from __future__ import annotations
 import hashlib
 import json
 from dataclasses import dataclass, field
-from typing import Any, Dict, List, Optional
+from typing import Any, Dict, List, Optional, Tuple
 
 SCHEMA = "tp.write_gate.verdict/v2"
 POLICY_SCHEMA = "write_gate/policy/v1"
@@ -50,6 +50,9 @@ class Change:
     content: Optional[str] = None
     repo: Optional[str] = None    # 变更声称所属仓（跨仓污染判据）
     source: str = "paths"         # paths | staged | json
+    # 内容判据的范围：None=整份内容都在范围内（默认，最严）；
+    # 元组=只判这些新文件行号（``--content-scope added``），其余行命中的凭证降级为 advisory。
+    added_lines: Optional[Tuple[int, ...]] = None
 
     def to_json(self) -> Dict[str, Any]:
         return {"path": self.path, "kind": self.kind, "repo": self.repo,

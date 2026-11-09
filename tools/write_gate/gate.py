@@ -15,6 +15,7 @@ from __future__ import annotations
 
 import hashlib
 import os
+import re
 import subprocess
 from pathlib import Path
 from typing import Any, Dict, Iterable, List, Optional, Sequence, Tuple
@@ -27,6 +28,27 @@ from .secrets import looks_binary, scan_text
 from .whitelist import decide
 
 SAFE_GIT_ENV = dict(os.environ, GIT_TERMINAL_PROMPT="0", GIT_OPTIONAL_LOCKS="0")
+
+# ``git diff -U0`` 的 hunk 头：``@@ -a,b +c,d @@``（b/d 缺省按 1 计）
+_HUNK_RE = re.compile(r"^@@ -\d+(?:,\d+)? \+(\d+)(?:,(\d+))? @@")
+
+
+def parse_added_lines(diff_text: str) -> Tuple[int, ...]:
+    """从 ``git diff -U0`` 输出解析**新文件行号**里的新增行（升序去重）。
+
+    只有 ``+`` 侧区间参与：``@@ -a,b +c,d @@`` → ``c .. c+d-1``。
+    用途：``--content-scope added`` 时把凭证判据限制在本次提交真正新增的行上，
+    历史遗留内容只出 advisory 不拦截（既不误伤、也不静默隐藏）。
+    """
+    added: List[int] = []
+    for line in diff_text.splitlines():
+        match = _HUNK_RE.match(line)
+        if not match:
+            continue
+        start = int(match.group(1))
+        count = 1 if match.group(2) is None else int(match.group(2))
+        added.extend(range(start, start + count))
+    return tuple(sorted(set(added)))
 
 _KIND_BY_STATUS = {"A": "ADD", "M": "MODIFY", "T": "MODIFY", "C": "ADD", "R": "MODIFY", "D": "DELETE"}
 
@@ -112,13 +134,29 @@ def evaluate_changes(changes: Sequence[Change], cfg: Dict[str, Any], *,
             entry["content_bytes"] = len(change.content.encode("utf-8"))
             entry["content_sha256"] = model_digest(change.content)
             hits, suppressed = scan_text(change.content, cfg, path=canon.text)
+            scope = change.added_lines
+            entry["content_scope"] = "full" if scope is None else "added"
             for hit in hits:
+                evidence = _evidence_hash(change.content, canon.text, hit.line)
+                if scope is not None and hit.line not in scope:
+                    # 范围外命中 = 本次提交没碰过的旧内容：留痕但不拦截（审计可追）
+                    verdict.advisories.append({"path": canon.text,
+                                               "reason": "pre_existing_content",
+                                               "rule_id": hit.rule_id, "line": hit.line,
+                                               "excerpt": hit.excerpt,
+                                               "evidence_sha256": evidence[:16]})
+                    continue
                 v = Violation("secret_leak", "secret", canon.text, rule_id=hit.rule_id,
                               detail="疑似凭证原文进入提交内容（已脱敏，不落原文）",
                               line=hit.line, excerpt=hit.excerpt)
-                v.evidence_sha256 = _evidence_hash(change.content, canon.text, hit.line)
+                v.evidence_sha256 = evidence
                 verdict.add(v)
             verdict.advisories.extend(suppressed)
+            # 命中数触顶 ⇒ 后续行没扫过（可能漏判）：把截断显式留痕，别让它静默
+            limit = int(cfg["output"]["max_violations_per_file"])
+            if len(hits) >= limit:
+                verdict.advisories.append({"path": canon.text, "reason": "content_hits_truncated",
+                                           "limit": limit})
 
         # R4: 大文件/二进制判据
         content_bytes = entry.get("content_bytes")
@@ -208,6 +246,7 @@ def collect_staged(root: str | Path, cfg: Dict[str, Any]) -> Tuple[List[Change],
     advisories: List[Dict[str, Any]] = []
     out: List[Change] = []
     max_bytes = int(cfg["secrets"]["max_blob_bytes"])
+    scope_mode = str(cfg["secrets"].get("content_scope", "full"))
     for change in parse_name_status_z(raw):
         content: Optional[str] = None
         try:
@@ -224,7 +263,18 @@ def collect_staged(root: str | Path, cfg: Dict[str, Any]) -> Tuple[List[Change],
                 advisories.append({"path": change.path, "reason": "binary_skipped", "bytes": len(blob)})
             else:
                 content = blob.decode("utf-8", "replace")
-        out.append(Change(path=change.path, kind=change.kind, content=content, source="staged"))
+        added_lines: Optional[Tuple[int, ...]] = None
+        # 只有``修改``类才需要 diff：新增文件整份都是新增行，删除文件不判内容
+        if content is not None and scope_mode == "added" and change.kind == "MODIFY":
+            try:
+                diff = _git(root_path, "diff", "--cached", "-U0", "--no-color", "--", change.path)
+            except WriteGateError as exc:
+                advisories.append({"path": change.path, "reason": "added_lines_unavailable",
+                                   "detail": str(exc)[:200]})
+            else:
+                added_lines = parse_added_lines(diff.decode("utf-8", "replace"))
+        out.append(Change(path=change.path, kind=change.kind, content=content,
+                          source="staged", added_lines=added_lines))
     return out, advisories
 
 
