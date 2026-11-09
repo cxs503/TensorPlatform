@@ -7,6 +7,9 @@ B. 预测盲：假设卡数 ≥ ``min_blind``；全部封存；盲性复算无�
 C. 多臂对照：可比维 ≥ ``min_dims``，且每维两侧都有 source。
 D. 三腿闭合（可选，需要调用方提供三腿数字）：theory/implementation/experiment
    三腿误差都在容差内——本层只做结构聚合，不解释物理。
+E. 统计功效（可选，调用方传 ``power_gate=six_dim_power.six_dim_advantage(...)`` 的返回值）：
+   「≥k 维优于对照」必须过配对置换检验 + Holm FWER 控制后才算成立——C 环只裁决
+   「结构可比」，E 环才把「优于」做成可裁命题（每维带 p_perm / p_holm / d_z）。
 """
 
 from __future__ import annotations
@@ -32,6 +35,7 @@ def evaluate(
     control_arm: str = "control",
     treatment_arm: str = "experiment",
     artifact_paths: Optional[Dict[str, str]] = None,
+    power_gate: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """聚合验收。返回 {pass, criteria:[...], ...}；``criteria`` 每项含 requirement/observed/pass。"""
     artifacts = dict(artifact_paths or {})
@@ -124,6 +128,34 @@ def evaluate(
             "observed": {"legs": leg_items},
             "pass": all(i["pass"] for i in leg_items) and len(leg_items) == 3,
             "artifact": artifacts.get("three_leg"),
+        })
+
+    # ---- E 统计功效（可选） ----
+    if power_gate is not None:
+        dims_pg = power_gate.get("dimensions") or {}
+        criteria.append({
+            "id": "E1_six_dim_advantage_statistical",
+            "requirement": str(power_gate.get("rule")
+                               or "六维『优于对照』需过配对置换检验 + Holm 校正"),
+            "observed": {
+                "n_significant_better": power_gate.get("n_significant_better"),
+                "min_dims": power_gate.get("min_dims"),
+                "alpha": power_gate.get("alpha"),
+                "alternative": power_gate.get("alternative"),
+                "n_perm": power_gate.get("n_perm"),
+                "per_dim": {
+                    d: {
+                        "n_pairs": (v or {}).get("n_pairs"),
+                        "cohen_dz": ((v or {}).get("effect") or {}).get("cohen_dz"),
+                        "p_perm": (v or {}).get("p_perm"),
+                        "p_holm": (v or {}).get("p_holm"),
+                        "significant_better": (v or {}).get("significant_better"),
+                    }
+                    for d, v in dims_pg.items()
+                },
+            },
+            "pass": bool(power_gate.get("decision_pass")),
+            "artifact": artifacts.get("power_gate"),
         })
 
     failed = [c["id"] for c in criteria if not c["pass"]]
