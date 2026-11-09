@@ -31,6 +31,8 @@ import urllib.request
 import uuid
 
 ENV = pathlib.Path("/root/tp-agent/agent.env")
+sys.path.insert(0, str(pathlib.Path(__file__).resolve().parent))
+import mvd_gate  # noqa: E402  70% 预算收口检查点（纯函数，模式门控）
 HARNESS_VER = "20261103.2"   # LLM 退避重试 7 次 + 任务终局进程组收割（36 单泄漏 64 核实证）
 
 
@@ -611,6 +613,9 @@ def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pat
     t0 = time.time()
     calls, changed, final = 0, [], None
     fail_stage, compactions = "", 0
+    # 70% 预算收口检查点（m8456）：注入一次，advisory；TP_MVD_CHECKPOINT=off 时零动作
+    mvd_mode = mvd_gate.mode_from_env()
+    mvd_injected, mvd_events = False, []
     wl = _parse_edit_whitelist(mission.get("goal", ""))
     if wl:
         log(f"编辑白名单机器门激活: {wl}")
@@ -721,9 +726,33 @@ def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pat
                 break
             # 心跳：每 3 次工具调用一次
             if time.time() - hb_at > 15:
-                api(f"/tensor/missions/{mission['id']}/heartbeat",
-                    {"claim_token": claim_token, "head": f"{name} @ call {calls}",
-                     "tool_calls": calls, "elapsed_seconds": int(time.time() - t0)}, token)
+                _elapsed = int(time.time() - t0)
+                _hb = None
+                try:
+                    _hb = api(f"/tensor/missions/{mission['id']}/heartbeat",
+                              {"claim_token": claim_token, "head": f"{name} @ call {calls}",
+                               "tool_calls": calls, "elapsed_seconds": _elapsed,
+                               "wall_seconds": _elapsed,
+                               "changed_files": changed[-20:]}, token)
+                except Exception as _e:
+                    log(f"心跳失败(不阻断): {_e}")
+                # 70% 预算收口检查点：把服务端/本地 MVD 判定变成模型能看到的指令
+                if mvd_mode != "off":
+                    try:
+                        _gate = mvd_gate.evaluate_heartbeat(
+                            _hb, mode=mvd_mode, already_injected=mvd_injected,
+                            tool_calls=calls, max_tool_calls=max_calls,
+                            wall_seconds=_elapsed, max_wall_seconds=max_wall,
+                            changed_files=changed, checks=None, headline=None)
+                        if _gate["event"]:
+                            mvd_events.append(_gate["event"])
+                            log(f"MVD 检查点 {_gate['budget_pct']}% "
+                                f"({_gate['reason']}, missing={_gate['event'].get('missing')})")
+                        if _gate["inject"]:
+                            messages.append({"role": "user", "content": _gate["instruction"]})
+                            mvd_injected = True
+                    except Exception as _e:
+                        log(f"MVD 检查点异常(不阻断): {_e}")
                 hb_at = time.time()
         if final:
             break
@@ -778,6 +807,8 @@ def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pat
             "on_disk_changes": on_disk,
             "evidence_ignored": new_ignored,
             "fail_stage": fail_stage, "compactions": compactions,
+            "mvd_checkpoint": (mvd_events[-1] if mvd_events else None),
+            "mvd_injected": mvd_injected,
             "finished": final is not None,
             "tool_calls": calls, "elapsed": int(time.time() - t0),
             "git_status": diff, "model": MODEL}
