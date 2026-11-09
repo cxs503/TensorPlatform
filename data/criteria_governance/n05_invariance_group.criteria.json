@@ -1,0 +1,132 @@
+{
+  "bundle_id": "N05-cubic-symmetry-invariance-group",
+  "bundle_role": "analytic_criterion_source",
+  "physical_summary": "立方对称不变性群（O_h，48 元）的公理饱和性、不可约分量重数、宇称，以及剪切（斜槽）网格上度量算子的观测阶稳定性，共 7 条判据。",
+  "provenance": {
+    "producer": "tools/criteria_governance/probes.py",
+    "registry": "data/criteria_governance/lattices.json",
+    "note": "N05 独立分支未合入本工作树（grep 0 命中），判据集按任务书 C1–C7 槽位在本节点重建为数据工件；群元与扫描全部现场计算。"
+  },
+  "criteria": [
+    {
+      "id": "N05-C1",
+      "title": "斜槽观测阶（剪切网格度量算子）",
+      "statement": "剪切 s=0.5 的斜槽网格上，度量张量拉普拉斯中心差分的实测衰减指数与声明阶 2.0 的偏差 ≤ 0.3。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "observed_decay_exponent(lap_err(N), N^-1)",
+      "threshold": {"op": "<=", "value": 0.05, "unit": "1"},
+      "derivation": {
+        "method": "refinement_scan",
+        "declared_exponent": 2.0,
+        "reference": "坐标映射 x=Aξ（A=[[1,0],[s,1]]），Δ_x = G_ij ∂²_{ξiξj}，G=A^{-1}A^{-T}；中心二阶差分对二次型精确，截断项 O(h^2)",
+        "parents": [],
+        "tolerance": 0.3
+      },
+      "probe": {"name": "skew_slot_refinement", "params": {"resolutions": [16, 32, 64, 128], "shear": 0.5, "length": 1.0}},
+      "note": "threshold 记录最细网格（N=128）相对误差上限 5%（s=0.5 实测 ~3.2e-2）；派生一致性由 declared_exponent 与 tolerance 裁判。周期域避免边界污染。"
+    },
+    {
+      "id": "N05-C2",
+      "title": "不变性群公理饱和性",
+      "statement": "48 元超八面体群（O_h）在数值上闭合（任意两元之积仍是群元）且元可逆，闭包残差 ≤ 1e-12。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "max_min_distance(a*b, group)",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "立方群 ≅ S4 ⋉ Z2^3 的半直积结构：符号置换矩阵集合对矩阵乘法闭合，|O_h|=48",
+        "parents": [],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "cubic_group_closure", "params": {"dim": 3}},
+      "note": "群实现的数值正确性是后续所有不变性判据的前提（derivation 链根）。"
+    },
+    {
+      "id": "N05-C3",
+      "title": "各向同性四阶张量在全群下不变",
+      "statement": "4 阶各向同性张量 c_s^4(δδ+δδ+δδ) 在全部 48 个群元下的相对不变残差 ≤ 1e-12。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "max_g relative_max_error(g^{⊗4} T, T)",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "Schur 引理：各向同性张量构成 O(3) 的平凡表示，O_h ⊂ O(3) 下自然不变",
+        "parents": ["N05-C2"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "rank4_isotropic_invariance", "params": {"dim": 3, "cs2": 0.3333333333333333}},
+      "note": "把 N04-C1 的算子级判据提升为群论表述。"
+    },
+    {
+      "id": "N05-C4",
+      "title": "二阶对称张量不变子空间维数",
+      "statement": "Sym(3) 上 O_h 平凡表示的重数（数值秩）恰为 1：δ_ij 是唯一的二阶对称不变张量。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "numerical_rank(projector_onto_trivial_rep)",
+      "threshold": {"op": "==", "value": 1.0, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "Sym(3) 在 O(3) 下分解为 1 ⊕ 5（迹部分 ⊕ 无迹部分），trace 场即唯一不变量；数值秩应为 1",
+        "parents": ["N05-C2"],
+        "tolerance": 1e-09
+      },
+      "probe": {"name": "invariant_subspace_dimension", "params": {"dim": 3}},
+      "note": "判据不是一句声明，而是对群表示矩阵的 SVD 秩裁判。"
+    },
+    {
+      "id": "N05-C5",
+      "title": "剪切扫描下观测阶的稳定性",
+      "statement": "s ∈ {0.0,0.2,0.3,0.5,0.8} 扫描下斜槽观测阶的极差 max p − min p ≤ 0.3。",
+      "cohort": "empirical",
+      "source_type": "empirical",
+      "metric": "max(p_s) - min(p_s)",
+      "threshold": {"op": "<=", "value": 0.3, "unit": "1"},
+      "derivation": {
+        "method": "sampled_observation",
+        "reference": "理论阶与 s 无关（对二次型精确的差分格式）；容差来自有限网格上的高阶项污染，属实测经验值",
+        "parents": ["N05-C1"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "shear_sweep_order_stability", "params": {"resolutions": [16, 32, 64, 128], "shears": [0.0, 0.2, 0.3, 0.5, 0.8], "length": 1.0}},
+      "note": "经验型：验证 C1 的结论不是单点侥幸。"
+    },
+    {
+      "id": "N05-C6",
+      "title": "空间反演宇称",
+      "statement": "二阶对称张量在空间反演 −I 下的不变残差 ≤ 1e-12。",
+      "cohort": "analytic",
+      "source_type": "analytic",
+      "metric": "relative_max_error((-I)^{⊗2} T, T)",
+      "threshold": {"op": "<=", "value": 1e-12, "unit": "1"},
+      "derivation": {
+        "method": "analytic_identity",
+        "reference": "偶阶张量在反演下 (−1)^2=+1，故宇称偶；奇数阶（如偶极）应为奇",
+        "parents": ["N05-C2"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "inversion_parity", "params": {"dim": 3, "cs2": 0.3333333333333333}},
+      "note": "判别群作用是否被正确实现（若实现里漏掉奇偶会将奇阶张量误判为不变）。"
+    },
+    {
+      "id": "N05-C7",
+      "title": "剪切误差常数放大比",
+      "statement": "斜槽剪切带来的误差常数放大 C(s=0.5)/C(s=0) ≤ 3.0。",
+      "cohort": "empirical",
+      "source_type": "empirical",
+      "metric": "C(s=0.5) / C(s=0)",
+      "threshold": {"op": "<=", "value": 3.0, "unit": "1"},
+      "derivation": {
+        "method": "sampled_observation",
+        "reference": "G 的分量随 s 增长（‖G‖ 量级 1+s^2），误差常数随之放大；3.0 为斜槽算例的可接受放大预算（经验值）",
+        "parents": ["N05-C1"],
+        "tolerance": 0.0
+      },
+      "probe": {"name": "shear_error_constant_ratio", "params": {"resolutions": [16, 32, 64, 128], "shear": 0.5, "exponent": 2.0, "length": 1.0}},
+      "note": "经验型：给出斜槽算例的实用预算，不构成解析保证。"
+    }
+  ]
+}
