@@ -380,7 +380,13 @@ def _tool_audit_caps() -> str:
             return _render_caps(d) + f"\n[真值来源] {path}"
         except Exception as exc:  # 坏文件继续试下一个候选，最终如实报出全部尝试
             tried.append(f"{path}: {exc}")
-    return "读取能力清单失败：无可用真值来源。已尝试：\n" + ("\n".join(tried) or "(无候选文件存在)")
+    # 降级契约（m7794）：仪器失灵必须自报 UNKNOWN，既不能抛异常，也不能给出
+    # 看似正常的能力表——否则「读不到证据」会被误读为「能力都正常」。
+    return ("读取能力清单失败：无可用真值来源 —— 证据等级降级为 UNKNOWN"
+            "（不把任何未证实能力当作已证实）。\n"
+            "[证据等级] UNKNOWN\n"
+            "[降级原因] NO_EVIDENCE_SOURCE\n"
+            "[已尝试]\n" + ("\n".join(tried) or "(无候选文件存在)"))
 
 
 def call_llm(messages, tools):
