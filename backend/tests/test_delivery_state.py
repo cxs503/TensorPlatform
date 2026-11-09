@@ -46,19 +46,26 @@ class TestDeliveryStateClassifier:
         assert assessment.state == "suspect_undeclared"
         assert "changed_files" in assessment.missing
     
-    def test_missing_checks_is_partial(self):
-        """Negative control: work product on disk but no verification → partial.
+    def test_missing_checks_is_undeclared(self):
+        """Negative control: work product on disk but *no* verification → undeclared.
 
-        P92W3-N10: ``suspect_undeclared`` is reserved for "nothing on disk";
-        a mission that wrote files but recorded nothing about verification is a
-        partial delivery, and saying otherwise makes the state name a lie.
+        Rubric v1.1 (re-measured on the 60-unit real corpus, ``runs/p92w2b-n08``):
+        a mission whose recorded status is ``succeeded`` while it carries no
+        verification artifact at all is an *unsupported success claim*. Hand
+        labels call this ``suspect_undeclared`` (24/60 units); the P92W3-N10
+        variant that demoted ``checks`` to a graded field cost macro-F1
+        0.9226 → 0.5512 (18 of those 24 units flipped to ``delivered_partial``).
+
+        The honest-partial case the P92W3-N10 change was protecting is preserved
+        separately: a *present* but non-machine-checkable checks statement stays
+        ``delivered_partial`` (see ``test_vacuous_checks_is_partial``).
         """
         result = {
             "changed_files": ["a.py"],
             "summary": {"text": "done"},
         }
         assessment = assess_delivery(result)
-        assert assessment.state == "delivered_partial"
+        assert assessment.state == "suspect_undeclared"
         assert "checks" in assessment.missing
     
     def test_empty_changed_files_is_undeclared(self):
@@ -390,7 +397,7 @@ class TestFailClosedNegativeControls:
         assert assessment.state == "suspect_undeclared"
     
     def test_no_checks_never_complete(self):
-        """Missing checks → never delivered_complete."""
+        """Missing checks → never delivered_complete (fail-closed → undeclared)."""
         result = {
             "changed_files": ["a.py"],
             "summary": {},
@@ -400,8 +407,23 @@ class TestFailClosedNegativeControls:
         }
         assessment = assess_delivery(result)
         assert assessment.state != "delivered_complete"
-        assert assessment.state == "delivered_partial"
+        assert assessment.state == "suspect_undeclared"
         assert "checks" in assessment.missing
+
+    def test_vacuous_checks_is_partial(self):
+        """Honest-partial case: checks recorded but not machine-checkable → partial.
+
+        This keeps the P92W3-N10 intent (an agent that says "I did not verify")
+        while leaving "said nothing about verification" fail-closed.
+        """
+        result = {
+            "changed_files": ["a.py"],
+            "checks": "did not run the suite, budget exhausted",
+            "summary": {},
+        }
+        assessment = assess_delivery(result)
+        assert assessment.state == "delivered_partial"
+        assert "verification_machine_checkable" in assessment.missing
 
     def test_empty_mission_is_undeclared_not_complete(self):
         """Empty mission → undeclared with non-empty missing list."""

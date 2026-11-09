@@ -7,10 +7,12 @@ artifact facts (not self-reports):
 
 - ``delivered_complete``: implementation + verification + claim artifacts present,
   and the verification evidence carries at least one machine-checkable statement
-- ``delivered_partial``: artifacts exist but a required element is vacuous
-  (evidence has no machine-checkable statement, or no claim/report artifact)
+- ``delivered_partial``: both critical artifacts exist but a graded element is
+  vacuous (checks present yet carries no machine-checkable statement, or no
+  claim/report artifact)
 - ``suspect_undeclared``: no implementation artifact or no verification evidence
-  at all (fail-closed)
+  at all (fail-closed) — a ``succeeded`` mission that recorded no verification
+  artifact is an unsupported claim, not a partial delivery
 
 Design rules
 ------------
@@ -73,16 +75,18 @@ EXPECTED_FIELDS_PARTIAL = {
     "evidence",       # Evidence bundle
 }
 
-# Negative control: if these are missing, must be undeclared (fail-closed).
-# ``checks`` is deliberately NOT here (P92W3-N10 defect fix): "worked but did not
-# verify" is a *partial* delivery, not an undeclared one. Reserve
-# ``suspect_undeclared`` for the case with no work product on disk at all —
-# otherwise the state name lies and honest partial deliveries are counted as
-# false claims in the KPI.
+# Negative control: if any of these is missing, the verdict is undeclared
+# (fail-closed). Both the work product *and* the verification evidence are
+# critical: a mission recorded as ``succeeded`` with no verification artifact at
+# all is an unsupported claim, which is exactly what ``suspect_undeclared`` means
+# in rubric v1.1 (measured on the 60-unit real corpus — demoting ``checks`` cost
+# macro-F1 0.9226 -> 0.5512). What stays ``delivered_partial`` is the *honest*
+# case: a checks statement that exists but is not machine-checkable.
 CRITICAL_FIELDS = {
     "changed_files",  # No files = no implementation = nothing delivered
+    "checks",         # No verification artifact = success claim is unsupported
 }
-#: Verification artifact: graded (down to ``delivered_partial``), never critical.
+#: Graded verification quality marker (present-but-vacuous checks → partial).
 GRADED_VERIFICATION_FIELD = "checks"
 
 # Alternative keys observed in the production result payload (calibration split).
@@ -321,43 +325,51 @@ def assess_delivery(result: dict[str, Any] | None) -> DeliveryAssessment:
 
     facts = normalize_artifacts(result)
 
-    # Fail-closed critical checks: only the work product is critical.
-    missing_critical = []
+    # Enumerate everything that is absent first (the ranked missing-item KPI needs
+    # the full picture), then let the critical/graded split decide the verdict.
+    missing_critical: list[str] = []
     if not facts.implementation_present:
         missing_critical.append("changed_files")
+    if not facts.verification_present:
+        missing_critical.append("checks")
+
+    missing_graded: list[str] = []
+    if facts.verification_present and not facts.verification_concrete:
+        missing_graded.append("verification_machine_checkable")
+    if not facts.claim_present:
+        missing_graded.append("claim")
+
+    missing = missing_critical + missing_graded
+
+    # Fail-closed: work product *and* verification evidence are critical. A
+    # mission recorded as ``succeeded`` with no verification artifact at all is an
+    # unsupported success claim (rubric v1.1, measured on the 60-unit real corpus:
+    # demoting ``checks`` to a graded field cost macro-F1 0.9226 -> 0.5512, with
+    # 18/24 hand-labelled ``suspect_undeclared`` units flipped to partial).
     if missing_critical:
         return DeliveryAssessment(
             state="suspect_undeclared",
-            missing=missing_critical,
+            missing=missing,
             reasons=[
                 "Critical artifact fact(s) absent: " + ", ".join(missing_critical)
-                + " (success claimed without the corresponding artifact)"
+                + " (success claimed without the corresponding artifact fact)"
             ],
             confidence=1.0,
             missing_optional=facts.missing_optional,
             facts=facts.to_dict(),
         )
 
-    # Critical artifacts present: judge verification quality and claim artifact.
-    missing = []
-    reasons = []
-    if not facts.verification_present:
-        missing.append(GRADED_VERIFICATION_FIELD)
-        reasons.append(
-            "Implementation present but no verification artifact at all "
-            "(nothing was run or nothing was recorded)"
-        )
-    elif not facts.verification_concrete:
-        missing.append("verification_machine_checkable")
-        reasons.append(
-            "Verification field present but carries no machine-checkable statement "
-            "(no pass/fail counts, exit code, hash or fraction)"
-        )
-    if not facts.claim_present:
-        missing.append("claim")
-        reasons.append("No report/claim artifact (summary|headline|evidence|report_id)")
-
-    if missing:
+    # Honest-partial case kept from P92W3-N10: checks recorded but not
+    # machine-checkable, and/or no claim artifact → partial, never undeclared.
+    if missing_graded:
+        reasons = []
+        if "verification_machine_checkable" in missing_graded:
+            reasons.append(
+                "Verification field present but carries no machine-checkable statement "
+                "(no pass/fail counts, exit code, hash or fraction)"
+            )
+        if "claim" in missing_graded:
+            reasons.append("No report/claim artifact (summary|headline|evidence|report_id)")
         return DeliveryAssessment(
             state="delivered_partial",
             missing=missing,
