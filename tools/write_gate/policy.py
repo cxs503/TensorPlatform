@@ -38,6 +38,8 @@ DEFAULTS: Dict[str, Any] = {
     },
     "secrets": {
         "enabled": True,
+        # 凭证判据内容范围：full=整份内容（默认，最严）；added=只判暂存 diff 新增行
+        "content_scope": "full",
         "max_blob_bytes": 2000000,
         "max_line_chars": 4000,
         "allow_line_patterns": [],
@@ -91,6 +93,8 @@ def _validate(cfg: Dict[str, Any]) -> None:
                         ("read_only_globs", cfg["whitelist"]["read_only_globs"])):
         if not isinstance(globs, list) or any(not isinstance(g, str) or not g for g in globs):
             raise WriteGateError(f"bad_glob_list:{name}")
+    if cfg["secrets"].get("content_scope") not in ("full", "added"):
+        raise WriteGateError(f"bad_content_scope:{cfg['secrets'].get('content_scope')}")
     for rule in cfg["secrets"]["rules"]:
         if not isinstance(rule, dict) or "id" not in rule or "pattern" not in rule:
             raise WriteGateError("bad_secret_rule")

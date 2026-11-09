@@ -2,7 +2,7 @@
 
 > 平台共性机制，**零领域语义**。机器判据全部由 `tools/write_gate/acceptance.py` 跑出，
 > 产物 `artifacts/write_gate/acceptance.json`（本文件所有数字由 `tools/write_gate/gen_doc.py`
-> 从该产物注入，无手抄）。策略 sha256 `f380a2d3b3bbef75…`。
+> 从该产物注入，无手抄）。策略 sha256 `129e22a35359554f…`。
 
 ## 1. 案例介绍
 
@@ -33,7 +33,7 @@
 
 **工具链**：`tools/write_gate/`（`pathnorm` 规范化内核 → `whitelist` / `crossrepo` / `secrets`
 三判据 → `gate` 编排 → `cli` 入口），`data/write_gate/*.json`（策略/预注册场景/正常写入语料），
-`tests/test_write_gate.py`（50 条用例），`scripts/hooks/pre-commit`（钩子包装）。
+`tests/test_write_gate.py`（64 条用例），`scripts/hooks/pre-commit`（钩子包装）。
 
 **关键设计（三个决定成败的选择）**
 
@@ -52,7 +52,7 @@
 `violations[]`（`category/code/path/rule_id/line/excerpt`）、`advisories[]`（豁免与跳过留痕）、
 `files[]`（每文件规范化结果 + 内容 sha256）、`policy{path,sha256}`、`totals.by_category`、
 `digest`（内容寻址，无墙钟 → 可复算）。示例见 `artifacts/write_gate/verdict_sample.json`：
-本次判决 `FAIL`，4 条拦截，分类计数 `{'whitelist': 1, 'cross_repo': 1, 'secret': 1, 'invalid': 0}`。
+本次判决 `FAIL`，4 条拦截，分类计数 `{'whitelist': 1, 'cross_repo': 1, 'secret': 1, 'binary': 0, 'invalid': 0}`。
 
 **接入方式**：`python3 -m tools.write_gate.cli staged`（读 `git diff --cached` + `git show :path`，
 只读 git）作为 pre-commit 钩子（`--no-verify` 可绕，故只作开发自检）；CI 动作配成 required check
@@ -66,11 +66,12 @@
 | 跨仓污染防护 | 5/5（100%） | 5/5 （100.00%），扩展场景 2/2 | PASS |
 | 凭证泄漏捕获 | 3/3（100%） | 3/3 （100.00%），扩展规则 3/3 | PASS |
 | 误报率 | ≤1% | 0/161 = 0.00% | PASS |
-| 确定性/幂等 | 三次重跑逐字节一致 | 一致（digest `5031dddb4d673750…`） | PASS |
+| 确定性/幂等 | 三次重跑逐字节一致 | 一致（digest `53576d9a452a8f85…`） | PASS |
 | fail-closed | 判不了必须拦 | 3/3 探针闭合 | PASS |
 | 零领域语义 | 预注册词表零命中 | 命中 0 | PASS |
-| pytest 回归 | 全绿 | `50 passed, 1 warning in 1.23s` | PASS |
-| 性能 | 1000 变更 < 30s | 0.2145s（214.5 µs/变更） | PASS |
+| 内容范围两档 | 3/3 场景 | 3/3（full 拦历史 / added 只拦新增且留痕） | PASS |
+| pytest 回归 | 全绿 | `64 passed, 1 warning in 1.53s` | PASS |
+| 性能 | 1000 变更 < 30s | 0.3424s（342.4 µs/变更） | PASS |
 
 **白名单越界 10 种写法逐条明细**（全部拦截）：
 
@@ -87,7 +88,7 @@
 | `P09_doubled_separator` | `tools//write_gate//..//..//backend/leak.py` | 拦截 | allow_list_miss | whitelist |
 | `P10_case_variant` | `Tools/Write_Gate/../Backend/leak.py` | 拦截 | allow_list_miss | whitelist |
 | `C1_root_escape` | `../../etc/hosts` | 拦截 | root_escape | cross_repo |
-| `C2_absolute_foreign` | `/tmp/write_gate_accept/write_gate_accept_leh4_jk9/other_repo/backend/x.py` | 拦截 | absolute_path, foreign_root | cross_repo |
+| `C2_absolute_foreign` | `/tmp/wg_accept_8750c/write_gate_accept_xjxzpdj5/other_repo/backend/x.py` | 拦截 | absolute_path, foreign_root | cross_repo |
 | `C3_nested_repo_marker` | `vendor/subrepo/src/x.py` | 拦截 | nested_repo_marker | cross_repo |
 | `C4_git_internals` | `.git/config` | 拦截 | git_internals | cross_repo |
 | `C5_symlink_escape` | `link/secret.txt` | 拦截 | symlink_escape | cross_repo |
@@ -126,8 +127,11 @@
    修前误报率 1/161=0.62%（仍 ≤1% 但不可接受），修后 0/161。
 2. **熵闸不能替代正则。** 纯 hex 摘要（sha256/md5）香农熵≈3.7 bit/char，天然低于 4.2 阈值，
    再加行级 `sha256|digest|checksum` 豁免形成双保险；这不是"调参到绿"，是两套独立判据。
-3. **staged 模式扫整 blob，不是只看 diff 增行。** 更严（能拦住"历史遗留密钥被再次提交"），
-   代价是可能对旧内容报警；`diff` 增行模式作为后续扩展留档，现状在文档里显式声明。
+3. **内容范围两档，缺省最严。** `secrets.content_scope=full`（缺省）扫整份 blob——更严，
+   能拦住"历史遗留凭证被再次提交"，代价是对旧内容报警；`added` 只判本次暂存 diff 的新增行
+   （`git diff --cached -U0` 的 `+` 侧行号），旧内容命中降级为 `pre_existing_content`
+   advisory：**留痕但不拦截**，既不误伤、也不静默隐藏。范围写进每文件 `content_scope`
+   字段与判决 digest，两种口径的判决摘要不同 ⇒ 审计能分辨"是哪档口径放行的"。
 4. **符号链接/嵌套仓判据依赖真实文件系统**：纯路径模式（`paths`/`json`）若不传 `--root`
    则只做路径判据（`symlink_escape`、`nested_repo_marker` 不生效）——这是覆盖边界，不是漏洞。
 5. **`.git` 只读是纪律而非能力限制**：门只读 git（`diff --cached` / `show :path`），
@@ -148,7 +152,7 @@
 | 跨仓污染防护率 | 100.00%（5/5） | 100% | 0.00% | **是（0%）** |
 | 凭证捕获率 | 100.00%（3/3） | 100% | 0.00% | **是（0%）** |
 | 误报率 | 0.00%（0/161） | ≤1% | −1.00%（低于预算） | **是（0% < 3%）** |
-| 判决确定性 | 3/3 次逐字节一致，digest `5031dddb4d673750…` | 100% 一致 | 0 | **是** |
+| 判决确定性 | 3/3 次逐字节一致，digest `53576d9a452a8f85…` | 100% 一致 | 0 | **是** |
 
 **总判决：PASS**（全部判据 通过）。
 **声明**：上述"基准"是机器判据而非实验/文献参考值；本节点不含物理仿真量，故不存在与实验对标的
@@ -158,7 +162,9 @@
 ## 7. 复现
 
 ```bash
-python3 -m pytest tests/test_write_gate.py -q              # 50 passed
+python3 -m pytest tests/test_write_gate.py tests/test_write_gate_content_scope.py -q  # 64 passed
+# 只拦本次新增的凭证（旧内容降级为 advisory）
+python3 -m tools.write_gate.cli --content-scope added staged --root .
 python3 tools/write_gate/acceptance.py --out artifacts/write_gate
 python3 tools/write_gate/gen_figure.py
 python3 tools/write_gate/gen_doc.py
