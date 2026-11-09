@@ -1,0 +1,391 @@
+{
+ "plan": {
+  "id": 272,
+  "organization_id": 1,
+  "source_mission_id": "6986",
+  "schema_version": "v1",
+  "title": "冰区航行战役·第二波聚合 (Ice Navigation Campaign Wave 2 Aggregation)",
+  "created_utc": "2026-11-08T10:13:44.335685+00:00",
+  "owner": "agent/6986",
+  "physics_scope": [
+   "冰区航行",
+   "阻力预报",
+   "结构磨损",
+   "破损稳性",
+   "操作性"
+  ],
+  "coupling_framework_requirements": {
+   "domains": [
+    "ice",
+    "hydro",
+    "structure"
+   ],
+   "framework": "DEM+RANS+FSI multi-physics coupling"
+  },
+  "validation_standards": {
+   "standards": [
+    "ITTC",
+    "IACS",
+    "SOLAS"
+   ],
+   "validation_level": "POC"
+  },
+  "statistics": {
+   "proposals_kept": 5,
+   "overlap_resolved": 1,
+   "proposals_merged": 6
+  },
+  "ingested_at": "2026-11-08T10:13:44.335685+00:00",
+  "campaign_id": null,
+  "name": "ice-nav-wave2",
+  "description": "Aggregation of proposals from missions 6100/6101/6102. Merged overlapping ice abrasion conditional simulation proposals. Retained 5 unique nodes across operability-propulsion intersection, flooding topology, abrasion field simulation, full-ship ice resistance, and spatio-temporal abrasion evolution.",
+  "sir_master_ref": null,
+  "plan_version": "v1",
+  "planned_start": "2026-11-08T10:13:44.335685+00:00",
+  "planned_end": "2026-11-08T10:13:44.335685+00:00",
+  "budget_planned": {},
+  "budget_actual": {},
+  "status": "active",
+  "metadata": {
+   "parent_plan": 65,
+   "seed_report": {
+    "wave": 2,
+    "nodes": 8,
+    "sources": [
+     6100,
+     6101,
+     6102
+    ],
+    "arbiters": [
+     6986
+    ],
+    "final_count": 5,
+    "new_plan_id": 272,
+    "merged_count": 1,
+    "proposal_count": 6
+   }
+  },
+  "created_by": null,
+  "created_at": "2026-11-08T10:13:44.335685+00:00",
+  "updated_at": "2026-11-08T10:16:28.002331+00:00"
+ },
+ "nodes": [
+  {
+   "id": 1588,
+   "plan_id": 272,
+   "milestone_id": 615,
+   "mission_id": 7293,
+   "name": "操作能力-推进可行域交集成熟化 (Operability-Propulsion Feasible Domain Intersection Maturity)",
+   "node_type": "task",
+   "dependencies": [],
+   "planned_start": "2026-11-08T10:14:14.543356+00:00",
+   "planned_end": "2026-11-28T10:14:14.543356+00:00",
+   "actual_start": "2026-11-08T10:16:56.480028+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "成熟化冰区航行操作能力与推进系统的可行域交集分析：在IN37-N01操作能力面基础上，引入冰中推力减额、功率限制、阻力-推进耦合约束，构建(h_ice, V_ship)双轴可行域云图。物理目标为量化冰厚-航速联合约束下的操作边界，识别操作能力域与推进域的矛盾区并显式登记。机器可算判据：(1)几何门Cb/L/B反算<1e-12；(2)边界单调性+V→0极限与Lindqvist破冰项<15%；(3)h→0退化到KVLCC2@15kn基线<3%；(4)与speed_loss链判定一致率≥90%；(5)双轴加密后F面积变化<5%、D面积变化<10%；(6)功率恒等式残差<1e-9；(7)输出可行域云机器可读数据+矛盾区清单。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、零手抄。",
+    "repo": "ship-performance-platform",
+    "ext_id": "P66-W2-N01",
+    "is_maturity": true,
+    "proposal_src": [
+     6100
+    ],
+    "physics_domain": "冰区航行·操纵/操作性与推进",
+    "acceptance_criteria": [
+     "C1 几何门Cb/L/B反算<1e-12",
+     "C2 边界单调+V→0极限与Lindqvist破冰项<15%",
+     "C3 h→0退化到KVLCC2@15kn基线<3%",
+     "C4 与speed_loss链判定一致率≥90%",
+     "C5 双轴加密后F面积变化<5%、D面积变化<10%",
+     "C6 功率恒等式残差<1e-9",
+     "C7 输出可行域云机器可读数据+矛盾区清单"
+    ]
+   },
+   "created_at": "2026-11-08T10:14:14.543356+00:00",
+   "updated_at": "2026-11-08T10:14:14.543356+00:00"
+  },
+  {
+   "id": 1589,
+   "plan_id": 272,
+   "milestone_id": 615,
+   "mission_id": 7294,
+   "name": "冰致破口进水拓扑完备化与真实型线截面成熟化 (Flooding Topology Completeness & Real Hull Sections Maturity)",
+   "node_type": "task",
+   "dependencies": [],
+   "planned_start": "2026-11-08T10:14:47.903957+00:00",
+   "planned_end": "2026-12-03T10:14:47.903957+00:00",
+   "actual_start": "2026-11-08T10:16:56.603350+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "成熟化冰致破损稳性的进水拓扑完备化：把IN37-N06单拓扑+壁直简化的s_i扩展为三拓扑曲线族（T1双壳边舱/T2穿透货舱/T3邻舱连通），给出临界接触宽度b*的拓扑迁移律，并用真实型线数值积分替代壁直闭式GZ。物理目标为量化不同进水拓扑对破损稳性的影响，建立b*迁移律。机器可算判据：(1)几何门Cb/L/B<1e-12；(2)多边形GZ vs壁直闭式5/10/15/30°误差<0.1%；(3)box型线vs解析GZ机器精度；(4)s_i(T1)≥s_i(T2)≥s_i(T3)全域成立；(5)破口面积换算残差<2%；(6)R=0.6257与IN37-N06一致、A(b)单调；(7)时域窗×2后s_i变化<3%；(8)b*迁移比带区间，σ_c保持WITHHELD口径。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖。",
+    "repo": "ship-performance-platform",
+    "ext_id": "P66-W2-N02",
+    "is_maturity": true,
+    "proposal_src": [
+     6100
+    ],
+    "physics_domain": "冰区航行·破损稳性",
+    "acceptance_criteria": [
+     "C1 几何门Cb/L/B<1e-12",
+     "C2 多边形GZ vs壁直闭式<0.1%（5/10/15/30°）",
+     "C3 box型线vs解析GZ机器精度",
+     "C4 s_i(T1)≥s_i(T2)≥s_i(T3)全域成立",
+     "C5 破口面积换算残差<2%",
+     "C6 R=0.6257与IN37-N06一致、A(b)单调",
+     "C7 时域窗×2后s_i变化<3%",
+     "C8 b*迁移比带区间，σ_c保持WITHHELD口径"
+    ]
+   },
+   "created_at": "2026-11-08T10:14:47.903957+00:00",
+   "updated_at": "2026-11-08T10:14:47.903957+00:00"
+  },
+  {
+   "id": 1590,
+   "plan_id": 272,
+   "milestone_id": 616,
+   "mission_id": 7291,
+   "name": "冰磨蚀场条件模拟与分辨率vs抽样误差裁决 (Ice Abrasion Conditional Simulation & Error Adjudication)",
+   "node_type": "task",
+   "dependencies": [],
+   "planned_start": "2026-11-18T10:14:47.920684+00:00",
+   "planned_end": "2026-12-28T10:14:47.920684+00:00",
+   "actual_start": "2026-11-08T10:16:56.196388+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "实现冰磨蚀场的条件模拟与分辨率vs抽样误差裁决：把磨损深度场从一次确定性快照+错误bootstrap误差条升级为保留确定性活动度剖面、对残差做相位随机化的条件模拟器。物理目标为使P95带一个能与独立重复对拍(<2%)的方差估计，并把19.47%的分辨率差异分解归因。实现路径：(1)场分解q(x,z)=a(h(x))·r(x,z)，估计二维自相关与谱；(2)条件模拟器：FFT相位随机化生成N=200个实现，保持行结构；(3)真值通道：K=20独立重复给出P95真值方差；(4)19.47%分解为活动度剖面离散化项+极值抽样项。机器可算判据：(1)自相关/谱保真lag≤3偏差<5%、能量守恒<2%；(2)P95方差vs独立重复真值比值∈[0.7,1.4]；(3)行均值保真<1e-2；(4)19.47%分解闭合两项和vs实测<10%；(5)白噪声退化负控不劣于iid bootstrap 20%；(6)同种子bitwise复现、异种子CV<5%；(7)输出conditional_simulator API+分辨率选择建议表。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、基线=main。",
+    "repo": "TensorDEM",
+    "ext_id": "P66-W2-N03",
+    "merge_note": "Merged 6100-prop3 + 6102-prop3: both address P95 variance estimation for ice abrasion fields",
+    "is_maturity": false,
+    "proposal_src": [
+     6100,
+     6102
+    ],
+    "physics_domain": "冰区航行·结构磨损",
+    "acceptance_criteria": [
+     "C1 模拟场自相关/谱保真：lag≤3偏差<5%，能量守恒<2%",
+     "C2 P95方差vs独立重复真值比值∈[0.7,1.4]",
+     "C3 行均值保真<1e-2（剖面不被破坏）",
+     "C4 19.47%分解闭合：两项和vs实测<10%",
+     "C5 白噪声退化负控不劣于iid bootstrap 20%",
+     "C6 同种子bitwise复现、异种子CV<5%",
+     "C7 conditional_simulator API+分辨率选择建议表"
+    ]
+   },
+   "created_at": "2026-11-08T10:14:47.920684+00:00",
+   "updated_at": "2026-11-08T10:14:47.920684+00:00"
+  },
+  {
+   "id": 1591,
+   "plan_id": 272,
+   "milestone_id": 616,
+   "mission_id": 7292,
+   "name": "冰区航行全船阻力物理预报链：DEM碎冰场+RANS流场+FSI双向耦合3D全船型验证 (Full-Ship Ice Resistance Physics-Based Prediction Chain)",
+   "node_type": "task",
+   "dependencies": [],
+   "planned_start": "2026-11-23T10:15:18.555836+00:00",
+   "planned_end": "2027-01-07T10:15:18.555836+00:00",
+   "actual_start": "2026-11-08T10:16:56.333267+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "实现DEM碎冰场+RANS流场+FSI双向耦合的3D全船型冰阻力物理预报链：(1)DEM生成碎冰场（冰浓度、尺寸分布、速度场）；(2)RANS/LBM求解冰-水两相流场（多孔介质模型）；(3)FSI双向耦合（流场→冰运动，冰场→流场阻塞）；(4)全船型阻力积分（摩擦+压差+冰阻力）；(5)与模型试验数据对标。物理目标为从第一性原理直接预测全船冰阻力，不依赖经验公式或ML代理。机器可算判据：(1)DEM冰浓度误差<5%、D50<10%；(2)RANS残差下降3个量级、质量守恒<1e-4；(3)FSI动量交换残差<1%；(4)阻力分解能量守恒<2%；(5)全船阻力vs Riska(1989)<15%；(6)3档网格GCI外推<5%。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、基线=main。",
+    "repo": "TensorLBM",
+    "ext_id": "P66-W2-N04",
+    "is_maturity": false,
+    "proposal_src": [
+     6102
+    ],
+    "physics_domain": "冰区航行·阻力预报",
+    "acceptance_criteria": [
+     "C1 DEM冰浓度误差<5%, D50<10%",
+     "C2 RANS残差下降3个量级, 质量守恒<1e-4",
+     "C3 FSI动量交换残差<1%",
+     "C4 阻力分解能量守恒<2%",
+     "C5 全船阻力vs Riska(1989)<15%",
+     "C6 3档网格GCI外推<5%"
+    ]
+   },
+   "created_at": "2026-11-08T10:15:18.555836+00:00",
+   "updated_at": "2026-11-08T10:15:18.555836+00:00"
+  },
+  {
+   "id": 1592,
+   "plan_id": 272,
+   "milestone_id": 616,
+   "mission_id": 7295,
+   "name": "冰区航行空间-时间磨蚀场演化：确定性活动度剖面+随机残差场条件模拟 (Spatio-Temporal Ice Abrasion Field Evolution)",
+   "node_type": "task",
+   "dependencies": [
+    1590
+   ],
+   "planned_start": "2026-12-08T10:15:18.577462+00:00",
+   "planned_end": "2027-01-17T10:15:18.577462+00:00",
+   "actual_start": "2026-11-08T10:16:56.739176+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "实现冰区航行空间-时间磨蚀场演化能力：(1)确定性活动度剖面（船体表面磨蚀率空间分布）；(2)随机残差场条件模拟；(3)磨蚀场随时航程演化（累积磨蚀深度场）；(4)与N02的P95统计量对接。物理目标为从单点P95统计升级到时空场，回答船首/船中/船尾哪个区域磨蚀最严重、磨蚀场如何随航程演化等工程问题。实现路径：(1)运行DEM提取磨蚀率分布a(x,y)，拟合参数化剖面；(2)计算残差r(x,y)，估计空间相关函数，基于KL展开生成条件随机场；(3)船体离散为N面元，累积磨蚀深度d_i(t)=∫a_i(τ)dτ，考虑船体移动；(4)从磨蚀场提取P95与N02直接统计对比。机器可算判据：(1)活动度剖面拟合R²>0.95；(2)100条件样本统计vs目标<5%；(3)时空演化质量守恒<1e-6；(4)场提取P95 vs N02 P95<10%；(5)均匀冰场d(t)=a·t误差<1%；(6)1000面元×100步<60s CPU。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、依赖N03条件模拟器API。",
+    "repo": "TensorDEM",
+    "ext_id": "P66-W2-N05",
+    "is_maturity": false,
+    "proposal_src": [
+     6102
+    ],
+    "physics_domain": "冰区航行·结构磨损",
+    "acceptance_criteria": [
+     "C1 活动度剖面拟合R²>0.95",
+     "C2 100条件样本统计vs目标<5%",
+     "C3 时空演化质量守恒<1e-6",
+     "C4 场提取P95 vs N02 P95<10%",
+     "C5 均匀冰场d(t)=a·t误差<1%",
+     "C6 1000面元×100步<60s CPU"
+    ]
+   },
+   "created_at": "2026-11-08T10:15:18.577462+00:00",
+   "updated_at": "2026-11-08T10:15:18.577462+00:00"
+  },
+  {
+   "id": 1593,
+   "plan_id": 272,
+   "milestone_id": 617,
+   "mission_id": 7296,
+   "name": "多物理场耦合集成验证门 (Multi-Physics Coupling Integration Gate)",
+   "node_type": "gate",
+   "dependencies": [
+    1590,
+    1591,
+    1592
+   ],
+   "planned_start": "2026-12-28T10:15:58.946241+00:00",
+   "planned_end": "2027-01-27T10:15:58.946241+00:00",
+   "actual_start": "2026-11-08T10:16:56.906019+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "集成验证冰区航行多物理场耦合框架：把N03冰磨蚀场条件模拟、N04全船阻力物理预报链、N05时空磨蚀场演化的输出进行交叉验证与一致性检查。物理目标为确认DEM磨蚀场与LBM流场在耦合界面的动量/质量守恒，确认磨蚀场演化与阻力预报链的冰厚-速度参数空间一致性。机器可算判据：(1)耦合界面质量守恒残差<1e-6；(2)磨蚀场与阻力链冰厚参数空间重叠区一致性>90%；(3)跨模块数据接口契约验证通过（schema校验+量纲检查）；(4)集成测试用例全部通过（≥5个端到端场景）；(5)性能基准：耦合仿真端到端时间<单模块时间之和的1.5倍。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、基线=main，上游未合并模块注明接口契约。",
+    "repo": "TensorPhysics",
+    "ext_id": "P66-W2-N06",
+    "node_role": "integration_gate",
+    "is_maturity": false,
+    "proposal_src": [
+     6100,
+     6102
+    ],
+    "physics_domain": "冰区航行·多物理场耦合",
+    "acceptance_criteria": [
+     "C1 耦合界面质量守恒残差<1e-6",
+     "C2 磨蚀场与阻力链参数空间一致性>90%",
+     "C3 跨模块数据接口契约验证通过",
+     "C4 集成测试用例全部通过（≥5个端到端场景）",
+     "C5 耦合仿真端到端时间<单模块时间之和的1.5倍"
+    ]
+   },
+   "created_at": "2026-11-08T10:15:58.946241+00:00",
+   "updated_at": "2026-11-08T10:15:58.946241+00:00"
+  },
+  {
+   "id": 1594,
+   "plan_id": 272,
+   "milestone_id": 617,
+   "mission_id": 7297,
+   "name": "冰区航行不确定性量化与误差传播框架 (Ice Navigation UQ & Error Propagation Framework)",
+   "node_type": "task",
+   "dependencies": [
+    1590,
+    1591,
+    1592
+   ],
+   "planned_start": "2026-12-28T10:15:58.989868+00:00",
+   "planned_end": "2027-02-01T10:15:58.989868+00:00",
+   "actual_start": "2026-11-08T10:16:57.042137+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "建立冰区航行不确定性量化与误差传播框架：对N03磨蚀场P95方差、N04全船阻力预报误差、N05时空磨蚀场演化误差进行系统性UQ分析，建立从输入参数不确定性（冰厚、冰浓度、船速、材料参数）到输出量（P95磨蚀深度、总阻力、累积磨蚀场）的误差传播链。物理目标为给出关键输出量的置信区间与敏感性排序。机器可算判据：(1)输入参数敏感性Sobol指数总和∈[0.95,1.05]（闭合性检验）；(2)输出量95%置信区间宽度与独立重复统计一致（比值∈[0.8,1.2]）；(3)误差传播链雅可比矩阵条件数<1e6（数值稳定性）；(4)UQ计算加速比≥10（vs蒙特卡洛暴力法）；(5)输出UQ报告含敏感性排序表+置信区间图+误差传播路径图。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、基线=main。",
+    "repo": "TensorPlatform",
+    "ext_id": "P66-W2-N07",
+    "is_maturity": false,
+    "proposal_src": [
+     6100,
+     6102
+    ],
+    "physics_domain": "冰区航行·不确定性量化",
+    "acceptance_criteria": [
+     "C1 Sobol指数总和∈[0.95,1.05]（闭合性检验）",
+     "C2 输出95%CI与独立重复统计比值∈[0.8,1.2]",
+     "C3 误差传播链雅可比条件数<1e6",
+     "C4 UQ计算加速比≥10 vs蒙特卡洛暴力法",
+     "C5 输出UQ报告含敏感性排序+置信区间图+误差传播路径图"
+    ]
+   },
+   "created_at": "2026-11-08T10:15:58.989868+00:00",
+   "updated_at": "2026-11-08T10:15:58.989868+00:00"
+  },
+  {
+   "id": 1595,
+   "plan_id": 272,
+   "milestone_id": 617,
+   "mission_id": 7298,
+   "name": "冰区航行战役第二波成果汇总与知识蒸馏 (Campaign Wave 2 Results Summary & Knowledge Distillation)",
+   "node_type": "checkpoint",
+   "dependencies": [
+    1593,
+    1594
+   ],
+   "planned_start": "2027-01-27T10:16:16.229484+00:00",
+   "planned_end": "2027-02-16T10:16:16.229484+00:00",
+   "actual_start": "2026-11-08T10:16:57.155071+00:00",
+   "actual_end": null,
+   "status": "in-flight",
+   "reproduction_verdict": null,
+   "consecutive_fails": 0,
+   "block_reason": null,
+   "metadata": {
+    "goal": "汇总冰区航行战役第二波全部成果并进行知识蒸馏：整合N01-N07的验收报告、测试数据、误差分析、UQ结果，生成战役级综合报告。物理目标为形成冰区航行从操作能力→破损稳性→磨蚀场→阻力预报→多场耦合→UQ的完整知识链，识别遗留缺口并提案下一波战役。机器可算判据：(1)综合报告覆盖全部7个节点验收判据（逐项对照表）；(2)知识图谱包含≥20个实体节点与≥30条关系边；(3)遗留缺口清单≥3条且每条附提案草案；(4)综合报告通过自动化格式校验（Markdown schema+引用完整性）；(5)全部工件归档至verified/目录并生成sha256校验和。纪律：worktree内提交自己分支、论文级报告、honest FAIL不可覆盖、零手抄。",
+    "repo": "TensorPlatform",
+    "ext_id": "P66-W2-N08",
+    "node_role": "summary_checkpoint",
+    "is_maturity": false,
+    "proposal_src": [
+     6100,
+     6102
+    ],
+    "physics_domain": "冰区航行·知识蒸馏",
+    "acceptance_criteria": [
+     "C1 综合报告覆盖全部7节点验收判据（逐项对照表）",
+     "C2 知识图谱≥20实体节点+≥30关系边",
+     "C3 遗留缺口清单≥3条且每条附提案草案",
+     "C4 综合报告通过自动化格式校验",
+     "C5 全部工件归档verified/并生成sha256校验和"
+    ]
+   },
+   "created_at": "2026-11-08T10:16:16.229484+00:00",
+   "updated_at": "2026-11-08T10:16:16.229484+00:00"
+  }
+ ]
+}

@@ -1,0 +1,3403 @@
+{
+  "schema": "p66_multiphysics_coupling_gate.v1",
+  "gate_id": "P66-W2-N06",
+  "title": "P66 多物理场耦合集成验证门（冰区航行·多物理场耦合）",
+  "generated_at": "2026-11-08T13:14:40.826589+00:00",
+  "overall_status": "PASS",
+  "blocking": [],
+  "criteria": [
+    {
+      "criterion_id": "1",
+      "label": "耦合界面质量/动量守恒残差",
+      "status": "PASS",
+      "value": {
+        "max_mass": 0.0,
+        "max_momentum": 7.017964551512336e-16,
+        "max_third_law": 4.471191937055945e-16
+      },
+      "limit": {
+        "mass": 1e-06,
+        "momentum": 1e-06,
+        "third_law": 1e-06
+      },
+      "detail": "45 samples on the non-matching belt interface (16 patches <-> 64 facets); max mass residual 0.000e+00, max momentum residual 7.018e-16, third-law 4.471e-16; defect controls (mass/momentum/reaction) 3.206e-02 / 4.676e-01 / 6.158e+00 (floor 0.001)",
+      "evidence": {
+        "discriminating": true,
+        "negative_controls": {
+          "mass": 0.03205573510607958,
+          "momentum": 0.4676360886617593,
+          "reaction": 6.157595306885763
+        },
+        "negative_controls_detail": {
+          "nearest_neighbour_mass": 0.0010360367979263272,
+          "unweighted_average_mass": 0.0005833328553856663,
+          "coverage_mismatch_mass": 0.03205573510607958,
+          "belt_mean_normal_momentum": 0.4676360886617593,
+          "per_facet_normalised_reaction": 6.157595306885763
+        },
+        "negative_control_floor": 0.001,
+        "refinement_study": [
+          {
+            "n_facets": 64,
+            "mass_residual": 1.8688405454697062e-16,
+            "momentum_residual": 0.0,
+            "quadrature_residual": 0.0015304800532214492,
+            "observed_order": 1.7019498451681492
+          },
+          {
+            "n_facets": 128,
+            "mass_residual": 1.868771329083482e-16,
+            "momentum_residual": 7.027100524238256e-17,
+            "quadrature_residual": 0.001453888256274553,
+            "observed_order": null
+          },
+          {
+            "n_facets": 256,
+            "mass_residual": 3.7375324620129076e-16,
+            "momentum_residual": 1.5713419292696932e-16,
+            "quadrature_residual": 0.0014712787461078243,
+            "observed_order": null
+          }
+        ],
+        "quadrature_residual_design_point": 0.0015304800532214492,
+        "observed_order_design_point": 1.7019498451681492,
+        "coverage_error": 0.0,
+        "per_sample": [
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.1052460907299546e-16,
+            "third_law_residual": 2.894515741158669e-16,
+            "quadrature_residual": 0.0015724084733806515,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24648687270858582,
+              "per_facet_normalised_reaction": 5.3646612289833495
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24648687270858582,
+              "reaction": 5.3646612289833495
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.273759273616297e-16,
+            "third_law_residual": 1.5605518827103765e-16,
+            "quadrature_residual": 0.0014938558730382171,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.26980382179080714,
+              "per_facet_normalised_reaction": 5.473590172325748
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.26980382179080714,
+              "reaction": 5.473590172325748
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.3848552933274084e-16,
+            "third_law_residual": 1.7947068076570082e-16,
+            "quadrature_residual": 0.0013801473539061422,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.30675842515933677,
+              "per_facet_normalised_reaction": 5.698723416996728
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.30675842515933677,
+              "reaction": 5.698723416996728
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.0301197383750814e-16,
+            "third_law_residual": 1.1359834495467956e-16,
+            "quadrature_residual": 0.0012491105032818395,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.35451522127589163,
+              "per_facet_normalised_reaction": 6.157595306885761
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.35451522127589163,
+              "reaction": 6.157595306885761
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.8130490532400944e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0009897864777766775,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.4676360886617593,
+              "per_facet_normalised_reaction": 5.279929009186083
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.4676360886617593,
+              "reaction": 5.279929009186083
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.9693377324204116e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015879443149284494,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24207595875956137,
+              "per_facet_normalised_reaction": 5.346201836780449
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24207595875956137,
+              "reaction": 5.346201836780449
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.937840875448657e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015511990709042944,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.2526136329949092,
+              "per_facet_normalised_reaction": 5.3913542310544695
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.2526136329949092,
+              "reaction": 5.3913542310544695
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.1689920823041112e-16,
+            "third_law_residual": 4.1614716872276703e-16,
+            "quadrature_residual": 0.0014938558730382887,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.26980382179080714,
+              "per_facet_normalised_reaction": 5.473590172325745
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.26980382179080714,
+              "reaction": 5.473590172325745
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 9.564860827481672e-17,
+            "third_law_residual": 3.0194357868793896e-16,
+            "quadrature_residual": 0.0014208372570044775,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.2930789256676468,
+              "per_facet_normalised_reaction": 5.606158556479897
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.2930789256676468,
+              "reaction": 5.606158556479897
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.047482453307538e-16,
+            "third_law_residual": 4.0390522650552754e-16,
+            "quadrature_residual": 0.0012491105032818397,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.35451522127589136,
+              "per_facet_normalised_reaction": 6.157595306885763
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.35451522127589136,
+              "reaction": 6.157595306885763
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.2172458142387645e-16,
+            "third_law_residual": 1.4214588601255556e-16,
+            "quadrature_residual": 0.0015934601360661938,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24052535004405223,
+              "per_facet_normalised_reaction": 5.339856220358895
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24052535004405223,
+              "reaction": 5.339856220358895
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.1052460907299546e-16,
+            "third_law_residual": 2.894515741158669e-16,
+            "quadrature_residual": 0.0015724084733806515,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24648687270858582,
+              "per_facet_normalised_reaction": 5.3646612289833495
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24648687270858582,
+              "reaction": 5.3646612289833495
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.0995058592568195e-16,
+            "third_law_residual": 2.984804438050625e-16,
+            "quadrature_residual": 0.0015386194682550209,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.2563056884444756,
+              "per_facet_normalised_reaction": 5.40806622525459
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.2563056884444756,
+              "reaction": 5.40806622525459
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.273759273616297e-16,
+            "third_law_residual": 1.5605518827103765e-16,
+            "quadrature_residual": 0.0014938558730382171,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.26980382179080714,
+              "per_facet_normalised_reaction": 5.473590172325748
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.26980382179080714,
+              "reaction": 5.473590172325748
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.3848552933274084e-16,
+            "third_law_residual": 1.7947068076570082e-16,
+            "quadrature_residual": 0.0013801473539061422,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.30675842515933677,
+              "per_facet_normalised_reaction": 5.698723416996728
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.30675842515933677,
+              "reaction": 5.698723416996728
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.1742135623857906e-16,
+            "third_law_residual": 3.6311671220046096e-16,
+            "quadrature_residual": 0.0015960271361045077,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.23980645157847114,
+              "per_facet_normalised_reaction": 5.336938921107716
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.23980645157847114,
+              "reaction": 5.336938921107716
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.5419951493953885e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015824381919999713,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24363188219886145,
+              "per_facet_normalised_reaction": 5.352643424739259
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24363188219886145,
+              "reaction": 5.352643424739259
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 4.2364458685139677e-16,
+            "third_law_residual": 1.8724273188768596e-16,
+            "quadrature_residual": 0.0015603339584039824,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.24995984329863222,
+              "per_facet_normalised_reaction": 5.379637079617607
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.24995984329863222,
+              "reaction": 5.379637079617607
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.8110378663901954e-16,
+            "third_law_residual": 3.850335373738015e-16,
+            "quadrature_residual": 0.0015304800532214492,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.25871796335604186,
+              "per_facet_normalised_reaction": 5.419252978998643
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.25871796335604186,
+              "reaction": 5.419252978998643
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.464726024108514e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0014515794103446464,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.2830846601103434,
+              "per_facet_normalised_reaction": 5.545814687951583
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.2830846601103434,
+              "reaction": 5.545814687951583
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.7888101518079895e-16,
+            "third_law_residual": 1.2593616631157874e-16,
+            "quadrature_residual": 0.0015974252831254846,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.23941562408301686,
+              "per_facet_normalised_reaction": 5.335359429457819
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.23941562408301686,
+              "reaction": 5.335359429457819
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.9693377324204116e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015879443149284494,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24207595875956137,
+              "per_facet_normalised_reaction": 5.346201836780449
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24207595875956137,
+              "reaction": 5.346201836780449
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.1968047917671803e-16,
+            "third_law_residual": 2.57290288102993e-16,
+            "quadrature_residual": 0.0015724084733802996,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.2464868727085857,
+              "per_facet_normalised_reaction": 5.364661228983353
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.2464868727085857,
+              "reaction": 5.364661228983353
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.937840875448657e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015511990709042944,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.2526136329949092,
+              "per_facet_normalised_reaction": 5.3913542310544695
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.2526136329949092,
+              "reaction": 5.3913542310544695
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.1689920823041112e-16,
+            "third_law_residual": 4.1614716872276703e-16,
+            "quadrature_residual": 0.0014938558730382887,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.26980382179080714,
+              "per_facet_normalised_reaction": 5.473590172325745
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.26980382179080714,
+              "reaction": 5.473590172325745
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.6121820510609584e-16,
+            "third_law_residual": 1.8491992300842265e-16,
+            "quadrature_residual": 0.0015982695938841973,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.2391798604144263,
+              "per_facet_normalised_reaction": 5.334408812695613
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.2391798604144263,
+              "reaction": 5.334408812695613
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.609608522042657e-16,
+            "third_law_residual": 3.7199652461538585e-16,
+            "quadrature_residual": 0.0015912842798589796,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24113606701619963,
+              "per_facet_normalised_reaction": 5.34234675381145
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24113606701619963,
+              "reaction": 5.34234675381145
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.8903094128115075e-16,
+            "third_law_residual": 3.7564743273822413e-16,
+            "quadrature_residual": 0.0015797866786485437,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.24438402703104173,
+              "per_facet_normalised_reaction": 5.355784404520297
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.24438402703104173,
+              "reaction": 5.355784404520297
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 4.559268116776232e-16,
+            "third_law_residual": 1.904403873199561e-16,
+            "quadrature_residual": 0.0015639866789228204,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24890505306029762,
+              "per_facet_normalised_reaction": 5.375046412258852
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24890505306029762,
+              "reaction": 5.375046412258852
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 0.0,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015206598834635787,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.26165306519854226,
+              "per_facet_normalised_reaction": 5.433160631222643
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.26165306519854226,
+              "reaction": 5.433160631222643
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.3283765427932047e-16,
+            "third_law_residual": 4.245456562654267e-16,
+            "quadrature_residual": 0.0015988180971871827,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.23902679765774296,
+              "per_facet_normalised_reaction": 5.333792535556985
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.23902679765774296,
+              "reaction": 5.333792535556985
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.2172458142387645e-16,
+            "third_law_residual": 1.4214588601255556e-16,
+            "quadrature_residual": 0.0015934601360661938,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24052535004405223,
+              "per_facet_normalised_reaction": 5.339856220358895
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24052535004405223,
+              "reaction": 5.339856220358895
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 2.4758242422096375e-16,
+            "third_law_residual": 2.8641916618570555e-16,
+            "quadrature_residual": 0.0015846153909335377,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.2430156849893854,
+              "per_facet_normalised_reaction": 5.350083362712999
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.2430156849893854,
+              "reaction": 5.350083362712999
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.1052460907299546e-16,
+            "third_law_residual": 2.894515741158669e-16,
+            "quadrature_residual": 0.0015724084733806515,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24648687270858582,
+              "per_facet_normalised_reaction": 5.3646612289833495
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24648687270858582,
+              "reaction": 5.3646612289833495
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.0995058592568195e-16,
+            "third_law_residual": 2.984804438050625e-16,
+            "quadrature_residual": 0.0015386194682550209,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.2563056884444756,
+              "per_facet_normalised_reaction": 5.40806622525459
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.2563056884444756,
+              "reaction": 5.40806622525459
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.506622270872327e-16,
+            "third_law_residual": 4.471191937055945e-16,
+            "quadrature_residual": 0.001599194382925264,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.23892183875119072,
+              "per_facet_normalised_reaction": 5.3333703403117605
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.23892183875119072,
+              "reaction": 5.3333703403117605
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.752268122760383e-16,
+            "third_law_residual": 1.121729084747103e-16,
+            "quadrature_residual": 0.0015949555932910544,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24010633045226798,
+              "per_facet_normalised_reaction": 5.338153947653574
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24010633045226798,
+              "reaction": 5.338153947653574
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.7505224288181422e-16,
+            "third_law_residual": 1.1283427255779816e-16,
+            "quadrature_residual": 0.0015879443149284945,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.24207595875956125,
+              "per_facet_normalised_reaction": 5.346201836780451
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.24207595875956125,
+              "reaction": 5.346201836780451
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 8.740316384870124e-17,
+            "third_law_residual": 2.2754678633489253e-16,
+            "quadrature_residual": 0.0015782390272038559,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24482391111156832,
+              "per_facet_normalised_reaction": 5.357629639917148
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24482391111156832,
+              "reaction": 5.357629639917148
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 7.017964551512336e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015511990709044488,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.2526136329949091,
+              "per_facet_normalised_reaction": 5.391354231054468
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.2526136329949091,
+              "reaction": 5.391354231054468
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 5.725152071857533e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015994636546097394,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.23884675249081844,
+              "per_facet_normalised_reaction": 5.333068507235678
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.23884675249081844,
+              "reaction": 5.333068507235678
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.1742135623857906e-16,
+            "third_law_residual": 3.6311671220046096e-16,
+            "quadrature_residual": 0.0015960271361045077,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.23980645157847114,
+              "per_facet_normalised_reaction": 5.336938921107716
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.23980645157847114,
+              "reaction": 5.336938921107716
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 1.418407590339598e-16,
+            "third_law_residual": 1.8242368070388596e-16,
+            "quadrature_residual": 0.0015903347102864008,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.24140298298101504,
+              "per_facet_normalised_reaction": 5.343438802268096
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.24140298298101504,
+              "reaction": 5.343438802268096
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 3.5419951493953885e-16,
+            "third_law_residual": 0.0,
+            "quadrature_residual": 0.0015824381919999713,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.001036036797926078,
+              "unweighted_average_mass": 0.0005833328553856663,
+              "coverage_mismatch_mass": 0.03205573510607958,
+              "belt_mean_normal_momentum": 0.24363188219886145,
+              "per_facet_normalised_reaction": 5.352643424739259
+            },
+            "control_summary": {
+              "mass": 0.03205573510607958,
+              "momentum": 0.24363188219886145,
+              "reaction": 5.352643424739259
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          },
+          {
+            "mass_residual": 0.0,
+            "momentum_residual": 4.2364458685139677e-16,
+            "third_law_residual": 1.8724273188768596e-16,
+            "quadrature_residual": 0.0015603339584039824,
+            "observed_order": null,
+            "negative_controls": {
+              "nearest_neighbour_mass": 0.0010360367979263272,
+              "unweighted_average_mass": 0.0005833328553855417,
+              "coverage_mismatch_mass": 0.03205573510607946,
+              "belt_mean_normal_momentum": 0.24995984329863222,
+              "per_facet_normalised_reaction": 5.379637079617607
+            },
+            "control_summary": {
+              "mass": 0.03205573510607946,
+              "momentum": 0.24995984329863222,
+              "reaction": 5.379637079617607
+            },
+            "tolerance": 1e-06,
+            "coverage_error": 0.0,
+            "ok": true,
+            "discriminating": true
+          }
+        ]
+      }
+    },
+    {
+      "criterion_id": "2",
+      "label": "磨蚀场与阻力链 (h, V) 参数空间重叠一致性",
+      "status": "PASS",
+      "value": {
+        "sample_fraction": 1.0,
+        "envelope_fraction": 0.9999999999999999,
+        "jaccard": 0.24966288494822653,
+        "force_closure_max_rel_error": 1.8198082452476438e-16
+      },
+      "limit": {
+        "sample_fraction": 0.9,
+        "envelope_fraction": 0.9
+      },
+      "detail": "45/45 abrasion samples inside the resistance chain's evaluable domain (h<=2.400 m, V<=9.588 m/s); envelope overlap 1.0000, Jaccard 0.2497; negative control (extended envelope) fraction 0.6250",
+      "evidence": {
+        "discriminating": true,
+        "negative_control": {
+          "sample_overlap": {
+            "n_samples": 80,
+            "n_covered": 50,
+            "fraction": 0.625,
+            "outside": [
+              {
+                "h_m": 2.4,
+                "V_ms": 0.5
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 1.0
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 1.5
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 2.0
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 3.0
+              },
+              {
+                "h_m": 2.6,
+                "V_ms": 0.5
+              },
+              {
+                "h_m": 2.6,
+                "V_ms": 1.0
+              },
+              {
+                "h_m": 2.6,
+                "V_ms": 1.5
+              },
+              {
+                "h_m": 2.6,
+                "V_ms": 2.0
+              },
+              {
+                "h_m": 2.6,
+                "V_ms": 3.0
+              },
+              {
+                "h_m": 2.8,
+                "V_ms": 0.5
+              },
+              {
+                "h_m": 2.8,
+                "V_ms": 1.0
+              },
+              {
+                "h_m": 2.8,
+                "V_ms": 1.5
+              },
+              {
+                "h_m": 2.8,
+                "V_ms": 2.0
+              },
+              {
+                "h_m": 2.8,
+                "V_ms": 3.0
+              },
+              {
+                "h_m": 3.0,
+                "V_ms": 0.5
+              },
+              {
+                "h_m": 3.0,
+                "V_ms": 1.0
+              },
+              {
+                "h_m": 3.0,
+                "V_ms": 1.5
+              },
+              {
+                "h_m": 3.0,
+                "V_ms": 2.0
+              },
+              {
+                "h_m": 3.0,
+                "V_ms": 3.0
+              },
+              {
+                "h_m": 3.2,
+                "V_ms": 0.5
+              },
+              {
+                "h_m": 3.2,
+                "V_ms": 1.0
+              },
+              {
+                "h_m": 3.2,
+                "V_ms": 1.5
+              },
+              {
+                "h_m": 3.2,
+                "V_ms": 2.0
+              },
+              {
+                "h_m": 3.2,
+                "V_ms": 3.0
+              },
+              {
+                "h_m": 3.4,
+                "V_ms": 0.5
+              },
+              {
+                "h_m": 3.4,
+                "V_ms": 1.0
+              },
+              {
+                "h_m": 3.4,
+                "V_ms": 1.5
+              },
+              {
+                "h_m": 3.4,
+                "V_ms": 2.0
+              },
+              {
+                "h_m": 3.4,
+                "V_ms": 3.0
+              }
+            ]
+          },
+          "envelope_overlap": {
+            "area_abrasion": 10.0,
+            "area_resistance": 22.53038132266426,
+            "area_intersection": 6.562500000000001,
+            "fraction": 0.6562500000000001,
+            "jaccard": 0.25271603479920324
+          },
+          "jaccard": 0.25271603479920324,
+          "threshold": 0.9,
+          "ok": false,
+          "force_closure": {
+            "rows": [
+              {
+                "h_m": 0.4,
+                "V_ms": 0.5,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 1.0,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 1.5,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 2.0,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 3.0,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 0.5,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 1.0,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 1.5,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 2.0,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 3.0,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 0.5,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 1.0,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 1.5,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 2.0,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 3.0,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 0.5,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 1.0,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 1.5,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 2.0,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 3.0,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 0.5,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 1.0,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 1.5,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 2.0,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 3.0,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 0.5,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 1.0,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 1.5,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 2.0,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 3.0,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 0.5,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 1.0,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 1.5,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 2.0,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 3.0,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 0.5,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 1.0,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 1.5,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 2.0,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 3.0,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 0.5,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 1.0,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 1.5,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 2.0,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 3.0,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.2,
+                "V_ms": 0.5,
+                "F_field_N": 7644953.586592409,
+                "R_crush_N": 7644953.586592407,
+                "relative_error": 2.436437485372878e-16
+              },
+              {
+                "h_m": 2.2,
+                "V_ms": 1.0,
+                "F_field_N": 7644953.586592409,
+                "R_crush_N": 7644953.586592407,
+                "relative_error": 2.436437485372878e-16
+              },
+              {
+                "h_m": 2.2,
+                "V_ms": 1.5,
+                "F_field_N": 7644953.586592409,
+                "R_crush_N": 7644953.586592407,
+                "relative_error": 2.436437485372878e-16
+              },
+              {
+                "h_m": 2.2,
+                "V_ms": 2.0,
+                "F_field_N": 7644953.586592409,
+                "R_crush_N": 7644953.586592407,
+                "relative_error": 2.436437485372878e-16
+              },
+              {
+                "h_m": 2.2,
+                "V_ms": 3.0,
+                "F_field_N": 7644953.586592409,
+                "R_crush_N": 7644953.586592407,
+                "relative_error": 2.436437485372878e-16
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 0.5,
+                "F_field_N": 9098126.582390962,
+                "R_crush_N": 9098126.582390964,
+                "relative_error": 2.047284275903599e-16
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 1.0,
+                "F_field_N": 9098126.582390962,
+                "R_crush_N": 9098126.582390964,
+                "relative_error": 2.047284275903599e-16
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 1.5,
+                "F_field_N": 9098126.582390962,
+                "R_crush_N": 9098126.582390964,
+                "relative_error": 2.047284275903599e-16
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 2.0,
+                "F_field_N": 9098126.582390962,
+                "R_crush_N": 9098126.582390964,
+                "relative_error": 2.047284275903599e-16
+              },
+              {
+                "h_m": 2.4,
+                "V_ms": 3.0,
+                "F_field_N": 9098126.582390962,
+                "R_crush_N": 9098126.582390964,
+                "relative_error": 2.047284275903599e-16
+              }
+            ],
+            "n_closed": 55,
+            "n_skipped_out_of_domain": 25,
+            "max_relative_error": 2.436437485372878e-16,
+            "mean_relative_error": 5.730481824112838e-17,
+            "grade": "DEFINITIONAL-CLOSURE"
+          }
+        },
+        "report": {
+          "sample_overlap": {
+            "n_samples": 45,
+            "n_covered": 45,
+            "fraction": 1.0,
+            "outside": []
+          },
+          "envelope_overlap": {
+            "area_abrasion": 5.625,
+            "area_resistance": 22.53038132266426,
+            "area_intersection": 5.624999999999999,
+            "fraction": 0.9999999999999999,
+            "jaccard": 0.24966288494822653
+          },
+          "jaccard": 0.24966288494822653,
+          "threshold": 0.9,
+          "ok": true,
+          "force_closure": {
+            "rows": [
+              {
+                "h_m": 0.4,
+                "V_ms": 0.5,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 1.0,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 1.5,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 2.0,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.4,
+                "V_ms": 3.0,
+                "F_field_N": 252725.738399749,
+                "R_crush_N": 252725.738399749,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 0.5,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 1.0,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 1.5,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 2.0,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.6,
+                "V_ms": 3.0,
+                "F_field_N": 568632.9113994351,
+                "R_crush_N": 568632.9113994351,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 0.5,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 1.0,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 1.5,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 2.0,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 0.8,
+                "V_ms": 3.0,
+                "F_field_N": 1010902.953598996,
+                "R_crush_N": 1010902.953598996,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 0.5,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 1.0,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 1.5,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 2.0,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.0,
+                "V_ms": 3.0,
+                "F_field_N": 1579535.864998431,
+                "R_crush_N": 1579535.864998431,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 0.5,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 1.0,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 1.5,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 2.0,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.2,
+                "V_ms": 3.0,
+                "F_field_N": 2274531.6455977405,
+                "R_crush_N": 2274531.6455977405,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 0.5,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 1.0,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 1.5,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 2.0,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.4,
+                "V_ms": 3.0,
+                "F_field_N": 3095890.295396924,
+                "R_crush_N": 3095890.295396924,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 0.5,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 1.0,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 1.5,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 2.0,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.6,
+                "V_ms": 3.0,
+                "F_field_N": 4043611.814395984,
+                "R_crush_N": 4043611.814395984,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 0.5,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 1.0,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 1.5,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 2.0,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 1.8,
+                "V_ms": 3.0,
+                "F_field_N": 5117696.202594917,
+                "R_crush_N": 5117696.202594916,
+                "relative_error": 1.8198082452476438e-16
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 0.5,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 1.0,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 1.5,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 2.0,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              },
+              {
+                "h_m": 2.0,
+                "V_ms": 3.0,
+                "F_field_N": 6318143.459993724,
+                "R_crush_N": 6318143.459993724,
+                "relative_error": 0.0
+              }
+            ],
+            "n_closed": 45,
+            "n_skipped_out_of_domain": 0,
+            "max_relative_error": 1.8198082452476438e-16,
+            "mean_relative_error": 2.022009161386271e-17,
+            "grade": "DEFINITIONAL-CLOSURE"
+          }
+        },
+        "abrasion_envelope": {
+          "h_min_m": 0.30000000000000004,
+          "h_max_m": 2.1,
+          "v_min_ms": 0.1875,
+          "v_max_ms": 3.3125
+        },
+        "resistance_envelope": {
+          "h_min_m": 0.05,
+          "h_max_m": 2.4000000000000004,
+          "v_min_ms": 0.001,
+          "v_max_ms": 9.588396307516705
+        }
+      }
+    },
+    {
+      "criterion_id": "3",
+      "label": "跨模块接口契约验证（schema + 量纲 + 键一致性）",
+      "status": "PASS",
+      "value": {
+        "n_checks": 76,
+        "n_pass": 76,
+        "n_fail": 0
+      },
+      "limit": {
+        "n_fail": 0
+      },
+      "detail": "three module payloads (66/66 checks) + 10 exchange-payload checks (0 failed); defect controls caught: units=True, schema=True, exchange units=True",
+      "evidence": {
+        "discriminating": true,
+        "failed_checks": [],
+        "module_report": {
+          "ok": true,
+          "n_checks": 66,
+          "n_pass": 66,
+          "n_fail": 0,
+          "digests": {
+            "abrasion_field_conditions_n03_v1": "d35ac5d90328599a7131d7a3b6531e196dac9502d4a883ffc22194d34c603a53",
+            "resistance_chain_n04_v1": "9ead1dbd1f643651c06697a0c3209b016b6885099ab02b6d344aececf0389a0c",
+            "abrasion_evolution_n05_v1": "df12a07b93e82fc65e067f15dcec1ff823e4d13e962bdbc90c5fc0dc5cd64568"
+          },
+          "checks": [
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:schema",
+              "ok": true,
+              "detail": "schema conforming",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:units_present",
+              "ok": true,
+              "detail": "21 unit declarations present",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:L_pp_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:B_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:T_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:bow_angle_deg",
+              "ok": true,
+              "detail": "'deg' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:flare_deg",
+              "ok": true,
+              "detail": "'deg' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:length_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:height_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:n_patches",
+              "ok": true,
+              "detail": "'-' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:rho_ice_kg_m3",
+              "ok": true,
+              "detail": "'kg/m^3' vs 'kg/m^3': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:sigma_c_Pa",
+              "ok": true,
+              "detail": "'Pa' vs 'Pa': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:sigma_f_Pa",
+              "ok": true,
+              "detail": "'Pa' vs 'Pa': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:mu_hull_ice",
+              "ok": true,
+              "detail": "'-' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:contact_area_ratio",
+              "ok": true,
+              "detail": "'-' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:h_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:V_ms",
+              "ok": true,
+              "detail": "'m/s' vs 'm/s': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:s_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:area_m2",
+              "ok": true,
+              "detail": "'m^2' vs 'm^2': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:p_ice_Pa",
+              "ok": true,
+              "detail": "'Pa' vs 'Pa': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:v_slip_ms",
+              "ok": true,
+              "detail": "'m/s' vs 'm/s': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:u_n_ms",
+              "ok": true,
+              "detail": "'m/s' vs 'm/s': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:unit:alpha_rad",
+              "ok": true,
+              "detail": "'rad' vs 'rad': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:schema",
+              "ok": true,
+              "detail": "schema conforming",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:units_present",
+              "ok": true,
+              "detail": "13 unit declarations present",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:L_pp_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:B_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:T_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:bow_angle_deg",
+              "ok": true,
+              "detail": "'deg' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:flare_deg",
+              "ok": true,
+              "detail": "'deg' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:h_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:V_ms",
+              "ok": true,
+              "detail": "'m/s' vs 'm/s': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:R_crush_N",
+              "ok": true,
+              "detail": "'N' vs 'N': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:R_break_N",
+              "ok": true,
+              "detail": "'N' vs 'N': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:R_submersion_N",
+              "ok": true,
+              "detail": "'N' vs 'N': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:R_ice_N",
+              "ok": true,
+              "detail": "'N' vs 'N': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:R_ow_N",
+              "ok": true,
+              "detail": "'N' vs 'N': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:unit:R_total_N",
+              "ok": true,
+              "detail": "'N' vs 'N': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:schema",
+              "ok": true,
+              "detail": "schema conforming",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:units_present",
+              "ok": true,
+              "detail": "11 unit declarations present",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:h_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:V_ms",
+              "ok": true,
+              "detail": "'m/s' vs 'm/s': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:depth_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:dh_dt_ms",
+              "ok": true,
+              "detail": "'m/s' vs 'm/s': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:area_m2",
+              "ok": true,
+              "detail": "'m^2' vs 'm^2': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:mean_depth_m",
+              "ok": true,
+              "detail": "'m' vs 'm': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:mass_loss_kg",
+              "ok": true,
+              "detail": "'kg' vs 'kg': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:k_w",
+              "ok": true,
+              "detail": "'-' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:H_hull_Pa",
+              "ok": true,
+              "detail": "'Pa' vs 'Pa': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:duty_factor",
+              "ok": true,
+              "detail": "'-' vs '-': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:unit:duration_s",
+              "ok": true,
+              "detail": "'s' vs 's': ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "identity:H_hull_Pa",
+              "ok": true,
+              "detail": "dh/dt = k_w * p * v_slip / H_hull: ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "identity:mass_loss_kg",
+              "ok": true,
+              "detail": "mass_loss = rho_steel * depth * area: ok",
+              "value": null,
+              "limit": null
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:band:h_m",
+              "ok": true,
+              "detail": "0.4 in [0.01, 5]",
+              "value": 0.4,
+              "limit": 5.0
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:band:V_ms",
+              "ok": true,
+              "detail": "0.5 in [0.01, 15]",
+              "value": 0.5,
+              "limit": 15.0
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:band:p_ice_Pa",
+              "ok": true,
+              "detail": "22266.4 in [100, 5e+07]",
+              "value": 22266.40394201986,
+              "limit": 50000000.0
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:band:v_slip_ms",
+              "ok": true,
+              "detail": "0.497592 in [0.001, 15]",
+              "value": 0.49759236333609846,
+              "limit": 15.0
+            },
+            {
+              "check_id": "abrasion_field_conditions_n03_v1:band:u_n_ms",
+              "ok": true,
+              "detail": "0.206354 in [0, 15]",
+              "value": 0.20635351490219736,
+              "limit": 15.0
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:band:h_m",
+              "ok": true,
+              "detail": "0.4 in [0.01, 5]",
+              "value": 0.4,
+              "limit": 5.0
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:band:V_ms",
+              "ok": true,
+              "detail": "0.5 in [0.01, 15]",
+              "value": 0.5,
+              "limit": 15.0
+            },
+            {
+              "check_id": "resistance_chain_n04_v1:band:R_total_N",
+              "ok": true,
+              "detail": "739262 in [1, 1e+08]",
+              "value": 739262.0780256462,
+              "limit": 100000000.0
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:band:h_m",
+              "ok": true,
+              "detail": "0.4 in [0.01, 5]",
+              "value": 0.4,
+              "limit": 5.0
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:band:V_ms",
+              "ok": true,
+              "detail": "0.5 in [0.01, 15]",
+              "value": 0.5,
+              "limit": 15.0
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:band:dh_dt_ms",
+              "ok": true,
+              "detail": "1.3797e-08 in [0, 0.001]",
+              "value": 1.3797048885624597e-08,
+              "limit": 0.001
+            },
+            {
+              "check_id": "abrasion_evolution_n05_v1:band:depth_m",
+              "ok": true,
+              "detail": "0.000745041 in [0, 0.5]",
+              "value": 0.0007450406398237282,
+              "limit": 0.5
+            },
+            {
+              "check_id": "cross_module:(h,V)_key_consistency",
+              "ok": true,
+              "detail": "45 samples, 45/45 shared (h,V) keys, order-identical=True",
+              "value": 1.0,
+              "limit": 1.0
+            }
+          ]
+        },
+        "exchange_failures": [],
+        "defect_controls": {
+          "unit_swap_mm_kn_caught": true,
+          "missing_field_caught": true,
+          "exchange_unit_swap_caught": true,
+          "details": {
+            "unit_swap": [
+              {
+                "check_id": "abrasion_field_conditions_n03_v1:unit:h_m",
+                "ok": false,
+                "detail": "'mm' vs 'm': scale 0.001 != SI 1 (non-SI unit accepted by the producer)",
+                "value": null,
+                "limit": null
+              },
+              {
+                "check_id": "abrasion_field_conditions_n03_v1:unit:V_ms",
+                "ok": false,
+                "detail": "'kn' vs 'm/s': scale 0.514444 != SI 1 (non-SI unit accepted by the producer)",
+                "value": null,
+                "limit": null
+              }
+            ],
+            "missing_field": [
+              {
+                "check_id": "resistance_chain_n04_v1:schema",
+                "ok": false,
+                "detail": "$.samples[0].R_crush_N: required property is missing",
+                "value": null,
+                "limit": null
+              }
+            ]
+          }
+        },
+        "upstream_status": {
+          "abrasion_field_conditions_n03_v1": {
+            "repo": "TensorDEM",
+            "node": "P66-W2-N03",
+            "in_main": false,
+            "status": "REFERENCE-PRODUCER (contract frozen, upstream module not merged in main)"
+          },
+          "resistance_chain_n04_v1": {
+            "repo": "TensorPhysics",
+            "node": "P66-W2-N04",
+            "in_main": true,
+            "status": "MERGED (tensorphysics.ice.resistance)"
+          },
+          "abrasion_evolution_n05_v1": {
+            "repo": "TensorDEM",
+            "node": "P66-W2-N05",
+            "in_main": false,
+            "status": "REFERENCE-PRODUCER (contract frozen, upstream module not merged in main)"
+          }
+        }
+      }
+    },
+    {
+      "criterion_id": "4",
+      "label": "端到端集成测试用例（≥5 场景）",
+      "status": "PASS",
+      "value": {
+        "n_scenarios": 7,
+        "n_passed": 6,
+        "n_nominal": 5,
+        "n_refusal": 1,
+        "n_truncation": 1
+      },
+      "limit": {
+        "min_scenarios": 5,
+        "n_passed": 7
+      },
+      "detail": "S1:PASS; S2:PASS; S3:PASS; S4:PASS; S5:PASS; S6:FLAGGED; S7:PASS(expected-refusal)",
+      "evidence": {
+        "scenarios": [
+          {
+            "scenario_id": "S1",
+            "label": "level ice design point (h = 1.0 m, V = 3.9 kn)",
+            "kind": "nominal",
+            "h_m": 1.0,
+            "V_ms": 2.0,
+            "V_kn": 3.8876923435786983,
+            "status": "PASS",
+            "passed": true,
+            "numbers": {
+              "R_crush_N": 1579535.864998431,
+              "R_break_N": 1211123.7571376432,
+              "R_submersion_N": 29514.064959530086,
+              "R_ice_N": 2820173.6870956044,
+              "R_ow_N": 21001.25967457302,
+              "R_total_N": 2841174.946770177,
+              "R_ow_fraction": 0.007391751675991324,
+              "p_ice_mean_Pa": 38600.98664604461,
+              "p_ice_peak_Pa": 139165.02463762413,
+              "p_contact_mean_Pa": 110288.53327441317,
+              "v_slip_mean_ms": 1.9220967708464052,
+              "normal_force_N": 3242482.8782677474,
+              "tangential_force_N": 486372.4317401621,
+              "mass_flux_kg_s": 38935.83538072088,
+              "mean_depth_mm": 5.303946342074751,
+              "peak_depth_mm": 18.626015995593207,
+              "mass_loss_kg": 3497.4222179640906,
+              "delivered_power_MW": 10.33154526098246,
+              "mass_residual": 1.8688405454697062e-16,
+              "momentum_residual": 0.0,
+              "third_law_residual": 3.8503353737380165e-16,
+              "quadrature_residual": 0.0015304800532214492,
+              "observed_order": null,
+              "nc_nearest_mass": 0.0010360367979264516,
+              "nc_belt_mean_normal": 0.25871796335604186
+            },
+            "checks": [
+              {
+                "name": "contracts",
+                "ok": true,
+                "value": 66.0,
+                "limit": 66.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "exchange_contract",
+                "ok": true,
+                "value": 9.0,
+                "limit": 9.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "mass_conservation",
+                "ok": true,
+                "value": 1.8688405454697062e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "momentum_conservation",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "third_law",
+                "ok": true,
+                "value": 3.8503353737380165e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "negative_controls_discriminating",
+                "ok": true,
+                "value": 0.0005833328553856663,
+                "limit": 0.001,
+                "detail": ""
+              },
+              {
+                "name": "in_domain",
+                "ok": true,
+                "value": null,
+                "limit": null,
+                "detail": "in domain"
+              },
+              {
+                "name": "positive_resistance",
+                "ok": true,
+                "value": 2841174.946770177,
+                "limit": 0.0,
+                "detail": ""
+              },
+              {
+                "name": "abrasion_depth_band",
+                "ok": true,
+                "value": 18.626015995593207,
+                "limit": 500.0,
+                "detail": "peak wear depth over the 100 h exposure"
+              }
+            ],
+            "notes": []
+          },
+          {
+            "scenario_id": "S2",
+            "label": "thin ice, high speed (h = 0.35 m, V = 7.8 kn)",
+            "kind": "nominal",
+            "h_m": 0.35,
+            "V_ms": 4.0,
+            "V_kn": 7.775384687157397,
+            "status": "PASS",
+            "passed": true,
+            "numbers": {
+              "R_crush_N": 193493.14346230775,
+              "R_break_N": 423893.314998175,
+              "R_submersion_N": 96492.13522815495,
+              "R_ice_N": 713878.5936886377,
+              "R_ow_N": 76628.7526284939,
+              "R_total_N": 790507.3463171317,
+              "R_ow_fraction": 0.09693616762133463,
+              "p_ice_mean_Pa": 4728.620864140463,
+              "p_ice_peak_Pa": 17047.71551810895,
+              "p_contact_mean_Pa": 13510.345326115608,
+              "v_slip_mean_ms": 3.8441935416928104,
+              "normal_force_N": 397204.1525877989,
+              "tangential_force_N": 59580.62288816984,
+              "mass_flux_kg_s": 77871.67076144175,
+              "mean_depth_mm": 1.2994668538083136,
+              "peak_depth_mm": 4.563373918920334,
+              "mass_loss_kg": 856.8684434012018,
+              "delivered_power_MW": 5.749144336851866,
+              "mass_residual": 1.8688405454697062e-16,
+              "momentum_residual": 1.8726478480921536e-16,
+              "third_law_residual": 0.0,
+              "quadrature_residual": 0.0006806572209450794,
+              "observed_order": null,
+              "nc_nearest_mass": 0.0010360367979264516,
+              "nc_belt_mean_normal": 0.6380132874542116
+            },
+            "checks": [
+              {
+                "name": "contracts",
+                "ok": true,
+                "value": 66.0,
+                "limit": 66.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "exchange_contract",
+                "ok": true,
+                "value": 9.0,
+                "limit": 9.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "mass_conservation",
+                "ok": true,
+                "value": 1.8688405454697062e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "momentum_conservation",
+                "ok": true,
+                "value": 1.8726478480921536e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "third_law",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "negative_controls_discriminating",
+                "ok": true,
+                "value": 0.0005833328553856663,
+                "limit": 0.001,
+                "detail": ""
+              },
+              {
+                "name": "in_domain",
+                "ok": true,
+                "value": null,
+                "limit": null,
+                "detail": "in domain"
+              },
+              {
+                "name": "positive_resistance",
+                "ok": true,
+                "value": 790507.3463171317,
+                "limit": 0.0,
+                "detail": ""
+              },
+              {
+                "name": "abrasion_depth_band",
+                "ok": true,
+                "value": 4.563373918920334,
+                "limit": 500.0,
+                "detail": "peak wear depth over the 100 h exposure"
+              }
+            ],
+            "notes": []
+          },
+          {
+            "scenario_id": "S3",
+            "label": "heavy ice near the validity limit (h = 2.2 m, V = 2.9 kn)",
+            "kind": "nominal",
+            "h_m": 2.2,
+            "V_ms": 1.5,
+            "V_kn": 2.915769257684024,
+            "status": "PASS",
+            "passed": true,
+            "numbers": {
+              "R_crush_N": 7644953.586592407,
+              "R_break_N": 2664472.265702815,
+              "R_submersion_N": 26396.569533500187,
+              "R_ice_N": 10335822.421828723,
+              "R_ow_N": 12288.181752268707,
+              "R_total_N": 10348110.60358099,
+              "R_ow_fraction": 0.0011874807124709653,
+              "p_ice_mean_Pa": 186828.77536685596,
+              "p_ice_peak_Pa": 673558.7192461009,
+              "p_contact_mean_Pa": 533796.5010481599,
+              "v_slip_mean_ms": 1.4415725781348039,
+              "normal_force_N": 15693617.130815897,
+              "tangential_force_N": 2354042.569622385,
+              "mass_flux_kg_s": 29201.876535540658,
+              "mean_depth_mm": 19.25332522173135,
+              "peak_depth_mm": 67.61243806400336,
+              "mass_loss_kg": 12695.642651209651,
+              "delivered_power_MW": 28.222119827948156,
+              "mass_residual": 0.0,
+              "momentum_residual": 1.3109322309087623e-16,
+              "third_law_residual": 1.505392327042963e-16,
+              "quadrature_residual": 0.0015921083156092942,
+              "observed_order": null,
+              "nc_nearest_mass": 0.001036036797926078,
+              "nc_belt_mean_normal": 0.2409046305752935
+            },
+            "checks": [
+              {
+                "name": "contracts",
+                "ok": true,
+                "value": 66.0,
+                "limit": 66.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "exchange_contract",
+                "ok": true,
+                "value": 9.0,
+                "limit": 9.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "mass_conservation",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "momentum_conservation",
+                "ok": true,
+                "value": 1.3109322309087623e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "third_law",
+                "ok": true,
+                "value": 1.505392327042963e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "negative_controls_discriminating",
+                "ok": true,
+                "value": 0.0005833328553855417,
+                "limit": 0.001,
+                "detail": ""
+              },
+              {
+                "name": "in_domain",
+                "ok": true,
+                "value": null,
+                "limit": null,
+                "detail": "in domain"
+              },
+              {
+                "name": "positive_resistance",
+                "ok": true,
+                "value": 10348110.60358099,
+                "limit": 0.0,
+                "detail": ""
+              },
+              {
+                "name": "abrasion_depth_band",
+                "ok": true,
+                "value": 67.61243806400336,
+                "limit": 500.0,
+                "detail": "peak wear depth over the 100 h exposure"
+              }
+            ],
+            "notes": [
+              "delivered power 28.2 MW exceeds installed 22.0 MW -- outside the ship's power capability, recorded as an operational note"
+            ]
+          },
+          {
+            "scenario_id": "S4",
+            "label": "minimum speed / hovering (h = 1.5 m, V = 1.0 kn)",
+            "kind": "nominal",
+            "h_m": 1.5,
+            "V_ms": 0.5,
+            "V_kn": 0.9719230858946746,
+            "status": "PASS",
+            "passed": true,
+            "numbers": {
+              "R_crush_N": 3553955.6962464694,
+              "R_break_N": 1816685.6357064648,
+              "R_submersion_N": 1531.7891587479326,
+              "R_ice_N": 5372173.121111682,
+              "R_ow_N": 1599.247552694497,
+              "R_total_N": 5373772.368664376,
+              "R_ow_fraction": 0.0002976023997629773,
+              "p_ice_mean_Pa": 86852.21995360038,
+              "p_ice_peak_Pa": 313121.30543465423,
+              "p_contact_mean_Pa": 248149.19986742965,
+              "v_slip_mean_ms": 0.4805241927116013,
+              "normal_force_N": 7295586.47610243,
+              "tangential_force_N": 1094337.9714153646,
+              "mass_flux_kg_s": 9733.95884518022,
+              "mean_depth_mm": 2.9834698174170473,
+              "peak_depth_mm": 10.477133997521179,
+              "mass_loss_kg": 1967.2999976048009,
+              "delivered_power_MW": 4.885247607876705,
+              "mass_residual": 1.8688405454697062e-16,
+              "momentum_residual": 6.311370126573576e-17,
+              "third_law_residual": 0.0,
+              "quadrature_residual": 0.0015985711800437388,
+              "observed_order": null,
+              "nc_nearest_mass": 0.0010360367979264516,
+              "nc_belt_mean_normal": 0.23909569143106427
+            },
+            "checks": [
+              {
+                "name": "contracts",
+                "ok": true,
+                "value": 66.0,
+                "limit": 66.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "exchange_contract",
+                "ok": true,
+                "value": 9.0,
+                "limit": 9.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "mass_conservation",
+                "ok": true,
+                "value": 1.8688405454697062e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "momentum_conservation",
+                "ok": true,
+                "value": 6.311370126573576e-17,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "third_law",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "negative_controls_discriminating",
+                "ok": true,
+                "value": 0.0005833328553856663,
+                "limit": 0.001,
+                "detail": ""
+              },
+              {
+                "name": "in_domain",
+                "ok": true,
+                "value": null,
+                "limit": null,
+                "detail": "in domain"
+              },
+              {
+                "name": "positive_resistance",
+                "ok": true,
+                "value": 5373772.368664376,
+                "limit": 0.0,
+                "detail": ""
+              },
+              {
+                "name": "abrasion_depth_band",
+                "ok": true,
+                "value": 10.477133997521179,
+                "limit": 500.0,
+                "detail": "peak wear depth over the 100 h exposure"
+              }
+            ],
+            "notes": []
+          },
+          {
+            "scenario_id": "S5",
+            "label": "high-speed edge (h = 0.8 m, V = 15.6 kn)",
+            "kind": "nominal",
+            "h_m": 0.8,
+            "V_ms": 8.0,
+            "V_kn": 15.550769374314793,
+            "status": "PASS",
+            "passed": true,
+            "numbers": {
+              "R_crush_N": 1010902.953598996,
+              "R_break_N": 968899.0057101145,
+              "R_submersion_N": 1113497.9725684882,
+              "R_ice_N": 3093299.9318775986,
+              "R_ow_N": 280732.0438745858,
+              "R_total_N": 3374031.9757521846,
+              "R_ow_fraction": 0.0832037295117813,
+              "p_ice_mean_Pa": 24704.63145346855,
+              "p_ice_peak_Pa": 89065.61576807944,
+              "p_contact_mean_Pa": 70584.66129562444,
+              "v_slip_mean_ms": 7.688387083385621,
+              "normal_force_N": 2075189.042091358,
+              "tangential_force_N": 311278.3563137037,
+              "mass_flux_kg_s": 155743.3415228835,
+              "mean_depth_mm": 13.57810263571136,
+              "peak_depth_mm": 47.6826009487186,
+              "mass_loss_kg": 8953.400877988071,
+              "delivered_power_MW": 49.07682873821359,
+              "mass_residual": 1.8688405454697062e-16,
+              "momentum_residual": 2.244698095182651e-16,
+              "third_law_residual": 0.0,
+              "quadrature_residual": 0.0007771573128174679,
+              "observed_order": null,
+              "nc_nearest_mass": 0.0010360367979264516,
+              "nc_belt_mean_normal": 0.5807547620806558
+            },
+            "checks": [
+              {
+                "name": "contracts",
+                "ok": true,
+                "value": 66.0,
+                "limit": 66.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "exchange_contract",
+                "ok": true,
+                "value": 9.0,
+                "limit": 9.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "mass_conservation",
+                "ok": true,
+                "value": 1.8688405454697062e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "momentum_conservation",
+                "ok": true,
+                "value": 2.244698095182651e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "third_law",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "negative_controls_discriminating",
+                "ok": true,
+                "value": 0.0005833328553856663,
+                "limit": 0.001,
+                "detail": ""
+              },
+              {
+                "name": "in_domain",
+                "ok": true,
+                "value": null,
+                "limit": null,
+                "detail": "in domain"
+              },
+              {
+                "name": "positive_resistance",
+                "ok": true,
+                "value": 3374031.9757521846,
+                "limit": 0.0,
+                "detail": ""
+              },
+              {
+                "name": "abrasion_depth_band",
+                "ok": true,
+                "value": 47.6826009487186,
+                "limit": 500.0,
+                "detail": "peak wear depth over the 100 h exposure"
+              }
+            ],
+            "notes": [
+              "delivered power 49.1 MW exceeds installed 22.0 MW -- outside the ship's power capability, recorded as an operational note"
+            ]
+          },
+          {
+            "scenario_id": "S6",
+            "label": "thick ice off-domain, non-strict (h = 2.8 m > h_limit)",
+            "kind": "truncation",
+            "h_m": 2.8,
+            "V_ms": 1.5,
+            "V_kn": 2.915769257684024,
+            "status": "FLAGGED",
+            "passed": false,
+            "numbers": {
+              "R_crush_N": 9098126.582390964,
+              "R_break_N": 2906697.0171303437,
+              "R_submersion_N": 28315.173020674913,
+              "R_ice_N": 12033138.772541983,
+              "R_ow_N": 12288.181752268707,
+              "R_total_N": 12045426.954294251,
+              "R_ow_fraction": 0.0010201532746739136,
+              "p_ice_mean_Pa": 302631.7353049896,
+              "p_ice_peak_Pa": 1091053.7931589729,
+              "p_contact_mean_Pa": 864662.1008713989,
+              "v_slip_mean_ms": 1.4415725781348039,
+              "normal_force_N": 25421065.76561913,
+              "tangential_force_N": 3813159.86484287,
+              "mass_flux_kg_s": 29201.876535540658,
+              "mean_depth_mm": 31.18720449139952,
+              "peak_depth_mm": 109.52097405408801,
+              "mass_loss_kg": 20564.842641628846,
+              "delivered_power_MW": 32.851164420802505,
+              "mass_residual": 0.0,
+              "momentum_residual": 0.0,
+              "third_law_residual": 3.7073541569272274e-16,
+              "quadrature_residual": 0.0015953510554361085,
+              "observed_order": null,
+              "nc_nearest_mass": 0.001036036797926078,
+              "nc_belt_mean_normal": 0.23999562239157504
+            },
+            "checks": [
+              {
+                "name": "contracts",
+                "ok": false,
+                "value": 65.0,
+                "limit": 66.0,
+                "detail": "failed: cross_module:(h,V)_key_consistency"
+              },
+              {
+                "name": "exchange_contract",
+                "ok": true,
+                "value": 9.0,
+                "limit": 9.0,
+                "detail": "all checks pass"
+              },
+              {
+                "name": "mass_conservation",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "momentum_conservation",
+                "ok": true,
+                "value": 0.0,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "third_law",
+                "ok": true,
+                "value": 3.7073541569272274e-16,
+                "limit": 1e-06,
+                "detail": ""
+              },
+              {
+                "name": "negative_controls_discriminating",
+                "ok": true,
+                "value": 0.0005833328553855417,
+                "limit": 0.001,
+                "detail": ""
+              },
+              {
+                "name": "in_domain",
+                "ok": false,
+                "value": null,
+                "limit": null,
+                "detail": "OUTSIDE validity domain (h<=2.400 m, V<=9.588 m/s)"
+              },
+              {
+                "name": "positive_resistance",
+                "ok": true,
+                "value": 12045426.954294251,
+                "limit": 0.0,
+                "detail": ""
+              },
+              {
+                "name": "abrasion_depth_band",
+                "ok": true,
+                "value": 109.52097405408801,
+                "limit": 500.0,
+                "detail": "peak wear depth over the 100 h exposure"
+              }
+            ],
+            "notes": [
+              "delivered power 32.9 MW exceeds installed 22.0 MW -- outside the ship's power capability, recorded as an operational note",
+              "non-strict out-of-domain evaluation: chain truncated the ice state and flagged in_domain=False; the (h,V) key itself changes, which the cross-module key-consistency check reports",
+              "contracts: failed: cross_module:(h,V)_key_consistency",
+              "in_domain: OUTSIDE validity domain (h<=2.400 m, V<=9.588 m/s)"
+            ]
+          },
+          {
+            "scenario_id": "S7",
+            "label": "thick ice off-domain, strict (h = 2.8 m > h_limit)",
+            "kind": "refusal",
+            "h_m": 2.8,
+            "V_ms": 1.5,
+            "V_kn": 2.915769257684024,
+            "status": "PASS(expected-refusal)",
+            "passed": true,
+            "numbers": {},
+            "checks": [
+              {
+                "name": "strict_refusal",
+                "ok": true,
+                "value": null,
+                "limit": null,
+                "detail": "h=2.800 m exceeds ice-law validity limit 2.400 m (h <= 0.03*L, h <= 0.1*B); refusing to extrapolate the empirical law"
+              }
+            ],
+            "notes": [
+              "expected refusal: out-of-domain ice state rejected by the chain"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "criterion_id": "5",
+      "label": "耦合仿真端到端时间 / 单模块时间之和",
+      "status": "PASS",
+      "value": {
+        "ratio": 1.2655541578768754,
+        "ratio_compute_only": 11.914075538024154,
+        "t_coupled_s": 0.06849522143602371,
+        "t_baseline_s": 0.05412271060049534,
+        "t_compute_only_s": 0.00574910081923008
+      },
+      "limit": {
+        "ratio": 1.5
+      },
+      "detail": "coupled 68.5 ms vs baseline 54.1 ms over 45 samples (median of 7); ratio 1.266 (coupling overhead 14.4 ms); compute-only baseline gives 11.9x -- harness-dominated because the reference producers are analytic closures, reported for transparency",
+      "evidence": {
+        "n_samples": 45,
+        "repeats": 7,
+        "t_n03_s": 0.0023023802787065506,
+        "t_n04_s": 0.0003720708191394806,
+        "t_n05_s": 0.0030746497213840485,
+        "t_validate_own_s": 0.04765477031469345,
+        "t_compute_only_s": 0.00574910081923008,
+        "t_baseline_s": 0.05412271060049534,
+        "t_coupled_s": 0.06849522143602371,
+        "ratio": 1.2655541578768754,
+        "ratio_compute_only": 11.914075538024154,
+        "coupling_overhead_s": 0.014372510835528374,
+        "coupling_overhead_fraction": 0.26555415787687536,
+        "limit": 1.5,
+        "ok": true,
+        "baseline_definition": "per-module compute + own-payload contract validation"
+      }
+    }
+  ],
+  "inputs": {
+    "ship": {
+      "name": "PC6 reference ship",
+      "L_pp_m": 150.0,
+      "B_m": 24.0,
+      "T_m": 8.5,
+      "bow_angle_deg": 30.0,
+      "flare_deg": 25.0
+    },
+    "belt": {
+      "length_m": 60.0,
+      "height_m": 4.0,
+      "n_patches": 16
+    },
+    "interface": {
+      "n_coarse_patches": 16,
+      "n_fine_facets": 64
+    },
+    "sweep": {
+      "h_m": [
+        0.4,
+        0.6,
+        0.8,
+        1.0,
+        1.2,
+        1.4,
+        1.6,
+        1.8,
+        2.0
+      ],
+      "V_ms": [
+        0.5,
+        1.0,
+        1.5,
+        2.0,
+        3.0
+      ],
+      "n_samples": 45
+    },
+    "limits": {
+      "h_limit_m": 2.4000000000000004,
+      "h_over_L_max": 0.03,
+      "h_over_B_max": 0.1,
+      "h_min_m": 0.05,
+      "v_limit_ms": 9.588396307516705,
+      "froude_L_max": 0.25,
+      "ridge_keel_limit_m": 3.5999999999999996,
+      "ridge_porosity_range": [
+        0.05,
+        0.6
+      ]
+    },
+    "assumptions": {
+      "contact_area_ratio": {
+        "value": 0.35,
+        "band": [
+          0.15,
+          0.55
+        ],
+        "grade": "ASSUMPTION"
+      },
+      "k_w": {
+        "value": 0.001,
+        "band": [
+          0.0001,
+          0.001
+        ],
+        "grade": "SEMI-EMPIRICAL"
+      },
+      "H_hull_Pa": {
+        "value": 2100000000.0,
+        "band": [
+          1500000000.0,
+          2500000000.0
+        ],
+        "grade": "LITERATURE"
+      },
+      "duty_factor": {
+        "value": 0.15,
+        "band": [
+          0.05,
+          0.3
+        ],
+        "grade": "ASSUMPTION"
+      },
+      "C_B": {
+        "value": 0.75,
+        "band": [
+          0.7,
+          0.8
+        ],
+        "grade": "ASSUMPTION"
+      },
+      "form_factor": {
+        "value": 1.15,
+        "band": [
+          1.1,
+          1.25
+        ],
+        "grade": "LITERATURE"
+      }
+    },
+    "upstream_status": {
+      "abrasion_field_conditions_n03_v1": {
+        "repo": "TensorDEM",
+        "node": "P66-W2-N03",
+        "in_main": false,
+        "status": "REFERENCE-PRODUCER (contract frozen, upstream module not merged in main)"
+      },
+      "resistance_chain_n04_v1": {
+        "repo": "TensorPhysics",
+        "node": "P66-W2-N04",
+        "in_main": true,
+        "status": "MERGED (tensorphysics.ice.resistance)"
+      },
+      "abrasion_evolution_n05_v1": {
+        "repo": "TensorDEM",
+        "node": "P66-W2-N05",
+        "in_main": false,
+        "status": "REFERENCE-PRODUCER (contract frozen, upstream module not merged in main)"
+      }
+    }
+  },
+  "payload_digests": {
+    "n03": "d35ac5d90328599a7131d7a3b6531e196dac9502d4a883ffc22194d34c603a53",
+    "n04": "9ead1dbd1f643651c06697a0c3209b016b6885099ab02b6d344aececf0389a0c",
+    "n05": "df12a07b93e82fc65e067f15dcec1ff823e4d13e962bdbc90c5fc0dc5cd64568"
+  },
+  "verdict_digest": "a01384b4893e462a5841db9d442a91c89b3437bc48253b16495e1c46974bbc55",
+  "artifacts": {
+    "gate_verdict.json": "1220b9878bb159af6d960f640d882499d37e4bb4967036460eddb902ec9dc4ae",
+    "scenarios.json": "5c40d880177df4733d1ddfd11c41abaace9e6873790143fc09376385b9202c0e",
+    "sweep.json": "e63d530f6a65456b3347e5a752deb252fd096a1dc8491f4b75f97743a0d0caf7",
+    "figures": {
+      "interface_fluxes.png": "f4ccf07345c6075223bae0e8699268d51417a2615f07da57ca4ddd26afda1ee0",
+      "conservation_residuals.png": "056358fe934c19f4375fa6a961262377bc103ce9e8b84e3b88e2a4a5e9d28b86",
+      "parameter_space.png": "749467e7fb7e5cccf7363b3388f0e734cc173eff9782b25aff1c165072ae09de",
+      "chain_contours.png": "19930db07c274222f9eacdb10491791d362e7327086ec09fe07b65e59e961993",
+      "timing.png": "1916bd3498fc834bffc630e085d25523df26a18de7f8fd093f12f3213b30a83d"
+    }
+  }
+}

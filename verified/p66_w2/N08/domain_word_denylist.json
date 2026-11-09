@@ -1,0 +1,80 @@
+{
+  "schema_version": "1.0",
+  "purpose": "平台域渗漏清洗（判例 #608）：台账机制层测试/后台路由必须零领域语义，域词表以数据形式存放于此，禁止硬编码进 backend/tools/tests。扫描器：tools/audit/domain_leak_scan.py。",
+  "match_mode": {
+    "ascii": "前后不得为 [A-Za-z0-9_]（等价于词边界，避免 matched 内部误报），大小写不敏感",
+    "cjk": "子串匹配（中文无词边界）"
+  },
+  "ascii_words": [
+    "ice",
+    "iceberg",
+    "icebreaker",
+    "icebreaking",
+    "icefield",
+    "navigation",
+    "manoeuvring",
+    "maneuvering",
+    "seakeeping",
+    "propeller",
+    "resistance",
+    "stability",
+    "structure",
+    "vibration",
+    "noise",
+    "green",
+    "eedi",
+    "cii",
+    "lng",
+    "hull_girder",
+    "cargo",
+    "sloshing",
+    "cavitation",
+    "vessel",
+    "ship"
+  ],
+  "cjk_words": [
+    "冰区",
+    "破冰",
+    "阻力",
+    "推进",
+    "耐波",
+    "操纵",
+    "稳性",
+    "振动",
+    "噪声",
+    "绿色航行",
+    "结构强度",
+    "船体"
+  ],
+  "scan_paths": [
+    "tests/test_campaign_ledger_synthetic_domain.py",
+    "tests/fixtures/capability_ledger/synthetic_domain",
+    "tools/audit/domain_leak_scan.py",
+    "docs/reports/m5012_ledger_domain_neutrality.md",
+    "backend/api/tensorphysics_runs.py",
+    "tools/distill",
+    "tools/distill/campaign_distill.py",
+    "tools/distill/collect_evidence.py",
+    "tools/distill/make_figures.py",
+    "tests/test_campaign_distill.py"
+  ],
+  "exempt": [
+    "config/domain_word_denylist.json"
+  ],
+  "text_suffixes": [
+    ".py",
+    ".json",
+    ".md",
+    ".txt",
+    ".yml",
+    ".yaml",
+    ".toml",
+    ".cfg",
+    ".ini",
+    ".sh",
+    ".js",
+    ".ts",
+    ".sql"
+  ],
+  "note": "本文件自身含域词条（它就是词表），故列入 exempt；扫描只针对代码/测试/夹具/后台路由。"
+}
