@@ -20,7 +20,10 @@
 
 ## 已知未修 / 语义变更
 
-- `fwer_controlled` 在 Holm 校正下恒真，属已知弱字段，本轮未动（牵动验收链路）。
+- ~~`fwer_controlled` 在 Holm 校正下恒真，属已知弱字段，本轮未动（牵动验收链路）。~~
+  **m8724 已修**：改为 `fwer_guarantee` 的真实保证（未校正 m≥2 族系 → `False`，
+  上界 `1-(1-alpha)^m`），并新增 `fwer_aa_sim` 实测 A/A 族系误报率佐证；
+  p 值/判决数值逐维不变。详见 `docs/P143W2-N04_fwer_control.md`。
 - 零显著 + 欠功效的判决由 `fail` 改为 `inconclusive`：**下游把 `fail` 当"能力缺失"记账的
   历史判决需按新语义复核**。旧测试断言已同步更新，并新增两条对照测试
   （n=60 充足 → `fail`；n=8 不足 → `inconclusive`）。
