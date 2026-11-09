@@ -64,6 +64,9 @@ def criteria_table(data: dict) -> str:
                 f"{'PASS' if c['fail_closed']['pass'] else 'FAIL'} |")
     rows.append(f"| 零领域语义 | 预注册词表零命中 | 命中 {len(c['semantics']['hits'])} | "
                 f"{'PASS' if c['semantics']['pass'] else 'FAIL'} |")
+    rows.append(f"| 内容范围两档 | 3/3 场景 | {c['content_scope']['detected']}/{c['content_scope']['required']}"
+                f"（full 拦历史 / added 只拦新增且留痕） | "
+                f"{'PASS' if c['content_scope']['pass'] else 'FAIL'} |")
     rows.append(f"| pytest 回归 | 全绿 | `{c['pytest']['summary']}` | "
                 f"{'PASS' if c['pytest']['pass'] else 'FAIL'} |")
     rows.append(f"| 性能 | 1000 变更 < 30s | {c['performance']['seconds']}s"
@@ -169,8 +172,11 @@ def render(data: dict) -> str:
    修前误报率 1/161=0.62%（仍 ≤1% 但不可接受），修后 0/161。
 2. **熵闸不能替代正则。** 纯 hex 摘要（sha256/md5）香农熵≈3.7 bit/char，天然低于 4.2 阈值，
    再加行级 `sha256|digest|checksum` 豁免形成双保险；这不是"调参到绿"，是两套独立判据。
-3. **staged 模式扫整 blob，不是只看 diff 增行。** 更严（能拦住"历史遗留密钥被再次提交"），
-   代价是可能对旧内容报警；`diff` 增行模式作为后续扩展留档，现状在文档里显式声明。
+3. **内容范围两档，缺省最严。** `secrets.content_scope=full`（缺省）扫整份 blob——更严，
+   能拦住"历史遗留凭证被再次提交"，代价是对旧内容报警；`added` 只判本次暂存 diff 的新增行
+   （`git diff --cached -U0` 的 `+` 侧行号），旧内容命中降级为 `pre_existing_content`
+   advisory：**留痕但不拦截**，既不误伤、也不静默隐藏。范围写进每文件 `content_scope`
+   字段与判决 digest，两种口径的判决摘要不同 ⇒ 审计能分辨"是哪档口径放行的"。
 4. **符号链接/嵌套仓判据依赖真实文件系统**：纯路径模式（`paths`/`json`）若不传 `--root`
    则只做路径判据（`symlink_escape`、`nested_repo_marker` 不生效）——这是覆盖边界，不是漏洞。
 5. **`.git` 只读是纪律而非能力限制**：门只读 git（`diff --cached` / `show :path`），
@@ -201,7 +207,9 @@ def render(data: dict) -> str:
 ## 7. 复现
 
 ```bash
-python3 -m pytest tests/test_write_gate.py -q              # {c['pytest']['passed']} passed
+python3 -m pytest tests/test_write_gate.py tests/test_write_gate_content_scope.py -q  # {c['pytest']['passed']} passed
+# 只拦本次新增的凭证（旧内容降级为 advisory）
+python3 -m tools.write_gate.cli --content-scope added staged --root .
 python3 tools/write_gate/acceptance.py --out artifacts/write_gate
 python3 tools/write_gate/gen_figure.py
 python3 tools/write_gate/gen_doc.py

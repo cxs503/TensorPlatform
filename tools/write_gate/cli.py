@@ -56,6 +56,9 @@ def build_parser() -> argparse.ArgumentParser:
     parser.add_argument("--quiet", action="store_true", help="只在拦截时输出摘要")
     parser.add_argument("--no-ledger", action="store_true", help="不写事件账本")
     parser.add_argument("--ledger-path", default=None, help="账本路径（覆盖策略配置）")
+    parser.add_argument("--content-scope", choices=("full", "added"), default=None,
+                        help="凭证判据范围：full=整份内容（缺省）；"
+                             "added=只判暂存 diff 新增行（旧内容降级为 advisory，不拦截）")
     parser.add_argument("--context", default=None, help="附加上下文 JSON（如 mission_id）")
     sub = parser.add_subparsers(dest="command", required=True)
     sub.add_parser("staged", help="判暂存区变更（pre-commit 主入口）")
@@ -73,6 +76,8 @@ def _load_cfg(args) -> Dict[str, Any]:
     whitelist_text = args.edit_whitelist or os.environ.get("EDIT_WHITELIST", "")
     if whitelist_text.strip():
         overrides["whitelist"] = whitelist_from_text(whitelist_text)
+    if getattr(args, "content_scope", None):
+        overrides["secrets"] = {"content_scope": args.content_scope}
     return policy_mod.load_policy(args.policy, overrides=overrides)
 
 

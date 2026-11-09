@@ -27,7 +27,7 @@ def load() -> dict:
 
 def fig_criteria(data: dict) -> Path:
     c = data["criteria"]
-    fig, axes = plt.subplots(1, 3, figsize=(15, 4.4))
+    fig, axes = plt.subplots(1, 4, figsize=(19.5, 4.4))
 
     names = ["whitelist\n(out-of-bounds)", "cross-repo\n(pollution)", "secret\n(leakage)"]
     detected = [c["whitelist"]["detected"], c["cross_repo"]["detected"], c["secrets"]["detected"]]
@@ -64,6 +64,24 @@ def fig_criteria(data: dict) -> Path:
     for bar, value in zip(bars, vals):
         axes[2].text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.05,
                      str(value), ha="center", fontsize=11, fontweight="bold")
+
+    # (d) 凭证判据的两档内容范围（full vs added）
+    scope = c["content_scope"]
+    labels = [f"{r['scenario']}\n[{r['scope']}]" for r in scope["rows"]]
+    blocked = [1 if r["verdict"] == "FAIL" else 0 for r in scope["rows"]]
+    colors = ["#d62728" if b else "#2ca02c" for b in blocked]
+    bars = axes[3].bar(labels, blocked, color=colors, width=0.6)
+    axes[3].set_ylim(0, 1.35)
+    axes[3].set_yticks([0, 1])
+    axes[3].set_yticklabels(["pass", "block"])
+    axes[3].set_title(f"(d) Content scope: {scope['detected']}/{scope['required']} scenarios")
+    for bar, row in zip(bars, scope["rows"]):
+        note = row["verdict"]
+        if row["scope"] == "added" and row["verdict"] == "PASS":
+            note = f"{row['verdict']}\n+{row.get('pre_existing_advisories', 0)} advisory"
+        axes[3].text(bar.get_x() + bar.get_width() / 2, bar.get_height() + 0.06,
+                     note, ha="center", fontsize=9, fontweight="bold")
+    axes[3].tick_params(axis="x", labelsize=7.5)
 
     fig.suptitle("Worktree write-gate: whitelist x cross-repo x secret-leak (three-in-one, pre-commit)",
                  fontsize=12)
