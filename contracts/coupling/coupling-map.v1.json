@@ -1,0 +1,106 @@
+{
+  "schema": "coupling-map/v1",
+  "description": "学科间数据流边; 每条边的两端量纲必须一致, 坐标系必须可达",
+  "edges": [
+    {
+      "from": {
+        "contract": "solver.resistance",
+        "port": "wake_speed"
+      },
+      "to": {
+        "contract": "solver.propulsion",
+        "port": "inflow_speed"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.propulsion",
+        "port": "shaft_power"
+      },
+      "to": {
+        "contract": "solver.green_navigation",
+        "port": "shaft_power"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.resistance",
+        "port": "resistance_force"
+      },
+      "to": {
+        "contract": "solver.structure",
+        "port": "applied_force"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.ice_navigation",
+        "port": "ice_resistance_force"
+      },
+      "to": {
+        "contract": "solver.structure",
+        "port": "applied_force"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.seakeeping",
+        "port": "added_resistance"
+      },
+      "to": {
+        "contract": "solver.manoeuvring",
+        "port": "hydrodynamic_force"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.stability",
+        "port": "righting_moment"
+      },
+      "to": {
+        "contract": "solver.seakeeping",
+        "port": "roll_restoring_moment"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.propulsion",
+        "port": "thrust"
+      },
+      "to": {
+        "contract": "solver.vibration_noise",
+        "port": "excitation_force"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.ice_navigation",
+        "port": "contact_pressure"
+      },
+      "to": {
+        "contract": "solver.structure",
+        "port": "external_pressure"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.structure",
+        "port": "natural_frequency"
+      },
+      "to": {
+        "contract": "solver.vibration_noise",
+        "port": "excitation_frequency"
+      }
+    },
+    {
+      "from": {
+        "contract": "solver.manoeuvring",
+        "port": "sway_force"
+      },
+      "to": {
+        "contract": "solver.structure",
+        "port": "applied_force"
+      }
+    }
+  ]
+}

@@ -1,0 +1,110 @@
+{
+  "schema": "coupling-frames/v1",
+  "description": "跨求解器交换用坐标系登记表; 全部右手系, rotation 为 child->parent",
+  "frames": [
+    {
+      "name": "earth",
+      "handed": "right",
+      "z_up": true,
+      "note": "大地/全局参考系, x 北 y 东 z 上"
+    },
+    {
+      "name": "hull_fixed",
+      "handed": "right",
+      "z_up": true,
+      "note": "船体固连系, x 艏 y 右舷 z 上"
+    },
+    {
+      "name": "tank_local",
+      "handed": "right",
+      "z_up": true,
+      "note": "液舱/局部构件系, 原点在构件几何中心"
+    },
+    {
+      "name": "blade_local",
+      "handed": "right",
+      "z_up": false,
+      "note": "叶片局部系 (部分求解器用 y-up)"
+    }
+  ],
+  "relations": [
+    {
+      "child": "hull_fixed",
+      "parent": "earth",
+      "rotation": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child": "tank_local",
+      "parent": "hull_fixed",
+      "rotation": [
+        [
+          1,
+          0,
+          0
+        ],
+        [
+          0,
+          1,
+          0
+        ],
+        [
+          0,
+          0,
+          1
+        ]
+      ],
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    },
+    {
+      "child": "blade_local",
+      "parent": "hull_fixed",
+      "rotation": [
+        [
+          1.0,
+          0.0,
+          0.0
+        ],
+        [
+          0.0,
+          0.0,
+          1.0
+        ],
+        [
+          0.0,
+          -1.0,
+          0.0
+        ]
+      ],
+      "translation": [
+        0.0,
+        0.0,
+        0.0
+      ]
+    }
+  ]
+}

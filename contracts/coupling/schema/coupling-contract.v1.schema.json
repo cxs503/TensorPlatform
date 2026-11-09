@@ -1,0 +1,67 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform/contracts/coupling/coupling-contract.v1.schema.json",
+  "title": "Cross-solver coupling interface contract",
+  "description": "一个求解器对外的耦合端口声明。字段只描述『量纲/坐标系/张量阶/版本』等机制信息，学科语义由 semantic 文本承载，平台代码不得硬编码。",
+  "type": "object",
+  "required": ["contract_id", "version", "solver", "ports"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"const": "coupling-contract/v1"},
+    "contract_id": {
+      "type": "string",
+      "minLength": 3,
+      "pattern": "^[A-Za-z0-9_.-]+$",
+      "description": "全局唯一 id, 建议 <kind>.<solver-name>"
+    },
+    "version": {"type": "integer", "minimum": 1, "description": "契约版本号, 破坏性变更必须递增"},
+    "solver": {"type": "string", "minLength": 1},
+    "discipline": {"type": "string", "description": "学科分组标签 (数据, 非平台语义)"},
+    "description": {"type": "string"},
+    "require_complete_pi": {
+      "type": "boolean",
+      "default": false,
+      "description": "true 时声明的 pi_groups 必须构成完整无量纲群基 (k = n - rank)"
+    },
+    "pi_groups": {
+      "type": "object",
+      "description": "无量纲群声明: 群名 -> {端口名: 整数幂}",
+      "additionalProperties": {
+        "type": "object",
+        "minProperties": 1,
+        "additionalProperties": {"type": "integer"}
+      }
+    },
+    "ports": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["name", "role", "unit"],
+        "additionalProperties": true,
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9_]+$"},
+          "role": {"enum": ["input", "output"]},
+          "unit": {"type": "string", "minLength": 1, "description": "登记表内的单位或单位表达式"},
+          "tensor_order": {"enum": [0, 1, 2], "default": 0},
+          "frame": {
+            "type": ["string", "null"],
+            "description": "tensor_order>=1 必填; 必须是 frames 登记表内的帧名"
+          },
+          "required": {"type": "boolean", "default": true},
+          "semantic": {"type": "string"},
+          "declared_dim": {
+            "type": ["string", "null"],
+            "description": "可选的自声明量纲 (如 'M·L·T^-2'); 与 unit 推导不一致 -> 契约违规"
+          }
+        },
+        "allOf": [
+          {
+            "if": {"properties": {"tensor_order": {"enum": [1, 2]}}, "required": ["tensor_order"]},
+            "then": {"required": ["frame"], "properties": {"frame": {"type": "string", "minLength": 1}}}
+          }
+        ]
+      }
+    }
+  }
+}
