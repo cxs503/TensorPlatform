@@ -1,0 +1,583 @@
+[
+ {
+  "anchor": "FEAT-OSS-INVENTORY-LBM",
+  "ledger_status": "in_progress",
+  "acceptance": "≥24 个 GitHub LBM 项目逐一代码级盘点（T1 多相 6/T2 可微 GPU 8/T3 HPC 10+发现波，总帽 30）；每项目 oss_inventory 落档；按功能点归集 oss_solutions ≥40 条（每条带文件:行指针+迁移评估）；综合对照报告 scenario_key=oss-solutions；方式集随 PANORAMA 每单注入全员可用",
+  "families": [
+   "ALL"
+  ],
+  "first_step": "本报告即收口产物：24 仓 / 196 条谱系行 / 16 功能点；余下仓（见缺口 E-1）补盘后并入 F02/F07/F08/F09/F13。",
+  "consumable_rows": 123,
+  "top_candidates": [
+   {
+    "family": "F01",
+    "repo": "haimingz/vivsim",
+    "tag": "force-corrected-nebb+body-force-driver-scaffold",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F01",
+    "repo": "lbm-principles-practice/code",
+    "tag": "scmp-two-component-planar-interface",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F02",
+    "repo": "lbm-principles-practice/code",
+    "tag": "shan-chen-laplace-pressure-calibration",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F03",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "no-density-ratio-available",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F05",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "cahn-hilliard-only",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F06",
+    "repo": "lanl/MF-LBM",
+    "tag": "akai2018-geometrical-wetting",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lbm-principles-practice/code",
+    "tag": "fused-push-pull-aa-pattern",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "2b-t/LB-t",
+    "tag": "aa-pattern-odd-even-indexing",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "haimingz/vivsim",
+    "tag": "jax-pure-function-aa-pattern-static-slice",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lanl/MF-LBM",
+    "tag": "aa-pattern-fused-stream-collide",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   }
+  ]
+ },
+ {
+  "anchor": "GAP-LBM-MCMP-POISEUILLE",
+  "ledger_status": "in_progress",
+  "acceptance": "①稳态界面位置 vs 解析解<5%；②两相体积流量<10%；③界面 spurious current<0.005·U_max 且报告给数；④两分辨率判据①趋势一致（加分）；⑤论文级报告（方程/格式出处/参数表/解析解推导/误差表零手抄/密度云图+速度剖面叠解析/局限披露）",
+  "families": [
+   "F01",
+   "F02",
+   "F06",
+   "F11"
+  ],
+  "first_step": "直接吃 F01 主路线（lbm-principles MIT 双组分 SC + TCLB 解析剖面公式）：先建 D2Q9 两组分通道 + 三判据（界面位置<5%、分相流量<10%、spurious current<0.005·Umax）机检，力项注入按 F02 的 Guo 重心形式。",
+  "consumable_rows": 38,
+  "top_candidates": [
+   {
+    "family": "F01",
+    "repo": "haimingz/vivsim",
+    "tag": "force-corrected-nebb+body-force-driver-scaffold",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F01",
+    "repo": "lbm-principles-practice/code",
+    "tag": "scmp-two-component-planar-interface",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F02",
+    "repo": "lbm-principles-practice/code",
+    "tag": "shan-chen-laplace-pressure-calibration",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F06",
+    "repo": "lanl/MF-LBM",
+    "tag": "akai2018-geometrical-wetting",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "haimingz/vivsim",
+    "tag": "continuous-error-print-vs-doi-refs",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "lettucecfd/lettuce",
+    "tag": "analytic-error-reporter-1pct-gate",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "pylbm/pylbm",
+    "tag": "chapman-enskog-auto",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "pylbm/pylbm",
+    "tag": "von-neumann-auto",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "pylbm/pylbm",
+    "tag": "pytest-baseline-reference",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "2b-t/LB-t",
+    "tag": "templated-gtest-trait-matrix",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   }
+  ]
+ },
+ {
+  "anchor": "FEAT-LBM-VERIFY-BENCH",
+  "ledger_status": "in_progress",
+  "acceptance": "Young-Laplace ≥3σ 误差<5% 或 honest-FAIL+根因；spurious current 基线数字表（网格×σ）；pytest 固化；消费链映射表≥5 条 oss_solutions 条目 id→工装代码",
+  "families": [
+   "F02",
+   "F11",
+   "F06"
+  ],
+  "first_step": "直接吃 F02 的 Young-Laplace 标定器（fits）+ F11 三层验证面：先钉 σ 与 spurious-current 基线数字表，再建 pytest 固化；消费链映射所需的 oss_solutions 条目可直接引 ledger_alignment.json。",
+  "consumable_rows": 27,
+  "top_candidates": [
+   {
+    "family": "F02",
+    "repo": "lbm-principles-practice/code",
+    "tag": "shan-chen-laplace-pressure-calibration",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "haimingz/vivsim",
+    "tag": "continuous-error-print-vs-doi-refs",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "lettucecfd/lettuce",
+    "tag": "analytic-error-reporter-1pct-gate",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "pylbm/pylbm",
+    "tag": "chapman-enskog-auto",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "pylbm/pylbm",
+    "tag": "von-neumann-auto",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "pylbm/pylbm",
+    "tag": "pytest-baseline-reference",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "2b-t/LB-t",
+    "tag": "templated-gtest-trait-matrix",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "cfdemons/LUMA",
+    "tag": "baseline-diff-regression-harness",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "lbm-principles-practice/code",
+    "tag": "analytic-solution-relative-L2-harness",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F11",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "fp-domain-tolerance-diff",
+    "transfer": "fits",
+    "license_class": "permissive"
+   }
+  ]
+ },
+ {
+  "anchor": "GAP-LBM-SPHERE",
+  "ledger_status": "planned",
+  "acceptance": "曲面边界力法+球体绕流验证",
+  "families": [
+   "F13",
+   "F09"
+  ],
+  "first_step": "吃 F13（vivsim 预计算 Peskin stencil 可搬 + LUMA ε 守恒校正）：球绕流 Cd 必须同时报告力守恒残差。",
+  "consumable_rows": 20,
+  "top_candidates": [
+   {
+    "family": "F13",
+    "repo": "haimingz/vivsim",
+    "tag": "ib3d-diffuse-interface-mdf",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F13",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "analytic-lubrication-correction",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F13",
+    "repo": "cfdemons/LUMA",
+    "tag": "ibm-direct-forcing-rkpm-epsilon",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F13",
+    "repo": "haimingz/vivsim",
+    "tag": "peskin-tensor-product-stencil-mdf",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F09",
+    "repo": "haimingz/vivsim",
+    "tag": "mask-indexed-bounceback",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F09",
+    "repo": "2b-t/LB-t",
+    "tag": "halfway-bounce-back-parity-swap",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F09",
+    "repo": "lanl/MF-LBM",
+    "tag": "indirect-addressing-wall-tables",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F13",
+    "repo": "joconnor22/LIFE",
+    "tag": "ibm-epsilon-gram-implicit-correction",
+    "transfer": "fits",
+    "license_class": "copyleft(GPL)"
+   },
+   {
+    "family": "F13",
+    "repo": "joconnor22/LIFE",
+    "tag": "ibm-immersed-objects",
+    "transfer": "adapt",
+    "license_class": "copyleft(GPL)"
+   },
+   {
+    "family": "F13",
+    "repo": "ProjectPhysX/FluidX3D",
+    "tag": "momentum-exchange-solid-force-and-torque",
+    "transfer": "fits",
+    "license_class": "restricted"
+   }
+  ]
+ },
+ {
+  "anchor": "H2-FRAZIL-RHEOLOGY",
+  "ledger_status": "planned",
+  "acceptance": "W9-1215 物理根验证",
+  "families": [
+   "F03",
+   "F07"
+  ],
+  "first_step": "幂律悬浮流变不在本轮盘点覆盖内（缺口 E-6）；可先借 F03 变密度平衡态与 F07 算子显式化把黏度做成场量函数。",
+  "consumable_rows": 16,
+  "top_candidates": [
+   {
+    "family": "F03",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "no-density-ratio-available",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lbm-principles-practice/code",
+    "tag": "fused-push-pull-aa-pattern",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "2b-t/LB-t",
+    "tag": "aa-pattern-odd-even-indexing",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "haimingz/vivsim",
+    "tag": "jax-pure-function-aa-pattern-static-slice",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lanl/MF-LBM",
+    "tag": "aa-pattern-fused-stream-collide",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lettucecfd/lettuce",
+    "tag": "component-protocol-template-codegen",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lettucecfd/lettuce",
+    "tag": "uint8-index-mask-torch-where",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F03",
+    "repo": "lssfau/walberla",
+    "tag": "variable-density-equilibrium-linear-in-C",
+    "transfer": "adapt",
+    "license_class": "copyleft(GPL)"
+   },
+   {
+    "family": "F03",
+    "repo": "CFD-GO/TCLB",
+    "tag": "pressure-evolution-allencahn-phasefield",
+    "transfer": "adapt",
+    "license_class": "copyleft(GPL)"
+   },
+   {
+    "family": "F03",
+    "repo": "lssfau/lbmpy",
+    "tag": "pf-eos-maxwell-high-density-ratio",
+    "transfer": "adapt",
+    "license_class": "copyleft(GPL)"
+   }
+  ]
+ },
+ {
+  "anchor": "FEAT-TK-OSS-LANDING",
+  "ledger_status": "in_progress",
+  "acceptance": "A1 ≥20 多相/MCMP claims+A2 ≥15 可微/框架 claims：schema 全过+全部 oss-cache 实读定位逐字引文+自带校验器全绿+无自批+每条映射回 GAP 锚点",
+  "families": [
+   "ALL"
+  ],
+  "first_step": "落库优先级按 transfer=fits 先行（可搬码级），reference 按『公式级』落并标注许可证约束。",
+  "consumable_rows": 123,
+  "top_candidates": [
+   {
+    "family": "F01",
+    "repo": "haimingz/vivsim",
+    "tag": "force-corrected-nebb+body-force-driver-scaffold",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F01",
+    "repo": "lbm-principles-practice/code",
+    "tag": "scmp-two-component-planar-interface",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F02",
+    "repo": "lbm-principles-practice/code",
+    "tag": "shan-chen-laplace-pressure-calibration",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F03",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "no-density-ratio-available",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F05",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "cahn-hilliard-only",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F06",
+    "repo": "lanl/MF-LBM",
+    "tag": "akai2018-geometrical-wetting",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lbm-principles-practice/code",
+    "tag": "fused-push-pull-aa-pattern",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "2b-t/LB-t",
+    "tag": "aa-pattern-odd-even-indexing",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "haimingz/vivsim",
+    "tag": "jax-pure-function-aa-pattern-static-slice",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lanl/MF-LBM",
+    "tag": "aa-pattern-fused-stream-collide",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   }
+  ]
+ },
+ {
+  "anchor": "FEAT-OSS-PLAYBOOK",
+  "ledger_status": "in_progress",
+  "acceptance": "docs/oss-to-tk-playbook.md：五步各带机器可校验判据+已知坑+六域推广 checklist+度量指标",
+  "families": [
+   "ALL"
+  ],
+  "first_step": "本单的『SQL 直取→slug 归一→功能点归集→机检→推荐』五步可抽成跨域套路（DG/SPH 复用）。",
+  "consumable_rows": 123,
+  "top_candidates": [
+   {
+    "family": "F01",
+    "repo": "haimingz/vivsim",
+    "tag": "force-corrected-nebb+body-force-driver-scaffold",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F01",
+    "repo": "lbm-principles-practice/code",
+    "tag": "scmp-two-component-planar-interface",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F02",
+    "repo": "lbm-principles-practice/code",
+    "tag": "shan-chen-laplace-pressure-calibration",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F03",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "no-density-ratio-available",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F05",
+    "repo": "ludwig-cf/ludwig",
+    "tag": "cahn-hilliard-only",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F06",
+    "repo": "lanl/MF-LBM",
+    "tag": "akai2018-geometrical-wetting",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lbm-principles-practice/code",
+    "tag": "fused-push-pull-aa-pattern",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "2b-t/LB-t",
+    "tag": "aa-pattern-odd-even-indexing",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "haimingz/vivsim",
+    "tag": "jax-pure-function-aa-pattern-static-slice",
+    "transfer": "fits",
+    "license_class": "permissive"
+   },
+   {
+    "family": "F07",
+    "repo": "lanl/MF-LBM",
+    "tag": "aa-pattern-fused-stream-collide",
+    "transfer": "adapt",
+    "license_class": "permissive"
+   }
+  ]
+ }
+]
