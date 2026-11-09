@@ -29,7 +29,52 @@ plan_nodes.json  →  collect_evidence.py  →  campaign_bundle.json  证据包
 |---|---|---|
 | `collect_evidence.py` | 搬运证据：git 未跟踪/未提交变更逐件 sha256 + 新增测试的 pytest 探针结果；**不写结论** | **本 PR** |
 | `campaign_distill.py` | 机裁：判据状态只按"结论 + 来源"推导；图谱/缺口/报告/归档全部由数据算出 | **本 PR** |
-| `make_figures.py` | 把账本画成可核验的图，不重算任何数字 | **本 PR** |
+| `make_figures.py` | 把账本画成可核验的图，不重算任何数字 | 已合并 |
+| `run_case.py` | 一键四阶段 + **归档事后独立复核** + 确定性边界记账 | **本 PR（m8707）** |
+
+## 一键跑案例 + 事后独立复核（`run_case.py`）
+
+三段命令手工串有两个漏子：**没有单一失败语义**（哪步挂了只能看日志）、**归档事后不可复核**
+（`verify_manifest` 与归档同进程，且只遍历 manifest 自己列的条目——归档里多出来的文件、
+`SHA256SUMS` 与 `manifest.json` 互不一致、manifest 条目被改而文件没动，全检不出；
+`sha256sum -c` 也不查多余文件）。`run_case.py` 把它们收成一个入口：
+
+```bash
+python3 tools/distill/run_case.py --case tests/fixtures/distill_case/case.json --workdir runs/<case>
+python3 tools/distill/run_case.py --case tests/fixtures/distill_case/case.json --workdir runs/<case> --clean  # 重跑
+python3 tools/distill/run_case.py --verify-only verified/<case>                  # 只复核已落盘归档
+```
+
+`case.json`（域内容经工件注入，代码零域语义）：
+
+```json
+{"id": "my_case", "bundle": "bundle.json", "spec": {...内联或路径...},
+ "narrative": {...}, "workdir": "out", "archive_subdir": "verified"}
+```
+
+四阶段与判定：
+
+| 阶段 | 做什么 | 红在哪 |
+|---|---|---|
+| `distill` | 调 `campaign_distill.main`（账本+报告+归档） | 退出码≠0 / 报告违规 / **bundle 里的证据解析不到** |
+| `figures` | 调 `make_figures.main` | 退出码≠0 / 一张图都没出 / 缺 matplotlib·networkx |
+| `verify_archive` | **独立复核**：只信 `SHA256SUMS`+磁盘，逐条复算并与 manifest 双向对账 | 缺文件 / 篡改 / **多余文件（陈旧件）** / sums↔manifest 不一致 / manifest 条目摘要被改 |
+| `determinism` | 同 bundle 复跑一遍 `distill`，比对账本与报告 | 账本非逐字节相同 / 复跑产物缺失 |
+
+产出 `workdir/case_run.json`：逐阶段 ok、每个产物的 `sha256`+字节数、问题清单（`rule` 可机器判）。
+退出码 `0` 全通 ｜ `1` 有阶段红（记录照写，失败可定位）｜ `2` 案例契约不满足。
+
+**两处必须知道的设计点**：
+
+* **脏 workdir 拒绝复用**：上一版 bundle 的归档/账本留在盘上会被本次复用，本次归档于是夹带陈旧
+  工件（实测：换 bundle 后残留旧件 → 独立复核报 `unlisted_file`，而蒸馏自身的 C5 自检仍绿）。
+  所以默认拒绝，必须显式 `--clean`（只清 workdir 内**已知**产物路径，不做通配删除）或 `--force`。
+* `bundle` 里的证据相对路径按 **bundle 所在目录** 解析，解析不到逐条报
+  `evidence_unresolvable`——原链路对缺失证据是 `if p.exists()` 静默跳过，会让"证据丢了"
+  的案例照样归档成功（假绿）。
+* 确定性有边界，边界写进记录：`content_stable_outputs` 是跨 workdir 逐字节相同的产物；
+  `path_embedding_outputs`（`distill_summary.json` / `report.md` / `manifest.json`）内嵌绝对
+  路径，跨 workdir 会变——`determinism` 阶段比对 md 时做路径规范化，报告里的路径不是内容。
 
 ## 用法
 
@@ -117,7 +162,7 @@ python3 tools/distill/make_figures.py \
 ## 测试
 
 ```bash
-python3 -m pytest tests/test_campaign_distill.py -q     # 21 passed
+python3 -m pytest tests/test_campaign_distill.py tests/test_distill_run_case.py -q   # 21 + 17 passed
 ```
 
 覆盖：覆盖矩阵四档 + 「结论缺来源」/「等级越界」变异体判负、图谱规模与悬空边、
