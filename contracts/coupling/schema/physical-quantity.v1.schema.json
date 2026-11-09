@@ -1,0 +1,39 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform/contracts/coupling/physical-quantity.v1.schema.json",
+  "title": "Physical quantity exchange envelope",
+  "description": "跨求解器交换的单个物理量: 值 + 单位 + 坐标系 + 张量阶。缺坐标系的一阶及以上张量视为契约违约。",
+  "type": "object",
+  "required": ["name", "value", "unit"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "physical-quantity/v1"},
+    "name": {"type": "string", "minLength": 1},
+    "value": {
+      "oneOf": [
+        {"type": "number"},
+        {"type": "array", "items": {"type": "number"}, "minItems": 3, "maxItems": 9}
+      ]
+    },
+    "unit": {"type": "string", "minLength": 1},
+    "frame": {"type": ["string", "null"]},
+    "tensor_order": {"enum": [0, 1, 2]},
+    "declared_dim": {"type": ["string", "null"]}
+  },
+  "allOf": [
+    {
+      "if": {"properties": {"tensor_order": {"enum": [1]}}},
+      "then": {"properties": {"value": {"type": "array", "minItems": 3, "maxItems": 3}},
+               "required": ["frame"]}
+    },
+    {
+      "if": {"properties": {"tensor_order": {"enum": [2]}}},
+      "then": {"properties": {"value": {"type": "array", "minItems": 9, "maxItems": 9}},
+               "required": ["frame"]}
+    },
+    {
+      "if": {"properties": {"tensor_order": {"enum": [0]}}},
+      "then": {"properties": {"value": {"type": "number"}}}
+    }
+  ]
+}

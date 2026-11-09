@@ -1,0 +1,78 @@
+{
+  "schema": "coupling-contract/v1",
+  "contract_id": "solver.ice_navigation",
+  "version": 1,
+  "solver": "ice-solver",
+  "discipline": "ice_navigation",
+  "description": "冰区航行求解器对外端口：冰厚/冰强度/航速 -> 冰阻力/接触压力",
+  "ports": [
+    {
+      "name": "ice_thickness",
+      "role": "input",
+      "unit": "m",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "冰厚"
+    },
+    {
+      "name": "ice_compressive_strength",
+      "role": "input",
+      "unit": "MPa",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "冰抗压强度"
+    },
+    {
+      "name": "ice_density",
+      "role": "input",
+      "unit": "kg/m^3",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "冰密度"
+    },
+    {
+      "name": "ship_speed",
+      "role": "input",
+      "unit": "m/s",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "船速"
+    },
+    {
+      "name": "ice_resistance_force",
+      "role": "output",
+      "unit": "kN",
+      "tensor_order": 1,
+      "required": true,
+      "semantic": "冰阻力矢量",
+      "frame": "hull_fixed"
+    },
+    {
+      "name": "contact_pressure",
+      "role": "output",
+      "unit": "kPa",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "接触压力"
+    },
+    {
+      "name": "ice_pressure_coefficient",
+      "role": "output",
+      "unit": "1",
+      "tensor_order": 0,
+      "required": true,
+      "semantic": "冰压无量纲系数"
+    }
+  ],
+  "pi_groups": {
+    "ice_pressure": {
+      "ice_compressive_strength": 1,
+      "ice_density": -1,
+      "ship_speed": -2
+    },
+    "contact_ratio": {
+      "contact_pressure": 1,
+      "ice_compressive_strength": -1
+    }
+  }
+}

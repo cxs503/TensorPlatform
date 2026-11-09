@@ -1,0 +1,37 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform/contracts/coupling/coupling-map.v1.schema.json",
+  "title": "Coupling edge map",
+  "description": "上游契约输出端口 -> 下游契约输入端口的耦合边表; 每条边两端量纲必须一致, 坐标系必须可达。",
+  "type": "object",
+  "required": ["edges"],
+  "additionalProperties": true,
+  "properties": {
+    "schema": {"type": "string"},
+    "description": {"type": "string"},
+    "edges": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["from", "to"],
+        "additionalProperties": true,
+        "properties": {
+          "from": {"$ref": "#/definitions/endpoint"},
+          "to": {"$ref": "#/definitions/endpoint"}
+        }
+      }
+    }
+  },
+  "definitions": {
+    "endpoint": {
+      "type": "object",
+      "required": ["contract", "port"],
+      "additionalProperties": true,
+      "properties": {
+        "contract": {"type": "string", "minLength": 1},
+        "port": {"type": "string", "minLength": 1}
+      }
+    }
+  }
+}
