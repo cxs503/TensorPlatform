@@ -1,0 +1,231 @@
+{
+  "_comment": "合成流水线配置：船型/环境/系数全部在此注入（零域语义硬编码于代码）。所有数值为合成数据，非任何实船资料。",
+  "version": "1.0.0",
+  "provenance": {
+    "vessels": "SYNTH-A/B/C：由量级与量纲一致性构造的合成船型（非真实船）",
+    "wind_coefficients": "Fourier 系数为参数化占位（未做模型风洞/试验拟合）→ 证据等级 WITHHELD",
+    "reflection_efficiency": "波浪反射效率 κ 为参数化占位（无模型试验标定）",
+    "fouling_growth": "污损生长率 γ 为线性占位律（无实船时序标定）",
+    "slamming_sigma": "相对速度幅值比与砰击阈值速度为参数化占位"
+  },
+  "vessels": {
+    "SYNTH-A": {
+      "lpp_m": 180.0,
+      "beam_m": 30.0,
+      "draft_m": 10.0,
+      "cb": 0.8,
+      "wetted_area_m2": 6800.0,
+      "form_factor_k": 1.15,
+      "displacement_t": 40000.0,
+      "kg_m": 9.5,
+      "gm_solid_m": 1.6,
+      "area_front_m2": 900.0,
+      "area_lateral_m2": 3000.0,
+      "z_centroid_m": 14.0,
+      "x_centroid_m": 4.0,
+      "z_ref_m": 10.0,
+      "x_ref_m": 0.0,
+      "ref_shift_m": 1.0,
+      "available_power_kw": 6000.0,
+      "propulsive_efficiency": 0.62,
+      "speed_reference_kn": 14.0,
+      "residuary_coef_a": 2500.0,
+      "ks_hull_um": 120.0,
+      "growth_rate_um_per_d": 1.2,
+      "fouling_coverage": 1.0,
+      "days_in_service": 180.0,
+      "deadrise_deg": 25.0,
+      "sigma_v_ratio": 0.55,
+      "deck_length_m": 60.0,
+      "deck_breadth_m": 24.0,
+      "bulwark_height_m": 1.2,
+      "gm_required_m": 0.6,
+      "heel_limit_deg": 5.0,
+      "sfoc_g_per_kwh": 175.0
+    },
+    "SYNTH-B": {
+      "lpp_m": 120.0,
+      "beam_m": 20.0,
+      "draft_m": 7.0,
+      "cb": 0.72,
+      "wetted_area_m2": 3300.0,
+      "form_factor_k": 1.2,
+      "displacement_t": 12000.0,
+      "kg_m": 6.8,
+      "gm_solid_m": 1.3,
+      "area_front_m2": 420.0,
+      "area_lateral_m2": 1350.0,
+      "z_centroid_m": 9.5,
+      "x_centroid_m": 2.5,
+      "z_ref_m": 7.0,
+      "x_ref_m": 0.0,
+      "ref_shift_m": 1.0,
+      "available_power_kw": 2600.0,
+      "propulsive_efficiency": 0.58,
+      "speed_reference_kn": 13.0,
+      "residuary_coef_a": 900.0,
+      "ks_hull_um": 150.0,
+      "growth_rate_um_per_d": 1.0,
+      "fouling_coverage": 0.8,
+      "days_in_service": 300.0,
+      "deadrise_deg": 32.0,
+      "sigma_v_ratio": 0.55,
+      "deck_length_m": 40.0,
+      "deck_breadth_m": 16.0,
+      "bulwark_height_m": 1.0,
+      "gm_required_m": 0.5,
+      "heel_limit_deg": 5.0,
+      "sfoc_g_per_kwh": 175.0
+    },
+    "SYNTH-C": {
+      "lpp_m": 260.0,
+      "beam_m": 44.0,
+      "draft_m": 15.0,
+      "cb": 0.84,
+      "wetted_area_m2": 13500.0,
+      "form_factor_k": 1.12,
+      "displacement_t": 160000.0,
+      "kg_m": 14.0,
+      "gm_solid_m": 2.4,
+      "area_front_m2": 1500.0,
+      "area_lateral_m2": 5200.0,
+      "z_centroid_m": 20.0,
+      "x_centroid_m": 6.0,
+      "z_ref_m": 15.0,
+      "x_ref_m": 0.0,
+      "ref_shift_m": 1.0,
+      "available_power_kw": 16000.0,
+      "propulsive_efficiency": 0.68,
+      "speed_reference_kn": 15.0,
+      "residuary_coef_a": 9000.0,
+      "ks_hull_um": 100.0,
+      "growth_rate_um_per_d": 1.5,
+      "fouling_coverage": 0.9,
+      "days_in_service": 240.0,
+      "deadrise_deg": 20.0,
+      "sigma_v_ratio": 0.55,
+      "deck_length_m": 80.0,
+      "deck_breadth_m": 30.0,
+      "bulwark_height_m": 1.4,
+      "gm_required_m": 0.8,
+      "heel_limit_deg": 5.0,
+      "sfoc_g_per_kwh": 175.0
+    }
+  },
+  "environments": {
+    "SEA-1": {
+      "wave_height_m": 1.5,
+      "wave_peak_period_s": 6.5,
+      "wave_rel_heading_deg": 180.0,
+      "wind_speed_ms": 8.0,
+      "wind_from_dir_deg": 0.0,
+      "reflection_efficiency": 0.35,
+      "accumulated_volume_m3": 120.0,
+      "lateral_offset_ratio": 0.25,
+      "design_fractile": 3.0,
+      "threshold_velocity_ms": 4.0
+    },
+    "SEA-2": {
+      "wave_height_m": 4.0,
+      "wave_peak_period_s": 9.0,
+      "wave_rel_heading_deg": 180.0,
+      "wind_speed_ms": 14.0,
+      "wind_from_dir_deg": 0.0,
+      "reflection_efficiency": 0.35,
+      "accumulated_volume_m3": 320.0,
+      "lateral_offset_ratio": 0.35,
+      "design_fractile": 3.0,
+      "threshold_velocity_ms": 4.0
+    },
+    "SEA-3": {
+      "wave_height_m": 6.0,
+      "wave_peak_period_s": 11.0,
+      "wave_rel_heading_deg": 150.0,
+      "wind_speed_ms": 20.0,
+      "wind_from_dir_deg": 20.0,
+      "reflection_efficiency": 0.35,
+      "accumulated_volume_m3": 520.0,
+      "lateral_offset_ratio": 0.45,
+      "design_fractile": 3.0,
+      "threshold_velocity_ms": 4.0
+    }
+  },
+  "wind_coefficients": {
+    "cx_coeff": [
+      -0.7,
+      -0.25,
+      -0.05,
+      0.0
+    ],
+    "cy_coeff": [
+      -0.9,
+      -0.15,
+      0.0
+    ],
+    "cn_coeff": [
+      0.15,
+      -0.05,
+      0.02
+    ]
+  },
+  "towing": {
+    "towline_length_m": 400.0,
+    "towline_wet_weight_N_per_m": 30.0,
+    "bollard_pull_kN": 800.0,
+    "safety_factor": 1.5
+  },
+  "scenarios": [
+    {
+      "key": "SYNTH-A_SEA-1_calm",
+      "vessel": "SYNTH-A",
+      "environment": "SEA-1",
+      "route": {
+        "lat_dep_deg": 30.0,
+        "lon_dep_deg": 122.0,
+        "lat_arr_deg": 34.0,
+        "lon_arr_deg": 128.0
+      },
+      "deck": {},
+      "towing": {}
+    },
+    {
+      "key": "SYNTH-A_SEA-2_storm",
+      "vessel": "SYNTH-A",
+      "environment": "SEA-2",
+      "route": {
+        "lat_dep_deg": 30.0,
+        "lon_dep_deg": 122.0,
+        "lat_arr_deg": 34.0,
+        "lon_arr_deg": 128.0
+      },
+      "deck": {},
+      "towing": {}
+    },
+    {
+      "key": "SYNTH-B_SEA-2",
+      "vessel": "SYNTH-B",
+      "environment": "SEA-2",
+      "route": {
+        "lat_dep_deg": 35.0,
+        "lon_dep_deg": 120.0,
+        "lat_arr_deg": 32.0,
+        "lon_arr_deg": 126.0
+      },
+      "deck": {},
+      "towing": {}
+    },
+    {
+      "key": "SYNTH-C_SEA-3",
+      "vessel": "SYNTH-C",
+      "environment": "SEA-3",
+      "route": {
+        "lat_dep_deg": 20.0,
+        "lon_dep_deg": 115.0,
+        "lat_arr_deg": 26.0,
+        "lon_arr_deg": 122.0
+      },
+      "deck": {},
+      "towing": {}
+    }
+  ]
+}
