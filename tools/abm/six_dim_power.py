@@ -9,6 +9,10 @@
 3. MDE(n) 曲线并反解所需 n
 4. A/A 空对照误报率 ≤ 5% 验证
 5. 对既有产物做回溯性功效计算
+6. 六维优势族判决（G25）：方向语义（越小越好）+ 溯源配对（无 source 不入账）
+   + Holm FWER + 「≥k 维优于对照」机器判决
+7. 设计期功效：A/A 族级 FWER、功效正控、臂间相关 rho 敏感性、族判决所需 n 反解，
+   并显式给出置换 p 值的**分辨率下限**（n_perm 不足时族判决在数学上不可达）
 
 设计原则
 --------
@@ -865,4 +869,778 @@ def six_dim_power_gate(
         "min_effect_size": min_effect_size,
         "n_perm": n_perm,
         "seed": seed,
+    }
+
+
+# ---------------------------------------------------------------------------
+# 六维优势判决（G25）与设计期功效
+# ---------------------------------------------------------------------------
+# 上面的 permutation_test_six_dim / mde_curve / aa_false_positive_rate /
+# retrospective_power / six_dim_power_gate 回答的是「差异是否显著 / 需要多少样本」。
+# 本节补三类它们不覆盖的命题：
+#
+# 1. 方向语义：六维里 accuracy（相对误差）/ efficiency（耗时）/ reproducibility
+#    （两次运行差异）是「越小越好」。不做方向编码，「优于」的效应符号会整体反号。
+# 2. 族判决（G25）：命题是「六维中至少 k 维优于对照」，必须按族（Holm）裁决，
+#    并**实测该判决规则本身**的零假设误报率（族级 FWER，而不是逐维 α）。
+# 3. 设计期功效：判出「≥k 维优势」需要多少配对对数，以及臂间相关 rho 带来的
+#    配对收益（rho=0 是最保守情形，必须与主结果同时呈现）。
+#
+# 数字纪律：每条测量记录必须带 source（工件路径/命令）才入账，单位不一致不成对。
+# 参考：Holm (1979) Scand. J. Statist. 6, 65-70；Good (2005) Permutation Tests；
+#       Cohen (1988) Statistical Power Analysis。
+
+#: +1 = 数值越大越好；-1 = 数值越小越好。
+#: accuracy 的口径是**相对误差**、efficiency 是**耗时/步数**、reproducibility 是
+#: **两次运行的相对差异**——三者都是越小越好；口径必须在记录里用 unit 字段声明。
+DIMENSION_DIRECTION: Dict[str, int] = {
+    "correctness": +1,
+    "accuracy": -1,
+    "stability": +1,
+    "efficiency": -1,
+    "reproducibility": -1,
+    "applicability": +1,
+}
+
+DIMENSION_NOTE: Dict[str, str] = {
+    "correctness": "越大越好：守恒/解析极限通过项数或 1-归一化残差",
+    "accuracy": "越小越好：与基准的相对误差",
+    "stability": "越大越好：稳定性通过项数或稳健裕度",
+    "efficiency": "越小越好：墙钟秒数/步数",
+    "reproducibility": "越小越好：两次运行的相对差异",
+    "applicability": "越大越好：已登记的限制/失效模式条数",
+}
+
+#: 配对检验的**设计下限**（非数学下限）：等幅配对下双侧最小可达 p = 2/2^n，
+#: n=5 → 6.25%（根本拒绝不了），n=6 → 3.1%；取 9 是为了让 0.05 以下的 p 阶梯
+#: 不止一两档（否则功效被 p 值离散化吃掉）。
+MIN_TESTABLE_PAIRS = 9
+
+#: 解析 MDE 系数 z_{1-alpha/2}+z_power（α=0.05、功效 0.8）。
+MDE_COEFF_TWO_SIDED_05_80 = 2.801585
+MDE_COEFF_ONE_SIDED_05_80 = 2.486475
+
+ALTERNATIVES = ("two-sided", "greater", "less")
+
+
+def mde_coefficient(alpha: float = DEFAULT_ALPHA, power: float = 0.8,
+                    two_sided: bool = True) -> float:
+    """解析 MDE 系数：``z_{1-alpha/2}+z_power``（双侧）或 ``z_{1-alpha}+z_power``。"""
+    z_alpha = (NormalDist().inv_cdf(1.0 - alpha / 2.0) if two_sided
+               else NormalDist().inv_cdf(1.0 - alpha))
+    return float(z_alpha + NormalDist().inv_cdf(power))
+
+
+def binom_ci(k: int, n: int, level: float = 0.95) -> Dict[str, Any]:
+    """二项比例的 Clopper-Pearson 精确区间（无 scipy 时退化为 Wilson 得分区间）。
+
+    ``method`` 字段如实写明用了哪一种——区间方法不同，宽度会差一点，审计必须能看出来。
+    """
+    k, n = int(k), int(n)
+    if n <= 0:
+        return {"p_hat": float("nan"), "lo": float("nan"), "hi": float("nan"),
+                "level": level, "method": "n/a", "k": k, "n": n}
+    a = (1.0 - level) / 2.0
+    p_hat = k / n
+    try:  # 首选精确区间
+        from scipy.stats import beta as _beta  # type: ignore
+
+        lo = 0.0 if k == 0 else float(_beta.ppf(a, k, n - k + 1))
+        hi = 1.0 if k == n else float(_beta.ppf(1.0 - a, k + 1, n - k))
+        method = "clopper-pearson"
+    except Exception:  # pragma: no cover - 无 scipy 环境
+        z = NormalDist().inv_cdf(1.0 - a)
+        denom = 1.0 + z * z / n
+        centre = (p_hat + z * z / (2 * n)) / denom
+        half = z * math.sqrt(p_hat * (1 - p_hat) / n + z * z / (4 * n * n)) / denom
+        lo, hi = max(0.0, centre - half), min(1.0, centre + half)
+        method = "wilson"
+    return {"p_hat": p_hat, "lo": lo, "hi": hi, "level": level,
+            "method": method, "k": k, "n": n}
+
+
+def build_pairs(
+    records: Sequence[Dict[str, Any]],
+    *,
+    control_arm: str = "control",
+    treatment_arm: str = "treatment",
+    dims: Sequence[str] = DIMENSIONS,
+) -> Dict[str, Any]:
+    """把测量记录折成 ``{dimension: [pair, ...]}``，配对键 = ``(lineage, seat)``。
+
+    record 形状::
+
+        {"lineage": "L1", "seat": "S1", "arm": "control", "dimension": "accuracy",
+         "value": 0.0139, "unit": "rel_err", "source": "工件路径#行"}
+
+    只有**同一 (lineage, seat) 上两臂都有**且**单位一致**的记录才成对；
+    缺 ``source`` 的记录不入账（沿用 dimensions.py 的「数字无出处不入账」纪律）。
+    """
+    errors: List[str] = []
+    buckets: Dict[Tuple[str, str, str], Dict[str, Dict[str, Any]]] = {}
+    for rec in records:
+        dim = str(rec.get("dimension") or rec.get("dim") or "")
+        if dim not in dims:
+            errors.append(f"未知维度 {dim!r}（lineage={rec.get('lineage')!r}）")
+            continue
+        arm = str(rec.get("arm") or "")
+        if arm not in (control_arm, treatment_arm):
+            errors.append(f"{dim}: 未知臂 {arm!r}（只接受 {control_arm!r}/{treatment_arm!r}）")
+            continue
+        value = rec.get("value")
+        if not isinstance(value, (int, float)) or isinstance(value, bool):
+            errors.append(f"{dim}/{arm}: value 非数值（{value!r}）")
+            continue
+        source = str(rec.get("source") or "").strip()
+        if not source:
+            errors.append(f"{dim}/{arm}: 缺 source（数字无出处不入账）")
+            continue
+        key = (str(rec.get("lineage") or ""), str(rec.get("seat") or ""), dim)
+        if arm in buckets.setdefault(key, {}):
+            errors.append(f"{dim}: 同一 (lineage, seat, arm) 重复记录 {key}")
+            continue
+        buckets[key][arm] = {
+            "value": float(value),
+            "unit": str(rec.get("unit") or ""),
+            "source": source,
+        }
+
+    pairs: Dict[str, List[Dict[str, Any]]] = {d: [] for d in dims}
+    for (lineage, seat, dim), arms in sorted(buckets.items()):
+        if not (control_arm in arms and treatment_arm in arms):
+            continue
+        if arms[control_arm]["unit"] != arms[treatment_arm]["unit"]:
+            errors.append(
+                f"{dim}/{lineage}/{seat}: 单位不一致 "
+                f"({arms[control_arm]['unit']!r} vs {arms[treatment_arm]['unit']!r})"
+            )
+            continue
+        pairs[dim].append({
+            "lineage": lineage,
+            "seat": seat,
+            "v_control": arms[control_arm]["value"],
+            "v_treatment": arms[treatment_arm]["value"],
+            "unit": arms[control_arm]["unit"],
+            "sources": {control_arm: arms[control_arm]["source"],
+                        treatment_arm: arms[treatment_arm]["source"]},
+        })
+    return {
+        "pairs": pairs,
+        "n_pairs_by_dim": {d: len(v) for d, v in pairs.items()},
+        "errors": errors,
+    }
+
+
+def oriented_deltas(pairs: Sequence[Dict[str, Any]], dim: str) -> List[float]:
+    """``delta_i = direction(dim) * (v_treatment - v_control)``，正 = 实验组更好。"""
+    if dim not in DIMENSION_DIRECTION:
+        raise ValueError(f"未知维度 {dim!r}")
+    sgn = DIMENSION_DIRECTION[dim]
+    return [float(sgn * (p["v_treatment"] - p["v_control"])) for p in pairs]
+
+
+def paired_effect(deltas: Sequence[float], *, level: float = 0.95) -> Dict[str, Any]:
+    """配对效应量：Cohen's d_z、配对差均值/中位数及其区间。
+
+    中位数区间用二项式序统计量（不依赖正态假设）：
+    ``x_(j), x_(n+1-j)``，``j = ceil(n/2 - 1.96*sqrt(n)/2)``。
+    """
+    d = [float(x) for x in deltas]
+    n = len(d)
+    out: Dict[str, Any] = {"n": n}
+    if n == 0:
+        out.update({"mean_diff": None, "median_diff": None, "sd": None, "cohen_dz": None,
+                    "se": None, "ci95_mean": None, "ci95_median": None})
+        return out
+    mean = math.fsum(d) / n
+    sd = None
+    if n > 1:
+        var = math.fsum((x - mean) ** 2 for x in d) / (n - 1)
+        sd = math.sqrt(var) if var > 0 else 0.0
+    srt = sorted(d)
+    median = srt[n // 2] if n % 2 == 1 else 0.5 * (srt[n // 2 - 1] + srt[n // 2])
+    out["mean_diff"] = mean
+    out["median_diff"] = median
+    out["sd"] = sd
+    if n > 1 and sd:
+        out["cohen_dz"] = mean / sd
+        se = sd / math.sqrt(n)
+        out["se"] = se
+        crit = _t_ppf(0.5 + level / 2.0, n - 1)
+        out["ci95_mean"] = [mean - crit * se, mean + crit * se]
+        out["ci_method"] = "t"
+    elif n > 1:  # 配对差零方差：d_z 发散，如实标 inf/0，不伪造有限值
+        out["cohen_dz"] = math.inf if mean > 0 else (-math.inf if mean < 0 else 0.0)
+        out["se"] = None
+        out["ci95_mean"] = None
+    else:
+        out["cohen_dz"] = None
+        out["se"] = None
+        out["ci95_mean"] = None
+    if n >= 3:
+        j = max(1, int(math.ceil(n / 2.0 - 1.96 * math.sqrt(n) / 2.0)))
+        j = min(j, (n + 1) // 2)
+        out["ci95_median"] = [srt[j - 1], srt[n - j]]
+    else:
+        out["ci95_median"] = None
+    return out
+
+
+def _sign_matrix(n_perm: int, n: int, seed: int) -> List[Tuple[int, ...]]:
+    """符号翻转矩阵（±1），由 stdlib random 生成 —— 跨环境/跨进程逐位一致。"""
+    rng = random.Random(_derive_seed("sign-flip", seed, n, n_perm))
+    return [tuple(1 if rng.getrandbits(1) else -1 for _ in range(n))
+            for _ in range(int(n_perm))]
+
+
+def _mul(a: int, b: float) -> float:
+    return a * b
+
+
+def _perm_pvalue(deltas: Sequence[float], signs: Sequence[Tuple[int, ...]],
+                 alternative: str) -> float:
+    """单行配对符号翻转置换检验 p 值（统计量 = 配对差均值，p 用 (1+#)/(1+B)）。"""
+    if alternative not in ALTERNATIVES:
+        raise ValueError(f"未知备择 {alternative!r}")
+    n = len(deltas)
+    t_obs = math.fsum(deltas) / n
+    hits = 0
+    if alternative == "two-sided":
+        thr = abs(t_obs) - 1e-12
+        for s in signs:
+            if abs(math.fsum(map(_mul, s, deltas)) / n) >= thr:
+                hits += 1
+    elif alternative == "greater":
+        thr = t_obs - 1e-12
+        for s in signs:
+            if math.fsum(map(_mul, s, deltas)) / n >= thr:
+                hits += 1
+    else:
+        thr = t_obs + 1e-12
+        for s in signs:
+            if math.fsum(map(_mul, s, deltas)) / n <= thr:
+                hits += 1
+    return (1.0 + hits) / (1.0 + len(signs))
+
+
+def sign_flip_permutation_test(
+    deltas: Sequence[float],
+    *,
+    n_perm: int = DEFAULT_N_PERM,
+    seed: int = DEFAULT_SEED,
+    alternative: str = "two-sided",
+) -> Dict[str, Any]:
+    """配对符号翻转置换检验（统计量 = 配对差均值；零假设下符号可交换 → 精确）。
+
+    p 值用 ``(1 + #{|T_perm| >= |T_obs|}) / (1 + n_perm)``，保证 p > 0。
+    已知边界：等幅配对下 n 小时 p 值离散，n=5 时双侧最小 p=6.25% > 5%（拒绝不了）。
+    """
+    if alternative not in ALTERNATIVES:
+        raise ValueError(f"未知备择 {alternative!r}")
+    d = [float(x) for x in deltas]
+    n = len(d)
+    if n < 2:
+        raise ValueError(f"配对符号翻转检验需要 n>=2（当前 n={n}）")
+    if n_perm < 1:
+        raise ValueError("n_perm 必须 >=1")
+    signs = _sign_matrix(n_perm, n, _derive_seed("sign-flip-test", seed, n, n_perm))
+    return {
+        "statistic": math.fsum(d) / n,
+        "p_value": _perm_pvalue(d, signs, alternative),
+        "n_perm": int(n_perm),
+        "n": n,
+        "alternative": alternative,
+        "seed": int(seed),
+        "method": "paired_sign_flip_permutation(mean)",
+    }
+
+
+def holm_adjust(pvalues: Dict[str, float], alpha: float = DEFAULT_ALPHA) -> Dict[str, Any]:
+    """Bonferroni-Holm 逐步下降校正（FWER ≤ alpha，任意相依结构下成立）。
+
+    ``p_adj_(i) = min(1, max_{j<=i} (m-j+1) p_(j))``（保持单调）；拒绝规则等价于
+    逐步下降：首个 ``p_(i) > alpha/(m-i+1)`` 之后的全部不拒绝。
+    """
+    items = sorted(((k, float(v)) for k, v in pvalues.items()), key=lambda kv: kv[1])
+    m = len(items)
+    adjusted: Dict[str, float] = {}
+    reject: Dict[str, bool] = {}
+    steps: List[Dict[str, Any]] = []
+    running = 0.0
+    stop = False
+    for i, (k, p) in enumerate(items):
+        factor = m - i
+        running = max(running, factor * p)
+        adj = min(1.0, running)
+        rej = bool(adj <= alpha) and not stop
+        if not rej:
+            stop = True
+        adjusted[k] = adj
+        reject[k] = rej
+        steps.append({"rank": i + 1, "dimension": k, "p": p, "factor": factor,
+                      "threshold": alpha / factor, "p_adj": adj, "reject": rej})
+    return {
+        "alpha": float(alpha),
+        "adjusted": adjusted,
+        "reject": reject,
+        "n_reject": int(sum(1 for v in reject.values() if v)),
+        "steps": steps,
+        "method": "holm",
+    }
+
+
+def min_perm_for_holm(alpha: float = DEFAULT_ALPHA,
+                      n_tests: int = len(DIMENSIONS)) -> int:
+    """Holm 校正下置换 p 值的**分辨率下限**：最小可达 p = 1/(1+B) 必须 ≤ alpha/m。
+
+    B < ceil(m/alpha)-1 时，即使效应再大，校正后的 p 也永远 > alpha —— 族判决
+    在数学上不可达（这不是"没效应"，是"分辨率不够"）。调用方必须检查该值。
+    """
+    return int(math.ceil(int(n_tests) / float(alpha))) - 1
+
+
+def six_dim_advantage(
+    records: Sequence[Dict[str, Any]],
+    *,
+    control_arm: str = "control",
+    treatment_arm: str = "treatment",
+    alpha: float = DEFAULT_ALPHA,
+    n_perm: int = DEFAULT_N_PERM,
+    seed: int = 0,
+    min_dims: int = 2,
+    alternative: str = "greater",
+    dims: Sequence[str] = DIMENSIONS,
+) -> Dict[str, Any]:
+    """六维「优于对照」族判决（G25，预声明规则）。
+
+    规则：六维中 **≥ min_dims 维**在 Holm(alpha) 校正后仍显著为实验组更好
+    （方向由 ``DIMENSION_DIRECTION`` 统一成「正 = 更好」）。
+    方向性备择 ``alternative="greater"`` 是预声明的——命题本身是「优于」而非「不同」。
+    """
+    if alternative not in ALTERNATIVES:
+        raise ValueError(f"未知备择 {alternative!r}")
+    folded = build_pairs(records, control_arm=control_arm,
+                         treatment_arm=treatment_arm, dims=dims)
+    table: Dict[str, Dict[str, Any]] = {}
+    pvals: Dict[str, float] = {}
+    for dim in dims:
+        prs = folded["pairs"][dim]
+        entry: Dict[str, Any] = {"n_pairs": len(prs), "unit": prs[0]["unit"] if prs else ""}
+        if len(prs) >= 2:
+            d = oriented_deltas(prs, dim)
+            entry["effect"] = paired_effect(d)
+            test = sign_flip_permutation_test(
+                d, n_perm=n_perm,
+                seed=_derive_seed("advantage", seed, dim), alternative=alternative)
+            entry["p_perm"] = test["p_value"]
+            entry["test"] = test
+            pvals[dim] = test["p_value"]
+        else:
+            entry["effect"] = paired_effect(oriented_deltas(prs, dim)) if prs else None
+            entry["p_perm"] = None
+            entry["note"] = "无可检验配对（n<2）"
+        table[dim] = entry
+
+    holm = holm_adjust(pvals, alpha) if pvals else {
+        "alpha": float(alpha), "adjusted": {}, "reject": {}, "n_reject": 0,
+        "steps": [], "method": "holm"}
+    for dim, entry in table.items():
+        entry["p_holm"] = holm["adjusted"].get(dim)
+        entry["significant_better"] = bool(holm["reject"].get(dim, False))
+        eff = entry.get("effect") or {}
+        median = eff.get("median_diff")
+        if eff:
+            if median is None:
+                entry["direction"] = "no_data"
+            elif median > 0:
+                entry["direction"] = "treatment_better"
+            elif median < 0:
+                entry["direction"] = "treatment_worse"
+            else:
+                entry["direction"] = "indistinguishable"
+        else:
+            entry["direction"] = "no_data"
+
+    n_sig = int(holm.get("n_reject", 0))
+    return {
+        "rule": (f"G25: 六维中 >= {min_dims} 维在 Holm(alpha={alpha}) 下显著优于对照"
+                 f"（备择={alternative}）"),
+        "dimensions": table,
+        "holm": holm,
+        "n_significant_better": n_sig,
+        "decision_pass": bool(n_sig >= min_dims),
+        "min_dims": int(min_dims),
+        "alpha": float(alpha),
+        "alternative": alternative,
+        "n_perm": int(n_perm),
+        "seed": int(seed),
+        "errors": folded["errors"],
+        "n_pairs_by_dim": folded["n_pairs_by_dim"],
+        "min_testable_pairs": MIN_TESTABLE_PAIRS,
+        "min_perm_for_holm": min_perm_for_holm(alpha, len(dims)),
+        "n_perm_resolution_ok": bool(int(n_perm) >= min_perm_for_holm(alpha, len(dims))),
+    }
+
+
+def paired_gaussian_arms(
+    rng: random.Random,
+    n_pairs: int,
+    mean_diff: float,
+    *,
+    sigma: float = 1.0,
+    rho: float = 0.0,
+) -> Tuple[List[float], List[float]]:
+    """生成配对数据：两臂各 sd≈sigma、臂间相关≈rho、均值差=mean_diff。
+
+    ``x_c = z + e_c``, ``x_t = z + e_t + mean_diff``，``z~N(0,rho*sigma^2)``,
+    ``e~N(0,(1-rho)*sigma^2)`` → 臂内 sd=sigma，臂间相关=rho，
+    配对差 sd = sigma*sqrt(2(1-rho))（rho 越大配对收益越大）。
+    """
+    n = int(n_pairs)
+    if not 0.0 <= rho <= 1.0:
+        raise ValueError("rho 必须在 [0, 1]")
+    z = [rng.gauss(0.0, math.sqrt(rho) * sigma) for _ in range(n)]
+    sd_e = math.sqrt(max(1.0 - rho, 1e-12)) * sigma
+    e_c = [rng.gauss(0.0, sd_e) for _ in range(n)]
+    e_t = [rng.gauss(0.0, sd_e) for _ in range(n)]
+    return ([z[i] + e_c[i] for i in range(n)],
+            [z[i] + e_t[i] + mean_diff for i in range(n)])
+
+
+def _mean_std(xs: Sequence[float]) -> Tuple[float, float]:
+    n = len(xs)
+    m = math.fsum(xs) / n
+    if n < 2:
+        return m, 0.0
+    return m, math.sqrt(math.fsum((x - m) ** 2 for x in xs) / (n - 1))
+
+
+def _corr(x: Sequence[float], y: Sequence[float]) -> float:
+    mx, sx = _mean_std(x)
+    my, sy = _mean_std(y)
+    if sx <= 0 or sy <= 0:
+        return float("nan")
+    cov = math.fsum((a - mx) * (b - my) for a, b in zip(x, y)) / (len(x) - 1)
+    return cov / (sx * sy)
+
+
+def _analytic_power_general(dz: float, n: int, alpha: float, two_sided: bool) -> float:
+    """正态近似 + t 分位修正的解析功效（不依赖 scipy，口径与置换检验一致）。"""
+    if n is None or n < 2:
+        return 0.0
+    crit = _t_ppf(1.0 - (alpha / 2.0 if two_sided else alpha), n - 1)
+    nc = math.sqrt(n) * abs(float(dz))
+    nd = NormalDist()
+    if two_sided:
+        return min(1.0, max(0.0, nd.cdf(nc - crit) + nd.cdf(-nc - crit)))
+    return min(1.0, max(0.0, nd.cdf(nc - crit)))
+
+
+def power_positive_control(
+    *,
+    d: float = 0.5,
+    n_pairs: int = 20,
+    rho: float = 0.7,
+    n_sims: int = 300,
+    n_perm: int = 499,
+    alpha: float = DEFAULT_ALPHA,
+    alternative: str = "greater",
+    seed: int = 0,
+    sigma: float = 1.0,
+) -> Dict[str, Any]:
+    """功效正控：已知合成效应 d=0.5、n=20 时，实测检出率（目标 ≥70%）。
+
+    ``d`` 的口径是**标准化均值差（臂内 sd 为单位）**；配对设计的收益来自 rho>0
+    时配对差 sd 变小，故 ``d_z = d/sqrt(2(1-rho))``；``rho=0`` 是最保守情形
+    （等价于放弃配对收益），必须与主结果同时报告。
+    """
+    if alternative not in ALTERNATIVES:
+        raise ValueError(f"未知备择 {alternative!r}")
+    n_pairs, n_sims, n_perm = int(n_pairs), int(n_sims), int(n_perm)
+    rng = random.Random(_derive_seed("power-pos", seed, n_pairs, n_sims, n_perm,
+                                     round(float(d) * 1e6), round(float(rho) * 1e6),
+                                     alternative))
+    signs = _sign_matrix(n_perm, n_pairs, _derive_seed("power-pos-signs", seed, n_pairs, n_perm))
+    hits = 0
+    xc_all: List[float] = []
+    xt_all: List[float] = []
+    mean_diffs: List[float] = []
+    sds: List[float] = []
+    for _ in range(n_sims):
+        xc, xt = paired_gaussian_arms(rng, n_pairs, d * sigma, sigma=sigma, rho=rho)
+        deltas = [t - c for c, t in zip(xc, xt)]
+        if _perm_pvalue(deltas, signs, alternative) <= alpha:
+            hits += 1
+        m, s = _mean_std(deltas)
+        mean_diffs.append(m)
+        sds.append(s)
+        xc_all.extend(xc)
+        xt_all.extend(xt)
+    rate = hits / n_sims
+    mean_sd = math.fsum(sds) / len(sds) if sds else 0.0
+    dz_realized = (math.fsum(mean_diffs) / len(mean_diffs) / mean_sd) if mean_sd > 0 else None
+    analytic = _analytic_power_general(
+        d / math.sqrt(2.0 * (1.0 - rho)) if rho < 1.0 else d,
+        n_pairs, alpha, two_sided=(alternative == "two-sided"))
+    return {
+        "design": (f"合成效应 d={d}, n_pairs={n_pairs}, rho={rho}, "
+                   f"备择={alternative}, alpha={alpha}"),
+        "d": float(d),
+        "n_pairs": n_pairs,
+        "rho_assumed": float(rho),
+        "rho_realized": _corr(xc_all, xt_all),
+        "dz_realized": dz_realized,
+        "detection_rate": rate,
+        "detection_ci": binom_ci(hits, n_sims),
+        "analytic_power_normal_t": analytic,
+        "n_sims": n_sims,
+        "n_perm": n_perm,
+        "alpha": float(alpha),
+        "alternative": alternative,
+        "seed": int(seed),
+    }
+
+
+def power_vs_rho(
+    *,
+    d: float = 0.5,
+    n_pairs: int = 20,
+    rho_grid: Sequence[float] = (0.0, 0.3, 0.5, 0.7, 0.85),
+    n_sims: int = 200,
+    n_perm: int = 299,
+    alpha: float = DEFAULT_ALPHA,
+    seed: int = 0,
+) -> Dict[str, Any]:
+    """配对收益敏感性：检出率作为臂间相关 rho 的函数（两种备择都报）。"""
+    rows = []
+    for rho in rho_grid:
+        row: Dict[str, Any] = {
+            "rho": float(rho),
+            "dz": d / math.sqrt(2.0 * (1.0 - rho)) if rho < 1.0 else float("inf"),
+        }
+        for alt in ("greater", "two-sided"):
+            r = power_positive_control(d=d, n_pairs=n_pairs, rho=rho, n_sims=n_sims,
+                                       n_perm=n_perm, alpha=alpha, alternative=alt, seed=seed)
+            row[f"power_{alt}"] = r["detection_rate"]
+            row[f"analytic_{alt}"] = r["analytic_power_normal_t"]
+        rows.append(row)
+    return {
+        "design": f"d={d}, n_pairs={n_pairs}，rho 扫描（配对收益敏感性）",
+        "rows": rows,
+        "n_sims": int(n_sims),
+        "n_perm": int(n_perm),
+        "note": ("rho 是设计假设：同谱系/同席位、只改一条路线时两臂强相关是预期的；"
+                 "rho=0 行是最保守情形，必须与主结果同时呈现"),
+    }
+
+
+def null_family_sim(
+    *,
+    n_families: int = 100,
+    n_pairs: int = 20,
+    n_perm: int = 999,
+    alpha: float = DEFAULT_ALPHA,
+    seed: int = 0,
+    min_dims: int = 1,
+    alternative: str = "greater",
+    dims: Sequence[str] = DIMENSIONS,
+) -> Dict[str, Any]:
+    """零效应族模拟：每个族六维都是 A/A 数据（两臂同分布），跑完整族判决。
+
+    返回
+    ----
+    ``per_dim``：每维误报率（附 95% CI）；
+    ``family_any``：≥1 维显著的族比例（= FWER 估计）；
+    ``family_ge_min_dims``：**判决规则本身**的误报率（≥min_dims 维显著）；
+    ``family_all``：六维全显著的族比例（极端检验，应≈0）。
+    """
+    if alternative not in ALTERNATIVES:
+        raise ValueError(f"未知备择 {alternative!r}")
+    n_families, n_pairs, n_perm = int(n_families), int(n_pairs), int(n_perm)
+    m = len(dims)
+    rng = random.Random(_derive_seed("null-family", seed, n_pairs, n_perm,
+                                     n_families, alternative))
+    signs = _sign_matrix(n_perm, n_pairs,
+                         _derive_seed("null-family-signs", seed, n_pairs, n_perm))
+    pmat: List[List[float]] = [[] for _ in range(n_families)]
+    for dim in dims:
+        sgn = DIMENSION_DIRECTION[dim]
+        for f in range(n_families):
+            xc = [rng.gauss(0.0, 1.0) for _ in range(n_pairs)]
+            xt = [rng.gauss(0.0, 1.0) for _ in range(n_pairs)]
+            pmat[f].append(_perm_pvalue([sgn * (t - c) for c, t in zip(xc, xt)],
+                                        signs, alternative))
+    reject_rows = []
+    for f in range(n_families):
+        h = holm_adjust({dims[j]: pmat[f][j] for j in range(m)}, alpha)
+        reject_rows.append([bool(h["reject"][d]) for d in dims])
+    per_dim = {}
+    for j, dim in enumerate(dims):
+        ci = binom_ci(int(sum(1 for r in reject_rows if r[j])), n_families)
+        ci["dimension"] = dim
+        ci["direction"] = DIMENSION_DIRECTION[dim]
+        per_dim[dim] = ci
+    counts = [sum(1 for v in row if v) for row in reject_rows]
+    any_ci = binom_ci(int(sum(1 for c in counts if c >= 1)), n_families)
+    ge_ci = binom_ci(int(sum(1 for c in counts if c >= int(min_dims))), n_families)
+    all_ci = binom_ci(int(sum(1 for c in counts if c >= m)), n_families)
+    return {
+        "n_families": n_families,
+        "n_pairs": n_pairs,
+        "n_perm": n_perm,
+        "alpha": float(alpha),
+        "alternative": alternative,
+        "min_dims": int(min_dims),
+        "seed": int(seed),
+        "per_dim": per_dim,
+        "per_dim_max_rate": max(v["p_hat"] for v in per_dim.values()),
+        "family_any": any_ci,
+        "family_ge_min_dims": ge_ci,
+        "family_all": all_ci,
+        "mean_rejections_per_family": math.fsum(counts) / n_families,
+        "min_perm_for_holm": min_perm_for_holm(alpha, m),
+        "n_perm_resolution_ok": bool(n_perm >= min_perm_for_holm(alpha, m)),
+        "pass_family_rate": bool(ge_ci["p_hat"] <= alpha),
+        "pass_per_dim_rate": bool(max(v["p_hat"] for v in per_dim.values()) <= alpha),
+    }
+
+
+def aa_null_control(
+    *,
+    n_sims: int = 100,
+    n_pairs: int = 20,
+    n_perm: int = 999,
+    alpha: float = DEFAULT_ALPHA,
+    seed: int = 0,
+    min_dims: int = 2,
+    stability_seeds: Sequence[int] = (0, 1, 2, 3, 4),
+) -> Dict[str, Any]:
+    """A/A 空对照：同一路线测两次，族判决（≥min_dims 维显著）误报率须 ≤ alpha。
+
+    主判据用**族判决**的误报率——这正是战役真正要用的规则；逐维误报率同时报告
+    （附 95% CI）。``stability_seeds`` 多随机种子重复，仅作抽样波动检查，不改主判据。
+    """
+    primary = null_family_sim(n_families=n_sims, n_pairs=n_pairs, n_perm=n_perm,
+                              alpha=alpha, seed=seed, min_dims=min_dims,
+                              alternative="greater")
+    primary_two_sided = null_family_sim(n_families=n_sims, n_pairs=n_pairs, n_perm=n_perm,
+                                        alpha=alpha, seed=seed, min_dims=min_dims,
+                                        alternative="two-sided")
+    pooled_hits = {d: 0 for d in DIMENSIONS}
+    for s in stability_seeds:
+        r = null_family_sim(n_families=n_sims, n_pairs=n_pairs, n_perm=n_perm,
+                            alpha=alpha, seed=int(s), min_dims=min_dims,
+                            alternative="greater")
+        for d in DIMENSIONS:
+            pooled_hits[d] += int(r["per_dim"][d]["k"])
+    n_pool = int(n_sims) * len(stability_seeds)
+    pooled = {
+        "n_families": n_pool,
+        "per_dim": {d: binom_ci(pooled_hits[d], n_pool) for d in DIMENSIONS},
+        "seeds": [int(s) for s in stability_seeds],
+    }
+    max_pooled_dim = max(v["p_hat"] for v in pooled["per_dim"].values())
+    return {
+        "design": "A/A: 同一路线两次测量（两臂同分布，真实效应恒 0）",
+        "primary": primary,
+        "primary_two_sided": primary_two_sided,
+        "pooled": pooled,
+        "alpha": float(alpha),
+        "min_dims": int(min_dims),
+        "criterion": "族判决(>=min_dims 维显著)误报率 <= alpha，且逐维误报率 <= alpha；均附 95% CI",
+        "pass": bool(primary["family_ge_min_dims"]["p_hat"] <= alpha
+                     and max_pooled_dim <= alpha),
+        "ci_upper_family": primary["family_ge_min_dims"]["hi"],
+        "ci_upper_per_dim_pooled": max(v["hi"] for v in pooled["per_dim"].values()),
+    }
+
+
+def family_decision_power_curve(
+    *,
+    effect_dz: float = 0.8,
+    n_affected_dims: int = 2,
+    n_grid: Sequence[int] = (9, 12, 16, 20, 26, 32, 40, 60),
+    min_dims: int = 2,
+    sigma: float = 1.0,
+    alpha: float = DEFAULT_ALPHA,
+    alternative: str = "greater",
+    n_rep: int = 80,
+    n_perm: int = 149,
+    seed: int = 0,
+) -> Dict[str, Any]:
+    """族判决功效随 n 的变化：前 ``n_affected_dims`` 维有真实效应 ``effect_dz``，其余为 0。
+
+    这是「要判出 ≥min_dims 维优势需要多少对」的模拟侧反解（判决规则 = Holm 后
+    ≥min_dims 维显著）。默认 n_rep/n_perm 偏小以控成本，生产高精度请加大。
+    """
+    if not 0 <= int(n_affected_dims) <= len(DIMENSIONS):
+        raise ValueError("n_affected_dims 超出六维范围")
+    rows: List[Dict[str, Any]] = []
+    m = len(DIMENSIONS)
+    for n in n_grid:
+        n = int(n)
+        rng = random.Random(_derive_seed("family-power", seed, n, n_rep, n_perm, alternative))
+        signs = _sign_matrix(n_perm, n, _derive_seed("family-power-signs", seed, n, n_perm))
+        pmat: List[List[float]] = [[] for _ in range(int(n_rep))]
+        for j, _dim in enumerate(DIMENSIONS):
+            mu = effect_dz * sigma if j < int(n_affected_dims) else 0.0
+            for r in range(int(n_rep)):
+                D = [mu + sigma * rng.gauss(0.0, 1.0) for _ in range(n)]
+                pmat[r].append(_perm_pvalue(D, signs, alternative))
+        counts = []
+        all_affected = []
+        null_dim_rates = []
+        for r in range(int(n_rep)):
+            h = holm_adjust({DIMENSIONS[j]: pmat[r][j] for j in range(m)}, alpha)
+            rej = [bool(h["reject"][d]) for d in DIMENSIONS]
+            counts.append(sum(1 for v in rej if v))
+            if int(n_affected_dims) > 0:
+                all_affected.append(all(rej[:int(n_affected_dims)]))
+            if m > int(n_affected_dims):
+                null_dim_rates.append(sum(1 for v in rej[int(n_affected_dims):]))
+        rows.append({
+            "n_pairs": n,
+            "power_ge_min_dims": sum(1 for c in counts if c >= int(min_dims)) / len(counts),
+            "power_all_affected": (sum(1 for v in all_affected if v) / len(all_affected)
+                                   if all_affected else None),
+            "mean_rejections": math.fsum(counts) / len(counts),
+            "alpha_per_dim_rate_0": (math.fsum(null_dim_rates) / len(null_dim_rates)
+                                     if null_dim_rates else None),
+        })
+    return {
+        "design": (f"族判决功效：{n_affected_dims} 维有 d_z={effect_dz}，"
+                   f"其余 {m - int(n_affected_dims)} 维为 0"),
+        "effect_dz": float(effect_dz),
+        "n_affected_dims": int(n_affected_dims),
+        "min_dims": int(min_dims),
+        "alpha": float(alpha),
+        "alternative": alternative,
+        "rows": rows,
+        "n_rep": int(n_rep),
+        "n_perm": int(n_perm),
+        "min_perm_for_holm": min_perm_for_holm(alpha, m),
+        "n_perm_resolution_ok": bool(int(n_perm) >= min_perm_for_holm(alpha, m)),
+        "seed": int(seed),
+    }
+
+
+def required_n_for_family_decision(
+    *,
+    target_power: float = 0.8,
+    effect_dz: float = 0.8,
+    n_affected_dims: int = 2,
+    min_dims: int = 2,
+    n_grid: Sequence[int] = (9, 12, 16, 20, 26, 32, 40, 60),
+    **kwargs: Any,
+) -> Dict[str, Any]:
+    """从族判决功效曲线反解「判出 min_dims 维优势所需 n」（网格分辨率如实报告）。"""
+    curve = family_decision_power_curve(effect_dz=effect_dz, n_affected_dims=n_affected_dims,
+                                        min_dims=min_dims, n_grid=n_grid, **kwargs)
+    hit = next((r for r in curve["rows"] if r["power_ge_min_dims"] >= target_power), None)
+    return {
+        "required_n_grid_hit": int(hit["n_pairs"]) if hit else None,
+        "required_n_note": (f"网格 {list(n_grid)} 上首个功效>= {target_power} 的 n；"
+                            "未命中则报 None（需扩网格）"),
+        "target_power": float(target_power),
+        "curve": curve,
     }

@@ -24,16 +24,34 @@ import sys
 import pytest
 
 from tools.abm.six_dim_power import (
+    DIMENSION_DIRECTION,
+    DIMENSION_NOTE,
     DIMENSIONS,
+    MIN_TESTABLE_PAIRS,
     aa_false_positive_rate,
+    aa_null_control,
     analytic_mde,
     analytic_power_paired,
+    binom_ci,
+    build_pairs,
     cohens_d,
+    family_decision_power_curve,
+    holm_adjust,
+    mde_coefficient,
     mde_curve,
     min_n_for_effect,
+    min_perm_for_holm,
+    null_family_sim,
+    oriented_deltas,
+    paired_effect,
     paired_median_diff,
     permutation_test_six_dim,
+    power_positive_control,
+    power_vs_rho,
+    required_n_for_family_decision,
     retrospective_power,
+    sign_flip_permutation_test,
+    six_dim_advantage,
     six_dim_power_gate,
     solve_n_for_mde,
 )
@@ -585,3 +603,289 @@ class TestAnalyticHelpers:
         sim = _estimate_power(0.5, 20, 0.05, 400, 42, cohens_d, 1.0, n_rep=200)
         ana = analytic_power_paired(0.5, 20, alpha=0.05)
         assert abs(sim - ana) <= 0.15, (sim, ana)
+
+
+# ---------------------------------------------------------------------------
+# 10. 方向语义 / 溯源配对 / 族判决（G25）/ 设计期功效
+# ---------------------------------------------------------------------------
+
+
+def _mk_records(deltas_by_dim, *, n=None, lineage="L1", source="工件#L1"):
+    """构造记录：``deltas_by_dim`` = {dim: delta}（正 = 实验组更好，已按方向口径给）。"""
+    recs = []
+    n = n if n is not None else len(next(iter(deltas_by_dim.values())))
+    for dim, deltas in deltas_by_dim.items():
+        sgn = DIMENSION_DIRECTION[dim]
+        for i, delta in enumerate(deltas):
+            base = 1.0
+            recs.append({"lineage": lineage, "seat": f"S{i}", "arm": "control",
+                         "dimension": dim, "value": base, "unit": "u", "source": source})
+            # 存储值按方向反推：value_t - value_c = sgn * delta
+            recs.append({"lineage": lineage, "seat": f"S{i}", "arm": "treatment",
+                         "dimension": dim, "value": base + sgn * delta,
+                         "unit": "u", "source": source + "#t"})
+    return recs
+
+
+class TestDimensionDirection:
+    def test_direction_and_note_cover_all_dims(self):
+        assert set(DIMENSION_DIRECTION) == set(DIMENSIONS) == set(DIMENSION_NOTE)
+        assert set(DIMENSION_DIRECTION.values()) <= {+1, -1}
+        # 三个「越小越好」的度量必须编码为 -1，否则效应方向整体反号
+        for dim in ("accuracy", "efficiency", "reproducibility"):
+            assert DIMENSION_DIRECTION[dim] == -1
+        for dim in ("correctness", "stability", "applicability"):
+            assert DIMENSION_DIRECTION[dim] == +1
+
+    def test_oriented_deltas_flip_lower_is_better(self):
+        pair = [{"v_control": 0.30, "v_treatment": 0.10}]
+        # accuracy 越小越好：treatment 0.10 优于 0.30 → 方向化后 delta 为正
+        assert oriented_deltas(pair, "accuracy") == [pytest.approx(0.20)]
+        # correctness 越大越好：同样的数值差 → delta 为负
+        assert oriented_deltas(pair, "correctness") == [pytest.approx(-0.20)]
+
+    def test_oriented_deltas_unknown_dim_raises(self):
+        with pytest.raises(ValueError):
+            oriented_deltas([], "no_such_dim")
+
+
+class TestBuildPairs:
+    def test_pairs_require_both_arms_same_unit_and_source(self):
+        recs = [
+            {"lineage": "L", "seat": "a", "arm": "control", "dimension": "accuracy",
+             "value": 1.0, "unit": "rel", "source": "s"},
+            {"lineage": "L", "seat": "a", "arm": "treatment", "dimension": "accuracy",
+             "value": 0.5, "unit": "rel", "source": "t"},
+            # 缺 source → 不成对
+            {"lineage": "L", "seat": "b", "arm": "control", "dimension": "accuracy",
+             "value": 1.0, "unit": "rel"},
+            {"lineage": "L", "seat": "b", "arm": "treatment", "dimension": "accuracy",
+             "value": 0.5, "unit": "rel", "source": "t"},
+            # 单位不一致 → 不成对
+            {"lineage": "L", "seat": "c", "arm": "control", "dimension": "accuracy",
+             "value": 1.0, "unit": "rel", "source": "s"},
+            {"lineage": "L", "seat": "c", "arm": "treatment", "dimension": "accuracy",
+             "value": 0.5, "unit": "pct", "source": "t"},
+            # 重复记录 → 报错且不入账
+            {"lineage": "L", "seat": "a", "arm": "control", "dimension": "accuracy",
+             "value": 2.0, "unit": "rel", "source": "s2"},
+        ]
+        folded = build_pairs(recs)
+        assert folded["n_pairs_by_dim"]["accuracy"] == 1
+        assert folded["pairs"]["accuracy"][0]["seat"] == "a"
+        assert folded["pairs"]["accuracy"][0]["sources"] == {
+            "control": "s", "treatment": "t"}
+        # 三类错误都要被记录（缺 source / 单位不一致 / 重复）
+        assert any("缺 source" in e for e in folded["errors"])
+        assert any("单位不一致" in e for e in folded["errors"])
+        assert any("重复记录" in e for e in folded["errors"])
+
+    def test_unknown_dim_and_non_numeric_rejected(self):
+        folded = build_pairs([
+            {"lineage": "L", "seat": "a", "arm": "control", "dimension": "bogus",
+             "value": 1.0, "unit": "u", "source": "s"},
+            {"lineage": "L", "seat": "a", "arm": "control", "dimension": "accuracy",
+             "value": "1.0", "unit": "u", "source": "s"},
+        ])
+        assert len(folded["errors"]) == 2
+        assert folded["n_pairs_by_dim"]["accuracy"] == 0
+
+    def test_pairing_key_is_lineage_and_seat(self):
+        recs = []
+        for lineage in ("L1", "L2"):
+            for i in range(2):
+                recs.append({"lineage": lineage, "seat": f"S{i}", "arm": "control",
+                             "dimension": "stability", "value": 1.0, "unit": "u", "source": "s"})
+                recs.append({"lineage": lineage, "seat": f"S{i}", "arm": "treatment",
+                             "dimension": "stability", "value": 1.2, "unit": "u", "source": "t"})
+        folded = build_pairs(recs)
+        assert folded["n_pairs_by_dim"]["stability"] == 4
+        assert {p["lineage"] for p in folded["pairs"]["stability"]} == {"L1", "L2"}
+
+
+class TestPairedEffect:
+    def test_known_values(self):
+        eff = paired_effect([1.0, 2.0, 3.0])
+        assert eff["n"] == 3
+        assert eff["mean_diff"] == pytest.approx(2.0)
+        assert eff["median_diff"] == pytest.approx(2.0)
+        assert eff["sd"] == pytest.approx(1.0)
+        assert eff["cohen_dz"] == pytest.approx(2.0)
+        lo, hi = eff["ci95_mean"]
+        assert lo < eff["mean_diff"] < hi
+
+    def test_median_ci_and_constant_deltas(self):
+        eff = paired_effect([1.0, 2.0, 3.0, 4.0, 5.0])
+        lo, hi = eff["ci95_median"]
+        assert lo <= eff["median_diff"] <= hi
+        const = paired_effect([0.5] * 6)
+        assert const["sd"] == 0.0
+        assert const["cohen_dz"] == float("inf")  # 零方差 → 如实标 inf，不伪造有限值
+        empty = paired_effect([])
+        assert empty["n"] == 0 and empty["cohen_dz"] is None
+
+
+class TestSignFlipPermutation:
+    def test_large_effect_is_significant_and_deterministic(self):
+        deltas = [0.8 + 0.05 * ((-1) ** i) * (i % 3) for i in range(12)]
+        a = sign_flip_permutation_test(deltas, n_perm=999, seed=11, alternative="greater")
+        b = sign_flip_permutation_test(deltas, n_perm=999, seed=11, alternative="greater")
+        assert a == b
+        assert a["p_value"] < 0.01
+        assert a["p_value"] >= 1.0 / (1 + 999)
+
+    def test_zero_effect_not_significant(self):
+        deltas = [0.3, -0.3, 0.2, -0.2, 0.1, -0.1, 0.05, -0.05, 0.01, -0.01]
+        r = sign_flip_permutation_test(deltas, n_perm=999, seed=5, alternative="two-sided")
+        assert r["p_value"] > 0.05
+
+    def test_alternative_direction_matters(self):
+        deltas = [0.4, 0.5, 0.45, 0.55, 0.42, 0.48, 0.51, 0.47, 0.44, 0.53]
+        greater = sign_flip_permutation_test(deltas, n_perm=499, seed=2, alternative="greater")
+        less = sign_flip_permutation_test(deltas, n_perm=499, seed=2, alternative="less")
+        assert greater["p_value"] < 0.01
+        assert less["p_value"] > 0.99
+
+    def test_degenerate_inputs_raise(self):
+        with pytest.raises(ValueError):
+            sign_flip_permutation_test([1.0], n_perm=10, seed=0)
+        with pytest.raises(ValueError):
+            sign_flip_permutation_test([1.0, 2.0], n_perm=0, seed=0)
+        with pytest.raises(ValueError):
+            sign_flip_permutation_test([1.0, 2.0], n_perm=10, seed=0, alternative="bogus")
+
+
+class TestHolmAdjust:
+    def test_step_down_rejects_then_stops(self):
+        h = holm_adjust({"a": 0.01, "b": 0.02, "c": 0.03, "d": 0.04}, alpha=0.05)
+        # 4*0.01 = 0.04 ≤ 0.05 → 拒绝；3*0.02 = 0.06 > 0.05 → 其后一律不拒绝
+        assert h["reject"]["a"] is True
+        assert h["reject"]["b"] is False and h["reject"]["c"] is False and h["reject"]["d"] is False
+        assert h["n_reject"] == 1
+
+    def test_adjusted_monotone_and_not_below_raw(self):
+        pv = {"a": 0.005, "b": 0.013, "c": 0.04, "d": 0.2, "e": 0.5}
+        h = holm_adjust(pv, alpha=0.05)
+        ordered = [s["p_adj"] for s in h["steps"]]
+        assert ordered == sorted(ordered)
+        for dim, p in pv.items():
+            assert h["adjusted"][dim] >= p - 1e-12
+            assert h["adjusted"][dim] <= 1.0
+
+    def test_monte_carlo_resolution_floor(self):
+        # Holm 下最小可达 p = 1/(1+B) 必须 ≤ alpha/m；B=50 时族判决在数学上不可达
+        assert min_perm_for_holm(0.05, 6) == 119
+        assert min_perm_for_holm(0.05, 1) == 19
+        assert min_perm_for_holm(0.01, 2) == 199
+
+
+class TestSixDimAdvantage:
+    def test_two_real_improvements_pass_gate(self):
+        deltas = {d: [0.0] * 12 for d in DIMENSIONS}
+        deltas["accuracy"] = [0.05 + 0.002 * (i % 3) for i in range(12)]
+        deltas["efficiency"] = [0.10 + 0.004 * (i % 4) for i in range(12)]
+        res = six_dim_advantage(_mk_records(deltas), n_perm=999, seed=3, min_dims=2)
+        assert res["decision_pass"] is True
+        assert res["n_significant_better"] >= 2
+        assert res["dimensions"]["accuracy"]["direction"] == "treatment_better"
+        assert res["dimensions"]["accuracy"]["significant_better"] is True
+        # 无差异的维不应被判为显著更好
+        assert res["dimensions"]["correctness"]["significant_better"] is False
+        assert res["dimensions"]["correctness"]["direction"] == "indistinguishable"
+
+    def test_no_data_does_not_pass(self):
+        res = six_dim_advantage([], n_perm=199, seed=0)
+        assert res["decision_pass"] is False
+        assert res["n_significant_better"] == 0
+        assert all(v["p_perm"] is None for v in res["dimensions"].values())
+
+    def test_worse_treatment_is_not_better(self):
+        deltas = {d: [0.0] * 12 for d in DIMENSIONS}
+        deltas["correctness"] = [-0.2 - 0.01 * (i % 3) for i in range(12)]  # 实验组更差
+        res = six_dim_advantage(_mk_records(deltas), n_perm=999, seed=4, min_dims=1)
+        assert res["dimensions"]["correctness"]["significant_better"] is False
+        assert res["dimensions"]["correctness"]["direction"] == "treatment_worse"
+        assert res["decision_pass"] is False
+
+    def test_resolution_flag_when_n_perm_too_small(self):
+        recs = _mk_records({d: [0.5] * 10 for d in DIMENSIONS})
+        res = six_dim_advantage(recs, n_perm=50, seed=0)
+        assert res["n_perm_resolution_ok"] is False
+        assert res["min_perm_for_holm"] == 119
+
+    def test_sources_are_auditable(self):
+        recs = _mk_records({d: [0.3] * 10 for d in DIMENSIONS})
+        res = six_dim_advantage(recs, n_perm=199, seed=1)
+        assert res["errors"] == []
+        assert res["n_pairs_by_dim"]["accuracy"] == 10
+
+
+class TestNullFamilyFWER:
+    def test_six_dim_fwer_controlled(self):
+        r = null_family_sim(n_families=40, n_pairs=12, n_perm=199, min_dims=1, seed=7)
+        assert r["family_any"]["p_hat"] <= 0.10, r["family_any"]
+        assert r["per_dim_max_rate"] <= 0.10
+        assert r["n_perm_resolution_ok"] is True
+        assert set(r["per_dim"]) == set(DIMENSIONS)
+        assert r["family_all"]["p_hat"] == 0.0
+
+    def test_aa_null_control_structure(self):
+        r = aa_null_control(n_sims=15, n_pairs=12, n_perm=149, min_dims=2,
+                            seed=1, stability_seeds=(0, 1))
+        assert r["pass"] is True
+        assert r["pooled"]["n_families"] == 30
+        assert r["ci_upper_family"] >= r["primary"]["family_ge_min_dims"]["p_hat"]
+        assert r["ci_upper_per_dim_pooled"] >= 0.0
+
+
+class TestDesignPower:
+    def test_power_positive_control_detects_known_effect(self):
+        r = power_positive_control(d=0.5, n_pairs=20, rho=0.7, n_sims=150,
+                                   n_perm=299, seed=5)
+        assert r["detection_rate"] >= 0.75, r
+        assert 0.5 < r["rho_realized"] < 0.9
+        assert r["detection_ci"]["lo"] <= r["detection_rate"] <= r["detection_ci"]["hi"]
+        # 与解析功效同量级（±0.15）
+        assert abs(r["detection_rate"] - r["analytic_power_normal_t"]) <= 0.15
+
+    def test_power_increases_with_pairing_correlation(self):
+        r = power_vs_rho(n_pairs=20, n_sims=100, n_perm=199,
+                         rho_grid=(0.0, 0.5, 0.8), seed=3)
+        powers = [row["power_greater"] for row in r["rows"]]
+        assert powers == sorted(powers)
+        assert powers[-1] >= 0.85
+        assert powers[-1] > powers[0]
+
+    def test_family_decision_power_curve_and_n(self):
+        curve = family_decision_power_curve(n_grid=(9, 20, 40), n_rep=25, n_perm=199, seed=2)
+        vals = [row["power_ge_min_dims"] for row in curve["rows"]]
+        assert vals == sorted(vals)
+        assert vals[0] == 0.0 and vals[-1] >= 0.8
+        assert curve["n_perm_resolution_ok"] is True
+        req = required_n_for_family_decision(n_grid=(9, 20, 40), n_rep=25, n_perm=199, seed=2)
+        assert req["required_n_grid_hit"] in (20, 40)
+
+    def test_family_curve_flags_insufficient_perm(self):
+        curve = family_decision_power_curve(n_grid=(9,), n_rep=10, n_perm=50, seed=0)
+        assert curve["n_perm_resolution_ok"] is False
+
+
+class TestBinomialCI:
+    def test_known_interval(self):
+        ci = binom_ci(0, 20)
+        assert ci["p_hat"] == 0.0
+        assert ci["lo"] == 0.0
+        assert 0.0 < ci["hi"] < 0.25
+        mid = binom_ci(10, 20)
+        assert mid["lo"] < 0.5 < mid["hi"]
+        assert mid["method"] in ("clopper-pearson", "wilson")
+
+    def test_degenerate(self):
+        ci = binom_ci(0, 0)
+        assert ci["method"] == "n/a"
+
+
+class TestMdeCoefficient:
+    def test_matches_published_constants(self):
+        assert mde_coefficient(0.05, 0.8, two_sided=True) == pytest.approx(2.8016, abs=2e-4)
+        assert mde_coefficient(0.05, 0.8, two_sided=False) == pytest.approx(2.4865, abs=2e-4)
