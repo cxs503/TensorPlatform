@@ -1,0 +1,973 @@
+{
+ "counts": {
+  "EVIDENCE_ONLY": 49,
+  "FAIL_CLAIMED": 0,
+  "NO_EVIDENCE": 0,
+  "PASS_CLAIMED": 0
+ },
+ "nodes": [
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 7,
+   "declared_status": "running",
+   "evidence_only": 7,
+   "fail_claimed": 0,
+   "mission_id": 7293,
+   "no_evidence": 0,
+   "node_key": "N01",
+   "pass_claimed": 0,
+   "repo": "ship-performance-platform",
+   "title": "操作能力-推进可行域交集成熟化 (Operability-Propulsion Feasible Domain Intersection Maturity)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 8,
+   "declared_status": "failed",
+   "evidence_only": 8,
+   "fail_claimed": 0,
+   "mission_id": 7294,
+   "no_evidence": 0,
+   "node_key": "N02",
+   "pass_claimed": 0,
+   "repo": "ship-performance-platform",
+   "title": "冰致破口进水拓扑完备化与真实型线截面成熟化 (Flooding Topology Completeness & Real Hull Sections Maturity)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 7,
+   "declared_status": "running",
+   "evidence_only": 7,
+   "fail_claimed": 0,
+   "mission_id": 7291,
+   "no_evidence": 0,
+   "node_key": "N03",
+   "pass_claimed": 0,
+   "repo": "TensorDEM",
+   "title": "冰磨蚀场条件模拟与分辨率vs抽样误差裁决 (Ice Abrasion Conditional Simulation & Error Adjudication)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 6,
+   "declared_status": "running",
+   "evidence_only": 6,
+   "fail_claimed": 0,
+   "mission_id": 7292,
+   "no_evidence": 0,
+   "node_key": "N04",
+   "pass_claimed": 0,
+   "repo": "TensorLBM",
+   "title": "冰区航行全船阻力物理预报链：DEM碎冰场+RANS流场+FSI双向耦合3D全船型验证 (Full-Ship Ice Resistance Physics-Based Prediction Chain)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 6,
+   "declared_status": "running",
+   "evidence_only": 6,
+   "fail_claimed": 0,
+   "mission_id": 7295,
+   "no_evidence": 0,
+   "node_key": "N05",
+   "pass_claimed": 0,
+   "repo": "TensorDEM",
+   "title": "冰区航行空间-时间磨蚀场演化：确定性活动度剖面+随机残差场条件模拟 (Spatio-Temporal Ice Abrasion Field Evolution)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 5,
+   "declared_status": "running",
+   "evidence_only": 5,
+   "fail_claimed": 0,
+   "mission_id": 7296,
+   "no_evidence": 0,
+   "node_key": "N06",
+   "pass_claimed": 0,
+   "repo": "TensorPhysics",
+   "title": "多物理场耦合集成验证门 (Multi-Physics Coupling Integration Gate)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 5,
+   "declared_status": "running",
+   "evidence_only": 5,
+   "fail_claimed": 0,
+   "mission_id": 7297,
+   "no_evidence": 0,
+   "node_key": "N07",
+   "pass_claimed": 0,
+   "repo": "TensorPlatform",
+   "title": "冰区航行不确定性量化与误差传播框架 (Ice Navigation UQ & Error Propagation Framework)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  },
+  {
+   "coverage_ratio": 0.0,
+   "criteria_total": 5,
+   "declared_status": "running",
+   "evidence_only": 5,
+   "fail_claimed": 0,
+   "mission_id": 7298,
+   "no_evidence": 0,
+   "node_key": "N08",
+   "pass_claimed": 0,
+   "repo": "TensorPlatform",
+   "title": "冰区航行战役第二波成果汇总与知识蒸馏 (Campaign Wave 2 Results Summary & Knowledge Distillation)",
+   "verdict": "UNVERIFIED_EVIDENCE"
+  }
+ ],
+ "rows": [
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "几何门Cb/L/B反算<1e-12"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "边界单调+V→0极限与Lindqvist破冰项<15%"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "h→0退化到KVLCC2@15kn基线<3%"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "与speed_loss链判定一致率≥90%"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "双轴加密后F面积变化<5%、D面积变化<10%"
+  },
+  {
+   "criterion": "C6",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "功率恒等式残差<1e-9"
+  },
+  {
+   "criterion": "C7",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py#sha256:aefb87f1503b",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py#sha256:0efcc738eb14",
+    "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py#sha256:984bfc153f09",
+    "probe:pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py#exit=0"
+   ],
+   "mission_id": 7293,
+   "node_key": "N01",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "输出可行域云机器可读数据+矛盾区清单"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "几何门Cb/L/B<1e-12"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "多边形GZ vs壁直闭式<0.1%（5/10/15/30°）"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "box型线vs解析GZ机器精度"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "s_i(T1)≥s_i(T2)≥s_i(T3)全域成立"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "破口面积换算残差<2%"
+  },
+  {
+   "criterion": "C6",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "R=0.6257与IN37-N06一致、A(b)单调"
+  },
+  {
+   "criterion": "C7",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "时域窗×2后s_i变化<3%"
+  },
+  {
+   "criterion": "C8",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py#sha256:74232b91c861",
+    "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py#sha256:50a7066b569a"
+   ],
+   "mission_id": 7294,
+   "node_key": "N02",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "ship-performance-platform",
+   "status": "EVIDENCE_ONLY",
+   "text": "b*迁移比带区间，σ_c保持WITHHELD口径"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "模拟场自相关/谱保真：lag≤3偏差<5%，能量守恒<2%"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "P95方差vs独立重复真值比值∈[0.7,1.4]"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "行均值保真<1e-2（剖面不被破坏）"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "19.47%分解闭合：两项和vs实测<10%"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "白噪声退化负控不劣于iid bootstrap 20%"
+  },
+  {
+   "criterion": "C6",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "同种子bitwise复现、异种子CV<5%"
+  },
+  {
+   "criterion": "C7",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py#sha256:a92d5d660b26",
+    "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py#sha256:0bfb50a039df",
+    "probe:pytest::tests/test_ice_abrasion_conditional_sim.py#exit=1"
+   ],
+   "mission_id": 7291,
+   "node_key": "N03",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "conditional_simulator API+分辨率选择建议表"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py#sha256:08288e6fd1d2",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py#sha256:8003ff9aaec7",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py#sha256:587f31e3e9fb"
+   ],
+   "mission_id": 7292,
+   "node_key": "N04",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorLBM",
+   "status": "EVIDENCE_ONLY",
+   "text": "DEM冰浓度误差<5%, D50<10%"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py#sha256:08288e6fd1d2",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py#sha256:8003ff9aaec7",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py#sha256:587f31e3e9fb"
+   ],
+   "mission_id": 7292,
+   "node_key": "N04",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorLBM",
+   "status": "EVIDENCE_ONLY",
+   "text": "RANS残差下降3个量级, 质量守恒<1e-4"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py#sha256:08288e6fd1d2",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py#sha256:8003ff9aaec7",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py#sha256:587f31e3e9fb"
+   ],
+   "mission_id": 7292,
+   "node_key": "N04",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorLBM",
+   "status": "EVIDENCE_ONLY",
+   "text": "FSI动量交换残差<1%"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py#sha256:08288e6fd1d2",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py#sha256:8003ff9aaec7",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py#sha256:587f31e3e9fb"
+   ],
+   "mission_id": 7292,
+   "node_key": "N04",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorLBM",
+   "status": "EVIDENCE_ONLY",
+   "text": "阻力分解能量守恒<2%"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py#sha256:08288e6fd1d2",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py#sha256:8003ff9aaec7",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py#sha256:587f31e3e9fb"
+   ],
+   "mission_id": 7292,
+   "node_key": "N04",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorLBM",
+   "status": "EVIDENCE_ONLY",
+   "text": "全船阻力vs Riska(1989)<15%"
+  },
+  {
+   "criterion": "C6",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py#sha256:08288e6fd1d2",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py#sha256:8003ff9aaec7",
+    "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py#sha256:587f31e3e9fb"
+   ],
+   "mission_id": 7292,
+   "node_key": "N04",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorLBM",
+   "status": "EVIDENCE_ONLY",
+   "text": "3档网格GCI外推<5%"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py#sha256:a357868d93d2"
+   ],
+   "mission_id": 7295,
+   "node_key": "N05",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "活动度剖面拟合R²>0.95"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py#sha256:a357868d93d2"
+   ],
+   "mission_id": 7295,
+   "node_key": "N05",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "100条件样本统计vs目标<5%"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py#sha256:a357868d93d2"
+   ],
+   "mission_id": 7295,
+   "node_key": "N05",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "时空演化质量守恒<1e-6"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py#sha256:a357868d93d2"
+   ],
+   "mission_id": 7295,
+   "node_key": "N05",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "场提取P95 vs N02 P95<10%"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py#sha256:a357868d93d2"
+   ],
+   "mission_id": 7295,
+   "node_key": "N05",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "均匀冰场d(t)=a·t误差<1%"
+  },
+  {
+   "criterion": "C6",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py#sha256:a357868d93d2"
+   ],
+   "mission_id": 7295,
+   "node_key": "N05",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorDEM",
+   "status": "EVIDENCE_ONLY",
+   "text": "1000面元×100步<60s CPU"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/chain_contours.png#sha256:19930db07c27",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/conservation_residuals.png#sha256:056358fe934c",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/interface_fluxes.png#sha256:f4ccf07345c6",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/parameter_space.png#sha256:749467e7fb7e",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/timing.png#sha256:b36a63da9446",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/gate_verdict.json#sha256:ec87e316da0f",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/scenarios.json#sha256:70d548ce2f73",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/sweep.json#sha256:faaf717c2085",
+    "/root/tp-agent/work/m7296/docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md#sha256:fe4cf89e0642",
+    "/root/tp-agent/work/m7296/scripts/p66_w2_n06_gate.py#sha256:76a4eb9c97ca",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/__init__.py#sha256:dc86fff4301b",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/conservation.py#sha256:297cca4352ff",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/contracts.py#sha256:a1daff2a35f5",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/gate.py#sha256:fbf1f3c15ee4",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/parameter_space.py#sha256:6bad0470322f",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/perf.py#sha256:765246fa615a",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/producers.py#sha256:6a769d8e5717",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/scenarios.py#sha256:5b91a5c969ad",
+    "/root/tp-agent/work/m7296/tests/test_p66_multiphysics_gate.py#sha256:788380aefed3",
+    "probe:pytest::tests/test_p66_multiphysics_gate.py#exit=0"
+   ],
+   "mission_id": 7296,
+   "node_key": "N06",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPhysics",
+   "status": "EVIDENCE_ONLY",
+   "text": "耦合界面质量守恒残差<1e-6"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/chain_contours.png#sha256:19930db07c27",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/conservation_residuals.png#sha256:056358fe934c",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/interface_fluxes.png#sha256:f4ccf07345c6",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/parameter_space.png#sha256:749467e7fb7e",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/timing.png#sha256:b36a63da9446",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/gate_verdict.json#sha256:ec87e316da0f",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/scenarios.json#sha256:70d548ce2f73",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/sweep.json#sha256:faaf717c2085",
+    "/root/tp-agent/work/m7296/docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md#sha256:fe4cf89e0642",
+    "/root/tp-agent/work/m7296/scripts/p66_w2_n06_gate.py#sha256:76a4eb9c97ca",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/__init__.py#sha256:dc86fff4301b",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/conservation.py#sha256:297cca4352ff",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/contracts.py#sha256:a1daff2a35f5",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/gate.py#sha256:fbf1f3c15ee4",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/parameter_space.py#sha256:6bad0470322f",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/perf.py#sha256:765246fa615a",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/producers.py#sha256:6a769d8e5717",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/scenarios.py#sha256:5b91a5c969ad",
+    "/root/tp-agent/work/m7296/tests/test_p66_multiphysics_gate.py#sha256:788380aefed3",
+    "probe:pytest::tests/test_p66_multiphysics_gate.py#exit=0"
+   ],
+   "mission_id": 7296,
+   "node_key": "N06",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPhysics",
+   "status": "EVIDENCE_ONLY",
+   "text": "磨蚀场与阻力链参数空间一致性>90%"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/chain_contours.png#sha256:19930db07c27",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/conservation_residuals.png#sha256:056358fe934c",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/interface_fluxes.png#sha256:f4ccf07345c6",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/parameter_space.png#sha256:749467e7fb7e",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/timing.png#sha256:b36a63da9446",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/gate_verdict.json#sha256:ec87e316da0f",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/scenarios.json#sha256:70d548ce2f73",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/sweep.json#sha256:faaf717c2085",
+    "/root/tp-agent/work/m7296/docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md#sha256:fe4cf89e0642",
+    "/root/tp-agent/work/m7296/scripts/p66_w2_n06_gate.py#sha256:76a4eb9c97ca",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/__init__.py#sha256:dc86fff4301b",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/conservation.py#sha256:297cca4352ff",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/contracts.py#sha256:a1daff2a35f5",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/gate.py#sha256:fbf1f3c15ee4",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/parameter_space.py#sha256:6bad0470322f",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/perf.py#sha256:765246fa615a",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/producers.py#sha256:6a769d8e5717",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/scenarios.py#sha256:5b91a5c969ad",
+    "/root/tp-agent/work/m7296/tests/test_p66_multiphysics_gate.py#sha256:788380aefed3",
+    "probe:pytest::tests/test_p66_multiphysics_gate.py#exit=0"
+   ],
+   "mission_id": 7296,
+   "node_key": "N06",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPhysics",
+   "status": "EVIDENCE_ONLY",
+   "text": "跨模块数据接口契约验证通过"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/chain_contours.png#sha256:19930db07c27",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/conservation_residuals.png#sha256:056358fe934c",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/interface_fluxes.png#sha256:f4ccf07345c6",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/parameter_space.png#sha256:749467e7fb7e",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/timing.png#sha256:b36a63da9446",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/gate_verdict.json#sha256:ec87e316da0f",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/scenarios.json#sha256:70d548ce2f73",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/sweep.json#sha256:faaf717c2085",
+    "/root/tp-agent/work/m7296/docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md#sha256:fe4cf89e0642",
+    "/root/tp-agent/work/m7296/scripts/p66_w2_n06_gate.py#sha256:76a4eb9c97ca",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/__init__.py#sha256:dc86fff4301b",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/conservation.py#sha256:297cca4352ff",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/contracts.py#sha256:a1daff2a35f5",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/gate.py#sha256:fbf1f3c15ee4",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/parameter_space.py#sha256:6bad0470322f",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/perf.py#sha256:765246fa615a",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/producers.py#sha256:6a769d8e5717",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/scenarios.py#sha256:5b91a5c969ad",
+    "/root/tp-agent/work/m7296/tests/test_p66_multiphysics_gate.py#sha256:788380aefed3",
+    "probe:pytest::tests/test_p66_multiphysics_gate.py#exit=0"
+   ],
+   "mission_id": 7296,
+   "node_key": "N06",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPhysics",
+   "status": "EVIDENCE_ONLY",
+   "text": "集成测试用例全部通过（≥5个端到端场景）"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/chain_contours.png#sha256:19930db07c27",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/conservation_residuals.png#sha256:056358fe934c",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/interface_fluxes.png#sha256:f4ccf07345c6",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/parameter_space.png#sha256:749467e7fb7e",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/timing.png#sha256:b36a63da9446",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/gate_verdict.json#sha256:ec87e316da0f",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/scenarios.json#sha256:70d548ce2f73",
+    "/root/tp-agent/work/m7296/artifacts/p66_gate/sweep.json#sha256:faaf717c2085",
+    "/root/tp-agent/work/m7296/docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md#sha256:fe4cf89e0642",
+    "/root/tp-agent/work/m7296/scripts/p66_w2_n06_gate.py#sha256:76a4eb9c97ca",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/__init__.py#sha256:dc86fff4301b",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/conservation.py#sha256:297cca4352ff",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/contracts.py#sha256:a1daff2a35f5",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/gate.py#sha256:fbf1f3c15ee4",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/parameter_space.py#sha256:6bad0470322f",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/perf.py#sha256:765246fa615a",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/producers.py#sha256:6a769d8e5717",
+    "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/scenarios.py#sha256:5b91a5c969ad",
+    "/root/tp-agent/work/m7296/tests/test_p66_multiphysics_gate.py#sha256:788380aefed3",
+    "probe:pytest::tests/test_p66_multiphysics_gate.py#exit=0"
+   ],
+   "mission_id": 7296,
+   "node_key": "N06",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPhysics",
+   "status": "EVIDENCE_ONLY",
+   "text": "耦合仿真端到端时间<单模块时间之和的1.5倍"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7297/artifacts/m7297/case_ice_navigation.py#sha256:dc0c5a6f32aa",
+    "/root/tp-agent/work/m7297/artifacts/m7297/run_uq_case.py#sha256:32eb104fb687",
+    "/root/tp-agent/work/m7297/backend/services/uq_propagation.py#sha256:65fe5d9919fa",
+    "/root/tp-agent/work/m7297/tests/test_uq_propagation.py#sha256:ee83489c4b00",
+    "probe:pytest::tests/test_uq_propagation.py#exit=0"
+   ],
+   "mission_id": 7297,
+   "node_key": "N07",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "Sobol指数总和∈[0.95,1.05]（闭合性检验）"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7297/artifacts/m7297/case_ice_navigation.py#sha256:dc0c5a6f32aa",
+    "/root/tp-agent/work/m7297/artifacts/m7297/run_uq_case.py#sha256:32eb104fb687",
+    "/root/tp-agent/work/m7297/backend/services/uq_propagation.py#sha256:65fe5d9919fa",
+    "/root/tp-agent/work/m7297/tests/test_uq_propagation.py#sha256:ee83489c4b00",
+    "probe:pytest::tests/test_uq_propagation.py#exit=0"
+   ],
+   "mission_id": 7297,
+   "node_key": "N07",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "输出95%CI与独立重复统计比值∈[0.8,1.2]"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7297/artifacts/m7297/case_ice_navigation.py#sha256:dc0c5a6f32aa",
+    "/root/tp-agent/work/m7297/artifacts/m7297/run_uq_case.py#sha256:32eb104fb687",
+    "/root/tp-agent/work/m7297/backend/services/uq_propagation.py#sha256:65fe5d9919fa",
+    "/root/tp-agent/work/m7297/tests/test_uq_propagation.py#sha256:ee83489c4b00",
+    "probe:pytest::tests/test_uq_propagation.py#exit=0"
+   ],
+   "mission_id": 7297,
+   "node_key": "N07",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "误差传播链雅可比条件数<1e6"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7297/artifacts/m7297/case_ice_navigation.py#sha256:dc0c5a6f32aa",
+    "/root/tp-agent/work/m7297/artifacts/m7297/run_uq_case.py#sha256:32eb104fb687",
+    "/root/tp-agent/work/m7297/backend/services/uq_propagation.py#sha256:65fe5d9919fa",
+    "/root/tp-agent/work/m7297/tests/test_uq_propagation.py#sha256:ee83489c4b00",
+    "probe:pytest::tests/test_uq_propagation.py#exit=0"
+   ],
+   "mission_id": 7297,
+   "node_key": "N07",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "UQ计算加速比≥10 vs蒙特卡洛暴力法"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7297/artifacts/m7297/case_ice_navigation.py#sha256:dc0c5a6f32aa",
+    "/root/tp-agent/work/m7297/artifacts/m7297/run_uq_case.py#sha256:32eb104fb687",
+    "/root/tp-agent/work/m7297/backend/services/uq_propagation.py#sha256:65fe5d9919fa",
+    "/root/tp-agent/work/m7297/tests/test_uq_propagation.py#sha256:ee83489c4b00",
+    "probe:pytest::tests/test_uq_propagation.py#exit=0"
+   ],
+   "mission_id": 7297,
+   "node_key": "N07",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "输出UQ报告含敏感性排序+置信区间图+误差传播路径图"
+  },
+  {
+   "criterion": "C1",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7298/alpha_impl.py#sha256:92e78d0b0329",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png#sha256:b099a64361e3",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png#sha256:90bd974ee238",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png#sha256:d9dae5c8137a",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/campaign_bundle.json#sha256:62bcb02163bb",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/narrative.json#sha256:129e23892748",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/coverage_matrix.json#sha256:2ef62c3738e9",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/distill_summary.json#sha256:974aedf15dc7",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/gaps.json#sha256:7121df7ec044",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/knowledge_graph.json#sha256:fae987232bbe",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/missions_raw.json#sha256:87077f3f7eab",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/plan272_nodes.json#sha256:e9b0fc6ef4ca",
+    "/root/tp-agent/work/m7298/config/domain_word_denylist.json#sha256:c5cda62a02d3",
+    "/root/tp-agent/work/m7298/docs/reports/P66_W2_campaign_distill.md#sha256:1d238f37cce0",
+    "/root/tp-agent/work/m7298/tests/test_campaign_distill.py#sha256:62bd935e9f5b",
+    "/root/tp-agent/work/m7298/tools/distill/campaign_distill.py#sha256:d7e591ffb715",
+    "/root/tp-agent/work/m7298/tools/distill/collect_evidence.py#sha256:870a24fe62f1",
+    "/root/tp-agent/work/m7298/tools/distill/make_figures.py#sha256:577c5d4f0e54",
+    "probe:pytest::tests/test_campaign_distill.py#exit=0"
+   ],
+   "mission_id": 7298,
+   "node_key": "N08",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "综合报告覆盖全部7节点验收判据（逐项对照表）"
+  },
+  {
+   "criterion": "C2",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7298/alpha_impl.py#sha256:92e78d0b0329",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png#sha256:b099a64361e3",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png#sha256:90bd974ee238",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png#sha256:d9dae5c8137a",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/campaign_bundle.json#sha256:62bcb02163bb",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/narrative.json#sha256:129e23892748",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/coverage_matrix.json#sha256:2ef62c3738e9",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/distill_summary.json#sha256:974aedf15dc7",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/gaps.json#sha256:7121df7ec044",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/knowledge_graph.json#sha256:fae987232bbe",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/missions_raw.json#sha256:87077f3f7eab",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/plan272_nodes.json#sha256:e9b0fc6ef4ca",
+    "/root/tp-agent/work/m7298/config/domain_word_denylist.json#sha256:c5cda62a02d3",
+    "/root/tp-agent/work/m7298/docs/reports/P66_W2_campaign_distill.md#sha256:1d238f37cce0",
+    "/root/tp-agent/work/m7298/tests/test_campaign_distill.py#sha256:62bd935e9f5b",
+    "/root/tp-agent/work/m7298/tools/distill/campaign_distill.py#sha256:d7e591ffb715",
+    "/root/tp-agent/work/m7298/tools/distill/collect_evidence.py#sha256:870a24fe62f1",
+    "/root/tp-agent/work/m7298/tools/distill/make_figures.py#sha256:577c5d4f0e54",
+    "probe:pytest::tests/test_campaign_distill.py#exit=0"
+   ],
+   "mission_id": 7298,
+   "node_key": "N08",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "知识图谱≥20实体节点+≥30关系边"
+  },
+  {
+   "criterion": "C3",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7298/alpha_impl.py#sha256:92e78d0b0329",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png#sha256:b099a64361e3",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png#sha256:90bd974ee238",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png#sha256:d9dae5c8137a",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/campaign_bundle.json#sha256:62bcb02163bb",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/narrative.json#sha256:129e23892748",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/coverage_matrix.json#sha256:2ef62c3738e9",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/distill_summary.json#sha256:974aedf15dc7",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/gaps.json#sha256:7121df7ec044",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/knowledge_graph.json#sha256:fae987232bbe",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/missions_raw.json#sha256:87077f3f7eab",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/plan272_nodes.json#sha256:e9b0fc6ef4ca",
+    "/root/tp-agent/work/m7298/config/domain_word_denylist.json#sha256:c5cda62a02d3",
+    "/root/tp-agent/work/m7298/docs/reports/P66_W2_campaign_distill.md#sha256:1d238f37cce0",
+    "/root/tp-agent/work/m7298/tests/test_campaign_distill.py#sha256:62bd935e9f5b",
+    "/root/tp-agent/work/m7298/tools/distill/campaign_distill.py#sha256:d7e591ffb715",
+    "/root/tp-agent/work/m7298/tools/distill/collect_evidence.py#sha256:870a24fe62f1",
+    "/root/tp-agent/work/m7298/tools/distill/make_figures.py#sha256:577c5d4f0e54",
+    "probe:pytest::tests/test_campaign_distill.py#exit=0"
+   ],
+   "mission_id": 7298,
+   "node_key": "N08",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "遗留缺口清单≥3条且每条附提案草案"
+  },
+  {
+   "criterion": "C4",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7298/alpha_impl.py#sha256:92e78d0b0329",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png#sha256:b099a64361e3",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png#sha256:90bd974ee238",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png#sha256:d9dae5c8137a",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/campaign_bundle.json#sha256:62bcb02163bb",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/narrative.json#sha256:129e23892748",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/coverage_matrix.json#sha256:2ef62c3738e9",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/distill_summary.json#sha256:974aedf15dc7",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/gaps.json#sha256:7121df7ec044",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/knowledge_graph.json#sha256:fae987232bbe",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/missions_raw.json#sha256:87077f3f7eab",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/plan272_nodes.json#sha256:e9b0fc6ef4ca",
+    "/root/tp-agent/work/m7298/config/domain_word_denylist.json#sha256:c5cda62a02d3",
+    "/root/tp-agent/work/m7298/docs/reports/P66_W2_campaign_distill.md#sha256:1d238f37cce0",
+    "/root/tp-agent/work/m7298/tests/test_campaign_distill.py#sha256:62bd935e9f5b",
+    "/root/tp-agent/work/m7298/tools/distill/campaign_distill.py#sha256:d7e591ffb715",
+    "/root/tp-agent/work/m7298/tools/distill/collect_evidence.py#sha256:870a24fe62f1",
+    "/root/tp-agent/work/m7298/tools/distill/make_figures.py#sha256:577c5d4f0e54",
+    "probe:pytest::tests/test_campaign_distill.py#exit=0"
+   ],
+   "mission_id": 7298,
+   "node_key": "N08",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "综合报告通过自动化格式校验"
+  },
+  {
+   "criterion": "C5",
+   "evidence_refs": [
+    "/root/tp-agent/work/m7298/alpha_impl.py#sha256:92e78d0b0329",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png#sha256:b099a64361e3",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png#sha256:90bd974ee238",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png#sha256:d9dae5c8137a",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/campaign_bundle.json#sha256:62bcb02163bb",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/narrative.json#sha256:129e23892748",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/coverage_matrix.json#sha256:2ef62c3738e9",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/distill_summary.json#sha256:974aedf15dc7",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/gaps.json#sha256:7121df7ec044",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/knowledge_graph.json#sha256:fae987232bbe",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/missions_raw.json#sha256:87077f3f7eab",
+    "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/plan272_nodes.json#sha256:e9b0fc6ef4ca",
+    "/root/tp-agent/work/m7298/config/domain_word_denylist.json#sha256:c5cda62a02d3",
+    "/root/tp-agent/work/m7298/docs/reports/P66_W2_campaign_distill.md#sha256:1d238f37cce0",
+    "/root/tp-agent/work/m7298/tests/test_campaign_distill.py#sha256:62bd935e9f5b",
+    "/root/tp-agent/work/m7298/tools/distill/campaign_distill.py#sha256:d7e591ffb715",
+    "/root/tp-agent/work/m7298/tools/distill/collect_evidence.py#sha256:870a24fe62f1",
+    "/root/tp-agent/work/m7298/tools/distill/make_figures.py#sha256:577c5d4f0e54",
+    "probe:pytest::tests/test_campaign_distill.py#exit=0"
+   ],
+   "mission_id": 7298,
+   "node_key": "N08",
+   "reason": "有工件/探针，但无逐判据结论映射",
+   "repo": "TensorPlatform",
+   "status": "EVIDENCE_ONLY",
+   "text": "全部工件归档verified/并生成sha256校验和"
+  }
+ ],
+ "total": 49
+}

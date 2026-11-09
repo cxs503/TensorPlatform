@@ -1,0 +1,279 @@
+{
+ "acceptance": [
+  {
+   "actual": "49 行",
+   "artifacts": [
+    "artifacts/p66_w2_distill/out/coverage_matrix.json",
+    ""
+   ],
+   "claim": "综合报告覆盖全部节点验收判据（逐项对照表）",
+   "id": "C1",
+   "ok": true,
+   "target": "49 条"
+  },
+  {
+   "actual": "137 / 477",
+   "artifacts": [
+    "artifacts/p66_w2_distill/out/knowledge_graph.json"
+   ],
+   "claim": "知识图谱规模达标",
+   "id": "C2",
+   "ok": true,
+   "target": "≥20 实体 / ≥30 边"
+  },
+  {
+   "actual": "18 条",
+   "artifacts": [
+    "artifacts/p66_w2_distill/out/gaps.json",
+    ""
+   ],
+   "claim": "遗留缺口清单且每条附提案草案",
+   "id": "C3",
+   "ok": true,
+   "target": "≥3 条"
+  },
+  {
+   "actual": "0 违规",
+   "artifacts": [
+    "",
+    "artifacts/p66_w2_distill/out/distill_summary.json"
+   ],
+   "claim": "报告通过自动格式校验（章节/引用/数字一致性）",
+   "id": "C4",
+   "ok": true,
+   "target": "0 违规"
+  },
+  {
+   "actual": "0 件 / not_archived",
+   "artifacts": [
+    "",
+    ""
+   ],
+   "claim": "全部工件归档并生成 sha256 校验和",
+   "id": "C5",
+   "ok": false,
+   "target": "复核 0 错配"
+  }
+ ],
+ "coverage": {
+  "counts": {
+   "EVIDENCE_ONLY": 49,
+   "FAIL_CLAIMED": 0,
+   "NO_EVIDENCE": 0,
+   "PASS_CLAIMED": 0
+  },
+  "nodes": [
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 7,
+    "declared_status": "running",
+    "evidence_only": 7,
+    "fail_claimed": 0,
+    "mission_id": 7293,
+    "no_evidence": 0,
+    "node_key": "N01",
+    "pass_claimed": 0,
+    "repo": "ship-performance-platform",
+    "title": "操作能力-推进可行域交集成熟化 (Operability-Propulsion Feasible Domain Intersection Maturity)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 8,
+    "declared_status": "failed",
+    "evidence_only": 8,
+    "fail_claimed": 0,
+    "mission_id": 7294,
+    "no_evidence": 0,
+    "node_key": "N02",
+    "pass_claimed": 0,
+    "repo": "ship-performance-platform",
+    "title": "冰致破口进水拓扑完备化与真实型线截面成熟化 (Flooding Topology Completeness & Real Hull Sections Maturity)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 7,
+    "declared_status": "running",
+    "evidence_only": 7,
+    "fail_claimed": 0,
+    "mission_id": 7291,
+    "no_evidence": 0,
+    "node_key": "N03",
+    "pass_claimed": 0,
+    "repo": "TensorDEM",
+    "title": "冰磨蚀场条件模拟与分辨率vs抽样误差裁决 (Ice Abrasion Conditional Simulation & Error Adjudication)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 6,
+    "declared_status": "running",
+    "evidence_only": 6,
+    "fail_claimed": 0,
+    "mission_id": 7292,
+    "no_evidence": 0,
+    "node_key": "N04",
+    "pass_claimed": 0,
+    "repo": "TensorLBM",
+    "title": "冰区航行全船阻力物理预报链：DEM碎冰场+RANS流场+FSI双向耦合3D全船型验证 (Full-Ship Ice Resistance Physics-Based Prediction Chain)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 6,
+    "declared_status": "running",
+    "evidence_only": 6,
+    "fail_claimed": 0,
+    "mission_id": 7295,
+    "no_evidence": 0,
+    "node_key": "N05",
+    "pass_claimed": 0,
+    "repo": "TensorDEM",
+    "title": "冰区航行空间-时间磨蚀场演化：确定性活动度剖面+随机残差场条件模拟 (Spatio-Temporal Ice Abrasion Field Evolution)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 5,
+    "declared_status": "running",
+    "evidence_only": 5,
+    "fail_claimed": 0,
+    "mission_id": 7296,
+    "no_evidence": 0,
+    "node_key": "N06",
+    "pass_claimed": 0,
+    "repo": "TensorPhysics",
+    "title": "多物理场耦合集成验证门 (Multi-Physics Coupling Integration Gate)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 5,
+    "declared_status": "running",
+    "evidence_only": 5,
+    "fail_claimed": 0,
+    "mission_id": 7297,
+    "no_evidence": 0,
+    "node_key": "N07",
+    "pass_claimed": 0,
+    "repo": "TensorPlatform",
+    "title": "冰区航行不确定性量化与误差传播框架 (Ice Navigation UQ & Error Propagation Framework)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   },
+   {
+    "coverage_ratio": 0.0,
+    "criteria_total": 5,
+    "declared_status": "running",
+    "evidence_only": 5,
+    "fail_claimed": 0,
+    "mission_id": 7298,
+    "no_evidence": 0,
+    "node_key": "N08",
+    "pass_claimed": 0,
+    "repo": "TensorPlatform",
+    "title": "冰区航行战役第二波成果汇总与知识蒸馏 (Campaign Wave 2 Results Summary & Knowledge Distillation)",
+    "verdict": "UNVERIFIED_EVIDENCE"
+   }
+  ],
+  "total": 49
+ },
+ "gap_ids": [
+  "G1-N01",
+  "G1-N02",
+  "G1-N03",
+  "G1-N04",
+  "G1-N05",
+  "G1-N06",
+  "G1-N07",
+  "G1-N08",
+  "G3-N02",
+  "G4-N05->N03",
+  "G4-N06->N03",
+  "G4-N06->N04",
+  "G4-N06->N05",
+  "G4-N07->N03",
+  "G4-N07->N04",
+  "G4-N07->N05",
+  "G4-N08->N06",
+  "G4-N08->N07"
+ ],
+ "gaps": 18,
+ "graph_stats": {
+  "edges": 477,
+  "edges_by_relation": {
+   "depends_on": 9,
+   "evidenced_by": 309,
+   "has_criterion": 49,
+   "in_repo": 8,
+   "produced": 57,
+   "proposed_in": 18,
+   "raises_gap": 27
+  },
+  "edges_sha256": "7bd74446b7a99cdf20f339c79f39d4ff79ec1cd66087fa5a9f9f6f9793916d0e",
+  "entities": 137,
+  "entities_by_type": {
+   "artifact": 57,
+   "criterion": 49,
+   "gap": 18,
+   "node": 8,
+   "repo": 5
+  },
+  "entities_sha256": "ad7d701820c67692ecdc30c5261d338885672a5cc5c920981404498d9495bbc1"
+ },
+ "manifest_entries": 0,
+ "self_checks": [
+  {
+   "actual": "49 行",
+   "id": "C1-覆盖",
+   "ok": true,
+   "target": "全部 49 条判据入矩阵"
+  },
+  {
+   "actual": "137 / 477",
+   "id": "C2-图谱",
+   "ok": true,
+   "target": "≥20 实体 / ≥30 边"
+  },
+  {
+   "actual": "18 条",
+   "id": "C3-缺口",
+   "ok": true,
+   "target": "≥3 条且每条附提案草案"
+  },
+  {
+   "actual": "0 违规",
+   "id": "C4-格式",
+   "ok": true,
+   "target": "报告自动校验零违规"
+  },
+  {
+   "actual": "0 件",
+   "id": "C5-归档",
+   "ok": true,
+   "target": "全部工件 sha256 复核通过"
+  }
+ ],
+ "spec": {
+  "gaps_min": 3,
+  "graph_min_edges": 30,
+  "graph_min_entities": 20,
+  "placeholder_tokens": [
+   "TBD",
+   "TODO",
+   "???",
+   "FIXME"
+  ],
+  "required_sections": [
+   "## 0 摘要",
+   "## 1 战役结构与快照",
+   "## 2 判据覆盖矩阵",
+   "## 3 知识图谱",
+   "## 4 遗留缺口与提案草案",
+   "## 5 工件清单与 sha256",
+   "## 6 局限与误差判定"
+  ],
+  "stale_inflight_hours": 6.0
+ },
+ "violations": []
+}

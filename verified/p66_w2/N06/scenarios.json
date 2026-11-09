@@ -1,0 +1,654 @@
+{
+  "scenarios": [
+    {
+      "scenario_id": "S1",
+      "label": "level ice design point (h = 1.0 m, V = 3.9 kn)",
+      "kind": "nominal",
+      "h_m": 1.0,
+      "V_ms": 2.0,
+      "V_kn": 3.8876923435786983,
+      "status": "PASS",
+      "passed": true,
+      "numbers": {
+        "R_crush_N": 1579535.864998431,
+        "R_break_N": 1211123.7571376432,
+        "R_submersion_N": 29514.064959530086,
+        "R_ice_N": 2820173.6870956044,
+        "R_ow_N": 21001.25967457302,
+        "R_total_N": 2841174.946770177,
+        "R_ow_fraction": 0.007391751675991324,
+        "p_ice_mean_Pa": 38600.98664604461,
+        "p_ice_peak_Pa": 139165.02463762413,
+        "p_contact_mean_Pa": 110288.53327441317,
+        "v_slip_mean_ms": 1.9220967708464052,
+        "normal_force_N": 3242482.8782677474,
+        "tangential_force_N": 486372.4317401621,
+        "mass_flux_kg_s": 38935.83538072088,
+        "mean_depth_mm": 5.303946342074751,
+        "peak_depth_mm": 18.626015995593207,
+        "mass_loss_kg": 3497.4222179640906,
+        "delivered_power_MW": 10.33154526098246,
+        "mass_residual": 1.8688405454697062e-16,
+        "momentum_residual": 0.0,
+        "third_law_residual": 3.8503353737380165e-16,
+        "quadrature_residual": 0.0015304800532214492,
+        "observed_order": null,
+        "nc_nearest_mass": 0.0010360367979264516,
+        "nc_belt_mean_normal": 0.25871796335604186
+      },
+      "checks": [
+        {
+          "name": "contracts",
+          "ok": true,
+          "value": 66.0,
+          "limit": 66.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "exchange_contract",
+          "ok": true,
+          "value": 9.0,
+          "limit": 9.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "mass_conservation",
+          "ok": true,
+          "value": 1.8688405454697062e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "momentum_conservation",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "third_law",
+          "ok": true,
+          "value": 3.8503353737380165e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "negative_controls_discriminating",
+          "ok": true,
+          "value": 0.0005833328553856663,
+          "limit": 0.001,
+          "detail": ""
+        },
+        {
+          "name": "in_domain",
+          "ok": true,
+          "value": null,
+          "limit": null,
+          "detail": "in domain"
+        },
+        {
+          "name": "positive_resistance",
+          "ok": true,
+          "value": 2841174.946770177,
+          "limit": 0.0,
+          "detail": ""
+        },
+        {
+          "name": "abrasion_depth_band",
+          "ok": true,
+          "value": 18.626015995593207,
+          "limit": 500.0,
+          "detail": "peak wear depth over the 100 h exposure"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "scenario_id": "S2",
+      "label": "thin ice, high speed (h = 0.35 m, V = 7.8 kn)",
+      "kind": "nominal",
+      "h_m": 0.35,
+      "V_ms": 4.0,
+      "V_kn": 7.775384687157397,
+      "status": "PASS",
+      "passed": true,
+      "numbers": {
+        "R_crush_N": 193493.14346230775,
+        "R_break_N": 423893.314998175,
+        "R_submersion_N": 96492.13522815495,
+        "R_ice_N": 713878.5936886377,
+        "R_ow_N": 76628.7526284939,
+        "R_total_N": 790507.3463171317,
+        "R_ow_fraction": 0.09693616762133463,
+        "p_ice_mean_Pa": 4728.620864140463,
+        "p_ice_peak_Pa": 17047.71551810895,
+        "p_contact_mean_Pa": 13510.345326115608,
+        "v_slip_mean_ms": 3.8441935416928104,
+        "normal_force_N": 397204.1525877989,
+        "tangential_force_N": 59580.62288816984,
+        "mass_flux_kg_s": 77871.67076144175,
+        "mean_depth_mm": 1.2994668538083136,
+        "peak_depth_mm": 4.563373918920334,
+        "mass_loss_kg": 856.8684434012018,
+        "delivered_power_MW": 5.749144336851866,
+        "mass_residual": 1.8688405454697062e-16,
+        "momentum_residual": 1.8726478480921536e-16,
+        "third_law_residual": 0.0,
+        "quadrature_residual": 0.0006806572209450794,
+        "observed_order": null,
+        "nc_nearest_mass": 0.0010360367979264516,
+        "nc_belt_mean_normal": 0.6380132874542116
+      },
+      "checks": [
+        {
+          "name": "contracts",
+          "ok": true,
+          "value": 66.0,
+          "limit": 66.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "exchange_contract",
+          "ok": true,
+          "value": 9.0,
+          "limit": 9.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "mass_conservation",
+          "ok": true,
+          "value": 1.8688405454697062e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "momentum_conservation",
+          "ok": true,
+          "value": 1.8726478480921536e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "third_law",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "negative_controls_discriminating",
+          "ok": true,
+          "value": 0.0005833328553856663,
+          "limit": 0.001,
+          "detail": ""
+        },
+        {
+          "name": "in_domain",
+          "ok": true,
+          "value": null,
+          "limit": null,
+          "detail": "in domain"
+        },
+        {
+          "name": "positive_resistance",
+          "ok": true,
+          "value": 790507.3463171317,
+          "limit": 0.0,
+          "detail": ""
+        },
+        {
+          "name": "abrasion_depth_band",
+          "ok": true,
+          "value": 4.563373918920334,
+          "limit": 500.0,
+          "detail": "peak wear depth over the 100 h exposure"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "scenario_id": "S3",
+      "label": "heavy ice near the validity limit (h = 2.2 m, V = 2.9 kn)",
+      "kind": "nominal",
+      "h_m": 2.2,
+      "V_ms": 1.5,
+      "V_kn": 2.915769257684024,
+      "status": "PASS",
+      "passed": true,
+      "numbers": {
+        "R_crush_N": 7644953.586592407,
+        "R_break_N": 2664472.265702815,
+        "R_submersion_N": 26396.569533500187,
+        "R_ice_N": 10335822.421828723,
+        "R_ow_N": 12288.181752268707,
+        "R_total_N": 10348110.60358099,
+        "R_ow_fraction": 0.0011874807124709653,
+        "p_ice_mean_Pa": 186828.77536685596,
+        "p_ice_peak_Pa": 673558.7192461009,
+        "p_contact_mean_Pa": 533796.5010481599,
+        "v_slip_mean_ms": 1.4415725781348039,
+        "normal_force_N": 15693617.130815897,
+        "tangential_force_N": 2354042.569622385,
+        "mass_flux_kg_s": 29201.876535540658,
+        "mean_depth_mm": 19.25332522173135,
+        "peak_depth_mm": 67.61243806400336,
+        "mass_loss_kg": 12695.642651209651,
+        "delivered_power_MW": 28.222119827948156,
+        "mass_residual": 0.0,
+        "momentum_residual": 1.3109322309087623e-16,
+        "third_law_residual": 1.505392327042963e-16,
+        "quadrature_residual": 0.0015921083156092942,
+        "observed_order": null,
+        "nc_nearest_mass": 0.001036036797926078,
+        "nc_belt_mean_normal": 0.2409046305752935
+      },
+      "checks": [
+        {
+          "name": "contracts",
+          "ok": true,
+          "value": 66.0,
+          "limit": 66.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "exchange_contract",
+          "ok": true,
+          "value": 9.0,
+          "limit": 9.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "mass_conservation",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "momentum_conservation",
+          "ok": true,
+          "value": 1.3109322309087623e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "third_law",
+          "ok": true,
+          "value": 1.505392327042963e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "negative_controls_discriminating",
+          "ok": true,
+          "value": 0.0005833328553855417,
+          "limit": 0.001,
+          "detail": ""
+        },
+        {
+          "name": "in_domain",
+          "ok": true,
+          "value": null,
+          "limit": null,
+          "detail": "in domain"
+        },
+        {
+          "name": "positive_resistance",
+          "ok": true,
+          "value": 10348110.60358099,
+          "limit": 0.0,
+          "detail": ""
+        },
+        {
+          "name": "abrasion_depth_band",
+          "ok": true,
+          "value": 67.61243806400336,
+          "limit": 500.0,
+          "detail": "peak wear depth over the 100 h exposure"
+        }
+      ],
+      "notes": [
+        "delivered power 28.2 MW exceeds installed 22.0 MW -- outside the ship's power capability, recorded as an operational note"
+      ]
+    },
+    {
+      "scenario_id": "S4",
+      "label": "minimum speed / hovering (h = 1.5 m, V = 1.0 kn)",
+      "kind": "nominal",
+      "h_m": 1.5,
+      "V_ms": 0.5,
+      "V_kn": 0.9719230858946746,
+      "status": "PASS",
+      "passed": true,
+      "numbers": {
+        "R_crush_N": 3553955.6962464694,
+        "R_break_N": 1816685.6357064648,
+        "R_submersion_N": 1531.7891587479326,
+        "R_ice_N": 5372173.121111682,
+        "R_ow_N": 1599.247552694497,
+        "R_total_N": 5373772.368664376,
+        "R_ow_fraction": 0.0002976023997629773,
+        "p_ice_mean_Pa": 86852.21995360038,
+        "p_ice_peak_Pa": 313121.30543465423,
+        "p_contact_mean_Pa": 248149.19986742965,
+        "v_slip_mean_ms": 0.4805241927116013,
+        "normal_force_N": 7295586.47610243,
+        "tangential_force_N": 1094337.9714153646,
+        "mass_flux_kg_s": 9733.95884518022,
+        "mean_depth_mm": 2.9834698174170473,
+        "peak_depth_mm": 10.477133997521179,
+        "mass_loss_kg": 1967.2999976048009,
+        "delivered_power_MW": 4.885247607876705,
+        "mass_residual": 1.8688405454697062e-16,
+        "momentum_residual": 6.311370126573576e-17,
+        "third_law_residual": 0.0,
+        "quadrature_residual": 0.0015985711800437388,
+        "observed_order": null,
+        "nc_nearest_mass": 0.0010360367979264516,
+        "nc_belt_mean_normal": 0.23909569143106427
+      },
+      "checks": [
+        {
+          "name": "contracts",
+          "ok": true,
+          "value": 66.0,
+          "limit": 66.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "exchange_contract",
+          "ok": true,
+          "value": 9.0,
+          "limit": 9.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "mass_conservation",
+          "ok": true,
+          "value": 1.8688405454697062e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "momentum_conservation",
+          "ok": true,
+          "value": 6.311370126573576e-17,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "third_law",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "negative_controls_discriminating",
+          "ok": true,
+          "value": 0.0005833328553856663,
+          "limit": 0.001,
+          "detail": ""
+        },
+        {
+          "name": "in_domain",
+          "ok": true,
+          "value": null,
+          "limit": null,
+          "detail": "in domain"
+        },
+        {
+          "name": "positive_resistance",
+          "ok": true,
+          "value": 5373772.368664376,
+          "limit": 0.0,
+          "detail": ""
+        },
+        {
+          "name": "abrasion_depth_band",
+          "ok": true,
+          "value": 10.477133997521179,
+          "limit": 500.0,
+          "detail": "peak wear depth over the 100 h exposure"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "scenario_id": "S5",
+      "label": "high-speed edge (h = 0.8 m, V = 15.6 kn)",
+      "kind": "nominal",
+      "h_m": 0.8,
+      "V_ms": 8.0,
+      "V_kn": 15.550769374314793,
+      "status": "PASS",
+      "passed": true,
+      "numbers": {
+        "R_crush_N": 1010902.953598996,
+        "R_break_N": 968899.0057101145,
+        "R_submersion_N": 1113497.9725684882,
+        "R_ice_N": 3093299.9318775986,
+        "R_ow_N": 280732.0438745858,
+        "R_total_N": 3374031.9757521846,
+        "R_ow_fraction": 0.0832037295117813,
+        "p_ice_mean_Pa": 24704.63145346855,
+        "p_ice_peak_Pa": 89065.61576807944,
+        "p_contact_mean_Pa": 70584.66129562444,
+        "v_slip_mean_ms": 7.688387083385621,
+        "normal_force_N": 2075189.042091358,
+        "tangential_force_N": 311278.3563137037,
+        "mass_flux_kg_s": 155743.3415228835,
+        "mean_depth_mm": 13.57810263571136,
+        "peak_depth_mm": 47.6826009487186,
+        "mass_loss_kg": 8953.400877988071,
+        "delivered_power_MW": 49.07682873821359,
+        "mass_residual": 1.8688405454697062e-16,
+        "momentum_residual": 2.244698095182651e-16,
+        "third_law_residual": 0.0,
+        "quadrature_residual": 0.0007771573128174679,
+        "observed_order": null,
+        "nc_nearest_mass": 0.0010360367979264516,
+        "nc_belt_mean_normal": 0.5807547620806558
+      },
+      "checks": [
+        {
+          "name": "contracts",
+          "ok": true,
+          "value": 66.0,
+          "limit": 66.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "exchange_contract",
+          "ok": true,
+          "value": 9.0,
+          "limit": 9.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "mass_conservation",
+          "ok": true,
+          "value": 1.8688405454697062e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "momentum_conservation",
+          "ok": true,
+          "value": 2.244698095182651e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "third_law",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "negative_controls_discriminating",
+          "ok": true,
+          "value": 0.0005833328553856663,
+          "limit": 0.001,
+          "detail": ""
+        },
+        {
+          "name": "in_domain",
+          "ok": true,
+          "value": null,
+          "limit": null,
+          "detail": "in domain"
+        },
+        {
+          "name": "positive_resistance",
+          "ok": true,
+          "value": 3374031.9757521846,
+          "limit": 0.0,
+          "detail": ""
+        },
+        {
+          "name": "abrasion_depth_band",
+          "ok": true,
+          "value": 47.6826009487186,
+          "limit": 500.0,
+          "detail": "peak wear depth over the 100 h exposure"
+        }
+      ],
+      "notes": [
+        "delivered power 49.1 MW exceeds installed 22.0 MW -- outside the ship's power capability, recorded as an operational note"
+      ]
+    },
+    {
+      "scenario_id": "S6",
+      "label": "thick ice off-domain, non-strict (h = 2.8 m > h_limit)",
+      "kind": "truncation",
+      "h_m": 2.8,
+      "V_ms": 1.5,
+      "V_kn": 2.915769257684024,
+      "status": "FLAGGED",
+      "passed": false,
+      "numbers": {
+        "R_crush_N": 9098126.582390964,
+        "R_break_N": 2906697.0171303437,
+        "R_submersion_N": 28315.173020674913,
+        "R_ice_N": 12033138.772541983,
+        "R_ow_N": 12288.181752268707,
+        "R_total_N": 12045426.954294251,
+        "R_ow_fraction": 0.0010201532746739136,
+        "p_ice_mean_Pa": 302631.7353049896,
+        "p_ice_peak_Pa": 1091053.7931589729,
+        "p_contact_mean_Pa": 864662.1008713989,
+        "v_slip_mean_ms": 1.4415725781348039,
+        "normal_force_N": 25421065.76561913,
+        "tangential_force_N": 3813159.86484287,
+        "mass_flux_kg_s": 29201.876535540658,
+        "mean_depth_mm": 31.18720449139952,
+        "peak_depth_mm": 109.52097405408801,
+        "mass_loss_kg": 20564.842641628846,
+        "delivered_power_MW": 32.851164420802505,
+        "mass_residual": 0.0,
+        "momentum_residual": 0.0,
+        "third_law_residual": 3.7073541569272274e-16,
+        "quadrature_residual": 0.0015953510554361085,
+        "observed_order": null,
+        "nc_nearest_mass": 0.001036036797926078,
+        "nc_belt_mean_normal": 0.23999562239157504
+      },
+      "checks": [
+        {
+          "name": "contracts",
+          "ok": false,
+          "value": 65.0,
+          "limit": 66.0,
+          "detail": "failed: cross_module:(h,V)_key_consistency"
+        },
+        {
+          "name": "exchange_contract",
+          "ok": true,
+          "value": 9.0,
+          "limit": 9.0,
+          "detail": "all checks pass"
+        },
+        {
+          "name": "mass_conservation",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "momentum_conservation",
+          "ok": true,
+          "value": 0.0,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "third_law",
+          "ok": true,
+          "value": 3.7073541569272274e-16,
+          "limit": 1e-06,
+          "detail": ""
+        },
+        {
+          "name": "negative_controls_discriminating",
+          "ok": true,
+          "value": 0.0005833328553855417,
+          "limit": 0.001,
+          "detail": ""
+        },
+        {
+          "name": "in_domain",
+          "ok": false,
+          "value": null,
+          "limit": null,
+          "detail": "OUTSIDE validity domain (h<=2.400 m, V<=9.588 m/s)"
+        },
+        {
+          "name": "positive_resistance",
+          "ok": true,
+          "value": 12045426.954294251,
+          "limit": 0.0,
+          "detail": ""
+        },
+        {
+          "name": "abrasion_depth_band",
+          "ok": true,
+          "value": 109.52097405408801,
+          "limit": 500.0,
+          "detail": "peak wear depth over the 100 h exposure"
+        }
+      ],
+      "notes": [
+        "delivered power 32.9 MW exceeds installed 22.0 MW -- outside the ship's power capability, recorded as an operational note",
+        "non-strict out-of-domain evaluation: chain truncated the ice state and flagged in_domain=False; the (h,V) key itself changes, which the cross-module key-consistency check reports",
+        "contracts: failed: cross_module:(h,V)_key_consistency",
+        "in_domain: OUTSIDE validity domain (h<=2.400 m, V<=9.588 m/s)"
+      ]
+    },
+    {
+      "scenario_id": "S7",
+      "label": "thick ice off-domain, strict (h = 2.8 m > h_limit)",
+      "kind": "refusal",
+      "h_m": 2.8,
+      "V_ms": 1.5,
+      "V_kn": 2.915769257684024,
+      "status": "PASS(expected-refusal)",
+      "passed": true,
+      "numbers": {},
+      "checks": [
+        {
+          "name": "strict_refusal",
+          "ok": true,
+          "value": null,
+          "limit": null,
+          "detail": "h=2.800 m exceeds ice-law validity limit 2.400 m (h <= 0.03*L, h <= 0.1*B); refusing to extrapolate the empirical law"
+        }
+      ],
+      "notes": [
+        "expected refusal: out-of-domain ice state rejected by the chain"
+      ]
+    }
+  ]
+}

@@ -1,0 +1,793 @@
+{
+ "bundle_version": "1.0",
+ "campaign": {
+  "label": "plan 272",
+  "plan_id": 272,
+  "title": "冰区航行战役·第二波聚合 (Ice Navigation Campaign Wave 2 Aggregation)",
+  "wave": null
+ },
+ "generated_by": "tools/distill/collect_evidence.py",
+ "nodes": [
+  {
+   "actual_start": "2026-11-08T10:16:56.480028+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "几何门Cb/L/B反算<1e-12"
+    },
+    {
+     "id": "C2",
+     "text": "边界单调+V→0极限与Lindqvist破冰项<15%"
+    },
+    {
+     "id": "C3",
+     "text": "h→0退化到KVLCC2@15kn基线<3%"
+    },
+    {
+     "id": "C4",
+     "text": "与speed_loss链判定一致率≥90%"
+    },
+    {
+     "id": "C5",
+     "text": "双轴加密后F面积变化<5%、D面积变化<10%"
+    },
+    {
+     "id": "C6",
+     "text": "功率恒等式残差<1e-9"
+    },
+    {
+     "id": "C7",
+     "text": "输出可行域云机器可读数据+矛盾区清单"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 12489,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7293/artifacts/p66_w2_n01/generate_artifacts.py",
+      "rel_path": "artifacts/p66_w2_n01/generate_artifacts.py",
+      "sha256": "aefb87f1503b8a1bb90c2b4b5aae77ccba2a1c8f350fe07d0cf3de813eb4be74"
+     },
+     {
+      "bytes": 23527,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/feasible_domain.py",
+      "rel_path": "backend/modules/green_navigation_ice/feasible_domain.py",
+      "sha256": "0efcc738eb14d45d80901ee111f54469a7b775ec70e5face0393b8dd2a5cb42e"
+     },
+     {
+      "bytes": 9340,
+      "kind": "test",
+      "path": "/root/tp-agent/work/m7293/backend/modules/green_navigation_ice/tests/test_feasible_domain.py",
+      "rel_path": "backend/modules/green_navigation_ice/tests/test_feasible_domain.py",
+      "sha256": "984bfc153f094b6435938e09bfaa152bf4f6344dc2696b0f3a0647598c1a83ad"
+     }
+    ],
+    "probes": [
+     {
+      "exit_code": 0,
+      "name": "pytest::backend/modules/green_navigation_ice/tests/test_feasible_domain.py",
+      "summary": "25 passed, 1 warning in 5.71s"
+     }
+    ]
+   },
+   "ext_id": "P66-W2-N01",
+   "git_head": "7017a6235786f457cbf5d345079a1a75e795a2ec",
+   "mission_id": 7293,
+   "node_key": "N01",
+   "physics_domain": "冰区航行·操纵/操作性与推进",
+   "repo": "ship-performance-platform",
+   "status": "running",
+   "title": "操作能力-推进可行域交集成熟化 (Operability-Propulsion Feasible Domain Intersection Maturity)",
+   "worktree": "/root/tp-agent/work/m7293"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:56.603350+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "几何门Cb/L/B<1e-12"
+    },
+    {
+     "id": "C2",
+     "text": "多边形GZ vs壁直闭式<0.1%（5/10/15/30°）"
+    },
+    {
+     "id": "C3",
+     "text": "box型线vs解析GZ机器精度"
+    },
+    {
+     "id": "C4",
+     "text": "s_i(T1)≥s_i(T2)≥s_i(T3)全域成立"
+    },
+    {
+     "id": "C5",
+     "text": "破口面积换算残差<2%"
+    },
+    {
+     "id": "C6",
+     "text": "R=0.6257与IN37-N06一致、A(b)单调"
+    },
+    {
+     "id": "C7",
+     "text": "时域窗×2后s_i变化<3%"
+    },
+    {
+     "id": "C8",
+     "text": "b*迁移比带区间，σ_c保持WITHHELD口径"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 8509,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/gz.py",
+      "rel_path": "backend/modules/ice_damage_topology/gz.py",
+      "sha256": "74232b91c861ba4b83643692596c627d19c5a606781216225393682763be9cb2"
+     },
+     {
+      "bytes": 10309,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7294/backend/modules/ice_damage_topology/hull_lines.py",
+      "rel_path": "backend/modules/ice_damage_topology/hull_lines.py",
+      "sha256": "50a7066b569a4ed5316d52aafd5a02a5cc2810f73478f82f9023c10bf96692b0"
+     }
+    ],
+    "probes": []
+   },
+   "ext_id": "P66-W2-N02",
+   "git_head": "7017a6235786f457cbf5d345079a1a75e795a2ec",
+   "mission_id": 7294,
+   "node_key": "N02",
+   "physics_domain": "冰区航行·破损稳性",
+   "repo": "ship-performance-platform",
+   "status": "failed",
+   "title": "冰致破口进水拓扑完备化与真实型线截面成熟化 (Flooding Topology Completeness & Real Hull Sections Maturity)",
+   "worktree": "/root/tp-agent/work/m7294"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:56.196388+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "模拟场自相关/谱保真：lag≤3偏差<5%，能量守恒<2%"
+    },
+    {
+     "id": "C2",
+     "text": "P95方差vs独立重复真值比值∈[0.7,1.4]"
+    },
+    {
+     "id": "C3",
+     "text": "行均值保真<1e-2（剖面不被破坏）"
+    },
+    {
+     "id": "C4",
+     "text": "19.47%分解闭合：两项和vs实测<10%"
+    },
+    {
+     "id": "C5",
+     "text": "白噪声退化负控不劣于iid bootstrap 20%"
+    },
+    {
+     "id": "C6",
+     "text": "同种子bitwise复现、异种子CV<5%"
+    },
+    {
+     "id": "C7",
+     "text": "conditional_simulator API+分辨率选择建议表"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 28621,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7291/src/tensordem/ice_abrasion_conditional_sim.py",
+      "rel_path": "src/tensordem/ice_abrasion_conditional_sim.py",
+      "sha256": "a92d5d660b26447d4d2c87bd9b391e1a2efd4f71e1808f28448fd82c642f38c1"
+     },
+     {
+      "bytes": 14958,
+      "kind": "test",
+      "path": "/root/tp-agent/work/m7291/tests/test_ice_abrasion_conditional_sim.py",
+      "rel_path": "tests/test_ice_abrasion_conditional_sim.py",
+      "sha256": "0bfb50a039dfa92f653ff4af3970c4298c6b9cf22133d3b59105ed211ea92b0d"
+     }
+    ],
+    "probes": [
+     {
+      "exit_code": 1,
+      "name": "pytest::tests/test_ice_abrasion_conditional_sim.py",
+      "summary": "2 failed, 18 passed, 1 warning in 21.30s"
+     }
+    ]
+   },
+   "ext_id": "P66-W2-N03",
+   "git_head": "e83840f503f7f9a08a85c28b33e60aa7211262b2",
+   "mission_id": 7291,
+   "node_key": "N03",
+   "physics_domain": "冰区航行·结构磨损",
+   "repo": "TensorDEM",
+   "status": "running",
+   "title": "冰磨蚀场条件模拟与分辨率vs抽样误差裁决 (Ice Abrasion Conditional Simulation & Error Adjudication)",
+   "worktree": "/root/tp-agent/work/m7291"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:56.333267+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "DEM冰浓度误差<5%, D50<10%"
+    },
+    {
+     "id": "C2",
+     "text": "RANS残差下降3个量级, 质量守恒<1e-4"
+    },
+    {
+     "id": "C3",
+     "text": "FSI动量交换残差<1%"
+    },
+    {
+     "id": "C4",
+     "text": "阻力分解能量守恒<2%"
+    },
+    {
+     "id": "C5",
+     "text": "全船阻力vs Riska(1989)<15%"
+    },
+    {
+     "id": "C6",
+     "text": "3档网格GCI外推<5%"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 1277,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/__init__.py",
+      "rel_path": "src/tensorlbm/ice_fullship/__init__.py",
+      "sha256": "08288e6fd1d2bcdd4b5165f3b9fc29980287c95e131132d73101f32873931811"
+     },
+     {
+      "bytes": 14179,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/floe_field.py",
+      "rel_path": "src/tensorlbm/ice_fullship/floe_field.py",
+      "sha256": "8003ff9aaec76ed8c7b8c1d9b5b8cb6b4c6905ddefddfe5433a33a1319d97633"
+     },
+     {
+      "bytes": 23465,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7292/src/tensorlbm/ice_fullship/lbm_porous.py",
+      "rel_path": "src/tensorlbm/ice_fullship/lbm_porous.py",
+      "sha256": "587f31e3e9fb5e47382a3f5bfd2ecc0056fcdad64fb31c2066067b449583ac74"
+     }
+    ],
+    "probes": []
+   },
+   "ext_id": "P66-W2-N04",
+   "git_head": "7b7e567cc40788a2fb24097c6785be89157dbcff",
+   "mission_id": 7292,
+   "node_key": "N04",
+   "physics_domain": "冰区航行·阻力预报",
+   "repo": "TensorLBM",
+   "status": "running",
+   "title": "冰区航行全船阻力物理预报链：DEM碎冰场+RANS流场+FSI双向耦合3D全船型验证 (Full-Ship Ice Resistance Physics-Based Prediction Chain)",
+   "worktree": "/root/tp-agent/work/m7292"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:56.739176+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "活动度剖面拟合R²>0.95"
+    },
+    {
+     "id": "C2",
+     "text": "100条件样本统计vs目标<5%"
+    },
+    {
+     "id": "C3",
+     "text": "时空演化质量守恒<1e-6"
+    },
+    {
+     "id": "C4",
+     "text": "场提取P95 vs N02 P95<10%"
+    },
+    {
+     "id": "C5",
+     "text": "均匀冰场d(t)=a·t误差<1%"
+    },
+    {
+     "id": "C6",
+     "text": "1000面元×100步<60s CPU"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [
+    "N03"
+   ],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 87973,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7295/src/tensordem/ice_abrasion_spatiotemporal.py",
+      "rel_path": "src/tensordem/ice_abrasion_spatiotemporal.py",
+      "sha256": "a357868d93d27a4dd604c5621659762a460ede33125327b2ab5860c54f9c5abc"
+     }
+    ],
+    "probes": []
+   },
+   "ext_id": "P66-W2-N05",
+   "git_head": "e83840f503f7f9a08a85c28b33e60aa7211262b2",
+   "mission_id": 7295,
+   "node_key": "N05",
+   "physics_domain": "冰区航行·结构磨损",
+   "repo": "TensorDEM",
+   "status": "running",
+   "title": "冰区航行空间-时间磨蚀场演化：确定性活动度剖面+随机残差场条件模拟 (Spatio-Temporal Ice Abrasion Field Evolution)",
+   "worktree": "/root/tp-agent/work/m7295"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:56.906019+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "耦合界面质量守恒残差<1e-6"
+    },
+    {
+     "id": "C2",
+     "text": "磨蚀场与阻力链参数空间一致性>90%"
+    },
+    {
+     "id": "C3",
+     "text": "跨模块数据接口契约验证通过"
+    },
+    {
+     "id": "C4",
+     "text": "集成测试用例全部通过（≥5个端到端场景）"
+    },
+    {
+     "id": "C5",
+     "text": "耦合仿真端到端时间<单模块时间之和的1.5倍"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [
+    "N03",
+    "N04",
+    "N05"
+   ],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 53995,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/chain_contours.png",
+      "rel_path": "artifacts/p66_gate/figures/chain_contours.png",
+      "sha256": "19930db07c274222f9eacdb10491791d362e7327086ec09fe07b65e59e961993"
+     },
+     {
+      "bytes": 53994,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/conservation_residuals.png",
+      "rel_path": "artifacts/p66_gate/figures/conservation_residuals.png",
+      "sha256": "056358fe934c19f4375fa6a961262377bc103ce9e8b84e3b88e2a4a5e9d28b86"
+     },
+     {
+      "bytes": 118263,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/interface_fluxes.png",
+      "rel_path": "artifacts/p66_gate/figures/interface_fluxes.png",
+      "sha256": "f4ccf07345c6075223bae0e8699268d51417a2615f07da57ca4ddd26afda1ee0"
+     },
+     {
+      "bytes": 58819,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/parameter_space.png",
+      "rel_path": "artifacts/p66_gate/figures/parameter_space.png",
+      "sha256": "749467e7fb7e5cccf7363b3388f0e734cc173eff9782b25aff1c165072ae09de"
+     },
+     {
+      "bytes": 41195,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/figures/timing.png",
+      "rel_path": "artifacts/p66_gate/figures/timing.png",
+      "sha256": "b36a63da94462b74d1df78f58f42445afbce8ec39f616fd42eb02bc87a30b252"
+     },
+     {
+      "bytes": 119964,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/gate_verdict.json",
+      "rel_path": "artifacts/p66_gate/gate_verdict.json",
+      "sha256": "ec87e316da0f74e3f94b494a3ab7b783fd5cc9ed34849594fae0327ac61a3dfa"
+     },
+     {
+      "bytes": 19427,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/scenarios.json",
+      "rel_path": "artifacts/p66_gate/scenarios.json",
+      "sha256": "70d548ce2f73a92ae196d8bae44791563f8e8906be56a18e35dc4050e7601c91"
+     },
+     {
+      "bytes": 30589,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7296/artifacts/p66_gate/sweep.json",
+      "rel_path": "artifacts/p66_gate/sweep.json",
+      "sha256": "faaf717c20856f35bf1a252e16388377f4fa5a7799c6b606401d61221feda3b6"
+     },
+     {
+      "bytes": 12406,
+      "kind": "report",
+      "path": "/root/tp-agent/work/m7296/docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md",
+      "rel_path": "docs/P66_W2_N06_MULTIPHYSICS_COUPLING_GATE.md",
+      "sha256": "fe4cf89e0642883cbe0eceff64b9b70e68d4101831912d7508eb8c7273c09e70"
+     },
+     {
+      "bytes": 30700,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/scripts/p66_w2_n06_gate.py",
+      "rel_path": "scripts/p66_w2_n06_gate.py",
+      "sha256": "76a4eb9c97ca9ce9dd37a0cb1bcbcafcc15b72ba6920e680ce09b3fa7ef8cbe5"
+     },
+     {
+      "bytes": 1874,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/__init__.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/__init__.py",
+      "sha256": "dc86fff4301bed60126373df1fb0d586880b186afcd2b99a133b90cb620ccf6c"
+     },
+     {
+      "bytes": 42501,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/conservation.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/conservation.py",
+      "sha256": "297cca4352ffebc87ee672d75bd8f6eebf96a6d76e4cb8f3dee21d779e6f6e6e"
+     },
+     {
+      "bytes": 26258,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/contracts.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/contracts.py",
+      "sha256": "a1daff2a35f5d74ea047edd8f0617b53f8c90fd5982f3502f1ffaeda062b2b5a"
+     },
+     {
+      "bytes": 18678,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/gate.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/gate.py",
+      "sha256": "fbf1f3c15ee4db5aaae03146fa573b995b344a7854697b4e0545be8abdb64095"
+     },
+     {
+      "bytes": 9516,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/parameter_space.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/parameter_space.py",
+      "sha256": "6bad0470322ff0992a19c553b9d8a0116d3e7f6eb2d10e4d4f891168574dd2a6"
+     },
+     {
+      "bytes": 7712,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/perf.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/perf.py",
+      "sha256": "765246fa615a875b60200594de242651d94197fb18822b916e78952c5b5106fd"
+     },
+     {
+      "bytes": 19036,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/producers.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/producers.py",
+      "sha256": "6a769d8e5717b7d3706e36bc66aac534744208cbe74c5175969ca2d0d6cc6ea9"
+     },
+     {
+      "bytes": 11769,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7296/src/tensorphysics/campaign/p66_gate/scenarios.py",
+      "rel_path": "src/tensorphysics/campaign/p66_gate/scenarios.py",
+      "sha256": "5b91a5c969ad3ffdac222c357a1dd5dd6d3c2cfafd600856e1e4c38b1b494e39"
+     },
+     {
+      "bytes": 10534,
+      "kind": "test",
+      "path": "/root/tp-agent/work/m7296/tests/test_p66_multiphysics_gate.py",
+      "rel_path": "tests/test_p66_multiphysics_gate.py",
+      "sha256": "788380aefed35bbce252ead524d14cc9fcb5943f9102f455db4773f044b9ab47"
+     }
+    ],
+    "probes": [
+     {
+      "exit_code": 0,
+      "name": "pytest::tests/test_p66_multiphysics_gate.py",
+      "summary": "23 passed, 1 warning in 6.23s"
+     }
+    ]
+   },
+   "ext_id": "P66-W2-N06",
+   "git_head": "8aeb46b1159f9f9bbecf2c5f423bdeba052c7582",
+   "mission_id": 7296,
+   "node_key": "N06",
+   "physics_domain": "冰区航行·多物理场耦合",
+   "repo": "TensorPhysics",
+   "status": "running",
+   "title": "多物理场耦合集成验证门 (Multi-Physics Coupling Integration Gate)",
+   "worktree": "/root/tp-agent/work/m7296"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:57.042137+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "Sobol指数总和∈[0.95,1.05]（闭合性检验）"
+    },
+    {
+     "id": "C2",
+     "text": "输出95%CI与独立重复统计比值∈[0.8,1.2]"
+    },
+    {
+     "id": "C3",
+     "text": "误差传播链雅可比条件数<1e6"
+    },
+    {
+     "id": "C4",
+     "text": "UQ计算加速比≥10 vs蒙特卡洛暴力法"
+    },
+    {
+     "id": "C5",
+     "text": "输出UQ报告含敏感性排序+置信区间图+误差传播路径图"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [
+    "N03",
+    "N04",
+    "N05"
+   ],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 17122,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7297/artifacts/m7297/case_ice_navigation.py",
+      "rel_path": "artifacts/m7297/case_ice_navigation.py",
+      "sha256": "dc0c5a6f32aab1a8dfa58910c65cfb5f368499c4744b73885ab6cec0dddf15fd"
+     },
+     {
+      "bytes": 26585,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7297/artifacts/m7297/run_uq_case.py",
+      "rel_path": "artifacts/m7297/run_uq_case.py",
+      "sha256": "32eb104fb687e2fbd3d40efc6214088cd8e90ae96db04590e4ba459a2c473267"
+     },
+     {
+      "bytes": 56346,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7297/backend/services/uq_propagation.py",
+      "rel_path": "backend/services/uq_propagation.py",
+      "sha256": "65fe5d9919fac39f1f244b52dd85619db7ec2b4bee90901a49a2b1d2ebe3fd35"
+     },
+     {
+      "bytes": 21495,
+      "kind": "test",
+      "path": "/root/tp-agent/work/m7297/tests/test_uq_propagation.py",
+      "rel_path": "tests/test_uq_propagation.py",
+      "sha256": "ee83489c4b0046baa8eca7f2a500b6c18da88e4e113630e0a4c64cadef339692"
+     }
+    ],
+    "probes": [
+     {
+      "exit_code": 0,
+      "name": "pytest::tests/test_uq_propagation.py",
+      "summary": "29 passed, 1 warning in 13.22s"
+     }
+    ]
+   },
+   "ext_id": "P66-W2-N07",
+   "git_head": "178fd258cd4815f45d560d5788b07e9d3244efaf",
+   "mission_id": 7297,
+   "node_key": "N07",
+   "physics_domain": "冰区航行·不确定性量化",
+   "repo": "TensorPlatform",
+   "status": "running",
+   "title": "冰区航行不确定性量化与误差传播框架 (Ice Navigation UQ & Error Propagation Framework)",
+   "worktree": "/root/tp-agent/work/m7297"
+  },
+  {
+   "actual_start": "2026-11-08T10:16:57.155071+00:00",
+   "criteria": [
+    {
+     "id": "C1",
+     "text": "综合报告覆盖全部7节点验收判据（逐项对照表）"
+    },
+    {
+     "id": "C2",
+     "text": "知识图谱≥20实体节点+≥30关系边"
+    },
+    {
+     "id": "C3",
+     "text": "遗留缺口清单≥3条且每条附提案草案"
+    },
+    {
+     "id": "C4",
+     "text": "综合报告通过自动化格式校验"
+    },
+    {
+     "id": "C5",
+     "text": "全部工件归档verified/并生成sha256校验和"
+    }
+   ],
+   "declared_node_status": "in-flight",
+   "depends_on": [
+    "N06",
+    "N07"
+   ],
+   "evidence": {
+    "claims": [],
+    "files": [
+     {
+      "bytes": 9,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7298/alpha_impl.py",
+      "rel_path": "alpha_impl.py",
+      "sha256": "92e78d0b032962f47792a9fa95fd981ef63e1e3ef074d536d6304c75eddbe29f"
+     },
+     {
+      "bytes": 60538,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png",
+      "rel_path": "artifacts/p66_w2_distill/figures/fig1_coverage_and_evidence.png",
+      "sha256": "b099a64361e3d76302f5d509cb5b60e957a63e4186dd39dcfb5fd89198b9c7c9"
+     },
+     {
+      "bytes": 373103,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png",
+      "rel_path": "artifacts/p66_w2_distill/figures/fig2_knowledge_graph.png",
+      "sha256": "90bd974ee238e437ba95b96d8a779e6bedb662c9c7c96aece28f0a4c04653caf"
+     },
+     {
+      "bytes": 71000,
+      "kind": "figure",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png",
+      "rel_path": "artifacts/p66_w2_distill/figures/fig3_criteria_vs_threshold.png",
+      "sha256": "d9dae5c8137a851fe867d7fd09265a4657ef00f3b79e4f6574eb24500d84cc1b"
+     },
+     {
+      "bytes": 22560,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/campaign_bundle.json",
+      "rel_path": "artifacts/p66_w2_distill/inputs/campaign_bundle.json",
+      "sha256": "62bcb02163bb395cff4ac27620e007b58ce88a0c16981aec37a8ccffd58e0039"
+     },
+     {
+      "bytes": 6530,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/inputs/narrative.json",
+      "rel_path": "artifacts/p66_w2_distill/inputs/narrative.json",
+      "sha256": "129e2389274811e2070d9787d24741d694d9467394b3534a8ec9f7b7a268115c"
+     },
+     {
+      "bytes": 40789,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/coverage_matrix.json",
+      "rel_path": "artifacts/p66_w2_distill/out/coverage_matrix.json",
+      "sha256": "2ef62c3738e9d56536fa965bf0ebca99228ac7654d50c99e652497a537ac4713"
+     },
+     {
+      "bytes": 6891,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/distill_summary.json",
+      "rel_path": "artifacts/p66_w2_distill/out/distill_summary.json",
+      "sha256": "974aedf15dc741e3e55686041913131c76104f9f0aa0727f471ac68f0fd878a5"
+     },
+     {
+      "bytes": 33297,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/gaps.json",
+      "rel_path": "artifacts/p66_w2_distill/out/gaps.json",
+      "sha256": "7121df7ec04489a77d96bc3b69b7ee610dd3d7e2f3d28822a0992e4ae4b02340"
+     },
+     {
+      "bytes": 73035,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/out/knowledge_graph.json",
+      "rel_path": "artifacts/p66_w2_distill/out/knowledge_graph.json",
+      "sha256": "fae987232bbe7b30ccac5863b6651f3cd786e7aa9dda2af5dce85365ca3fb82c"
+     },
+     {
+      "bytes": 20704,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/missions_raw.json",
+      "rel_path": "artifacts/p66_w2_distill/sources/missions_raw.json",
+      "sha256": "87077f3f7eabebae64c7a0a37bfdf4f6ac794bb3b365ff30ab26beb98c71e6aa"
+     },
+     {
+      "bytes": 19261,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/artifacts/p66_w2_distill/sources/plan272_nodes.json",
+      "rel_path": "artifacts/p66_w2_distill/sources/plan272_nodes.json",
+      "sha256": "e9b0fc6ef4ca207dda2966b558bf1152435169d349844da440f5708e14b57967"
+     },
+     {
+      "bytes": 1896,
+      "kind": "artifact",
+      "path": "/root/tp-agent/work/m7298/config/domain_word_denylist.json",
+      "rel_path": "config/domain_word_denylist.json",
+      "sha256": "c5cda62a02d3a86b931075b2437d9f438b807c2b79c35bc548836306ddf354de"
+     },
+     {
+      "bytes": 49946,
+      "kind": "report",
+      "path": "/root/tp-agent/work/m7298/docs/reports/P66_W2_campaign_distill.md",
+      "rel_path": "docs/reports/P66_W2_campaign_distill.md",
+      "sha256": "1d238f37cce0694f361bb80db0223c9ded771936448da9d8bce3c6ca3e7fc3d6"
+     },
+     {
+      "bytes": 15480,
+      "kind": "test",
+      "path": "/root/tp-agent/work/m7298/tests/test_campaign_distill.py",
+      "rel_path": "tests/test_campaign_distill.py",
+      "sha256": "62bd935e9f5b8acaffbda2068af13e28cf4463089174dfe8bfabd23161179d57"
+     },
+     {
+      "bytes": 42516,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7298/tools/distill/campaign_distill.py",
+      "rel_path": "tools/distill/campaign_distill.py",
+      "sha256": "d7e591ffb715969b12169674c027ad84bdf1d0dc829894724d12786b6bc918d3"
+     },
+     {
+      "bytes": 9845,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7298/tools/distill/collect_evidence.py",
+      "rel_path": "tools/distill/collect_evidence.py",
+      "sha256": "870a24fe62f16970c78713894439643573854fca14e703001f02b1e746acb7ee"
+     },
+     {
+      "bytes": 7586,
+      "kind": "impl",
+      "path": "/root/tp-agent/work/m7298/tools/distill/make_figures.py",
+      "rel_path": "tools/distill/make_figures.py",
+      "sha256": "577c5d4f0e543bc9ddbf7604f38bd3c70a1ae7275470c9ab19e17a038ccde5ee"
+     }
+    ],
+    "probes": [
+     {
+      "exit_code": 0,
+      "name": "pytest::tests/test_campaign_distill.py",
+      "summary": "21 passed, 1 warning in 0.65s"
+     }
+    ]
+   },
+   "ext_id": "P66-W2-N08",
+   "git_head": "178fd258cd4815f45d560d5788b07e9d3244efaf",
+   "mission_id": 7298,
+   "node_key": "N08",
+   "physics_domain": "冰区航行·知识蒸馏",
+   "repo": "TensorPlatform",
+   "status": "running",
+   "title": "冰区航行战役第二波成果汇总与知识蒸馏 (Campaign Wave 2 Results Summary & Knowledge Distillation)",
+   "worktree": "/root/tp-agent/work/m7298"
+  }
+ ],
+ "snapshot_utc": "2026-11-08T13:14:04Z",
+ "work_root": "/root/tp-agent/work"
+}
