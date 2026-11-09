@@ -56,3 +56,7 @@ from api.truth_gates import router as truth_gates_router              # prefix="
 router.include_router(truth_gates_router)
 router.include_router(tensor_repro_router)
 router.include_router(execution_lineage_router)
+
+# ── m7105: Proposal Gate — 提案→战役播种供给链机器门 ──
+from api.proposal_gate import router as proposal_gate_router              # prefix="/proposals/gate"
+router.include_router(proposal_gate_router)

@@ -1,0 +1,82 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "proposal_v2.schema.json",
+  "title": "Proposal Schema v2 (Task Specification)",
+  "description": "任务书口径提案格式，强制验收判据可量化",
+  "type": "object",
+  "required": ["title", "repo", "goals", "is_maturity"],
+  "properties": {
+    "title": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 500,
+      "description": "提案标题（非空）"
+    },
+    "repo": {
+      "type": "string",
+      "description": "目标仓库名（必须在白名单内）"
+    },
+    "description": {
+      "type": "string",
+      "default": "",
+      "description": "提案描述"
+    },
+    "goals": {
+      "type": "array",
+      "minItems": 3,
+      "items": {
+        "type": "object",
+        "required": ["name", "metric", "threshold"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "验收目标名称"
+          },
+          "metric": {
+            "type": "string",
+            "minLength": 1,
+            "description": "度量指标名称"
+          },
+          "threshold": {
+            "type": "number",
+            "description": "可量化阈值"
+          },
+          "unit": {
+            "type": "string",
+            "description": "度量单位"
+          },
+          "comparison": {
+            "type": "string",
+            "enum": ["<", "<=", ">", ">=", "==", "!="],
+            "default": "<=",
+            "description": "比较操作符"
+          }
+        },
+        "additionalProperties": false
+      },
+      "description": "验收目标列表（≥3条，每条含可量化阈值）"
+    },
+    "dependencies_hint": {
+      "type": "array",
+      "items": {"type": "string"},
+      "default": [],
+      "description": "依赖提示（用于去重）"
+    },
+    "is_maturity": {
+      "type": "boolean",
+      "description": "是否为成熟化任务"
+    },
+    "priority": {
+      "type": "string",
+      "enum": ["low", "medium", "high", "critical"],
+      "default": "medium"
+    },
+    "metadata": {
+      "type": "object",
+      "default": {},
+      "description": "扩展元数据"
+    }
+  },
+  "additionalProperties": false
+}
