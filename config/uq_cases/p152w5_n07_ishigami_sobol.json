@@ -1,0 +1,105 @@
+{
+  "case_id": "p152w5_n07_ishigami_sobol",
+  "title": "Ishigami-Homma three-input benchmark: PCE (Legendre projection) Sobol' first/total indices against the closed-form ANOVA decomposition",
+  "model": {
+    "path": "global_sensitivity:ishigami",
+    "file": "backend/services/global_sensitivity.py",
+    "call_style": "array",
+    "output": null
+  },
+  "inputs": [
+    {
+      "name": "x1",
+      "family": "uniform",
+      "lower": -3.141592653589793,
+      "upper": 3.141592653589793
+    },
+    {
+      "name": "x2",
+      "family": "uniform",
+      "lower": -3.141592653589793,
+      "upper": 3.141592653589793
+    },
+    {
+      "name": "x3",
+      "family": "uniform",
+      "lower": -3.141592653589793,
+      "upper": 3.141592653589793
+    }
+  ],
+  "design": {
+    "mode": "projection",
+    "degree": 12,
+    "q_norm": 1.0,
+    "quadrature": {
+      "kind": "tensor",
+      "n_per_dim": 13
+    }
+  },
+  "band": {
+    "probs": [
+      0.025,
+      0.5,
+      0.975
+    ],
+    "n_surrogate": 16384,
+    "seed": 3
+  },
+  "mc": {
+    "n": 10000,
+    "sampler": "lhs",
+    "seed": 20261110,
+    "reference_n": 200000,
+    "reference_sampler": "qmc",
+    "reference_seed": 987654
+  },
+  "reference": {
+    "path": "global_sensitivity:ishigami_reference",
+    "file": "backend/services/global_sensitivity.py",
+    "source": "Ishigami & Homma (1990) closed-form ANOVA; variance decomposition as tabulated in Saltelli et al. (2008) Table 2.3",
+    "second_order": {
+      "x1-x3": 0.2439
+    },
+    "second_order_source": "Saltelli et al. (2008) Table 2.3: for the Ishigami function the only non-zero interaction is V_13, hence S_13 = S_T3 - S_3 = 0.2439"
+  },
+  "thresholds": {
+    "sobol_rel_tol": 0.05,
+    "moment_rel_tol": 0.05,
+    "min_r2": 0.99,
+    "note": "no evaluation-count speed-up gate here: a 5%-accurate three-input ANOVA needs O(10^3) projection evaluations, i.e. the same order as the 10^4 Monte Carlo budget it replaces. The acceleration criterion is gated on the six-parameter case instead."
+  },
+  "sweep": {
+    "mc_budgets": [
+      64,
+      128,
+      256,
+      512,
+      1024,
+      2048,
+      4096,
+      10000
+    ],
+    "pce_designs": [
+      {
+        "degree": 6,
+        "n_samples": 200
+      },
+      {
+        "degree": 8,
+        "n_samples": 400
+      },
+      {
+        "degree": 10,
+        "n_samples": 700
+      },
+      {
+        "degree": 12,
+        "n_samples": 1000
+      },
+      {
+        "degree": 12,
+        "n_samples": 1500
+      }
+    ]
+  }
+}
