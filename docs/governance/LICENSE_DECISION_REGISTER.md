@@ -30,7 +30,7 @@
 | TensorCAD | Apache-2.0 | Retain Apache-2.0. | Verify notices, dependencies and package metadata. |
 | TensorKnowledge | Apache-2.0 (added 2026-11-10) | Initial software license added with explicit content boundary. | Papers, web extracts, figures, datasets and third-party documents remain individually governed; see `LICENSE_SCOPE.md`. |
 | TensorData | Apache-2.0 (added 2026-11-10) | Initial software license added; package metadata now declares Apache-2.0. | Dataset rights remain governed by per-asset manifests; see `LICENSE_SCOPE.md`; continue dependency audit. |
-| TensorBench | Apache-2.0 | Retain Apache-2.0. | Verify any imported benchmark code, datasets and benchmark result artifacts separately. |
+| TensorBench | Apache-2.0 | Retain Apache-2.0; `LICENSE_SCOPE.md` now limits the grant to original software and project-authored documentation. | Verify imported benchmark code, datasets, papers, models and result artifacts separately. |
 | TensorPapers (private) | No root LICENSE found | Keep private and unlicensed at repository level until content is classified. Do not add a blanket Apache license to papers or publisher PDFs. | Classify authored notes/code versus third-party papers, figures, supplementary data and publisher content. |
 | ship-performance-platform (private) | MIT (added 2026-11-10; matches README declaration) | MIT added for original software; customer/commissioned data and deliverables explicitly excluded. | Continue dependency and third-party audit; verify customer/contract restrictions before any public release. |
 
