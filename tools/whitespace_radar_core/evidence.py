@@ -22,7 +22,18 @@ import json
 from typing import Any, Dict
 
 SCHEMA = "radar/v1"
-SUPPORTED_SCHEMAS = (SCHEMA, "radar-gate/v1", "radar-query/v1", "radar-bench/v1", "radar-pool/v1", "radar-modules/v1", "radar-campaign/v1")
+SUPPORTED_SCHEMAS = (
+    SCHEMA,
+    "radar-gate/v1",
+    "radar-query/v1",
+    "radar-bench/v1",
+    "radar-pool/v1",
+    "radar-pool-pin/v1",
+    "radar-falsecovered/v1",
+    "radar-modules/v1",
+    "radar-campaign/v1",
+    "seeding-dedup/v1",
+)
 FLOAT_NDIGITS = 6
 
 
