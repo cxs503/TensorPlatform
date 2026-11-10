@@ -84,6 +84,27 @@ python3 -m pytest tools/capability_upgrade/tests -q
 | GET | `/events` | 入库事件日志（含实测重判延迟） |
 | GET | `/health` | 台账统计 + 最大延迟 + 覆盖率 |
 
+## 逐级升账状态机（P348-W3-N01）
+
+P218-N01 的 `RejudgeEngine` 是一次判定：criterion 通过即跳到 `target_level`。P348-W3-N01 在其上加
+"可审计的台阶"层，四个模块、零领域语义、阈值全在配置里：
+
+| 模块 | 作用 |
+|---|---|
+| `upgrade_rules.py` | 规则表：`capability_upgrade_rules`（每级台阶的证据条件）+ `capability_rollback_rules`（缺陷落点），JSON 为源、SQLite 为镜像，回读 digest 用于漂移检测 |
+| `completeness.py` | 证据链完整性检查器：证据记录 → 7 个事实（锚点按 sha256 去重、只算带 `error_pct` 的测量），`assess()` 给 satisfied + completeness(0-1)，`completeness_report()` 扫全队 |
+| `state_machine.py` | `NOT_SUPPORTED→STUB→MOCK→WITHHELD→REAL` 逐级攀爬；先回归校验、缺陷阻塞、幂等；`inject_defect()`/`resolve_defect()` 回滚 |
+| `upgrade_audit.py` | 哈希链 JSONL 审计：每条含 from/to、规则 id+digest、升级前后证据快照、完整度、operator、reason；`verify()` 检出篡改 |
+
+配置：`config/capability_upgrade/upgrade_rules.json`（`UpgradeRuleTable.from_json`）。
+一次跑完验收（C1–C5 数字 + 3 图 + 论文级报告）：
+
+```
+python -m tools.capability_upgrade.upgrade_acceptance --out-dir runs/p348w3_n01_capability_upgrade
+```
+
+用例：`tools/capability_upgrade/tests/test_upgrade_state_machine.py`（42 例，覆盖状态机/检查器/审计/回滚）。
+
 ## 纪律
 
 * **零领域语义**：域词不得出现在 `tools/capability_upgrade/**.py`；`test_c7_*` 用
