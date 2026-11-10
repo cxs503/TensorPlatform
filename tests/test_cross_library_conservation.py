@@ -112,16 +112,25 @@ def synthetic_lbm_cells():
 
 @pytest.fixture
 def synthetic_fvm_cells():
-    """Create synthetic FVM control volumes (3x3x3 grid, finer than LBM)."""
+    """Create synthetic FVM control volumes (3x3x3 grid, finer than LBM).
+
+    The patch tiles *the same physical domain* as ``synthetic_lbm_cells``
+    ([-0.05, 0.15]^3).  The earlier version offset the patch by 0.02, so the
+    two grids covered different volumes; the mass-inventory identity of the
+    transfer cannot hold across different domains, and the previous (degenerate)
+    flux check hid that by always returning a zero residual.
+    """
     cells = []
+    h = 0.2 / 3.0
     for i in range(3):
         for j in range(3):
             for k in range(3):
-                center = np.array([i * 0.07, j * 0.07, k * 0.07])
-                volume = 0.07 ** 3
+                center = np.array([-0.05 + (i + 0.5) * h,
+                                   -0.05 + (j + 0.5) * h,
+                                   -0.05 + (k + 0.5) * h])
                 cells.append(FVMCell(
                     center=center,
-                    volume=volume,
+                    volume=h ** 3,
                 ))
     return cells
 
@@ -352,8 +361,17 @@ class TestLBMtoFVMInterpolation:
             synthetic_fvm_cells,
             n_neighbors=4,
         )
-        # Flux-corrected should have better conservation
-        assert result.flux_residual < 0.15 or result.passed
+        # The gate is a mass-inventory identity over the *same* domain, so it
+        # must pass for a consistent patch...
+        assert result.passed, result.summary()
+        assert result.flux_residual < 0.15
+        # ...and it must be able to fail: a patch that covers a different
+        # domain has to be rejected (the old check returned 0 for every field).
+        shifted = [FVMCell(center=c.center + np.array([0.5, 0.0, 0.0]),
+                           volume=c.volume) for c in synthetic_fvm_cells]
+        bad = interp.nearest_neighbor_interpolate(synthetic_lbm_cells, shifted)
+        assert not bad.passed
+        assert bad.flux_residual > 0.5
 
     def test_mass_conservation_result_structure(self, synthetic_lbm_cells, synthetic_fvm_cells):
         """Test MassConservationResult summary structure."""

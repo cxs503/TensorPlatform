@@ -84,7 +84,9 @@ def test_no_pass_claim_is_unsupported(tool, cards, index, snapshot):
     """平台口径：任何 PASS 都必须有可复算锚 + 逐字引文，且引文不得自陈失败。"""
     result, _ = tool.check(cards, index, snapshot)
     assert result["summary"]["pass_claims"] == result["summary"]["pass_claims_supported"]
-    assert result["summary"]["pass_claims"] == 1  # 只有 CAP-005（仓内策略文件锚）
+    # 两个 PASS 都必须是"仓内文件锚 + 逐字引文"：CAP-005（策略文件）与
+    # CAP-007（P167W2-N10 守恒审计证据包，摘要与引文行由 runner 产出）。
+    assert result["summary"]["pass_claims"] == 2
 
 
 def test_snapshot_digests_are_self_consistent(snapshot):
