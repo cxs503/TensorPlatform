@@ -9,6 +9,9 @@
 - evidence_chain : 证据链构建（theory/code/config/data/report 五元）
 - grader         : 等级判定（REAL/MOCK/STUB/WITHHELD/NOT_SUPPORTED）
 - anchors        : 验证锚模型与单锚判决（PASS/FAIL/UNDECIDABLE，含不确定度带）
+- fingerprint    : 证据指纹（sha256 溯源链，逐叶子可复算）
+- confidence     : 证据驱动置信度（不再是规则常量）
+- eval_validity  : 带标注合成算例 + 混淆矩阵（判级器自身的效度度量）
 - provenance     : 等级变更哈希链（append-only，可复算防篡改）
 - state_machine  : 五态 + 不可判态状态机（fail-closed 升级/降级/禁止人工覆盖）
 - cli            : CLI 入口
@@ -33,6 +36,20 @@ from .registry import CapabilityRegistry, CapabilityDef
 from .scanner import EvidenceScanner, ScanResult
 from .evidence_chain import EvidenceChain, FiveTuple
 from .grader import GradeDeterminer, GradeResult
+from .fingerprint import (
+    EvidenceFingerprint,
+    EvidenceLeaf,
+    build_record,
+    fingerprint_chain,
+    verify_leaves,
+)
+from .confidence import (
+    CONFIDENCE_BANDS,
+    confidence_from_features,
+    evidence_confidence,
+    evidence_features,
+)
+from . import eval_validity
 from .anchors import (
     AnchorVerdict,
     VerificationAnchor,
@@ -68,6 +85,17 @@ __all__ = [
     "FiveTuple",
     "GradeDeterminer",
     "GradeResult",
+    # 证据指纹 / 置信度 / 效度度量
+    "EvidenceFingerprint",
+    "EvidenceLeaf",
+    "build_record",
+    "fingerprint_chain",
+    "verify_leaves",
+    "CONFIDENCE_BANDS",
+    "confidence_from_features",
+    "evidence_confidence",
+    "evidence_features",
+    "eval_validity",
     # v2（五态 + 不可判态状态机）
     "AnchorVerdict",
     "VerificationAnchor",
