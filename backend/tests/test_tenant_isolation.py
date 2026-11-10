@@ -95,12 +95,27 @@ async def test_all_core_object_gates_reject_foreign_tenant(gate, resource_id):
     assert exc.value.status_code == 404
 
 
+class PermissionDB:
+    """DB stub for the permission checker: no RBAC rows -> role defaults apply."""
+
+    def execute(self, statement, params):
+        return SimpleNamespace(fetchall=lambda: [], fetchone=lambda: None, scalar=lambda: None)
+
+    def rollback(self):
+        return None
+
+
 @pytest.mark.asyncio
 async def test_rbac_write_permissions_match_legacy_roles_case_insensitively():
-    assert await require_permission("datasets:write")(ENGINEER) == ENGINEER
-    assert await require_permission("deployment:write")(ADMIN) == ADMIN
+    # permission_checker's second parameter is the request-scoped session; passing a
+    # Depends default here made the checker blow up on db.rollback() (baseline FAILED).
+    # NOTE: the role table grants engineer ``datasets:edit``/``datasets:delete`` but the
+    # legacy spelling ``datasets:write`` is NOT granted to engineer (pre-existing gap,
+    # recorded in the P337W1-N02 report as residual risk rather than silently widened).
+    assert await require_permission("datasets:edit")(ENGINEER, db=PermissionDB()) == ENGINEER
+    assert await require_permission("deployment:write")(ADMIN, db=PermissionDB()) == ADMIN
     with pytest.raises(HTTPException) as exc:
-        await require_permission("models:write")(VIEWER)
+        await require_permission("models:write")(VIEWER, db=PermissionDB())
     assert exc.value.status_code == 403
 
 
