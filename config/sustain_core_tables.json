@@ -1,0 +1,15 @@
+{
+  "schema_version": 1,
+  "purpose": "Core platform metadata tables covered by the backup/restore drill (p228w1-N10). Platform metadata only — zero domain semantics: no ship-hull/perf table belongs here.",
+  "tables": [
+    "missions",
+    "campaign_plans",
+    "campaign_nodes",
+    "tensor_reports",
+    "capability_ledger"
+  ],
+  "notes": [
+    "Names are resolved at drill time against the live engine; a missing table is reported as source_tables_present.ok=false, never silently skipped.",
+    "Fixtures for CI use build_fixture_db() (core_01..core_05) so the drill is runnable without DB credentials."
+  ]
+}
