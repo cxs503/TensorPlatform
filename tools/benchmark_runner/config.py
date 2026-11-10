@@ -7,6 +7,8 @@
       "version": 1,
       "description": "...",
       "drift_threshold": 0.03,          // 可选，缺省由 runner 的 --drift 决定
+      "timeout_s": 300.0,               // 可选，逐算例墙钟预算（无人值守必须有限）
+      "budget_s": 1800.0,               // 可选，整个 suite 的墙钟预算（用尽=剩余算例记 error）
       "cases": [
         {
           "id": "fx_int_sin_n32",
@@ -15,6 +17,7 @@
           "inputs":         {"func": "sin", "a": 0.0, "b": 1.5, "n": 32},
           "reference":      {"workload": "tools.benchmark_runner.synthetic:integral_reference",
                              "inputs": {"func": "sin", "a": 0.0, "b": 1.5}},
+          "timeout_s": 60.0,            // 可选，覆盖 suite 级 timeout_s
           "criteria": [{"metric": "rel_error", "op": "<=", "value": 1e-10}]
         }
       ],
@@ -26,7 +29,9 @@
 * 结构错 / 未知算子 / 阈值类型错 → :class:`ConfigError`（退出码 3，配置问题不当算例失败）；
 * **算例没写判据** 不算配置错——由 gate 在运行期判 FAIL（``no_criteria``），
   这样"忘记声明阈值"永远不会被读成"通过"；
-* **suite 级 ``suite_criteria`` 必须非空**——整批结论同样要有预声明依据。
+* **suite 级 ``suite_criteria`` 必须非空**——整批结论同样要有预声明依据；
+* **墙钟预算必须在配置里预声明**（``timeout_s`` 缺省 300s）：无人值守运行不能靠
+  "等它跑完"——挂死的 SUT 会给出超时 FAIL，而不是让门链静默停住。
 """
 from __future__ import annotations
 
@@ -39,6 +44,7 @@ from .gate import validate_criterion
 from .model import ConfigError
 
 _DEFAULT_DRIFT = 0.03
+DEFAULT_TIMEOUT_S = 300.0   # 预声明：无人值守必须有上界
 _CASE_ID_ALLOWED = set("abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789_-.")
 
 
@@ -49,6 +55,20 @@ def _check_dotted(path: Any, field: str, case_id: str) -> str:
     if not mod or not fn:
         raise ConfigError(f"case {case_id!r}: {field} malformed {path!r}")
     return path
+
+
+def _check_seconds(value: Any, field: str, suite: str, *, allow_none: bool = True) -> Optional[float]:
+    """墙钟预算字段校验：None（允许时）或有限正数；bool/0/负数/NaN → ConfigError。"""
+    if value is None:
+        if allow_none:
+            return None
+        raise ConfigError(f"suite {suite!r}: {field} must be a finite positive number, got None")
+    if isinstance(value, bool) or not isinstance(value, (int, float)):
+        raise ConfigError(f"suite {suite!r}: {field} must be a number, got {type(value).__name__}")
+    seconds = float(value)
+    if not (seconds > 0 and seconds != float("inf")):
+        raise ConfigError(f"suite {suite!r}: {field} must be finite and > 0, got {value!r}")
+    return seconds
 
 
 def load_config(path: str | pathlib.Path) -> Dict[str, Any]:
@@ -92,6 +112,10 @@ def validate_config(data: Any) -> Dict[str, Any]:
     if not isinstance(drift, (int, float)) or isinstance(drift, bool) or not (0 < float(drift) < 1):
         raise ConfigError(f"suite {suite!r}: drift_threshold must be in (0,1), got {drift!r}")
 
+    default_timeout = _check_seconds(data.get("timeout_s", DEFAULT_TIMEOUT_S),
+                                     "timeout_s", suite, allow_none=False)
+    budget_s = _check_seconds(data.get("budget_s"), "budget_s", suite)
+
     seen: set[str] = set()
     norm_cases: List[Dict[str, Any]] = []
     for i, case in enumerate(cases):
@@ -123,8 +147,11 @@ def validate_config(data: Any) -> Dict[str, Any]:
             raise ConfigError(f"case {cid!r}: 'criteria' must be a list")
         crits = [validate_criterion(c) for c in crits]
 
+        case_timeout = _check_seconds(case.get("timeout_s"), f"timeout_s of case {cid!r}", suite)
+
         norm_cases.append({
             "id": cid,
+            "timeout_s": case_timeout if case_timeout is not None else default_timeout,
             "title": str(case.get("title", cid)),
             "workload": workload,
             "inputs": dict(case.get("inputs") or {}),
@@ -146,6 +173,8 @@ def validate_config(data: Any) -> Dict[str, Any]:
         "version": int(data.get("version", 1) or 1),
         "description": str(data.get("description", "")),
         "drift_threshold": float(drift),
+        "timeout_s": float(default_timeout),
+        "budget_s": budget_s,
         "cases": norm_cases,
         "suite_criteria": suite_crits,
     }

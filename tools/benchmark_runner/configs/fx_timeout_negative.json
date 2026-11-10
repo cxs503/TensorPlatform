@@ -1,0 +1,68 @@
+{
+  "suite": "fx_timeout_negative",
+  "version": 1,
+  "description": "NEGATIVE CONTROL (must FAIL). Proves the wall-clock guard has discriminating power: a workload that stalls far beyond its predeclared per-case timeout is judged FAIL (exit code 1) instead of hanging the unattended runner. The second case is deliberately healthy, so a green run here would mean either the guard is vacuous or the healthy case was silently dropped.",
+  "drift_threshold": 0.03,
+  "timeout_s": 1.0,
+  "budget_s": 30.0,
+  "cases": [
+    {
+      "id": "fx_stall_beyond_timeout",
+      "title": "stalling workload (30 s) against a 0.5 s predeclared timeout: must be FAIL, not a hang",
+      "workload": "tools.benchmark_runner.synthetic:stall",
+      "inputs": {
+        "seconds": 30.0
+      },
+      "timeout_s": 0.5,
+      "criteria": [
+        {
+          "metric": "value",
+          "op": "<=",
+          "value": 1.0
+        }
+      ],
+      "tags": [
+        "negative-control",
+        "wall-clock"
+      ]
+    },
+    {
+      "id": "fx_healthy_after_timeout",
+      "title": "healthy case that must still run after the stalled one was cut off (no collateral skip)",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {
+        "func": "cubic",
+        "a": 0.0,
+        "b": 2.0,
+        "n": 16
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.synthetic:integral_reference",
+        "inputs": {
+          "func": "cubic",
+          "a": 0.0,
+          "b": 2.0
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    }
+  ],
+  "suite_criteria": [
+    {
+      "metric": "n_timeout",
+      "op": "<=",
+      "value": 0
+    },
+    {
+      "metric": "pass_ratio",
+      "op": ">=",
+      "value": 1.0
+    }
+  ]
+}

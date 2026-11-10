@@ -69,9 +69,13 @@ class CaseVerdict:
     checks: List[Check] = field(default_factory=list)
     error: Optional[str] = None
     failed_checks: List[str] = field(default_factory=list)
+    # 墙钟耗时：**故意不进 to_dict()** —— 裁决载荷必须逐位可复现，
+    # 而机器耗时天然抖动。计时证据单独落 timings.json（见 runner.write_artifacts）。
+    timing_s: Optional[float] = None
 
     def to_dict(self) -> Dict[str, Any]:
         d = asdict(self)
+        d.pop("timing_s", None)          # 计时是环境量，不是数值裁决（保确定性）
         return d
 
 
@@ -85,6 +89,10 @@ class SuiteVerdict:
     cases: List[CaseVerdict] = field(default_factory=list)
     checks: List[Check] = field(default_factory=list)
     counts: Dict[str, int] = field(default_factory=dict)
+
+    def timings(self) -> Dict[str, Any]:
+        """逐算例墙钟耗时（供 timings.json / 无人值守预算审计；不参与裁决相等性）。"""
+        return {c.case_id: {"timing_s": c.timing_s, "status": c.status} for c in self.cases}
 
     def to_dict(self) -> Dict[str, Any]:
         return {
