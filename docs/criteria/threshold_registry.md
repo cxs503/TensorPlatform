@@ -1,4 +1,4 @@
-# 验收阈值口径注册表与派生一致性门（P171W1-N06）
+# 验收阈值口径注册表与派生一致性门（P493-N05）
 
 **一句话**：把平台的每一条验收阈值从"当年恰好能过的那条线"改造成
 `(quantity, comparator, threshold(h,p,N,ε), source_ref)` 的**可追溯、可重推导**记录，
@@ -52,26 +52,27 @@
   "derivation": {
     "expression": "C*h**1",
     "coefficient": 1.3591409142295225,
-    "reference_h": 0.125
+    "reference_h": 0.125,
+    "axis": "h"
   },
   "probe": "euler_growth",
-  "review_date": "2026-11-09",
+  "review_date": "2026-11-10",
   "notes": "解析来源：先验误差界，可重推导 threshold(h)",
   "decidable": true
 }
 
 {
-  "criterion_id": "json/config/proposal_gate.json#/contract/min_criteria",
-  "quantity": "config/proposal_gate.json/contract/min_criteria",
-  "comparator": ">=",
-  "threshold": 3.0,
+  "criterion_id": "json/config/criterion_auditor.json#/alignment/duplicate_threshold",
+  "quantity": "config/criterion_auditor.json/alignment/duplicate_threshold",
+  "comparator": "<=",
+  "threshold": 0.8,
   "source_type": "heuristic",
-  "source_ref": "config/proposal_gate.json#sha256:780c42631df4c8ec84adf4c7f76e068f3098438cf15509c53a7ba8613df3cd53#/contract/min_criteria",
+  "source_ref": "config/criterion_auditor.json#sha256:25c80ed02ede47e83c6e708bdb87565baa0528ea470c77dcc50d45f5d0404c82#/alignment/duplicate_threshold",
   "source_note": "配置值，源文件内无文献/规范/解析出处 → 保守判 heuristic（不可裁）",
   "depends_on": [],
   "derivation": null,
   "probe": null,
-  "review_date": "2026-11-09",
+  "review_date": "2026-11-10",
   "notes": "自动入册（json 抽源）；比较符由键名规则推断",
   "decidable": false
 }
@@ -84,37 +85,54 @@
 
 | 判据 | 判定 | 数字 |
 |---|---|---|
-| C1 | PASS | 56 条入册（≥30）；source_type 缺失率 0.0；heuristic 44 条全部标不可裁 |
-| C2 | PASS | 4/4 条解析判据实测指数最大偏差 0.053456 ≤ 0.3 |
+| C1 | PASS | 59 条入册（≥30）；source_type 缺失率 0.0；heuristic 49 条全部标不可裁 |
+| C2 | PASS | 7/7 条解析判据实测指数最大偏差 0.028095 ≤ 0.3；覆盖轴 ['N', 'eps', 'h']；不可实测判据 0 条 |
 | C3 | PASS | 20/20 注入判红（检出率 1.0） |
 | C4 | PASS | 20 次格式变更误报 0（假阳性率 0.0） |
-| C5 | PASS | 4 条判据的 threshold(h) 在 h/2、h/4 上比值 ∈[0.5, 2.0]，全部同向 |
-| C6 | PASS | 有来源阈值占比 1.0；可派生阈值占比 0.071429；可裁占比 0.214286；来源腐烂控制 OK→SHA_DRIFT |
+| C5 | PASS | 7 条判据的 threshold(x)=C·x^p 在更细一档上预测/实测比值 ∈[0.5, 2.0]，全部同向；覆盖轴 ['N', 'eps', 'h'] |
+| C6 | PASS | 有来源阈值占比 1.0；可派生阈值占比 0.118644；可裁占比 0.169492；来源腐烂控制 OK→SHA_DRIFT |
 | C7 | PASS | 同义反复判据被判 empirical 且剔除；标注说谎被抓到 = True |
 
 ### 3.1 来源类别分布（C1）
 
 | source_type | 条数 |
 |---|---|
-| analytic | 4 |
+| analytic | 7 |
 | literature | 0 |
-| standard | 8 |
+| standard | 3 |
 | empirical | 0 |
-| heuristic | 44 |
+| heuristic | 49 |
 
-`heuristic`=44 与 `empirical`=0 全部显式标 `decidable=false`
+`heuristic`=49 与 `empirical`=0 全部显式标 `decidable=false`
 （漏标 0 条）；`source_type` 缺失率 0.0。
 
 ### 3.2 派生一致性（C2）
 
-| criterion_id | 声明 p | 实测 p | 偏差 | R² | 判定 |
-|---|---|---|---|---|---|
-| `analytic/euler_growth/bound` | 1 | 0.9465 | 0.0535 | 0.999391 | PASS |
-| `analytic/midpoint_exp/bound` | 2 | 1.9996 | 0.0004 | 1.000000 | PASS |
-| `analytic/simpson_exp/bound` | 4 | 3.9982 | 0.0018 | 1.000000 | PASS |
-| `analytic/trapezoid_exp/bound` | 2 | 1.9998 | 0.0002 | 1.000000 | PASS |
+| criterion_id | 依赖轴 | 声明指数 | 实测指数 | 偏差 | R² | 判定 |
+|---|---|---|---|---|---|---|
+| `analytic/euler_growth/bound` | h | +1.00 | +0.9719 | 0.0281 | 0.999830 | PASS |
+| `analytic/midpoint_exp/bound` | h | +2.00 | +1.9999 | 0.0001 | 1.000000 | PASS |
+| `analytic/simpson_exp/bound` | h | +4.00 | +3.9996 | 0.0004 | 1.000000 | PASS |
+| `analytic/trapezoid_exp/bound` | h | +2.00 | +1.9999 | 0.0001 | 1.000000 | PASS |
+| `analytic/monte_carlo_mean/bound` | N | -0.50 | -0.5073 | 0.0073 | 0.991203 | PASS |
+| `analytic/tol_central_difference/bound` | eps | +2.00 | +2.0000 | 0.0000 | 1.000000 | PASS |
+| `analytic/tol_forward_difference/bound` | eps | +1.00 | +1.0009 | 0.0009 | 1.000000 | PASS |
 
-最大偏差 0.053456（容差 0.3）。
+最大偏差 0.028095（容差 0.3）；不可实测（阻塞）判据 0 条，
+覆盖轴 ['N', 'eps', 'h']。
+
+**依赖轴覆盖账本**：阈值是 `dependency(h, p, N, ε)` 的函数，所以"哪条轴上真被实测过"必须是
+可查的数，而不是口头承诺：
+
+| 轴 | depends_on 声明 | 有重推导表达式 | 实测判定（PASS+FAIL） | 判红 |
+|---|---|---|---|---|
+| N | 1 | 1 | 1 | 0 |
+| eps | 2 | 2 | 2 | 0 |
+| h | 4 | 4 | 4 | 0 |
+
+旧实现 `if "h" not in deps: continue` 会把 N/eps 轴判据**静默跳过**（既不 PASS 也不 FAIL），
+门照旧判绿。现在的口径：`analytic` 判据只要声明了依赖量、却给不出能测该轴的探针，
+或探针轴与声明轴不一致，一律进 `UNCHECKED_*` 并阻塞 C2。
 
 **拟合窗口敏感性**（衰减指数是窗口的函数，引擎必须把这个依赖说清楚）：
 固定下拟合档数 levels=6，只挪最粗档 h0：
@@ -149,6 +167,9 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
 | `analytic/midpoint_exp/bound` | C*h**2 | h=0.0625: 1.582 ; h=0.03125: 1.582 | PASS |
 | `analytic/simpson_exp/bound` | C*h**4 | h=0.0625: 1.583 ; h=0.03125: 1.582 | PASS |
 | `analytic/trapezoid_exp/bound` | C*h**2 | h=0.0625: 1.582 ; h=0.03125: 1.582 | PASS |
+| `analytic/monte_carlo_mean/bound` | C*N**(-0.5) | N=2048: 1.073 ; N=4096: 1.043 | PASS |
+| `analytic/tol_central_difference/bound` | C*eps**(2.0) | eps=0.005: 1.000 ; eps=0.0025: 1.000 | PASS |
+| `analytic/tol_forward_difference/bound` | C*eps**(1.0) | eps=0.005: 0.998 ; eps=0.0025: 0.999 | PASS |
 
 ### 3.4 漂移门控制（C3/C4/C7）
 
@@ -166,11 +187,15 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
 
 ![c2_derivation_consistency.png](artifacts/criteria/figures/c2_derivation_consistency.png)
 
-*C2：四条解析判据的实测离散误差随 h 衰减（点线=按声明阶数外推）。拟合指数与声明 p 的最大偏差见报告 max_deviation。*
+*C2：解析判据沿各自依赖轴的实测误差衰减（点线=按声明指数外推）。左=h 轴，右=N/eps 轴；拟合指数与声明指数的最大偏差见 max_deviation。*
 
 ![c5_rederivation_closure.png](artifacts/criteria/figures/c5_rederivation_closure.png)
 
 *C5：把 threshold(h)=C·h^p 投到 h/2、h/4 两档，与该档实测误差的比值全部落在 [0.5,2] 且与实测同向。*
+
+![c2b_axis_coverage.png](artifacts/criteria/figures/c2b_axis_coverage.png)
+
+*依赖轴覆盖账本：每个轴上有多少条判据声明了该依赖量、多少条带可重推导表达式、多少条真正被实测过。声明了却测不了的判据会阻塞 C2（不许静默跳过）。*
 
 ![controls_and_coverage.png](artifacts/criteria/figures/controls_and_coverage.png)
 
@@ -180,10 +205,10 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
 
 1. **`source_type` 的保守性**：JSON 契约里的 `maximum`/`minimum` 判 `standard`（契约即出处），
    配置值与代码常量的出处无法自动认定时**一律判 `heuristic`**。方向上是安全的
-   （宁可低估可裁面），代价是 `decidable_ratio` 只有 0.214286——
+   （宁可低估可裁面），代价是 `decidable_ratio` 只有 0.169492——
    这是本次审计的**结论**而非缺陷：现网大部分阈值目前确实没有可追溯依据。
 2. **`depends_on` 为空 = 依赖量未登记**（不是"常数阈值"）。因此 `derivable_ratio`
-   只有 0.071429。要把这个数抬上去，得逐条给出 C·h^p 的常数出处。
+   只有 0.118644。要把这个数抬上去，得逐条给出 C·h^p 的常数出处。
 3. **`sourced_ratio`=1.0 是"抽样时点"的数**：它靠 sha256 保持诚实，
    被引文件改动而引用未更新即掉到 SHA_DRIFT（见 §3.4 控制）。
 4. **C2 的实测来自合成算子**（初等函数定积分 / 一阶初值问题），不是平台真实求解器：
@@ -199,22 +224,40 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
    反事实由 `tests/test_threshold_registry.py::test_drift_red_on_decidable_label_flip` 钉死。
 9. **未知探针不崩门**：判据绑定了不存在的探针时，派生/闭环给出 `UNCHECKED_UNKNOWN_PROBE`
    并判红（`test_unknown_probe_is_reported_not_crashing`），不允许"探针找不到 ⇒ 跳过检查"。
+10. **N 轴探针是蒙特卡洛量**：RMSE 估计本身有 ~1/√(2R)≈9% 的波动，因此该轴只用来裁决
+    **指数**（-0.5 ± 0.3），不用来裁决常数 C（两者的比值只保证落在 [0.5,2]）。要收紧常数，
+    得把重复数 R 提到 10³ 量级——那属于算力问题，不是口径问题。
+11. **ε 轴探针是"容差=步长"的截断误差，不是迭代停机准则**：第一版用
+    x←0.5·cos(x) 以 |Δx|≤ε 停机，实测发现误差序列被**迭代次数**量化（同一误差在相邻 ε 上
+    重复出现，R² 只有 0.91、预测/实测比值 12–25），引擎会正确判红——但那是探针的错，不是判据的错。
+    改用截断误差解析可算的差分步长后，R²=1.0、比值 0.997–1.000。教训：**轴探针必须让误差
+    随轴连续变化**，否则测到的是离散化（量子化）而不是幂律。
+12. **`p` 轴不可直接实测**：阶数不是"可以拧的采样参数"，它只能由 h/N 轴上的斜率反演出来。
+    所以 `depends_on` 里声明 `p` 轴、却挂不上能测 `p` 的探针的判据会被
+    `UNCHECKED_AXIS_MISMATCH` 阻塞——这是刻意的：宁可红，不许把"阶数"当自变量自己证明自己。
+13. **轴白名单是 `h/p/N/eps`**（与 schema `depends_on.param` 枚举同源）：新增轴要在
+    `probes_axes.AXIS_PROBES` 里加探针并同步枚举，不允许在表达式里临场发明变量名绕过校验
+    （`eval_derivation` 对白名单外变量名仍然抛 `ValueError`，由
+    `test_eval_derivation_rejects_non_whitelisted_variable_even_without_axis` 钉死）。
 
 ## 5.1 审计链（本报告所有数字可回放到这些字节）
 
 | 产物 | bytes | sha256 |
 |---|---|---|
-| `data/criteria/threshold_registry.json` | 43299 | `d9e1695d18ac7286d9c1031333ba0269130f0f0bf1d7672c4c1b2cdab81682f6` |
-| `data/criteria/threshold_registry.lock.json` | 28112 | `d1f15bd4b121155ce07db5818308840f10bf840b9eb7ea04630713ad9a03aac3` |
-| `schemas/threshold_registry.schema.json` | 6073 | `8f3b803c5296712ec48908c7b42e59fe6ab463f5d3b9b2b0a88d5aed05a6d3b7` |
-| `tools/criteria/threshold_registry.py` | 38640 | `23110399c2ff932051e368e7790c5d5f529fe14861f20f5b6fbd2583bbfe22b6` |
+| `data/criteria/threshold_registry.json` | 46044 | `789398714cb05adbc57159ca5c9f1c063c89ee2b4d0ddd14e6fb860d68c5dcbc` |
+| `data/criteria/threshold_registry.lock.json` | 29896 | `fb68fa9312e034eed96bb6af8e940b2eb2b5dd12800fe200c46a5ab98f5458d0` |
+| `schemas/threshold_registry.schema.json` | 7028 | `12db4484afc8276667712886dc39e5ebd005891b54850d2823702d6cc09b9248` |
+| `tools/criteria/threshold_registry.py` | 46937 | `78354ffb6d5ff7dc4d3fb63c26d0080e0b2e0c8ea534b14acb6513b9f432f2d1` |
 | `tools/criteria/probes.py` | 5565 | `8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e` |
-| `tools/criteria/harvest.py` | 17238 | `c8c129b3ae2d3bd9005ae0f168f1a0756213529d7afbed21daae8c291769a71f` |
-| `tools/criteria/gate_report.py` | 40307 | `fd81c0bf1ff2883d4be5c2833bc5ada17788d1d0aef8770993d1520223c948f8` |
+| `tools/criteria/probes_axes.py` | 8052 | `6cfd2dae4eab77d28c889a46a09b6b2f5a7ecb0f4a370b47f364cc361b89a51a` |
+| `tools/criteria/harvest.py` | 18744 | `66c3a52bc5f83566555c992add444eac5bb7252b0a889d67ff6a3ab3dc3bcaf5` |
+| `tools/criteria/gate_report.py` | 47247 | `9329a3e9e5ccce044b505ed2f65460b3bad7703029b19b1c199028e715015117` |
 | `tests/test_threshold_registry.py` | 23140 | `a68473e23d70fa6c3a6f0e88b04d5a83cdd2ae9430f998ac7dc9e36e32cbb366` |
-| `artifacts/criteria/figures/c2_derivation_consistency.png` | 100235 | `58ffbbb3ebcc22d61a699f0444742a83c940609dc3f05ecaa1ff1845489b89f3` |
-| `artifacts/criteria/figures/c5_rederivation_closure.png` | 64707 | `89c12fa44106a027cc191e83c1a3971130b275d11ed59770c357cbfdb41088c2` |
-| `artifacts/criteria/figures/controls_and_coverage.png` | 69063 | `16c1aa1f04ac251a784df409178df8663208a7ec435b5af0ceef38a88b3570e6` |
+| `tests/test_threshold_registry_axes.py` | 16692 | `803eb3f7ef62615bc73294f089860df83405607557c96b4e4437637303a3ba55` |
+| `artifacts/criteria/figures/c2_derivation_consistency.png` | 212928 | `c516fea4220709fe04c098fa6c52ac6ffc18754f2694d8a92e0ed588334d904a` |
+| `artifacts/criteria/figures/c5_rederivation_closure.png` | 91679 | `d6a4865a737710fc6c4c8b0fba1b7485ed0f1a6bb8c973d84c845ed867e3624b` |
+| `artifacts/criteria/figures/c2b_axis_coverage.png` | 51540 | `3c5696c347469b715d002237df4d4b56122c74e49f6e7fd768b8279a0c17fbb3` |
+| `artifacts/criteria/figures/controls_and_coverage.png` | 68937 | `921bbc08ca76e499ae0466e1809dc4410db10ed51de4b326cf32334239394472` |
 
 ## 6. 复算
 

@@ -51,6 +51,8 @@ FIG_DIR = ART_DIR / "figures"
 REPORT_JSON = ART_DIR / "threshold_registry_report.json"
 DOC_MD = ROOT / "docs" / "criteria" / "threshold_registry.md"
 
+MISSION_ID = 7810  # 报告归属（CLI 可覆盖）
+NODE = "P171W1-N06"
 INJECTIONS = 20
 FORMAT_VARIANTS = 20
 MEASURE_PROBE_H = reg.DEFAULT_MEASURE_H  # 探针实测取样的默认分辨率（无 derivation 时）
@@ -134,6 +136,8 @@ def check_c2(registry: Dict[str, Any]) -> Dict[str, Any]:
         "n_checked": res["n_checked"],
         "n_failed": res["n_failed"],
         "n_unchecked": res["n_unchecked"],
+        "unchecked_reasons": res.get("unchecked_reasons", []),
+        "by_axis": res.get("by_axis", {}),
         "max_deviation": res["max_deviation"],
         "fit_window": {"h0": 0.25, "levels": 6},
         "window_sensitivity": window_sensitivity(),
@@ -310,11 +314,15 @@ def check_c4(registry: Dict[str, Any], lock: Dict[str, Any]) -> Dict[str, Any]:
 # --------------------------------------------------------------------------- #
 def check_c5(registry: Dict[str, Any]) -> Dict[str, Any]:
     res = reg.rederivation_closure(registry)
+    axes = res.get("axes") or []
     return {
         "ok": res["ok"] and res["n_checked"] >= 3,
         "ratio_band": res["ratio_band"],
         "n_checked": res["n_checked"],
         "min_required": 3,
+        "axes": axes,
+        "n_axes": len(axes),
+        "axes_policy": "闸门只要求 n_checked≥3；『至少覆盖 2 条依赖轴』是**本仓注册表**的验收线，由 CI 断言（见 threshold-registry-gate.yml），不写进通用 verdict——只覆盖 h 的注册表不是不诚实，只是覆盖窄。",
         "rows": res["rows"],
     }
 
@@ -446,21 +454,41 @@ def make_figures(report: Dict[str, Any]) -> List[Dict[str, str]]:
     FIG_DIR.mkdir(parents=True, exist_ok=True)
     figs: List[Dict[str, str]] = []
 
-    # 图 1：派生一致性（log-log 误差衰减 vs 声明阶）
-    fig, ax = plt.subplots(figsize=(6.4, 4.4))
+    # 图 1：派生一致性（log-log 误差衰减 vs 声明阶）——按依赖轴分面
     rows_c2 = report["C2"]["rows"]
-    for row in rows_c2:
-        hs = [float(x) for x in row["h_series"]]
-        es = [float(x) for x in row["error_series"]]
-        (line,) = ax.loglog(hs, es, "o-", label=f"{row['probe']} (fit p={row['observed_order']:.3f}, declared p={row['declared_order']:.0f})")
-        p = row["declared_order"]
-        ref_h, ref_e = hs[-1], es[-1]
-        ax.loglog(hs, [ref_e * (h / ref_h) ** p for h in hs], ls=":", color=line.get_color(), alpha=0.7)
-    ax.set_xlabel("step size h")
-    ax.set_ylabel("measured discretization error |E(h)|")
-    ax.set_title("C2 derivation consistency: measured decay vs declared O(h^p)")
-    ax.grid(True, which="both", ls=":", alpha=0.5)
-    ax.legend(fontsize=7, loc="lower right")
+    axes_seen = sorted({str(r.get("axis", "h")) for r in rows_c2})
+    left = [a for a in axes_seen if a == "h"]
+    right = [a for a in axes_seen if a != "h"]
+    panels = [g for g in (left, right) if g]
+    fig, axs = plt.subplots(1, len(panels), figsize=(6.2 * len(panels), 4.4), squeeze=False)
+    for idx, group in enumerate(panels):
+        ax = axs[0][idx]
+        for row in rows_c2:
+            if str(row.get("axis", "h")) not in group:
+                continue
+            xs = [float(x) for x in (row.get("axis_series") or row.get("h_series"))]
+            es = [float(x) for x in row["error_series"]]
+            p_obs = row.get("observed_order")
+            p_dec = row.get("declared_order")
+            (line,) = ax.loglog(
+                xs,
+                es,
+                "o-",
+                label=f"{row['probe']} [{row.get('axis', 'h')}] (fit {p_obs:.3f}, declared {p_dec:+.2f})",
+            )
+            ref_x, ref_e = xs[0], es[0]
+            ax.loglog(
+                xs,
+                [ref_e * (x / ref_x) ** p_dec for x in xs],
+                ls=":",
+                color=line.get_color(),
+                alpha=0.7,
+            )
+        ax.set_xlabel(" / ".join(group) + " axis value (finer →)")
+        ax.set_ylabel("measured error")
+        ax.set_title("C2 decay vs declared exponent: " + " / ".join(group) + " axis")
+        ax.grid(True, which="both", ls=":", alpha=0.5)
+        ax.legend(fontsize=7, loc="lower left")
     fig.tight_layout()
     path1 = FIG_DIR / "c2_derivation_consistency.png"
     fig.savefig(path1, dpi=150)
@@ -468,7 +496,7 @@ def make_figures(report: Dict[str, Any]) -> List[Dict[str, str]]:
     figs.append(
         {
             "name": path1.name,
-            "caption": "C2：四条解析判据的实测离散误差随 h 衰减（点线=按声明阶数外推）。拟合指数与声明 p 的最大偏差见报告 max_deviation。",
+            "caption": "C2：解析判据沿各自依赖轴的实测误差衰减（点线=按声明指数外推）。左=h 轴，右=N/eps 轴；拟合指数与声明指数的最大偏差见 max_deviation。",
         }
     )
 
@@ -478,12 +506,14 @@ def make_figures(report: Dict[str, Any]) -> List[Dict[str, str]]:
     lo, hi = report["C5"]["ratio_band"]
     ax.axhspan(lo, hi, color="tab:cyan", alpha=0.12, label=f"allowed band [{lo}, {hi}]")
     for i, row in enumerate(report["C5"]["rows"]):
-        xs = [f"h/2^{k+1}" for k in range(len(row["points"]))]
+        var = str(row.get("axis", "h"))
+        xs = [f"k={k + 1}" for k in range(len(row["points"]))]
         ys = [pt["ratio"] for pt in row["points"]]
-        ax.plot(xs, ys, "o-", color=colors[i % len(colors)], label=row["criterion_id"])
+        ax.plot(xs, ys, "o-", color=colors[i % len(colors)], label=f"{row['criterion_id']} [{var}]")
     ax.axhline(1.0, color="k", lw=0.8)
-    ax.set_ylabel("predicted threshold(h) / measured error(h)")
-    ax.set_title("C5 re-derivation closure: threshold(h)=C*h^p vs measured")
+    ax.set_xlabel("refinement step k (axis value moved one octave finer each step)")
+    ax.set_ylabel("predicted threshold / measured error")
+    ax.set_title("C5 re-derivation closure: threshold(x)=C*x^p vs measured")
     ax.grid(True, ls=":", alpha=0.5)
     ax.legend(fontsize=7)
     fig.tight_layout()
@@ -496,6 +526,40 @@ def make_figures(report: Dict[str, Any]) -> List[Dict[str, str]]:
             "caption": "C5：把 threshold(h)=C·h^p 投到 h/2、h/4 两档，与该档实测误差的比值全部落在 [0.5,2] 且与实测同向。",
         }
     )
+
+    # 图 2b：依赖轴覆盖（声明 / 可派生 / 已实测）
+    cov = report.get("axes") or {}
+    axes_labels = sorted({k for k in (cov.get("declared_by_axis") or {}) if k != "none"})
+    if axes_labels:
+        fig, ax = plt.subplots(figsize=(6.4, 3.6))
+        import numpy as np
+
+        xpos = np.arange(len(axes_labels))
+        declared_v = [cov["declared_by_axis"].get(a, 0) for a in axes_labels]
+        derived_v = [cov["derived_by_axis"].get(a, 0) for a in axes_labels]
+        checked_v = [cov["checked_by_axis"].get(a, {}).get("checked", 0) for a in axes_labels]
+        failed_v = [cov["checked_by_axis"].get(a, {}).get("failed", 0) for a in axes_labels]
+        w = 0.26
+        ax.bar(xpos - w, declared_v, w, label="declared in depends_on")
+        ax.bar(xpos, derived_v, w, label="has derivation expression")
+        ax.bar(xpos + w, checked_v, w, label="actually measured (PASS+FAIL)")
+        ax.scatter(xpos + w, failed_v, marker="x", color="k", zorder=5, label="failed")
+        ax.set_xticks(xpos, axes_labels)
+        ax.set_xlabel("dependency axis")
+        ax.set_ylabel("number of criteria")
+        ax.set_title("dependency-axis coverage: declared / derivable / measured")
+        ax.grid(True, axis="y", ls=":", alpha=0.5)
+        ax.legend(fontsize=7)
+        fig.tight_layout()
+        path2b = FIG_DIR / "c2b_axis_coverage.png"
+        fig.savefig(path2b, dpi=150)
+        plt.close(fig)
+        figs.append(
+            {
+                "name": path2b.name,
+                "caption": "依赖轴覆盖账本：每个轴上有多少条判据声明了该依赖量、多少条带可重推导表达式、多少条真正被实测过。声明了却测不了的判据会阻塞 C2（不许静默跳过）。",
+            }
+        )
 
     # 图 3：控制实验 + 覆盖率账本
     fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(9.6, 3.8))
@@ -551,9 +615,11 @@ AUDIT_PATHS = (
     "schemas/threshold_registry.schema.json",
     "tools/criteria/threshold_registry.py",
     "tools/criteria/probes.py",
+    "tools/criteria/probes_axes.py",
     "tools/criteria/harvest.py",
     "tools/criteria/gate_report.py",
     "tests/test_threshold_registry.py",
+    "tests/test_threshold_registry_axes.py",
 )
 
 
@@ -593,14 +659,37 @@ def render_doc(report: Dict[str, Any], figs: Sequence[Dict[str, str]]) -> str:
         for r in c2["window_sensitivity"]
     )
     c2_rows = "\n".join(
-        f"| `{r['criterion_id']}` | {r['declared_order']:.0f} | {r['observed_order']:.4f} | {r['deviation']:.4f} | {r['r2']:.6f} | {r['status']} |"
+        "| `{}` | {} | {:+.2f} | {:+.4f} | {:.4f} | {:.6f} | {} |".format(
+            r["criterion_id"],
+            r.get("axis", "h"),
+            r["declared_order"],
+            r["observed_order"],
+            r["deviation"],
+            r["r2"],
+            r["status"],
+        )
         for r in c2["rows"]
+    )
+    axis_cov = report.get("axes") or {}
+    axis_rows = "\n".join(
+        "| {} | {} | {} | {} | {} |".format(
+            a,
+            axis_cov.get("declared_by_axis", {}).get(a, 0),
+            axis_cov.get("derived_by_axis", {}).get(a, 0),
+            (axis_cov.get("checked_by_axis", {}).get(a) or {}).get("checked", 0),
+            (axis_cov.get("checked_by_axis", {}).get(a) or {}).get("failed", 0),
+        )
+        for a in sorted(axis_cov.get("declared_by_axis") or {})
+        if a != "none"
     )
     c5_rows = "\n".join(
         "| `{}` | {} | {} | {} |".format(
             r["criterion_id"],
             r["expression"],
-            " ; ".join(f"h={p['h']:.5g}: {p['ratio']:.3f}" for p in r["points"]),
+            " ; ".join(
+                f"{r.get('axis', 'h')}={p.get(r.get('axis', 'h'), list(p.values())[0]):.5g}: {p['ratio']:.3f}"
+                for p in r["points"]
+            ),
             r["status"],
         )
         for r in c5["rows"]
@@ -625,7 +714,8 @@ def render_doc(report: Dict[str, Any], figs: Sequence[Dict[str, str]]) -> str:
         f"![{f['name']}]({Path('artifacts/criteria/figures') / f['name']})\n\n*{f['caption']}*\n"
         for f in figs
     ) if figs else "（本次未生成图：仅 JSON 产物）"
-    return f"""# 验收阈值口径注册表与派生一致性门（P171W1-N06）
+    n_unchecked = c2.get("n_unchecked")
+    return f"""# 验收阈值口径注册表与派生一致性门（{report['node']}）
 
 **一句话**：把平台的每一条验收阈值从"当年恰好能过的那条线"改造成
 `(quantity, comparator, threshold(h,p,N,ε), source_ref)` 的**可追溯、可重推导**记录，
@@ -687,11 +777,23 @@ def render_doc(report: Dict[str, Any], figs: Sequence[Dict[str, str]]) -> str:
 
 ### 3.2 派生一致性（C2）
 
-| criterion_id | 声明 p | 实测 p | 偏差 | R² | 判定 |
-|---|---|---|---|---|---|
+| criterion_id | 依赖轴 | 声明指数 | 实测指数 | 偏差 | R² | 判定 |
+|---|---|---|---|---|---|---|
 {c2_rows}
 
-最大偏差 {c2['max_deviation']}（容差 {c2['order_tol']}）。
+最大偏差 {c2['max_deviation']}（容差 {c2['order_tol']}）；不可实测（阻塞）判据 {n_unchecked} 条，
+覆盖轴 {sorted((report.get('axes') or {}).get('checked_by_axis', {}))}。
+
+**依赖轴覆盖账本**：阈值是 `dependency(h, p, N, ε)` 的函数，所以"哪条轴上真被实测过"必须是
+可查的数，而不是口头承诺：
+
+| 轴 | depends_on 声明 | 有重推导表达式 | 实测判定（PASS+FAIL） | 判红 |
+|---|---|---|---|---|
+{axis_rows}
+
+旧实现 `if "h" not in deps: continue` 会把 N/eps 轴判据**静默跳过**（既不 PASS 也不 FAIL），
+门照旧判绿。现在的口径：`analytic` 判据只要声明了依赖量、却给不出能测该轴的探针，
+或探针轴与声明轴不一致，一律进 `UNCHECKED_*` 并阻塞 C2。
 
 **拟合窗口敏感性**（衰减指数是窗口的函数，引擎必须把这个依赖说清楚）：
 固定下拟合档数 levels=6，只挪最粗档 h0：
@@ -751,6 +853,21 @@ h0=1/64 后收敛到 {w_euler_fine}（{w_euler_fine_rel}）：这是 **O(h) 前�
    反事实由 `tests/test_threshold_registry.py::test_drift_red_on_decidable_label_flip` 钉死。
 9. **未知探针不崩门**：判据绑定了不存在的探针时，派生/闭环给出 `UNCHECKED_UNKNOWN_PROBE`
    并判红（`test_unknown_probe_is_reported_not_crashing`），不允许"探针找不到 ⇒ 跳过检查"。
+10. **N 轴探针是蒙特卡洛量**：RMSE 估计本身有 ~1/√(2R)≈9% 的波动，因此该轴只用来裁决
+    **指数**（-0.5 ± 0.3），不用来裁决常数 C（两者的比值只保证落在 [0.5,2]）。要收紧常数，
+    得把重复数 R 提到 10³ 量级——那属于算力问题，不是口径问题。
+11. **ε 轴探针是"容差=步长"的截断误差，不是迭代停机准则**：第一版用
+    x←0.5·cos(x) 以 |Δx|≤ε 停机，实测发现误差序列被**迭代次数**量化（同一误差在相邻 ε 上
+    重复出现，R² 只有 0.91、预测/实测比值 12–25），引擎会正确判红——但那是探针的错，不是判据的错。
+    改用截断误差解析可算的差分步长后，R²=1.0、比值 0.997–1.000。教训：**轴探针必须让误差
+    随轴连续变化**，否则测到的是离散化（量子化）而不是幂律。
+12. **`p` 轴不可直接实测**：阶数不是"可以拧的采样参数"，它只能由 h/N 轴上的斜率反演出来。
+    所以 `depends_on` 里声明 `p` 轴、却挂不上能测 `p` 的探针的判据会被
+    `UNCHECKED_AXIS_MISMATCH` 阻塞——这是刻意的：宁可红，不许把"阶数"当自变量自己证明自己。
+13. **轴白名单是 `h/p/N/eps`**（与 schema `depends_on.param` 枚举同源）：新增轴要在
+    `probes_axes.AXIS_PROBES` 里加探针并同步枚举，不允许在表达式里临场发明变量名绕过校验
+    （`eval_derivation` 对白名单外变量名仍然抛 `ValueError`，由
+    `test_eval_derivation_rejects_non_whitelisted_variable_even_without_axis` 钉死）。
 
 ## 5.1 审计链（本报告所有数字可回放到这些字节）
 
@@ -784,6 +901,7 @@ def _rel(path: Path) -> str:
 def run(registry_path: Path = reg.DEFAULT_REGISTRY, lock_path: Path = reg.DEFAULT_LOCK) -> Dict[str, Any]:
     registry = reg.load_registry(registry_path)
     lock = json.loads(Path(lock_path).read_text(encoding="utf-8"))
+    axes = reg.axis_coverage(registry)
 
     c1 = check_c1(registry)
     c1["statement"] = (
@@ -792,7 +910,8 @@ def run(registry_path: Path = reg.DEFAULT_REGISTRY, lock_path: Path = reg.DEFAUL
     )
     c2 = check_c2(registry)
     c2["statement"] = (
-        f"{c2['n_checked']}/{c2['n_analytic']} 条解析判据实测指数最大偏差 {c2['max_deviation']} ≤ {c2['order_tol']}"
+        f"{c2['n_checked']}/{c2['n_analytic']} 条解析判据实测指数最大偏差 {c2['max_deviation']} ≤ {c2['order_tol']}；"
+        f"覆盖轴 {sorted(axes['checked_by_axis'])}；不可实测判据 {c2['n_unchecked']} 条"
     )
     c3 = check_c3(registry, lock)
     c3["statement"] = f"{c3['n_detected']}/{c3['n_injections']} 注入判红（检出率 {c3['detection_rate']}）"
@@ -802,8 +921,8 @@ def run(registry_path: Path = reg.DEFAULT_REGISTRY, lock_path: Path = reg.DEFAUL
     )
     c5 = check_c5(registry)
     c5["statement"] = (
-        "{} 条判据的 threshold(h) 在 h/2、h/4 上比值 ∈{}，全部同向".format(
-            c5["n_checked"], c5["ratio_band"]
+        "{} 条判据的 threshold(x)=C·x^p 在更细一档上预测/实测比值 ∈{}，全部同向；覆盖轴 {}".format(
+            c5["n_checked"], c5["ratio_band"], c5.get("axes")
         )
     )
     c6 = check_c6(registry)
@@ -819,8 +938,9 @@ def run(registry_path: Path = reg.DEFAULT_REGISTRY, lock_path: Path = reg.DEFAUL
     report: Dict[str, Any] = {
         "schema_version": "threshold-registry-report/1.0",
         "generated_on": _dt.date.today().isoformat(),
-        "mission_id": 7810,
-        "node": "P171W1-N06",
+        "mission_id": MISSION_ID,
+        "node": NODE,
+        "axes": axes,
         "meta": {
             "registry": _rel(registry_path),
             "registry_sha": reg.registry_sha(registry),
@@ -857,7 +977,11 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--lock", default=str(reg.DEFAULT_LOCK))
     ap.add_argument("--no-figures", action="store_true")
     ap.add_argument("--out", default=str(REPORT_JSON))
+    ap.add_argument("--node", default=NODE, help="报告归属节点（不进判据逻辑）")
+    ap.add_argument("--mission", type=int, default=MISSION_ID, help="报告归属 mission id")
     args = ap.parse_args(argv)
+    globals()["NODE"] = args.node
+    globals()["MISSION_ID"] = args.mission
 
     report = run(Path(args.registry), Path(args.lock))
     figs: List[Dict[str, str]] = []

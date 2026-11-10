@@ -1,14 +1,14 @@
 {
   "schema_version": "threshold-registry-lock/1.0",
-  "registry_sha": "3c02cb3102142814deeb6ff45e602b0b49ecf2ea43bd6535a95bc3885f60d376",
-  "n_criteria": 56,
+  "registry_sha": "78919d7ec1d6c47e1b2f1a19fc91946682c7546ced1d0cb6345ec1cd03b1906a",
+  "n_criteria": 59,
   "criteria": {
     "analytic/euler_growth/bound": {
-      "semantic_sha": "b04e48d90b7c344dcc0548f5eea540a1cb38c5def7598d35706951b1d5f8c95e",
+      "semantic_sha": "220ec0c380cbc2cc57a324f30dcef40291dccf4699a917b25ac56b63b13948a5",
       "threshold": "0.169892614279",
       "source_type": "analytic",
       "source_ref": "tools/criteria/probes.py#sha256:8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e#probe:euler_growth",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [
         {
           "exponent": "1",
@@ -16,6 +16,7 @@
         }
       ],
       "derivation": {
+        "axis": "h",
         "coefficient": "1.35914091423",
         "expression": "C*h**1",
         "reference_h": "0.125"
@@ -23,11 +24,11 @@
       "decidable": true
     },
     "analytic/midpoint_exp/bound": {
-      "semantic_sha": "ff96b3e68b3d8f8a121c941c1a28411e2a0e54e5853509716f755d283684f427",
+      "semantic_sha": "1cfcc7c4343380f0604301e90fc21b6050eda069ab476ba79d78f2ac3a3da9c6",
       "threshold": "0.00176971473207",
       "source_type": "analytic",
       "source_ref": "tools/criteria/probes.py#sha256:8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e#probe:midpoint_exp",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [
         {
           "exponent": "2",
@@ -35,6 +36,7 @@
         }
       ],
       "derivation": {
+        "axis": "h",
         "coefficient": "0.113261742852",
         "expression": "C*h**2",
         "reference_h": "0.125"
@@ -42,11 +44,11 @@
       "decidable": true
     },
     "analytic/simpson_exp/bound": {
-      "semantic_sha": "f4010b32b7199f32fce692561ca753635a5992fe013dace6410a193f8940c5a6",
+      "semantic_sha": "d8ee14411a4f56d67011852226fed145cbea5bec24e95853b6b48efda416e9d3",
       "threshold": "3.68690569181e-06",
       "source_type": "analytic",
       "source_ref": "tools/criteria/probes.py#sha256:8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e#probe:simpson_exp",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [
         {
           "exponent": "4",
@@ -54,6 +56,7 @@
         }
       ],
       "derivation": {
+        "axis": "h",
         "coefficient": "0.0151015657137",
         "expression": "C*h**4",
         "reference_h": "0.125"
@@ -61,11 +64,11 @@
       "decidable": true
     },
     "analytic/trapezoid_exp/bound": {
-      "semantic_sha": "97dc11ceffb7cc59dacc711ccff82199a960c4d3f0d4c4ba95c69172c23ba6e0",
+      "semantic_sha": "048daf06b2c4e8906a1ae213fbcd39770bb5bbee9e4f7e315ce679215a0db019",
       "threshold": "0.00353942946414",
       "source_type": "analytic",
       "source_ref": "tools/criteria/probes.py#sha256:8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e#probe:trapezoid_exp",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [
         {
           "exponent": "2",
@@ -73,528 +76,589 @@
         }
       ],
       "derivation": {
+        "axis": "h",
         "coefficient": "0.226523485705",
         "expression": "C*h**2",
         "reference_h": "0.125"
       },
       "decidable": true
     },
-    "json/config/proposal_gate.json#/contract/min_criteria": {
-      "semantic_sha": "e03d339374753b67a1a83358515d197ff0c2e422e5630c0f8f16975c277078c7",
-      "threshold": "3",
+    "analytic/monte_carlo_mean/bound": {
+      "semantic_sha": "046d3f3a57b66886f00a9b0e5eef668a472add6c398de6ab7d68a488e9b476e1",
+      "threshold": "0.00902109795609",
+      "source_type": "analytic",
+      "source_ref": "tools/criteria/probes_axes.py#sha256:6cfd2dae4eab77d28c889a46a09b6b2f5a7ecb0f4a370b47f364cc361b89a51a#probe:monte_carlo_mean",
+      "review_date": "2026-11-10",
+      "depends_on": [
+        {
+          "exponent": "-0.5",
+          "param": "N"
+        }
+      ],
+      "derivation": {
+        "axis": "N",
+        "coefficient": "0.288675134595",
+        "expression": "C*N**(-0.5)",
+        "reference_value": "1024"
+      },
+      "decidable": true
+    },
+    "analytic/tol_central_difference/bound": {
+      "semantic_sha": "5187bb7c040987ee0291db29f1b68cda11492d266055011f1bf068457a48fcbc",
+      "threshold": "1.66666666667e-05",
+      "source_type": "analytic",
+      "source_ref": "tools/criteria/probes_axes.py#sha256:6cfd2dae4eab77d28c889a46a09b6b2f5a7ecb0f4a370b47f364cc361b89a51a#probe:tol_central_difference",
+      "review_date": "2026-11-10",
+      "depends_on": [
+        {
+          "exponent": "2",
+          "param": "eps"
+        }
+      ],
+      "derivation": {
+        "axis": "eps",
+        "coefficient": "0.166666666667",
+        "expression": "C*eps**(2.0)",
+        "reference_value": "0.01"
+      },
+      "decidable": true
+    },
+    "analytic/tol_forward_difference/bound": {
+      "semantic_sha": "06ef6fbe3f792b2c6d2c7ad72b3291eb6b860b9fe04b9340896f7b7c0e46353a",
+      "threshold": "0.005",
+      "source_type": "analytic",
+      "source_ref": "tools/criteria/probes_axes.py#sha256:6cfd2dae4eab77d28c889a46a09b6b2f5a7ecb0f4a370b47f364cc361b89a51a#probe:tol_forward_difference",
+      "review_date": "2026-11-10",
+      "depends_on": [
+        {
+          "exponent": "1",
+          "param": "eps"
+        }
+      ],
+      "derivation": {
+        "axis": "eps",
+        "coefficient": "0.5",
+        "expression": "C*eps**(1.0)",
+        "reference_value": "0.01"
+      },
+      "decidable": true
+    },
+    "json/config/criterion_auditor.json#/alignment/duplicate_threshold": {
+      "semantic_sha": "e7c11d70073f59acf6f8455ff72d53df93f06393c48e69f1ba5dd9b155d43768",
+      "threshold": "0.8",
       "source_type": "heuristic",
-      "source_ref": "config/proposal_gate.json#sha256:780c42631df4c8ec84adf4c7f76e068f3098438cf15509c53a7ba8613df3cd53#/contract/min_criteria",
-      "review_date": "2026-11-09",
+      "source_ref": "config/criterion_auditor.json#sha256:25c80ed02ede47e83c6e708bdb87565baa0528ea470c77dcc50d45f5d0404c82#/alignment/duplicate_threshold",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "json/config/criterion_auditor.json#/alignment/match_threshold": {
+      "semantic_sha": "1529ceba262d5d96813e10555905385d440eed4a1c516e8e575e88fb247bd524",
+      "threshold": "0.6",
+      "source_type": "heuristic",
+      "source_ref": "config/criterion_auditor.json#sha256:25c80ed02ede47e83c6e708bdb87565baa0528ea470c77dcc50d45f5d0404c82#/alignment/match_threshold",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "json/config/negative_knowledge.json#/search/gate_review_threshold": {
+      "semantic_sha": "b92bad2dc3e37fbfcf73ec36aa012195df96fd9dd1c8a148dd0f58917cf6be1b",
+      "threshold": "0.4",
+      "source_type": "heuristic",
+      "source_ref": "config/negative_knowledge.json#sha256:d67a27a35c1a6da6b486d8cbe80cd202dd6e5f9cbff5228f8ccf6445b82d50e8#/search/gate_review_threshold",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "json/config/proposal_chain.json#/coverage/max_topics": {
+      "semantic_sha": "69f24116aa64c45b7ebb9a00dd031f684a3d35b732c6c04bf67c4f81b6a8a20d",
+      "threshold": "40",
+      "source_type": "heuristic",
+      "source_ref": "config/proposal_chain.json#sha256:7935187364b7d884b12a815fafbfcf01389eacf8e792706d828ce445185fb44a#/coverage/max_topics",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "json/config/proposal_chain.json#/coverage/min_topic_df": {
+      "semantic_sha": "89cf3a03f05948c49350028e5d5be0c200ff8c7a35968fcf6036f3344683e91c",
+      "threshold": "5",
+      "source_type": "heuristic",
+      "source_ref": "config/proposal_chain.json#sha256:7935187364b7d884b12a815fafbfcf01389eacf8e792706d828ce445185fb44a#/coverage/min_topic_df",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "json/config/proposal_chain.json#/dedup/pair_scan_cap": {
+      "semantic_sha": "deb67e9ce0318c17b1ad7f944d0335a1e202dad0b0ff9c761d390cb4c654a79d",
+      "threshold": "20000",
+      "source_type": "heuristic",
+      "source_ref": "config/proposal_chain.json#sha256:7935187364b7d884b12a815fafbfcf01389eacf8e792706d828ce445185fb44a#/dedup/pair_scan_cap",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "json/config/proposal_chain.json#/dedup/review_threshold": {
+      "semantic_sha": "bddba252a9056d4db0ae943806d6a32b2026cbf0bb92fe4dd9a3a74d6ec28116",
+      "threshold": "0.65",
+      "source_type": "heuristic",
+      "source_ref": "config/proposal_chain.json#sha256:7935187364b7d884b12a815fafbfcf01389eacf8e792706d828ce445185fb44a#/dedup/review_threshold",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "json/config/proposal_gate.json#/dedup/coverage_match_threshold": {
-      "semantic_sha": "956b1c2b54a9f8965e40090f056a525cf7d71bda2bd19384a775f0c5666e9d29",
+      "semantic_sha": "c48ca19f4a22ea227c6a455b5ddfb464943a0426f45bd4b12b6e25e3001c1ae4",
       "threshold": "0.85",
       "source_type": "heuristic",
       "source_ref": "config/proposal_gate.json#sha256:780c42631df4c8ec84adf4c7f76e068f3098438cf15509c53a7ba8613df3cd53#/dedup/coverage_match_threshold",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "json/config/proposal_gate.json#/dedup/dup_threshold": {
-      "semantic_sha": "060f8c25eea1ec7b11a9d6d8160b829483a69588758ddaa05b5ef91530012b7e",
-      "threshold": "0.85",
-      "source_type": "heuristic",
-      "source_ref": "config/proposal_gate.json#sha256:780c42631df4c8ec84adf4c7f76e068f3098438cf15509c53a7ba8613df3cd53#/dedup/dup_threshold",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "json/config/proposal_gate.json#/dedup/review_threshold": {
-      "semantic_sha": "11b74f2ccbc090e742e962f1c44da6290eadda5f9bd5debc446003d0e7498660",
+    "json/config/proposal_seeding.json#/similarity/merge_threshold": {
+      "semantic_sha": "18c22210bbb72a6e25d19a79fbaf9cc92a97bc86e838f9ba04d2a71cd426913d",
       "threshold": "0.55",
       "source_type": "heuristic",
-      "source_ref": "config/proposal_gate.json#sha256:780c42631df4c8ec84adf4c7f76e068f3098438cf15509c53a7ba8613df3cd53#/dedup/review_threshold",
-      "review_date": "2026-11-09",
+      "source_ref": "config/proposal_seeding.json#sha256:612fdeec2ca2ef4c0fee87f3244140a396a512dc3250cac319c3b73bba5a4796#/similarity/merge_threshold",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "json/schemas/experimental-reference.schema.json#/properties/tolerance/properties/gate/maximum": {
-      "semantic_sha": "4649c4a23a1456ec1027ed3e14a624ae90d0d3bb4ef511a93fe631089ffb0836",
-      "threshold": "0.5",
-      "source_type": "standard",
-      "source_ref": "schemas/experimental-reference.schema.json#sha256:3746d61b0561a331613a2c1e4b2660819ba5a6f6c32a8e24a96cff057f45839a#/properties/tolerance/properties/gate/maximum",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": true
-    },
-    "json/schemas/whitespace-radar.v1.schema.json#/properties/index/properties/n_docs/minimum": {
-      "semantic_sha": "20165f2295c8ed6d4defb2c42f49f3eb8df681d8321d2d98926154b507d3c3a5",
-      "threshold": "1",
-      "source_type": "standard",
-      "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/index/properties/n_docs/minimum",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": true
-    },
     "json/schemas/whitespace-radar.v1.schema.json#/properties/query/properties/specific_coverage/maximum": {
-      "semantic_sha": "8d8eeca0b5efaae6b5f091bfb8ee7bfdb201f18d6fc3a7ab586ead9d813703cf",
+      "semantic_sha": "46d679c9e16e0d0c619704bff51a88fe9548a279a9d06bc87ccd48f415c170f3",
       "threshold": "1",
       "source_type": "standard",
       "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/query/properties/specific_coverage/maximum",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": true
-    },
-    "json/schemas/whitespace-radar.v1.schema.json#/properties/thresholds/properties/c_covered/maximum": {
-      "semantic_sha": "bee9aa30f9d240af712f04652af1ea7a1e9373bd1297f014cdbb849c44e0029a",
-      "threshold": "1",
-      "source_type": "standard",
-      "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/thresholds/properties/c_covered/maximum",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": true
     },
     "json/schemas/whitespace-radar.v1.schema.json#/properties/thresholds/properties/min_existing#2173fa26": {
-      "semantic_sha": "8d5b37887217785671f5539047f6ffc44ad12806a451866adbea310e9a71f10d",
+      "semantic_sha": "335d5ee2e0071b7d77d1f68741dcf983b8bb33a6ddc0b4b528e2a87ed8b8902c",
       "threshold": "1",
       "source_type": "standard",
       "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/thresholds/properties/min_existing_probes/minimum",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": true
     },
     "json/schemas/whitespace-radar.v1.schema.json#/properties/thresholds/properties/rare_frac/maximum": {
-      "semantic_sha": "5798bcfe203ac823d8e9a69416a965391264c4cc64adf2df2ce2f14c7be4e6b9",
+      "semantic_sha": "07175c174a8b420a140f7bbf8e3c3d21cd1a2521a907e7fb492b7061ea296c77",
       "threshold": "1",
       "source_type": "standard",
       "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/thresholds/properties/rare_frac/maximum",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": true
     },
-    "json/schemas/whitespace-radar.v1.schema.json#/properties/thresholds/properties/stride/minimum": {
-      "semantic_sha": "ba13abe51046e4e595e8eb2554f30339b7156f5f3af8596ac14fe09510aa0e3e",
-      "threshold": "1",
-      "source_type": "standard",
-      "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/thresholds/properties/stride/minimum",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": true
-    },
-    "json/schemas/whitespace-radar.v1.schema.json#/properties/thresholds/properties/window/minimum": {
-      "semantic_sha": "75793bdc23e7e7892e49364e73378e3ec26a0d014929f672bb25404897744c20",
-      "threshold": "2",
-      "source_type": "standard",
-      "source_ref": "schemas/whitespace-radar.v1.schema.json#sha256:172db66bee3d0224a5ff3ed2d28771f8c210cc7b13f95504908ec02446aea76e#/properties/thresholds/properties/window/minimum",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": true
-    },
-    "py/tools/audit/falsification/knives.py#analytic_tol": {
-      "semantic_sha": "5bbe14e5f46285614f2d1c91c760999a4088b78fbb850b857071dd5b30962f9f",
-      "threshold": "0.15",
+    "py/tools/audit/falsification/knives.py#invariance_tol": {
+      "semantic_sha": "8f30b1b41f23f4220a2692972a7137696610e5d522317d945948488137c728a0",
+      "threshold": "1e-12",
       "source_type": "heuristic",
-      "source_ref": "tools/audit/falsification/knives.py#sha256:9c967593b287842250e62996faefa37fe8640aaa78324d7734635ac7f4827a03#ANALYTIC_TOL:35",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/audit/falsification/knives.py#sha256:9c967593b287842250e62996faefa37fe8640aaa78324d7734635ac7f4827a03#INVARIANCE_TOL:34",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/audit/hydrostatics_identity_audit.py#noise_floor_frac": {
-      "semantic_sha": "34e5dd6a8953e553ec32c44acf8a150a09336e5a3081c977c35ca903835938a8",
-      "threshold": "0.01",
+    "py/tools/audit/hydrostatics_identity_audit.py#dead_drift_tol": {
+      "semantic_sha": "c5fc796112c9bcf3cbd046c5099439965cae8211c2ed55d2fb20ddc4650a3d2e",
+      "threshold": "0.005",
       "source_type": "heuristic",
-      "source_ref": "tools/audit/hydrostatics_identity_audit.py#sha256:72e192d53ab7c91e4729f3eb21352015057082c18dc7b604e4999d8faad15a53#NOISE_FLOOR_FRAC:52",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/audit/hydrostatics_identity_audit.py#sha256:72e192d53ab7c91e4729f3eb21352015057082c18dc7b604e4999d8faad15a53#DEAD_DRIFT_TOL:51",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/audit/maneuvering_audit_m1663.py#tol": {
-      "semantic_sha": "0fd79121b78efac0c3def38014fddc9ac7feabdacea2ebe2b3c1025f9672a7ba",
-      "threshold": "3",
+    "py/tools/audit/surrogate_nondegeneracy_m1752.py#tol_sensitivity": {
+      "semantic_sha": "ae09b268a4fe0c915a3731ee5cac9eb4d9c8df26f95da00816b6e1a846f7190e",
+      "threshold": "1e-06",
       "source_type": "heuristic",
-      "source_ref": "tools/audit/maneuvering_audit_m1663.py#sha256:3d83c49a4bccb55809c47ca252c0b398dd8ca7155cc18b86f6761a39a1467c37#TOL:37",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/audit/surrogate_nondegeneracy_m1752.py#sha256:0c1dc7fc3c39858185c0746af13d19f535ca4bda56a4b3e337748c114774db19#TOL_SENSITIVITY:78",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/audit_benchmark_reference.py#friction_floor_tol": {
-      "semantic_sha": "446b98f2231433f5fbb01c7b50e3a4a230a1c984aa054448c01c71f1209ab87a",
-      "threshold": "1e-09",
+    "py/tools/audit_benchmark_reference.py#surface_ratio_tol": {
+      "semantic_sha": "e1908f3f40626074937786d573a2490fa457204396f01ca16445f16660204158",
+      "threshold": "0.3",
       "source_type": "heuristic",
-      "source_ref": "tools/audit_benchmark_reference.py#sha256:804c88f7cfb12a43421e602b804f5cb269d9de8979e893f3e0b127b07ba0ebe8#FRICTION_FLOOR_TOL:80",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/audit_benchmark_reference.py#sha256:804c88f7cfb12a43421e602b804f5cb269d9de8979e893f3e0b127b07ba0ebe8#SURFACE_RATIO_TOL:75",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/audit_benchmark_reference.py#froude_rel_tol": {
-      "semantic_sha": "f24cd42f85ba12476157fa300b58abeda847527da6bfc3846281545b8340b012",
-      "threshold": "0.02",
+    "py/tools/benchmark_settlement.py#hard_tol": {
+      "semantic_sha": "d8fc0565a5f35b4beba8dbb8a1b11466218adabcc5d5740bec1f86e4b2793136",
+      "threshold": "15",
       "source_type": "heuristic",
-      "source_ref": "tools/audit_benchmark_reference.py#sha256:804c88f7cfb12a43421e602b804f5cb269d9de8979e893f3e0b127b07ba0ebe8#FROUDE_REL_TOL:77",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/benchmark_settlement.py#sha256:40d6e001b3185353e028abcbd244332e5f239bed19135789555c90f3100cd18f#HARD_TOL:54",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/benchmark_settlement.py#stale_ref_tol": {
-      "semantic_sha": "8f9f910ffca28093a31bf5e39e2b4c180f6833554aa3998919f4e41208a5c0dc",
+    "py/tools/benchmark_settlement.py#r1_rel_tol": {
+      "semantic_sha": "914bd005df4e8c14eda867a96d1c75831eec9eaf7758ffacb2332b9372818951",
       "threshold": "0.5",
       "source_type": "heuristic",
-      "source_ref": "tools/benchmark_settlement.py#sha256:40d6e001b3185353e028abcbd244332e5f239bed19135789555c90f3100cd18f#STALE_REF_TOL:60",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/benchmark_settlement.py#sha256:40d6e001b3185353e028abcbd244332e5f239bed19135789555c90f3100cd18f#R1_REL_TOL:58",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/benchmarks/lbm_reference_registry.py#tol_acceptable": {
-      "semantic_sha": "c722d6f05a0bd4bcec609039443ab57bdb76ac69448dfb1b93a125c1efa08258",
-      "threshold": "0.15",
+    "py/tools/benchmarks/lbm_reference_registry.py#tol_target": {
+      "semantic_sha": "b52a467601d8a596b75746e0ee395ff732216ccf16773faef3295cf9ad41c811",
+      "threshold": "0.03",
       "source_type": "heuristic",
-      "source_ref": "tools/benchmarks/lbm_reference_registry.py#sha256:5d5f2e16d1517a9daf5e03417c943257e33e29a146fdef3aae340930a40e9d0d#TOL_ACCEPTABLE:40",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/benchmarks/lbm_reference_registry.py#sha256:5d5f2e16d1517a9daf5e03417c943257e33e29a146fdef3aae340930a40e9d0d#TOL_TARGET:39",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/benchmarks/platform_propulsion_judge.py#tol_const": {
-      "semantic_sha": "fd5581c2fe61658d5ff158895719e43b61d6a57553256f9cea15ee91791259f2",
+      "semantic_sha": "5c793c8309ba52e44571e81c84342429a2f1bba289c44e148229eb746ed237e2",
       "threshold": "1e-09",
       "source_type": "heuristic",
       "source_ref": "tools/benchmarks/platform_propulsion_judge.py#sha256:c28d5f42556c1b22ed25e38692605ac3dc42bf8e763646a1bc33225136553b35#TOL_CONST:35",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/boundary/adversarial_measure.py#per_class_floor": {
-      "semantic_sha": "be290f19fcc6045065de70a10e652d9094fa50d6f313c2ea295a85ff027ff768",
+      "semantic_sha": "f6bb349486f69814991f3838888e1b31caaef50402d902853541177428ac771d",
       "threshold": "0.6",
       "source_type": "heuristic",
       "source_ref": "tools/boundary/adversarial_measure.py#sha256:7642da2e3c4654115fede109ec761fc7e43fa7656a2aa3f520fad78f57a2de51#PER_CLASS_FLOOR:62",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/capability_audit/probes.py#benchmark_tol": {
-      "semantic_sha": "c4a1b9195d0d8f113d1d3ad616a9494aea8c945be520865c50faf484d9052546",
-      "threshold": "0.15",
+    "py/tools/campaign_throughput.py#crosscheck_rel_tol": {
+      "semantic_sha": "0f1a78048b17eda2dd29e0f027f166f6bb27e647af27322211ab6687b44da27f",
+      "threshold": "1e-09",
       "source_type": "heuristic",
-      "source_ref": "tools/capability_audit/probes.py#sha256:e818b027670657e007aefa73ced4dfcad3c26ea2859811348dc477738805c856#BENCHMARK_TOL:213",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/chain_gate/chain_gate.py#cw_tol": {
-      "semantic_sha": "2e4d23bdc95a3be34e845a18a175eaacbd076f2f2670016d30ee4da3dc117d22",
-      "threshold": "0.05",
-      "source_type": "heuristic",
-      "source_ref": "tools/chain_gate/chain_gate.py#sha256:f196131ebfec145f1f16622accd766bf07d0de4872f98395f1c6f89b7d8ed827#CW_TOL:59",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/campaign_throughput.py#sha256:bcfdacbbf44b0c084873221ad9d8168cbe890ccc318577ea8f838384698f68e3#CROSSCHECK_REL_TOL:60",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/chronicle/validate_report.py#tol": {
-      "semantic_sha": "598b5ab7099d74467bde7350bd920c0ef862885a5f39d2783314c4a0ac80c00f",
+      "semantic_sha": "058ff8846449425b923eea8f14c57306f4106de2436c2a53a9b31ce64690d1b5",
       "threshold": "0.0501",
       "source_type": "heuristic",
       "source_ref": "tools/chronicle/validate_report.py#sha256:1ad26bce7bc6baad75156d6a96a7db2771f3b8c5199e77257405cf3af9e798e2#TOL:36",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/diversity/dedup.py#min_summary_chars": {
-      "semantic_sha": "e445d0f2de536dcd7bae61e34f5e6e91cb0c1422a28386c4696267c7cbb37da1",
-      "threshold": "40",
+    "py/tools/coupling/exchange_gate.py#loop_tol": {
+      "semantic_sha": "279eeee5f9da2e447b8ec993042e77cd99501e2cab9494771dd02292e12020be",
+      "threshold": "1e-10",
       "source_type": "heuristic",
-      "source_ref": "tools/diversity/dedup.py#sha256:c80f9cd809a2394ed2a4ce453e8c30d528b7448673d1c277ea41aa6b6c0800a1#MIN_SUMMARY_CHARS:27",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/coupling/exchange_gate.py#sha256:2973a4f84475dcb8b0154ad0700afe018e6632c73bd6a30f59f7150564e707a1#LOOP_TOL:60",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/diversity/roster.py#min_framings": {
-      "semantic_sha": "e15c2a9d0482f4e5b1b1dd6817311323b781dd041edf382294e09f883fda1403",
-      "threshold": "4",
+    "py/tools/coupling/exchange_gate.py#torque_tol": {
+      "semantic_sha": "5e0f8f65bed597e958ad9826ef5170f0d9f69af69a726d28f2babaf3e64d4640",
+      "threshold": "1e-12",
       "source_type": "heuristic",
-      "source_ref": "tools/diversity/roster.py#sha256:f7b9fd788264139bc11bf655b5246f92f83192f87adb151ebf1aee71112907e3#MIN_FRAMINGS:39",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/coupling/exchange_gate.py#sha256:2973a4f84475dcb8b0154ad0700afe018e6632c73bd6a30f59f7150564e707a1#TORQUE_TOL:58",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/coupling/exchange_gate.py#total_tol": {
+      "semantic_sha": "a502cc29947d9afd85d55f2246324299b0838844f079de6a2e1764fc6f2743a2",
+      "threshold": "1e-12",
+      "source_type": "heuristic",
+      "source_ref": "tools/coupling/exchange_gate.py#sha256:2973a4f84475dcb8b0154ad0700afe018e6632c73bd6a30f59f7150564e707a1#TOTAL_TOL:56",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/coupling_contracts/acceptance.py#tol": {
+      "semantic_sha": "e692d15b008d3d38e9b5e1596f5ec765a8974271a4d570a6cb9974fc2b9a2b3d",
+      "threshold": "1e-12",
+      "source_type": "heuristic",
+      "source_ref": "tools/coupling_contracts/acceptance.py#sha256:66c9f032c31b67e4d2fba19cb71724e6f81b9a9d6b380e75e8134d6f68f233a3#TOL:58",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/criteria_governance/drift_gate.py#float_tol": {
+      "semantic_sha": "66f18d52f0623c75399de32bedfdef36e8b42076940a6b303ea5fd081670d7b6",
+      "threshold": "1e-12",
+      "source_type": "heuristic",
+      "source_ref": "tools/criteria_governance/drift_gate.py#sha256:fd174fac4be1b4679ee4d85b25ce46545dca75e04c16532e9d47508cb86bf2bb#FLOAT_TOL:21",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/error_claim_audit.py#hard_tol_pct": {
-      "semantic_sha": "fe22e15d15760f687d224accce49d76887fb832fddfa2efba882703b3090143d",
+      "semantic_sha": "089a648128bae6851f94f48ea1675cf86419d901e4f568f85614a2b6a82f69f6",
       "threshold": "15",
       "source_type": "heuristic",
       "source_ref": "tools/error_claim_audit.py#sha256:82a905ea240258a451cff8328cc77eb77df16b85582af146bb9c630e0085a9c5#HARD_TOL_PCT:77",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/evaluation_ops/intervention_trials.py#min_sample_per_arm": {
-      "semantic_sha": "2e35cba1d30d670c8fafc24d5f7cca0a05fe752299dda32bd327fd4c4ccf71ea",
-      "threshold": "100",
+    "py/tools/eval_discriminability/cohort.py#min_stratum_pos": {
+      "semantic_sha": "e5f2dc502dad3bc8c8dfe7b297bbcbf82ad3131ac7f262c90aaa9f5f090cfa57",
+      "threshold": "10",
       "source_type": "heuristic",
-      "source_ref": "tools/evaluation_ops/intervention_trials.py#sha256:fa5f0c8a8a0672721591322d77abfe0dd6978caef1f2172e02e0bbeb1b0b7dd4#MIN_SAMPLE_PER_ARM:92",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/eval_discriminability/cohort.py#sha256:f6c518dfdde0ba5fde40466b7dcf927332bddae329d8e44abafd83828b61bf70#MIN_STRATUM_POS:33",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/evaluation_ops/intervention_trials.py#negative_control_min": {
-      "semantic_sha": "62d74ee0a3cc89fa2c5717dcf18969eb06137c68c77713eb677d626713b2d1d5",
-      "threshold": "0.8",
+    "py/tools/evaluation_ops/triggers.py#default_backlog_threshold": {
+      "semantic_sha": "816bf8770fe729e1265aaed78e109f2d3d2ae4e6b1963f832c8528f51f5c5d57",
+      "threshold": "50",
       "source_type": "heuristic",
-      "source_ref": "tools/evaluation_ops/intervention_trials.py#sha256:fa5f0c8a8a0672721591322d77abfe0dd6978caef1f2172e02e0bbeb1b0b7dd4#NEGATIVE_CONTROL_MIN:90",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/evaluation_ops/triggers.py#sha256:ca61132b555e1ab557508b4869abf480d106e1c4e37f2d39d5ab9b0653f068f2#DEFAULT_BACKLOG_THRESHOLD:65",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/evidence/backlog_extraction/dedup.py#near_threshold": {
+      "semantic_sha": "589f0f312a2a50eb2d4fb2006dc099c99449a00d6c67c5b6522a160924913792",
+      "threshold": "0.55",
+      "source_type": "heuristic",
+      "source_ref": "tools/evidence/backlog_extraction/dedup.py#sha256:518c4467651cf4631c035f9c6173b53a2e0ec6a23e21f9b6caa00c34de48d5ea#NEAR_THRESHOLD:34",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/evidence/backlog_extraction/dedup.py#sem_threshold": {
-      "semantic_sha": "be4849c622138fc6f7af235d621c0d225dfc18d8d777a07a5214a0d89bad16a4",
+      "semantic_sha": "f4d4a5c9cecf196cbd9c247c2f784750b4f5ae54120af5e250f1240fc13625a1",
       "threshold": "0.85",
       "source_type": "heuristic",
       "source_ref": "tools/evidence/backlog_extraction/dedup.py#sha256:518c4467651cf4631c035f9c6173b53a2e0ec6a23e21f9b6caa00c34de48d5ea#SEM_THRESHOLD:33",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/external_validity/acceptance.py#min_bin_n": {
+      "semantic_sha": "32ab00e3c56569baeb9032ff579f81b28cbd55312df07de7e8afcefb6a812806",
+      "threshold": "10",
+      "source_type": "heuristic",
+      "source_ref": "tools/external_validity/acceptance.py#sha256:762dfb277c98f0378c738a1aa5a707e8299f02061862289d64b02096a2a5d68b#MIN_BIN_N:48",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/gci/cases.py#r_out_ratio": {
+      "semantic_sha": "c2c9aa029296beef578bfbbb92554ed30adcceddcd38ba49b78b2f2e21885842",
+      "threshold": "200",
+      "source_type": "heuristic",
+      "source_ref": "tools/gci/cases.py#sha256:9a8d647c0d9ef395b28cabe2f8e472d37203666d28541d2195b353d215f6a8e8#R_OUT_RATIO:67",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/gen_ref_anchors.py#tol_kt": {
+      "semantic_sha": "89d45a35cc0cd8c6ccc6f7454118c281b952d4e13bbf3e320f930a49cee7ab0b",
+      "threshold": "0.04",
+      "source_type": "heuristic",
+      "source_ref": "tools/gen_ref_anchors.py#sha256:4ab234f32f4d0532ff453db2d81ec7d2235d0594dd4ed21386077a94c3b71e88#TOL_KT:29",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/gen_ref_anchors.py#tol_rt_kcs": {
-      "semantic_sha": "84c6e630c2476cded7959d3fe6f234353dfb782ef3734ba0a1726edcea4a5288",
+      "semantic_sha": "8af51e03b9f71b1c5e881b65825a12ebe55f9e819b172c2aa79b4c712b3a59d4",
       "threshold": "0.12",
       "source_type": "heuristic",
       "source_ref": "tools/gen_ref_anchors.py#sha256:4ab234f32f4d0532ff453db2d81ec7d2235d0594dd4ed21386077a94c3b71e88#TOL_RT_KCS:35",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/gen_ref_anchors.py#tol_spectrum_moment": {
-      "semantic_sha": "f608b427684495100d62a983dab40174650c12d597737a178ecfce5201ca2c02",
-      "threshold": "0.02",
+    "py/tools/m796_marine_icing_validation.py#c_tol_heat": {
+      "semantic_sha": "be5246f2f50acd0fa87926e373987273bb572b54d1f73d00edc672dab91fe3b7",
+      "threshold": "1e-06",
       "source_type": "heuristic",
-      "source_ref": "tools/gen_ref_anchors.py#sha256:4ab234f32f4d0532ff453db2d81ec7d2235d0594dd4ed21386077a94c3b71e88#TOL_SPECTRUM_MOMENT:27",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/m796_marine_icing_validation.py#sha256:c77dfee7af9a23cbf62acefabe698dbb310cb2876f426b9e62ea2e267749edcd#C_TOL_HEAT:50",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/gen_ref_anchors.py#tol_spectrum_param": {
-      "semantic_sha": "3f2efd2ab4dbaa02487f19c66fbf44d385dae9b78364727d83c4369a86613709",
+    "py/tools/m796_marine_icing_validation.py#c_tol_rate": {
+      "semantic_sha": "22cac02a07eb492c24ba14bc7a3f6f2c7b26e8bcded1536ef96cb5240b2cb08e",
+      "threshold": "0.15",
+      "source_type": "heuristic",
+      "source_ref": "tools/m796_marine_icing_validation.py#sha256:c77dfee7af9a23cbf62acefabe698dbb310cb2876f426b9e62ea2e267749edcd#C_TOL_RATE:51",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/ops/benchmark/gates_check.py#tol": {
+      "semantic_sha": "c1158921abdbd6dc8bc8eafdce020996a2459f9427fb17bd00276a0356a0f00f",
       "threshold": "1e-09",
       "source_type": "heuristic",
-      "source_ref": "tools/gen_ref_anchors.py#sha256:4ab234f32f4d0532ff453db2d81ec7d2235d0594dd4ed21386077a94c3b71e88#TOL_SPECTRUM_PARAM:28",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/ops/benchmark/gates_check.py#sha256:19875330d4d19488e095dbe59811325e6538cc85b2c948445d0f0c214afb9f61#TOL:58",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/guide_kpi_ledger.py#drift_rel_tol": {
-      "semantic_sha": "418988bf801ab42f971b90b027686c4392e5ca047ae371b0bcf954c2bf6223d4",
-      "threshold": "0.02",
-      "source_type": "heuristic",
-      "source_ref": "tools/guide_kpi_ledger.py#sha256:a492d4089ce73aa00554b63cb0c78c4c1836cc99c4d0ef5ef17b4338757adebd#DRIFT_REL_TOL:49",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/hypothesis_registry.py#min_verdict_basis_chars": {
-      "semantic_sha": "fcd25b308f67bf3930e06d3d8297859c3ec51ab7d8c791bd4dab7bd6645b3288",
-      "threshold": "20",
-      "source_type": "heuristic",
-      "source_ref": "tools/hypothesis_registry.py#sha256:ad9ace36e372f14cca71d92f9f8c8000baf69039f3bb1f53617c0feb6ab5d6a8#MIN_VERDICT_BASIS_CHARS:104",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/m796_marine_icing_validation.py#c_tol_gm": {
-      "semantic_sha": "9081e4a4613f766e105e0cd17bb28d979903d23da17859f69e235f479773a07c",
-      "threshold": "0.03",
-      "source_type": "heuristic",
-      "source_ref": "tools/m796_marine_icing_validation.py#sha256:c77dfee7af9a23cbf62acefabe698dbb310cb2876f426b9e62ea2e267749edcd#C_TOL_GM:52",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/ops/benchmark/benchmark_dispatch.py#max_report_figures": {
-      "semantic_sha": "ef2550757129e9df86d95b6d1ba1fd885a63bf5e1365d75e6e613e3943fb0b9e",
+    "py/tools/ops/outcome_evidence_gate.py#min_reason_chars": {
+      "semantic_sha": "ad5d1c5f045cccb331d38aa8f72c07540618f93b28700fb24ed19dc7fa961373",
       "threshold": "12",
       "source_type": "heuristic",
-      "source_ref": "tools/ops/benchmark/benchmark_dispatch.py#sha256:baf9fb868c417cd3baa90534ead38dbdffaed1ed9194b9958faab3d78786bfdb#MAX_REPORT_FIGURES:319",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/ops/outcome_evidence_gate.py#sha256:3378685a9456b611a8059850f186edd7d1d5c2fe518b646f5716ccb5b24a4736#MIN_REASON_CHARS:41",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/ops/review_ticket_ledger.py#min_novelty_chars": {
-      "semantic_sha": "e5103eada6d9a679f27f859b52b4e44ef2a2e0a427ab5bc51700a6ace09ad373",
-      "threshold": "8",
+    "py/tools/pce_verify/verify_pce.py#exact_tol": {
+      "semantic_sha": "db2b6bdf7006f77941a12077b5604548c1980b0c0c22040ca2cdc4a8df477f7d",
+      "threshold": "1e-10",
       "source_type": "heuristic",
-      "source_ref": "tools/ops/review_ticket_ledger.py#sha256:840159f6ab257bd9faf64e631d45405b6ba4161ad2391f89e52a3bc3bed4207f#MIN_NOVELTY_CHARS:56",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/pce_verify/verify_pce.py#sha256:28f4382580127a24f43965822bace6c7b0be6728e97c08412d74dc602b55e278#EXACT_TOL:47",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/planner/_init_.py#confidence_threshold_reject": {
-      "semantic_sha": "98c52e73bec5cebe56e1ed0ab4cbac294a91e7c03d4dc9fb8825ea48705ad180",
-      "threshold": "0.8",
+    "py/tools/repro_audit/core.py#obs_rel_tol": {
+      "semantic_sha": "b03f553e1a7d533c718711428ebdb77527f5bc8b91b46e8a224488b9d5be76bf",
+      "threshold": "1e-06",
       "source_type": "heuristic",
-      "source_ref": "tools/planner/__init__.py#sha256:a17244977951545fb6fc832b02dc9ce07b97f2dcd30a672901964ac502d4b95c#CONFIDENCE_THRESHOLD_REJECT:122",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/repro_audit/core.py#sha256:31ef779ad8787e6e416d03b3c72170480f0d05b5c589a2839366f3121932079d#OBS_REL_TOL:29",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/ref_vibration_8001.py#input_independence_tol": {
-      "semantic_sha": "0119822021d51ead40f01587c38a72a2821df6a106c1bac6b54329a7e66aa4eb",
+    "py/tools/scorer_guard/score.py#regime_tol": {
+      "semantic_sha": "b83e4455a8d114adddb8d9accbef2e058949cee579dbee0a6887ff022c489fee",
       "threshold": "0.01",
       "source_type": "heuristic",
-      "source_ref": "tools/ref_vibration_8001.py#sha256:4e80a50c75326d89c63f7852838078d433b75de9ec0e2b64020cb1442f60a879#INPUT_INDEPENDENCE_TOL:51",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/scorer_guard/score.py#sha256:b54eb33478ad63829f32c539e690f70dc10cd63a42eaab56eeb37501f6494803#REGIME_TOL:49",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/replay_gate/gate.py#min_rate": {
-      "semantic_sha": "796b41c4b9e5d23e25c493b00ecce4ca7a26ff2afa2bd15b03897dbd72410f7e",
-      "threshold": "0.9",
+    "py/tools/stall_fixture_20261107.py#gap_busy_floor": {
+      "semantic_sha": "b77ddacc4fa7238d81fa5e6ac552a3fb3608fdc160cdab87acdd66f87f41c7ca",
+      "threshold": "8",
       "source_type": "heuristic",
-      "source_ref": "tools/replay_gate/gate.py#sha256:163bf98b88b50eca80a230ea6e4679759cd5814d64f84e278e95e1951a46ff3f#MIN_RATE:57",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/stall_fixture_20261107.py#sha256:0b655fbb2d84cc7ab663fdefa1b61f569b0f496727f246df6658d3a721b3cdad#GAP_BUSY_FLOOR:66",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/scorer_guard/score.py#const_spread_tol": {
-      "semantic_sha": "1a907658092b93922dd725b3fdf69e596a92281134fba5349eeede909207630c",
-      "threshold": "1e-12",
+    "py/tools/verifier/audit_resistance_contract.py#tol_target": {
+      "semantic_sha": "74977c60b5529c458da9ab164eeaf02e97fed4b296900b3f8fadeb6014556f31",
+      "threshold": "3",
       "source_type": "heuristic",
-      "source_ref": "tools/scorer_guard/score.py#sha256:b54eb33478ad63829f32c539e690f70dc10cd63a42eaab56eeb37501f6494803#CONST_SPREAD_TOL:47",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/scorer_guard/score.py#unit_decade_tol": {
-      "semantic_sha": "4c8ebb67f6ec35085ce2e1d904e5a8cfdf1f935ba89086a5cd1e68d144a2078b",
-      "threshold": "2",
-      "source_type": "heuristic",
-      "source_ref": "tools/scorer_guard/score.py#sha256:b54eb33478ad63829f32c539e690f70dc10cd63a42eaab56eeb37501f6494803#UNIT_DECADE_TOL:45",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/structure_audit/criteria.py#physical_util_max": {
-      "semantic_sha": "6d25009af6e636c9dbdbc0c0e041ef8e9eef42d3b11f68798af6d91e68131861",
-      "threshold": "1",
-      "source_type": "heuristic",
-      "source_ref": "tools/structure_audit/criteria.py#sha256:6d5c654e2cdd2f27be4ce321112c95a871f014d2f51993cb7f3309442b523b8c#PHYSICAL_UTIL_MAX:36",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/validation/references_stdmodels.py#tol_pass": {
-      "semantic_sha": "8ecd16f41589efa4d690b8df1dcd42494f812b9127e6bee3f60cbe75b2dcc87d",
-      "threshold": "0.03",
-      "source_type": "heuristic",
-      "source_ref": "tools/validation/references_stdmodels.py#sha256:c467a9fece69f369c9fee57e0409e7c45d460f326ab046a0360ec88b58fdbbfa#TOL_PASS:37",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/verifier/audit_resistance_contract.py#geom_tol_pct": {
-      "semantic_sha": "c876ab9f3e9ac1d4dc1f27ff3cd06b31d6898f915e7d2385362f635184ba2ad4",
-      "threshold": "5",
-      "source_type": "heuristic",
-      "source_ref": "tools/verifier/audit_resistance_contract.py#sha256:225dfc53b2edbf3ada940501304e6d1bfd36e18dde378abff851015aa8523cd9#GEOM_TOL_PCT:58",
-      "review_date": "2026-11-09",
-      "depends_on": [],
-      "derivation": null,
-      "decidable": false
-    },
-    "py/tools/verifier/audit_resistance_contract.py#tol": {
-      "semantic_sha": "3d344740b8a055412a281da90f5d2c1412015562ec3e7833f6d74c2f244fe60b",
-      "threshold": "0.1",
-      "source_type": "heuristic",
-      "source_ref": "tools/verifier/audit_resistance_contract.py#sha256:225dfc53b2edbf3ada940501304e6d1bfd36e18dde378abff851015aa8523cd9#TOL:55",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/verifier/audit_resistance_contract.py#sha256:225dfc53b2edbf3ada940501304e6d1bfd36e18dde378abff851015aa8523cd9#TOL_TARGET:56",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/verifier/polar_channel_acceptance_audit.py#tol_pct": {
-      "semantic_sha": "1fdf40564945374189f8a9649b8c38282602681da9cd5a88792c3f84dcd03d2d",
+      "semantic_sha": "a553941ef720811413c5a9a308a59ec11261e322444d2d171953eb14f4a0fedb",
       "threshold": "10",
       "source_type": "heuristic",
       "source_ref": "tools/verifier/polar_channel_acceptance_audit.py#sha256:d15882a11e0d7eea6000a1e085c84fa475bb1cebdf88d86a85656e6ad2edb7f0#TOL_PCT:65",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/verifier/propeller_bseries_benchmark.py#secondary_tol": {
-      "semantic_sha": "d3f0030eab71c1afd6ba843f25efbc2fd432a15ffc2d1d53325b4be013d7d60a",
-      "threshold": "0.15",
+    "py/tools/verify/propeller_open_water/bem_vs_bseries.py#load_kq_min": {
+      "semantic_sha": "4ad03bcc70e2464eb2a071c20fcafbf2996eae0e0478a96e698a58d6f96099f2",
+      "threshold": "0.005",
       "source_type": "heuristic",
-      "source_ref": "tools/verifier/propeller_bseries_benchmark.py#sha256:f47abf488ef98db41200b3be9e4d3067322753a7dd841298a0413924a9bc1f6b#SECONDARY_TOL:58",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/verify/propeller_open_water/bem_vs_bseries.py#sha256:7e07f12b2a8767934bddf7f99078f683af35899eccb311903ce112815f64c838#LOAD_KQ_MIN:149",
+      "review_date": "2026-11-10",
+      "depends_on": [],
+      "derivation": null,
+      "decidable": false
+    },
+    "py/tools/verify/propeller_open_water/bem_vs_bseries.py#load_kt_min": {
+      "semantic_sha": "75be4189a181555d3a27761b8b462a9fe016e9a91918e62aa129bef77ecc2b82",
+      "threshold": "0.05",
+      "source_type": "heuristic",
+      "source_ref": "tools/verify/propeller_open_water/bem_vs_bseries.py#sha256:7e07f12b2a8767934bddf7f99078f683af35899eccb311903ce112815f64c838#LOAD_KT_MIN:148",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/verify/verify_hydrostatics_m1883.py#tol_abs": {
-      "semantic_sha": "f67e3311e57a20c01f7c3a8b8e1cea3ea295464f2a5891a487e1a5987b7fdf71",
+      "semantic_sha": "b49f590a7423e67e8da443af91f6986d7aa393d0540c346781a3dd61b5ff5ae3",
       "threshold": "1e-09",
       "source_type": "heuristic",
       "source_ref": "tools/verify/verify_hydrostatics_m1883.py#sha256:c15a7576c423c3b4a3ce2d32741e0e04c7af6c05b6975ed7f8bc0ea2ba946dc8#TOL_ABS:114",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
     "py/tools/vv/reference_registry.py#min_points": {
-      "semantic_sha": "874526f5fe4830deebe430d4f7c72ac8b4e279f3571f18db42b561ea3cae500f",
+      "semantic_sha": "3b39486b21ecb6852a281cbd354230e751e7fce39fac0ce9f61a050ec79c2255",
       "threshold": "5",
       "source_type": "heuristic",
       "source_ref": "tools/vv/reference_registry.py#sha256:d8de79880f0f5e65a6b99bd5a7d66c2a100f56fbf48d98cdeb3cb01f368f9f58#MIN_POINTS:72",
-      "review_date": "2026-11-09",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
     },
-    "py/tools/worker_portrait/crosscheck.py#rel_tol": {
-      "semantic_sha": "10f9d54065ca3a25302f8c8bfc0edaa0a7f9e9c244273221893aed3f0b7de552",
-      "threshold": "0.03",
+    "py/tools/worker_truth/states.py#min_span_fraction": {
+      "semantic_sha": "369184b68b9014dc815a949128a6836d92955069d0f86e975ab31606b53f18ca",
+      "threshold": "0.5",
       "source_type": "heuristic",
-      "source_ref": "tools/worker_portrait/crosscheck.py#sha256:dfc1cdb8792d9dbf4ac825a10b60adb4de7b861d35e425dd481fdab7747e59db#REL_TOL:55",
-      "review_date": "2026-11-09",
+      "source_ref": "tools/worker_truth/states.py#sha256:74bcde42a454f7d48fa5aa5d228d6b3d2ef69866953b840d18280f17e66e4f5d#MIN_SPAN_FRACTION:33",
+      "review_date": "2026-11-10",
       "depends_on": [],
       "derivation": null,
       "decidable": false
