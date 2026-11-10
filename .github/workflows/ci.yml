@@ -36,6 +36,11 @@ jobs:
       - name: Capability ledger consumer contract gate
         # 单一台账解析器 + 四消费者 sha256 一致性；schema_version 越界/台账漂移 → 非 0（CI 红）
         run: python tools/audit/ledger_contract_gate.py --check
+      - name: Structural domain-surface gate (P162-N10)
+        # 结构级域面棘轮（判例 #608 续篇）：api/domain 新增文件、核心层新增 api.domain 依赖、
+        # 豁免缺到期、清单被手改 → 红；删除已登记模块 → 退出码 3（待 owner 确认，confirm-removal 后基线 −1）；
+        # 清单缺失 → 退出码 5（WITHHELD，仅词级，不假绿）。工件：artifacts/m9079/。
+        run: python tools/audit/domain_surface_manifest.py check --today "$(date -u +%F)"
 
   research-factory:
     name: research factory checks
