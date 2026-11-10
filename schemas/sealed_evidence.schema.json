@@ -1,0 +1,135 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorplatform.local/schemas/sealed_evidence.schema.json",
+  "title": "Sealed Evidence Contract v1.0",
+  "description": "Domain-neutral evidence seal contract for reproducibility verification. Ensures task outputs are reproducible and complete through artifact hashing, replay verification, and missing-item attribution.",
+  "type": "object",
+  "required": ["schema_version", "mission_id", "criteria", "replay", "sealed_at", "provenance_digest"],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "sealed-evidence/1.0",
+      "description": "Schema version identifier."
+    },
+    "mission_id": {
+      "type": "string",
+      "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+      "description": "Opaque mission identifier."
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": ["id", "text_hash", "artifacts"],
+        "additionalProperties": false,
+        "properties": {
+          "id": {
+            "type": "string",
+            "pattern": "^[a-zA-Z0-9_-]{1,64}$",
+            "description": "Criterion identifier."
+          },
+          "text_hash": {
+            "type": "string",
+            "pattern": "^[0-9a-f]{64}$",
+            "description": "SHA-256 of the criterion text."
+          },
+          "artifacts": {
+            "type": "array",
+            "minItems": 1,
+            "items": {
+              "type": "object",
+              "required": ["path", "sha256", "bytes"],
+              "additionalProperties": false,
+              "properties": {
+                "path": {
+                  "type": "string",
+                  "minLength": 1,
+                  "maxLength": 500,
+                  "description": "Relative path to the artifact file."
+                },
+                "sha256": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "description": "SHA-256 digest of the artifact file."
+                },
+                "bytes": {
+                  "type": "integer",
+                  "minimum": 0,
+                  "description": "File size in bytes."
+                },
+                "produced_by": {
+                  "type": "string",
+                  "maxLength": 500,
+                  "description": "Command or process that produced this artifact."
+                },
+                "params_digest": {
+                  "type": "string",
+                  "pattern": "^[0-9a-f]{64}$",
+                  "description": "SHA-256 of the parameters used to produce this artifact."
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "replay": {
+      "type": "object",
+      "required": ["cmd", "cwd", "timeout_s"],
+      "additionalProperties": false,
+      "properties": {
+        "cmd": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 2000,
+          "description": "Command to replay the computation."
+        },
+        "cwd": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 500,
+          "description": "Working directory for replay."
+        },
+        "env_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 of the environment variables."
+        },
+        "timeout_s": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 7200,
+          "description": "Replay timeout in seconds."
+        },
+        "last_result": {
+          "type": "object",
+          "properties": {
+            "exit_code": {
+              "type": ["integer", "null"],
+              "description": "Exit code of the last replay (null if timed out)."
+            },
+            "timed_out": {
+              "type": "boolean",
+              "description": "Whether the last replay timed out."
+            },
+            "duration_sec": {
+              "type": "number",
+              "description": "Duration of the last replay in seconds."
+            }
+          }
+        }
+      }
+    },
+    "sealed_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO 8601 timestamp when the evidence was sealed."
+    },
+    "provenance_digest": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$",
+      "description": "SHA-256 of sorted (artifact path, sha256) pairs for integrity verification."
+    }
+  }
+}
