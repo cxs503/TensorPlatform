@@ -1,0 +1,133 @@
+{
+  "schema_version": "criterion-auditor-config/1.0",
+  "purpose": "判据强度审计器+提案语义裁决的全部可调参数与域词典。零领域语义纪律：代码内不得出现域词或散落常量。",
+
+  "extraction": {
+    "quantity_patterns": {
+      "note": "被测量或守恒量的正则模式（由域仓以数据注入）",
+      "entries": [
+        {"id": "resistance", "pattern": "(?:total|residuary|frictional|wave)?\\s*resistance\\s*(?:coefficient|force)?", "display": "resistance"},
+        {"id": "thrust", "pattern": "thrust\\s*(?:coefficient|deduction)?", "display": "thrust"},
+        {"id": "torque", "pattern": "torque\\s*(?:coefficient)?", "display": "torque"},
+        {"id": "efficiency", "pattern": "(?:propulsive|open[- ]water|hull)?\\s*efficiency", "display": "efficiency"},
+        {"id": "wave_elevation", "pattern": "wave\\s*(?:elevation|pattern|cut)", "display": "wave_elevation"},
+        {"id": "pressure", "pattern": "(?:surface|field|dynamic)?\\s*pressure", "display": "pressure"},
+        {"id": "velocity", "pattern": "(?:flow|wake|induced)?\\s*velocity", "display": "velocity"},
+        {"id": "force", "pattern": "(?:hydrodynamic|restoring|excitation|diffraction|radiation)?\\s*force", "display": "force"},
+        {"id": "moment", "pattern": "(?:pitching|heaving|rolling|yawing)?\\s*moment", "display": "moment"},
+        {"id": "rao", "pattern": "RAO|response\\s*amplitude\\s*operator", "display": "rao"},
+        {"id": "added_mass", "pattern": "added\\s*mass", "display": "added_mass"},
+        {"id": "damping", "pattern": "(?:radiation|viscous)?\\s*damping", "display": "damping"},
+        {"id": "ice_resistance", "pattern": "ice\\s*resistance", "display": "ice_resistance"},
+        {"id": "Cb", "pattern": "Cb|block\\s*coefficient", "display": "Cb"},
+        {"id": "Cp", "pattern": "Cp|prismatic\\s*coefficient", "display": "Cp"},
+        {"id": "Cf", "pattern": "Cf|friction\\s*coefficient", "display": "Cf"},
+        {"id": "Cw", "pattern": "Cw|waterplane\\s*coefficient", "display": "Cw"},
+        {"id": "GM", "pattern": "GM|metacentric\\s*height", "display": "GM"},
+        {"id": "natural_freq", "pattern": "natural\\s*(?:frequency|period)", "display": "natural_freq"},
+        {"id": "convergence", "pattern": "convergence\\s*(?:rate|order|error)", "display": "convergence"},
+        {"id": "mass_conservation", "pattern": "mass\\s*conservation", "display": "mass_conservation"},
+        {"id": "momentum_conservation", "pattern": "momentum\\s*conservation", "display": "momentum_conservation"},
+        {"id": "energy_conservation", "pattern": "energy\\s*conservation", "display": "energy_conservation"},
+        {"id": "error_norm", "pattern": "(?:L2|Linf|relative)?\\s*error\\s*(?:norm)?", "display": "error_norm"},
+        {"id": "stress", "pattern": "(?:von[- ]?Mises|principal|von)?\\s*stress", "display": "stress"},
+        {"id": "displacement", "pattern": "(?:vertical|horizontal|total)?\\s*displacement", "display": "displacement"},
+        {"id": "natural_period", "pattern": "natural\\s*period", "display": "natural_period"},
+        {"id": "decay", "pattern": "decay\\s*(?:rate|coefficient|curve)", "display": "decay"}
+      ]
+    },
+    "criterion_form_patterns": {
+      "note": "判据形式的正则模式",
+      "entries": [
+        {"id": "threshold_le", "pattern": "(?:≤|<=|less\\s*than|below|under|at\\s*most)\\s*([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\s*(%|‰)?", "form": "threshold_le"},
+        {"id": "threshold_ge", "pattern": "(?:≥|>=|greater\\s*than|above|over|at\\s*least)\\s*([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\s*(%|‰)?", "form": "threshold_ge"},
+        {"id": "threshold_eq", "pattern": "(?:≈|=|equals?|within)\\s*([+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?)\\s*(?:±|\\+/-)?\\s*([+-]?\\d+(?:\\.\\d+)?)?\\s*(%|‰)?", "form": "threshold_eq"},
+        {"id": "convergence_order", "pattern": "converge?(?:s|nce|nt)?\\s*(?:as|with|at)\\s*O\\(([^)]+)\\)", "form": "convergence_order"},
+        {"id": "conservation_exact", "pattern": "(?:exactly|precisely|to\\s+machine\\s+precision)\\s*conserv(?:ed|ation)", "form": "conservation_exact"},
+        {"id": "relative_error", "pattern": "relative\\s*error\\s*(?:≤|<=|<|of)\\s*([+-]?\\d+(?:\\.\\d+)?)\\s*(%|‰)?", "form": "relative_error"},
+        {"id": "grid_convergence", "pattern": "grid\\s*(?:convergence|independence|study)", "form": "grid_convergence"},
+        {"id": "benchmark_match", "pattern": "(?:match|agree|within)\\s*(?:of|with)?\\s*(?:the\\s*)?(?:benchmark|experimental|reference|measured)", "form": "benchmark_match"},
+        {"id": "analytic_match", "pattern": "(?:match|agree|within)\\s*(?:of|with)?\\s*(?:the\\s*)?(?:analytic|exact|closed[- ]form)", "form": "analytic_match"},
+        {"id": "monotone", "pattern": "monoton(?:e|ic)\\s*(?:decrease|increase|converge)", "form": "monotone"},
+        {"id": "bounded", "pattern": "bound(?:ed)?\\s*(?:by|above|below|between)", "form": "bounded"},
+        {"id": "positive_definite", "pattern": "positive\\s*definite", "form": "positive_definite"},
+        {"id": "symmetry", "pattern": "symmetr(?:y|ic)", "form": "symmetry"},
+        {"id": "mesh_independence", "pattern": "mesh\\s*(?:independence|convergence|sensitivity)", "form": "mesh_independence"}
+      ]
+    },
+    "domain_patterns": {
+      "note": "工况或边界域的正则模式（由域仓以数据注入）",
+      "entries": [
+        {"id": "zero_speed", "pattern": "zero\\s*speed|Fn\\s*=\\s*0|zero[- ]Froude", "display": "zero_speed"},
+        {"id": "low_fn", "pattern": "Fn\\s*[<=]\\s*0\\.[23]", "display": "low_fn"},
+        {"id": "high_fn", "pattern": "Fn\\s*[>=]\\s*0\\.[34]", "display": "high_fn"},
+        {"id": "regular_waves", "pattern": "regular\\s*waves?", "display": "regular_waves"},
+        {"id": "irregular_waves", "pattern": "irregular\\s*waves?|spectr(?:a|um|al)", "display": "irregular_waves"},
+        {"id": "head_sea", "pattern": "head\\s*sea|head\\s*waves|180°", "display": "head_sea"},
+        {"id": "beam_sea", "pattern": "beam\\s*sea|beam\\s*waves|90°", "display": "beam_sea"},
+        {"id": "oblique_sea", "pattern": "oblique\\s*sea|\\d+°\\s*(?:wave|heading)", "display": "oblique_sea"},
+        {"id": "calm_water", "pattern": "calm\\s*water|still\\s*water", "display": "calm_water"},
+        {"id": "deep_water", "pattern": "deep\\s*water", "display": "deep_water"},
+        {"id": "shallow_water", "pattern": "shallow\\s*water|finite\\s*depth", "display": "shallow_water"},
+        {"id": "ice_condition", "pattern": "ice\\s*(?:condition|coverage|thickness)|level\\s*ice|broken\\s*ice|ice\\s*channel", "display": "ice_condition"},
+        {"id": "steady_flow", "pattern": "steady\\s*(?:flow|state|run)", "display": "steady_flow"},
+        {"id": "unsteady_flow", "pattern": "unsteady|transient|time[- ]domain", "display": "unsteady_flow"},
+        {"id": "turbulent", "pattern": "turbulent\\s*(?:flow|regime)", "display": "turbulent"},
+        {"id": "laminar", "pattern": "laminar\\s*(?:flow|regime)", "display": "laminar"},
+        {"id": "free_surface", "pattern": "free[- ]surface", "display": "free_surface"},
+        {"id": "linear_potential", "pattern": "linear\\s*(?:potential|wave|theory)", "display": "linear_potential"},
+        {"id": "viscous", "pattern": "viscous\\s*(?:flow|effect|resistance)", "display": "viscous"},
+        {"id": "inviscid", "pattern": "inviscid|potential\\s*flow", "display": "inviscid"},
+        {"id": "static", "pattern": "static\\s*(?:analysis|case|condition|stability)", "display": "static"},
+        {"id": "dynamic", "pattern": "dynamic\\s*(?:analysis|case|condition|stability)", "display": "dynamic"},
+        {"id": "uniform_mesh", "pattern": "uniform\\s*(?:mesh|grid)", "display": "uniform_mesh"},
+        {"id": "structured_mesh", "pattern": "structured\\s*(?:mesh|grid)", "display": "structured_mesh"},
+        {"id": "unstructured_mesh", "pattern": "unstructured\\s*(?:mesh|grid)", "display": "unstructured_mesh"}
+      ]
+    }
+  },
+
+  "alignment": {
+    "slot_weights": {
+      "quantity": 0.45,
+      "criterion_form": 0.30,
+      "domain": 0.25
+    },
+    "match_threshold": 0.60,
+    "duplicate_threshold": 0.80,
+    "assignment_method": "greedy",
+    "note": "greedy=按最高分贪心; hungarian=最优指派(SciPy)"
+  },
+
+  "strength_audit": {
+    "tautology_patterns": [
+      {"id": "identity_trivial", "pattern": "x\\s*=\\s*x|a\\s*=\\s*a|itself", "description": "trivial identity x=x"},
+      {"id": "always_true", "pattern": "always\\s*(?:true|satisfied|holds|pass)", "description": "always-true claim"},
+      {"id": "no_numeric", "pattern": "^(?!.*\\d).*$", "description": "criterion with no numeric value", "requires_no_digit": true},
+      {"id": "vague_threshold", "pattern": "(?:small|large|reasonable|acceptable|good|adequate)\\s*(?:error|value|result|accuracy)", "description": "vague qualitative threshold"},
+      {"id": "self_referential", "pattern": "(?:this|the\\s+method|our\\s+approach)\\s*(?:is|gives|produces)\\s*(?:correct|accurate|good|valid)", "description": "self-referential validation"},
+      {"id": "circular", "pattern": "(?:validat|verif|confirm).*(?:by|using|with)\\s*(?:itself|the\\s+same|our\\s+(?:own|method))", "description": "circular validation"}
+    ],
+    "witness_generation": {
+      "enabled": true,
+      "max_witnesses_per_criterion": 3
+    }
+  },
+
+  "adjudication": {
+    "lexical_weight": 0.35,
+    "semantic_weight": 0.40,
+    "strength_weight": 0.25,
+    "novelty_threshold": 0.30,
+    "reject_threshold": 0.15,
+    "min_strength_score": 0.20,
+    "fusion_method": "weighted_sum",
+    "note": "final_score = lexical_weight*lex + semantic_weight*sem + strength_weight*str"
+  },
+
+  "regression": {
+    "dataset_path": "config/criterion_auditor_regression.json",
+    "min_auc": 0.85,
+    "min_recall_duplicate": 0.80
+  }
+}
