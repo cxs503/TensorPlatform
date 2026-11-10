@@ -93,7 +93,7 @@
         },
         "depends_on": {
           "type": "array",
-          "description": "依赖量与指数：阈值 = f(h^p, N, ε, …)",
+          "description": "依赖量与指数：阈值 = f(h^p, N, ε, …)；指数可为负（如 N^(-1/2)）",
           "items": {
             "type": "object",
             "additionalProperties": false,
@@ -120,7 +120,7 @@
           }
         },
         "derivation": {
-          "description": "重推导表达式 C·h^p（null 表示不可派生）",
+          "description": "重推导表达式 C·x^p（x 由 axis 指定，缺省 h；null 表示不可派生）",
           "oneOf": [
             {
               "type": "null"
@@ -130,22 +130,47 @@
               "additionalProperties": false,
               "required": [
                 "expression",
-                "coefficient",
-                "reference_h"
+                "coefficient"
+              ],
+              "anyOf": [
+                {
+                  "required": [
+                    "reference_value"
+                  ]
+                },
+                {
+                  "required": [
+                    "reference_h"
+                  ]
+                }
               ],
               "properties": {
                 "expression": {
                   "type": "string",
-                  "description": "只允许 + - * / ** 与括号、常量 C、变量 h 的表达式，例如 C*h**2"
+                  "description": "只允许 + - * / ** 与括号、常量 C、单一变量（h/N/eps，见 axis），例如 C*h**2 或 C*N**(-0.5)"
                 },
                 "coefficient": {
                   "type": "number",
-                  "description": "常数 C 的取值（解析界常数，必须能由 source_ref 复核）"
+                  "description": "常数 C 的取值（前验展开系数，必须能由 source_ref 复核）"
                 },
                 "reference_h": {
                   "type": "number",
                   "exclusiveMinimum": 0,
-                  "description": "标定 threshold 的参考分辨率；threshold 必须等于表达式在此处的取值"
+                  "description": "h 轴的参考分辨率（旧名）：threshold 必须等于表达式在此处的取值"
+                },
+                "reference_value": {
+                  "type": "number",
+                  "exclusiveMinimum": 0,
+                  "description": "轴无关的参考取值：threshold 必须等于表达式在此处的取值（h/N/eps 通用）"
+                },
+                "axis": {
+                  "enum": [
+                    "h",
+                    "p",
+                    "N",
+                    "eps"
+                  ],
+                  "description": "重推导轴（表达式里的那一个变量）；缺省 h。轴必须同时在 depends_on 声明"
                 }
               }
             }

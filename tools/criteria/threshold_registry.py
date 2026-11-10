@@ -191,10 +191,47 @@ def _expr_identifiers(expr: str) -> List[str]:
     return sorted(set(names))
 
 
-def eval_derivation(derivation: Dict[str, Any], h: float) -> float:
-    """安全求值 C·h^p：只允许 + - * / ** 与括号、常量 C、变量 h。"""
+#: 允许的依赖轴名（与 schema 的 depends_on.param 枚举同源）：
+#: h=离散分辨率，p=收敛阶，N=统计样本数，eps=相对容差。
+AXIS_NAMES: Tuple[str, ...] = ("h", "p", "N", "eps")
+
+
+def derivation_var(derivation: Dict[str, Any]) -> str:
+    """判据的重推导变量名：显式 ``axis`` > 表达式里唯一的**白名单**变量 > ``h``。
+
+    白名单外的变量名（例如 ``C*x**2``）不算"新轴"，会落到 ``h`` 从而在求值时被拒
+    ——轴是可以加的，但不能靠临场发明变量名绕过 ``depends_on`` 的枚举校验。
+    """
+    axis = derivation.get("axis")
+    if isinstance(axis, str) and axis:
+        return axis
+    try:
+        ids = [i for i in _expr_identifiers(str(derivation.get("expression", "C*h"))) if i != "C"]
+    except (ValueError, SyntaxError):
+        return "h"
+    if len(ids) == 1 and ids[0] in AXIS_NAMES:
+        return ids[0]
+    return "h"
+
+
+def derivation_reference(derivation: Dict[str, Any]) -> float:
+    """标定 threshold 的参考取值：``reference_value``（轴无关）> ``reference_h``（h 轴旧名）。"""
+    for key in ("reference_value", "reference_h"):
+        val = derivation.get(key)
+        if isinstance(val, (int, float)) and not isinstance(val, bool):
+            return float(val)
+    raise KeyError("derivation 缺少 reference_value/reference_h")
+
+
+def eval_derivation(derivation: Dict[str, Any], value: float, var: Optional[str] = None) -> float:
+    """安全求值 C·x^p：只允许 + - * / ** 与括号、常量 C、变量 x（x 由 ``var`` 指定）。
+
+    变量名默认由 :func:`derivation_var` 推断，所以旧的 ``eval_derivation(deriv, h)``
+    调用（h 轴）行为不变；新轴（N、eps…）传 ``var="N"`` 即可。
+    """
     expr = str(derivation["expression"])
     coeff = float(derivation["coefficient"])
+    target = var if var is not None else derivation_var(derivation)
     tree = ast.parse(expr, mode="eval")
 
     def ev(node: ast.AST) -> float:
@@ -205,8 +242,8 @@ def eval_derivation(derivation: Dict[str, Any], h: float) -> float:
         if isinstance(node, ast.Name):
             if node.id == "C":
                 return coeff
-            if node.id == "h":
-                return float(h)
+            if node.id == target:
+                return float(value)
             raise ValueError(f"表达式含非法变量 {node.id!r}")
         if isinstance(node, ast.BinOp):
             a, b = ev(node.left), ev(node.right)
@@ -233,8 +270,26 @@ def eval_derivation(derivation: Dict[str, Any], h: float) -> float:
     return float(ev(tree))
 
 
-def expression_order(expr: str) -> Optional[float]:
-    """从 ``C*h**p`` / ``C*h*h`` 里抽出 h 的幂次；无法判定返回 None。"""
+def _const_value(node: ast.AST) -> Optional[float]:
+    """把 ``2`` / ``-0.5`` / ``+2`` 这类常量结点折成浮点；非常量返回 None。"""
+    if isinstance(node, ast.Constant) and isinstance(node.value, (int, float)) and not isinstance(
+        node.value, bool
+    ):
+        return float(node.value)
+    if isinstance(node, ast.UnaryOp) and isinstance(node.op, (ast.USub, ast.UAdd)):
+        inner = _const_value(node.operand)
+        if inner is None:
+            return None
+        return -inner if isinstance(node.op, ast.USub) else inner
+    return None
+
+
+def expression_order(expr: str, var: str = "h") -> Optional[float]:
+    """从 ``C*x**p`` / ``C*x*x`` / ``C/x**p`` 里抽出 ``var`` 的净幂次；无法判定返回 None。
+
+    与旧实现相比两点轴化修正：(1) 变量名可传（N/eps 等轴）；
+    (2) **除法取负幂**——旧实现把 ``C/h**2`` 也读成 +2，那是符号错误。
+    """
     try:
         tree = ast.parse(expr, mode="eval").body
     except SyntaxError:
@@ -243,18 +298,20 @@ def expression_order(expr: str) -> Optional[float]:
     def walk(node: ast.AST) -> Optional[float]:
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Mult):
             return _sum_orders(walk(node.left), walk(node.right))
+        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
+            den = walk(node.right)
+            return _sum_orders(walk(node.left), None if den is None else -den)
         if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Pow):
             base, expo = node.left, node.right
-            if isinstance(base, ast.Name) and base.id == "h" and isinstance(expo, ast.Constant):
-                if isinstance(expo.value, (int, float)):
-                    return float(expo.value)
+            if isinstance(base, ast.Name) and base.id == var:
+                power = _const_value(expo)
+                if power is not None:
+                    return power
             return None
-        if isinstance(node, ast.BinOp) and isinstance(node.op, ast.Div):
-            return _sum_orders(walk(node.left), walk(node.right))
-        if isinstance(node, ast.Name) and node.id == "h":
+        if isinstance(node, ast.Name) and node.id == var:
             return 1.0
         if isinstance(node, ast.Name) and node.id == "C":
-            return 0.0  # 常数因子不改变 h 的幂次
+            return 0.0  # 常数因子不改变幂次
         if isinstance(node, ast.Constant):
             return 0.0
         return None
@@ -265,6 +322,57 @@ def expression_order(expr: str) -> Optional[float]:
         return a + b
 
     return walk(tree)
+
+
+def resolve_probe(probe_id: str) -> Dict[str, Any]:
+    """把探针 id 解析成统一的「轴视图」，h 轴与 N/eps 轴共用同一引擎。"""
+    from tools.criteria import probes as h_probes
+    from tools.criteria import probes_axes as a_probes
+
+    if probe_id in h_probes.PROBES:
+        probe = h_probes.PROBES[probe_id]
+        return {
+            "probe_id": probe_id,
+            "axis": "h",
+            "exponent": float(probe.order),
+            "reference": None,
+            "error": probe.error,
+            "bound": probe.bound,
+            "family": "h",
+        }
+    if probe_id in a_probes.AXIS_PROBES:
+        probe = a_probes.AXIS_PROBES[probe_id]
+        return {
+            "probe_id": probe_id,
+            "axis": probe.axis,
+            "exponent": float(probe.exponent),
+            "reference": float(probe.reference_value),
+            "error": probe.error,
+            "bound": probe.bound,
+            "family": "axis",
+        }
+    raise KeyError(f"未知探针 {probe_id!r}")
+
+
+def declared_dependencies(entry: Dict[str, Any]) -> Dict[str, float]:
+    """depends_on → {param: exponent}，剔除 ``none``（常数阈值不需要派生）。"""
+    out: Dict[str, float] = {}
+    for dep in entry.get("depends_on") or []:
+        param = str(dep.get("param"))
+        if param == "none":
+            continue
+        try:
+            out[param] = float(dep.get("exponent"))
+        except (TypeError, ValueError):
+            continue
+    return out
+
+
+def axis_series(reference: float, exponent: float, levels: int) -> List[float]:
+    """越往后越细的轴取值序列（方向由指数符号决定，见 probes_axes.refine_series）。"""
+    from tools.criteria import probes_axes as a_probes
+
+    return a_probes.refine_series(reference, exponent, levels)
 
 
 def validate(registry: Dict[str, Any], schema_path: Path | str = DEFAULT_SCHEMA) -> Dict[str, Any]:
@@ -280,7 +388,7 @@ def validate(registry: Dict[str, Any], schema_path: Path | str = DEFAULT_SCHEMA)
         if cid in seen:
             errors.append(f"{cid}: criterion_id 重复")
         seen.add(cid)
-        # ---- 交叉一致性 1：表达式指数 == depends_on[h].exponent
+        # ---- 交叉一致性 1：表达式指数 == depends_on[轴].exponent（轴不写死）
         deriv = entry.get("derivation")
         if deriv:
             try:
@@ -289,26 +397,38 @@ def validate(registry: Dict[str, Any], schema_path: Path | str = DEFAULT_SCHEMA)
                 errors.append(f"{cid}: {exc}")
                 ids = []
             dep_params = {d.get("param"): d.get("exponent") for d in entry.get("depends_on", [])}
+            var = derivation_var(deriv)
             for name in ids:
-                if name not in ("C", "h"):
-                    errors.append(f"{cid}: 表达式变量 {name!r} 未在 depends_on 声明")
-            if "h" in ids:
-                if "h" not in dep_params:
-                    errors.append(f"{cid}: 表达式含 h 但 depends_on 无 h 依赖")
+                if name != "C" and name not in dep_params:
+                    errors.append(
+                        f"{cid}: 表达式变量 {name!r} 未在 depends_on 声明（声明轴 {var!r}）"
+                    )
+            explicit_axis = deriv.get("axis")
+            if isinstance(explicit_axis, str) and explicit_axis and explicit_axis not in dep_params:
+                errors.append(f"{cid}: derivation.axis={explicit_axis!r} 未在 depends_on 声明")
+            if var in ids or isinstance(explicit_axis, str):
+                if var not in dep_params:
+                    errors.append(f"{cid}: 表达式含 {var} 但 depends_on 无 {var} 依赖")
                 else:
-                    decl = expression_order(str(deriv["expression"]))
+                    decl = expression_order(str(deriv["expression"]), var)
                     if decl is None:
-                        errors.append(f"{cid}: 无法从表达式判定 h 的幂次")
-                    elif abs(float(dep_params["h"]) - decl) > 1e-12:
+                        errors.append(f"{cid}: 无法从表达式判定 {var} 的幂次")
+                    elif abs(float(dep_params[var]) - decl) > 1e-12:
                         errors.append(
-                            f"{cid}: 表达式 h 幂次 {decl} != depends_on[h].exponent {dep_params['h']}"
+                            f"{cid}: 表达式 {var} 幂次 {decl} != depends_on[{var}].exponent {dep_params[var]}"
                         )
-            # ---- 交叉一致性 2：threshold == 表达式在 reference_h 处的值
+            # ---- 交叉一致性 2：threshold == 表达式在参考轴取值处的值
             try:
-                pred = eval_derivation(deriv, float(deriv["reference_h"]))
-            except Exception as exc:  # noqa: BLE001
-                errors.append(f"{cid}: 表达式求值失败: {exc}")
-                pred = None
+                ref = derivation_reference(deriv)
+            except KeyError as exc:
+                errors.append(f"{cid}: {exc}")
+                ref = None
+            pred = None
+            if ref is not None:
+                try:
+                    pred = eval_derivation(deriv, ref, var)
+                except Exception as exc:  # noqa: BLE001
+                    errors.append(f"{cid}: 表达式求值失败: {exc}")
             if pred is not None:
                 thr = entry.get("threshold")
                 if not isinstance(thr, (int, float)) or isinstance(thr, bool):
@@ -317,7 +437,7 @@ def validate(registry: Dict[str, Any], schema_path: Path | str = DEFAULT_SCHEMA)
                     rel = abs(float(thr) - pred) / max(abs(pred), 1e-300)
                     if rel > 1e-6:
                         errors.append(
-                            f"{cid}: threshold={thr} 与表达式在 h={deriv['reference_h']} 处的预测 {pred:.6g} 不符（相对差 {rel:.3g}）"
+                            f"{cid}: threshold={thr} 与表达式在 {var}={ref:g} 处的预测 {pred:.6g} 不符（相对差 {rel:.3g}）"
                         )
         # ---- 交叉一致性 3：可裁标注不许说谎（C1/C7 的结构前提）
         verdict = classify_entry(entry, measured.get(entry.get("criterion_id")))
@@ -488,80 +608,107 @@ def derivation_check(
     h0: float = 0.25,
     levels: int = 6,
 ) -> Dict[str, Any]:
-    """C2：对声明 O(h^p) 的判据实测衰减指数，逐条给偏差与判定。"""
-    from tools.criteria.probes import get_probe
+    """C2：对**任意声明轴**的判据实测衰减指数，逐条给偏差与判定。
 
+    相对旧实现的三点变化（都是为了消灭"假绿"）：
+
+    1. 轴不再写死为 h：``depends_on`` 声明什么轴（h/N/eps/…），就去问能测该轴的探针。
+    2. 声明了依赖量却**无法实测**的判据进 ``UNCHECKED_*`` 且**阻塞**（``ok=False``）；
+       旧实现 ``if "h" not in deps: continue`` 把 N/eps 判据静默跳过，门照旧判绿。
+    3. 探针轴 ≠ 判据声明轴（拿 h 探针去"验证" N 判据）同样阻塞，不允许张冠李戴。
+    """
     rows: List[Dict[str, Any]] = []
     for entry in registry.get("criteria", []):
         if entry.get("source_type") != "analytic":
             continue
         deriv = entry.get("derivation") or {}
-        deps = {d["param"]: float(d["exponent"]) for d in entry.get("depends_on", [])}
-        if "h" not in deps:
+        deps = declared_dependencies(entry)
+        if not deps:
             continue
-        declared = deps["h"]
+        axis = deriv.get("axis") if isinstance(deriv.get("axis"), str) else None
+        if axis is None and len(deps) == 1:
+            axis = next(iter(deps))
+        if axis is None and deriv:
+            axis = derivation_var(deriv)
         pid = entry.get("probe")
+        base = {"criterion_id": entry["criterion_id"], "axis": axis, "probe": pid}
         if not pid:
-            rows.append(
-                {
-                    "criterion_id": entry["criterion_id"],
-                    "declared_order": declared,
-                    "probe": None,
-                    "status": "UNCHECKED_NO_PROBE",
-                }
-            )
+            rows.append({**base, "status": "UNCHECKED_NO_PROBE",
+                         "detail": "声明了依赖量但没有实测探针：阈值无法重推导"})
             continue
         try:
-            probe = get_probe(str(pid))
+            probe = resolve_probe(str(pid))
         except KeyError as exc:
-            rows.append(
-                {
-                    "criterion_id": entry["criterion_id"],
-                    "declared_order": declared,
-                    "probe": pid,
-                    "status": "UNCHECKED_UNKNOWN_PROBE",
-                    "detail": str(exc),
-                }
-            )
+            rows.append({**base, "status": "UNCHECKED_UNKNOWN_PROBE", "detail": str(exc)})
             continue
-        hs, es = probe.error_series(h0, levels)
-        fit = estimate_order(hs, es)
+        if axis is not None and axis not in deps:
+            rows.append({**base, "status": "UNCHECKED_AXIS_UNDECLARED",
+                         "detail": f"探针轴 {axis!r} 未在 depends_on 声明"})
+            continue
+        if axis is None:
+            axis = probe["axis"]
+            base["axis"] = axis
+        if probe["axis"] != axis:
+            rows.append({**base, "status": "UNCHECKED_AXIS_MISMATCH",
+                         "detail": f"探针测 {probe['axis']!r} 轴，判据声明 {axis!r} 轴"})
+            continue
+        declared = deps[axis]
+        if probe["family"] == "h":
+            reference = float(deriv.get("reference_h", h0) or h0)
+        else:
+            reference = float(deriv.get("reference_value", probe["reference"]) or probe["reference"])
+        values = axis_series(reference, probe["exponent"], levels)
+        try:
+            errors = [probe["error"](v) for v in values]
+            fit = estimate_order(values, errors)
+        except Exception as exc:  # noqa: BLE001
+            rows.append({**base, "status": "UNCHECKED_PROBE_ERROR", "detail": str(exc)})
+            continue
         deviation = abs(fit["order"] - declared)
         rows.append(
             {
-                "criterion_id": entry["criterion_id"],
+                **base,
                 "declared_order": declared,
-                "probe": pid,
                 "observed_order": round(fit["order"], 6),
                 "deviation": round(deviation, 6),
                 "r2": round(fit["r2"], 9),
-                "h_series": [f"{h:.8g}" for h in hs],
-                "error_series": [f"{e:.6e}" for e in es],
+                "axis_series": [f"{v:.8g}" for v in values],
+                "error_series": [f"{e:.6e}" for e in errors],
                 "status": "PASS" if deviation <= ORDER_TOL else "FAIL",
             }
         )
     checked = [r for r in rows if r["status"] in ("PASS", "FAIL")]
     failed = [r for r in checked if r["status"] == "FAIL"]
     unchecked = [r for r in rows if r["status"].startswith("UNCHECKED")]
+    by_axis: Dict[str, Dict[str, int]] = {}
+    for r in rows:
+        key = str(r.get("axis"))
+        slot = by_axis.setdefault(key, {"checked": 0, "failed": 0, "unchecked": 0})
+        if r["status"] in ("PASS", "FAIL"):
+            slot["checked"] += 1
+            slot["failed"] += int(r["status"] == "FAIL")
+        else:
+            slot["unchecked"] += 1
     return {
         "ok": not failed and not unchecked,
         "order_tol": ORDER_TOL,
         "n_checked": len(checked),
         "n_failed": len(failed),
         "n_unchecked": len(unchecked),
+        "unchecked_reasons": sorted({r["status"] for r in unchecked}),
+        "by_axis": by_axis,
         "max_deviation": max((r["deviation"] for r in checked), default=None),
         "rows": rows,
     }
 
 
 def rederivation_closure(registry: Dict[str, Any], levels: int = 2) -> Dict[str, Any]:
-    """C5：threshold(h)=C·h^p 的预测值 vs h/2、h/4 实测误差。
+    """C5：把 ``threshold(x)=C·x^p`` 投到更细的 x 档，与该档实测误差比。
 
-    两档都要求 ``ratio = 预测/实测 ∈ RATIO_BAND`` 且**同向**：h 减半时预测与实测
-    都下降（同一符号的相对变化），否则说明声明的阶数方向都错了。
+    两档都要求 ``ratio = 预测/实测 ∈ RATIO_BAND`` 且**同向**：细化时预测与实测
+    都要下降（同一符号的相对变化），否则说明声明的阶数方向都错了。
+    轴由 ``derivation.axis`` 决定（缺省 h），细化方向由探针指数符号决定。
     """
-    from tools.criteria.probes import get_probe
-
     lo, hi = RATIO_BAND
     rows: List[Dict[str, Any]] = []
     for entry in registry.get("criteria", []):
@@ -569,30 +716,34 @@ def rederivation_closure(registry: Dict[str, Any], levels: int = 2) -> Dict[str,
         pid = entry.get("probe")
         if not deriv or not pid:
             continue
+        var = derivation_var(deriv)
+        base = {
+            "criterion_id": entry["criterion_id"],
+            "probe": pid,
+            "axis": var,
+            "expression": deriv.get("expression"),
+            "coefficient": deriv.get("coefficient"),
+            "reference": None,
+            "points": [],
+        }
         try:
-            probe = get_probe(str(pid))
+            probe = resolve_probe(str(pid))
         except KeyError as exc:
-            rows.append(
-                {
-                    "criterion_id": entry["criterion_id"],
-                    "probe": pid,
-                    "expression": deriv.get("expression"),
-                    "coefficient": deriv.get("coefficient"),
-                    "reference_h": deriv.get("reference_h"),
-                    "points": [],
-                    "status": "UNKNOWN_PROBE",
-                    "detail": str(exc),
-                }
-            )
+            rows.append({**base, "status": "UNKNOWN_PROBE", "detail": str(exc)})
             continue
-        h_ref = float(deriv["reference_h"])
+        if probe["axis"] != var:
+            rows.append({**base, "status": "AXIS_MISMATCH",
+                         "detail": f"探针测 {probe['axis']!r} 轴，表达式变量 {var!r}"})
+            continue
+        reference = derivation_reference(deriv)
+        base["reference"] = reference
+        fine = axis_series(reference, probe["exponent"], levels + 1)[1:]
         prev = None
         passed = True
         pts: List[Dict[str, Any]] = []
-        for k in range(1, levels + 1):
-            h = h_ref / (2.0 ** k)
-            pred = eval_derivation(deriv, h)
-            meas = probe.error(h)
+        for value in fine:
+            pred = eval_derivation(deriv, value, var)
+            meas = probe["error"](value)
             ratio = pred / meas
             ok = lo <= ratio <= hi
             passed = passed and ok
@@ -603,7 +754,7 @@ def rederivation_closure(registry: Dict[str, Any], levels: int = 2) -> Dict[str,
                 same_dir = True
             pts.append(
                 {
-                    "h": h,
+                    var: value,
                     "predicted": pred,
                     "measured": meas,
                     "ratio": round(ratio, 6),
@@ -612,22 +763,39 @@ def rederivation_closure(registry: Dict[str, Any], levels: int = 2) -> Dict[str,
                 }
             )
             prev = {"predicted": pred, "measured": meas}
-        rows.append(
-            {
-                "criterion_id": entry["criterion_id"],
-                "probe": pid,
-                "expression": deriv["expression"],
-                "coefficient": deriv["coefficient"],
-                "reference_h": h_ref,
-                "points": pts,
-                "status": "PASS" if passed else "FAIL",
-            }
-        )
+        rows.append({**base, "points": pts, "status": "PASS" if passed else "FAIL"})
     return {
         "ok": all(r["status"] == "PASS" for r in rows) and bool(rows),
         "ratio_band": list(RATIO_BAND),
         "n_checked": len(rows),
+        "axes": sorted({str(r.get("axis")) for r in rows}),
         "rows": rows,
+    }
+
+
+def axis_coverage(registry: Dict[str, Any], levels: int = 6) -> Dict[str, Any]:
+    """依赖轴覆盖账本：每个轴上有多少条判据、多少条真被实测过。"""
+    declared: Dict[str, int] = {}
+    derived: Dict[str, int] = {}
+    for entry in registry.get("criteria", []):
+        deps = declared_dependencies(entry)
+        if not deps:
+            declared["none"] = declared.get("none", 0) + 1
+            continue
+        for param in deps:
+            declared[param] = declared.get(param, 0) + 1
+        if entry.get("source_type") == "analytic" and entry.get("derivation"):
+            deriv = entry["derivation"]
+            var = derivation_var(deriv)
+            derived[var] = derived.get(var, 0) + 1
+    check = derivation_check(registry, levels=levels)
+    return {
+        "declared_by_axis": declared,
+        "derived_by_axis": derived,
+        "checked_by_axis": check["by_axis"],
+        "n_unchecked": check["n_unchecked"],
+        "n_axes_declared": sorted(k for k in declared if k != "none"),
+        "ok": check["ok"],
     }
 
 
@@ -650,8 +818,11 @@ def coverage_ledger(registry: Dict[str, Any], root: Optional[Path | str] = None)
             sourced += 1
         deriv = entry.get("derivation")
         if deriv and entry.get("depends_on"):
+            # 轴无关：参考取值可以是 reference_h（旧）或 reference_value（N/eps 等新轴）。
+            # 旧实现读死 deriv["reference_h"]，会把 N/eps 判据算成"不可派生"——
+            # 覆盖率账本因此系统性低估可派生面（实测：7 条只数到 4 条）。
             try:
-                eval_derivation(deriv, float(deriv["reference_h"]))
+                eval_derivation(deriv, derivation_reference(deriv), derivation_var(deriv))
                 derivable += 1
             except Exception:  # noqa: BLE001
                 pass
