@@ -1,0 +1,117 @@
+{
+  "actions": [
+    {
+      "at_unix": 1794335166.9614406,
+      "detail": {
+        "at_budget": 120
+      },
+      "kind": "stall_ladder_exhausted"
+    }
+  ],
+  "artifact_dir": "/tmp/p148w2_survival_daqu_na1/a6_honest_fail/artifacts",
+  "extra": {
+    "budget_used": 120.0,
+    "criteria_passed": [
+      "first_artifact"
+    ],
+    "stall_events": [
+      {
+        "action": "restate",
+        "barren_budget": 20.0,
+        "budget_fraction": 0.3,
+        "budget_total": 200.0,
+        "budget_used": 60.0,
+        "credits_at_detection": 6.349977578351645,
+        "detail": {},
+        "index": 0,
+        "level": "restate"
+      },
+      {
+        "action": "reroute",
+        "barren_budget": 20.0,
+        "budget_fraction": 0.4,
+        "budget_total": 200.0,
+        "budget_used": 80.0,
+        "credits_at_detection": 6.349977578351645,
+        "detail": {
+          "blacklisted": "fruitful_early",
+          "queue_exhausted": false,
+          "switched_to": "barren"
+        },
+        "index": 1,
+        "level": "reroute"
+      },
+      {
+        "action": "shrink",
+        "barren_budget": 20.0,
+        "budget_fraction": 0.5,
+        "budget_total": 200.0,
+        "budget_used": 100.0,
+        "credits_at_detection": 6.349977578351645,
+        "detail": {
+          "minimal_strategy": null,
+          "scope": "minimal_provable_unit"
+        },
+        "index": 2,
+        "level": "shrink"
+      },
+      {
+        "action": "honest_fail",
+        "barren_budget": 20.0,
+        "budget_fraction": 0.6,
+        "budget_total": 200.0,
+        "budget_used": 120.0,
+        "credits_at_detection": 6.349977578351645,
+        "detail": {
+          "retain_artifacts": true,
+          "scope": "final"
+        },
+        "index": 3,
+        "level": "honest_fail"
+      }
+    ]
+  },
+  "partial_artifacts": [
+    {
+      "bytes": 194,
+      "name": "art_0010_fruitful_early.json",
+      "sha256": "9b86dd2ba6cbd82eaa8375b9f7327c0310f8e218beb91b282363d2ef2f4cd973"
+    },
+    {
+      "bytes": 194,
+      "name": "art_0020_fruitful_early.json",
+      "sha256": "a4cb4f612abd24b4c62b9b3e5bb870f00b02ec112348b2562140f0a654c15787"
+    },
+    {
+      "bytes": 194,
+      "name": "art_0030_fruitful_early.json",
+      "sha256": "5c4b65bb618704c9a29c4b96fea020ec36aec7e5925dc4d928aac1af58f3e8f7"
+    },
+    {
+      "bytes": 193,
+      "name": "art_0040_fruitful_early.json",
+      "sha256": "963a5e03fe63d505d859e6c6bd705c18a31de9d2de155bee42e72e2afcef1d64"
+    },
+    {
+      "bytes": 191,
+      "name": "art_0120_final_state.json",
+      "sha256": "d02602e5f95efc78f66e0bf136736fe9fce1abf43ecb114cce9bcaf6668aeb51"
+    }
+  ],
+  "ratios": {
+    "floor": 0.5,
+    "planned": 40,
+    "produced": 5,
+    "retained": 5,
+    "retention_vs_planned": 0.125,
+    "retention_vs_produced": 1.0
+  },
+  "reason": "no credit for 20 budget units at rung 4",
+  "resume_point": {
+    "budget_used": 120.0,
+    "last_artifact": "art_0120_final_state.json"
+  },
+  "schema": "survival.honest_fail/1",
+  "status": "FAIL",
+  "written_unix": 1794335166.9620173
+}
