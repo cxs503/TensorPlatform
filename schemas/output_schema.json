@@ -1,0 +1,178 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cxs503/TensorPlatform/blob/main/schemas/output_schema.json",
+  "title": "TensorPlatform Cross-Solver Verification Output Schema",
+  "description": "Unified output schema for cross-solver verification cases. All verified cases must map their outputs to this schema.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "case_id", "primary_quantities"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version identifier"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Must match the input case_id"
+    },
+    "solver_signature": {
+      "type": "object",
+      "description": "Solver identification for traceability",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": { "type": "string", "minLength": 1 },
+        "version": { "type": "string", "minLength": 1 },
+        "git_commit": { "type": ["string", "null"], "pattern": "^[0-9a-f]{7,40}$" }
+      }
+    },
+    "primary_quantities": {
+      "type": "array",
+      "description": "Primary physical quantities of interest (must have at least one)",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "value", "unit"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Quantity name (e.g., 'C_T', 'C_D', 'C_F', 'C_W', 'St', 'Nu')"
+          },
+          "value": {
+            "type": "number",
+            "description": "Numerical value"
+          },
+          "unit": {
+            "type": "string",
+            "minLength": 1,
+            "description": "Unit (e.g., 'dimensionless', 'N', 'Pa', 'm/s')"
+          },
+          "uncertainty": {
+            "type": ["number", "null"],
+            "description": "Estimated uncertainty (same unit as value)"
+          },
+          "statistical_basis": {
+            "type": ["string", "null"],
+            "description": "How the value was obtained (e.g., 'time_average', 'steady_state', 'peak')"
+          }
+        }
+      }
+    },
+    "derived_quantities": {
+      "type": ["array", "null"],
+      "description": "Quantities derived from primary quantities",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "value", "unit", "derivation"],
+        "properties": {
+          "name": { "type": "string", "minLength": 1 },
+          "value": { "type": "number" },
+          "unit": { "type": "string", "minLength": 1 },
+          "derivation": { "type": "string", "description": "Formula or method used to derive" },
+          "uncertainty": { "type": ["number", "null"] }
+        }
+      }
+    },
+    "conservation_residuals": {
+      "type": ["array", "null"],
+      "description": "Physical conservation law residuals",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["law", "residual", "tolerance"],
+        "properties": {
+          "law": {
+            "type": "string",
+            "enum": ["mass", "momentum_x", "momentum_y", "momentum_z", "energy", "angular_momentum"],
+            "description": "Conservation law"
+          },
+          "residual": {
+            "type": "number",
+            "description": "Normalized residual value"
+          },
+          "tolerance": {
+            "type": "number",
+            "exclusiveMinimum": 0,
+            "description": "Acceptable tolerance threshold"
+          },
+          "status": {
+            "type": "string",
+            "enum": ["pass", "fail"],
+            "description": "Whether residual is within tolerance"
+          }
+        }
+      }
+    },
+    "convergence": {
+      "type": ["object", "null"],
+      "description": "Convergence study results",
+      "additionalProperties": false,
+      "properties": {
+        "grid_study": {
+          "type": ["array", "null"],
+          "description": "Grid convergence levels",
+          "items": {
+            "type": "object",
+            "additionalProperties": false,
+            "required": ["level", "cell_count", "quantity_values"],
+            "properties": {
+              "level": { "type": "string" },
+              "cell_count": { "type": "integer" },
+              "quantity_values": { "type": "object", "additionalProperties": { "type": "number" } },
+              "order_of_accuracy": { "type": ["number", "null"] }
+            }
+          }
+        },
+        "time_study": {
+          "type": ["object", "null"],
+          "description": "Time-step convergence study",
+          "additionalProperties": true
+        },
+        "gci_index": {
+          "type": ["number", "null"],
+          "description": "Grid Convergence Index (Roache)"
+        }
+      }
+    },
+    "traceability": {
+      "type": ["object", "null"],
+      "description": "Output provenance metadata",
+      "additionalProperties": false,
+      "properties": {
+        "output_digest": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 digest of the canonical output JSON"
+        },
+        "input_digest": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 digest of the corresponding input"
+        },
+        "computed_at": {
+          "type": ["string", "null"],
+          "format": "date-time"
+        },
+        "wall_time_s": {
+          "type": ["number", "null"],
+          "description": "Wall-clock computation time in seconds"
+        }
+      }
+    },
+    "validation_status": {
+      "type": "string",
+      "enum": ["pass", "fail", "conservation_fail", "incomplete", "pending"],
+      "description": "Overall validation status"
+    },
+    "validation_notes": {
+      "type": ["array", "null"],
+      "description": "Human-readable validation notes",
+      "items": { "type": "string" }
+    }
+  }
+}
