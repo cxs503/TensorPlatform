@@ -20,7 +20,6 @@ from optimizer.multiobjective import (
     generational_distance, inverted_generational_distance,
     spread, hypervolume
 )
-from optimizer.multiobjective.ship_instance import ShipResistanceSeakeeping
 
 
 class TestNSGA2Core:
@@ -288,11 +287,22 @@ class TestZDTConvergence:
 
 
 class TestShipInstance:
-    """Test ship resistance-seakeeping optimization."""
+    """Test ship resistance-seakeeping optimization.
+
+    The ship instance is *domain* content and lives in a domain package; the
+    generic framework must not depend on it.  When the domain module is absent
+    (as in the domain-free TensorPlatform tree) these tests skip instead of
+    breaking collection of the whole generic suite.
+    """
+
+    @pytest.fixture(autouse=True)
+    def _ship_module(self):
+        mod = pytest.importorskip("optimizer.multiobjective.ship_instance")
+        self.Ship = mod.ShipResistanceSeakeeping
     
     def test_ship_evaluation(self):
         """Test ship instance evaluation."""
-        ship = ShipResistanceSeakeeping()
+        ship = self.Ship()
         
         x = np.array([7.0, 3.0, 0.65])
         obj = ship(x)
@@ -305,7 +315,7 @@ class TestShipInstance:
     
     def test_ship_design_info(self):
         """Test ship design parameter extraction."""
-        ship = ShipResistanceSeakeeping()
+        ship = self.Ship()
         
         x = np.array([7.0, 3.0, 0.65])
         info = ship.get_design_info(x)
@@ -319,7 +329,7 @@ class TestShipInstance:
     
     def test_ship_optimization(self):
         """Test NSGA-II on ship instance finds trade-off."""
-        ship = ShipResistanceSeakeeping()
+        ship = self.Ship()
         
         opt = NSGA2(
             n_var=3, n_obj=2,

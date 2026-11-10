@@ -12,6 +12,8 @@ import json
 import hashlib
 from typing import Callable, Dict, List, Optional, Tuple
 
+from .metrics import hypervolume
+
 
 def fast_non_dominated_sort(objectives: np.ndarray) -> List[List[int]]:
     """
@@ -66,6 +68,73 @@ def _dominates(obj_i: np.ndarray, obj_j: np.ndarray) -> bool:
         elif a > b:
             return False
     return better_in_any
+
+
+def _violates(i: int, violations: Optional[np.ndarray]) -> float:
+    if violations is None:
+        return 0.0
+    return float(violations[i])
+
+
+def _constrained_dominates(i: int, j: int,
+                           objectives: np.ndarray,
+                           violations: Optional[np.ndarray]) -> bool:
+    """Deb's feasibility rule (Deb 2000/2002, constrained NSGA-II).
+
+    * feasible beats infeasible;
+    * between two infeasible solutions the smaller total violation wins;
+    * between two feasible solutions Pareto dominance decides.
+    """
+    vi = _violates(i, violations)
+    vj = _violates(j, violations)
+    if vi > 0 or vj > 0:
+        if vi == 0.0 and vj > 0.0:
+            return True
+        if vi > 0.0 and vj == 0.0:
+            return False
+        if vi != vj:
+            return vi < vj
+        return False
+    return _dominates(objectives[i], objectives[j])
+
+
+def fast_constrained_non_dominated_sort(objectives: np.ndarray,
+                                        violations: Optional[np.ndarray] = None
+                                        ) -> List[List[int]]:
+    """Fast non-dominated sorting with constraint handling (feasibility rule).
+
+    ``violations`` is the total constraint violation per solution
+    (``0`` = feasible, ``> 0`` = amount of violation).  With ``violations=None``
+    this degenerates exactly to :func:`fast_non_dominated_sort`.
+    """
+    if violations is None:
+        return fast_non_dominated_sort(objectives)
+
+    N = objectives.shape[0]
+    domination_count = np.zeros(N, dtype=int)
+    dominated_set: List[List[int]] = [[] for _ in range(N)]
+
+    for i in range(N):
+        for j in range(i + 1, N):
+            if _constrained_dominates(i, j, objectives, violations):
+                dominated_set[i].append(j)
+                domination_count[j] += 1
+            elif _constrained_dominates(j, i, objectives, violations):
+                dominated_set[j].append(i)
+                domination_count[i] += 1
+
+    fronts: List[List[int]] = []
+    current_front = [i for i in range(N) if domination_count[i] == 0]
+    while current_front:
+        fronts.append(list(current_front))
+        next_front = []
+        for i in current_front:
+            for j in dominated_set[i]:
+                domination_count[j] -= 1
+                if domination_count[j] == 0:
+                    next_front.append(j)
+        current_front = next_front
+    return fronts
 
 
 def crowding_distance(objectives: np.ndarray, front: List[int]) -> np.ndarray:
@@ -157,7 +226,9 @@ class NSGA2:
             'gd': [],
             'igd': [],
             'spread': [],
-            'generation': []
+            'generation': [],
+            'n_feasible': [],
+            'min_violation': []
         }
     
     def optimize(self,
@@ -166,8 +237,19 @@ class NSGA2:
                  ub: np.ndarray,
                  reference_point: Optional[np.ndarray] = None,
                  true_pareto: Optional[np.ndarray] = None,
-                 verbose: bool = False) -> Dict:
-        """Run NSGA-II optimization."""
+                 verbose: bool = False,
+                 constraint_fn: Optional[Callable[[np.ndarray], np.ndarray]] = None,
+                 mutation_schedule: Optional[Callable[[int, int], float]] = None,
+                 ) -> Dict:
+        """Run NSGA-II optimization.
+
+        ``constraint_fn(x)`` returns a vector of constraint values that must be
+        ``<= 0`` to be satisfied; the total violation ``sum(max(0, g))`` drives
+        Deb's feasibility rule.  ``None`` (default) = unconstrained.
+
+        ``mutation_schedule(generation, n_gen) -> p_m`` optionally overrides the
+        per-variable mutation probability per generation (used for annealing).
+        """
         t0 = time.time()
         rng = self.rng
         
@@ -176,13 +258,14 @@ class NSGA2:
         
         # Evaluate initial population
         objs = np.array([objective_fn(pop[i]) for i in range(self.pop_size)])
+        cv = self._constraint_violation(pop, constraint_fn)
         
         if reference_point is None:
             reference_point = np.max(objs, axis=0) * 1.1 + 1.0
         
         for gen in range(self.n_gen):
             # Pre-compute ranks for tournament selection
-            fronts = fast_non_dominated_sort(objs)
+            fronts = fast_constrained_non_dominated_sort(objs, cv)
             rank = np.zeros(self.pop_size, dtype=int)
             for r, front in enumerate(fronts):
                 for idx in front:
@@ -190,17 +273,22 @@ class NSGA2:
             cd = crowding_distance(objs, fronts[0] if fronts else list(range(self.pop_size)))
             
             # Create offspring using pre-computed ranks
-            offspring = self._create_offspring_fast(pop, objs, rank, cd, lb, ub, rng)
+            pm = (mutation_schedule(gen, self.n_gen)
+                  if mutation_schedule is not None else self.mut_prob)
+            offspring = self._create_offspring_fast(pop, objs, rank, cd, lb, ub, rng,
+                                                     cv=cv, mutation_prob=pm)
             
             # Evaluate offspring
             off_objs = np.array([objective_fn(offspring[i]) for i in range(self.pop_size)])
+            off_cv = self._constraint_violation(offspring, constraint_fn)
             
             # Combine parent + offspring
             combined_pop = np.vstack([pop, offspring])
             combined_objs = np.vstack([objs, off_objs])
+            combined_cv = np.concatenate([cv, off_cv])
             
-            # Non-dominated sorting
-            fronts = fast_non_dominated_sort(combined_objs)
+            # Non-dominated sorting (feasibility rule when constraints are given)
+            fronts = fast_constrained_non_dominated_sort(combined_objs, combined_cv)
             
             # Environmental selection
             new_pop = np.zeros((self.pop_size, self.n_var))
@@ -225,14 +313,19 @@ class NSGA2:
             
             pop = new_pop
             objs = new_objs
+            # violations of the selected parents (cheap: re-evaluate on the new pop)
+            cv = self._constraint_violation(pop, constraint_fn)
             
-            # Extract current Pareto front
-            pf_fronts = fast_non_dominated_sort(objs)
+            # Extract current Pareto front (feasible solutions only when
+            # constraints are active: infeasible ones never enter front 0 of a
+            # feasibility-rule sort unless the whole population is infeasible)
+            pf_fronts = fast_constrained_non_dominated_sort(objs, cv)
             pf_indices = pf_fronts[0] if pf_fronts else []
             pf_objs = objs[pf_indices] if pf_indices else objs[:1]
             
-            # Compute metrics
-            hv = compute_hypervolume_2d(pf_objs, reference_point) if self.n_obj == 2 else 0.0
+            # Compute metrics (2D exact, 3D exact sweep, MC above that)
+            hv = (hypervolume(pf_objs, reference_point)
+                  if (len(pf_objs) and self.n_obj >= 2) else 0.0)
             
             gd_val = 0.0
             igd_val = 0.0
@@ -249,6 +342,8 @@ class NSGA2:
             self.history['igd'].append(igd_val)
             self.history['spread'].append(spread_val)
             self.history['generation'].append(gen)
+            self.history['n_feasible'].append(int(np.sum(cv <= 0)))
+            self.history['min_violation'].append(float(np.min(cv)) if len(cv) else 0.0)
             
             if verbose and (gen + 1) % max(1, self.n_gen // 10) == 0:
                 print(f"Gen {gen+1}/{self.n_gen}: HV={hv:.4f}, "
@@ -257,7 +352,7 @@ class NSGA2:
         
         elapsed = time.time() - t0
         
-        final_fronts = fast_non_dominated_sort(objs)
+        final_fronts = fast_constrained_non_dominated_sort(objs, cv)
         final_pf_idx = final_fronts[0] if final_fronts else list(range(min(10, len(objs))))
         
         input_config = {
@@ -283,12 +378,15 @@ class NSGA2:
             'history': self.history,
             'elapsed_seconds': elapsed,
             'input_hash': input_hash,
-            'config': input_config
+            'config': input_config,
+            'constraint_violation': cv,
+            'n_feasible': int(np.sum(cv <= 0)),
         }
         
         return result
     
-    def _create_offspring_fast(self, pop, objs, rank, cd, lb, ub, rng):
+    def _create_offspring_fast(self, pop, objs, rank, cd, lb, ub, rng, cv=None,
+                               mutation_prob: Optional[float] = None):
         """Create offspring via tournament selection + SBX + polynomial mutation.
         Uses pre-computed ranks and crowding distances."""
         N = self.pop_size
@@ -302,6 +400,10 @@ class NSGA2:
             elif rank[b] < rank[a]:
                 parent_idx[i] = b
             else:
+                if cv is not None and cv[a] != cv[b]:
+                    # feasibility rule: less violation wins inside the same rank
+                    parent_idx[i] = a if cv[a] < cv[b] else b
+                    continue
                 parent_idx[i] = a if cd[a] >= cd[b] else b
         
         offspring = pop[parent_idx].copy()
@@ -325,9 +427,10 @@ class NSGA2:
         offspring = np.clip(offspring, lb, ub)
         
         # Polynomial Mutation
+        pm = self.mut_prob if mutation_prob is None else mutation_prob
         for i in range(N):
             for j in range(self.n_var):
-                if rng.random() < self.mut_prob:
+                if rng.random() < pm:
                     u = rng.random()
                     delta = ub[j] - lb[j]
                     if u < 0.5:
@@ -339,6 +442,19 @@ class NSGA2:
         
         return offspring
     
+    @staticmethod
+    def _constraint_violation(pop: np.ndarray,
+                              constraint_fn: Optional[Callable[[np.ndarray], np.ndarray]]
+                              ) -> np.ndarray:
+        """Total constraint violation per individual (0 = feasible)."""
+        if constraint_fn is None:
+            return np.zeros(len(pop), dtype=float)
+        cv = np.zeros(len(pop), dtype=float)
+        for i in range(len(pop)):
+            g = np.atleast_1d(np.asarray(constraint_fn(pop[i]), dtype=float))
+            cv[i] = float(np.sum(np.maximum(0.0, g)))
+        return cv
+
     @staticmethod
     def _generational_distance(approx: np.ndarray, reference: np.ndarray) -> float:
         if len(approx) == 0:

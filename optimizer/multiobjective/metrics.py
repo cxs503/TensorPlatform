@@ -14,7 +14,7 @@ Reference:
   Wiley & Sons.
 """
 import numpy as np
-from typing import Optional
+from typing import Dict, Optional, Tuple
 
 
 def generational_distance(approx: np.ndarray, reference: np.ndarray) -> float:
@@ -173,34 +173,48 @@ def _hypervolume_2d_exact(pts: np.ndarray, ref: np.ndarray) -> float:
     return hv
 
 
+def _hypervolume_2d_fast(pts: np.ndarray, ref: np.ndarray) -> float:
+    """Vectorised exact 2D hypervolume (O(n log n), same value as the loop form).
+
+    ``HV = sum_i (x_{i+1} - x_i) * (ref_y - min(y_0..y_i))`` for points sorted by
+    x ascending (``x_{n} = ref_x``), which is the staircase area under the front.
+    """
+    if len(pts) == 0:
+        return 0.0
+    x = pts[:, 0]
+    y = pts[:, 1]
+    order = np.argsort(x, kind='stable')
+    x = x[order]
+    y = y[order]
+    prefix_min = np.minimum.accumulate(y)
+    heights = ref[1] - prefix_min
+    heights = np.maximum(heights, 0.0)
+    x_next = np.append(x[1:], ref[0])
+    widths = np.maximum(x_next - x, 0.0)
+    return float(np.sum(widths * heights))
+
+
 def _hypervolume_3d_exact(pts: np.ndarray, ref: np.ndarray) -> float:
-    """Exact 3D hypervolume using sweep-plane algorithm."""
-    sorted_idx = np.argsort(pts[:, 2])
+    """Exact 3D hypervolume by sweep over the third coordinate (z-slices).
+
+    The volume is ``sum_k (z_k - z_{k-1}) * HV2D({p : p_z <= z_{k-1}})`` plus a
+    final slice up to ``ref[2]``.  Only points *strictly below* the slice level
+    dominate that slice: including the slice point itself (``z == z_k``) has
+    measure zero in z and biases the volume upwards (fixed here — the previous
+    version used ``sorted_idx[:k+1]`` and overestimated by 2-6 % on random
+    fronts, see tests/multiobjective/test_hv_3d_accuracy.py).
+    """
+    order = np.argsort(pts[:, 2], kind='stable')
+    sp = pts[order]
     hv = 0.0
     prev_z = 0.0
-    
-    for k in range(len(sorted_idx)):
-        idx = sorted_idx[k]
-        if np.any(pts[idx] >= ref):
-            continue
-        
-        dz = pts[idx, 2] - prev_z
-        if dz > 0:
-            # Compute 2D hypervolume of the slice at this z-level
-            slice_points = pts[sorted_idx[:k + 1]]
-            mask = slice_points[:, 2] <= pts[idx, 2]
-            if np.any(mask):
-                sp = slice_points[mask]
-                hv_2d = _hypervolume_2d_exact(sp[:, :2], ref[:2])
-                hv += hv_2d * dz
-        
-        prev_z = pts[idx, 2]
-    
-    # Add final slice from last z to ref[2]
+    for k in range(len(sp)):
+        dz = sp[k, 2] - prev_z
+        if dz > 0 and k > 0:
+            hv += _hypervolume_2d_fast(sp[:k, :2], ref[:2]) * dz
+        prev_z = sp[k, 2]
     if prev_z < ref[2]:
-        hv_2d = _hypervolume_2d_exact(pts[:, :2], ref[:2])
-        hv += hv_2d * (ref[2] - prev_z)
-    
+        hv += _hypervolume_2d_fast(sp[:, :2], ref[:2]) * (ref[2] - prev_z)
     return hv
 
 
@@ -244,3 +258,131 @@ def compute_all_metrics(approx: np.ndarray,
         metrics['hypervolume'] = hypervolume(approx, reference_point)
     
     return metrics
+
+
+def spacing(approx: np.ndarray) -> float:
+    """Schott's spacing metric (distribution uniformity of an approximated front).
+
+    ``S = sqrt( 1/(n-1) * sum_i (d_mean - d_i)^2 )`` with ``d_i`` the distance from
+    solution *i* to its nearest neighbour in objective space (Schott 1995;
+    Deb 2001, eq. 5.5).  ``S = 0`` is a perfectly equidistant front; the value is
+    reported in the units of the objective vector, so normalise the objectives
+    (``spacing(normalise(P))``) when comparing fronts of different scale.
+
+    Args:
+        approx: (N, M) approximated Pareto front
+
+    Returns:
+        Spacing value (float, ``0`` for n < 2).
+    """
+    pts = np.asarray(approx, dtype=float)
+    n = len(pts)
+    if n < 2:
+        return 0.0
+    d = np.full(n, np.inf)
+    for i in range(n):
+        diff = np.delete(pts, i, axis=0) - pts[i]
+        d[i] = np.min(np.sqrt(np.sum(diff ** 2, axis=1)))
+    d_mean = float(np.mean(d))
+    return float(np.sqrt(np.sum((d_mean - d) ** 2) / (n - 1)))
+
+
+def normalize_front(front: np.ndarray,
+                    ideal: Optional[np.ndarray] = None,
+                    nadir: Optional[np.ndarray] = None
+                    ) -> Tuple[np.ndarray, np.ndarray, np.ndarray]:
+    """Min-max normalise an objective matrix to the unit box (per-column)."""
+    f = np.asarray(front, dtype=float)
+    lo = np.min(f, axis=0) if ideal is None else np.asarray(ideal, dtype=float)
+    hi = np.max(f, axis=0) if nadir is None else np.asarray(nadir, dtype=float)
+    span = hi - lo
+    span[span < 1e-12] = 1.0
+    return (f - lo) / span, lo, hi
+
+
+def hausdorff_distance(approx: np.ndarray,
+                       reference: np.ndarray,
+                       normalize: bool = True) -> Dict[str, float]:
+    """Symmetric Hausdorff distance between approximated and reference fronts.
+
+    ``H(A, R) = max( sup_a inf_r ||a - r||, sup_r inf_a ||a - r|| )``
+
+    With ``normalize=True`` both fronts are first min-max normalised over their
+    union (``front / front_extent``), so the value is a *relative* distance with
+    respect to the objective-space extent of the reference front — directly
+    comparable with a "< x% of front extent" acceptance criterion.  The relative
+    figure is also returned explicitly as ``relative`` (``H / diag`` where
+    ``diag`` is the diagonal length of the union bounding box).
+
+    Args:
+        approx: (N, M) approximated Pareto front
+        reference: (K, M) reference/analytical Pareto front
+        normalize: scale to the unit box of the union of both fronts
+
+    Returns:
+        dict with ``hausdorff`` (absolute), ``relative`` (H / bbox diagonal),
+        ``directed_approx_to_ref``, ``directed_ref_to_approx``, ``extent``.
+    """
+    a = np.atleast_2d(np.asarray(approx, dtype=float))
+    r = np.atleast_2d(np.asarray(reference, dtype=float))
+    if len(a) == 0 or len(r) == 0:
+        return {'hausdorff': float('inf'), 'relative': float('inf'),
+                'directed_approx_to_ref': float('inf'),
+                'directed_ref_to_approx': float('inf'), 'extent': float('inf')}
+
+    union = np.vstack([a, r])
+    lo = np.min(union, axis=0)
+    hi = np.max(union, axis=0)
+    if normalize:
+        span = hi - lo
+        span[span < 1e-12] = 1.0
+        a = (a - lo) / span
+        r = (r - lo) / span
+        lo, hi = np.zeros_like(lo), np.ones_like(hi)
+
+    extent = float(np.sqrt(np.sum((hi - lo) ** 2)))
+
+    def _directed(src: np.ndarray, dst: np.ndarray) -> float:
+        best = 0.0
+        for p in src:
+            d = float(np.min(np.sqrt(np.sum((dst - p) ** 2, axis=1))))
+            if d > best:
+                best = d
+        return best
+
+    d_ar = _directed(a, r)
+    d_ra = _directed(r, a)
+    h = max(d_ar, d_ra)
+    return {'hausdorff': float(h),
+            'relative': float(h / extent) if extent > 0 else float('inf'),
+            'directed_approx_to_ref': float(d_ar),
+            'directed_ref_to_approx': float(d_ra),
+            'extent': extent}
+
+
+def hypervolume_convergence(history_hv, last_k: int = 20) -> Dict[str, float]:
+    """Relative hypervolume change over the final ``last_k`` generations.
+
+    ``delta = |HV[-1] - HV[-1-last_k]| / HV[-1]`` — the "HV has stabilised"
+    criterion of the acceptance checklist (e.g. ``delta < 0.01``).
+
+    Args:
+        history_hv: per-generation hypervolume sequence (ascending generation)
+        last_k: number of generations spanned by the comparison window
+
+    Returns:
+        dict with ``hv_final``, ``hv_window_start``, ``delta``, ``window``,
+        ``finite`` (False when the sequence is shorter than ``last_k + 1``).
+    """
+    hv = np.asarray([float(v) for v in history_hv], dtype=float)
+    if len(hv) < 2:
+        return {'hv_final': float(hv[-1]) if len(hv) else 0.0,
+                'hv_window_start': float('nan'), 'delta': float('inf'),
+                'window': 0, 'finite': False}
+    k = min(last_k, len(hv) - 1)
+    hv_end = float(hv[-1])
+    hv_start = float(hv[-1 - k])
+    delta = abs(hv_end - hv_start) / hv_end if hv_end > 0 else float('inf')
+    return {'hv_final': hv_end, 'hv_window_start': hv_start,
+            'delta': float(delta), 'window': int(k),
+            'finite': bool(np.isfinite(delta) and np.isfinite(hv_end))}
