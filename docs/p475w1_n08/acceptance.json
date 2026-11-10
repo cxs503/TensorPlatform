@@ -1,0 +1,128 @@
+{
+  "node": "P475W1-N08",
+  "title": "platform toolchain integration validation (DAG end-to-end + zero regression)",
+  "repo": "TensorPlatform",
+  "package": "tools/toolchain_integration",
+  "spec": "tools/toolchain_integration/specs/synthetic_toolchain_v1.json",
+  "artifact": "artifacts/p475w1_n08/toolchain_run/artifact.json",
+  "run": {
+    "status": "OK",
+    "chain_digest": "ec15d89db118093bc193f74231a457e3fe595d6247f2c172726a023ff03fa4e9",
+    "spec_digest": "1a274369ecee6aebf48aee6130f0a7d732a38d082d8777dc44e388383cd169df",
+    "n_stages": 10,
+    "evidence_level": "MOCK",
+    "evidence_note": "external sibling-repo stage is not vendored here; it ran through its declared fallback and is recorded MOCK (informational criterion repo_stage_available=false)"
+  },
+  "gates": {
+    "dag_all_stages_ok": {
+      "value": 10,
+      "expected": 10,
+      "status": "PASS"
+    },
+    "criteria_verdict": {
+      "value": "13 pass / 0 fail / 0 withheld",
+      "status": "PASS"
+    },
+    "integration_overhead": {
+      "value": 0.057052565548355576,
+      "threshold": 0.2,
+      "status": "PASS",
+      "definition": "(whole-run wall - sum of stage walls) / sum of stage walls, same run, warm-up excluded"
+    },
+    "cross_run_comparison": {
+      "value": 0.07192611293041834,
+      "note": "secondary, noise-dominated"
+    },
+    "reproducible_across_repeats": {
+      "value": true,
+      "repeats": 5,
+      "status": "PASS"
+    },
+    "adjacent_regression": {
+      "suites": 6,
+      "passed": 126,
+      "failed": 0,
+      "skipped": 1,
+      "status": "PASS"
+    },
+    "new_tests": {
+      "suites": 5,
+      "passed": 56,
+      "failed": 0,
+      "skipped": 0,
+      "verdict": "PASS"
+    }
+  },
+  "error_judgement": {
+    "reference_max_relative_error": 0.011084733745199133,
+    "all_within_3_percent": true,
+    "details": [
+      {
+        "quantity": "UQ mean of response",
+        "value": 0.08216369113289909,
+        "reference": 0.08213917695985969,
+        "relative_error": 0.0002984467819952135
+      },
+      {
+        "quantity": "UQ std of response",
+        "value": 0.09058185948388707,
+        "reference": 0.09034673385412555,
+        "relative_error": 0.002602480684483391
+      },
+      {
+        "quantity": "UQ q05 of response",
+        "value": 0.0036423193177797905,
+        "reference": 0.0036023878080802692,
+        "relative_error": 0.011084733745199133
+      },
+      {
+        "quantity": "UQ q95 of response",
+        "value": 0.2687845959091268,
+        "reference": 0.26745344055207304,
+        "relative_error": 0.0049771480011848
+      },
+      {
+        "quantity": "optimiser objective at optimum",
+        "value": 2.3745724589353978e-11,
+        "reference": 0.0,
+        "relative_error": 2.3745724589353978e-11
+      },
+      {
+        "quantity": "conservative transfer total",
+        "value": 4.625,
+        "reference": 4.625,
+        "relative_error": 0.0
+      },
+      {
+        "quantity": "transfer relative residual",
+        "value": 0.0,
+        "reference": 0.0,
+        "relative_error": 0.0
+      },
+      {
+        "quantity": "prior AUROC",
+        "value": 0.7723470102086534,
+        "reference": 0.7698214051382695,
+        "relative_error": 0.003280767530658981
+      },
+      {
+        "quantity": "prior base rate",
+        "value": 0.496,
+        "reference": 0.4998635,
+        "relative_error": 0.007729110047042882
+      }
+    ]
+  },
+  "artifacts": [
+    "docs/p475w1_n08/REPORT.md",
+    "docs/p475w1_n08/USAGE.md",
+    "artifacts/p475w1_n08/toolchain_run/artifact.json",
+    "artifacts/p475w1_n08/toolchain_run/REPORT.md",
+    "artifacts/p475w1_n08/toolchain_run/DEPENDENCY_GRAPH.md",
+    "artifacts/p475w1_n08/toolchain_run/API.md",
+    "artifacts/p475w1_n08/toolchain_run/fig_timings.png",
+    "artifacts/p475w1_n08/toolchain_run/fig_calibration.png",
+    "artifacts/p475w1_n08/toolchain_run/fig_uq_band.png"
+  ],
+  "full_suite_regression": "submitted to cluster (cj158, TensorPlatform tests/, 6108 collected, 70 pre-existing collection errors); local full run exceeds node budget \u2014 recorded as not-run in this node, see REPORT.md \u00a75"
+}
