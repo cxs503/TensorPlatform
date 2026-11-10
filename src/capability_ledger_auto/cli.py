@@ -4,6 +4,8 @@
 ----
     python -m capability_ledger_auto.cli --registry config/capabilities.json --root .
     python -m capability_ledger_auto.cli --registry config/capabilities.json --root . --write
+    python -m capability_ledger_auto.cli --audit --exec-tests          # 出 ledger_audit.json 产物
+    python -m capability_ledger_auto.cli --ac --exec-tests             # 战役判据 AC1–AC8 机器验收
     python -m capability_ledger_auto.cli --snapshot tests/fixtures/capability_ledger/capabilities_snapshot.json --root .
 """
 from __future__ import annotations
@@ -29,10 +31,45 @@ def main():
     parser.add_argument("--snapshot", type=str, help="能力快照 JSON 路径（兼容旧格式）")
     parser.add_argument("--root", type=str, default=".", help="工作树根目录")
     parser.add_argument("--write", action="store_true", help="写入产物文件")
+    parser.add_argument("--audit", action="store_true",
+                        help="走完整审计流水线并落盘 ledger_audit.json（含 sha256/git_commit）")
+    parser.add_argument("--ac", action="store_true", help="运行战役判据 AC1–AC8 并落盘 ac_results.json")
+    parser.add_argument("--exec-tests", action="store_true",
+                        help="真实执行匹配到的测试文件（REAL 判级要求执行证据）")
+    parser.add_argument("--corpus", action="append", default=None,
+                        help="离线报告语料路径（可多次指定）")
+    parser.add_argument("--adjudication-ledger", action="append", default=None,
+                        help="结构化裁决台账路径（可多次指定）")
+    parser.add_argument("--test-cache", default=None, help="测试执行结果缓存路径")
     parser.add_argument("--output", type=str, default="artifacts/capability_ledger_auto", help="输出目录")
     args = parser.parse_args()
 
     root = Path(args.root).resolve()
+
+    if args.audit or args.ac:
+        from . import ac_verify
+        from .ledger_audit import DEFAULT_ADJUDICATION_LEDGER, DEFAULT_CORPUS, run_audit
+
+        corpus = args.corpus or [root / DEFAULT_CORPUS]
+        adj = args.adjudication_ledger or [root / DEFAULT_ADJUDICATION_LEDGER]
+        if args.ac:
+            report = ac_verify.verify_all(
+                root, out_dir=args.output, exec_tests=args.exec_tests,
+                test_cache_path=args.test_cache,
+            )
+            for r in report["ac"]:
+                print(f"[{r['status']:7s}] {r['id']} :: {r['detail']}")
+            print(f"AC 通过 {report['summary']['passed']}/{report['summary']['total']}")
+            raise SystemExit(0 if report["summary"]["failed"] == 0 else 1)
+        result = run_audit(
+            root, registry_path=args.registry or "config/capabilities.json",
+            out_dir=args.output, corpus_paths=corpus, adjudication_ledgers=adj,
+            exec_tests=args.exec_tests, test_cache_path=args.test_cache, write=True,
+        )
+        payload = result["payload"]
+        print(f"tally={payload['summary']['grade_tally']} digest={payload['content_digest']}")
+        print(f"产物: {result['paths']}")
+        raise SystemExit(0)
 
     # 加载注册表
     if args.registry:
