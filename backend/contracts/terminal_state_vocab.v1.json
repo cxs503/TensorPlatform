@@ -1,0 +1,88 @@
+{
+  "contract": "terminal_state_vocab",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": [
+    "TensorPhysics"
+  ],
+  "derived_layer": true,
+  "description": "Semantic terminal state vocabulary for mission delivery (P93W3-N10). This is a DERIVED vocabulary layered on top of tensor_dev_missions.status (mission_status_vocab.v1.json) and is deliberately NOT a storage enum: the DB status CHECK constraint and the cross-repo status contract stay untouched, so the semantic layer can be added without a migration on either repo. Rationale: forced closure (budget/wall/progress exhausted) was indistinguishable from normal completion because both were stored as succeeded; splitting the storage enum would break both the CHECK constraint and the TensorPhysics mapping, while a deterministic derivation from stored facts gets the same product outcome (success rate that can no longer be inflated by forced closures) with zero backward-compatibility risk.",
+  "states": [
+    "succeeded",
+    "forced_finish",
+    "degraded",
+    "failed"
+  ],
+  "semantics": {
+    "succeeded": "Normal completion: artifact facts complete (completeness == 1.0), no forced-closure marker, budget not exhausted.",
+    "forced_finish": "Closure was forced (budget/wall/progress exhausted, or budget utilization >= 1.0): the mission stopped because it had to, not because it was done. Never a delivery proof.",
+    "degraded": "Partial delivery: closed without a forced marker but the artifact facts are incomplete (a named gap exists).",
+    "failed": "Non-success storage status (failed/stopped/revoked/orphan), or an unclassified terminal record (fail-closed)."
+  },
+  "precedence": [
+    "failed",
+    "forced_finish",
+    "degraded",
+    "succeeded"
+  ],
+  "precedence_note": "Evaluated top-down, first match wins. Storage failure dominates; forced closure dominates partial delivery because the budget fact explains the gap; partial delivery dominates succeeded by definition.",
+  "failed_statuses": [
+    "failed",
+    "stopped",
+    "revoked",
+    "orphan"
+  ],
+  "source_status_for": {
+    "succeeded": [
+      "succeeded"
+    ],
+    "forced_finish": [
+      "succeeded"
+    ],
+    "degraded": [
+      "succeeded"
+    ],
+    "failed": [
+      "failed",
+      "stopped",
+      "revoked",
+      "orphan"
+    ]
+  },
+  "closure_causes": {
+    "budget": [
+      "budget_exhausted"
+    ],
+    "wall": [
+      "wall_exhausted"
+    ],
+    "progress": [
+      "no_progress"
+    ],
+    "unknown": []
+  },
+  "forced_marker_token": "forced_finish",
+  "budget_thresholds": {
+    "warning": 0.7,
+    "exhausted": 1.0,
+    "mvd_checkpoint": 0.7
+  },
+  "budget_thresholds_note": "warning/mvd_checkpoint share 0.70 by construction: the 70% MVD checkpoint is exactly the point where budget_status leaves 'normal'. exhausted is entered only through exhaustible evidence, so 1.0 is the ratio at or above which the tool dimension counts as spent.",
+  "completeness_weights": {
+    "implementation": 0.4,
+    "verification": 0.4,
+    "claim": 0.2
+  },
+  "completeness_note": "completeness = 0.4*implementation + 0.4*verification + 0.2*claim, each component in [0,1]: implementation 1/0 (artifact present or not), verification 1.0 machine-checkable / 0.5 present-but-vacuous / 0 absent, claim 1/0. Continuous score so a gap can be ranked, not just named.",
+  "quality_gate_rule": "pass iff completeness == 1.0 AND closure is clean (no forced marker, budget not exhausted)",
+  "backward_compatibility": {
+    "rule": "legacy succeeded with budget_exhausted == true (budget utilization >= 1.0 or a budget/wall exhaustion marker) migrates to forced_finish; every other legacy succeeded migrates by the precedence table; the legacy storage status is preserved verbatim under 'legacy_status' and no original key is dropped."
+  },
+  "exhausted_evidence": {
+    "closure_marker_budget": true,
+    "closure_marker_wall": true,
+    "tool_calls_at_cap": true,
+    "wall_clock_at_cap": false
+  },
+  "exhausted_evidence_note": "Exhaustion is an evidence decision, not a ratio threshold. A forced-closure marker is a fact written by the harness; the tool-call counter is hard-enforced, so reaching its cap means work stopped at the cap. Wall-clock arithmetic (finished_at - created_at) contains queue wait and soft wall budgets: measured on the frozen corpus it crosses 1.0 on far more rows than carry a wall_exhausted marker (recall 1.0, low precision), so it may lift a record into the warning band but never to exhausted. Measured precision/recall: runs/p93w3-n10/metrics.json -> budget_evidence."
+}
