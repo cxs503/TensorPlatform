@@ -29,10 +29,15 @@ Design rules
 * **Parallel to existing KPI.** Reported alongside ``mission_success_rate``.
 * **Zero domain semantics.** All metrics are generic artifact facts.
 
+Semantic terminal states (P93W3-N10) are reported in the same payload: the
+binary ``succeeded`` count is split into ``succeeded / forced_finish / degraded /
+failed`` by ``api/domain/terminal_state.py``, so a forced closure can no longer be
+counted as a delivery. ``rates.delivery_rate`` is that semantic success share.
+
 Audit chain
 -----------
 - Served by ``GET /tensor/kpi/delivery_layers`` (api/kpi.py)
-- Classifies with ``api/domain/delivery_state.py``
+- Classifies with ``api/domain/delivery_state.py`` and ``api/domain/terminal_state.py``
 - ``denominator_key`` names the denominator used for every emitted rate
 """
 from __future__ import annotations
@@ -49,6 +54,7 @@ from api.domain.delivery_state import (
     compute_delivery_metrics,
     compute_missing_item_counts,
 )
+from api.domain.terminal_state import classify_terminal_state, summarize_states
 
 TERMINAL_STATUSES = ("succeeded", "failed", "stopped", "revoked", "orphan")
 SUCCESS_STATUS = "succeeded"
@@ -76,7 +82,7 @@ def compute_delivery_kpis(db: Session) -> dict[str, Any]:
     """
     rows = db.execute(
         text("""
-            SELECT id, status, result
+            SELECT id, status, result, budget, created_at, finished_at
             FROM tensor_dev_missions
             WHERE status = ANY(:statuses)
         """),
@@ -84,10 +90,19 @@ def compute_delivery_kpis(db: Session) -> dict[str, Any]:
     ).fetchall()
 
     succeeded, succeeded_with_payload, not_succeeded = [], [], 0
+    semantic_records: list[dict[str, Any]] = []
     for row in rows:
         mapping = row._mapping
         status = mapping.get("status")
         result = _coerce_result(mapping.get("result"))
+        semantic_records.append({
+            "id": mapping.get("id"),
+            "status": status,
+            "result": result,
+            "budget": _coerce_result(mapping.get("budget")),
+            "created_at": mapping.get("created_at"),
+            "finished_at": mapping.get("finished_at"),
+        })
         if status != SUCCESS_STATUS:
             not_succeeded += 1
             continue
@@ -122,8 +137,22 @@ def compute_delivery_kpis(db: Session) -> dict[str, Any]:
     # denominator; can only downgrade, never upgrade, the artifact verdict.
     layer_attested = _layer(succeeded, assess_attested_delivery)
 
+    semantic = summarize_states([
+        classify_terminal_state(record, allow_non_terminal=True)
+        for record in semantic_records
+    ])
+
     return {
         "denominator_key": "succeeded",
+        "terminal_states": {
+            "denominator_key": "terminal",
+            "denominator": semantic["total"],
+            "counts": semantic["counts"],
+            "rates": semantic["rates"],
+            "quality_gate_pass_rate": semantic["quality_gate_pass_rate"],
+            "completeness_mean": semantic["completeness_mean"],
+            "budget_status_counts": semantic["budget_status_counts"],
+        },
         "denominators": {
             "terminal": len(rows),
             "succeeded": len(succeeded),
@@ -142,6 +171,11 @@ def compute_delivery_kpis(db: Session) -> dict[str, Any]:
                 round(layer_attested["forced_closure"] / layer_attested["denominator"] * 100, 2)
                 if layer_attested["denominator"] else 0.0
             ),
+            # P93W3-N10 semantic layer (denominator = every terminal mission):
+            # ``succeeded`` alone is no longer a delivery rate.
+            "delivery_rate": round(semantic["rates"]["succeeded"] * 100, 2),
+            "semantic_forced_finish_rate": round(semantic["rates"]["forced_finish"] * 100, 2),
+            "semantic_degraded_rate": round(semantic["rates"]["degraded"] * 100, 2),
         },
         "layers": {
             "succeeded": layer_attested,
@@ -208,6 +242,27 @@ def get_delivery_kpi_definitions() -> list[dict[str, Any]]:
             "description": "succeeded whose closure was extracted under budget duress / succeeded * 100",
             "denominator": "succeeded",
             "target": 10.0,
+        },
+        {
+            "key": "delivery_rate",
+            "label": "语义交付率(%)",
+            "description": "semantic terminal state succeeded / terminal * 100 (forced/degraded excluded)",
+            "denominator": "terminal",
+            "target": 70.0,
+        },
+        {
+            "key": "semantic_forced_finish_rate",
+            "label": "被迫收尾率(%)",
+            "description": "semantic terminal state forced_finish / terminal * 100",
+            "denominator": "terminal",
+            "target": 10.0,
+        },
+        {
+            "key": "semantic_degraded_rate",
+            "label": "部分交付率(%)",
+            "description": "semantic terminal state degraded / terminal * 100",
+            "denominator": "terminal",
+            "target": 15.0,
         },
     ]
 
