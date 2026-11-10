@@ -1,0 +1,19 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "cases": [
+    {
+      "case_id": "synth-slab-conduction",
+      "domain": "synthetic-pde-1d",
+      "reference_kind": "analytic",
+      "implementation": "tools.verification_harness.anchors.synthetic:slab_finite_difference",
+      "reference": "tools.verification_harness.anchors.synthetic:slab_closed_form",
+      "inputs": {"conductivity": 0.6, "source": 250.0, "length": 0.25, "t_left": 300.0, "t_right": 320.0, "nodes": 41},
+      "quantities": {
+        "t_mid": {"rtol": 1e-9},
+        "t_quarter": {"rtol": 1e-9}
+      },
+      "description": "Tridiagonal finite difference for 1-D steady diffusion with a uniform source vs the closed-form quadratic profile.",
+      "tags": ["anchor", "elliptic"]
+    }
+  ]
+}

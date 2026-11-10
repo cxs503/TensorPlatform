@@ -1,0 +1,18 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "cases": [
+    {
+      "case_id": "synth-tridiagonal-spectrum",
+      "domain": "synthetic-linear-algebra",
+      "reference_kind": "analytic",
+      "implementation": "tools.verification_harness.anchors.synthetic:tridiagonal_spectrum_power",
+      "reference": "tools.verification_harness.anchors.synthetic:tridiagonal_spectrum_closed_form",
+      "inputs": {"n": 7, "iterations": 3000},
+      "quantities": {
+        "spectral_radius": {"rtol": 1e-10}
+      },
+      "description": "Power iteration + Rayleigh quotient for the largest eigenvalue of tridiag(-1,2,-1) vs the closed-form spectrum.",
+      "tags": ["anchor", "eigenvalue"]
+    }
+  ]
+}
