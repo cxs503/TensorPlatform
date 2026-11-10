@@ -1,0 +1,62 @@
+{
+ "$schema": "https://json-schema.org/draft/2020-12/schema",
+ "$id": "https://tensorplatform.local/schemas/gate_contract.v1.schema.json",
+ "title": "Gate evidence contract v1.0 (structural, domain-neutral)",
+ "description": "验收门证据契约。判据ID/算子/阈值/单位/工件路径/sha256/运行命令/环境指纹。schema 不含任何域名词与域阈值；阈值来自注入的权威登记表(criteria_registry)，实测值必须可由工件+JSON指针复算。判定不读本文件的任何 verdict 字段——判定由 tools/gate_contract/verify.py 复算。",
+ "type": "object",
+ "required": ["schema_version", "gate_id", "mission_id", "run_cmd", "criteria"],
+ "additionalProperties": false,
+ "properties": {
+  "schema_version": {"const": "gate-contract/1.0"},
+  "gate_id": {"type": "string", "minLength": 1, "maxLength": 128},
+  "mission_id": {"type": "integer"},
+  "subject": {"type": "object", "description": "不透明主体标识（node_id/repo/plan_id 等），判定不使用"},
+  "issued_utc": {"type": ["string", "null"]},
+  "run_cmd": {"type": "string", "minLength": 1, "description": "复算该门的命令"},
+  "env_fingerprint": {
+   "type": "object",
+   "required": ["python", "implementation", "float_model", "stable_digest"],
+   "properties": {
+    "python": {"type": "string"},
+    "implementation": {"type": "string"},
+    "machine": {"type": "string"},
+    "system": {"type": "string"},
+    "byteorder": {"type": "string"},
+    "float_model": {"const": "ieee754-binary64"},
+    "stable_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+    "host_digest": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+   }
+  },
+  "criteria": {
+   "type": "array",
+   "minItems": 1,
+   "items": {
+    "type": "object",
+    "required": ["id", "op", "threshold", "unit", "artifact", "pointer"],
+    "additionalProperties": false,
+    "properties": {
+     "id": {"type": "string", "minLength": 1, "maxLength": 64},
+     "statement": {"type": "string"},
+     "op": {"enum": ["le", "lt", "ge", "gt", "abs_le", "eq", "in_range", "all_in_range"]},
+     "threshold": {"oneOf": [{"type": "number"}, {"type": "array", "items": {"type": "number"}, "minItems": 2, "maxItems": 2}]},
+     "unit": {"type": "string", "minLength": 1, "maxLength": 32},
+     "scale": {"type": "number"},
+     "pointer": {"type": "string", "minLength": 1, "description": "JSON 指针（/ 分隔）"},
+     "select": {"enum": ["absmax", "max", "min", "mean"]},
+     "field": {"type": "string"},
+     "artifact": {
+      "type": "object",
+      "required": ["path", "sha256"],
+      "additionalProperties": false,
+      "properties": {
+       "path": {"type": "string", "minLength": 1},
+       "sha256": {"type": ["string", "null"], "pattern": "^([0-9a-f]{64})?$"}
+      }
+     },
+     "measured": {"oneOf": [{"type": "number"}, {"type": "array", "items": {"type": "number"}}]},
+     "unresolved": {"type": "string"}
+    }
+   }
+  }
+ }
+}
