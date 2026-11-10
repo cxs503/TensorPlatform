@@ -41,10 +41,42 @@ class MeshError(ValueError):
 
 
 class QuantityKind(str, Enum):
-    """How cell values relate to the conserved total."""
+    """How cell values relate to the conserved total.
+
+    The four *exchange laws* are declared here rather than at the call site, so a
+    remap cannot silently apply the wrong conservation law:
+
+    ``DENSITY``    per-unit-volume, positive-definite (total = sum(value * V))
+    ``FLUX``       per-unit-surface, signed   (total = sum(value * A), A = face area)
+    ``EXTENSIVE``  per-cell total, signed     (total = sum(value))   [legacy]
+    ``SCALAR``     per-point intensive, *not conserved* by construction; the
+                   admissible law is precision preservation (constant / affine
+                   reproduction and boundedness), never a sum constraint.
+    """
 
     DENSITY = "density"        # per-unit-volume value, total = sum(value * V)
+    FLUX = "flux"              # per-unit-area value,   total = sum(value * A)
     EXTENSIVE = "extensive"    # per-cell total,       total = sum(value)
+    SCALAR = "scalar"          # per-point intensive, not conserved (precision law)
+
+
+def face_areas(mesh: "BoxMesh", normal: int = -1) -> np.ndarray:
+    """Per-cell face area perpendicular to ``normal`` (surface measure of a flux).
+
+    For an axis-aligned box the patch area is the product of the two tangential
+    cell lengths; in 1D a surface degenerates to a point of unit measure, which is
+    why flux exchange is refused below two dimensions (see
+    :func:`tools.coupling.precision.check_flux_dim`).
+    """
+    dim = mesh.dim
+    axis = dim - 1 if normal is None or int(normal) < 0 else int(normal)
+    if not (0 <= axis < dim):
+        raise MeshError(f"face_normal {normal!r} is out of range for dim={dim}")
+    sizes = mesh.cell_size
+    tangential = [k for k in range(dim) if k != axis]
+    if not tangential:
+        return np.ones(mesh.n_cells)
+    return np.prod(sizes[:, tangential], axis=1)
 
 
 def _coerce_kind(kind: "QuantityKind | str") -> QuantityKind:
@@ -214,6 +246,12 @@ class Field:
     mesh: BoxMesh
     kind: QuantityKind = QuantityKind.DENSITY
     name: str = "field"
+    face_normal: int = -1
+
+    @property
+    def conserved(self) -> bool:
+        """``False`` for kinds whose admissible law is precision, not a sum."""
+        return self.kind is not QuantityKind.SCALAR
 
     def __post_init__(self) -> None:
         values = np.ascontiguousarray(np.asarray(self.values, dtype=float).reshape(-1))
@@ -228,19 +266,33 @@ class Field:
 
     # -------------------------------------------------------------- semantics
     @property
+    def measure(self) -> np.ndarray:
+        """Per-cell measure of the declared quantity kind (0th-moment weight)."""
+        if self.kind is QuantityKind.DENSITY or self.kind is QuantityKind.SCALAR:
+            return self.mesh.volume
+        if self.kind is QuantityKind.FLUX:
+            return face_areas(self.mesh, self.face_normal)
+        return np.ones(self.mesh.n_cells)
+
+    @property
     def weights(self) -> np.ndarray:
         """Per-cell measure used to turn values into a conserved total."""
-        return self.mesh.volume if self.kind is QuantityKind.DENSITY else np.ones(self.mesh.n_cells)
+        return self.measure
 
     @property
     def total(self) -> float:
         return float((self.values * self.weights).sum())
 
     def as_density(self) -> np.ndarray:
-        """Values reinterpreted per unit volume (remap works in this space)."""
-        if self.kind is QuantityKind.DENSITY:
-            return self.values
-        return self.values / self.mesh.volume
+        """Values reinterpreted as *intensive* (per unit measure) — operator space.
+
+        Only ``EXTENSIVE`` values are per-cell totals and therefore need dividing
+        by their measure; ``DENSITY``, ``FLUX`` and ``SCALAR`` values are already
+        intensive and are returned unchanged.
+        """
+        if self.kind is QuantityKind.EXTENSIVE:
+            return self.values / self.mesh.volume
+        return self.values
 
     def with_values(self, values, name: "str | None" = None) -> "Field":
         return Field(values=values, mesh=self.mesh, kind=self.kind, name=name or self.name)
