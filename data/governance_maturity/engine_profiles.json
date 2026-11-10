@@ -1,0 +1,13 @@
+{
+  "schema": "engine-profiles/1.0",
+  "note": "Profiles describe how an external engine verification report is reduced to the verification_result payload. Field names are data, not code.",
+  "profiles": [
+    {
+      "name": "anchor_ledger",
+      "case_id_keys": ["benchmark", "case_id", "name"],
+      "anchor_list_keys": ["anchors", "cases", "checks"],
+      "anchor_name_key": "anchor",
+      "anchor_passed_key": "passed"
+    }
+  ]
+}
