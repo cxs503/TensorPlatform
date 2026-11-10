@@ -1,0 +1,44 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "plane-channel-laminar-re100",
+  "title": "Plane channel, laminar, Re=100 (hydraulic diameter): second domain injected to prove the gate is configuration-driven",
+  "injected_by": "config (no code change relative to the bluff-body report)",
+  "quantities": [
+    {
+      "name": "friction_factor",
+      "role": "primary",
+      "description": "Darcy friction factor based on hydraulic diameter",
+      "reference": 0.96,
+      "reference_source": "analytic plane-channel solution f = 96/Re with Re = 100",
+      "reference_tolerance": 0.02
+    },
+    {
+      "name": "centerline_over_mean",
+      "description": "centreline velocity normalised by the bulk velocity",
+      "reference": 1.5,
+      "reference_source": "analytic parabolic profile: u_center / u_bulk = 1.5",
+      "reference_tolerance": 0.02
+    }
+  ],
+  "profiles": [
+    {
+      "name": "u_profile",
+      "coordinate": "y_over_h",
+      "description": "streamwise velocity normalised by the bulk velocity against the wall-normal coordinate",
+      "n_grid": 201
+    }
+  ],
+  "energy": {
+    "input_term": "pump_power",
+    "dissipation_term": "viscous_dissipation",
+    "closure_tolerance": 0.02
+  },
+  "verdict": {
+    "consistent": 0.05,
+    "acceptable": 0.15
+  },
+  "arms": {
+    "required": ["FDM", "SPECTRAL"],
+    "minimum": 2
+  }
+}
