@@ -1,0 +1,71 @@
+{
+  "capabilities": {
+    "calc.resistance": {
+      "benchmark": {
+        "aggregate": "worst",
+        "cases_path": "results",
+        "check_class": "experimental",
+        "computed_fields": [
+          "calc_ct"
+        ],
+        "error_fields": [
+          "error_pct"
+        ],
+        "kind": "json_cases",
+        "metric": "CT (total resistance coefficient) vs experiment",
+        "path": "artifacts/benchmark_validation.json",
+        "reference_fields": [
+          "ref_ct"
+        ],
+        "tolerance_pct": 3.0
+      },
+      "bindings": {
+        "code": [
+          "backend/api/calculations.py"
+        ],
+        "tests": [
+          "backend/tests/feat/test_resistance_benchmark_validation.py",
+          "backend/tests/feat/test_benchmark_chain_m1388.py"
+        ]
+      }
+    },
+    "calc.stability": {
+      "benchmark": {
+        "aggregate": "worst",
+        "check_class": "analytic",
+        "kind": "json_values",
+        "metric": "GZ curve max relative error vs closed form (%)",
+        "path": "artifacts/m1564/results/comparison.json",
+        "tolerance_pct": 3.0,
+        "unit": "pct",
+        "values": [
+          "cases[*].max_abs_rel_err_pct_inside.canon"
+        ]
+      },
+      "bindings": {
+        "code": [
+          "backend/api/calculations.py"
+        ],
+        "tests": [
+          "tests/test_stability_gz_benchmark.py",
+          "tests/test_m1564_stability_canon.py"
+        ]
+      }
+    },
+    "propeller.open_water": {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "backend/api/domain/propeller_open_water.py",
+          "backend/services/wageningen_b_series.py"
+        ],
+        "tests": [
+          "tests/test_propeller_open_water.py",
+          "tests/test_prop_openwater_audit.py"
+        ]
+      }
+    }
+  },
+  "schema_version": "1.0",
+  "title": "人审证据面：能力 → 显式绑定 + 基准工件口径（数据，代码零领域语义）"
+}

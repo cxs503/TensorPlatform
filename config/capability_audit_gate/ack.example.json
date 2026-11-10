@@ -1,0 +1,8 @@
+{
+  "ruleset": "why the rule set version changed (delete this key unless you really changed rules)",
+  "levels": {
+    "some.capability": "why this capability is allowed to drop a level (ticket / root cause / owner)",
+    "*": "wildcard reason applied to every downgrade (use with care, it is audited)"
+  },
+  "_usage": "cp ack.example.json ack.json; keep only the entries you need; pass --ack config/capability_audit_gate/ack.json"
+}
