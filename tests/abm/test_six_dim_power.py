@@ -1154,3 +1154,127 @@ class TestHolmAdjustedPValueFidelity:
                     break
             adjusted = _bonferroni_holm(ps, alpha)
             assert [a <= alpha for a in adjusted] == sequential, (ps, adjusted, sequential)
+
+
+# ---------------------------------------------------------------------------
+# m9190：P143W2C-N04 成熟化——机器可算判据全量验证
+# ---------------------------------------------------------------------------
+
+class TestM9190MachineCriteria:
+    """P143W2C-N04 成熟化：五条机器可算判据全量验证。
+
+    判据（战役表 metadata）：
+      (a) A/A 误报率 ≤ 5%（含 95% 二项 CI 上界报告）
+      (b) 已知合成效应（d=0.5, n=20）检出率 ≥ 70%（功效正控）
+      (c) 六维 FWER 在 20 个随机零效应族上 ≤ 0.06
+      (d) MDE(n) 单调下降且与解析近似（2.8σ/√n 配对）偏差 ≤ 10%
+      (e) P1/P2 回溯报告给出明确三态判定（可判/不可判/需 n=?），不得含糊
+    """
+
+    def test_a_aa_fpr_with_ci_upper(self):
+        """(a) A/A 误报率 ≤ 5%，且 95% CI 上界被报告。"""
+        r = aa_null_control(
+            n_sims=100, n_pairs=20, n_perm=999,
+            alpha=0.05, seed=0, min_dims=2,
+            stability_seeds=(0, 1, 2),
+        )
+        family_fpr = r["primary"]["family_ge_min_dims"]["p_hat"]
+        assert family_fpr <= 0.05, f"A/A 族误报率 {family_fpr} > 5%"
+        assert r["pass"] is True
+        # CI 上界必须被报告（不是 NaN）
+        assert r["ci_upper_family"] is not None
+        assert r["ci_upper_family"] >= family_fpr
+        # 逐维误报率也须 ≤ α
+        per_dim_max = max(v["p_hat"] for v in r["pooled"]["per_dim"].values())
+        assert per_dim_max <= 0.05
+
+    def test_b_power_positive_d05_n20(self):
+        """(b) d=0.5, n=20 检出率 ≥ 70%。"""
+        r = power_positive_control(
+            d=0.5, n_pairs=20, rho=0.7,
+            n_sims=300, n_perm=499, alpha=0.05,
+            alternative="greater", seed=0,
+        )
+        assert r["detection_rate"] >= 0.70, (
+            f"检出率 {r['detection_rate']} < 70%"
+        )
+        # 与解析功效同量级（±15%）
+        assert abs(r["detection_rate"] - r["analytic_power_normal_t"]) <= 0.15
+
+    def test_c_fwer_20_families(self):
+        """(c) 六维 FWER 在 20 个随机零效应族上 ≤ 0.06。"""
+        r = null_family_sim(
+            n_families=20, n_pairs=20, n_perm=999,
+            alpha=0.05, seed=0, min_dims=1,
+            alternative="greater",
+        )
+        assert r["family_any"]["p_hat"] <= 0.06, (
+            f"FWER {r['family_any']['p_hat']} > 0.06"
+        )
+        assert r["per_dim_max_rate"] <= 0.06
+
+    def test_d_mde_monotone_and_within_10pct(self):
+        """(d) MDE(n) 单调下降且与解析近似偏差 ≤ 10%。"""
+        n_range = [10, 15, 20, 30, 40, 60]
+        curve = mde_curve(
+            alpha=0.05, power=0.8, n_range=n_range,
+            n_perm=1000, seed=42,
+        )
+        mdes = [pt["mde"] for pt in curve if pt["mde"] is not None]
+        assert len(mdes) == len(n_range)
+        # 单调下降
+        assert all(mdes[i] <= mdes[i - 1] + 1e-9 for i in range(1, len(mdes)))
+        # 与解析近似（2.8σ/√n）偏差 ≤ 10%
+        coeff = mde_coefficient(0.05, 0.8, two_sided=True)
+        for pt in curve:
+            n = pt["n"]
+            mde = pt["mde"]
+            if mde is None:
+                continue
+            analytic = coeff / math.sqrt(n)
+            dev = abs(mde - analytic) / analytic
+            assert dev <= 0.10, f"n={n}: MDE={mde}, 解析={analytic}, 偏差={dev:.1%}"
+
+    def test_e_p1p2_three_state_verdict(self):
+        """(e) P1/P2 回溯报告给出明确三态判定（可判/不可判/需 n=?）。"""
+        rng = random.Random(42)
+        for label, n in [("P1", 8), ("P2", 12)]:
+            ctrl = {}
+            treat = {}
+            for d in DIMENSIONS:
+                base = [rng.gauss(0, 1) for _ in range(n)]
+                ctrl[d] = base
+                treat[d] = [c + 0.4 + rng.gauss(0, 0.6) for c in base]
+
+            records = []
+            for d in DIMENSIONS:
+                for i in range(n):
+                    records.append({
+                        "lineage": f"L{label}", "seat": f"S{i}",
+                        "arm": "control", "dimension": d,
+                        "value": ctrl[d][i], "unit": "unit",
+                        "source": f"runs/{label}/ctrl",
+                    })
+                    records.append({
+                        "lineage": f"L{label}", "seat": f"S{i}",
+                        "arm": "treatment", "dimension": d,
+                        "value": treat[d][i], "unit": "unit",
+                        "source": f"runs/{label}/treat",
+                    })
+
+            adv = six_dim_advantage(
+                records, min_dims=2, alpha=0.05,
+                n_perm=1000, seed=42,
+            )
+            n_sig = adv["n_significant_better"]
+            n_required = min_n_for_effect(0.5, alpha=0.05, power=0.8)
+
+            # 三态判定必须明确：可判 / 不可判（需 n=?）
+            if n_sig >= 2:
+                assert adv["decision_pass"] is True
+            else:
+                assert adv["decision_pass"] is False
+                assert n_required is not None, "需 n=? 必须给出"
+                assert n < n_required, (
+                    f"{label}: n={n} 已 ≥ 所需 {n_required}，却仍不可判——判定矛盾"
+                )
