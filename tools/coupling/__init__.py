@@ -26,6 +26,19 @@ from .clock import (
     TimeSeriesExchange,
 )
 from .conservation import ConservationMetrics, GateResult, check, measure
+from .conservation_check import (
+    ContractError,
+    DiffusionInterfaceCase,
+    OrderCertificate,
+    SegmentMesh,
+    contract_gate,
+    diffusion_interface_case,
+    load_contract,
+    order_certificate,
+    relative_residual,
+    transfer,
+    validate_contract,
+)
 from .mesh import BoxMesh, Field, MeshError, QuantityKind
 from .multiphysics import (
     Block,
@@ -70,6 +83,17 @@ from .twin import TwinSpec, diffusion_step, run_twin
 
 __all__ = [
     "Block",
+    "ContractError",
+    "DiffusionInterfaceCase",
+    "OrderCertificate",
+    "SegmentMesh",
+    "contract_gate",
+    "diffusion_interface_case",
+    "load_contract",
+    "order_certificate",
+    "relative_residual",
+    "transfer",
+    "validate_contract",
     "CoupledRun",
     "InterfaceCase",
     "acceptance_record",
