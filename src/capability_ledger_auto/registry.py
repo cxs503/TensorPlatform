@@ -41,6 +41,8 @@ class CapabilityDef:
         报告匹配正则模式（用于在 tensor_reports/ 下搜索报告）。
     initial_level : str
         初始等级（默认 WITHHELD）。
+    code_roots : list[str]
+        该能力的代码扫描根（可覆盖扫描器默认；空表示用默认布局根）。
     """
     capability_id: str
     label: str
@@ -50,6 +52,7 @@ class CapabilityDef:
     test_patterns: list[str] = field(default_factory=list)
     report_patterns: list[str] = field(default_factory=list)
     initial_level: str = "WITHHELD"
+    code_roots: list[str] = field(default_factory=list)
 
     def __post_init__(self):
         # 验证证据类型
@@ -96,6 +99,7 @@ class CapabilityRegistry:
                 test_patterns=cap_raw.get("test_patterns", []),
                 report_patterns=cap_raw.get("report_patterns", []),
                 initial_level=cap_raw.get("initial_level", "WITHHELD"),
+                code_roots=list(cap_raw.get("code_roots", [])),
             )
             registry.capabilities[cap.capability_id] = cap
 
@@ -157,6 +161,7 @@ class CapabilityRegistry:
                     "test_patterns": c.test_patterns,
                     "report_patterns": c.report_patterns,
                     "initial_level": c.initial_level,
+                    "code_roots": list(c.code_roots),
                 }
                 for cid, c in self.capabilities.items()
             },
