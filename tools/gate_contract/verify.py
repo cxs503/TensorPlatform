@@ -21,6 +21,10 @@ C05    指针可解析出有限数字                  pointer_unresolved     WI
 C06    数字可由工件复算（禁手抄/只贴日志）    pointer_missing/measured_mismatch  WITHHELD
 C07    阈值与权威登记表一致（禁改宽）        threshold_mismatch     WITHHELD
 C08    阈值判定                              threshold_violated     FAIL
+G04    判据集合完整（登记表⊆门，禁删判据）    criterion_dropped      WITHHELD
+G05    判据 id 不重复                        criterion_duplicate    WITHHELD
+C09    工件路径不越出门口（禁绝对/../软链）  artifact_path_escape   WITHHELD
+G06    权威登记表在位（缺=没有权威）          registry_missing       WITHHELD
 =====  ====================================  ==========  ===============================
 
 优先级：任一 WITHHELD 级缺口 → 整体 WITHHELD（不知道 ≠ 通过）；
@@ -47,6 +51,8 @@ INTEGRITY_CODES = frozenset({
     "artifact_sha_mismatch", "artifact_unparsable", "pointer_unresolved",
     "pointer_missing", "measured_mismatch", "threshold_mismatch",
     "threshold_invalid", "value_not_finite", "value_not_numeric", "scale_invalid",
+    "criterion_dropped", "criterion_duplicate", "artifact_path_escape",
+    "registry_tampered", "gate_ambiguous",
 })
 
 _REQUIRED_GATE_KEYS = {"schema_version", "gate_id", "mission_id", "criteria"}
@@ -84,9 +90,16 @@ def _registry_entry(registry: dict | None, gate_id: str | None) -> dict | None:
     return entry if isinstance(entry, dict) else None
 
 
-def _check_registry(gate: dict, registry: dict | None) -> dict | None:
-    """权威登记表比对：算子/阈值/单位必须与登记表逐字一致（防「阈值被改宽」）。"""
+def _check_registry(gate: dict, registry: dict | None, *,
+                    require: bool = True) -> dict | None:
+    """权威登记表比对：算子/阈值/单位必须与登记表逐字一致（防「阈值被改宽」）。
+
+    ``require=True``（默认）时**没有登记表就等于没有权威 → WITHHELD**：
+    否则「删掉登记表」本身就是一条免检通道（监管者可被生产者摘掉）。
+    """
     if registry is None:
+        if require:
+            raise ContractError("registry_missing", "registry_not_supplied")
         return None
     entry = _registry_entry(registry, gate.get("gate_id"))
     if entry is None:
@@ -96,12 +109,23 @@ def _check_registry(gate: dict, registry: dict | None) -> dict | None:
 
 def verify_gate(gate_path: str | Path | None = None, *, gate_doc: dict | None = None,
                 gate_json_text: str | None = None, registry: dict | None = None,
-                evidence_root: str | Path | None = None) -> dict:
-    """复算一份 gate.json。返回判定字典（可 JSON 序列化、可逐判据入台账）。"""
+                evidence_root: str | Path | None = None,
+                require_registry: bool = True,
+                pre_issues: list[dict] | None = None) -> dict:
+    """复算一份 gate.json。返回判定字典（可 JSON 序列化、可逐判据入台账）。
+
+    ``pre_issues`` 让调用方把**在验算之前就已知的完整性缺陷**注进来
+    （如「同一 mission 出现两份门=判定对象不唯一」或「权威登记表被改」），
+    这些缺陷同样按 WITHHELD 处理——先验缺陷不能因为门本身写得漂亮而被忽略。
+    """
     issues: list[dict] = []
 
     def issue(code: str, criterion_id: str | None = None, detail: str = "") -> None:
         issues.append({"code": code, "criterion_id": criterion_id, "detail": detail})
+
+    for pre in (pre_issues or []):
+        issue(str(pre.get("code", "schema_invalid")), pre.get("criterion_id"),
+              str(pre.get("detail", "")))
 
     gate = gate_doc
     if gate is None and gate_json_text is not None:
@@ -135,7 +159,7 @@ def verify_gate(gate_path: str | Path | None = None, *, gate_doc: dict | None = 
         base = Path(evidence_root)
 
     try:
-        reg_entry = _check_registry(gate, registry)
+        reg_entry = _check_registry(gate, registry, require=require_registry)
     except ContractError as exc:
         issue(exc.code, None, exc.detail)
         reg_entry = None
@@ -144,6 +168,13 @@ def verify_gate(gate_path: str | Path | None = None, *, gate_doc: dict | None = 
     if not criteria:
         issue("criteria_missing", None, "empty")
 
+    seen_ids: set[str] = set()
+    for idx, entry in enumerate(criteria):
+        raw_id = entry.get("id") if isinstance(entry, dict) else None
+        if isinstance(raw_id, str) and raw_id:
+            if raw_id in seen_ids:
+                issue("criterion_duplicate", raw_id, "repeated_in_gate")
+            seen_ids.add(raw_id)
     rows: list[dict] = []
     for idx, entry in enumerate(criteria):
         cid = (entry.get("id") if isinstance(entry, dict) else None) or f"#{idx}"
@@ -196,7 +227,15 @@ def verify_gate(gate_path: str | Path | None = None, *, gate_doc: dict | None = 
             issue(exc.code, row["id"], exc.detail)
         rows.append(row)
 
-    return _finish(gate, gate_digest(gate), issues, rows, registry is not None, gate_path)
+    if reg_entry is not None:
+        registered = {str(k) for k in (reg_entry.get("criteria") or {})}
+        declared = {str(e.get("id")) for e in criteria
+                    if isinstance(e, dict) and e.get("id") is not None}
+        dropped = sorted(registered - declared)
+        if dropped:
+            issue("criterion_dropped", None, ",".join(dropped))
+    return _finish(gate, gate_digest(gate), issues, rows,
+                   registry is not None and reg_entry is not None, gate_path)
 
 
 def _finish(gate: dict | None, digest: str | None, issues: list[dict], rows: list[dict],
@@ -233,11 +272,13 @@ def _finish(gate: dict | None, digest: str | None, issues: list[dict], rows: lis
     }
 
 
-def verify_dir(gate_root: str | Path, *, registry: dict | None = None) -> list[dict]:
+def verify_dir(gate_root: str | Path, *, registry: dict | None = None,
+               require_registry: bool = True) -> list[dict]:
     """复算一个门目录下所有 ``*/gate.json``（字典序遍历，确定性）。"""
     root = Path(gate_root)
     out = []
     for path in sorted(root.glob("*/gate.json")):
-        res = verify_gate(path, registry=registry, evidence_root=path.parent)
+        res = verify_gate(path, registry=registry, evidence_root=path.parent,
+                          require_registry=require_registry)
         out.append(res)
     return out
