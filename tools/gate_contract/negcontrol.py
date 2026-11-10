@@ -10,6 +10,10 @@ threshold_widened  阈值被改宽到实测值一定通过（登记表比对能�
 sha_mismatch   工件内容被改而 sha256 未更新（复算能否抓到）
 missing_unit   缺单位（数字无物理可解释性）
 log_only       只贴日志文本，没有可复算数字/指针
+criterion_dropped  删掉过不了的判据（登记表⊆门 的完整性检查能否抓到）
+measured_handcopied 手抄一个更好看的实测数字（数字-工件复算能否抓到）
+path_escape    工件路径指到门外（绝对路径/``..`` 穿越）
+registry_omitted 把权威登记表摘掉再判（缺权威是否仍恒等降级为 WITHHELD）
 ============  ==============================================================
 
 假通过率 = 这些伪证据被判 PASS 的比例；要求恒为 0。
@@ -27,7 +31,8 @@ from typing import Any
 from .contract import canonical_json
 from .verify import PASS, verify_gate
 
-CLASSES = ("no_gate", "threshold_widened", "sha_mismatch", "missing_unit", "log_only")
+CLASSES = ("no_gate", "threshold_widened", "sha_mismatch", "missing_unit", "log_only",
+           "criterion_dropped", "measured_handcopied", "path_escape", "registry_omitted")
 PER_CLASS = 12
 
 
@@ -99,11 +104,14 @@ def build_cases(gate_dirs: list[Path], out_dir: str | Path, *,
             if case_dir.exists():
                 shutil.rmtree(case_dir)
             _copy_evidence(src, case_dir)
-            if cls == "no_gate":
+            if cls in ("no_gate", "registry_omitted"):
                 case_dir.mkdir(parents=True, exist_ok=True)
+                extra = {"registry_override": None} if cls == "registry_omitted" else {}
+                if cls == "registry_omitted":
+                    _write_case(case_dir, gate)
                 cases.append({"class": cls, "case": f"case_{i:02d}",
                               "gate_dir": str(case_dir), "expect": "not_pass",
-                              "source_gate": src.name})
+                              "source_gate": src.name, **extra})
                 continue
             fake = copy.deepcopy(gate)
             if cls == "threshold_widened":
@@ -118,6 +126,24 @@ def build_cases(gate_dirs: list[Path], out_dir: str | Path, *,
             elif cls == "missing_unit":
                 for crit in fake.get("criteria", []):
                     crit.pop("unit", None)
+            elif cls == "criterion_dropped":
+                crit = fake.get("criteria") or []
+                if crit:
+                    crit.pop(len(crit) - 1 - (i % min(len(crit), 3)))
+            elif cls == "measured_handcopied":
+                for crit in fake.get("criteria", []):
+                    val = crit.get("measured")
+                    if isinstance(val, (int, float)) and not isinstance(val, bool):
+                        crit["measured"] = float(val) * 0.5  # 更好看的手抄数字
+            elif cls == "path_escape":
+                for crit in fake.get("criteria", []):
+                    art = crit.get("artifact") or {}
+                    name = str(art.get("path") or "").split("/")[-1]
+                    if i % 2 == 0:
+                        art["path"] = str((src / "evidence" / name).resolve())  # 绝对路径
+                    else:
+                        art["path"] = f"../{src.name}/evidence/{name}"  # .. 穿越
+                    crit["artifact"] = art
             elif cls == "log_only":
                 fake["criteria"] = [
                     {"id": c.get("id"), "log": "all good, see console output",
@@ -137,8 +163,9 @@ def measure_cases(cases: list[dict], registry: dict | None,
     false_pass = 0
     for case in cases:
         gate_path = Path(case["gate_dir"]) / "gate.json"
+        reg = case["registry_override"] if "registry_override" in case else registry
         res = verify_gate(gate_path if gate_path.is_file() else None,
-                          registry=registry,
+                          registry=reg,
                           evidence_root=Path(case["gate_dir"]))
         if res["grade"] == PASS:
             false_pass += 1

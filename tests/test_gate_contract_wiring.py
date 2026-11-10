@@ -39,9 +39,25 @@ def _synthetic_gate(root: Path, mission_id: int, *, value: float, sha_ok: bool =
     (gate_dir / "gate.json").write_text(json.dumps(gate), encoding="utf-8")
 
 
+def _registry_from_tree(root: Path) -> dict:
+    reg = {"schema_version": "gate-criteria-registry/1.0", "gates": {}}
+    for path in sorted(Path(root).glob("*/gate.json")):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        reg["gates"][doc["gate_id"]] = {
+            "mission_id": doc.get("mission_id"),
+            "criteria": {c["id"]: {"op": c.get("op"), "threshold": c.get("threshold"),
+                                   "unit": c.get("unit")} for c in doc.get("criteria", [])},
+        }
+    return reg
+
+
 def _policy(tmp: Path) -> dict:
+    """带权威登记表（缺表=fail-closed WITHHELD，这是本波硬化的语义）。"""
+    reg_path = tmp / "registry.json"
+    reg_path.write_text(json.dumps(_registry_from_tree(tmp / "gates")), encoding="utf-8")
     return {"mode": "enforce", "gate_root": str(tmp / "gates"),
-            "registry": "", "ledger_db": str(tmp / "ledger.db"), "_repo_root": str(tmp)}
+            "registry": str(reg_path), "ledger_db": str(tmp / "ledger.db"),
+            "_repo_root": str(tmp)}
 
 
 def test_backend_service_blocks_and_describes(tmp_path):
@@ -83,6 +99,7 @@ def test_auto_approver_hook_escalates_withheld(tmp_path, monkeypatch):
 def test_auto_approver_hook_returns_none_when_module_missing(monkeypatch):
     approver = _load(REPO_ROOT / "tools" / "agent" / "auto_approver.py", "auto_approver_mod2")
     import tools.gate_contract.acceptance as acc
+
     def boom(*a, **k):
         raise RuntimeError("gate module down")
     monkeypatch.setattr(acc, "precheck_mission", boom)
