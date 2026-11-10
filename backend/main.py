@@ -709,6 +709,25 @@ async def http_exception_handler(request: Request, exc: HTTPException):
     return JSONResponse(status_code=exc.status_code, content={"detail": exc.detail}, headers=exc.headers)
 
 
+# ── 能力证据自动升级管线（P218-N01）─────────────────────────────────────────
+# 证据入库 → 同调用内自动重判 → 台账自愈（WITHHELD→REAL）。域无关：能力位与
+# 验收判据全部来自配置/工件注入。挂载失败不得拖垮主应用。
+try:  # pragma: no cover - 环境相关
+    from tools.capability_upgrade.api import build_router as _capability_upgrade_router
+    from tools.capability_upgrade.pipeline import EvidencePipeline as _CapabilityPipeline
+    from tools.capability_upgrade.store import Store as _CapabilityStore
+
+    _capability_store = _CapabilityStore()
+    _capability_pipeline = _CapabilityPipeline(_capability_store)
+    app.include_router(
+        _capability_upgrade_router(_capability_pipeline, _capability_store),
+        prefix="/api/v1/capability-upgrade",
+    )
+    logger.info("capability-upgrade API mounted at /api/v1/capability-upgrade")
+except Exception:  # pragma: no cover
+    logger.warning("capability-upgrade API not mounted", exc_info=True)
+
+
 @app.exception_handler(StarletteHTTPException)
 async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Record multipart/parser errors that are raised before route validation."""
