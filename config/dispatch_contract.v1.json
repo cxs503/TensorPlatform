@@ -1,0 +1,51 @@
+{
+  "schema_version": "dispatch-contract-gate/v1",
+  "contract_version": "dispatch-contract/v1",
+  "purpose": "pre-dispatch fail-closed contract gate: 判定一次派单声明的 input_contract 是否已被上游交付满足；零领域语义，全部规则来自本配置与 schema",
+  "required_top_level": ["node_id", "contract_version", "input_contract", "output_contract"],
+  "requirement_required_keys": ["kind", "ref"],
+  "requirement_kinds": ["upstream_delivery", "artifact", "schema"],
+  "satisfied_upstream_status": ["succeeded"],
+  "non_terminal_status": ["queued", "running", "awaiting_pr_merge"],
+  "blocked_status": ["failed", "stopped"],
+  "unit_aliases": {
+    "m": ["m", "meter", "metre"],
+    "s": ["s", "sec", "second"],
+    "kg": ["kg", "kilogram"],
+    "N": ["N", "newton"],
+    "Pa": ["Pa", "pascal"],
+    "rad": ["rad", "radian"],
+    "deg": ["deg", "degree"],
+    "Hz": ["Hz", "hertz"],
+    "W": ["W", "watt"],
+    "m/s": ["m/s", "m s^-1", "m*s^-1", "ms-1"],
+    "m^2": ["m^2", "m2", "m**2"],
+    "m^3": ["m^3", "m3", "m**3"],
+    "ratio": ["ratio", "1", "-", "dimensionless"],
+    "%": ["%", "pct", "percent"]
+  },
+  "version_compat_rule": "major_equal_and_minor_at_least",
+  "gate": {
+    "block_when_any_required_unmet": true,
+    "score_threshold": 0.0,
+    "weights": {"upstream_delivery": 1.0, "artifact": 1.0, "schema": 1.0},
+    "degrade_on_missing_contract": "identity_pass",
+    "degrade_on_invalid_dispatch": "identity_pass"
+  },
+  "corpus": {
+    "population_goal_marker": "战役 DAG 节点",
+    "reference_patterns": ["mission[ _]?(?:id[=: ]*)?(\\d{3,5})", "\\bm(\\d{4,5})\\b"],
+    "artifact_path_patterns": ["\\b((?:artifacts|runs|validation|data|docs|tests)/[\\w./\\-]+\\.[A-Za-z0-9]{1,6})\\b"],
+    "input_path_prefixes": ["artifacts/", "runs/", "validation/", "data/"],
+    "output_path_prefixes": ["docs/", "tests/"],
+    "criteria_patterns": ["误差\\s*[<≤]", "[<≤]\\s*\\d+(?:\\.\\d+)?\\s*\\[", "判据\\s*[①-⑩1-9]", "pytest", "assert"],
+    "max_goal_chars": 200000,
+    "self_reference_tolerance": true
+  },
+  "backtest": {
+    "label_blocked_definition": "terminal status in blocked_status",
+    "secondary_label_definition": "blocked_status or (succeeded with zero delivered artifacts)",
+    "split": {"method": "mission_id_parity", "train_parity": 0},
+    "negative_control": {"shuffles": 200, "seed": 20261110, "balanced_design": true}
+  }
+}
