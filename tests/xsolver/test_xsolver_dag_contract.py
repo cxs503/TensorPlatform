@@ -36,7 +36,10 @@ def test_c6_payload_matches_the_real_dag_model(xsolver, snapshot_corpus):
     report = xsolver.adjudicate.adjudicate(copy.deepcopy(snapshot_corpus))
     document = xsolver.dag_consumer.build_verdict_document(report, "wigley3_total_drag")
     payload = document["node_verdict_payload"]
-    assert NodeVerdictUpdate(**payload).model_dump() == payload
+    # The API model carries optional extras (``metrics`` / ``metric_name``) with their own
+    # defaults, so full round-trip equality is not the invariant we can hold: what we send
+    # must survive validation *unchanged*, which is what this asserts.
+    assert NodeVerdictUpdate(**payload).model_dump(include=set(payload)) == payload
     with pytest.raises(Exception):
         NodeVerdictUpdate(reproduction_verdict="withheld", block_reason=None)
 
@@ -144,7 +147,9 @@ def test_e2e_acceptance_run_on_snapshot(xsolver, snapshot_corpus, tmp_path, monk
     ids = [c["id"] for c in acceptance["criteria"]]
     assert ids == ["C1_schema_coverage", "C2_conservation_residuals",
                    "C3_cross_solver_adjudication", "C4_negative_controls",
-                   "C5_traceability", "C6_dag_consumption"]
+                   "C5_traceability", "C6_dag_consumption",
+                   # wave 2: two live harvests of the same sources must fingerprint equal
+                   "C7_reproducibility"]
     assert acceptance["verdicts"], "the DAG payloads must be present in the result"
     for verdict in acceptance["verdicts"]:
         assert verdict["reproduction_verdict"] in ("pass", "fail")
@@ -197,7 +202,10 @@ def test_e2e_artifacts_on_disk_are_consistent(xsolver):
 
     acceptance = json.loads(acceptance_path.read_text(encoding="utf-8"))
     assert acceptance["overall_status"] in ("PASS", "FAIL")
-    assert [c["id"] for c in acceptance["criteria"]][-1] == "C6_dag_consumption"
+    ids = [c["id"] for c in acceptance["criteria"]]
+    assert "C6_dag_consumption" in ids
+    # a committed acceptance artifact must state which node/run produced it
+    assert acceptance["node"] and acceptance["mission_id"]
     probe = acceptance.get("probe") or {}
     if probe:
         assert probe["provenance"]["verified"] is True, \
