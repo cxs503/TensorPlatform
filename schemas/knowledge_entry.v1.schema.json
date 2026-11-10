@@ -1,0 +1,162 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "knowledge_entry.v1.schema.json",
+  "title": "Knowledge Entry — Four-Contract Schema",
+  "description": "Structured knowledge entry with four contracts: problem, method, evidence, conclusion. Auto-extracted from finish() calls and historical reports.",
+  "type": "object",
+  "required": ["entry_id", "version", "problem_statement", "methodology", "evidence_chain", "conclusion", "provenance"],
+  "additionalProperties": false,
+  "properties": {
+    "entry_id": {
+      "type": "string",
+      "pattern": "^ke_[0-9a-f]{16}$",
+      "description": "Unique knowledge entry identifier (ke_ + 16 hex chars)"
+    },
+    "version": {
+      "type": "string",
+      "const": "1.0",
+      "description": "Schema version"
+    },
+    "created_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "ISO-8601 creation timestamp"
+    },
+    "problem_statement": {
+      "type": "object",
+      "required": ["goal", "context"],
+      "additionalProperties": false,
+      "properties": {
+        "goal": {"type": "string", "minLength": 5, "description": "What problem this knowledge addresses"},
+        "context": {"type": "string", "description": "Background and motivation"},
+        "beneficiary": {"type": "string", "description": "Who benefits from this knowledge"},
+        "domain": {"type": "string", "description": "Application domain (e.g., resistance, ice, structural)"},
+        "tags": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Categorization tags"
+        }
+      }
+    },
+    "methodology": {
+      "type": "object",
+      "required": ["approach"],
+      "additionalProperties": false,
+      "properties": {
+        "approach": {"type": "string", "minLength": 5, "description": "Method/approach used"},
+        "tools": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Tools/frameworks used"
+        },
+        "parameters": {
+          "type": "object",
+          "description": "Key parameters and settings",
+          "additionalProperties": true
+        },
+        "assumptions": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Assumptions made"
+        }
+      }
+    },
+    "evidence_chain": {
+      "type": "object",
+      "required": ["artifacts"],
+      "additionalProperties": false,
+      "properties": {
+        "artifacts": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["path"],
+            "properties": {
+              "path": {"type": "string"},
+              "sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "type": {"type": "string", "enum": ["report", "test_log", "code", "data", "figure", "config"]}
+            }
+          },
+          "description": "Evidence artifacts with provenance"
+        },
+        "metrics": {
+          "type": "object",
+          "description": "Quantitative results",
+          "additionalProperties": true
+        },
+        "test_results": {
+          "type": "object",
+          "properties": {
+            "total": {"type": "integer"},
+            "passed": {"type": "integer"},
+            "failed": {"type": "integer"},
+            "coverage_pct": {"type": "number"}
+          }
+        }
+      }
+    },
+    "conclusion": {
+      "type": "object",
+      "required": ["summary"],
+      "additionalProperties": false,
+      "properties": {
+        "summary": {"type": "string", "minLength": 5, "description": "One-line conclusion"},
+        "outcome": {"type": "string", "enum": ["success", "partial", "fail", "honest_fail"], "description": "Task outcome"},
+        "key_findings": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Key findings"
+        },
+        "limitations": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Known limitations"
+        },
+        "next_steps": {
+          "type": "array",
+          "items": {"type": "string"},
+          "description": "Recommended next steps"
+        }
+      }
+    },
+    "uncertainty": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "confidence": {"type": "string", "enum": ["high", "medium", "low", "unknown"]},
+        "confidence_score": {"type": "number", "minimum": 0, "maximum": 1},
+        "sources_of_uncertainty": {
+          "type": "array",
+          "items": {"type": "string"}
+        },
+        "validation_status": {"type": "string", "enum": ["validated", "partial", "unvalidated", "falsified"]}
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": ["source_type", "source_id"],
+      "additionalProperties": false,
+      "properties": {
+        "source_type": {"type": "string", "enum": ["finish_call", "report_extract", "manual", "backfill"]},
+        "source_id": {"type": "string", "description": "Mission ID, report path, or manual entry ID"},
+        "repo": {"type": "string"},
+        "branch": {"type": "string"},
+        "commit": {"type": "string"},
+        "agent_id": {"type": "string"},
+        "extractor_version": {"type": "string"},
+        "extraction_timestamp": {"type": "string", "format": "date-time"}
+      }
+    },
+    "relations": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["target_id", "relation_type"],
+        "properties": {
+          "target_id": {"type": "string"},
+          "relation_type": {"type": "string", "enum": ["supports", "refutes", "extends", "supersedes", "derived_from", "related"]}
+        }
+      }
+    }
+  }
+}
