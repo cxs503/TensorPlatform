@@ -1,26 +1,28 @@
-"""Mechanism Replay Consistency Suite (p348w2-n02).
+#!/usr/bin/env python3
+"""机制重放一致性套件（mech_replay）：平台门禁机制的历史重放 golden 套件 + 变异检测。
 
-Golden-fixture replay + 6-type degradation mutation testing for platform
-gate/mechanism pure functions.  Zero DB, zero network, zero domain vocabulary.
+模块地图
+--------
+* :mod:`tools.mech_replay.spec`        —— 声明式规则表 + 纯函数解释器（判词骨架）
+* :mod:`tools.mech_replay.mechanisms`  —— 8 个核心机制的规则表与纯函数入口 ``judge``
+* :mod:`tools.mech_replay.reference`   —— 8 个机制的独立第二实现（差分用，防自证）
+* :mod:`tools.mech_replay.collector`   —— 真实战役记录 → 脱敏 fixture + sha256 清单
+* :mod:`tools.mech_replay.replay`      —— 离线重放 + 判词 diff + 幂等/置换对校验
+* :mod:`tools.mech_replay.mutate`      —— 6 类退化注入与检出率度量
+* :mod:`tools.mech_replay.gate`        —— C1–C5 机器门（CI 绿/红 + 报告 JSON）
+* :mod:`tools.mech_replay.figures`     —— 报告图（覆盖/检出矩阵/一致性）
 
-Mechanisms covered (5):
-  1. maturity_gate_verdict  — campaign_verdict() → PASS/FAIL/WITHHELD
-  2. evidence_comparator    — compare() → bool (threshold predicate)
-  3. evidence_grader        — grade_contract() → grade dict
-  4. drift_classifier       — classify_drift_fingerprint() → drift class
-  5. perf_gate_case         — evaluate_case() → Verdict
-
-Degradation types (6):
-  M1  threshold_relax     — threshold widened by 20%
-  M2  exception_swallow   — errors caught, default returned
-  M3  order_permutation   — input list order shuffled
-  M4  idempotency_break   — second call returns different result
-  M5  audit_field_drop    — output key silently removed
-  M6  short_circuit_const — always returns a constant
-
-Usage:
-    python -m tools.mech_replay --mechanism <name> --fixtures <dir>
-    python -m tools.mech_replay --collect --out artifacts/mech_replay/fixtures
-    python -m tools.mech_replay --mutate --mechanism <name>
-    pytest tests/test_mech_replay.py -v
+快速用法
+--------
+    python3 -m tools.mech_replay --mode replay --fixtures artifacts/mech_replay/fixtures
+    python3 -m tools.mech_replay --mode gate
+    python3 -m tools.mech_replay --mode mutate --mechanism merge_gate
+    python3 -m tools.mech_replay --mode collect --snapshot artifacts/mech_replay/sources_snapshot.json
 """
+
+from __future__ import annotations
+
+from tools.mech_replay import mechanisms, reference, spec  # noqa: F401
+
+__all__ = ["mechanisms", "reference", "spec"]
+__version__ = "1.0.0"
