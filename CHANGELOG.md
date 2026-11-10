@@ -3,6 +3,21 @@
  CHANGELOG.md - 示例组织 AI 平台改进记录
 """
 
+## [Unreleased] - 2026-11-10 · IN50-W4-N09 WITHHELD 三态清偿闭环
+
+- 新增 `tools/vv/withheld_gates.py`（零领域语义）：把 WITHHELD 做成可清偿债务——
+  门工件 `requires_reference` 声明 dataset/tol/k/实测值 → `tensor_reference_datasets`
+  登记（DOI + 原始文件 sha256 + 数字化方法 + `u_dig`）→ 自动重判
+  `|E| ≤ max(tol, k·sqrt(u_exp²+u_dig²))`（三态保留）→ 哈希链审计（append-only）。
+- 反作弊三重防线：契约字段规范化 sha256 基线（重判时指纹不符 ⇒ FAIL + `TAMPER_BLOCKED`）、
+  生效容差取 `min(基线, 现行)`（只可收紧）、库层触发器禁止 UPDATE 契约列 / UPDATE-DELETE 审计行。
+- 新增 `backend/migrations/113_withheld_gates.sql`（表 + 触发器 + `v_withheld_gates_open` 视图 + KPI 索引）。
+- KPI 落 `tensor_guide_tracker`：`withheld_gate_share`、`withheld_mean_age_days`（小时桶幂等）；
+  未清偿门按 `(repo, dataset_id, age)` 合并派单，工单号幂等（`WO-sha256(repo|dataset_id)[:12]`）。
+- 新增 `tests/test_withheld_gate_clearing.py`（26 用例，含迁移列 parity / CLI 端到端）与
+  `tools/vv/withheld_gates_demo.py`（12 天合成战役 → `artifacts/withheld_gates/` 工件 + 3 图 + 报告）。
+- 修：KPI 账龄时钟回拨/未来声明不再产出负账龄（会把均值拉低成"假清偿"）。
+
 ## [Unreleased] - 2026-11-10 · p228w1-N10 自主续航运维矩阵
 
 - 新增 `tools/sustainment/`（零领域语义，四模块独立可调用）：工件血缘 DAG（sha256 + 证据分级边 +
