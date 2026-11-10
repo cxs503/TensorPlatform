@@ -1,0 +1,67 @@
+{
+  "artifacts": {
+    "cfg": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/cfg.json",
+    "checkpoints": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/work/checkpoints",
+    "flight_log": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/forensics/flight.log",
+    "journal": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/forensics/journal.jsonl",
+    "result": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/result.json",
+    "resume_audit": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/work/resume_audit.jsonl"
+  },
+  "bundle_completeness": {
+    "completeness": 1.0,
+    "fields": {
+      "classification_reasons": true,
+      "code_version": true,
+      "core_file": true,
+      "ended_unix": true,
+      "exit_code": true,
+      "failure_mode": true,
+      "job_id": true,
+      "last_checkpoint_digest": true,
+      "memory_probe": true,
+      "pid": true,
+      "python_stack_snapshot": true,
+      "runtime_env": true,
+      "schema": true,
+      "started_unix": true,
+      "state_journal_tail": true,
+      "term_signal": true
+    },
+    "missing": [],
+    "present": 16,
+    "total": 16
+  },
+  "bundle_path": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/forensics/bundle_crash_segv.json",
+  "child": {
+    "degradations": null,
+    "final_checkpoint_digest": null,
+    "final_checkpoint_path": null,
+    "final_step": null,
+    "finished": null,
+    "idempotency_key": null,
+    "in_thread_overhead_ns": null,
+    "ladder": null,
+    "result_digest": null,
+    "resumed_from_step": null,
+    "stop_reason": null,
+    "wall_s": null
+  },
+  "classification_reasons": [
+    "fatal signal 11 stopped the process",
+    "siginfo.si_code=1",
+    "fault address 0x0"
+  ],
+  "core_summary": {
+    "n_native_frames": 19,
+    "status": "stackcore_only"
+  },
+  "crashed": true,
+  "exit_code": -11,
+  "failure_mode": "native_segfault",
+  "job_id": "crash_segv",
+  "report_path": "/tmp/p148w2_survival_daqu_na1/a1_crash/run/supervise_report.json",
+  "schema": "longrun.report/1",
+  "term_signal": 11,
+  "wall_s": 1.870095,
+  "workdir": "/tmp/p148w2_survival_daqu_na1/a1_crash/run"
+}

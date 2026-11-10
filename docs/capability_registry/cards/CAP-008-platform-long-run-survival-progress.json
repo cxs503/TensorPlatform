@@ -1,0 +1,228 @@
+{
+  "card_id": "CAP-008",
+  "name": "Long-run survival & progress maturity: crash-bundle forensics, bit-idempotent resume, budgeted progress metering, four-rung stall ladder, honest FAIL, memory-cap degradation",
+  "version": "1.0.0",
+  "repo": "TensorPlatform",
+  "discipline": "reporting",
+  "tags": [
+    "long-run",
+    "survival",
+    "forensics",
+    "checkpoint-resume",
+    "progress-meter",
+    "stall-detection",
+    "honest-fail",
+    "degradation"
+  ],
+  "interface": {
+    "format": "JSON",
+    "input": {
+      "job_config": {
+        "type": "json",
+        "description": "generic job config (grid/steps/checkpoint_every/seed plus optional crash injection)"
+      },
+      "budget": {
+        "type": "scalar",
+        "description": "consumed budget counter (iterations / node-seconds / tokens)"
+      },
+      "events": {
+        "type": "records",
+        "description": "artifact names+digests, criterion evaluations, measured information gain (bits)"
+      },
+      "memory_cap": {
+        "type": "bytes",
+        "description": "cap and measured RSS used by the degradation decision"
+      }
+    },
+    "output": {
+      "crash_bundle": {
+        "type": "directory",
+        "description": "artifacts/crash_<stamp>/ with siginfo, registers, stack, mappings, manifest, SHA256SUMS, digest"
+      },
+      "progress_report": {
+        "type": "json",
+        "description": "credits, budget_used, progress_rate, criteria, info gain, manual recount"
+      },
+      "stall_report": {
+        "type": "json",
+        "description": "detection position, four-rung ladder events, recoveries, append-only strategy blacklist"
+      },
+      "fail_record": {
+        "type": "json+md",
+        "description": "FAIL.json/FAIL.md with reason and the retained artifact digests (retention floor enforced)"
+      },
+      "degradation_report": {
+        "type": "json",
+        "description": "decision (threads/chunk), full-grid admissibility probe, peak RSS, relative L2 error"
+      }
+    }
+  },
+  "applicability": {
+    "parameter_domain": {
+      "budget_units": {
+        "min": 1,
+        "max": 10000000,
+        "unit": "iterations"
+      },
+      "stall_fraction": {
+        "min": 0.05,
+        "max": 0.5,
+        "unit": "fraction of budget"
+      },
+      "state_bytes_per_array": {
+        "min": 8,
+        "max": 10000000000.0,
+        "unit": "bytes"
+      },
+      "register_fields_captured": {
+        "min": 5,
+        "max": 256,
+        "unit": "registers"
+      }
+    },
+    "regime": "generic long-running compute jobs (>30 min): crash autopsy, resume after a fatal signal, stall/reroute policy, honest abort, memory-capped execution; domain-agnostic by construction",
+    "geometry_type": "n/a (domain-free machinery)",
+    "dimensionality": "N/A"
+  },
+  "dependencies": {
+    "code_version": "platform-survival/1.0.0 (tools/survival + tools/progress_meter on tools/longrun)",
+    "environment": {
+      "python": "3.11.6",
+      "platform": "Linux-6.6.52-1.7.lns23.loongarch64-loongarch64-with-glibc2.38"
+    },
+    "external_libraries": [
+      "numpy",
+      "gdb (crash autopsy only)"
+    ]
+  },
+  "resource_requirements": {
+    "gpu": false,
+    "min_gpu_memory_gb": null,
+    "min_cpu_cores": 1,
+    "min_ram_gb": 0.25,
+    "estimated_runtime_hours": 0.0042,
+    "storage_gb": 0.05
+  },
+  "validation_evidence": {
+    "verification_status": "PASS",
+    "report_id": "docs/platform_survival.md",
+    "anchor_type": "repo_file",
+    "anchor_path": "benchmarks/verified/platform_survival/results.json",
+    "report_body_sha256": "0110cbe1b621d0eaf7206339c7f82c0be093722027ce0e6012806356f0a3819f",
+    "report_md5": "c1c0a615248a9559a6bcfd169e087a9a",
+    "anchor_title": "P148W2-N01 acceptance results (10/10 machine-checked criteria)",
+    "anchor_fetched_at": "2026-11-10T18:27:08Z",
+    "doc_sha256": "ef61803a39252b2f7e8cd75ffc4228c474abfc65c41551db86b15caf191f030c",
+    "doc_md5": "8b56dc92173b05dde68d3f93bbb05a0d",
+    "reference_values": {
+      "a1_register_fields": {
+        "value": 44,
+        "tolerance": 0.0,
+        "source": "parsed machine registers in registers.json (threshold >= 5)"
+      },
+      "a1_stack_frames": {
+        "value": 38,
+        "tolerance": 0.0,
+        "source": "symbolized native frames in stack.txt"
+      },
+      "a1_bundle_verify_ok": {
+        "value": 1.0,
+        "tolerance": 0.0,
+        "source": "SHA256SUMS re-verified after copying the bundle"
+      },
+      "a2_resume_bit_identical": {
+        "value": 1.0,
+        "tolerance": 0.0,
+        "source": "sha256 of resumed final state == uninterrupted final state"
+      },
+      "a3_progress_rate_relative_error": {
+        "value": 0.0,
+        "tolerance": 0.05,
+        "source": "meter rate vs recount from artifacts on disk + external step counter"
+      },
+      "a4_first_detection_budget_fraction": {
+        "value": 0.25,
+        "tolerance": 0.3,
+        "source": "first stall detection position as a fraction of the budget"
+      },
+      "a5_post_reroute_artifacts": {
+        "value": 3,
+        "tolerance": 0.0,
+        "source": "artifacts emitted after the reroute action (threshold >= 1)"
+      },
+      "a6_retention_vs_produced": {
+        "value": 1.0,
+        "tolerance": 0.5,
+        "source": "retained / produced artifacts at honest-FAIL time"
+      },
+      "a7_full_run_equals_bare_job": {
+        "value": 1.0,
+        "tolerance": 0.0,
+        "source": "digest of the survival-layer full run vs the bare stepped job"
+      },
+      "a8_false_positive_stalls": {
+        "value": 0,
+        "tolerance": 0.0,
+        "source": "stall events on steady (5 %) and bursty (20 %) producers"
+      },
+      "a9_distinct_resume_digests": {
+        "value": 0,
+        "tolerance": 1.0,
+        "source": "distinct final digests across three idempotent resumes"
+      },
+      "a10_degraded_rel_error": {
+        "value": 0.0,
+        "tolerance": 0.05,
+        "source": "streamed single-thread field vs full-grid float64 reference (relative L2)"
+      },
+      "a10_threads_after_decision": {
+        "value": 1,
+        "tolerance": 1.0,
+        "source": "threads chosen by decide() under the memory cap"
+      }
+    },
+    "relative_error_pct": 0.0,
+    "relative_error_source": "bit-level identities (sha256 equality for resume/negative control) and measured recount/relative-L2 errors; all numerical criteria are below 3 %",
+    "tolerance_pct": 0.0,
+    "gap_reason": null,
+    "verification_status_note": "10/10 criteria pass; A2/A7 digests equal at bit level, A3 relative error 1.122e-16, A10 relative error 4.340e-16 under a 100663296 B cap with threads=1",
+    "quote_match": "\"all_passed\": true",
+    "quote_line_sha256": "018bc3d20fb0c2ad"
+  },
+  "failure_modes": [
+    {
+      "mode": "busy-but-barren long run (progress blindness)",
+      "symptom": "the process keeps consuming budget while emitting no artifact or passing no criterion; wall-clock liveness probes and heartbeats stay green, so the budget is burnt silently",
+      "mitigation": "progress is credited only against durable artifacts / passed criteria / measured information gain, and the stall detector fires on a budget-normalised barren window",
+      "severity": "critical"
+    },
+    {
+      "mode": "careless reroute without a declared alternative",
+      "symptom": "on a stall the agent improvises a new plan; the switch is unauditable and can loop back to the strategy that already starved",
+      "mitigation": "strategies are declared up-front in an ordered plan; a barren one is appended to an append-only blacklist that next() never returns",
+      "severity": "major"
+    },
+    {
+      "mode": "FAIL without evidence (retrospective loss)",
+      "symptom": "a run declares itself failed and stops, having discarded or never flushed partial artifacts, so the burnt budget yields nothing reusable",
+      "mitigation": "the live state is flushed as a final artifact before FAIL, and HonestFail.write() raises unless retention_vs_produced >= 0.5",
+      "severity": "critical"
+    },
+    {
+      "mode": "unverifiable crash bundle",
+      "symptom": "a stack dump is written but nothing proves it belongs to this run or was not edited afterwards; register files are regularly truncated to fewer than five fields",
+      "mitigation": "every file is hashed into SHA256SUMS, digest.json recomputes a location-independent bundle digest, registers.json records n_fields and an explicit sufficient flag",
+      "severity": "major"
+    },
+    {
+      "mode": "emulated memory cap mistaken for a cgroup",
+      "symptom": "the cap is enforced by an in-process allocator, so the reported peak RSS can exceed the cap (interpreter and library overhead is not part of the projection)",
+      "mitigation": "documented as a projection budget; both numbers (projected bytes and real VmHWM) are reported side by side and never conflated",
+      "severity": "minor"
+    }
+  ],
+  "created_at": "2026-11-10T18:27:08Z",
+  "updated_at": "2026-11-10T18:27:08Z",
+  "status": "active",
+  "notes": "Generated by benchmarks/verified/platform_survival/make_capability_card.py from results.json."
+}

@@ -56,6 +56,7 @@ def supervise(
     full_core: bool = False,
     max_core_bytes: int = 2 << 30,
     keep_oversize_core: bool = False,
+    full_registers: bool = False,
 ) -> Dict[str, Any]:
     """Run ``cfg`` under the guardian and return the full autopsy/report dict."""
     workdir = Path(workdir)
@@ -85,6 +86,7 @@ def supervise(
         full_core=full_core,
         max_core_bytes=max_core_bytes,
         keep_oversize_core=keep_oversize_core,
+        full_registers=full_registers,
     )
     ended = time.time()
     child_report: Dict[str, Any] = {}

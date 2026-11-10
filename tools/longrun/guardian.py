@@ -222,6 +222,7 @@ def capture_core(
     max_core_bytes: int = 2 << 30,
     keep_oversize: bool = False,
     siginfo: Optional[Dict[str, Any]] = None,
+    full_registers: bool = False,
 ) -> Dict[str, Any]:
     """Capture an autopsy of a frozen process. Two tiers, both hashed.
 
@@ -280,7 +281,8 @@ def capture_core(
         "-ex",
         "info proc mappings",
         "-ex",
-        "thread apply all info registers rip pc sp",
+        ("thread apply all info registers" if full_registers
+         else "thread apply all info registers rip pc sp"),
     ]
     if full_core:
         cmd += ["-ex", f"gcore {core_path}"]
@@ -421,6 +423,7 @@ def run_guarded(
     full_core: bool = False,
     max_core_bytes: int = 2 << 30,
     keep_oversize_core: bool = False,
+    full_registers: bool = False,
 ) -> GuardianResult:
     """Run ``exe``/``argv`` under ptrace supervision and perform an autopsy on fatality."""
     result = GuardianResult()
@@ -503,6 +506,7 @@ def run_guarded(
                 max_core_bytes=max_core_bytes,
                 keep_oversize=keep_oversize_core,
                 siginfo=result.siginfo,
+                full_registers=full_registers,
             )
             _dbg('capture_core done')
             try:

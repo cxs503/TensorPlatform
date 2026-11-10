@@ -1,0 +1,34 @@
+{
+  "decision": {
+    "chunk_rows": 96,
+    "degraded": true,
+    "headroom_bytes": 15099494,
+    "projected_bytes": 75497472,
+    "reason": "projected_footprint_exceeds_cap: single thread + row streaming",
+    "state_bytes": 18874368,
+    "threads": 1,
+    "usable_bytes": 67108864
+  },
+  "field_l2": 293.71724136357824,
+  "field_mean": -4.1609470369001115e-05,
+  "field_path": "/tmp/p148w2_survival_daqu_na1/a10_degrade/degraded_1536_100663296.npy",
+  "full_grid_probe": {
+    "attempted_bytes": 75497472,
+    "error": "capped_alloc: 75497472 B would exceed cap 100663296 B (rss 33554432 B)",
+    "full_grid_admissible": false
+  },
+  "iters": 6,
+  "mem_cap_bytes": 100663296,
+  "n": 1536,
+  "peak_rss_kb": 102928,
+  "rss_bytes_at_start": 33554432,
+  "schema": "survival.degrade/1",
+  "thread_env": {
+    "MKL_NUM_THREADS": "1",
+    "NUMEXPR_NUM_THREADS": "1",
+    "OMP_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1",
+    "VECLIB_MAXIMUM_THREADS": "1"
+  },
+  "wall_s": 0.8792
+}
