@@ -1026,3 +1026,131 @@ class TestFwerEmpiricalAA:
         a = fwer_aa_sim(n_families=20, n_pairs=8, n_perm=99, seed=9)
         b = fwer_aa_sim(n_families=20, n_pairs=8, n_perm=99, seed=9)
         assert a["per_correction"] == b["per_correction"]
+
+
+class TestTQuantileAccuracy:
+    """m8719 缺陷修复回归：``_t_ppf`` 的 Cornish-Fisher 一阶展开精度不足。
+
+    红：df=5 时 ``t_ppf(0.975)`` 偏 -5.30%（自述"<0.5%"），df=2 偏 -26.9%，
+    连带 ``analytic_mde`` 误差 1.57%、``min_n_for_effect(0.8)`` 少报一对（14 vs 15）。
+    绿：与 scipy 独立对照最大相对误差 9.4e-11（df∈[1,5000]）。
+    参照值表为标准 t 表（双侧 0.975 分位），来源 scipy.stats.t.ppf / 经典 t 表。
+    """
+
+    T975 = {  # df: t_{0.975, df}
+        1: 12.706204736174698,
+        2: 4.302652729749464,
+        5: 2.570581835636305,
+        8: 2.306004135204165,
+        10: 2.2281388519649385,
+        20: 2.0859634472658626,
+        30: 2.0422724563012373,
+        100: 1.9839715184496334,
+    }
+
+    def test_matches_standard_t_table(self):
+        from tools.abm.six_dim_power import _t_ppf
+
+        for df, want in self.T975.items():
+            got = _t_ppf(0.975, df)
+            assert abs(got - want) / want < 1e-6, f"df={df}: {got} vs {want}"
+
+    def test_old_cornish_fisher_error_is_gone(self):
+        """旧展开式在 df=5 上偏 >5%；新实现必须把该偏差压到 1e-6 以内。"""
+        from statistics import NormalDist
+
+        from tools.abm.six_dim_power import _t_ppf
+
+        z = NormalDist().inv_cdf(0.975)
+        old = z + (z ** 3 + z) / (4.0 * 5)
+        assert abs(old - self.T975[5]) / self.T975[5] > 0.05  # 复现旧缺陷
+        assert abs(_t_ppf(0.975, 5) - self.T975[5]) / self.T975[5] < 1e-6
+
+    def test_symmetry_and_domain(self):
+        from tools.abm.six_dim_power import _t_ppf
+
+        for df in (1, 3, 10, 50):
+            assert _t_ppf(0.25, df) == pytest.approx(-_t_ppf(0.75, df), rel=1e-9)
+            assert _t_ppf(0.5, df) == pytest.approx(0.0, abs=1e-12)
+        with pytest.raises(ValueError):
+            _t_ppf(1.5, 10)
+        with pytest.raises(ValueError):
+            _t_ppf(0.0, 10)
+
+    def test_min_n_for_effect_d08_recovers_15(self):
+        """d=0.8：精确 t 分位下需 15 对；旧实现报 14（设计欠功效）。"""
+        assert min_n_for_effect(0.8, alpha=0.05, power=0.8) == 15
+        assert analytic_power_paired(0.8, 14, alpha=0.05) < 0.8
+        assert analytic_power_paired(0.8, 15, alpha=0.05) >= 0.8
+
+    def test_analytic_round_trip_is_exact(self):
+        """精确 t 分位下 analytic_mde/analytic_power 往返误差应 <1e-6（旧实现 ~1e-2）。"""
+        for n in (9, 10, 14, 20, 60):
+            d = analytic_mde(n, alpha=0.05, power=0.8)
+            assert abs(analytic_power_paired(d, n, alpha=0.05) - 0.8) < 1e-6
+
+    def test_ci95_mean_coverage_near_nominal(self):
+        """CI 半宽用 t 分位：n=9 时覆盖率应贴近 95%（旧实现 94.2%）。"""
+        rng = random.Random(20260101)
+        n_sims, n, mu = 1500, 9, 0.3
+        covered = 0
+        for _ in range(n_sims):
+            eff = paired_effect([rng.gauss(mu, 1.0) for _ in range(n)])
+            lo, hi = eff["ci95_mean"]
+            if lo <= mu <= hi:
+                covered += 1
+        cov = covered / n_sims
+        assert 0.93 <= cov <= 0.97, f"n=9 覆盖率 {cov:.3f} 偏离名义 95% 过远"
+
+
+class TestHolmAdjustedPValueFidelity:
+    """m8719 缺陷修复回归：``_bonferroni_holm`` 在首个不显著后把调整 p 写成 1.0。
+
+    红：p=[0.001, 0.04, 0.05] 的第三维报 adjusted_p=1.0（真值 0.08）；
+    随机扫描 2000 组与同模块 ``holm_adjust`` 不一致率 50.05%（最大差 0.937）。
+    绿：不一致率 0，且拒绝判决逐维不变（修复只改数字不改判决）。
+    """
+
+    def test_known_case_matches_textbook_holm(self):
+        from tools.abm.six_dim_power import _bonferroni_holm
+
+        adj = _bonferroni_holm([0.001, 0.04, 0.05], 0.05)
+        assert adj == pytest.approx([0.003, 0.08, 0.08], rel=1e-12)
+
+    def test_two_implementations_agree(self):
+        from tools.abm.six_dim_power import _bonferroni_holm
+
+        rng = random.Random(20260101)
+        for _ in range(300):
+            m = rng.choice((2, 3, 6))
+            ps = [round(rng.random(), 6) for _ in range(m)]
+            legacy = _bonferroni_holm(list(ps), 0.05)
+            modern = holm_adjust({str(i): p for i, p in enumerate(ps)}, 0.05)
+            for i, p in enumerate(ps):
+                assert legacy[i] == pytest.approx(modern["adjusted"][str(i)], abs=1e-12), (ps, i)
+
+    def test_adjusted_p_is_monotone_in_rank(self):
+        from tools.abm.six_dim_power import _bonferroni_holm
+
+        ps = [0.008, 0.02, 0.03, 0.2, 0.4, 0.9]
+        adj = _bonferroni_holm(ps, 0.05)
+        by_rank = [a for _, a in sorted(zip(ps, adj))]
+        assert all(by_rank[i] >= by_rank[i - 1] - 1e-12 for i in range(1, len(by_rank)))
+
+    def test_decisions_unchanged_vs_sequential_rule(self):
+        """调整 p 修正后，拒绝判决必须与 Holm 逐步下降规则逐维一致。"""
+        from tools.abm.six_dim_power import _bonferroni_holm
+
+        rng = random.Random(424242)
+        alpha = 0.05
+        for _ in range(50):
+            m = rng.choice((3, 6))
+            ps = [rng.random() for _ in range(m)]
+            sequential = [False] * m
+            for rank, i in enumerate(sorted(range(m), key=lambda j: ps[j])):
+                if ps[i] <= alpha / (m - rank):
+                    sequential[i] = True
+                else:
+                    break
+            adjusted = _bonferroni_holm(ps, alpha)
+            assert [a <= alpha for a in adjusted] == sequential, (ps, adjusted, sequential)
