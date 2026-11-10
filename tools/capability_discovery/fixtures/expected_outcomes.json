@@ -1,0 +1,223 @@
+{
+  "note": "Recorded by `pytest -p tools.capability_discovery.plugin` on the synthetic fixture suite (tools/capability_discovery/fixtures/synthetic_suite). Used as a deterministic input for pipeline tests; tests/test_capability_discovery_plugin.py re-runs pytest and checks the live outcome map matches this record.",
+  "schema": "capability_discovery.outcomes.v1",
+  "session": {
+    "collected": 12,
+    "exitstatus": 1
+  },
+  "tests": [
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {}
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_bare_marker_case",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:quadratic"
+            ],
+            "id": "synth.case.contradiction",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_contradiction_case",
+      "outcome": "failed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:quadratic"
+            ],
+            "id": "synth.case.xfail",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_expected_failure_case",
+      "outcome": "xfailed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "id": "synth.claims.no_anchor",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_reals_need_an_anchor",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:richardson:order"
+            ],
+            "id": "synth.grid.richardson",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_richardson_param[16]",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:richardson:order"
+            ],
+            "id": "synth.grid.richardson",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_richardson_param[8]",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:quadratic"
+            ],
+            "id": "synth.case.skipped",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_skipped_case",
+      "outcome": "skipped"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:quadratic"
+            ],
+            "id": "synth.grid.trapezoid",
+            "label": "synthetic trapezoid rule vs closed form",
+            "level": "REAL",
+            "params": {
+              "n_samples": {
+                "max": 4096,
+                "min": 32
+              }
+            },
+            "tags": [
+              "numeric"
+            ]
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_trapezoid_matches_closed_form",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [
+            "synth.grid.trapezoid"
+          ],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:cubic"
+            ],
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_core.py::test_trapezoid_second_source",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "id": "synth.dynamic.value",
+            "level": "REAL"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_dynamic.py::test_dynamic_marker_value",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:pythagoras"
+            ],
+            "id": "synth.algebra.vector_norm",
+            "label": "synthetic norm identity",
+            "level": "REAL"
+          }
+        },
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:module:doc"
+            ],
+            "id": "synth.family.module_scope",
+            "level": "WITHHELD"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_family.py::TestVectorNorm::test_axis_aligned",
+      "outcome": "passed"
+    },
+    {
+      "markers": [
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:closed_form:pythagoras"
+            ],
+            "id": "synth.algebra.vector_norm",
+            "label": "synthetic norm identity",
+            "level": "REAL"
+          }
+        },
+        {
+          "args": [],
+          "kwargs": {
+            "anchors": [
+              "ref:module:doc"
+            ],
+            "id": "synth.family.module_scope",
+            "level": "WITHHELD"
+          }
+        }
+      ],
+      "nodeid": "tools/capability_discovery/fixtures/synthetic_suite/test_synthetic_family.py::TestVectorNorm::test_scaled",
+      "outcome": "passed"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema": "capability_discovery.policy.v1",
+  "title": "capability auto-discovery grading policy (conservative default)",
+  "note": "Evidence level is derived from pytest outcomes by data, not code branches. `passed` may reach the level a test declares; anything else is capped at WITHHELD. `undeclared_passed_level` keeps silent tests from claiming REAL, and `require_anchors_for` keeps un-anchored passing tests from claiming REAL. Edit this file to change the policy for an experiment; the digest of whatever policy was applied is stored in the ledger (capability_discovery ledger.doc.policy_digest) and in every grade, so a level can always be traced back to the rules that produced it.",
+  "outcome_levels": {
+    "passed": "declared",
+    "failed": "MOCK",
+    "error": "MOCK",
+    "xpassed": "WITHHELD",
+    "xfailed": "WITHHELD",
+    "skipped": "WITHHELD",
+    "not_run": "WITHHELD"
+  },
+  "undeclared_passed_level": "WITHHELD",
+  "require_anchors_for": [
+    "REAL"
+  ],
+  "min_anchors": 1,
+  "modifier_caps": {
+    "skip": "WITHHELD",
+    "skipif": "WITHHELD",
+    "xfail": "WITHHELD"
+  },
+  "require_source_sha256": true
+}

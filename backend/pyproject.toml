@@ -4,4 +4,8 @@ pythonpath = [".", ".."]
 addopts = "-q --tb=short"
 norecursedirs = ["__pycache__", ".venv", "node_modules", "frontend-vue"]
 filterwarnings = ["ignore::DeprecationWarning", "ignore::PendingDeprecationWarning"]
-markers = ["slow: slow tests", "integration: integration tests"]
+markers = [
+    "slow: slow tests",
+    "integration: integration tests",
+    "capability: declare solver capability metadata consumed by tools/capability_discovery",
+]
