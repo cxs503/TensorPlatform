@@ -139,6 +139,28 @@ def resolve(doc: Any, pointer: str | None = None, select: str | None = None,
 # ── 工件测量 ────────────────────────────────────────────────────
 
 
+def _contained_path(evidence_root: str | Path | None, rel: str) -> Path:
+    """工件路径必须**留在门目录内**：绝对路径 / ``..`` 穿越 / 符号链接外逃一律拒绝。
+
+    证据契约的意义是「任何人都能就地复算」，所以工件只能是门目录的相对子路径；
+    允许外逃等于允许把门外的任意文件当作证据（且 sha256 会替它背书）。
+    """
+    raw = str(rel)
+    if not raw or raw.startswith("/") or "\\" in raw or raw.startswith("~"):
+        raise ContractError("artifact_path_escape", raw)
+    if any(part == ".." for part in raw.replace("\\", "/").split("/")):
+        raise ContractError("artifact_path_escape", raw)
+    root = Path(evidence_root or ".").resolve()
+    path = root / raw
+    try:
+        resolved = path.resolve()
+    except OSError:
+        raise ContractError("artifact_path_escape", raw) from None
+    if resolved != root and root not in resolved.parents:
+        raise ContractError("artifact_path_escape", raw)
+    return resolved
+
+
 def measure(entry: dict, evidence_root: str | Path | None) -> tuple[Any, str]:
     """从一个判据条目复算实测值：工件存在性 + sha256 复算 + 指针解析 + 线性换算。"""
     art = entry.get("artifact")
@@ -147,7 +169,7 @@ def measure(entry: dict, evidence_root: str | Path | None) -> tuple[Any, str]:
     rel = art.get("path")
     if not isinstance(rel, str) or not rel:
         raise ContractError("artifact_missing", str(entry.get("id")))
-    path = Path(evidence_root or ".") / rel
+    path = _contained_path(evidence_root, rel)
     try:
         data = path.read_bytes()
     except OSError:

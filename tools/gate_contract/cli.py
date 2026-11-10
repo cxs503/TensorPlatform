@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gate_contract CLI：verify / verify-all / backfill / negcontrol / ledger-trace / domain-scan。"""
+"""gate_contract CLI：verify / verify-all / backfill / negcontrol / crossarch / ledger-trace。"""
 
 from __future__ import annotations
 
@@ -63,6 +63,19 @@ def main(argv: list[str] | None = None) -> int:
     nc.add_argument("--per-class", type=int, default=12)
     nc.add_argument("--json")
 
+    ca = sub.add_parser("crossarch", help="跨宿主判定一致性（异构指纹 + libc 往返 + 远端件）")
+    ca.add_argument("--gate-root", required=True)
+    ca.add_argument("--registry", required=True)
+    ca.add_argument("--claims", required=True)
+    ca.add_argument("--out", required=True)
+    ca.add_argument("--remote")
+    ca.add_argument("--json")
+
+    cc = sub.add_parser("crossarch-compare", help="两份 verify-all 判定件的跨机一致性")
+    cc.add_argument("--reference", required=True)
+    cc.add_argument("--candidate", required=True)
+    cc.add_argument("--json")
+
     lt = sub.add_parser("ledger-trace", help="台账抽查回溯")
     lt.add_argument("--db", required=True)
     lt.add_argument("--limit", type=int, default=20)
@@ -106,6 +119,18 @@ def main(argv: list[str] | None = None) -> int:
                             positive_dirs=[p.parent for p in sorted(root.glob("*/gate.json"))])
         _emit(res, args.json)
         return 0 if res["false_pass"] == 0 else 3
+    if args.cmd == "crossarch":
+        from tools.gate_contract.crossarch import report
+        res = report(args.gate_root, args.registry, args.claims, args.out,
+                     remote_artifact=args.remote)
+        _emit(res, args.json)
+        return 0 if res["consistency_min"] == 1.0 else 4
+    if args.cmd == "crossarch-compare":
+        from tools.gate_contract.crossarch import compare
+        res = compare(json.loads(Path(args.reference).read_text(encoding="utf-8")),
+                      json.loads(Path(args.candidate).read_text(encoding="utf-8")))
+        _emit(res, args.json)
+        return 0 if res["consistency"] == 1.0 and res["n_compared"] else 5
     if args.cmd == "ledger-trace":
         con = connect(args.db)
         _emit(trace_back(con, limit=args.limit), args.json)

@@ -23,7 +23,8 @@ from tools.gate_contract.backfill import backfill  # noqa: E402
 from tools.gate_contract.contract import (SCHEMA_VERSION, canonical_sha256,  # noqa: E402
                                           env_fingerprint, sha256_file)
 from tools.gate_contract.ledger import append_verdict, connect, trace_back  # noqa: E402
-from tools.gate_contract.negcontrol import build_cases, measure_cases  # noqa: E402
+from tools.gate_contract.negcontrol import (CLASSES, build_cases,  # noqa: E402
+                                            measure_cases)
 from tools.gate_contract.verify import FAIL, PASS, WITHHELD, verify_gate  # noqa: E402
 
 
@@ -176,18 +177,44 @@ def test_negcontrol_false_pass_rate_is_zero(tmp_path):
         (_gate(d, value=value, gate_id="g-synthetic")).rename(d / "gate.json")
         gates.append(d)
     cases = build_cases(gates, tmp_path / "cases", per_class=3)
-    assert len(cases) == 15
+    assert len(cases) == 3 * len(CLASSES)
     res = measure_cases(cases, _registry(), positive_dirs=gates)
     assert res["false_pass"] == 0, [c for c in res["cases"] if c["grade"] == PASS]
-    assert res["n_cases"] == 15
+    assert res["n_cases"] == 3 * len(CLASSES)
     # 阳性对照：真门必须能被判 PASS（否则「一律 WITHHELD」也能骗过假通过率）
     assert res["positive_pass"] == 1 and res["positive_fail"] == 1
 
 
 # ── dev_acceptance 前门 ─────────────────────────────────────────
 
+def _registry_from_tree(root: Path) -> dict:
+    """由门目录现场生成权威登记表（判据=算子/阈值/单位三元组）。"""
+    reg = {"schema_version": "gate-criteria-registry/1.0", "gates": {}}
+    for path in sorted(Path(root).glob("*/gate.json")):
+        doc = json.loads(path.read_text(encoding="utf-8"))
+        reg["gates"][doc["gate_id"]] = {
+            "mission_id": doc.get("mission_id"),
+            "criteria": {c["id"]: {"op": c.get("op"), "threshold": c.get("threshold"),
+                                   "unit": c.get("unit")} for c in doc.get("criteria", [])},
+        }
+    return reg
+
+
+def _registry_for_gate(gate_path: Path) -> dict:
+    doc = json.loads(Path(gate_path).read_text(encoding="utf-8"))
+    return {"schema_version": "gate-criteria-registry/1.0",
+            "gates": {doc["gate_id"]: {
+                "mission_id": doc.get("mission_id"),
+                "criteria": {c["id"]: {"op": c.get("op"), "threshold": c.get("threshold"),
+                                       "unit": c.get("unit")}
+                             for c in doc.get("criteria", [])}}}}
+
+
 def _policy(tmp_path: Path, mode: str = "enforce") -> dict:
-    return {"mode": mode, "gate_root": str(tmp_path), "registry": "",
+    """策略必须带**权威登记表**：没有登记表 = 没有权威 → 恒等 WITHHELD（fail-closed）。"""
+    reg_path = tmp_path / "registry.json"
+    reg_path.write_text(json.dumps(_registry_from_tree(tmp_path)), encoding="utf-8")
+    return {"mode": mode, "gate_root": str(tmp_path), "registry": str(reg_path),
             "ledger_db": str(tmp_path / "ledger.db"), "_repo_root": str(tmp_path)}
 
 
@@ -241,8 +268,10 @@ def test_supplement_task_dedupe_is_stable():
 
 def test_evaluate_acceptance_writes_ledger(tmp_path):
     gate = _gate(tmp_path)
+    reg_path = tmp_path / "registry.json"
+    reg_path.write_text(json.dumps(_registry_for_gate(gate)), encoding="utf-8")
     db = tmp_path / "ledger.db"
-    out = evaluate_acceptance(7, gate_path=gate, ledger_db=db)
+    out = evaluate_acceptance(7, gate_path=gate, ledger_db=db, registry_path=reg_path)
     assert out["decision"] == "allow_auto_approve"
     con = connect(db)
     assert con.execute("SELECT COUNT(*) FROM gate_verdicts").fetchone()[0] >= 2

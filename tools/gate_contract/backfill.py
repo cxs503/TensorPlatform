@@ -31,6 +31,27 @@ from .contract import (CLAIMS_SCHEMA_VERSION, REGISTRY_SCHEMA_VERSION,
 DEFAULT_RUN_CMD = ("python3 tools/gate_contract/cli.py verify "
                    "--gate {gate_rel} --registry {registry_rel} --json")
 
+REPO_ROOT = Path(__file__).resolve().parents[2]
+
+
+def portable_path(path: str | Path) -> str:
+    """把路径写成**门树相对**形式：跨 checkout / 跨机器重建后可复现。
+
+    绝对路径（甚至仓库相对路径）一旦写进 gate.json，同一份证据在两台机器
+    或两个目录树里会得到不同摘要（``gate_sha256`` 覆盖 run_cmd），跨机/
+    跨架构比对就永远对不上——这不是审计噪声，是判定函数的输入被宿主污染。
+    因此 ``run_cmd`` 只使用 ``<OUT>`` 占位符（见 ``backfill()``）。
+    """
+    p = Path(path)
+    try:
+        return str(p.resolve().relative_to(REPO_ROOT))
+    except (ValueError, OSError):
+        pass
+    try:
+        return str(p.resolve().relative_to(Path.cwd().resolve()))
+    except (ValueError, OSError):
+        return str(p)
+
 
 def _copy_artifact(src_root: Path, rel: str, dst_dir: Path) -> tuple[str, str]:
     src = src_root / rel
@@ -98,7 +119,10 @@ def backfill(claims_path: str | Path, out_dir: str | Path, *,
                         "plan_id": claims.get("plan_id"), "worktree": node.get("worktree")},
             "issued_utc": issued_utc,
             "run_cmd": run_cmd_tpl.format(
-                gate_rel=str((gate_dir / "gate.json")), registry_rel=str(out / "criteria_registry.json")),
+                gate_rel=f"<OUT>/{gate_id}/gate.json",
+                registry_rel="<OUT>/criteria_registry.json",
+                out_rel="<OUT>"),
+            "run_cmd_note": "<OUT> = 门树根（本 gate.json 的上级目录）",
             "env_fingerprint": env_fingerprint(),
             "criteria": criteria_out,
         }

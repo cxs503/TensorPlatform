@@ -1,0 +1,68 @@
+name: gate-contract-crossarch-x86
+
+# x86_64 侧判定一致性臂（验收门证据契约 hardening）。
+#
+# 判定函数必须与宿主无关：同一份 gate.json+工件在 loong64（主开发机/集群）与
+# x86_64（本 CI）上必须给出**相同的 verdict_digest**。本作业只做两件事：
+#   1) 在 x86_64 上复算仓库里已入库的 plan258 门树；
+#   2) 与 loong64 侧入库的 artifacts/gate_contract/verify_all.json 逐门比对，
+#      一致率非 100% 即失败（并把两侧投影摘要打印出来，便于外科式定位）。
+#
+# 该作业自己不做任何测量声明：它只把 x86 臂的判定件作为工件上传。
+# 无域词条；输入全部是库内 artifacts/config。
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/gate_contract/**"
+      - "tests/test_gate_contract*.py"
+      - "artifacts/gate_contract/**"
+      - "config/gate_contract/**"
+      - ".github/workflows/gate-contract-crossarch-x86.yml"
+
+jobs:
+  crossarch:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Confirm the runner really is x86_64
+        run: |
+          uname -m
+          test "$(uname -m)" = "x86_64" || { echo "refusing to mislabel the arm"; exit 1; }
+
+      - name: Install test deps
+        run: |
+          python -m pip install --quiet --upgrade pip
+          python -m pip install --quiet pytest
+
+      - name: Hardening tests (fail-closed contract)
+        run: python -m pytest tests/test_gate_contract.py tests/test_gate_contract_hardening.py tests/test_gate_contract_wiring.py -q
+
+      - name: Re-verify the committed plan258 gate tree on x86_64
+        run: |
+          set -euo pipefail
+          python3 tools/gate_contract/cli.py verify-all \
+            --gate-root artifacts/gate_contract/plan258 \
+            --registry artifacts/gate_contract/plan258/criteria_registry.json \
+            --json /tmp/x86_verify_all.json > /dev/null
+
+      - name: Compare with the loong64 reference (must be 100%)
+        run: |
+          set -euo pipefail
+          python3 tools/gate_contract/cli.py crossarch-compare \
+            --reference artifacts/gate_contract/verify_all.json \
+            --candidate /tmp/x86_verify_all.json \
+            --json /tmp/x86_crossarch_compare.json
+          test "$(python3 -c 'import json;print(json.load(open("/tmp/x86_crossarch_compare.json"))["consistency"])')" = "1.0"
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: gate-contract-x86-arm
+          path: /tmp/x86_verify_all.json
