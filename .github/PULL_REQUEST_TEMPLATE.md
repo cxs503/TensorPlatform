@@ -1,25 +1,33 @@
-## Contribution and licensing checklist
-
-Please complete this section for code, documentation, data, model, benchmark, and generated-asset contributions.
+## Contribution and provenance checklist
 
 - [ ] I identified the origin of new or materially changed files.
-- [ ] I did not copy code, text, figures, datasets, model weights, or benchmark assets unless their terms permit this use.
-- [ ] I preserved upstream copyright, attribution, NOTICE, and license files.
-- [ ] I checked that dependencies and imported snippets are compatible with the target repository's license.
-- [ ] Any new dataset/model/third-party asset has a rights and provenance manifest, or remains explicitly quarantined.
-- [ ] I did not treat a public URL, public repository, paper, or dataset download as permission to redistribute or train on the material.
-- [ ] I reviewed generated/AI-agent output for copied or incompatible material and can identify an accountable submitter.
-- [ ] My commits include DCO sign-off (`git commit -s`) where required by the repository policy.
+- [ ] I preserved upstream copyright, attribution, NOTICE and license files.
+- [ ] I checked new dependencies and imported snippets for license compatibility.
+- [ ] Data/model/benchmark assets have rights manifests or remain quarantined.
+- [ ] Tests and validation evidence are linked below.
+- [ ] No human identity, DCO sign-off, permission or legal approval has been fabricated.
 
-### Provenance
+### Work identity
+- **Producer agent / human:**
+- **Tool/provider and version:**
+- **Model identifier (if available):**
+- **Run/session/work-package ID:**
+- **Accountable human maintainer:**
+- **Risk tier:** R0 / R1 / R2 / R3
+- **Changed files / scope:**
 
-- **New/changed files and source URLs:**
+### Provenance and verification
+- **Source URLs / upstream repositories:**
 - **SPDX license expression(s):**
-- **Third-party dependencies or copied snippets:**
-- **Data/model/benchmark assets and manifest paths:**
-- **Agent/tool used (if applicable):**
-- **Accountable human submitter:**
+- **Third-party dependencies / copied snippets:**
+- **Data/model/benchmark manifest paths:**
+- **Tests, benchmark or validation evidence:**
+- **Independent reviewer agent(s) and findings:**
+- **Unresolved risks / limitations:**
 
-### DCO reminder
+### Decision
+- **Requested action:** merge / release / internal-only / needs review
+- **Human decision required:** yes / no
+- **Decision evidence or record:**
 
-A sign-off is an attestation, not a substitute for rights you do not own or control. Do not sign off on copied, proprietary, confidential, or otherwise unauthorized material.
+Agent review is not human approval. R2 requires maintainer approval before merge/release. R3 requires explicit human approval and cannot be autonomously merged or released.
