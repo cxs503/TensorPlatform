@@ -1,0 +1,203 @@
+{
+  "$id": "https://tensorplatform.local/schemas/solver_protocol_v1.json",
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "boundaries": {
+      "items": {
+        "additionalProperties": false,
+        "properties": {
+          "axis": {
+            "maximum": 2,
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "dirichlet",
+              "neumann",
+              "periodic"
+            ]
+          },
+          "name": {
+            "pattern": "^[a-z][a-z0-9_]{1,31}$",
+            "type": "string"
+          },
+          "side": {
+            "enum": [
+              "lo",
+              "hi"
+            ]
+          },
+          "value": {
+            "type": "number"
+          }
+        },
+        "required": [
+          "name",
+          "axis",
+          "side",
+          "kind"
+        ],
+        "type": "object"
+      },
+      "type": "array"
+    },
+    "deterministic": {
+      "type": "boolean"
+    },
+    "fields": {
+      "items": {
+        "additionalProperties": false,
+        "allOf": [
+          {
+            "if": {
+              "properties": {
+                "kind": {
+                  "const": "flux"
+                }
+              },
+              "required": [
+                "kind"
+              ]
+            },
+            "then": {
+              "required": [
+                "face_normal"
+              ]
+            }
+          }
+        ],
+        "properties": {
+          "description": {
+            "type": "string"
+          },
+          "dim_vector": {
+            "items": {
+              "maximum": 8,
+              "minimum": -8,
+              "type": "integer"
+            },
+            "maxItems": 4,
+            "minItems": 4,
+            "type": "array"
+          },
+          "face_normal": {
+            "minimum": 0,
+            "type": "integer"
+          },
+          "kind": {
+            "enum": [
+              "density",
+              "flux",
+              "extensive",
+              "scalar"
+            ]
+          },
+          "name": {
+            "pattern": "^[a-z][a-z0-9_]{1,31}$",
+            "type": "string"
+          }
+        },
+        "required": [
+          "name",
+          "kind",
+          "dim_vector"
+        ],
+        "type": "object"
+      },
+      "minItems": 1,
+      "type": "array"
+    },
+    "mapping_modes": {
+      "items": {
+        "enum": [
+          "conservative",
+          "standard"
+        ]
+      },
+      "minItems": 1,
+      "type": "array",
+      "uniqueItems": true
+    },
+    "mesh": {
+      "additionalProperties": false,
+      "properties": {
+        "dim": {
+          "maximum": 3,
+          "minimum": 1,
+          "type": "integer"
+        },
+        "hi": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "type": "array"
+        },
+        "lo": {
+          "items": {
+            "type": "number"
+          },
+          "maxItems": 3,
+          "minItems": 1,
+          "type": "array"
+        },
+        "n_cells": {
+          "minimum": 1,
+          "type": "integer"
+        },
+        "topology": {
+          "enum": [
+            "box"
+          ]
+        }
+      },
+      "required": [
+        "dim",
+        "n_cells",
+        "lo",
+        "hi"
+      ],
+      "type": "object"
+    },
+    "protocol_version": {
+      "const": "solver-protocol/v1"
+    },
+    "solver": {
+      "additionalProperties": false,
+      "properties": {
+        "native_impl": {
+          "type": "boolean"
+        },
+        "repo_commit": {
+          "type": "string"
+        },
+        "solver_id": {
+          "pattern": "^[a-z][a-z0-9_]{1,31}$",
+          "type": "string"
+        },
+        "version": {
+          "pattern": "^\\d+\\.\\d+\\.\\d+(?:[-+][0-9A-Za-z.]+)?$",
+          "type": "string"
+        }
+      },
+      "required": [
+        "solver_id",
+        "version",
+        "native_impl"
+      ],
+      "type": "object"
+    }
+  },
+  "required": [
+    "protocol_version",
+    "solver",
+    "mesh",
+    "fields",
+    "mapping_modes"
+  ],
+  "title": "SolverProtocol v1 AdapterManifest",
+  "type": "object"
+}
