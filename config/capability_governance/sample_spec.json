@@ -1,0 +1,42 @@
+{
+ "schema": "sample-corpus-spec/1.0",
+ "note": "Declarative corpus spec for the structured-sample fill (P187-W1-N09). Axis labels are injected here, never in platform code; the three families are the discipline axis and the three classes the geometry-class axis of the corpus. Replace the axis labels / model parameters to target a different corpus without touching code.",
+ "mission_id": 9811,
+ "source": "governance_corpus",
+ "axes": {
+  "family": ["fam_a", "fam_b", "fam_c"],
+  "case_class": ["cls_a", "cls_b", "cls_c"],
+  "class_factor": {"cls_a": 0.9, "cls_b": 1.0, "cls_c": 1.1}
+ },
+ "condition_grid": [
+  {"forcing": 0.20, "duration": 8.0, "initial_rate": 1.0},
+  {"forcing": 0.30, "duration": 8.0, "initial_rate": 1.0},
+  {"forcing": 0.40, "duration": 8.0, "initial_rate": 0.5},
+  {"forcing": 0.50, "duration": 10.0, "initial_rate": 1.0},
+  {"forcing": 0.60, "duration": 10.0, "initial_rate": 1.5},
+  {"forcing": 0.70, "duration": 10.0, "initial_rate": 1.0},
+  {"forcing": 0.80, "duration": 12.0, "initial_rate": 1.0},
+  {"forcing": 0.90, "duration": 12.0, "initial_rate": 2.0},
+  {"forcing": 1.00, "duration": 12.0, "initial_rate": 1.0},
+  {"forcing": 1.20, "duration": 14.0, "initial_rate": 1.0},
+  {"forcing": 1.40, "duration": 14.0, "initial_rate": 0.5},
+  {"forcing": 1.60, "duration": 14.0, "initial_rate": 1.0}
+ ],
+ "replicates": 100,
+ "scale_range": [0.6, 1.4],
+ "model": {
+  "kind": "ivp_rk4",
+  "family_params": {
+   "fam_a": {"omega": 0.8, "zeta": 0.04},
+   "fam_b": {"omega": 1.1, "zeta": 0.07},
+   "fam_c": {"omega": 1.4, "zeta": 0.10}
+  }
+ },
+ "acceptance": {
+  "min_rows": 10000,
+  "min_per_family": 2000,
+  "min_per_class": 1000,
+  "min_provenance_completeness": 0.95,
+  "min_dedupe_unique_rate": 0.99
+ }
+}
