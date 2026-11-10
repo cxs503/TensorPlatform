@@ -1,0 +1,21 @@
+{
+  "lines": {
+    "viscous_line": {
+      "kind": "log_power",
+      "a": 0.075,
+      "b": 2.0,
+      "c": 2.0,
+      "valid_range": [10000.0, 1.0e10],
+      "label": "injected configuration: turbulent flat-plate friction family Cf = a/(log10(Re)-b)^c; coefficients are data, not code"
+    },
+    "allowance_line": {
+      "kind": "power_offset",
+      "a": 0.006,
+      "b": 100.0,
+      "c": 0.16,
+      "d": -0.00205,
+      "valid_range": [50.0, 1000.0],
+      "label": "injected configuration: size-dependent correlation allowance, declared valid 50 m .. 1000 m"
+    }
+  }
+}
