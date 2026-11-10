@@ -1,0 +1,114 @@
+{
+  "schema_version": "evidence-governance-classifier-rules/1.0",
+  "note": "Classification rules are configuration, not code: the governance package stays free of subject vocabulary. Patterns are generic evidence-methodology phrases; weights and the tie-break order live alongside them.",
+  "rules": [
+    {
+      "baseline_type": "analytical_solution",
+      "weight": 1.0,
+      "patterns": [
+        "analytical",
+        "exact solution",
+        "closed form",
+        "closed-form",
+        "reference solution",
+        "manufactured solution",
+        "analytic benchmark",
+        "解析解",
+        "解析基准",
+        "解析判据",
+        "精确解",
+        "闭式解",
+        "基准解"
+      ],
+      "rationale": "declaration asks for comparison against an exact/closed-form solution"
+    },
+    {
+      "baseline_type": "experimental",
+      "weight": 1.0,
+      "patterns": [
+        "experiment",
+        "measurement",
+        "measured data",
+        "test data",
+        "model test",
+        "tank test",
+        "sea trial",
+        "empirical",
+        "实测",
+        "试验数据",
+        "测量数据",
+        "实验数据",
+        "实测数据",
+        "台架"
+      ],
+      "rationale": "declaration asks for comparison against measured/experimental data"
+    },
+    {
+      "baseline_type": "mesh_convergence",
+      "weight": 1.0,
+      "patterns": [
+        "mesh convergence",
+        "grid convergence",
+        "convergence study",
+        "refinement study",
+        "mesh independence",
+        "grid independence",
+        "discretization error",
+        "h-refinement",
+        "p-refinement",
+        "网格收敛",
+        "网格无关",
+        "收敛性研究",
+        "加密研究",
+        "离散误差",
+        "网格依赖"
+      ],
+      "rationale": "declaration asks for a discretisation/refinement study"
+    },
+    {
+      "baseline_type": "physical_consistency",
+      "weight": 1.0,
+      "patterns": [
+        "conservation",
+        "symmetry",
+        "dimensional check",
+        "dimensional consistency",
+        "physical consistency",
+        "balance check",
+        "sanity check",
+        "limiting case",
+        "asymptotic",
+        "守恒",
+        "对称性",
+        "量纲",
+        "自洽",
+        "极限情形",
+        "渐近",
+        "平衡校验"
+      ],
+      "rationale": "declaration asks for a conservation/symmetry/limit check"
+    },
+    {
+      "baseline_type": "cross_validation",
+      "weight": 1.0,
+      "patterns": [
+        "cross-validat",
+        "cross validat",
+        "inter-method",
+        "code-to-code",
+        "another method",
+        "independent verification",
+        "independent implementation",
+        "independent re-computation",
+        "method comparison",
+        "交叉验证",
+        "互验",
+        "独立复算",
+        "独立实现",
+        "方法对比",
+        "跨方法"
+      ],
+      "rationale": "declaration asks for corroboration by an independent path"
+    }
+  ]
+}
