@@ -57,6 +57,7 @@ class FVMCell:
     face_normals: List[np.ndarray] = field(default_factory=list)
     velocity: Optional[np.ndarray] = None
     pressure: Optional[float] = None
+    density: Optional[float] = None
 
     def __post_init__(self):
         self.center = np.asarray(self.center, dtype=np.float64)
@@ -150,6 +151,7 @@ class LBMtoFVMInterpolator:
             lbm_cell = lbm_cells[idx]
             fvm_cell.velocity = lbm_cell.velocity.copy()
             fvm_cell.pressure = lbm_cell.pressure
+            fvm_cell.density = lbm_cell.density
             n_interpolated += 1
 
         return self._check_mass_flux(lbm_cells, fvm_cells, n_interpolated)
@@ -193,15 +195,18 @@ class LBMtoFVMInterpolator:
             weights = 1.0 / (dists + 1e-14)
             weights /= weights.sum()
 
-            # Weighted average of velocity and pressure
+            # Weighted average of velocity, pressure and density
             vel = np.zeros(3)
             pres = 0.0
+            rho = 0.0
             for w, idx in zip(weights, indices):
                 vel += w * lbm_cells[idx].velocity
                 pres += w * lbm_cells[idx].pressure
+                rho += w * lbm_cells[idx].density
 
             fvm_cell.velocity = vel
             fvm_cell.pressure = pres
+            fvm_cell.density = rho
             n_interpolated += 1
 
         return self._check_mass_flux(lbm_cells, fvm_cells, n_interpolated)
@@ -252,65 +257,83 @@ class LBMtoFVMInterpolator:
         fvm_cells: List[FVMCell],
         n_interpolated: int
     ) -> MassConservationResult:
-        """
-        Check mass flux conservation between LBM and FVM sides.
+        """Mass-inventory check across the transfer.
 
-        Computes ∫_Γ ρu·n dA on both sides and compares.
+        The previous implementation summed ``ρ u·n`` over the six faces of every
+        cubic cell and over ``hasattr(cell, 'density')`` on the FVM side.  The
+        first sum is identically zero (each cell contributes ``+n`` and ``-n``),
+        and :class:`FVMCell` had no ``density`` attribute, so the FVM sum was
+        identically zero as well: the residual was ``|0 - 0| / 0`` for *every*
+        field and the gate could not fail.  It is replaced by the inventory
+        identity that a transfer actually has to satisfy::
+
+            Σ_j ρ_j V_j  ==  Σ_i ρ_i |cell_i ∩ Ω_FVM|
+
+        with ``Ω_FVM`` the union of the FVM cells (their bounding box, which is
+        exact for the structured patches used in coupling).  A source cell that
+        is only partially covered contributes only the covered part, so a
+        transfer that over- or under-fills the target domain is detected.
         """
-        # LBM side: sum of ρu·n over all cell faces
-        lbm_flux = 0.0
+        if not fvm_cells:
+            raise ValueError("fvm_cells must be non-empty")
+
+        from .geometry import box, intersect
+
+        lo = np.min([c.center - 0.5 * (c.volume ** (1.0 / 3.0)) for c in fvm_cells], axis=0)
+        hi = np.max([c.center + 0.5 * (c.volume ** (1.0 / 3.0)) for c in fvm_cells], axis=0)
+        domain = box(0.5 * (lo + hi), 0.5 * (hi - lo))
+
+        lbm_mass = 0.0
+        covered_volume = 0.0
         for cell in lbm_cells:
-            # For a uniform lattice, each face has area dx²
-            face_area = cell.dx ** 2
-            # Six faces of a cube: ±x, ±y, ±z
-            normals = [
-                np.array([1, 0, 0]), np.array([-1, 0, 0]),
-                np.array([0, 1, 0]), np.array([0, -1, 0]),
-                np.array([0, 0, 1]), np.array([0, 0, -1]),
-            ]
-            for n in normals:
-                lbm_flux += cell.density * np.dot(cell.velocity, n) * face_area
-
-        # FVM side: sum of ρu·n over all cell faces
-        fvm_flux = 0.0
-        for cell in fvm_cells:
-            if cell.velocity is None:
+            half = 0.5 * cell.dx
+            cube = box(cell.center, [half, half, half])
+            overlap = intersect(cube, domain)
+            if overlap is None:
                 continue
-            # Use face data if available, otherwise estimate
-            if cell.face_centers and cell.face_areas and cell.face_normals:
-                for fc, fa, fn in zip(cell.face_centers, cell.face_areas, cell.face_normals):
-                    fvm_flux += cell.density * np.dot(cell.velocity, fn) * fa if hasattr(cell, 'density') else 0.0
-            else:
-                # Estimate from cell volume (assume cubic)
-                estimated_area = cell.volume ** (2.0 / 3.0)
-                # Six faces
-                normals = [
-                    np.array([1, 0, 0]), np.array([-1, 0, 0]),
-                    np.array([0, 1, 0]), np.array([0, -1, 0]),
-                    np.array([0, 0, 1]), np.array([0, 0, -1]),
-                ]
-                for n in normals:
-                    fvm_flux += 1.0 * np.dot(cell.velocity, n) * estimated_area
+            lbm_mass += cell.density * overlap.volume
+            covered_volume += overlap.volume
 
-        # Compute residual
-        avg_flux = 0.5 * (abs(lbm_flux) + abs(fvm_flux))
-        if avg_flux > 1e-14:
-            residual = abs(lbm_flux - fvm_flux) / avg_flux
+        fvm_mass = 0.0
+        fvm_volume = 0.0
+        missing_density = 0
+        for cell in fvm_cells:
+            fvm_volume += cell.volume
+            if cell.density is None:
+                missing_density += 1
+                continue
+            fvm_mass += cell.density * cell.volume
+
+        if fvm_mass == 0.0 or lbm_mass == 0.0:
+            # No mass information: no conservation claim can be made.
+            residual = float("inf")
         else:
-            residual = abs(lbm_flux - fvm_flux)
+            residual = abs(lbm_mass - fvm_mass) / max(
+                0.5 * (abs(lbm_mass) + abs(fvm_mass)), 1e-300)
 
-        passed = residual <= self.tolerance
+        coverage = covered_volume / max(fvm_volume, 1e-300)
+        passed = bool(residual <= self.tolerance and coverage >= 1.0 - self.tolerance
+                      and missing_density == 0)
 
         result = MassConservationResult(
-            lbm_total_flux=lbm_flux,
-            fvm_total_flux=fvm_flux,
+            lbm_total_flux=lbm_mass,
+            fvm_total_flux=fvm_mass,
             flux_residual=residual,
             passed=passed,
             tolerance=self.tolerance,
             n_cells_interpolated=n_interpolated,
         )
-
-        self._interpolation_history.append(result.summary())
+        summary = result.summary()
+        summary.update({
+            "quantity": "mass_inventory",
+            "coverage": coverage,
+            "missing_density_cells": missing_density,
+            "fvm_volume": fvm_volume,
+        })
+        self._interpolation_history.append(summary)
+        # Keep the public summary of the returned object identical to the stored
+        # one so callers can rely on either.
+        result.summary = lambda: dict(summary)  # type: ignore[assignment]
         return result
 
     def interpolate_pressure_field(
