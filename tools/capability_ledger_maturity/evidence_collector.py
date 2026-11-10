@@ -229,6 +229,12 @@ class EvidenceCollector:
             except json.JSONDecodeError:
                 return items
 
+        if not isinstance(data, dict):
+            # 顶层可能是 list/标量（批量结果文件很常见）：直接递归提取，
+            # 具体 capability_id 由元素内字段决定。
+            self._extract_benchmark_errors(data, "unknown", source_path, items)
+            return items
+
         cap_id = data.get("capability_id") or self._extract_capability_id(content, source_path)
 
         # 递归查找误差值
