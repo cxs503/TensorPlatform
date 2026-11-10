@@ -1,0 +1,29 @@
+{
+  "schema": "tp.governance.domain_term_denylist.v1",
+  "purpose": "平台层（TensorPlatform backend/tools/ops/tests）零领域语义体检词表；域词条归领域仓。",
+  "terms": [
+    "ship",
+    "hull",
+    "propeller",
+    "resistance",
+    "seakeeping",
+    "manoeuvr",
+    "maneuver",
+    "ice",
+    "lng",
+    "cargo",
+    "冰区",
+    "阻力",
+    "螺旋桨",
+    "船",
+    "耐波",
+    "操纵性",
+    "稳性"
+  ],
+  "scanned_paths": [
+    "ops/taskplane/progress_metrics.py",
+    "tools/progress_metrics_eval.py",
+    "tests/test_progress_metrics_p148w2_n08.py"
+  ],
+  "note": "词表本身是治理工件，不含业务语义；新增词条 = 新增禁入词，不删旧词。"
+}
