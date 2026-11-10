@@ -43,6 +43,28 @@ MAX_FILE_BYTES = 500_000
 # 默认排除路径（相对仓库根）：扫描器自身所在包 = 自指污染源
 DEFAULT_EXCLUDE_PREFIXES = ("src/capability_ledger_auto/",)
 
+# 默认代码扫描根（仓库布局，非域语义）。
+# 修复前只扫 "src/"：平台真实实现大量位于 backend/（如 backend/modules/、
+# backend/api/domain/），这些能力的代码证据恒为空 → 五元缺 code → 永远判不出
+# REAL。带标注算例（eval_validity，variant=backend_root）实测 REAL 召回率
+# 0/2，全部被误判 WITHHELD。故默认改为多根扫描，并允许按能力/按调用覆盖。
+DEFAULT_CODE_ROOTS = ("src", "backend", "api", "services")
+
+# 测试代码不算"实现证据"（仓库布局规则，非域语义）。
+# 证据：多根扫描后 ``backend/tests/test_ship_proxy.py::test_stability_call``
+# 体内的 ``mock_response`` 把 calc.stability 判成 MOCK——测试替身不是被审实现。
+TEST_PATH_SEGMENTS = {"tests", "test", "__tests__"}
+TEST_FILE_PREFIXES = ("test_", "conftest")
+
+
+def is_test_path(rel_path: str) -> bool:
+    """判断相对路径是否是测试代码（按目录名/文件名，不看内容）。"""
+    parts = rel_path.replace("\\", "/").split("/")
+    if any(seg in TEST_PATH_SEGMENTS for seg in parts[:-1]):
+        return True
+    name = parts[-1]
+    return name.startswith(TEST_FILE_PREFIXES)
+
 # MOCK 标记：返回假数据 / 随机数 / 显式 mock 契约
 MOCK_MARKERS = (
     "[MOCK]", "MOCK:", "np.random.rand", "np.random.uniform",
@@ -136,6 +158,13 @@ class ScanResult:
     adjudicated_level: str = ""
     adjudicated_as_of: str = ""
     adjudicated_source: str = ""
+    # 弱证据计数（仅文件文本行命中，未锚定到 AST 节点）：不得算作"实质实现"
+    weak_code_count: int = 0
+    # 本次实际扫描的代码根（可复算审计用）
+    code_roots: list[str] = field(default_factory=list)
+    # 计数是否由扫描器本人给出（True 时判级器不得再用启发式回退重算，避免
+    # 弱文本证据被回退逻辑重新算回"实质实现"）
+    counts_authoritative: bool = False
 
 
 def sha256_file(path: Path) -> str:
@@ -246,18 +275,266 @@ def node_mock_markers(node: ast.AST, content: str) -> list[str]:
     return [m for m in MOCK_MARKERS if m in segment]
 
 
+@dataclass
+class CodeMatch:
+    """一次模式匹配的结果（证据有界 + 截断/跳过的如实登记）。"""
+    evidence: list[CodeEvidence]
+    truncated: int = 0          # 超出 max_hits 未落盘的证据条数
+    parse_skipped: int = 0      # 超出 AST 解析预算被跳过的文件数
+
+
+@dataclass
+class FileRecord:
+    """代码索引的单文件记录（只读一次；AST 按需解析一次并缓存）。"""
+    rel_path: str
+    file_sha256: str
+    content: str
+    tree: ast.AST | None = None
+    parsed: bool = False
+
+
+class CodeIndex:
+    """代码索引：一次遍历、一次 AST 解析，供多条能力复用。
+
+    修复前每条能力各自 ``os.walk`` + 读文件 + ``ast.parse``：21 条能力 × 4 个
+    扫描根会让仓库被反复解析数十遍（实测套件从 ~95 s 涨到 >900 s）。索引把
+    这部分工作摊到一次，扫描结果仍按 ``(file_path, line_number, match_type)``
+    排序，保证确定性不变。
+    """
+
+    def __init__(self, records: list[FileRecord]):
+        self.records = records
+
+    @classmethod
+    def build(
+        cls,
+        root: Path,
+        code_roots: Iterable[str],
+        exclude_prefixes: Iterable[str] = DEFAULT_EXCLUDE_PREFIXES,
+        max_files: int = 20000,
+    ) -> "CodeIndex":
+        root = Path(root)
+        records: list[FileRecord] = []
+        seen: set[str] = set()
+        for sub in code_roots:
+            for fpath in iter_files(root, [sub], max_files=max_files,
+                                    exclude_prefixes=exclude_prefixes):
+                rel = _norm_rel(root, fpath)
+                if rel in seen or is_test_path(rel):
+                    continue
+                seen.add(rel)
+                try:
+                    content = fpath.read_text(encoding="utf-8", errors="replace")
+                except OSError:
+                    continue
+                # 不在建索引时解析 AST：仓库里绝大多数文件与任何能力模式无关，
+                # 全量 ast.parse 是纯浪费（实测 951 个 .py 文件 14 s）。
+                # 解析推迟到"该文件命中某能力模式"的那一刻，并按文件缓存。
+                records.append(FileRecord(rel, sha256_file(fpath), content))
+        records.sort(key=lambda r: r.rel_path)
+        return cls(records)
+
+    def match(
+        self,
+        patterns: list[str],
+        max_hits: int = 300,
+        max_parse_files: int = 80,
+        max_text_hits: int = 120,
+    ) -> "CodeMatch":
+        """按模式匹配索引，返回 ``(证据列表[有界], 被截断条数)``。
+
+        预筛用一条合并正则（每条能力对每个文件只扫一遍）；只有命中文件才解析 AST。
+        """
+        if not patterns:
+            return CodeMatch([], 0, 0)
+        compiled = [re.compile(p, re.IGNORECASE) for p in patterns]
+        combined = re.compile("|".join(f"(?:{p})" for p in patterns), re.IGNORECASE)
+        evidence: list[CodeEvidence] = []
+        total = 0
+        skipped = 0
+        parsed_now = 0
+        text_emitted = 0
+        text_truncated = 0
+        for rec in self.records:
+            if combined.search(rec.content) is None:
+                continue
+            matched = [p for p, rx in zip(patterns, compiled) if rx.search(rec.content)]
+            if not matched:
+                continue
+            has_symbol = any(
+                any(rx.search(name) for rx in compiled) for name in _symbol_names(rec.content)
+            )
+            if not has_symbol:
+                # 没有同名符号：不需要 AST。产出模块级（若文件名命中）+ 文本行级
+                # （弱证据，不计入实质实现）。文本弱证据总量有界，避免短模式在
+                # md/json 语料上炸出海量行命中（曾实测单能力 1 万+ 行）。
+                hits = _module_hit(rec, matched)
+                remaining = max_text_hits - text_emitted
+                if remaining > 0:
+                    text_hits = _text_hits(rec, compiled, max_lines=min(20, remaining))
+                    text_emitted += len(text_hits)
+                    hits = hits + text_hits
+                else:
+                    # 弱证据预算用尽：该文件的行级命中不再落盘，按文件计一次截断
+                    text_truncated += 1
+                total += len(hits)
+                if len(evidence) < max_hits:
+                    evidence.extend(hits[: max_hits - len(evidence)])
+                continue
+            if not rec.parsed:
+                # 有界解析：宽短模式（Cf/Rt 之类）仍可能命中很多同名符号文件，
+                # 全量 ast.parse 是算力开销；超预算的文件如实登记为跳过。
+                if parsed_now >= max_parse_files:
+                    skipped += 1
+                    continue
+                parsed_now += 1
+                try:
+                    rec.tree = ast.parse(rec.content, filename=rec.rel_path)
+                except SyntaxError:
+                    rec.tree = None
+                rec.parsed = True
+            hits = _match_file(rec, matched)
+            total += len(hits)
+            if len(evidence) < max_hits:
+                evidence.extend(hits[: max_hits - len(evidence)])
+        return CodeMatch(evidence, max(0, total - len(evidence)) + text_truncated, skipped)
+
+
+_SYMBOL_RX = re.compile(r"^[ \t]*(?:async[ \t]+)?(?:def|class)[ \t]+([A-Za-z_]\w*)", re.MULTILINE)
+
+
+def _symbol_names(content: str) -> list[str]:
+    """廉价抽取 def/class 名（正则，C 级扫描，不建 AST）。
+
+    用途：只有"名字命中模式"的文件才值得 ``ast.parse``。仓库里绝大多数命中
+    文件（含 .md/.json 语料）根本没有同名符号，全量解析是纯浪费。
+    """
+    return _SYMBOL_RX.findall(content)
+
+
+def _text_hits(
+    rec: FileRecord,
+    compiled: list[re.Pattern[str]],
+    max_lines: int = 20,
+) -> list[CodeEvidence]:
+    """文本行级弱证据（未锚定 AST 节点）。"""
+    out: list[CodeEvidence] = []
+    for i, line in enumerate(rec.content.split("\n"), 1):
+        if any(rx.search(line) for rx in compiled):
+            out.append(CodeEvidence(
+                file_path=rec.rel_path,
+                line_number=i,
+                match_type="text",
+                matched_text=line.strip()[:120],
+                line_sha256=line_sha256(line.strip()),
+                file_sha256=rec.file_sha256,
+            ))
+            if len(out) >= max_lines:
+                break
+    return out
+
+
+def _module_hit(rec: FileRecord, matched_patterns: list[str]) -> list[CodeEvidence]:
+    module_name = Path(rec.rel_path).stem
+    if any(re.search(p, module_name, re.IGNORECASE) for p in matched_patterns):
+        return [CodeEvidence(
+            file_path=rec.rel_path,
+            line_number=1,
+            match_type="module",
+            matched_text=f"module: {module_name}",
+            line_sha256=line_sha256(module_name),
+            file_sha256=rec.file_sha256,
+        )]
+    return []
+
+
+def _match_file(rec: FileRecord, matched_patterns: list[str]) -> list[CodeEvidence]:
+    """在单个已索引文件上产出证据（AST 节点级，语法错误时退化为文本行级）。"""
+    rel_path = rec.rel_path
+    file_hash = rec.file_sha256
+    evidence: list[CodeEvidence] = []
+    if rec.tree is None:
+        for i, line in enumerate(rec.content.split("\n"), 1):
+            if any(re.search(p, line, re.IGNORECASE) for p in matched_patterns):
+                evidence.append(CodeEvidence(
+                    file_path=rel_path,
+                    line_number=i,
+                    match_type="text",
+                    matched_text=line.strip()[:120],
+                    line_sha256=line_sha256(line.strip()),
+                    file_sha256=file_hash,
+                ))
+        return evidence
+
+    for node in ast.walk(rec.tree):
+        if isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef, ast.ClassDef)):
+            hit = [p for p in matched_patterns if re.search(p, node.name, re.IGNORECASE)]
+            if not hit:
+                continue
+            kind = "class" if isinstance(node, ast.ClassDef) else "function"
+            label = f"class {node.name}" if kind == "class" else f"def {node.name}"
+            evidence.append(CodeEvidence(
+                file_path=rel_path,
+                line_number=node.lineno,
+                match_type=kind,
+                matched_text=label,
+                line_sha256=line_sha256(label),
+                file_sha256=file_hash,
+                is_stub_like=is_stub_like(node),
+                mock_markers=node_mock_markers(node, rec.content),
+            ))
+
+    module_name = Path(rel_path).stem
+    if any(re.search(p, module_name, re.IGNORECASE) for p in matched_patterns):
+        if not any(e.file_path == rel_path for e in evidence):
+            evidence.append(CodeEvidence(
+                file_path=rel_path,
+                line_number=1,
+                match_type="module",
+                matched_text=f"module: {module_name}",
+                line_sha256=line_sha256(module_name),
+                file_sha256=file_hash,
+            ))
+    return evidence
+
+
 def scan_code_for_patterns(
     root: Path,
     patterns: list[str],
     subdir: str = "src",
     exclude_prefixes: Iterable[str] = DEFAULT_EXCLUDE_PREFIXES,
+    code_roots: Iterable[str] | None = None,
+    index: "CodeIndex | None" = None,
+    max_hits: int = 500,
 ) -> list[CodeEvidence]:
-    """在 src/ 下扫描代码实现。
+    """扫描代码实现（默认 ``subdir``；给出 ``code_roots`` 时扫多个根）。
 
-    使用 AST 解析识别函数/类定义，也支持文本模式匹配。
+    使用 AST 解析识别函数/类定义，也支持文本模式匹配。多根扫描按
+    ``(file_path, line_number, match_type)`` 去重并排序，保证确定性。
+    传入 ``index`` 时复用已建索引（同一仓库多能力扫描的唯一正确用法）。
     """
+    if index is not None:
+        return index.match(patterns, max_hits=max_hits).evidence
+    roots = list(code_roots) if code_roots else [subdir]
+    if len(roots) == 1:
+        return _scan_code_in_subdir(root, patterns, roots[0], exclude_prefixes)
+    merged: dict[tuple[str, int, str], CodeEvidence] = {}
+    for sub in roots:
+        for ev in _scan_code_in_subdir(root, patterns, sub, exclude_prefixes):
+            merged[(ev.file_path, ev.line_number, ev.match_type)] = ev
+    return [merged[k] for k in sorted(merged)]
+
+
+def _scan_code_in_subdir(
+    root: Path,
+    patterns: list[str],
+    subdir: str,
+    exclude_prefixes: Iterable[str] = DEFAULT_EXCLUDE_PREFIXES,
+) -> list[CodeEvidence]:
+    """在单个子目录下扫描代码实现（AST 节点级 + 文本级兜底）。"""
     evidence: list[CodeEvidence] = []
-    files = iter_files(root, [subdir], exclude_prefixes=exclude_prefixes)
+    files = [f for f in iter_files(root, [subdir], exclude_prefixes=exclude_prefixes)
+             if not is_test_path(_norm_rel(root, f))]
 
     for fpath in files:
         try:
@@ -678,6 +955,7 @@ class EvidenceScanner:
         test_cache: dict[str, dict[str, Any]] | None = None,
         python: str | None = None,
         exec_only: Iterable[str] | None = None,
+        code_roots: Iterable[str] | None = DEFAULT_CODE_ROOTS,
     ):
         self.root = Path(root)
         self.registry = registry
@@ -691,6 +969,9 @@ class EvidenceScanner:
         self.test_cache = test_cache if test_cache is not None else {}
         self.python = python
         self.exec_only = set(exec_only) if exec_only is not None else None
+        # None = 用默认布局根；显式空元组 = 关闭多根扫描（退回单根 subdir 语义）
+        self.code_roots = tuple(DEFAULT_CODE_ROOTS if code_roots is None else code_roots)
+        self._code_index: CodeIndex | None = None
         self._budget_left = exec_budget_s
         self.exec_ledger: list[dict[str, Any]] = []
 
@@ -700,21 +981,47 @@ class EvidenceScanner:
 
         # (a) 代码
         if cap.code_patterns:
-            code_ev = scan_code_for_patterns(
-                self.root, cap.code_patterns, exclude_prefixes=self.exclude_prefixes,
-            )
+            roots = tuple(getattr(cap, "code_roots", None) or self.code_roots or ())
+            result.code_roots = list(roots)
+            result.counts_authoritative = True
+            if roots:
+                if self._code_index is None:
+                    self._code_index = CodeIndex.build(
+                        self.root, roots, exclude_prefixes=self.exclude_prefixes,
+                    )
+                match = self._code_index.match(cap.code_patterns)
+                code_ev = match.evidence
+                if match.truncated:
+                    result.scan_notes.append(
+                        f"代码证据超出上限，已截断 {match.truncated} 条（根: {list(roots)}）"
+                    )
+                if match.parse_skipped:
+                    result.scan_notes.append(
+                        f"超出 AST 解析预算，跳过 {match.parse_skipped} 个命中文件"
+                        "（宽模式+大仓时的有界扫描，判级按已解析部分）"
+                    )
+            else:
+                code_ev = scan_code_for_patterns(
+                    self.root, cap.code_patterns, exclude_prefixes=self.exclude_prefixes,
+                )
             result.code_evidence = code_ev
             result.code_count = len(code_ev)
             result.has_implementation = any(
                 e.match_type in ("function", "class") for e in code_ev
             ) or len(code_ev) > 0
 
-            substantive = [e for e in code_ev if e.match_type in ("function", "class", "text")
+            # 实质实现必须是**锚定到 AST 节点**的命中（def/class/module）。
+            # 仅文件文本行命中（match_type="text"）记作弱证据：它证明"这个词出现在
+            # 仓库里"，不证明"能力被实现"；把它算成实质实现会让短模式（Cf/Rt 之类）
+            # 把任意能力抬到 WITHHELD，进而污染链条质量。
+            substantive = [e for e in code_ev if e.match_type in ("function", "class", "module")
                            and not e.is_stub_like]
             stub_only = [e for e in code_ev if e.match_type in ("function", "class")
                          and e.is_stub_like]
+            weak = [e for e in code_ev if e.match_type == "text"]
             result.substantive_code_count = len(substantive)
             result.stub_only_code_count = len(stub_only)
+            result.weak_code_count = len(weak)
             for e in code_ev:
                 for m in e.mock_markers:
                     result.mock_markers.append(f"{e.file_path}:{e.matched_text}:{m}")
@@ -726,6 +1033,10 @@ class EvidenceScanner:
             if result.mock_markers:
                 result.scan_notes.append(
                     f"MOCK 标记 {len(result.mock_markers)} 处（匹配节点体内）"
+                )
+            if weak:
+                result.scan_notes.append(
+                    f"弱证据 {len(weak)} 处（仅文本行命中，未锚定 AST 节点），不计入实质实现"
                 )
 
         # (b) 测试
