@@ -20,6 +20,7 @@ import hashlib
 import json
 import time
 from dataclasses import dataclass, field, asdict
+from datetime import datetime, timedelta, timezone
 from typing import Any
 
 from sqlalchemy import bindparam, text
@@ -316,16 +317,55 @@ def reconcile(
         ownership_report = _reverify_ownership(db, result, report_list, mission_to_nodes)
 
     # ── 5. Compute KPI ────────────────────────────────────────────────
+    # Coverage is a NODE ratio: done_with_report / (done_with_report + done_no_report).
+    # The earlier form divided distinct-missions-with-report by nodes-with-mission,
+    # i.e. numerator and denominator in different units — it under-reported whenever
+    # one mission carried several terminal nodes. Nodes sharing a mission are counted
+    # per node now; mission-level counts stay in the KPI for traceability.
     total_nodes_with_mission = sum(1 for n in node_list if n.get("mission_id") is not None)
+    nodes_with_report = sum(
+        1 for n in node_list
+        if n.get("mission_id") is not None and n["mission_id"] in mission_to_reports
+    )
+    done_with_report = sum(
+        1 for n in node_list
+        if n.get("mission_id") is not None and n["status"] == "done"
+        and n["mission_id"] in mission_to_reports
+    )
+    blocked_with_report = sum(
+        1 for n in node_list
+        if n.get("mission_id") is not None and n["status"] == "blocked"
+        and n["mission_id"] in mission_to_reports
+    )
+    # Nodes with no mission_id cannot be joined to a report at all — they are
+    # counted separately instead of silently shrinking the denominator.
+    nodes_without_mission = len(node_list) - total_nodes_with_mission
     if total_nodes_with_mission > 0:
         result.report_coverage_rate = round(
-            len(missions_with_report) / total_nodes_with_mission * 100, 2
+            nodes_with_report / total_nodes_with_mission * 100, 2
         )
     else:
         result.report_coverage_rate = 100.0  # vacuously true
+    done_terminal = done_with_report + len(result.done_no_report)
+    blocked_terminal = blocked_with_report + len(result.blocked_no_report)
+    done_rate = round(done_with_report / done_terminal * 100, 2) if done_terminal else 100.0
+    blocked_rate = (
+        round(blocked_with_report / blocked_terminal * 100, 2) if blocked_terminal else 100.0
+    )
 
     result.kpi = {
         "report_coverage_rate": result.report_coverage_rate,
+        "coverage_basis": "node",
+        "nodes_with_report": nodes_with_report,
+        # spec form: done_with_report / (done_with_report + done_no_report)
+        "done_with_report": done_with_report,
+        "done_no_report": len(result.done_no_report),
+        "report_coverage_rate_done": done_rate,
+        "blocked_with_report": blocked_with_report,
+        "blocked_no_report": len(result.blocked_no_report),
+        "report_coverage_rate_blocked": blocked_rate,
+        "nodes_without_mission": nodes_without_mission,
+        "missions_with_report": len(missions_with_report),
         "total_terminal_nodes": result.total_terminal_nodes,
         "total_reports": result.total_reports,
         "done_no_report_count": len(result.done_no_report),
@@ -509,6 +549,8 @@ QUEUE_TABLE = "tensor_report_supplement_queue"
 
 # Portable DDL: identical text is shipped as migrations/112_*.sql so that
 # "migration ⇔ code" never drifts (Postgres and SQLite both accept it).
+# IN50-W4-N10 (SLA): migrations/113_*.sql adds the four SLA columns below as
+# additive ALTERs, so 112 (base table) + 113 (SLA) == this DDL for fresh installs.
 QUEUE_DDL = f"""
 CREATE TABLE IF NOT EXISTS {QUEUE_TABLE} (
     dispatch_id     TEXT PRIMARY KEY,
@@ -523,9 +565,47 @@ CREATE TABLE IF NOT EXISTS {QUEUE_TABLE} (
     created_at      TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
     resolved_at     TIMESTAMP,
     note            TEXT NOT NULL DEFAULT '',
+    sla_hours       INTEGER NOT NULL DEFAULT 72,
+    due_at          TIMESTAMP,
+    escalation_level INTEGER NOT NULL DEFAULT 0,
+    escalated_at    TIMESTAMP,
     UNIQUE (organization_id, dispatch_key)
 )
 """
+
+# SLA for a supplement report: 72h from ticket creation to a report appearing.
+SLA_HOURS_DEFAULT = 72
+
+# Additive columns brought in by migration 113. Applied one-by-one through
+# tiny transactions because SQLite has no "ADD COLUMN IF NOT EXISTS"; a
+# duplicate-column error is the idempotent no-op path on both engines.
+SLA_COLUMNS: tuple[tuple[str, str], ...] = (
+    ("sla_hours", "INTEGER NOT NULL DEFAULT 72"),
+    ("due_at", "TIMESTAMP"),
+    ("escalation_level", "INTEGER NOT NULL DEFAULT 0"),
+    ("escalated_at", "TIMESTAMP"),
+)
+
+
+def _utcnow() -> datetime:
+    """Naive UTC now — TIMESTAMP columns are naive on both Postgres and SQLite."""
+    return datetime.now(timezone.utc).replace(tzinfo=None)
+
+
+def _as_naive_utc(value: Any) -> datetime | None:
+    """Coerce a DB timestamp (naive / aware / ISO string) to naive UTC."""
+    if value is None:
+        return None
+    if isinstance(value, datetime):
+        dt = value
+    else:
+        try:
+            dt = datetime.fromisoformat(str(value).replace("Z", "+00:00"))
+        except ValueError:
+            return None
+    if dt.tzinfo is not None:
+        dt = dt.astimezone(timezone.utc).replace(tzinfo=None)
+    return dt
 
 KPI_METRIC = "report_coverage_rate"
 
@@ -541,13 +621,36 @@ def dispatch_id_for(org_id: int, mission_id: int) -> str:
 
 
 def ensure_supplement_queue(db: Session) -> None:
-    """Create the dispatch outbox if the migration has not run yet."""
+    """Create the dispatch outbox if the migration has not run yet.
+
+    Also widens an outbox created by migration 112 (no SLA columns) to the
+    migration-113 shape, so a deployment that only ran the old migration keeps
+    working without a manual ALTER.
+    """
     db.execute(text(QUEUE_DDL))
     db.commit()
+    for column, decl in SLA_COLUMNS:
+        try:
+            db.execute(text(f"ALTER TABLE {QUEUE_TABLE} ADD COLUMN {column} {decl}"))
+            db.commit()
+        except Exception:  # column already present (or engine refused) → no-op
+            db.rollback()
 
 
-def _insert_dispatch(db: Session, org_id: int, entry: ReconcileEntry, priority: str) -> bool:
-    """Insert one ticket; returns True if newly created, False if already queued."""
+def _insert_dispatch(
+    db: Session,
+    org_id: int,
+    entry: ReconcileEntry,
+    priority: str,
+    sla_hours: int = SLA_HOURS_DEFAULT,
+    now: datetime | None = None,
+) -> bool:
+    """Insert one ticket; returns True if newly created, False if already queued.
+
+    The ticket carries its own SLA deadline (``due_at = created + sla_hours``),
+    so lateness is a property of the row and survives restarts — the scheduler
+    never has to remember when a ticket was filed.
+    """
     key = dispatch_key_for(entry.mission_id)
     did = dispatch_id_for(org_id, entry.mission_id)
     existing = db.execute(
@@ -557,27 +660,41 @@ def _insert_dispatch(db: Session, org_id: int, entry: ReconcileEntry, priority: 
     ).first()
     if existing:
         return False
+    created = (now or _utcnow())
+    due = created + timedelta(hours=int(sla_hours))
     try:
         db.execute(
             text(f"""
                 INSERT INTO {QUEUE_TABLE}
                     (dispatch_id, organization_id, dispatch_key, dispatch_type,
-                     mission_id, node_id, plan_id, priority, status, note)
+                     mission_id, node_id, plan_id, priority, status, note,
+                     sla_hours, due_at, escalation_level)
                 VALUES (:did, :org, :key, 'supplement_report',
-                        :mid, :nid, :pid, :prio, 'pending', :note)
+                        :mid, :nid, :pid, :prio, 'pending', :note,
+                        :sla, :due, 0)
             """),
             {
                 "did": did, "org": org_id, "key": key, "mid": entry.mission_id,
                 "nid": entry.node_id, "pid": entry.plan_id, "prio": priority,
+                "sla": int(sla_hours), "due": due.isoformat(sep=" "),
                 "note": f"{entry.category}: node {entry.node_id} ({entry.node_status}) "
-                        f"terminal without report",
+                        f"terminal without report; sla={int(sla_hours)}h due={due.isoformat()}",
             },
         )
         db.commit()
         return True
     except Exception:
-        # Lost a race against a concurrent dispatcher: the UNIQUE key did its job.
+        # Either a concurrent dispatcher won the UNIQUE(org, dispatch_key) race,
+        # or the insert genuinely failed. Distinguish the two: a silent False on a
+        # real error would hide lost tickets, so re-verify before swallowing.
         db.rollback()
+        still_absent = db.execute(
+            text(f"SELECT dispatch_id FROM {QUEUE_TABLE} "
+                 "WHERE organization_id = :org AND dispatch_key = :key"),
+            {"org": org_id, "key": key},
+        ).first() is None
+        if still_absent:
+            raise
         return False
 
 
@@ -587,6 +704,7 @@ def dispatch_missing_reports(
     plan_ids: Any = None,
     priority: str = "normal",
     dry_run: bool = False,
+    sla_hours: int = SLA_HOURS_DEFAULT,
 ) -> dict[str, Any]:
     """
     Auto-generate one supplement ticket per terminal node that has no report.
@@ -594,6 +712,10 @@ def dispatch_missing_reports(
     Idempotency: dispatch_key = "supplement_report:<mission_id>", enforced by a
     UNIQUE(organization_id, dispatch_key) constraint — a second run creates zero
     new rows (J3).
+
+    Every ticket is stamped with ``due_at = created_at + sla_hours`` (default
+    72h) and overdue pending tickets are escalated in the same pass, so one call
+    both files work and chases what is late.
 
     Returns a summary dict with the clickable node list the gate must publish.
     """
@@ -608,19 +730,22 @@ def dispatch_missing_reports(
         "dispatched": 0,
         "already_queued": 0,
         "resolved": 0,
+        "sla_hours": int(sla_hours),
         "tickets": [],
     }
     if dry_run:
         summary["tickets"] = [
             {"mission_id": e.mission_id, "node_id": e.node_id, "plan_id": e.plan_id,
-             "category": e.category, "would_dispatch": True}
+             "category": e.category, "would_dispatch": True,
+             "due_at": (_utcnow() + timedelta(hours=int(sla_hours))).isoformat(sep=" ")}
             for e in candidates
         ]
+        summary["sla"] = {"sla_hours": int(sla_hours), "dry_run": True}
         return summary
 
     ensure_supplement_queue(db)
     for e in candidates:
-        created = _insert_dispatch(db, effective_org, e, priority)
+        created = _insert_dispatch(db, effective_org, e, priority, sla_hours=sla_hours)
         summary["dispatched" if created else "already_queued"] += 1
         summary["tickets"].append({
             "mission_id": e.mission_id,
@@ -632,6 +757,10 @@ def dispatch_missing_reports(
         })
 
     summary["resolved"] = close_resolved_dispatches(db, effective_org)["resolved"]
+    summary["sla"] = {
+        **sla_report(db, effective_org),
+        "escalated": escalate_overdue(db, effective_org)["escalated"],
+    }
     return summary
 
 
@@ -665,9 +794,150 @@ def close_resolved_dispatches(db: Session, org_id: int | None = None) -> dict[st
     return {"resolved": len(ids), "dispatch_ids": ids}
 
 
+# ─────────────────────── SLA: lateness accounting ───────────────────
+
+SLA_BUCKETS: tuple[tuple[str, float], ...] = (
+    ("<=24h", 24.0), ("24-48h", 48.0), ("48-72h", 72.0), (">72h", float("inf")),
+)
+
+
+def _load_pending_tickets(db: Session, org_id: int) -> list[dict[str, Any]]:
+    """Pending supplement tickets with their deadline, robust to a 112-era table."""
+    try:
+        rows = db.execute(
+            text(f"""
+                SELECT dispatch_id, mission_id, node_id, plan_id, priority,
+                       status, created_at, due_at, resolved_at, sla_hours,
+                       escalation_level, escalated_at
+                FROM {QUEUE_TABLE}
+                WHERE organization_id = :org
+            """),
+            {"org": org_id},
+        ).mappings().all()
+    except Exception:  # outbox not created yet
+        db.rollback()
+        return []
+    return [dict(r) for r in rows]
+
+
+def sla_report(
+    db: Session,
+    org_id: int | None = None,
+    now: datetime | None = None,
+    sla_hours: int = SLA_HOURS_DEFAULT,
+) -> dict[str, Any]:
+    """
+    Lateness ledger over the supplement outbox.
+
+    A ticket's deadline is ``due_at`` when the row carries one; rows written
+    before migration 113 fall back to ``created_at + sla_hours`` so the SLA clock
+    starts at filing time for legacy rows too (no silent exemption).
+
+    Returns counts, an aging histogram over *pending* tickets, the on-time rate
+    over *resolved* tickets, and the overdue ticket list (clickable).
+    """
+    org = org_id if org_id is not None else 1
+    moment = now or _utcnow()
+    tickets = _load_pending_tickets(db, org)
+
+    pending: list[dict[str, Any]] = []
+    resolved: list[dict[str, Any]] = []
+    for t in tickets:
+        created = _as_naive_utc(t.get("created_at")) or moment
+        due = _as_naive_utc(t.get("due_at")) or (
+            created + timedelta(hours=int(t.get("sla_hours") or sla_hours))
+        )
+        rec = {
+            "dispatch_id": t["dispatch_id"],
+            "mission_id": t.get("mission_id"),
+            "node_id": t.get("node_id"),
+            "plan_id": t.get("plan_id"),
+            "priority": t.get("priority"),
+            "status": t.get("status"),
+            "created_at": created.isoformat(sep=" "),
+            "due_at": due.isoformat(sep=" "),
+            "sla_hours": int(t.get("sla_hours") or sla_hours),
+            "escalation_level": int(t.get("escalation_level") or 0),
+        }
+        if str(t.get("status") or "") == "pending":
+            rec["age_hours"] = round((moment - created).total_seconds() / 3600.0, 2)
+            rec["hours_to_due"] = round((due - moment).total_seconds() / 3600.0, 2)
+            rec["overdue"] = rec["hours_to_due"] < 0
+            pending.append(rec)
+        else:
+            resolved_at = _as_naive_utc(t.get("resolved_at"))
+            rec["resolved_at"] = resolved_at.isoformat(sep=" ") if resolved_at else None
+            rec["on_time"] = bool(resolved_at and resolved_at <= due)
+            resolved.append(rec)
+
+    overdue = [t for t in pending if t["overdue"]]
+    due_soon = [t for t in pending if 0 <= t["hours_to_due"] <= 12]
+    aging = {label: 0 for label, _ in SLA_BUCKETS}
+    for t in pending:
+        for label, upper in SLA_BUCKETS:
+            if t["age_hours"] <= upper:
+                aging[label] += 1
+                break
+
+    on_time_rate = (
+        round(sum(1 for t in resolved if t["on_time"]) / len(resolved) * 100, 2)
+        if resolved else None
+    )
+    return {
+        "sla_hours": int(sla_hours),
+        "total_tickets": len(tickets),
+        "pending": len(pending),
+        "resolved": len(resolved),
+        "overdue": len(overdue),
+        "due_within_12h": len(due_soon),
+        "on_time_rate": on_time_rate,
+        "aging_hours": aging,
+        "max_age_hours": max((t["age_hours"] for t in pending), default=0.0),
+        "overdue_tickets": sorted(overdue, key=lambda t: t["hours_to_due"]),
+    }
+
+
+def escalate_overdue(
+    db: Session,
+    org_id: int | None = None,
+    now: datetime | None = None,
+    sla_hours: int = SLA_HOURS_DEFAULT,
+    max_level: int = 3,
+) -> dict[str, Any]:
+    """
+    Bump every overdue pending ticket that has not been bumped yet.
+
+    Idempotent: the guard is ``escalated_at IS NULL``, so a second run in the
+    same overdue window touches zero rows (no level inflation, no event storm).
+    Overdue at/above ``max_level`` is left alone but still reported.
+    """
+    org = org_id if org_id is not None else 1
+    moment = now or _utcnow()
+    report = sla_report(db, org, now=moment, sla_hours=sla_hours)
+    ids: list[str] = []
+    for t in report["overdue_tickets"]:
+        if t["escalation_level"] >= max_level:
+            continue
+        if t["escalation_level"] > 0:
+            # already escalated once for this ticket; the row is only re-armed
+            # when a human clears escalated_at, so do not double-bump.
+            continue
+        ids.append(t["dispatch_id"])
+    if ids:
+        db.execute(
+            text(f"UPDATE {QUEUE_TABLE} SET priority = 'urgent', "
+                 f"escalation_level = escalation_level + 1, escalated_at = :ts "
+                 f"WHERE organization_id = :org AND status = 'pending' "
+                 f"AND dispatch_id IN :ids").bindparams(bindparam("ids", expanding=True)),
+            {"ts": moment.isoformat(sep=" "), "org": org, "ids": ids},
+        )
+        db.commit()
+    return {"escalated": len(ids), "dispatch_ids": ids}
+
+
 # ─────────────────── KPI: snapshot + trend readback ─────────────────
 
-def gate_status(result: ReconcileResult) -> dict[str, Any]:
+def gate_status(result: ReconcileResult, sla: dict[str, Any] | None = None) -> dict[str, Any]:
     """
     Gate verdict. A red gate must always publish a clickable node list — never
     a silent red (curl-able /tensor/campaigns/plans/{plan_id}/nodes).
@@ -681,7 +951,7 @@ def gate_status(result: ReconcileResult) -> dict[str, Any]:
     ]
     forged = result.report_no_node + result.report_hash_mismatch
     status = "GREEN" if not debt and not forged else "RED"
-    return {
+    verdict = {
         "status": status,
         "debt_nodes": len(debt),
         "done_no_report": len(result.done_no_report),
@@ -689,6 +959,19 @@ def gate_status(result: ReconcileResult) -> dict[str, Any]:
         "forged_reports": len(forged),
         "clickable": clickable,
     }
+    if sla is not None:
+        # SLA lateness colours the verdict amber-ish but must not mask the debt
+        # count: debt drives RED, overdue drives "SLA_BREACH" in the same object.
+        verdict["sla"] = {
+            "sla_hours": sla.get("sla_hours"),
+            "pending": sla.get("pending"),
+            "overdue": sla.get("overdue"),
+            "due_within_12h": sla.get("due_within_12h"),
+            "on_time_rate": sla.get("on_time_rate"),
+            "aging_hours": sla.get("aging_hours"),
+            "breach": bool(sla.get("overdue")),
+        }
+    return verdict
 
 
 def snapshot_coverage(
@@ -701,8 +984,9 @@ def snapshot_coverage(
     """Persist report_coverage_rate (%) into tensor_guide_tracker (J6)."""
     if result is None:
         result = reconcile(db, org_id, plan_ids=plan_ids)
-    gate = gate_status(result)
-    note = (f"scope=plans:{result.scope.get('plan_ids') or 'ALL'}; "
+    gate = gate_status(result, sla=sla_report(db, org_id))
+    note = (f"unit=percent;basis={result.kpi.get('coverage_basis', 'node')};"
+            f"scope=plans:{result.scope.get('plan_ids') or 'ALL'}; "
             f"debt={gate['debt_nodes']} (done={gate['done_no_report']}, "
             f"blocked={gate['blocked_no_report']}); forged={gate['forged_reports']}; "
             f"gate={gate['status']}")
@@ -732,22 +1016,50 @@ def snapshot_coverage(
         "coverage_rate": result.report_coverage_rate,
         "debt_nodes": gate["debt_nodes"],
         "gate": gate["status"],
+        "sla": gate.get("sla"),
         "clickable": gate["clickable"],
     }
 
 
+def _to_percent(value: Any, target: Any) -> tuple[float | None, str]:
+    """
+    Put a stored KPI point on the percent scale this module writes.
+
+    Both codings exist in the historical series: percent-coded rows (value 0..100
+    with target 100) and ratio-coded rows written by early wave scripts (value
+    0..1 with target 1). Plotting them raw mixes units — a 0.73 next to a 76.19.
+    A row is read as ratio-coded only when *both* its value and target are <= 1,
+    which cannot happen for a genuine percent point below 1% with target 100.
+    """
+    if value is None:
+        return None, "unknown"
+    val = float(value)
+    tgt = float(target) if target is not None else None
+    if abs(val) <= 1.0 and (tgt is not None and abs(tgt) <= 1.0):
+        return round(val * 100, 2), "ratio->percent"
+    return val, "percent"
+
+
 def coverage_trend(db: Session, org_id: int, limit: int = 60) -> dict[str, Any]:
-    """Read back the KPI series for the trend line (J6)."""
+    """Read back the KPI series for the trend line (J6), normalized to percent."""
     rows = db.execute(
         text("SELECT metric_value, target_value, snapshot_at, notes FROM tensor_guide_tracker "
              "WHERE organization_id = :org AND metric_key = :key "
-             "ORDER BY snapshot_at DESC LIMIT :lim"),
+             # id breaks ties: several snapshots in the same second must keep
+             # their insertion order or a trend line scrambles them.
+             "ORDER BY snapshot_at DESC, id DESC LIMIT :lim"),
         {"org": org_id, "key": KPI_METRIC, "lim": int(limit)},
     ).mappings().all()
-    series = [
-        {"value": float(r["metric_value"]),
-         "target": float(r["target_value"]) if r["target_value"] is not None else None,
-         "at": str(r["snapshot_at"]), "notes": r["notes"]}
-        for r in reversed(rows)
-    ]
-    return {"metric_key": KPI_METRIC, "points": len(series), "series": series}
+    series = []
+    for r in reversed(rows):
+        value, scale = _to_percent(r["metric_value"], r["target_value"])
+        series.append({
+            "value": value,
+            "raw_value": float(r["metric_value"]) if r["metric_value"] is not None else None,
+            "scale": scale,
+            "unit": "percent",
+            "target": 100.0,
+            "at": str(r["snapshot_at"]), "notes": r["notes"],
+        })
+    return {"metric_key": KPI_METRIC, "points": len(series), "unit": "percent",
+            "series": series}
