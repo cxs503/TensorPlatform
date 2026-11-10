@@ -1,0 +1,175 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/contracts/conservation_law.schema.json",
+  "title": "Conservation Law Contract v1",
+  "description": "Machine-checkable contract for an interface exchange between two solvers. It states which quantity is exchanged, which operator transfers it, the residual norm, the design convergence order and the fixed-point convergence gate. Everything domain-specific (what the quantity means physically) is supplied by the call site through this file; the platform code that consumes it knows no domain.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "law_id",
+    "quantity_kind",
+    "interface_operator",
+    "residual",
+    "refinement_gate",
+    "loop_gate"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "conservation-law.v1"
+    },
+    "law_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$",
+      "description": "Stable identifier of this conservation law inside the coupled system."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "quantity_kind": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 64,
+      "description": "Name of the exchanged quantity as declared by the call site (never interpreted here)."
+    },
+    "norm": {
+      "enum": ["l2_relative", "linf_relative"],
+      "default": "l2_relative"
+    },
+    "interface_operator": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["kind", "order_class"],
+      "properties": {
+        "kind": {
+          "enum": ["donor_cell", "linear_reconstruction", "quadratic_projection"]
+        },
+        "order_class": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 6,
+          "description": "Design order of accuracy of the transfer under mesh refinement."
+        },
+        "stencil": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 9
+        }
+      }
+    },
+    "residual": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["relative_tolerance"],
+      "properties": {
+        "relative_tolerance": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "description": "||F_A - F_B|| / ||F_A|| must not exceed this value."
+        },
+        "analytic_tolerance": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "description": "Optional tighter bound against a closed-form reference flux."
+        }
+      }
+    },
+    "refinement_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["levels", "min_observed_order"],
+      "properties": {
+        "levels": {
+          "type": "array",
+          "minItems": 3,
+          "maxItems": 8,
+          "items": {"type": "integer", "minimum": 4, "maximum": 4096},
+          "description": "Cell counts of the source mesh per refinement level."
+        },
+        "ratio": {
+          "type": "number",
+          "exclusiveMinimum": 1,
+          "maximum": 4,
+          "default": 1.5,
+          "description": "Destination/source cell-count ratio; a non-integer value keeps the meshes non-matching."
+        },
+        "min_observed_order": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 6
+        },
+        "floor": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "default": 0.000000000001,
+          "description": "Residuals below this value are treated as the floating-point floor and dropped from the fit."
+        }
+      }
+    },
+    "loop_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["tolerance", "max_iterations"],
+      "properties": {
+        "scheme": {"enum": ["jacobi", "gauss_seidel"], "default": "jacobi"},
+        "relaxation": {"enum": ["none", "aitken"], "default": "aitken"},
+        "tolerance": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "max_iterations": {"type": "integer", "minimum": 1, "maximum": 100000},
+        "rho_max": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 2,
+          "default": 1.0,
+          "description": "Estimated contraction factor above which the loop is declared DIVERGED."
+        },
+        "min_iteration_reduction": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Required fractional reduction of iterations versus the unrelaxed baseline."
+        }
+      }
+    },
+    "sensitivity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parameter", "relative_tolerance"],
+      "properties": {
+        "parameter": {"type": "string", "minLength": 1, "maxLength": 64},
+        "relative_tolerance": {"type": "number", "exclusiveMinimum": 0, "maximum": 1},
+        "step": {"type": "number", "exclusiveMinimum": 0}
+      }
+    },
+    "negative_controls": {
+      "type": "array",
+      "maxItems": 8,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "kind"],
+        "properties": {
+          "name": {"type": "string", "minLength": 1, "maxLength": 64},
+          "kind": {
+            "enum": ["jittered_flux", "noisy_operator", "divergent_loop"]
+          },
+          "must_fail": {"type": "boolean", "default": true},
+          "amplitude": {"type": "number", "exclusiveMinimum": 0},
+          "seed": {"type": "integer", "minimum": 0}
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "owner": {"type": "string", "maxLength": 128},
+        "source_node": {"type": "string", "maxLength": 64},
+        "created": {"type": "string", "maxLength": 32},
+        "notes": {"type": "string", "maxLength": 1024}
+      }
+    }
+  }
+}
