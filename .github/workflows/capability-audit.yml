@@ -1,0 +1,75 @@
+name: Capability audit gate
+
+# 能力台账自动审计管线（P304W2-N08）。
+# 三层门，全部机器可算：
+#   1) 口径漂移门：spec 必须能由注册表重新生成（生成物 git diff 必须为空）；
+#   2) 金标准门：10 项五级均衡标注语料的自动判定一致率 ≥90%（多数类基线 30%）+ pytest ≥15；
+#   3) 回归门：与冻结基线对比，任一能力等级下降（尤其 REAL→MOCK 反证）→ CI 红。
+on:
+  push:
+    branches: [main]
+  pull_request:
+  schedule:
+    - cron: "50 3 * * *"   # 每晚随全量巡检复跑，抓"夜间代码改动导致的能力退化"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: capability-audit-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  audit-gate:
+    name: capability audit + regression gate
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip && pip install pytest
+
+      - name: Spec drift gate (regenerate from registry, fail on diff)
+        # spec 是"注册表 + 人审证据面"的派生物，手改 spec 而不改生成器 → 红。
+        run: |
+          python -m scripts.gen_capability_audit_spec
+          git diff --exit-code -- config/capability_audit_gate/spec.json \
+            || (echo "::error::capability spec drift: regenerate via scripts/gen_capability_audit_spec.py" && exit 1)
+
+      - name: "Unit + contract tests (rules / scan / gate / report)"
+        run: python -m pytest -q tests/capability_audit_gate
+
+      - name: "Golden corpus agreement gate (>=90%, majority baseline 30%)"
+        run: |
+          python -m tools.capability_audit_gate.cli audit \
+            --spec config/capability_audit_gate/golden/spec.json \
+            --root config/capability_audit_gate/golden \
+            --out /tmp/cag_golden --enforce-acceptance
+
+      - name: Real ledger audit + baseline regression gate
+        # --fail-on-gate：等级下降（REAL→MOCK 等）→ 退出码 1 → CI 红；
+        # --enforce-acceptance：覆盖 100% / 一致率 ≥90% / 证据链 100% / <60s 任一不达 → 退出码 3。
+        run: |
+          python -m tools.capability_audit_gate.cli audit \
+            --spec config/capability_audit_gate/spec.json \
+            --root . \
+            --out artifacts/capability_audit_gate \
+            --cache /tmp/cag_cache.json \
+            --baseline artifacts/capability_audit_gate/baseline.json \
+            --contrast artifacts/capability_ledger/capability_ledger_resolved.json \
+            --fail-on-gate --enforce-acceptance
+
+      - name: Upload audit artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: capability-audit-report
+          path: |
+            artifacts/capability_audit_gate/report.json
+            artifacts/capability_audit_gate/report.md
+            artifacts/capability_audit_gate/criteria.json
+            artifacts/capability_audit_gate/gate.json
+          if-no-files-found: warn

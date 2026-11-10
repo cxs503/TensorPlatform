@@ -1,0 +1,202 @@
+{
+  "capabilities": [
+    {
+      "benchmark": {
+        "aggregate": "worst",
+        "cases_path": "cases",
+        "check_class": "experimental",
+        "computed_fields": [
+          "computed"
+        ],
+        "kind": "json_cases",
+        "metric": "value_vs_reference",
+        "path": "alpha_compute/bench.json",
+        "reference_fields": [
+          "reference"
+        ],
+        "tolerance_pct": 3.0
+      },
+      "bindings": {
+        "code": [
+          "alpha_compute/impl.py"
+        ],
+        "tests": [
+          "alpha_compute/checks_impl.py"
+        ]
+      },
+      "expected_level": "REAL",
+      "id": "alpha.compute",
+      "patterns": {}
+    },
+    {
+      "benchmark": {
+        "aggregate": "worst",
+        "cases_path": "cases",
+        "check_class": "experimental",
+        "computed_fields": [
+          "computed"
+        ],
+        "kind": "json_cases",
+        "metric": "root_vs_reference",
+        "path": "beta_solve/bench.json",
+        "reference_fields": [
+          "reference"
+        ],
+        "tolerance_pct": 3.0
+      },
+      "bindings": {
+        "code": [
+          "beta_solve/impl.py"
+        ],
+        "tests": [
+          "beta_solve/checks_impl.py"
+        ]
+      },
+      "expected_level": "REAL",
+      "id": "beta.solve",
+      "patterns": {}
+    },
+    {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "gamma_estimate/impl.py"
+        ],
+        "tests": [
+          "gamma_estimate/checks_impl.py"
+        ]
+      },
+      "expected_level": "MOCK",
+      "id": "gamma.estimate",
+      "patterns": {}
+    },
+    {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "delta_infer/impl.py"
+        ],
+        "tests": [
+          "delta_infer/checks_impl.py"
+        ]
+      },
+      "expected_level": "MOCK",
+      "id": "delta.infer",
+      "patterns": {}
+    },
+    {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "epsilon_transform/impl.py"
+        ],
+        "tests": [
+          "epsilon_transform/checks_impl.py"
+        ]
+      },
+      "expected_level": "STUB",
+      "id": "epsilon.transform",
+      "patterns": {}
+    },
+    {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "zeta_utility/impl.py"
+        ],
+        "tests": [
+          "zeta_utility/checks_impl.py"
+        ]
+      },
+      "expected_level": "STUB",
+      "id": "zeta.utility",
+      "patterns": {}
+    },
+    {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "eta_blend/impl.py"
+        ],
+        "tests": [
+          "eta_blend/checks_impl.py"
+        ]
+      },
+      "expected_level": "WITHHELD",
+      "id": "eta.blend",
+      "patterns": {}
+    },
+    {
+      "benchmark": {
+        "aggregate": "worst",
+        "cases_path": "cases",
+        "check_class": "experimental",
+        "computed_fields": [
+          "computed"
+        ],
+        "kind": "json_cases",
+        "metric": "value_vs_reference",
+        "path": "theta_merge/bench.json",
+        "reference_fields": [
+          "reference"
+        ],
+        "tolerance_pct": 3.0
+      },
+      "bindings": {
+        "code": [
+          "theta_merge/impl.py"
+        ],
+        "tests": [
+          "theta_merge/checks_impl.py"
+        ]
+      },
+      "expected_level": "WITHHELD",
+      "id": "theta.merge",
+      "patterns": {}
+    },
+    {
+      "benchmark": null,
+      "bindings": {
+        "code": [
+          "iota_registry/missing_impl.py"
+        ],
+        "tests": [
+          "iota_registry/checks_impl.py"
+        ]
+      },
+      "expected_level": "NOT_SUPPORTED",
+      "id": "iota.registry",
+      "patterns": {}
+    },
+    {
+      "benchmark": {
+        "aggregate": "worst",
+        "cases_path": "cases",
+        "check_class": "analytic",
+        "computed_fields": [
+          "computed"
+        ],
+        "kind": "json_cases",
+        "metric": "invariant_vs_reference",
+        "path": "lambda_mesh/bench.json",
+        "reference_fields": [
+          "reference"
+        ],
+        "tolerance_pct": 3.0
+      },
+      "bindings": {
+        "code": [
+          "lambda_mesh/impl.py"
+        ],
+        "tests": [
+          "lambda_mesh/checks_impl.py"
+        ]
+      },
+      "expected_level": "MOCK",
+      "id": "lambda.mesh",
+      "patterns": {}
+    }
+  ],
+  "schema_version": "1.0",
+  "title": "金标准标注语料（合成能力名，零领域语义；10 项五级均衡）"
+}
