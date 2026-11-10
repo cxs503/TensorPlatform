@@ -1,0 +1,42 @@
+{
+  "node": "syn-beta-exchange",
+  "generator": "tools/evidence_pipeline/generators/syn_beta_exchange.py",
+  "params": {"n_src": 4, "n_dst": 5, "operator": "overlap_l2", "moment_exact": true},
+  "timeout_s": 120,
+  "gates": [
+    {
+      "id": "exchange_quality",
+      "type": "numeric",
+      "thresholds": {
+        "sum_rel_residual": {"max": 1e-14},
+        "moment_rel_residual": {"max": 1e-12},
+        "nonneg_violation": {"max": 1e-12}
+      }
+    },
+    {
+      "id": "exchange_conservation",
+      "type": "conservation",
+      "fields": {"src": "src", "dst": "dst"},
+      "thresholds": {
+        "sum_rel_residual": 1e-14,
+        "moment_rel_residual": 1e-12,
+        "nonneg_violation": 1e-12,
+        "overshoot_ratio": 1.02
+      }
+    }
+  ],
+  "regression": {
+    "enabled": true,
+    "baseline": "artifacts/P167W2-N11/baselines/syn-beta-exchange.json",
+    "tol": 1e-06,
+    "reruns": 2,
+    "floors": {
+      "sum_rel_residual": 1e-09,
+      "moment_rel_residual": 1e-09,
+      "nonneg_violation": 1e-09,
+      "overshoot_ratio": 1e-09,
+      "dst_total": 1e-09,
+      "src_total": 1e-09
+    }
+  }
+}

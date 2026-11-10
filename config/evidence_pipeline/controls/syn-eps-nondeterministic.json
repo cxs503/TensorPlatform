@@ -1,0 +1,14 @@
+{
+  "node": "syn-eps-nondeterministic",
+  "generator": "tools/evidence_pipeline/generators/syn_eps_nondeterministic.py",
+  "params": {},
+  "timeout_s": 120,
+  "gates": [
+    {
+      "id": "value_in_range",
+      "type": "numeric",
+      "thresholds": {"value": {"min": 0.9, "max": 1.1}}
+    }
+  ],
+  "regression": {"enabled": false, "baseline": "", "tol": 1e-06, "reruns": 0}
+}
