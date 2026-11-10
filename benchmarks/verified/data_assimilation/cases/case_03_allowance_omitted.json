@@ -1,0 +1,109 @@
+{
+  "case_id": "case_03_allowance_omitted",
+  "description": "Full-size numbers quoted without the size allowance: the two flavors are not on one basis.",
+  "expected": {
+    "allowance_in_quoted": false,
+    "error_decision_allowed": false,
+    "exit_code": 0,
+    "scale_assignment": {
+      "F1": "full",
+      "F2": "full",
+      "R1": "reduced",
+      "R2": "reduced",
+      "R3": "reduced"
+    },
+    "status": "SUBSIDY_OMITTED"
+  },
+  "generator": {
+    "lines_fingerprint": "4b1f46ff848d3f92fec1dbce9d3430e142e665e0ad4beb898e605e13397b3546",
+    "physics": {
+      "area_reduced": 4.0,
+      "degrade_noise": 0.02,
+      "density_full": 1025.0,
+      "density_reduced": 998.2,
+      "form_factor": 1.18,
+      "reduced_length": 6.0,
+      "residual_coefficient": 0.3,
+      "residual_exponent": 4.0,
+      "scale_factor": 30.0,
+      "speed_ratio_full": [
+        0.2,
+        0.26
+      ],
+      "speed_ratio_reduced": [
+        0.16,
+        0.2,
+        0.26
+      ],
+      "undocumented_allowance_fraction": 0.06,
+      "viscosity_full": 1.188e-06,
+      "viscosity_reduced": 1.004e-06
+    },
+    "seed": 13,
+    "version": "caliber-synth/1.0"
+  },
+  "object_id": "obj_alpha",
+  "rows": [
+    {
+      "area_m2": 4.0,
+      "coefficient": 0.00393522436763484,
+      "density_kg_m3": 998.2,
+      "force_N": 11.83392878050881,
+      "length_m": 6.0,
+      "object_id": "obj_alpha",
+      "row_id": "R1",
+      "scale": "reduced",
+      "speed_m_s": 1.2273147273621383,
+      "viscosity_m2_s": 1.004e-06
+    },
+    {
+      "area_m2": 4.0,
+      "coefficient": 0.004074016997723785,
+      "density_kg_m3": 998.2,
+      "force_N": 19.142661295154234,
+      "length_m": 6.0,
+      "object_id": "obj_alpha",
+      "row_id": "R2",
+      "scale": "reduced",
+      "speed_m_s": 1.534143409202673,
+      "viscosity_m2_s": 1.004e-06
+    },
+    {
+      "area_m2": 4.0,
+      "coefficient": 0.004805409861811491,
+      "density_kg_m3": 998.2,
+      "force_N": 38.158967790403096,
+      "length_m": 6.0,
+      "object_id": "obj_alpha",
+      "row_id": "R3",
+      "scale": "reduced",
+      "speed_m_s": 1.9943864319634748,
+      "viscosity_m2_s": 1.004e-06
+    },
+    {
+      "area_m2": 3600.0,
+      "coefficient": 0.002233191887210551,
+      "density_kg_m3": 1025.0,
+      "force_N": 290921.3431359561,
+      "length_m": 180.0,
+      "object_id": "obj_alpha",
+      "row_id": "F1",
+      "scale": "full",
+      "speed_m_s": 8.402849516681826,
+      "viscosity_m2_s": 1.188e-06
+    },
+    {
+      "area_m2": 3600.0,
+      "coefficient": 0.0030692112360067225,
+      "density_kg_m3": 1025.0,
+      "force_N": 675714.170305076,
+      "length_m": 180.0,
+      "object_id": "obj_alpha",
+      "row_id": "F2",
+      "scale": "full",
+      "speed_m_s": 10.923704371686375,
+      "viscosity_m2_s": 1.188e-06
+    }
+  ],
+  "table_id": "case_03_allowance_omitted"
+}

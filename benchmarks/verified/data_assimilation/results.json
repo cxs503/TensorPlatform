@@ -1,0 +1,989 @@
+{
+  "all_pass": true,
+  "artifacts": {
+    "audit_log": "benchmarks/verified/data_assimilation/audit/gate_audit.jsonl",
+    "cases_dir": "benchmarks/verified/data_assimilation/cases",
+    "configs_dir": "benchmarks/verified/data_assimilation/config",
+    "results": "benchmarks/verified/data_assimilation/results.json"
+  },
+  "code_fingerprints": {
+    "tools/caliber_reader/gate.py": "0b586b2010e27e66db17a65053419f87927b02e974695a84cb0ec422461883b0",
+    "tools/caliber_reader/lines.py": "1c7bb95f15b282e6b7795afe5288e8b5993e6accd20acfdaca8f6a6fb880a7f2",
+    "tools/caliber_reader/reader.py": "e3653f13bcf353bc2f5417ead4b5859a0228d142607f55c945badf1e963f7b9d",
+    "tools/caliber_reader/synth.py": "d51bbac5aed6832f49091c18b849201a00de27341a5a0e75803f5ee0f6b29318",
+    "tools/data_assimilation/bayes.py": "6d0ae4c61d4761cf628090d9897548dbd25dc069cc080d2b151809cd1a217e8f",
+    "tools/data_assimilation/provenance.py": "5ba6ffdcf932285c15d4f3807fdfffe015b40c910dad36313d3058d2147f62b7",
+    "tools/data_assimilation/run_benchmark.py": "6c2674b03135dc616bd4ab641b2e9307d67cc6145e8e2f7536709b376ac36359"
+  },
+  "coverage_replicates": 100,
+  "criteria": {
+    "C1": {
+      "acceptance": [
+        0.4348,
+        0.4472,
+        0.4388
+      ],
+      "kind": "power",
+      "measured_max_abs_rel_err_pct": 2.0188510309024355,
+      "n_sensor_points": 56,
+      "pass": true,
+      "posterior": {
+        "acceptance": [
+          0.4348,
+          0.4472,
+          0.4388
+        ],
+        "ci_high": [
+          0.36095821655253535,
+          1.6499661800459375,
+          0.7193864625315107
+        ],
+        "ci_low": [
+          0.2515649300531489,
+          1.537606988323134,
+          0.6838346042201351
+        ],
+        "diagnostics": {
+          "max_rhat": 1.026122175378988,
+          "min_ess": 112.8290669398837,
+          "n_burn": 500,
+          "n_chains": 3,
+          "n_samples": 6000,
+          "n_steps": 2000,
+          "proposal_cov": [
+            [
+              0.0002182572517218368,
+              -0.00020802020678456124,
+              6.0077868640941485e-05
+            ],
+            [
+              -0.00020802020678456124,
+              0.00021735424838195558,
+              -6.767825557362885e-05
+            ],
+            [
+              6.0077868640941485e-05,
+              -6.767825557362885e-05,
+              2.3704891029725042e-05
+            ]
+          ],
+          "response_kind": "power",
+          "robust_nu": null,
+          "seed": 7,
+          "sigma": 0.02,
+          "tuning": {
+            "chosen_factor": 0.0003,
+            "pilot_acceptance": 0.03666666666666667,
+            "pilot_cov_diag": [
+              0.0002182572517218368,
+              0.00021735424838195558,
+              2.3704891029725042e-05
+            ],
+            "pilot_table": [
+              {
+                "acceptance": 0.03666666666666667,
+                "factor": 0.0003
+              },
+              {
+                "acceptance": 0.006666666666666667,
+                "factor": 0.001
+              },
+              {
+                "acceptance": 0.006666666666666667,
+                "factor": 0.003
+              },
+              {
+                "acceptance": 0.0,
+                "factor": 0.01
+              },
+              {
+                "acceptance": 0.0,
+                "factor": 0.03
+              },
+              {
+                "acceptance": 0.0,
+                "factor": 0.1
+              },
+              {
+                "acceptance": 0.0,
+                "factor": 0.3
+              },
+              {
+                "acceptance": 0.0,
+                "factor": 1.0
+              }
+            ],
+            "shape_history": [
+              {
+                "acceptance": 0.9425,
+                "cov_diag": [
+                  1.62155950946006e-06,
+                  3.1774645887388134e-06,
+                  1.7422149764709477e-06
+                ],
+                "stage": 0
+              },
+              {
+                "acceptance": 0.5866666666666667,
+                "cov_diag": [
+                  0.0002182572517218368,
+                  0.00021735424838195558,
+                  2.3704891029725042e-05
+                ],
+                "stage": 1
+              }
+            ],
+            "shape_stages": 2,
+            "shape_steps": 1200,
+            "target_accept": 0.3
+          }
+        },
+        "ess": [
+          112.8290669398837,
+          158.8492995164546,
+          162.12361908324235
+        ],
+        "level": 0.95,
+        "mean": [
+          0.3060565530927073,
+          1.5937577280395117,
+          0.7014569550865061
+        ],
+        "rhat": [
+          1.024106755054401,
+          1.0251188435137348,
+          1.026122175378988
+        ],
+        "sd": [
+          0.02806162179430731,
+          0.028635694516414588,
+          0.009055582571430049
+        ]
+      },
+      "relative_error_pct": [
+        2.0188510309024355,
+        -0.39014199753052703,
+        0.2081364409294454
+      ],
+      "sigma": 0.02,
+      "threshold_pct": 10.0
+    },
+    "C2": {
+      "coverage_per_parameter": [
+        0.93,
+        0.93,
+        0.96
+      ],
+      "coverage_pooled": 0.94,
+      "floor": 0.93,
+      "kind": "power",
+      "level": 0.95,
+      "max_rhat_median": 1.0314561376388807,
+      "mean_bias_pct": [
+        0.27412100897592867,
+        -0.02999871840013435,
+        0.05872925114601214
+      ],
+      "mean_spread_pct": [
+        10.391522206839337,
+        1.9330829518853505,
+        1.3103379653686251
+      ],
+      "n_replicates": 100,
+      "pass": true,
+      "seed": 11,
+      "sigma": 0.02,
+      "truth": [
+        0.3,
+        1.6,
+        0.7
+      ]
+    },
+    "C3": {
+      "accuracy": 1.0,
+      "correct": 6,
+      "n_cases": 6,
+      "pass": true,
+      "per_case": [
+        {
+          "allowance_fraction": -2.4736645894718206e-16,
+          "case_id": "case_01_declared_consistent",
+          "cases_file": "benchmarks/verified/data_assimilation/cases/case_01_declared_consistent.json",
+          "closure_residual_pct": 3.3120682183628686e-14,
+          "error_decision_allowed": true,
+          "exit_code": 0,
+          "expected": "CONSISTENT",
+          "form_factor": 1.1800000000000006,
+          "match": true,
+          "reason": "declared caliber agrees with the closure-identified caliber",
+          "residual_coefficient": 0.2999999999999998,
+          "verdict": "CONSISTENT"
+        },
+        {
+          "allowance_fraction": -2.4736645894718206e-16,
+          "case_id": "case_02_undeclared_scale",
+          "cases_file": "benchmarks/verified/data_assimilation/cases/case_02_undeclared_scale.json",
+          "closure_residual_pct": 3.3120682183628686e-14,
+          "error_decision_allowed": true,
+          "exit_code": 0,
+          "expected": "CALIBER_INFERRED",
+          "form_factor": 1.1800000000000006,
+          "match": true,
+          "reason": "no caliber declared; reduced/full assignment established from geometry + closure",
+          "residual_coefficient": 0.2999999999999998,
+          "verdict": "CALIBER_INFERRED"
+        },
+        {
+          "allowance_fraction": -2.473664589471821e-16,
+          "case_id": "case_03_allowance_omitted",
+          "cases_file": "benchmarks/verified/data_assimilation/cases/case_03_allowance_omitted.json",
+          "closure_residual_pct": 3.8839552613269303e-14,
+          "error_decision_allowed": false,
+          "exit_code": 0,
+          "expected": "SUBSIDY_OMITTED",
+          "form_factor": 1.1800000000000006,
+          "match": true,
+          "reason": "closure only holds when the size allowance is removed from the quoted full-scale numbers: the table's allowance is omitted",
+          "residual_coefficient": 0.2999999999999998,
+          "verdict": "SUBSIDY_OMITTED"
+        },
+        {
+          "allowance_fraction": 0.059999999999999803,
+          "case_id": "case_04_extra_allowance",
+          "cases_file": "benchmarks/verified/data_assimilation/cases/case_04_extra_allowance.json",
+          "closure_residual_pct": 3.8616796717066095,
+          "error_decision_allowed": false,
+          "exit_code": 0,
+          "expected": "ALLOWANCE_DETECTED",
+          "form_factor": 1.1800000000000006,
+          "match": true,
+          "reason": "quoted full-scale numbers carry an undocumented allowance of 6.00% of the viscous term",
+          "residual_coefficient": 0.2999999999999998,
+          "verdict": "ALLOWANCE_DETECTED"
+        },
+        {
+          "allowance_fraction": 0.050539371909999395,
+          "case_id": "case_05_degraded",
+          "cases_file": "benchmarks/verified/data_assimilation/cases/case_05_degraded.json",
+          "closure_residual_pct": 5.614142267980606,
+          "error_decision_allowed": false,
+          "exit_code": 3,
+          "expected": "DEGRADED",
+          "form_factor": 1.2000834536186247,
+          "match": true,
+          "reason": "closure residual 5.61% exceeds the 2.00% tolerance and the table carries data-quality issues: judgement refused",
+          "residual_coefficient": 0.2657461249765422,
+          "verdict": "DEGRADED"
+        },
+        {
+          "allowance_fraction": null,
+          "case_id": "case_06_corrupt",
+          "cases_file": "benchmarks/verified/data_assimilation/cases/case_06_corrupt.json",
+          "closure_residual_pct": null,
+          "error_decision_allowed": false,
+          "exit_code": 2,
+          "expected": "WITHHELD_CORRUPT",
+          "form_factor": null,
+          "match": true,
+          "reason": "row 'R1': force/coefficient identity violated (implied 3.93522 vs quoted 0.00393522)",
+          "residual_coefficient": null,
+          "verdict": "WITHHELD_CORRUPT"
+        }
+      ]
+    },
+    "C4": {
+      "cases_file": "benchmarks/verified/data_assimilation/cases/case_06_corrupt.json",
+      "error_decision_allowed": false,
+      "pass": true,
+      "reason": "row 'R1': force/coefficient identity violated (implied 3.93522 vs quoted 0.00393522)",
+      "status": "WITHHELD_CORRUPT",
+      "stdout": "case_06_corrupt.json: WITHHELD_CORRUPT (exit 2) -- row 'R1': force/coefficient identity violated (implied 3.93522 vs quoted 0.00393522)",
+      "subprocess_returncode": 2
+    },
+    "C5": {
+      "allowance_full": 0.00032240603428283993,
+      "attribution": {
+        "attribution": "CALIBER",
+        "confidence": "HIGH",
+        "dominant_factor": "residual_term",
+        "explained_pct": -17.095996524072284,
+        "observed": 0.002771687081184399,
+        "observed_deviation_pct": -17.105522284963794,
+        "reference": 0.0033436329627560264,
+        "residual_pct": -0.009525760891509057,
+        "steps": [
+          {
+            "delta_pct_of_reference": -41.69274349614447,
+            "factor": "scale_effect",
+            "ratio": 0.4970383474823216,
+            "value_after": 0.0013776347665699932
+          },
+          {
+            "delta_pct_of_reference": 6.8972836522028915,
+            "factor": "form_factor",
+            "ratio": 1.1674027509512055,
+            "value_after": 0.0016082546162998318
+          },
+          {
+            "delta_pct_of_reference": 42.24906924376764,
+            "factor": "residual_term",
+            "ratio": 1.8783769630597273,
+            "value_after": 0.003020908421992065
+          },
+          {
+            "delta_pct_of_reference": 9.64238712424622,
+            "factor": "size_allowance",
+            "ratio": 1.1067248619440893,
+            "value_after": 0.0033433144562749046
+          }
+        ]
+      },
+      "inversion": {
+        "allowance_value_full": 0.00032240603428283993,
+        "closure_pct": {
+          "full": 0.028882852759786234,
+          "reduced": 0.0
+        },
+        "flow_index_full": 2390141414.1414137,
+        "flow_index_reduced": 15916899.78046075,
+        "form_factor": 1.1671742756796666,
+        "residual_coefficient": 0.30972428940786045,
+        "residual_term": 0.0014132870676507284,
+        "speed_ratio_exponent": 4.0,
+        "speed_ratio_full": 0.25994887714586057,
+        "speed_ratio_reduced": 0.25990448860887855,
+        "viscous_full": 0.0013776347665699932,
+        "viscous_reduced": 0.002771687081184399
+      },
+      "naive_deviation_pct": -17.105522284963794,
+      "pass": true,
+      "post_conversion_deviation_pct": -0.009525760891509057,
+      "recovered": {
+        "form_factor": 1.1671742756796666,
+        "form_factor_error_pct": -0.019571246628701657,
+        "residual_term": 0.0014132870676507284,
+        "residual_term_error_pct": 0.04482782376994559
+      },
+      "reduced_side": {
+        "coefficient_derived": 0.0046483289290428186,
+        "length": 7.278,
+        "speed": 2.195736106015745,
+        "viscous": 0.002771687081184399
+      },
+      "residual_term": 0.0014126538056922332,
+      "seed_claim_deviation_pct": -16.5,
+      "table": {
+        "case_id": "kcs_design_24kn",
+        "coefficient_total": 0.0033436329627560264,
+        "coefficient_viscous": 0.00137790759998662,
+        "form_factor": 1.1674027509512055,
+        "length_full": 230.0,
+        "source": "tests/data/reference_corpus/resistance_reference.json",
+        "speed_full": 12.3456,
+        "speed_ratio": 0.25990448860887855
+      },
+      "tolerance_pct": 15.0
+    },
+    "C6": {
+      "audit_chain_ok": true,
+      "audit_events": 301,
+      "audit_log": "benchmarks/verified/data_assimilation/audit/gate_audit.jsonl",
+      "missing_caliber_decisions": {
+        "REJECT_CALIBER_MISSING": 100
+      },
+      "missing_caliber_rejection_rate": 1.0,
+      "n_cases": 100,
+      "partial_caliber_decision": "REJECT_CALIBER_INVALID",
+      "partial_caliber_reason": "caliber missing fields ['source', 'verdict_id']",
+      "pass": true,
+      "positive_control_accept_rate": 1.0,
+      "scale_mismatch_rejection_rate": 1.0
+    },
+    "C7": {
+      "evidence_sha256": "699fad02be3aae43004910eff1c6fcd9de61b97d397f23e48e32203c77d0305e",
+      "identical_across_reruns": true,
+      "pass": true,
+      "posterior_digest": "014b9d16a869fde8c8b62f71369f3bcd6dd1aed2b07ec196fe368987f89ea373"
+    },
+    "C8": {
+      "pass": true,
+      "provenance_rows": 56,
+      "verified": {
+        "checked": 56,
+        "n_rows": 56,
+        "ok": true,
+        "problems": []
+      }
+    }
+  },
+  "figures": [
+    {
+      "caption": "Posterior distributions of the twin parameters over the Monte-Carlo replicates, and the per-replicate 95% interval for theta_0 against the declared truth.",
+      "file": "benchmarks/verified/data_assimilation/figures/fig_posterior_coverage.png",
+      "name": "fig_posterior_coverage.png"
+    },
+    {
+      "caption": "Closure residual per synthetic benchmark table with the machine verdict vs the ground-truth verdict.",
+      "file": "benchmarks/verified/data_assimilation/figures/fig_caliber_verdicts.png",
+      "name": "fig_caliber_verdicts.png"
+    },
+    {
+      "caption": "Attribution of the observed deviation of the in-repo table: each bar is one caliber factor, in percent of the reference.",
+      "file": "benchmarks/verified/data_assimilation/figures/fig_attribution.png",
+      "name": "fig_attribution.png"
+    },
+    {
+      "caption": "Joint density of the updated twin parameters (theta_0 vs theta_1) over the Monte-Carlo replicates, truth marked.",
+      "file": "benchmarks/verified/data_assimilation/figures/fig_joint_density.png",
+      "name": "fig_joint_density.png"
+    }
+  ],
+  "lines_fingerprint": "4b1f46ff848d3f92fec1dbce9d3430e142e665e0ad4beb898e605e13397b3546",
+  "mission": "P148W2-N03",
+  "provenance": [
+    {
+      "formula": "declared synthetic truth",
+      "inputs": [],
+      "kind": "derived",
+      "name": "c1.truth",
+      "value": [
+        0.3,
+        1.6,
+        0.7
+      ]
+    },
+    {
+      "formula": "MCMC posterior mean of 3 chains x 2000 kept states",
+      "inputs": [
+        "c1.truth"
+      ],
+      "kind": "derived",
+      "name": "c1.posterior_mean",
+      "value": [
+        0.3060565530927073,
+        1.5937577280395117,
+        0.7014569550865061
+      ]
+    },
+    {
+      "formula": "2.5% quantile",
+      "inputs": [
+        "c1.posterior_mean"
+      ],
+      "kind": "derived",
+      "name": "c1.posterior_ci_low",
+      "value": [
+        0.2515649300531489,
+        1.537606988323134,
+        0.6838346042201351
+      ]
+    },
+    {
+      "formula": "97.5% quantile",
+      "inputs": [
+        "c1.posterior_mean"
+      ],
+      "kind": "derived",
+      "name": "c1.posterior_ci_high",
+      "value": [
+        0.36095821655253535,
+        1.6499661800459375,
+        0.7193864625315107
+      ]
+    },
+    {
+      "formula": "(mean - truth)/truth*100",
+      "inputs": [
+        "c1.posterior_mean",
+        "c1.truth"
+      ],
+      "kind": "derived",
+      "name": "c1.relative_error_pct",
+      "value": [
+        2.0188510309024355,
+        -0.39014199753052703,
+        0.2081364409294454
+      ]
+    },
+    {
+      "formula": "max(|.|)",
+      "inputs": [
+        "c1.relative_error_pct"
+      ],
+      "kind": "derived",
+      "name": "c1.max_abs_relative_error_pct",
+      "value": 2.0188510309024355
+    },
+    {
+      "formula": "fraction of 100 replicates whose 0.95 interval covers the truth",
+      "inputs": [
+        "c1.truth"
+      ],
+      "kind": "derived",
+      "name": "c2.coverage_per_parameter",
+      "value": [
+        0.93,
+        0.93,
+        0.96
+      ]
+    },
+    {
+      "formula": "sum(covered)/ (n_replicates * n_parameters)",
+      "inputs": [
+        "c2.coverage_per_parameter"
+      ],
+      "kind": "derived",
+      "name": "c2.coverage_pooled",
+      "value": 0.94
+    },
+    {
+      "kind": "file",
+      "name": "c3.case_01_declared_consistent.expected_status",
+      "pointer": "/expected/status",
+      "sha256": "0a1a9789fe38aa0db0f6d371644dadf6cc51be1233ac502b60223584971054c8",
+      "source": "benchmarks/verified/data_assimilation/cases/case_01_declared_consistent.json",
+      "value": "CONSISTENT"
+    },
+    {
+      "formula": "caliber_reader.interpret(table, lines[sha256=48807f29a60f...])",
+      "inputs": [
+        "c3.case_01_declared_consistent.expected_status"
+      ],
+      "kind": "derived",
+      "name": "c3.case_01_declared_consistent.verdict",
+      "value": "CONSISTENT"
+    },
+    {
+      "kind": "file",
+      "name": "c3.case_02_undeclared_scale.expected_status",
+      "pointer": "/expected/status",
+      "sha256": "d1ba992780684ef3364818687228ce11c6cb4673aa94fd6b88ab9831fb19dae3",
+      "source": "benchmarks/verified/data_assimilation/cases/case_02_undeclared_scale.json",
+      "value": "CALIBER_INFERRED"
+    },
+    {
+      "formula": "caliber_reader.interpret(table, lines[sha256=48807f29a60f...])",
+      "inputs": [
+        "c3.case_02_undeclared_scale.expected_status"
+      ],
+      "kind": "derived",
+      "name": "c3.case_02_undeclared_scale.verdict",
+      "value": "CALIBER_INFERRED"
+    },
+    {
+      "kind": "file",
+      "name": "c3.case_03_allowance_omitted.expected_status",
+      "pointer": "/expected/status",
+      "sha256": "805fcca0649458ba682ab269c364c0b3c3902840e1451e26cbb6f71d1810363e",
+      "source": "benchmarks/verified/data_assimilation/cases/case_03_allowance_omitted.json",
+      "value": "SUBSIDY_OMITTED"
+    },
+    {
+      "formula": "caliber_reader.interpret(table, lines[sha256=48807f29a60f...])",
+      "inputs": [
+        "c3.case_03_allowance_omitted.expected_status"
+      ],
+      "kind": "derived",
+      "name": "c3.case_03_allowance_omitted.verdict",
+      "value": "SUBSIDY_OMITTED"
+    },
+    {
+      "kind": "file",
+      "name": "c3.case_04_extra_allowance.expected_status",
+      "pointer": "/expected/status",
+      "sha256": "850211ed8b213a92995124a965c5fe52eaeecf059e29f63bc19d6894fa774055",
+      "source": "benchmarks/verified/data_assimilation/cases/case_04_extra_allowance.json",
+      "value": "ALLOWANCE_DETECTED"
+    },
+    {
+      "formula": "caliber_reader.interpret(table, lines[sha256=48807f29a60f...])",
+      "inputs": [
+        "c3.case_04_extra_allowance.expected_status"
+      ],
+      "kind": "derived",
+      "name": "c3.case_04_extra_allowance.verdict",
+      "value": "ALLOWANCE_DETECTED"
+    },
+    {
+      "kind": "file",
+      "name": "c3.case_05_degraded.expected_status",
+      "pointer": "/expected/status",
+      "sha256": "ae361b5378b4654e630fb253e3bca4da05924e6f401ae86a9b100d89e80aaad3",
+      "source": "benchmarks/verified/data_assimilation/cases/case_05_degraded.json",
+      "value": "DEGRADED"
+    },
+    {
+      "formula": "caliber_reader.interpret(table, lines[sha256=48807f29a60f...])",
+      "inputs": [
+        "c3.case_05_degraded.expected_status"
+      ],
+      "kind": "derived",
+      "name": "c3.case_05_degraded.verdict",
+      "value": "DEGRADED"
+    },
+    {
+      "kind": "file",
+      "name": "c3.case_06_corrupt.expected_status",
+      "pointer": "/expected/status",
+      "sha256": "4702388ea896f47d5320ef2ccb9ef49a95884108464a806a06fa819ef7ca6419",
+      "source": "benchmarks/verified/data_assimilation/cases/case_06_corrupt.json",
+      "value": "WITHHELD_CORRUPT"
+    },
+    {
+      "formula": "caliber_reader.interpret(table, lines[sha256=48807f29a60f...])",
+      "inputs": [
+        "c3.case_06_corrupt.expected_status"
+      ],
+      "kind": "derived",
+      "name": "c3.case_06_corrupt.verdict",
+      "value": "WITHHELD_CORRUPT"
+    },
+    {
+      "formula": "count(verdict == expected)/n_cases",
+      "inputs": [
+        "c3.case_01_declared_consistent.verdict",
+        "c3.case_02_undeclared_scale.verdict",
+        "c3.case_03_allowance_omitted.verdict",
+        "c3.case_04_extra_allowance.verdict",
+        "c3.case_05_degraded.verdict",
+        "c3.case_06_corrupt.verdict"
+      ],
+      "kind": "derived",
+      "name": "c3.accuracy",
+      "value": 1.0
+    },
+    {
+      "formula": "reader verdict on the corrupt table",
+      "inputs": [],
+      "kind": "derived",
+      "name": "c4.corrupt_status",
+      "value": "WITHHELD_CORRUPT"
+    },
+    {
+      "formula": "python -m tools.caliber_reader <corrupt table>",
+      "inputs": [
+        "c4.corrupt_status"
+      ],
+      "kind": "derived",
+      "name": "c4.subprocess_returncode",
+      "value": 2
+    },
+    {
+      "kind": "file",
+      "name": "c5.coefficient_total",
+      "pointer": "/entries/9/reference/ct",
+      "sha256": "537cb7d4b3605c38d3d75317b9e7839cfb41c836f88db5502863dbfea7776af4",
+      "source": "tests/data/reference_corpus/resistance_reference.json",
+      "value": 0.0033436329627560264
+    },
+    {
+      "kind": "file",
+      "name": "c5.coefficient_viscous",
+      "pointer": "/entries/9/reference/cf",
+      "sha256": "537cb7d4b3605c38d3d75317b9e7839cfb41c836f88db5502863dbfea7776af4",
+      "source": "tests/data/reference_corpus/resistance_reference.json",
+      "value": 0.00137790759998662
+    },
+    {
+      "kind": "file",
+      "name": "c5.form_factor",
+      "pointer": "/entries/9/reference/one_plus_k1",
+      "sha256": "537cb7d4b3605c38d3d75317b9e7839cfb41c836f88db5502863dbfea7776af4",
+      "source": "tests/data/reference_corpus/resistance_reference.json",
+      "value": 1.1674027509512055
+    },
+    {
+      "kind": "file",
+      "name": "c5.speed_full",
+      "pointer": "/entries/9/inputs/Vs_ms",
+      "sha256": "537cb7d4b3605c38d3d75317b9e7839cfb41c836f88db5502863dbfea7776af4",
+      "source": "tests/data/reference_corpus/resistance_reference.json",
+      "value": 12.3456
+    },
+    {
+      "kind": "file",
+      "name": "c5.length_full",
+      "pointer": "/entries/9/inputs/L",
+      "sha256": "537cb7d4b3605c38d3d75317b9e7839cfb41c836f88db5502863dbfea7776af4",
+      "source": "tests/data/reference_corpus/resistance_reference.json",
+      "value": 230.0
+    },
+    {
+      "kind": "file",
+      "name": "c5.speed_ratio",
+      "pointer": "/entries/9/reference/fn",
+      "sha256": "537cb7d4b3605c38d3d75317b9e7839cfb41c836f88db5502863dbfea7776af4",
+      "source": "tests/data/reference_corpus/resistance_reference.json",
+      "value": 0.25990448860887855
+    },
+    {
+      "kind": "code",
+      "name": "c5.length_reduced",
+      "pointer": "KCS_BASELINE/L",
+      "sha256": "aed8aea376d58d97865933ca3cd7e6c2fd631938db9ff68725e183bf82f1126b",
+      "source": "optimizer/interfaces/kcs_bow_param.py",
+      "value": 7.278
+    },
+    {
+      "kind": "code",
+      "name": "c5.speed_ratio_reduced",
+      "pointer": "KCS_BASELINE/Fn_design",
+      "sha256": "aed8aea376d58d97865933ca3cd7e6c2fd631938db9ff68725e183bf82f1126b",
+      "source": "optimizer/interfaces/kcs_bow_param.py",
+      "value": 0.26
+    },
+    {
+      "kind": "config",
+      "name": "c5.density_full",
+      "pointer": "/fluids/full/density_kg_m3",
+      "sha256": "58aabb8196c02aa12f2abd07ce7cd4c18b12f725983bf291b72252e901ee753f",
+      "source": "benchmarks/verified/data_assimilation/config/replay_config.json",
+      "value": 1025.0
+    },
+    {
+      "kind": "config",
+      "name": "c5.viscosity_full",
+      "pointer": "/fluids/full/viscosity_m2_s",
+      "sha256": "58aabb8196c02aa12f2abd07ce7cd4c18b12f725983bf291b72252e901ee753f",
+      "source": "benchmarks/verified/data_assimilation/config/replay_config.json",
+      "value": 1.188e-06
+    },
+    {
+      "kind": "config",
+      "name": "c5.density_reduced",
+      "pointer": "/fluids/reduced/density_kg_m3",
+      "sha256": "58aabb8196c02aa12f2abd07ce7cd4c18b12f725983bf291b72252e901ee753f",
+      "source": "benchmarks/verified/data_assimilation/config/replay_config.json",
+      "value": 998.2
+    },
+    {
+      "kind": "config",
+      "name": "c5.viscosity_reduced",
+      "pointer": "/fluids/reduced/viscosity_m2_s",
+      "sha256": "58aabb8196c02aa12f2abd07ce7cd4c18b12f725983bf291b72252e901ee753f",
+      "source": "benchmarks/verified/data_assimilation/config/replay_config.json",
+      "value": 1.004e-06
+    },
+    {
+      "formula": "viscous_line(V*L/nu)",
+      "inputs": [
+        "c5.speed_full",
+        "c5.length_full",
+        "c5.viscosity_full"
+      ],
+      "kind": "derived",
+      "name": "c5.viscous_full",
+      "value": 0.0013776347665699932
+    },
+    {
+      "formula": "viscous_line(speed_ratio*sqrt(g*L)*L/nu)",
+      "inputs": [
+        "c5.length_reduced",
+        "c5.viscosity_reduced",
+        "c5.speed_ratio"
+      ],
+      "kind": "derived",
+      "name": "c5.viscous_reduced",
+      "value": 0.002771687081184399
+    },
+    {
+      "formula": "allowance_line(L)",
+      "inputs": [
+        "c5.length_full"
+      ],
+      "kind": "derived",
+      "name": "c5.allowance_full",
+      "value": 0.00032240603428283993
+    },
+    {
+      "formula": "ct - (1+k)*cf - allowance(L)",
+      "inputs": [
+        "c5.coefficient_total",
+        "c5.coefficient_viscous",
+        "c5.form_factor",
+        "c5.allowance_full"
+      ],
+      "kind": "derived",
+      "name": "c5.residual_term",
+      "value": 0.0014126538056922332
+    },
+    {
+      "formula": "(1+k)*cf_red + residual",
+      "inputs": [
+        "c5.viscous_reduced",
+        "c5.form_factor",
+        "c5.residual_term"
+      ],
+      "kind": "derived",
+      "name": "c5.reduced_coefficient_derived",
+      "value": 0.0046483289290428186
+    },
+    {
+      "formula": "speed_ratio*sqrt(g*L)",
+      "inputs": [
+        "c5.speed_ratio",
+        "c5.length_reduced"
+      ],
+      "kind": "derived",
+      "name": "c5.reduced_speed",
+      "value": 2.195736106015745
+    },
+    {
+      "formula": "[(ct_red) - (ct_full - allowance)]/(cf_red - cf_full)",
+      "inputs": [
+        "c5.reduced_coefficient_derived",
+        "c5.coefficient_total",
+        "c5.viscous_full",
+        "c5.viscous_reduced",
+        "c5.allowance_full"
+      ],
+      "kind": "derived",
+      "name": "c5.recovered_form_factor",
+      "value": 1.1671742756796666
+    },
+    {
+      "formula": "ct_red - (1+k)*cf_red",
+      "inputs": [
+        "c5.recovered_form_factor",
+        "c5.viscous_reduced"
+      ],
+      "kind": "derived",
+      "name": "c5.recovered_residual_term",
+      "value": 0.0014132870676507284
+    },
+    {
+      "formula": "(recovered - quoted)/quoted*100",
+      "inputs": [
+        "c5.recovered_form_factor",
+        "c5.form_factor"
+      ],
+      "kind": "derived",
+      "name": "c5.form_factor_error_pct",
+      "value": -0.019571246628701657
+    },
+    {
+      "formula": "(recovered - derived)/derived*100",
+      "inputs": [
+        "c5.recovered_residual_term",
+        "c5.residual_term"
+      ],
+      "kind": "derived",
+      "name": "c5.residual_term_error_pct",
+      "value": 0.04482782376994559
+    },
+    {
+      "formula": "(cf_reduced - ct_full)/ct_full*100",
+      "inputs": [
+        "c5.viscous_reduced",
+        "c5.coefficient_total"
+      ],
+      "kind": "derived",
+      "name": "c5.naive_deviation_pct",
+      "value": -17.105522284963794
+    },
+    {
+      "formula": "attribution factor",
+      "inputs": [
+        "c5.viscous_full",
+        "c5.viscous_reduced",
+        "c5.form_factor",
+        "c5.residual_term",
+        "c5.allowance_full"
+      ],
+      "kind": "derived",
+      "name": "c5.factor.scale_effect",
+      "value": 0.4970383474823216
+    },
+    {
+      "formula": "attribution factor",
+      "inputs": [
+        "c5.viscous_full",
+        "c5.viscous_reduced",
+        "c5.form_factor",
+        "c5.residual_term",
+        "c5.allowance_full"
+      ],
+      "kind": "derived",
+      "name": "c5.factor.form_factor",
+      "value": 1.1674027509512055
+    },
+    {
+      "formula": "attribution factor",
+      "inputs": [
+        "c5.viscous_full",
+        "c5.viscous_reduced",
+        "c5.form_factor",
+        "c5.residual_term",
+        "c5.allowance_full"
+      ],
+      "kind": "derived",
+      "name": "c5.factor.residual_term",
+      "value": 1.8783769630597273
+    },
+    {
+      "formula": "attribution factor",
+      "inputs": [
+        "c5.viscous_full",
+        "c5.viscous_reduced",
+        "c5.form_factor",
+        "c5.residual_term",
+        "c5.allowance_full"
+      ],
+      "kind": "derived",
+      "name": "c5.factor.size_allowance",
+      "value": 1.1067248619440893
+    },
+    {
+      "formula": "sequential application of the caliber factors, residual after conversion",
+      "inputs": [
+        "c5.factor.scale_effect",
+        "c5.factor.form_factor",
+        "c5.factor.residual_term",
+        "c5.factor.size_allowance"
+      ],
+      "kind": "derived",
+      "name": "c5.post_conversion_deviation_pct",
+      "value": -0.009525760891509057
+    },
+    {
+      "formula": "|residual| <= tolerance -> CALIBER, else UNEXPLAINED",
+      "inputs": [
+        "c5.post_conversion_deviation_pct"
+      ],
+      "kind": "derived",
+      "name": "c5.attribution",
+      "value": "CALIBER"
+    },
+    {
+      "formula": "rejected_missing / n_cases with caliber=None",
+      "inputs": [],
+      "kind": "derived",
+      "name": "c6.missing_caliber_rejection_rate",
+      "value": 1.0
+    },
+    {
+      "formula": "accepted / n_cases with a complete caliber",
+      "inputs": [],
+      "kind": "derived",
+      "name": "c6.positive_control_accept_rate",
+      "value": 1.0
+    },
+    {
+      "formula": "REJECT_SCALE_MISMATCH / n_cases",
+      "inputs": [],
+      "kind": "derived",
+      "name": "c6.scale_mismatch_rejection_rate",
+      "value": 1.0
+    },
+    {
+      "formula": "recompute each event sha256 and link",
+      "inputs": [],
+      "kind": "derived",
+      "name": "c6.audit_chain_ok",
+      "value": true
+    }
+  ],
+  "provenance_sha256": "8ca55321ce9fccebfe6a5e7fc7c0d0e73dd91eec6a55b4259d6d4888ca052290",
+  "schema": "data-assimilation-verification/1.0",
+  "subject": "data assimilation (Bayesian twin update) + benchmark-caliber governance (caliber reader + fail-closed downstream error gate)"
+}
