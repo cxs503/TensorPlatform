@@ -1,0 +1,30 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorplatform.local/contracts/delivery_label.v1.json",
+  "title": "DeliveryLabel",
+  "description": "Machine-checkable delivery label attached to a terminal mission record (P93W3-N10). Three orthogonal axes: how much was delivered (completeness), did it pass the quality gate (quality_gate), and how did the budget end (budget_status).",
+  "version": 1,
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "terminal_state", "completeness", "quality_gate", "budget_status", "budget_utilization", "components"],
+  "properties": {
+    "schema_version": {"const": 1},
+    "terminal_state": {"enum": ["succeeded", "forced_finish", "degraded", "failed"]},
+    "completeness": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+    "quality_gate": {"enum": ["pass", "fail"]},
+    "budget_status": {"enum": ["normal", "warning", "exhausted"]},
+    "budget_utilization": {"type": ["number", "null"], "minimum": 0.0},
+    "components": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["implementation", "verification", "claim"],
+      "properties": {
+        "implementation": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "verification": {"type": "number", "minimum": 0.0, "maximum": 1.0},
+        "claim": {"type": "number", "minimum": 0.0, "maximum": 1.0}
+      }
+    },
+    "closure_cause": {"enum": ["budget", "wall", "progress", "unknown"]},
+    "missing": {"type": "array", "items": {"type": "string"}}
+  }
+}
