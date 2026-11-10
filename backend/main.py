@@ -750,6 +750,18 @@ except Exception:  # pragma: no cover
     logger.warning("capability-audit API not mounted", exc_info=True)
 
 
+# ── 多租户隔离机制 v1 的 HTTP 面（P337W1-N02）───────────────────────────────
+# 只做服务层透传：拒绝一律 403/409，调用方不会把拒绝误当成功。租户事实由
+# config/tenant_registry.json 注入（零领域语义）；挂载失败不得拖垮主应用。
+try:  # pragma: no cover - 环境相关
+    from api.tenant_isolation import router as _tenant_isolation_router
+
+    app.include_router(_tenant_isolation_router, prefix="/api/v1")
+    logger.info("tenant-isolation API mounted at /api/v1/tenant-isolation")
+except Exception:  # pragma: no cover
+    logger.warning("tenant-isolation API not mounted", exc_info=True)
+
+
 @app.exception_handler(StarletteHTTPException)
 async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
     """Record multipart/parser errors that are raised before route validation."""
