@@ -1,0 +1,94 @@
+{
+  "$schema": "Physical Constants Single Source of Truth (SSOT) Registry",
+  "version": "1.0.0",
+  "created": "2026-11-10T15:30:00Z",
+  "description": "Cross-repository physical constants registry with uncertainty, source, and scope tracking. Detects drift via AST extraction and conflict matrix.",
+  "constants": {
+    "gravity_standard": {
+      "symbol": "g₀",
+      "value": 9.80665,
+      "unit": "m/s²",
+      "uncertainty": 0.0,
+      "uncertainty_type": "exact",
+      "source": "CGPM 1901 (3rd General Conference on Weights and Measures)",
+      "scope": "global",
+      "aliases": ["G", "g", "gravity", "gravitational_acceleration"],
+      "sha256": "placeholder_computed_on_load",
+      "notes": "Standard acceleration of free fall. Exact by definition."
+    },
+    "ice_density_fresh": {
+      "symbol": "ρ_ice",
+      "value": 917.0,
+      "unit": "kg/m³",
+      "uncertainty": 5.0,
+      "uncertainty_type": "typical_range",
+      "source": "ITTC Sea Ice Procedures (fresh water ice at 0°C)",
+      "scope": "ice_physics",
+      "aliases": ["RHO_ICE", "rho_ice", "ice_density"],
+      "sha256": "placeholder_computed_on_load",
+      "notes": "Pure ice density. Range 916-920 kg/m³ depending on temperature and salinity."
+    },
+    "ice_density_sea": {
+      "symbol": "ρ_ice,sea",
+      "value": 900.0,
+      "unit": "kg/m³",
+      "uncertainty": 20.0,
+      "uncertainty_type": "typical_range",
+      "source": "DNV Rules for Classification of Ships (sea ice with brine pockets)",
+      "scope": "ice_physics",
+      "aliases": ["RHO_ICE_SEA", "rho_ice_sea"],
+      "sha256": "placeholder_computed_on_load",
+      "notes": "Sea ice density (lower due to brine inclusions). Range 880-920 kg/m³."
+    },
+    "water_density_fresh": {
+      "symbol": "ρ_w,fresh",
+      "value": 1000.0,
+      "unit": "kg/m³",
+      "uncertainty": 0.5,
+      "uncertainty_type": "temperature_dependent",
+      "source": "SI definition at 4°C",
+      "scope": "hydrodynamics",
+      "aliases": ["RHO_WATER_FRESH", "rho_water_fresh"],
+      "sha256": "placeholder_computed_on_load",
+      "notes": "Fresh water density at 4°C (maximum density)."
+    },
+    "water_density_sea": {
+      "symbol": "ρ_w,sea",
+      "value": 1025.0,
+      "unit": "kg/m³",
+      "uncertainty": 2.0,
+      "uncertainty_type": "salinity_dependent",
+      "source": "Standard seawater at 15°C, 35 ppt salinity",
+      "scope": "hydrodynamics",
+      "aliases": ["RHO_WATER", "rho_water", "seawater_density"],
+      "sha256": "placeholder_computed_on_load",
+      "notes": "Seawater density. Varies with temperature, salinity, and pressure."
+    },
+    "steel_young_modulus": {
+      "symbol": "E",
+      "value": 206.9e9,
+      "unit": "Pa",
+      "uncertainty": 2.0e9,
+      "uncertainty_type": "material_grade",
+      "source": "DNV Rules for Classification: Ships, Pt.3 Ch.1",
+      "scope": "structural",
+      "aliases": ["YOUNG_MODULUS", "young_modulus", "E_steel"],
+      "sha256": "placeholder_computed_on_load",
+      "notes": "Steel Young's modulus for ship structural steel."
+    }
+  },
+  "drift_detection": {
+    "enabled": true,
+    "scan_paths": [
+      "backend/services/**/*.py",
+      "tools/**/*.py"
+    ],
+    "exclude_patterns": [
+      "**/__pycache__/**",
+      "**/tests/**",
+      "**/test_*.py"
+    ],
+    "tolerance_relative": 0.001,
+    "fail_on_conflict": true
+  }
+}
