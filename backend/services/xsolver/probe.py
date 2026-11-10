@@ -52,6 +52,11 @@ from .jsonschema_lite import load_config
 
 SPEC = load_config("probe")
 
+#: Checkout that owns this module (``backend/services/xsolver/probe.py`` -> repo root).
+#: The probe case's ``git_commit`` must identify the code that produced the residual,
+#: which is this checkout -- never the directory the artifact happens to be written to.
+FRAME_REPO = Path(__file__).resolve().parents[3]
+
 
 class ProbeUnavailable(RuntimeError):
     """The backend solver cannot be imported -- the probe is then WITHHELD, never faked."""
@@ -299,7 +304,10 @@ def to_case_record(measurement: Dict[str, Any], artifact_path: Path) -> Dict[str
         pseudo_raw,
         source_path=str(artifact_path),
         repo=".",
-        root=artifact_path.parents[3] if len(artifact_path.parents) > 3 else artifact_path.parent,
+        # provenance follows the code, not the output path: an ``--out`` directory
+        # outside the checkout must not turn a measured residual into an
+        # unattributable one (that was a silent ``git_commit: null``).
+        root=FRAME_REPO,
         quantity_override={"mass_residual": certified["mass"],
                            "momentum_residual": certified["momentum"]},
         residual_override={"mass": certified["mass"], "momentum": certified["momentum"],
@@ -312,7 +320,10 @@ def to_case_record(measurement: Dict[str, Any], artifact_path: Path) -> Dict[str
                            "dimensions": None,
                            "grid": {"nx": float(setup["grid"][0]), "ny": float(setup["grid"][1])},
                            "derived": None,
-                           "source_path": str(artifact_path),
+                           # a constant marker, not the artifact path: the path is
+                           # provenance (recorded below), and letting it into the
+                           # geometry block made ``input_digest`` move with ``--out``
+                           "source_path": "probe:measured-in-this-run",
                            "stage": "probe"},
     )
     N.rename_case(record, f"TensorPlatform::conservation_probe::{measurement['probe_id']}"
