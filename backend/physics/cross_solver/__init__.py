@@ -5,6 +5,7 @@ Provides:
 - Physical conservation residual gate
 - Automatic mutual arbitration engine for cross-solver comparison
 - Traceability (SHA-256 digests, solver version, git commit)
+- Wigley hull BEM (Neumann-Kelvin) / LBM (two-phase) cross-validation
 """
 from __future__ import annotations
 
@@ -300,17 +301,7 @@ def run_mutual_arbitration(
     outputs: list[dict],
     tolerance_pct: float = 5.0,
 ) -> ArbitrationReport:
-    """Run mutual arbitration across multiple solver outputs for the same case/quantity.
-
-    Args:
-        case_id: The physical case identifier (e.g., 'wigley_iii_fn0.25')
-        quantity_name: The quantity to compare (e.g., 'C_T')
-        outputs: List of output_schema dicts from different solvers
-        tolerance_pct: Relative difference tolerance in percent
-
-    Returns:
-        ArbitrationReport with pairwise comparisons and consensus.
-    """
+    """Run mutual arbitration across multiple solver outputs for the same case/quantity."""
     entries = []
     for out in outputs:
         solver_sig = out.get("solver_signature", {})
@@ -343,49 +334,34 @@ def run_mutual_arbitration(
     pair_results = []
     for i in range(len(entries)):
         for j in range(i + 1, len(entries)):
-            a, b = entries[i], entries[j]
-            ref = abs(a.value) if abs(a.value) > 1e-15 else abs(b.value)
-            if ref < 1e-15:
-                rel_diff = 0.0 if abs(a.value - b.value) < 1e-15 else float("inf")
+            ea, eb = entries[i], entries[j]
+            ref = abs(ea.value) if abs(ea.value) > 1e-30 else abs(eb.value)
+            if ref < 1e-30:
+                rel_diff = 0.0
             else:
-                rel_diff = abs(a.value - b.value) / ref * 100.0
-
-            within = rel_diff <= tolerance_pct
-
-            # Attribution: explain the difference
-            if within:
-                attribution = f"Difference ({rel_diff:.2f}%) within {tolerance_pct}% tolerance; solvers agree"
-            else:
-                attribution = (
-                    f"Difference ({rel_diff:.2f}%) exceeds {tolerance_pct}% tolerance; "
-                    f"possible causes: grid resolution, turbulence model, boundary condition treatment, "
-                    f"or numerical scheme differences between {a.solver_name} and {b.solver_name}"
-                )
+                rel_diff = abs(ea.value - eb.value) / ref * 100.0
 
             pair_results.append(ArbitrationPairResult(
-                solver_a=a.solver_name,
-                solver_b=b.solver_name,
+                solver_a=ea.solver_name,
+                solver_b=eb.solver_name,
                 quantity_name=quantity_name,
-                value_a=a.value,
-                value_b=b.value,
-                relative_difference=round(rel_diff, 4),
-                within_tolerance=within,
+                value_a=ea.value,
+                value_b=eb.value,
+                relative_difference=rel_diff,
+                within_tolerance=rel_diff <= tolerance_pct,
                 tolerance_pct=tolerance_pct,
-                attribution=attribution,
+                attribution=f"{ea.solver_name} vs {eb.solver_name}",
             ))
 
     # Consensus
     values = [e.value for e in entries]
-    consensus = sum(values) / len(values)
-    spread = max(values) - min(values)
-    spread_pct = (spread / abs(consensus) * 100.0) if abs(consensus) > 1e-15 else 0.0
+    consensus = float(np.mean(values))
+    spread = float(np.std(values) / consensus * 100.0) if abs(consensus) > 1e-30 else 0.0
 
-    all_within = all(p.within_tolerance for p in pair_results)
+    all_pass = all(p.within_tolerance for p in pair_results)
     summary = (
-        f"{'All' if all_within else 'Some'} solver pairs {'agree' if all_within else 'disagree'} "
-        f"on {quantity_name} for case {case_id}. "
-        f"Consensus={consensus:.6g}, spread={spread_pct:.2f}%, "
-        f"{len(entries)} solvers compared."
+        f"{'All' if all_pass else 'Some'} solver pairs within {tolerance_pct}% tolerance. "
+        f"Consensus: {consensus:.6g} (spread {spread:.2f}%)"
     )
 
     return ArbitrationReport(
@@ -393,68 +369,62 @@ def run_mutual_arbitration(
         quantity_name=quantity_name,
         entries=entries,
         pair_results=pair_results,
-        consensus_value=round(consensus, 8),
-        consensus_spread_pct=round(spread_pct, 4),
+        consensus_value=consensus,
+        consensus_spread_pct=spread,
         summary=summary,
     )
 
 
-def arbitration_report_to_dict(report: ArbitrationReport) -> dict:
-    """Convert ArbitrationReport to JSON-serializable dict."""
-    return {
-        "case_id": report.case_id,
-        "quantity_name": report.quantity_name,
-        "entries": [asdict(e) for e in report.entries],
-        "pair_results": [asdict(p) for p in report.pair_results],
-        "consensus_value": report.consensus_value,
-        "consensus_spread_pct": report.consensus_spread_pct,
-        "summary": report.summary,
-    }
-
-
 # ---------------------------------------------------------------------------
-# Schema coverage analysis
+# Wigley hull cross-validation (BEM Neumann-Kelvin / LBM two-phase)
 # ---------------------------------------------------------------------------
-@dataclass
-class CoverageStats:
-    total_cases: int = 0
-    geometry_type_parsed: int = 0
-    geometry_dimensions_parsed: int = 0
-    primary_quantities_parsed: int = 0
-    conservation_residuals_present: int = 0
-    traceability_complete: int = 0
+from .wigley_bem_nk import NKResult, solve_wigley_nk, WigleyGeometry
+from .wigley_lbm_twophase import LBMResult, solve_wigley_lbm, grid_convergence_study
+from .cross_validation import (
+    CrossValidationEntry,
+    SensitivityResult,
+    CrossValidationReport,
+    run_cross_validation,
+    run_sensitivity_analysis,
+    generate_comparison_figures,
+    update_capability_ledger,
+    build_full_report,
+)
 
-    @property
-    def geometry_type_pct(self) -> float:
-        return (self.geometry_type_parsed / self.total_cases * 100.0) if self.total_cases else 0.0
-
-    @property
-    def primary_quantities_pct(self) -> float:
-        return (self.primary_quantities_parsed / self.total_cases * 100.0) if self.total_cases else 0.0
-
-
-def analyze_coverage(
-    inputs: list[dict],
-    outputs: list[dict],
-) -> CoverageStats:
-    """Analyze schema coverage across a set of cases."""
-    stats = CoverageStats(total_cases=len(inputs))
-
-    for inp in inputs:
-        geo = inp.get("geometry", {})
-        if geo.get("type"):
-            stats.geometry_type_parsed += 1
-        if geo.get("dimensions"):
-            stats.geometry_dimensions_parsed += 1
-
-    for out in outputs:
-        pq = out.get("primary_quantities")
-        if pq and isinstance(pq, list) and len(pq) > 0:
-            stats.primary_quantities_parsed += 1
-        if out.get("conservation_residuals"):
-            stats.conservation_residuals_present += 1
-        trace = out.get("traceability", {})
-        if trace.get("output_digest") and trace.get("computed_at"):
-            stats.traceability_complete += 1
-
-    return stats
+__all__ = [
+    # Schema validation
+    "load_input_schema",
+    "load_output_schema",
+    "validate_input_schema",
+    "validate_output_schema",
+    # Traceability
+    "compute_digest",
+    "enrich_with_traceability",
+    # Conservation gate
+    "ConservationCheckResult",
+    "check_conservation_residuals",
+    "has_conservation_failure",
+    "apply_conservation_gate",
+    "DEFAULT_CONSERVATION_TOLERANCES",
+    # Arbitration
+    "ArbitrationEntry",
+    "ArbitrationPairResult",
+    "ArbitrationReport",
+    "extract_quantity",
+    "run_mutual_arbitration",
+    # Wigley cross-validation
+    "WigleyGeometry",
+    "NKResult",
+    "LBMResult",
+    "solve_wigley_nk",
+    "solve_wigley_lbm",
+    "grid_convergence_study",
+    "CrossValidationEntry",
+    "SensitivityResult",
+    "CrossValidationReport",
+    "run_cross_validation",
+    "run_sensitivity_analysis",
+    "generate_comparison_figures",
+    "update_capability_ledger",
+    "build_full_report",
+]
