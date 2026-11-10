@@ -1,0 +1,134 @@
+{
+  "schema": "failure_faces/v2",
+  "generated_by": {
+    "benchmark": "cross_solver_coupling",
+    "script": "benchmarks/verified/cross_solver_coupling/run_benchmark.py"
+  },
+  "error_modes": [
+    "kind_law_mismatch",
+    "moment_drift",
+    "overshoot",
+    "total_mismatch",
+    "uncovered_destination"
+  ],
+  "n_faults": 8,
+  "faults": [
+    {
+      "face_id": 1,
+      "error_mode": "uncovered_destination",
+      "side": "dst",
+      "value": 0.0,
+      "tolerance": 1e-09,
+      "detail": "destination cell receives no source measure",
+      "metrics": {}
+    },
+    {
+      "face_id": 2,
+      "error_mode": "uncovered_destination",
+      "side": "dst",
+      "value": 0.0,
+      "tolerance": 1e-09,
+      "detail": "destination cell receives no source measure",
+      "metrics": {}
+    },
+    {
+      "face_id": 3,
+      "error_mode": "uncovered_destination",
+      "side": "dst",
+      "value": 0.0,
+      "tolerance": 1e-09,
+      "detail": "destination cell receives no source measure",
+      "metrics": {}
+    },
+    {
+      "face_id": 4,
+      "error_mode": "uncovered_destination",
+      "side": "dst",
+      "value": 0.0,
+      "tolerance": 1e-09,
+      "detail": "destination cell receives no source measure",
+      "metrics": {}
+    },
+    {
+      "face_id": null,
+      "error_mode": "kind_law_mismatch",
+      "side": "dst",
+      "value": 1.0,
+      "tolerance": 0.0,
+      "detail": "quantity declared 'extensive' but law 'density' applied",
+      "metrics": {}
+    },
+    {
+      "face_id": null,
+      "error_mode": "total_mismatch",
+      "side": "dst",
+      "value": 0.019559596919587863,
+      "tolerance": 0.0001,
+      "detail": "conserved total changed by 1.956e-02 (law=density)",
+      "metrics": {
+        "total_src": 2.0,
+        "total_dst": 2.0391191938391757
+      }
+    },
+    {
+      "face_id": null,
+      "error_mode": "overshoot",
+      "side": "dst",
+      "value": 267.5233978458638,
+      "tolerance": 1.000000001,
+      "detail": "destination extrema exceed the source range (non-convex operator)",
+      "metrics": {}
+    },
+    {
+      "face_id": null,
+      "error_mode": "moment_drift",
+      "side": "dst",
+      "value": 7.599999999999999,
+      "tolerance": 0.01,
+      "detail": "first moment moved while the total was preserved",
+      "metrics": {}
+    }
+  ],
+  "faces": [
+    {
+      "face_id": 1,
+      "error_mode": "uncovered_destination",
+      "detail": "destination cell receives no source measure",
+      "value": 0.0,
+      "tolerance": 1e-09
+    },
+    {
+      "face_id": 2,
+      "error_mode": "uncovered_destination",
+      "detail": "destination cell receives no source measure",
+      "value": 0.0,
+      "tolerance": 1e-09
+    },
+    {
+      "face_id": 3,
+      "error_mode": "uncovered_destination",
+      "detail": "destination cell receives no source measure",
+      "value": 0.0,
+      "tolerance": 1e-09
+    },
+    {
+      "face_id": 4,
+      "error_mode": "uncovered_destination",
+      "detail": "destination cell receives no source measure",
+      "value": 0.0,
+      "tolerance": 1e-09
+    }
+  ],
+  "cross_map": {
+    "matrix_digest": "d0663c8f223c54f8d9ad3009179b3db204c6bd9500aada55f7872f8fed76fc5d",
+    "src_mesh": "source-16",
+    "dst_mesh": "target-64",
+    "tolerances": {
+      "total_rel": 0.005,
+      "moment_rel": 0.01,
+      "coverage": 1e-09,
+      "nonnegativity": 1e-12,
+      "overshoot": 1e-09
+    }
+  }
+}
