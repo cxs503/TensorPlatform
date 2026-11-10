@@ -1,0 +1,73 @@
+name: cross-arch-gate-x86-arm
+
+# Produces the x86_64 measurement arm of the cross-architecture benchmark
+# reproduction gate (tools/cross_arch_gate).  The gate itself is architecture
+# agnostic: this workflow's only job is to emit one immutable arm record on an
+# x86_64 runner, so the same judge that consumes loongarch64 fleet records can
+# consume it too:
+#
+#   python3 -m tools.cross_arch_gate.cli pipeline \
+#       --outdir artifacts/cross_arch_gate \
+#       --external-arm x86_64-ci=<downloaded>/x86_64-ci.json \
+#       --report-md docs/reports/p216w3_n09_cross_arch_gate.md
+#
+# Nothing here is domain specific: the fixture family in tools/cross_arch_gate/
+# is synthetic by contract (asserted by the package's own domain-vocabulary audit).
+
+on:
+  workflow_dispatch:
+  push:
+    paths:
+      - "tools/cross_arch_gate/**"
+      - "tests/test_cross_arch_gate.py"
+      - ".github/workflows/cross-arch-gate-x86-arm.yml"
+
+jobs:
+  arm:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+
+      - name: Confirm the runner really is x86_64
+        run: |
+          uname -m
+          test "$(uname -m)" = "x86_64" || { echo "refusing to mislabel the arm"; exit 1; }
+
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip pytest
+
+      - name: Measure the x86_64 arm
+        run: |
+          python -m tools.cross_arch_gate.cli run \
+            --arm x86_64-ci \
+            --out artifacts/cross_arch_gate/external/x86_64-ci.json
+
+      # The cross-architecture judgement itself: an x86_64 runner compares its
+      # own freshly measured arm against the loongarch64 arm records committed in
+      # the repository (produced on the fleet by the same one-command producer).
+      # This is the point of the split — measurement is per architecture, the
+      # judge is shared, and the verdict is therefore reproducible by anyone.
+      - name: Cross-architecture verdict (x86_64 vs committed loong64 arms)
+        run: |
+          python -m tools.cross_arch_gate.cli pipeline \
+            --outdir artifacts/cross_arch_gate \
+            --external-arm x86_64-ci=artifacts/cross_arch_gate/external/x86_64-ci.json \
+            --external-arm loong64=artifacts/cross_arch_gate/external/loong64-reference.json \
+            --no-figures
+
+      - name: Gate test suite
+        run: python -m pytest tests/test_cross_arch_gate.py -q
+
+      - name: Upload the arm record and the verdict
+        uses: actions/upload-artifact@v4
+        with:
+          name: cross-arch-arm-x86_64
+          path: |
+            artifacts/cross_arch_gate/external/x86_64-ci.json
+            artifacts/cross_arch_gate/criteria.json
+          retention-days: 90

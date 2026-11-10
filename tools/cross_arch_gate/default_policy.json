@@ -1,0 +1,17 @@
+{
+  "schema_version": "1.0",
+  "note": "Tolerance policy for the cross-architecture reproduction gate. Thresholds are gate configuration, injectable via --policy; nothing here is tile/field specific.",
+  "fp64_rel_tol": 1e-10,
+  "fp64_ulp_cap": 65536,
+  "diag_abs_tol": 1e-14,
+  "int_strict": true,
+  "criteria": {
+    "int_bit_exact_rate_min": 1.0,
+    "fp_within_band_fraction_min": 0.95,
+    "over_tolerance_detection_rate_min": 1.0,
+    "false_positive_rate_max": 0.0,
+    "nan_detection_rate_min": 1.0,
+    "e2e_latency_s_max": 300.0,
+    "domain_semantics_hits_max": 0
+  }
+}
