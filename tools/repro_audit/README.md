@@ -48,6 +48,43 @@ python3 -m tools.repro_audit.cli --audit --n 32 --out artifacts/repro_audit.json
 python3 -m tools.repro_audit.cli --audit --n 32 --persist
 ```
 
+## 数值通道成熟度 + 入库门（p167w2-n09）
+
+「工件里有关键数字」不等于「关键数字可重放」。这一层把**数值通道**做成可机械裁决的对象：
+
+**通道** = 一个已提交工件里的一个关键数字（头部断言量）+ 一条在提交树内重放它的派生式。
+
+```bash
+# 审计 36 条冻结通道，写台账（artifacts/repro_audit/channel_maturity.json + channels.json）
+python3 -m tools.repro_audit.generators.maturity --audit
+
+# fail-closed 入库门（任一通道 < L3 / 覆盖 < 24/36 / 台账陈旧 → exit 1）
+python3 -m tools.repro_audit.generators.maturity --gate --min-coverage 24 --min-grade L3
+
+# 报告引用门：报告里出现的每个 artifacts/*.json 都必须有成熟通道
+python3 -m tools.repro_audit.generators.maturity --gate --report validation_report.json
+
+# 历史 gen_*.py 注册表的同口径基线（MOCK 面测量）
+python3 -m tools.repro_audit.generators.maturity --baseline-legacy artifacts/repro_audit/channel_baseline_legacy.json
+
+# 门禁效力实证（篡改一个头部数字 → 门红 → git 复原 → 门绿，留证据）
+python3 -m tools.repro_audit.generators.provoke --artifact artifacts/lineage_test.json \
+    --json-path total_lineage_records --delta -1
+```
+
+| 等级 | 判据 |
+|---|---|
+| L0 | 工件/目标路径缺失、派生报错、重放不一致 |
+| L1 | 派生值 == 工件记录值（相对 1e-9 / 近零绝对 1e-12） |
+| L2 | + 两次派生逐字节相等 + engine/spec/source 三指纹齐全 |
+| L3 | + 无字面量回抄（派生式里没有等于被断言值的常量） + 扰动敏感性（输出非常函数） |
+
+模块：`derive.py`（AST 白名单派生引擎）· `channel_specs.py`（冻结清单）·
+`maturity.py`（评级 / 入库门 / 基线）· `provoke.py`（门禁效力实证）·
+`figures.py`（配图）· `report.py`（报告程序化生成）。
+
+报告：`docs/repro_audit/P167W2_N09_numeric_channel_maturity.md`。
+
 ## 判据口径
 
 四类判据（与平台既有 ULP/量化协议对齐）：
