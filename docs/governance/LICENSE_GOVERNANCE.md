@@ -60,14 +60,16 @@ Changing a repository's LICENSE file does not erase prior grants or automaticall
 
 ## 4. Contributor and AI-agent rules
 
-Tensor accepts contributions under the license stated by the target repository, subject to the repository's contribution process.
+Tensor currently operates with one accountable human maintainer and multiple agents. Apply the risk-based [Agent Contribution and Single-Human Governance Policy](AGENT_CONTRIBUTION_POLICY.md).
 
-- Require a Developer Certificate of Origin (DCO) sign-off for new contributions, using `Signed-off-by: Full Name <email>`, after the contributor has reviewed the DCO terms.
-- DCO is a provenance/attestation mechanism; it is not a substitute for obtaining rights where the submitter does not own or control them.
-- Require a separate written permission or CLA for exceptional large contributions, corporate contributions where authority is unclear, code intended for dual licensing, or any contribution whose rights cannot be established through the normal process.
-- Agent-generated contributions must be submitted by an accountable human or organization. The submitter must identify the agent/tool where practical, review the output, confirm authority to submit it, and check for copied or incompatible third-party material.
-- Do not accept submissions copied from proprietary repositories, papers, websites, or datasets unless the license permits the intended use.
-- Preserve author attribution and do not replace all authors with a single project-wide copyright holder.
+- Agents may produce, test, review and integrate work, but may not fabricate human identities, DCO sign-offs, permissions, signatures or legal approvals.
+- Material agent work must record agent/tool identity, model and run metadata where available, task scope, source provenance, verification evidence, reviewer findings and the accountable human maintainer.
+- Agent-to-agent review is a quality-control mechanism, not legal authorization or human approval. Do not treat multiple agent identities as multiple legal persons.
+- DCO sign-off is for a human who has read the DCO and can truthfully make its representations. Agents must never create or apply a human `Signed-off-by` line.
+- The human maintainer may sign off agent-produced work only after reviewing it and establishing a reasonable basis to make the DCO representations. If rights cannot be established, quarantine, rewrite or exclude the contribution.
+- R0/R1 work may use automated gates, agent verification and periodic sampling. R2 requires maintainer approval before merge/release. R3 legal, license, security-sensitive, sensitive-data and external-release actions require explicit human approval.
+- Require separate written permission or a CLA for exceptional contributions where rights or authority cannot be established through the normal process.
+- Preserve author attribution; do not replace all authors with a single project-wide copyright holder.
 
 ## 5. Dependency and release compliance
 
