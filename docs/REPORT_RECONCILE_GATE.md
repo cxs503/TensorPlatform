@@ -203,3 +203,86 @@ artifacts/report_reconcile/
 - **API**: `backend/api/tensor_reconcile.py` (HTTP 端点)
 - **测试**: `backend/tests/test_report_reconcile.py` (21 tests, 全部通过)
 - **CI 静态扫描**: 无领域词条硬编码（grep 验证通过）
+
+---
+
+# 追加（P127W2-N03 收官波，2026-11-10）：现场对账 + 幂等闭环 + KPI 落库
+
+> 上文的模块/API 骨架由 p254w1-n01（m7191）落库；本波把它做成**可运行的门**：
+> 加范围（战役 plan 切片）、把「报告无节点」拆成伪造/无关两类、补幂等派单外箱、
+> KPI 逐波落库、负控两式在**线上真库**跑红，并把现场数字写进工件。
+
+## 7. 本波改动（最小增量，不动既有语义）
+
+| 面 | 改动 | 位置 |
+|---|---|---|
+| 扫描范围 | `reconcile(db, org_id, plan_ids=None, include_non_terminal=False)`；`plan_ids` 支持 int/csv/iterable，`IN` 展开绑定 | `backend/audit/report_reconcile.py` |
+| 反向分类 | `report_no_node` 只留**凭空**（mission 行都不存在）；mission 存在但无战役节点 → 新增**信息类** `report_orphan_mission`，**不进红门**（否则每条非战役报告都是假警报：线上曾有 4877 条） | 同上 |
+| 串号 | 报告租户 ≠ 节点所属 plan 租户 → `report_hash_mismatch`（归属不符），与元数据 hash 校验同类聚合 | 同上 |
+| 闭环 | `dispatch_missing_reports()` 批量补报派单，幂等键 `supplement_report:<mission_id>`，`UNIQUE(organization_id, dispatch_key)`；`close_resolved_dispatches()` 报告出现后 pending→resolved（账本只增不改） | 同上 + `backend/migrations/112_report_reconcile_gate.sql` |
+| KPI | `snapshot_coverage()` 写 `tensor_guide_tracker(report_coverage_rate, %, target 100)`；`coverage_trend()` 读出趋势 | 同上 |
+| 门可点击 | `gate_status()` 必带 `clickable[]`（node_id/mission_id/plan_id/href），红门不许静默 | 同上 |
+| HTTP | `GET /tensor/reconcile?plan_ids=&include_non_terminal=`、`POST /tensor/reconcile/dispatch/batch`、`POST /tensor/reconcile/dispatch/close`、`POST /tensor/reconcile/kpi/snapshot`、`GET /tensor/reconcile/kpi/trend` | `backend/api/tensor_reconcile.py` |
+| 修正 | 单发派单原走不存在的 `tensor_dispatch_queue` + 回退写 `tensor_dev_missions.metadata`（该列不存在，回退必炸）→ 统一走可移植的派单外箱 | 同上 |
+
+派单外箱 DDL 与迁移文件**逐字同源**（`QUEUE_DDL` 常量 ↔ `112_*.sql`），单测直接执行同一段 SQL，保证「迁移 ⇔ 代码」不漂。
+
+## 8. 现场取证（真实库，逐节点可重放）
+
+金标真值：`artifacts/intel/report_coverage.json` —— 11 个战役 plan（127/128/129/130/132/133/134/135/138/139/142）
+内 92 个节点全量拉取 + **逐节点**调 `/tensor/reports?mission_id=<mid>&limit=1` 取证（endpoint/HTTP/条数/时间戳）。
+
+| 判据 | 目标 | 实测 | 结论 |
+|---|---|---|---|
+| J1 金标召回 | 26/26 = 100% | **26/26 = 100%** | PASS |
+| J2 已报告节点误报 | ≤ 1 | **0** | PASS |
+| J3 派单幂等 | 二次零新增 | 首轮 26 单，次轮 dispatched=0 / already_queued=26（单测 112 节点队列） | PASS |
+| J4 串号/凭空拦截 | 100% | 凭空报告 → `report_no_node`；跨租户 → `report_hash_mismatch`；非战役报告 → 信息类不误伤 | PASS |
+| J5 对账耗时 | ≤ 30 s | 线上全 org（2044 终态节点 / 6979 报告）**0.9–6.9 s**；本地 112/500/2000/5000 节点 0.011/0.020/0.199/0.146 s | PASS |
+| J6 覆盖率 KPI | 入库 + 可读 | `GET /tensor/reconcile/kpi` = **76.69%**；落库路径由单测验证（部署中的 API 仍是旧构建，`/kpi/snapshot` 返回 404 —— 见局限） | PASS（含部署滞后说明） |
+| J7 负控两式 | 必须全红 | 注入合成 done 节点（node 900411, mission 6230, plan 127）→ 台账 `done_no_report` 抓到，cleanup 后消失；注入 mission=999000002 的凭空报告 → `report_no_node` 抓到 | PASS |
+
+**负控细节**：`campaign_nodes.mission_id` 有外键，合成节点必须挂真实存在的 mission ——
+首次尝试用虚构 mission 得到 FK 违规（HTTP 500），改为「挂一条现场确认零报告的真实 mission」后复现成功。
+这是本波踩到的坑：负控的注入器必须服从真实库完整性约束，否则负控本身失真。
+
+## 9. 工件
+
+```
+artifacts/intel/report_coverage.json              金标真值 + 逐节点 API 证据（file sha256 记入 gold.json）
+artifacts/report_reconcile/gold.json              金标 vs 上游快照对账（末条不漂）
+artifacts/report_reconcile/ledger.json            API 账本：org 全量计数 + 战役切片 + clickable
+artifacts/report_reconcile/eval.json              J1..J7 数字、通过/不通过、工件指针、局限
+artifacts/report_reconcile/kpi.json               KPI 读数 / 快照写 / 趋势
+artifacts/report_reconcile/negative_control.json  负控两式（含 ledger 命中条目与清理验证）
+artifacts/report_reconcile/latency_scaling.json   112/500/2000/5000 节点耗时
+artifacts/report_reconcile/fig1..fig3.png         覆盖率漏斗 / 金标召回 / 耗时伸缩
+scripts/gen_report_reconcile_artifacts.py         一键重放（登录 → 取证 → 对账 → 负控 → 图 → 判据）
+```
+
+## 10. 局限与适用范围（honest）
+
+1. **部署滞后**：线上 API 仍是上一版构建，本波新增的 `/dispatch/batch`、`/kpi/snapshot`、`/kpi/trend`、
+   `plan_ids` 参数尚未在该实例生效（`/kpi/snapshot` 实测 404）。这些路径由 `tests/test_report_reconcile.py`
+   在 SQLite 上以真实 SQL 验证（16 例：J1–J7 + 门可失败 + 零领域词条扫描）。部署后无需改代码即生效。
+2. **KPI 写库未在线上验证**：同上原因；读数（读路径）是线上真值。
+3. **金标规模**：上游快照标注 `nodes=112`，现场实测同批 plan 为 92 节点 / 91 终态（65 有报告 + 26 零报告）。
+   26 条金标与现场逐节点证据**逐条吻合**（`upstream_not_zero_now` 为空），差异只是在册节点数随时间变化；
+   本波一律以现场证据为准，未搬用上游数字。
+4. **串号判据只用元数据**（租户归属 + mission 存在性 + 可选 mission_hash）——不做报告正文语义比对，
+   因此「内容抄袭/张冠李戴」不在本门射程内，属报告质量门（另一条线）。
+5. **性能**：单次全表扫描 O(节点 + 报告)，索引 `ix_campaign_nodes_mission` 与
+   `ix_report_supplement_status` 由 112 迁移补；万级节点仍在亚秒量级，但报告表若涨到百万级应改为 SQL 端聚合。
+
+## 11. 与 p130 归属工装的关系（只接线，不重写）
+
+`backend/services/report_ownership.py`（p130 IN50-W3-N07）是**提交时**的归属门：
+`ownership_verdict(user, mission, mission_id, org_id)` 判定「这个 token 能不能把报告挂到这个 mission 上」。
+本波不复制这条规则，只在 `reconcile(..., verify_ownership=True)` 时把**已落库的行**喂回同一函数：
+报告 `created_by` 视作提交者、mission 的 `claimed_user_id/claimed_by` 视作领取者，判 `ok=False` 的
+报告进 `report_hash_mismatch`（detail 里带 p130 的机器码 `REPORT_MISSION_NOT_OWNED`）。
+
+**为什么默认关闭**：p130 门是 0090 之后才有的，之前的存量报告没有归属证据，
+对全history 强判会把老账全部翻红、把真欠账淹掉。因此默认 `verify_ownership=False`，
+存量只做「凭空/跨租户」两条结构性判据；需要审计历史时按需打开（API `?verify_ownership=true`）。
+工具不可用时降级为 `{"available": false}` 并保留已知判据，**不会**因接线失败而把门判绿（有单测钉死）。
