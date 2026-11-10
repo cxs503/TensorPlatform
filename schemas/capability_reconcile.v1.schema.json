@@ -1,0 +1,157 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "capability_reconcile.v1.schema.json",
+  "title": "Capability reconciliation report (three-source)",
+  "type": "object",
+  "additionalProperties": true,
+  "required": ["schema_version", "generated_at", "inputs", "policy", "thresholds", "summary", "capabilities", "audit_log", "validation", "reproducibility"],
+  "properties": {
+    "schema_version": {"const": "capability-reconcile/1.0"},
+    "generated_at": {"type": "string"},
+    "inputs": {
+      "type": "object",
+      "required": ["root", "ledger_path"],
+      "properties": {
+        "root": {"type": "string"},
+        "ledger_path": {"type": "string"},
+        "bindings_path": {"type": ["string", "null"]},
+        "junit_provided": {"type": "boolean"},
+        "ledger_schema_version": {"type": ["string", "number", "null"]}
+      }
+    },
+    "policy": {"enum": ["evidence", "presence"]},
+    "thresholds": {"type": "object", "additionalProperties": {"type": "number"}},
+    "summary": {
+      "type": "object",
+      "required": ["capabilities", "scan_coverage", "source_binding_coverage", "derived_tally", "verdict_tally", "overclaim_count", "audit_records"],
+      "properties": {
+        "capabilities": {"type": "integer", "minimum": 0},
+        "scan_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "source_binding_coverage": {"type": "number", "minimum": 0, "maximum": 1},
+        "with_sources": {"type": "integer", "minimum": 0},
+        "derived_tally": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "declared_tally": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "verdict_tally": {"type": "object", "additionalProperties": {"type": "integer"}},
+        "overclaim_count": {"type": "integer", "minimum": 0},
+        "overclaim_hard": {"type": "integer", "minimum": 0},
+        "overclaim_soft": {"type": "integer", "minimum": 0},
+        "overclaim_rate": {"type": "number"},
+        "hard_overclaim_ids": {"type": "array", "items": {"type": "string"}},
+        "soft_overclaim_ids": {"type": "array", "items": {"type": "string"}},
+        "audit_records": {"type": "integer", "minimum": 0}
+      }
+    },
+    "capabilities": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "required": ["id", "declared_level", "derived_level", "verdict", "reasons", "suggestion", "sources", "signals", "evidence"],
+        "properties": {
+          "id": {"type": "string"},
+          "domain": {"type": ["string", "null"]},
+          "declared_level": {"type": ["string", "null"], "enum": ["NOT_SUPPORTED", "STUB", "MOCK", "WITHHELD", "REAL", null]},
+          "derived_level": {"enum": ["NOT_SUPPORTED", "STUB", "MOCK", "WITHHELD", "REAL"]},
+          "verdict": {"enum": ["CONSISTENT", "OVERCLAIM", "UNDERCLAIM", "UNVERIFIED"]},
+          "overclaim_kind": {"enum": ["HARD", "SOFT", null]},
+          "delta_rank": {"type": ["integer", "null"]},
+          "confidence": {"type": "number", "minimum": 0, "maximum": 1},
+          "reasons": {"type": "array", "items": {"type": "string"}, "minItems": 1},
+          "suggestion": {
+            "type": "object",
+            "required": ["direction", "suggested_level", "actions"],
+            "properties": {
+              "direction": {"enum": ["DOWNGRADE", "UPGRADE", "HOLD"]},
+              "suggested_level": {"enum": ["NOT_SUPPORTED", "STUB", "MOCK", "WITHHELD", "REAL"]},
+              "actions": {"type": "array", "items": {"type": "string"}, "minItems": 1}
+            }
+          },
+          "sources": {
+            "type": "object",
+            "required": ["resolution", "code", "test", "doc"],
+            "properties": {
+              "resolution": {"enum": ["EXPLICIT", "AUTO", "NONE"]},
+              "code": {"type": "array"},
+              "registry_only": {"type": "array"},
+              "test": {"type": "array"},
+              "doc": {"type": "array"},
+              "verification_docs": {"type": "array"}
+            }
+          },
+          "signals": {
+            "type": "object",
+            "required": ["code", "test", "doc"],
+            "properties": {
+              "code": {"type": "object", "required": ["exists", "substantive", "stub_ratio", "mock_signal", "has_input_validation"]},
+              "test": {"type": "object", "required": ["exists", "has_numeric_assertions", "meaningful"]},
+              "doc": {"type": "object", "required": ["exists", "mentions_capability", "has_accuracy_claim", "has_scope_note", "verdict_fail"]}
+            }
+          },
+          "evidence": {
+            "type": "array",
+            "items": {
+              "type": "object",
+              "required": ["path", "kind"],
+              "properties": {
+                "path": {"type": "string"},
+                "line": {"type": "integer"},
+                "kind": {"type": "string"},
+                "snippet": {"type": "string"},
+                "file_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+              }
+            }
+          }
+        }
+      }
+    },
+    "audit_log": {
+      "type": "object",
+      "required": ["algorithm", "chain_len", "head_sha256", "records", "anchor"],
+      "properties": {
+        "algorithm": {"const": "sha256"},
+        "chain_len": {"type": "integer", "minimum": 0},
+        "head_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "records": {
+          "type": "array",
+          "items": {
+            "type": "object",
+            "required": ["seq", "capability_id", "payload_sha256", "prev_sha256", "record_sha256"],
+            "properties": {
+              "seq": {"type": "integer", "minimum": 1},
+              "capability_id": {"type": "string"},
+              "payload_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "prev_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+              "record_sha256": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+            }
+          }
+        },
+        "anchor": {
+          "type": "object",
+          "required": ["alg", "scope", "value"],
+          "properties": {
+            "alg": {"const": "sha256"},
+            "scope": {"type": "string", "pattern": "^report_minus"},
+            "value": {"type": "string", "pattern": "^[0-9a-f]{64}$"}
+          }
+        }
+      }
+    },
+    "validation": {
+      "type": "object",
+      "required": ["schema", "valid", "errors"],
+      "properties": {
+        "schema": {"type": "string"},
+        "valid": {"type": "boolean"},
+        "errors": {"type": "array", "items": {"type": "string"}},
+        "engine": {"type": "string"}
+      }
+    },
+    "reproducibility": {
+      "type": "object",
+      "required": ["anchor_recomputed", "match"],
+      "properties": {
+        "anchor_recomputed": {"type": "string", "pattern": "^[0-9a-f]{64}$"},
+        "match": {"type": "boolean"}
+      }
+    }
+  }
+}
