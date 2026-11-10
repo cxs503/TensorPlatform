@@ -1,0 +1,364 @@
+{
+  "schema": "tp.toolchain.pipeline/v1",
+  "name": "synthetic_toolchain_v1",
+  "description": "End-to-end composition check of the platform toolchain: optimisation -> uncertainty propagation -> conservative field transfer -> conservation gate -> feasibility-prior calibration -> external-callable probes -> criteria roll-up. All stage content is synthetic (pure math); no domain term enters this file.",
+  "metadata": {
+    "purpose": "integration validation",
+    "scenario": "synthetic",
+    "tolerances": {
+      "optimum_le": 0.01,
+      "uq_anchor": "nominal not beaten by q05, gap significant at 3 standard errors",
+      "remap_rel_residual_le": 1e-12,
+      "prior_ece_le": 0.05,
+      "prior_auroc_ge": 0.6,
+      "integration_overhead_le": 0.2
+    }
+  },
+  "nodes": [
+    {
+      "id": "surface",
+      "adapter": "objective",
+      "params": {
+        "response": {
+          "kind": "quartic",
+          "center": [
+            0.3,
+            -0.4
+          ],
+          "scale": [
+            1.0,
+            0.7
+          ],
+          "quartic": 0.15
+        }
+      }
+    },
+    {
+      "id": "design",
+      "adapter": "optimize",
+      "inputs": {
+        "objective": {
+          "from": "surface.f"
+        }
+      },
+      "params": {
+        "variables": [
+          {
+            "name": "u",
+            "lower": -2.0,
+            "upper": 2.0
+          },
+          {
+            "name": "v",
+            "lower": -2.0,
+            "upper": 2.0
+          }
+        ],
+        "method": "DE",
+        "max_iter": 40,
+        "pop_size": 12
+      }
+    },
+    {
+      "id": "uncertainty",
+      "adapter": "uq",
+      "inputs": {
+        "objective": {
+          "from": "surface.f"
+        },
+        "anchor": {
+          "from": "design.x_best"
+        }
+      },
+      "params": {
+        "inputs": [
+          {
+            "name": "u",
+            "kind": "normal",
+            "mean": 0.3,
+            "std": 0.25,
+            "truncate_sigma": 3.0
+          },
+          {
+            "name": "v",
+            "kind": "normal",
+            "mean": -0.4,
+            "std": 0.2,
+            "truncate_sigma": 3.0
+          }
+        ],
+        "n": 4000,
+        "n_boot": 400,
+        "method": "qmc",
+        "seed": 11,
+        "quantiles": [
+          0.05,
+          0.5,
+          0.95
+        ],
+        "out_name": "y"
+      }
+    },
+    {
+      "id": "field_transfer",
+      "adapter": "remap",
+      "params": {
+        "src_mesh": {
+          "lo": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hi": [
+            2.0,
+            1.0,
+            1.0
+          ],
+          "n": [
+            8,
+            4,
+            4
+          ],
+          "name": "src"
+        },
+        "dst_mesh": {
+          "lo": [
+            0.0,
+            0.0,
+            0.0
+          ],
+          "hi": [
+            2.0,
+            1.0,
+            1.0
+          ],
+          "n": [
+            16,
+            8,
+            8
+          ],
+          "name": "dst"
+        },
+        "field": {
+          "kind": "linear",
+          "axis": 0,
+          "slope": 3.0,
+          "offset": 1.0,
+          "quantity_kind": "density"
+        },
+        "operator": "overlap_l2",
+        "quantity_kind": "density",
+        "apply_conservation_correction": false,
+        "outside_policy": "raise"
+      }
+    },
+    {
+      "id": "exchange_gate",
+      "adapter": "conservation_gate",
+      "inputs": {
+        "src": {
+          "from": "field_transfer.src"
+        },
+        "dst": {
+          "from": "field_transfer.dst"
+        }
+      },
+      "params": {
+        "sum_tol": 1e-12,
+        "moment_tol": 1e-10,
+        "nonneg_tol": 1e-12,
+        "overshoot_tol": 1e-12
+      }
+    },
+    {
+      "id": "score_probe",
+      "adapter": "probe",
+      "params": {
+        "n": 20000,
+        "signal": 1.0,
+        "noise": 1.4,
+        "seed": 7
+      }
+    },
+    {
+      "id": "feasibility_prior",
+      "adapter": "calibrate_prior",
+      "inputs": {
+        "scores": {
+          "from": "score_probe.scores"
+        },
+        "labels": {
+          "from": "score_probe.labels"
+        }
+      },
+      "params": {
+        "n_bins": 10
+      }
+    },
+    {
+      "id": "external_local_callable",
+      "adapter": "external",
+      "params": {
+        "module": "math",
+        "attr": "sqrt",
+        "args": [
+          2.0
+        ]
+      }
+    },
+    {
+      "id": "external_repo_stage",
+      "adapter": "external",
+      "params": {
+        "module": "sibling_repo.stage_exchange",
+        "attr": "exchange_total",
+        "args": [
+          1.0,
+          0.0,
+          0.0
+        ],
+        "substitute": {
+          "kind": "linear",
+          "coeff": [
+            1.0,
+            0.0,
+            0.0
+          ],
+          "offset": 2.0
+        },
+        "substitute_evidence": "MOCK"
+      }
+    },
+    {
+      "id": "rollup",
+      "adapter": "audit",
+      "inputs": {
+        "f_best": {
+          "from": "design.f_best"
+        },
+        "n_eval": {
+          "from": "design.n_eval"
+        },
+        "uq_n_evals": {
+          "from": "uncertainty.n_evals"
+        },
+        "rel_residual": {
+          "from": "field_transfer.rel_residual"
+        },
+        "gate_passed": {
+          "from": "exchange_gate.passed"
+        },
+        "prior_ece": {
+          "from": "feasibility_prior.ece"
+        },
+        "prior_monotone": {
+          "from": "feasibility_prior.monotone"
+        },
+        "prior_auroc": {
+          "from": "feasibility_prior.auroc"
+        },
+        "local_value": {
+          "from": "external_local_callable.value"
+        },
+        "repo_stage_available": {
+          "from": "external_repo_stage.available"
+        },
+        "anchor_below_q05": {
+          "from": "uncertainty.anchor_below_q05"
+        },
+        "anchor_gap_sigma": {
+          "from": "uncertainty.anchor_gap_sigma"
+        },
+        "anchor_gap_stderr": {
+          "from": "uncertainty.anchor_gap_stderr"
+        }
+      },
+      "params": {
+        "criteria": [
+          {
+            "name": "optimum_small",
+            "input": "f_best",
+            "op": "le",
+            "threshold": 0.01
+          },
+          {
+            "name": "optimizer_ran",
+            "input": "n_eval",
+            "op": "ge",
+            "threshold": 100
+          },
+          {
+            "name": "anchor_below_q05",
+            "input": "anchor_below_q05",
+            "op": "eq_true"
+          },
+          {
+            "name": "anchor_gap_significant",
+            "input": "anchor_gap_stderr",
+            "op": "ge",
+            "threshold": 3.0
+          },
+          {
+            "name": "uq_ran",
+            "input": "uq_n_evals",
+            "op": "ge",
+            "threshold": 1000
+          },
+          {
+            "name": "remap_conservative",
+            "input": "rel_residual",
+            "op": "le",
+            "threshold": 1e-12
+          },
+          {
+            "name": "exchange_gate_pass",
+            "input": "gate_passed",
+            "op": "eq_true"
+          },
+          {
+            "name": "prior_calibrated",
+            "input": "prior_ece",
+            "op": "le",
+            "threshold": 0.05
+          },
+          {
+            "name": "prior_monotone",
+            "input": "prior_monotone",
+            "op": "eq_true"
+          },
+          {
+            "name": "prior_discriminative",
+            "input": "prior_auroc",
+            "op": "ge",
+            "threshold": 0.6
+          },
+          {
+            "name": "local_probe_low",
+            "input": "local_value",
+            "op": "ge",
+            "threshold": 1.41421356
+          },
+          {
+            "name": "local_probe_high",
+            "input": "local_value",
+            "op": "le",
+            "threshold": 1.41421357
+          },
+          {
+            "name": "repo_stage_available",
+            "input": "repo_stage_available",
+            "op": "eq_true",
+            "informational": true
+          },
+          {
+            "name": "anchor_gap_sigma_descriptive",
+            "input": "anchor_gap_sigma",
+            "op": "ge",
+            "threshold": 0.0,
+            "informational": true
+          }
+        ]
+      }
+    }
+  ]
+}
