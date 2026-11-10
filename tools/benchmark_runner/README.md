@@ -38,7 +38,16 @@ python3 -m tools.benchmark_runner.report_figure --root artifacts/benchmark_runne
     --out artifacts/benchmark_runner/summary.png
 ```
 
-退出码：`0` 全过且无回归 · `1` 判据门不通过 · `2` 回归漂移告警 · `3` 配置非法 · `4` 内部错误。
+退出码：`0` 全过且无回归 · `1` 判据门不通过 · `2` 回归漂移/覆盖度下降 · `3` 配置非法 ·
+`4` 内部错误 · `5` 证据链回验失败（工件 sha256 对不上）。
+
+```bash
+# 证据链回验（tamper detection；退出码 0/1）
+python3 -m tools.benchmark_runner.artifact --verify artifacts/benchmark_runner/<suite>/<run_id>
+
+# 零领域语义守卫（CI gate；退出码 0/1）
+python3 -m tools.benchmark_runner.domain_guard --json
+```
 
 ## 配置语法
 
@@ -52,6 +61,7 @@ python3 -m tools.benchmark_runner.report_figure --root artifacts/benchmark_runne
      "workload":  "pkg.mod:sut_function",
      "inputs":    {"a": 0.0},
      "reference": {"workload": "pkg.mod:reference_function", "inputs": {"a": 0.0}},
+     "timeout_s": 60.0,            // 可选：覆盖 suite 级墙钟预算
      "criteria": [{"metric": "rel_error", "op": "<=", "value": 1e-9}]}
   ],
   "suite_criteria": [
@@ -67,6 +77,9 @@ python3 -m tools.benchmark_runner.report_figure --root artifacts/benchmark_runne
 
 自动派生指标：`value`、`reference`、`abs_error`、`rel_error = |value-reference| / max(|reference|, eps)`；
 SUT 返回的其它数值项（如 `iterations`、`evals`）自动并入 metrics 供判据使用。
+suite 级自动派生：`n_cases`、`n_passed`、`n_failed`、`n_error`、`n_timeout`（超时个数）、
+`n_skipped_budget`（预算用尽未跑的个数）、`pass_ratio`、`max/mean_rel_error`、`max_abs_error`
+——所以"本批不允许出现超时"可以写成预声明判据：`{"metric": "n_timeout", "op": "<=", "value": 0}`。
 
 ## fail-closed 语义（本引擎最重要的性质）
 
@@ -74,7 +87,20 @@ SUT 返回的其它数值项（如 `iterations`、`evals`）自动并入 metrics
 * suite**没写 `suite_criteria`** → 配置非法（退出码 3）；
 * 指标缺失 / NaN / inf / bool / 字符串 → FAIL；
 * 基线缺失 → 回归状态 `no_baseline`，**不是** "clean"（"没比过"≠"没退化"）；
-* 只有 `manifest.json` 存在（哈希链完整）的 run 才计入 KPI。
+* 只有 `manifest.json` 存在（哈希链完整）的 run 才计入 KPI；
+* **挂死 ≠ 无事**：逐算例墙钟预算用尽 → `status="error"`（`__timeout__`）；suite 预算用尽 →
+  剩余算例 `status="error"`（`__budget__`）。无人值守运行不允许"永远等下去"；
+* **算例消失 = 回归**：基线的算例在当前 run 里不见了 → `case_missing` critical、退出码 2
+  （"门还绿着但覆盖面缩水"曾是本引擎的静默失守路径，v1.1 起堵住）；
+* **"有产物" ≠ "产物可信"**：落盘后立即回验 manifest 哈希链；对不上 → 退出码 5。
+  回验覆盖四类破绽：重算 sha256/字节数不一致、清单 digest 被改、未登记的多余工件、
+  算例 JSON 自带 `artifact_sha256` 与内容不符（局部篡改）。
+
+## 零领域语义的机器证明
+
+`domain_guard.py` 扫描本包源码与算例配置，命中域词条即 CI 红；词表是**外部配置**
+（`tools/evidence_domain_lexicon.json`），引擎内不含任何域词条——包括"证明自己干净"
+这件事本身也不靠人看，靠扫描。缺词表 → `status="no_lexicon"`、`ok=False`（扫不了 ≠ 干净）。
 
 ## 证据链
 
@@ -85,8 +111,10 @@ SUT 返回的其它数值项（如 `iterations`、`evals`）自动并入 metrics
 ## 测试
 
 ```bash
-python3 -m pytest tests/test_benchmark_runner_p167w2_n08.py -q    # 22 passed
+python3 -m pytest tests/test_benchmark_runner_p167w2_n08.py -q              # 22 passed（本体）
+python3 -m pytest tests/test_benchmark_runner_m9703_maturity.py -q          # 16 passed（成熟化波）
 ```
 
-测试覆盖判别力（负对照必挂、漂移 +5%/+15% 必报）与特异性（+2% 不报、机器零不误报），
+测试覆盖判别力（负对照必挂、漂移 +5%/+15% 必报、挂死算例必裁超时、篡改工件必判不可信、
+算例消失必报回归）与特异性（+2% 不报、机器零不误报、新增算例不报、干净 run 判 ok），
 而不只是"跑通"。

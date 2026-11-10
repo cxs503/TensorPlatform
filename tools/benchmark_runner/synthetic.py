@@ -21,7 +21,7 @@ __all__ = [
     "numeric_integral", "integral_reference",
     "series_partial_sum", "series_reference",
     "bisect_root", "root_reference",
-    "WORKLOADS",
+    "stall", "WORKLOADS",
 ]
 
 # ── 被积函数族（初等函数，与任何应用域无关） ───────────────────────────────
@@ -108,7 +108,22 @@ def root_reference(c: float) -> Dict[str, Any]:
     return {"value": math.sqrt(float(c))}
 
 
+def stall(seconds: float) -> Dict[str, Any]:
+    """故意阻塞的"伪 SUT"：睡 ``seconds`` 秒再返回（供墙钟护栏的负向对照）。
+
+    它不是数值算法，而是无人值守引擎的**故障注入器**：用来证明"挂住的算例"
+    会被超时判 FAIL，而不是把门链悄悄挂住。零领域语义（只有一个 sleep）。
+    """
+    import time as _time
+    waited = float(seconds)
+    if waited < 0:
+        raise ValueError("seconds must be >= 0")
+    _time.sleep(waited)
+    return {"value": 0.0, "slept": waited}
+
+
 WORKLOADS = {
+    "stall": stall,
     "numeric_integral": numeric_integral,
     "integral_reference": integral_reference,
     "series_partial_sum": series_partial_sum,
