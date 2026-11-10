@@ -17,8 +17,9 @@
 --------
 ``json``      ``config/*.json`` 与 ``schemas/*.json`` 里名字像阈值的数值叶子。
 ``py``        ``tools/**/*.py`` 模块级数值常量（名字像阈值的；资源上限类一律拒）。
-``analytic``  ``tools/criteria/probes.py`` 的先验误差界 C·h^p —— 这批是唯一带
-              ``derivation`` 的判据，供派生一致性引擎（C2）与重推导闭环（C5）实测。
+``analytic``  ``tools/criteria/probes.py`` 的先验误差界 C·h^p 与
+              ``tools/criteria/probes_axes.py`` 的轴探针（N 样本数 / eps 容差）——
+              这批是唯一带 ``derivation`` 的判据，供派生一致性引擎（C2）实测。
 
 零领域语义
 ----------
@@ -322,6 +323,13 @@ def harvest_py(
 
 
 def harvest_analytic(root: Path, review_date: str) -> List[Dict[str, Any]]:
+    """两条探针家族都入册：h 轴（离散分辨率）+ 轴探针（N 样本数 / eps 容差…）。
+
+    轴由探针自己声明（``axis`` + 带符号 ``exponent`` + ``reference_value``），
+    所以新增一条轴 = 在 ``probes_axes.AXIS_PROBES`` 里加一个探针，**本函数不用改**。
+    """
+    from tools.criteria import probes_axes as axis_mod
+
     out: List[Dict[str, Any]] = []
     for pid, probe in sorted(probes_mod.PROBES.items()):
         expr = f"C*h**{probe.order}"
@@ -329,12 +337,13 @@ def harvest_analytic(root: Path, review_date: str) -> List[Dict[str, Any]]:
             "expression": expr,
             "coefficient": probe.bound_coefficient,
             "reference_h": ANALYTIC_REFERENCE_H,
+            "axis": "h",
         }
         entry = {
             "criterion_id": f"analytic/{pid}/bound",
             "quantity": f"discretization error bound of probe {pid}",
             "comparator": "<=",
-            "threshold": eval_derivation(deriv, ANALYTIC_REFERENCE_H),
+            "threshold": eval_derivation(deriv, ANALYTIC_REFERENCE_H, "h"),
             "source_type": "analytic",
             "source_ref": make_source_ref("tools/criteria/probes.py", f"probe:{pid}", root),
             "source_note": f"{probe.description}；常数 C 由该问题标准误差展开给出，可手算复核",
@@ -346,12 +355,32 @@ def harvest_analytic(root: Path, review_date: str) -> List[Dict[str, Any]]:
         }
         entry["decidable"] = classify_entry(entry)["decidable"]
         out.append(entry)
+    for pid, probe in sorted(axis_mod.AXIS_PROBES.items()):
+        deriv = {
+            "expression": f"C*{probe.axis}**({probe.exponent})",
+            "coefficient": probe.bound_coefficient,
+            "reference_value": probe.reference_value,
+            "axis": probe.axis,
+        }
+        entry = {
+            "criterion_id": f"analytic/{pid}/bound",
+            "quantity": f"error bound of axis probe {pid} along axis {probe.axis}",
+            "comparator": "<=",
+            "threshold": eval_derivation(deriv, probe.reference_value, probe.axis),
+            "source_type": "analytic",
+            "source_ref": make_source_ref("tools/criteria/probes_axes.py", f"probe:{pid}", root),
+            "source_note": f"{probe.description}；常数 C 为前验展开系数，可手算复核",
+            "depends_on": [{"param": probe.axis, "exponent": float(probe.exponent)}],
+            "derivation": deriv,
+            "probe": pid,
+            "review_date": review_date,
+            "notes": f"解析来源：沿 {probe.axis} 轴的前验误差界，可重推导 threshold({probe.axis})",
+        }
+        entry["decidable"] = classify_entry(entry)["decidable"]
+        out.append(entry)
     return out
 
 
-# --------------------------------------------------------------------------- #
-# 主流程
-# --------------------------------------------------------------------------- #
 def build_registry(root: Path = ROOT, review_date: Optional[str] = None) -> Dict[str, Any]:
     review_date = review_date or _dt.date.today().isoformat()
     patterns = load_domain_patterns(Path(root) / "config" / "domain_word_denylist.json")
