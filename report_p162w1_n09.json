@@ -1,0 +1,9 @@
+{
+  "title": "P162W1-N09: TensorPlatform 能力台账证据链自动构建",
+  "summary": "在 TensorPlatform 中实现能力台账证据链全链路自动化：能力注册→证据采集→等级判定→台账更新→SQL 溯源。C1-C7 全部验收通过，67 个测试用例全部通过。",
+  "scenario_key": "P162W1-N09",
+  "mission_id": 11184,
+  "tags": ["capability_ledger", "evidence_chain", "sql_trace", "automation", "TensorPlatform"],
+  "markdown": "# P162W1-N09: 能力台账证据链自动构建\n\n## 成果概述\n\n在 TensorPlatform 中实现了能力台账证据链的全链路自动化，包含以下核心模块：\n\n1. **SQL 溯源引擎** (`services/capability_sql_tracer.py`): 将能力注册、证据采集、等级判定、台账变更全部持久化到 SQLite，支持 SQL 溯源查询\n2. **能力注册服务** (`services/capability_registry.py`): 自动注册新能力到台账\n3. **全链路编排器** (`services/capability_pipeline.py`): 编排注册→采集→裁定→升级→溯源全链路\n4. **SQL 溯源 API** (`api/capability_sql_trace.py`): 10 个 REST 端点\n5. **管道 API** (`api/capability_pipeline_api.py`): 8 个 REST 端点\n6. **数据库迁移** (`migrations/099_capability_evidence_sql.sql`): 5 张表 + 2 个视图\n\n## 验收判据\n\n| 判据 | 要求 | 结果 |\n|------|------|------|\n| C1 全链路自动化 | 零人工干预 | ✅ 通过 |\n| C2 准确率 | ≥ 95% | ✅ 100% (3/3) |\n| C3 SQL 溯源 | 可溯源到测试/基准/误差 | ✅ 通过 |\n| C4 负控 | 无证据→WITHHELD | ✅ 通过 |\n| C5 变更历史 | 完整记录+哈希链 | ✅ 通过 |\n| C6 性能 | < 5 分钟 | ✅ < 0.001 秒 |\n| C7 一致性 | 多次判定一致 | ✅ 通过 |\n\n## 测试\n\n- `tests/test_capability_pipeline.py`: 24 个测试用例\n- `tests/test_capability_evidence_chain.py`: 43 个测试用例（已有）\n- 总计: 67 个测试用例，全部通过\n\n## 文件清单\n\n- `backend/services/capability_sql_tracer.py` (新增)\n- `backend/services/capability_registry.py` (新增)\n- `backend/services/capability_pipeline.py` (新增)\n- `backend/api/capability_sql_trace.py` (新增)\n- `backend/api/capability_pipeline_api.py` (新增)\n- `backend/migrations/099_capability_evidence_sql.sql` (新增)\n- `backend/tests/test_capability_pipeline.py` (新增)\n- `config/capability_discovery/capabilities.json` (新增)\n- `docs/P162W1_N09_capability_evidence_chain.md` (新增)\n",
+  "figures": []
+}
