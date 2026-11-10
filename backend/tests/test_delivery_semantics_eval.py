@@ -3,7 +3,14 @@
 Unlike the synthetic fixtures in ``test_delivery_state.py``, these tests grade the
 classifier against a *measured* corpus: 60 real ``succeeded`` missions sampled
 from the platform API, hand-labelled against a frozen rubric, with all artifacts
-committed under ``runs/p92w2b-n08/``.
+committed under ``quality/delivery_semantics/evidence/``.
+
+Why not ``runs/p92w2b-n08/``? ``ops/taskplane/tp_pusher.py`` push-blacklists
+``runs/`` (pure run records never reach GitHub), so evidence kept there can never
+exist in the canonical repo — the corpus tests would skip forever and the guard
+would be decorative. The frozen acceptance evidence therefore lives under
+``quality/`` (same home as ``quality/maturity/evidence/``) so that hash pinning
+is enforceable in CI.
 
 Acceptance criteria (machine-checked here):
   a) macro-F1 >= 0.90 against the 60-unit manual annotation
@@ -21,6 +28,7 @@ from __future__ import annotations
 import hashlib
 import inspect
 import json
+import re
 import sys
 from pathlib import Path
 
@@ -34,7 +42,7 @@ from api.domain.delivery_state import (
 )
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
-RUN = REPO_ROOT / "runs" / "p92w2b-n08"
+RUN = REPO_ROOT / "quality" / "delivery_semantics" / "evidence"
 CORPUS = RUN / "corpus_eval_raw.json"
 LABELS = RUN / "labels_human.json"
 METRICS = RUN / "metrics.json"
@@ -219,7 +227,7 @@ class TestEvidenceIsCommitted:
                 digest = hashlib.sha256(target.read_bytes()).hexdigest()
                 assert digest == block[sha_key], (
                     f"{target} changed since the metrics were produced "
-                    "(re-run runs/p92w2b-n08/tools/evaluate.py)"
+                    "(re-run quality/delivery_semantics/tools/evaluate.py)"
                 )
         label_sha = recorded["corpus"]["label_sha256"]
         assert hashlib.sha256(LABELS.read_bytes()).hexdigest() == label_sha
@@ -228,6 +236,43 @@ class TestEvidenceIsCommitted:
         recorded = json.loads(METRICS.read_text(encoding="utf-8"))
         assert recorded["primary"]["macro_f1"] >= recorded["primary"]["threshold"]
         assert recorded["primary"]["criterion_a_met"] is True
+
+
+# ─────────────── evidence home must be pushable (structural guard) ───────────────
+
+class TestEvidenceHomeIsPushable:
+    """The evidence must live on a path that actually reaches GitHub.
+
+    ``ops/taskplane/tp_pusher.py`` push-blacklists ``runs/`` (pure run records).
+    Four re-land attempts (commits 41cafb9d / ab5b653f / 3bf1629f / 52f53333)
+    committed the corpus under ``runs/p92w2b-n08/``; every one of them silently
+    lost the artifacts at push time, so main kept a green-looking suite with the
+    acceptance evidence absent.
+    This test reads the live blacklist out of the pusher and applies it to the
+    evidence path, so the relapse is machine-blocked instead of re-discovered.
+    """
+
+    PUSHER = REPO_ROOT / "ops" / "taskplane" / "tp_pusher.py"
+
+    def _blacklist(self):
+        source = self.PUSHER.read_text(encoding="utf-8")
+        match = re.search(r"_EXCLUDE = re\.compile\(r\'([^\']+)\'", source)
+        assert match, (
+            "could not locate the push blacklist in ops/taskplane/tp_pusher.py — "
+            "the pusher gate changed, re-audit where acceptance evidence may live")
+        return re.compile(match.group(1))
+
+    def test_evidence_path_would_survive_push(self):
+        rel = RUN.relative_to(REPO_ROOT).as_posix()
+        blocked = self._blacklist().search(rel)
+        assert not blocked, (
+            f"acceptance evidence path {rel!r} matches the push blacklist "
+            f"{blocked.group(0)!r} — it would never reach the canonical repo "
+            "(move it under quality/ and update RUN here)")
+
+    def test_evidence_is_reachable_from_this_checkout(self):
+        assert RUN == REPO_ROOT / "quality" / "delivery_semantics" / "evidence"
+        assert RUN.is_dir(), f"evidence home missing: {RUN}"
 
 
 # ───────────────────────── criterion c ─────────────────────────

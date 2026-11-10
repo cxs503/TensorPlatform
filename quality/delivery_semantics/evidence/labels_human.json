@@ -1,0 +1,309 @@
+{
+ "rubric_version": "v1.1 (preregistration.json rubric + instrument-repair clarification D2)",
+ "annotator": "agent m7804 (single annotator)",
+ "n_units": 60,
+ "corpus": "corpus_eval.json",
+ "instrument": "corpus_eval_digest_v2.json (adds on_disk_changes; deviation D2)",
+ "units": [
+  {
+   "mission_id": 6553,
+   "label": "delivered_partial",
+   "rationale": "1 artefact; checks only narrate a commit hash and line count (existence, not verification), service end state reported unreachable"
+  },
+  {
+   "mission_id": 6580,
+   "label": "delivered_complete",
+   "rationale": "1 module artefact; checks carry 'pytest ... passed' counts"
+  },
+  {
+   "mission_id": 6587,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts (generator+test); checks carry command and criterion output"
+  },
+  {
+   "mission_id": 6599,
+   "label": "delivered_complete",
+   "rationale": "1 test artefact; checks carry '15 passed'"
+  },
+  {
+   "mission_id": 6646,
+   "label": "delivered_complete",
+   "rationale": "1 module artefact; checks carry '21 passed' plus follow-up command"
+  },
+  {
+   "mission_id": 6699,
+   "label": "delivered_complete",
+   "rationale": "9 artefacts; checks carry '40 passed' and cross-closure reference"
+  },
+  {
+   "mission_id": 6713,
+   "label": "delivered_partial",
+   "rationale": "8 artefacts and '16 passed' but checks declare A1-A6 acceptance unfinished and v2 scanning channel unwritten"
+  },
+  {
+   "mission_id": 6719,
+   "label": "suspect_undeclared",
+   "rationale": "5 artefacts incl. module+test but checks empty"
+  },
+  {
+   "mission_id": 6723,
+   "label": "suspect_undeclared",
+   "rationale": "3 artefacts but checks empty"
+  },
+  {
+   "mission_id": 6766,
+   "label": "suspect_undeclared",
+   "rationale": "2 on-disk artefacts, checks empty"
+  },
+  {
+   "mission_id": 6782,
+   "label": "delivered_complete",
+   "rationale": "2 report artefacts; checks carry gate-by-gate pass list"
+  },
+  {
+   "mission_id": 6785,
+   "label": "suspect_undeclared",
+   "rationale": "5 artefacts but checks empty"
+  },
+  {
+   "mission_id": 6790,
+   "label": "suspect_undeclared",
+   "rationale": "2 report artefacts but checks empty"
+  },
+  {
+   "mission_id": 6791,
+   "label": "suspect_undeclared",
+   "rationale": "no artefacts and checks null"
+  },
+  {
+   "mission_id": 6825,
+   "label": "suspect_undeclared",
+   "rationale": "no artefacts and checks null"
+  },
+  {
+   "mission_id": 6828,
+   "label": "delivered_complete",
+   "rationale": "5 artefacts incl. rerunnable scan script; checks carry pool counts, reported error rates and report POST 200 id=8131"
+  },
+  {
+   "mission_id": 6845,
+   "label": "suspect_undeclared",
+   "rationale": "4 artefacts but checks empty"
+  },
+  {
+   "mission_id": 6874,
+   "label": "delivered_complete",
+   "rationale": "16 artefacts; checks carry '30 passed' with criterion test names"
+  },
+  {
+   "mission_id": 6899,
+   "label": "delivered_complete",
+   "rationale": "14 artefacts; checks carry script runtime, result artefacts and pytest execution"
+  },
+  {
+   "mission_id": 6902,
+   "label": "delivered_complete",
+   "rationale": "12 artefacts incl. module+tests; checks carry '37 passed', criteria a-f true, and an explicitly scoped-out run"
+  },
+  {
+   "mission_id": 6970,
+   "label": "suspect_undeclared",
+   "rationale": "3 on-disk artefacts, checks empty"
+  },
+  {
+   "mission_id": 6985,
+   "label": "suspect_undeclared",
+   "rationale": "no artefacts and checks null"
+  },
+  {
+   "mission_id": 6986,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry per-gate pass list with node count 8 in [5,12]"
+  },
+  {
+   "mission_id": 7007,
+   "label": "suspect_undeclared",
+   "rationale": "4 artefacts but checks empty"
+  },
+  {
+   "mission_id": 7009,
+   "label": "suspect_undeclared",
+   "rationale": "1 on-disk artefact, checks empty"
+  },
+  {
+   "mission_id": 7058,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry probe counts and a frozen sha256 pin"
+  },
+  {
+   "mission_id": 7091,
+   "label": "suspect_undeclared",
+   "rationale": "no artefacts and checks null"
+  },
+  {
+   "mission_id": 7118,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry '31 passed'"
+  },
+  {
+   "mission_id": 7151,
+   "label": "delivered_complete",
+   "rationale": "4 artefacts; checks carry '20 passed' and '36 passed' counts"
+  },
+  {
+   "mission_id": 7199,
+   "label": "delivered_partial",
+   "rationale": "2 artefacts but checks state pytest was never run (budget exhausted)"
+  },
+  {
+   "mission_id": 7208,
+   "label": "delivered_complete",
+   "rationale": "9 artefacts; checks carry '36 passed' plus script runs"
+  },
+  {
+   "mission_id": 7228,
+   "label": "delivered_complete",
+   "rationale": "3 artefacts incl. 2 figures; checks carry corpus counts and '238/300=79.3%' fractions"
+  },
+  {
+   "mission_id": 7264,
+   "label": "suspect_undeclared",
+   "rationale": "2 on-disk artefacts but checks empty: no verification evidence at all"
+  },
+  {
+   "mission_id": 7265,
+   "label": "suspect_undeclared",
+   "rationale": "no artefacts and checks null"
+  },
+  {
+   "mission_id": 7276,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry '7 passed'"
+  },
+  {
+   "mission_id": 7277,
+   "label": "delivered_complete",
+   "rationale": "6 artefacts; checks carry validator verdict 'Valid: 5 proposals' and file/git status output"
+  },
+  {
+   "mission_id": 7301,
+   "label": "suspect_undeclared",
+   "rationale": "3 artefacts but checks empty"
+  },
+  {
+   "mission_id": 7306,
+   "label": "delivered_complete",
+   "rationale": "10 artefacts; checks carry '25 passed' plus regression line"
+  },
+  {
+   "mission_id": 7327,
+   "label": "delivered_partial",
+   "rationale": "2 artefacts but checks state no pytest run and no measured criterion numbers"
+  },
+  {
+   "mission_id": 7364,
+   "label": "delivered_complete",
+   "rationale": "13 artefacts incl. figures; checks carry '25 passed (97 s)' + benchmark gate run"
+  },
+  {
+   "mission_id": 7373,
+   "label": "suspect_undeclared",
+   "rationale": "2 report artefacts but checks empty"
+  },
+  {
+   "mission_id": 7394,
+   "label": "suspect_undeclared",
+   "rationale": "2 on-disk artefacts, checks empty"
+  },
+  {
+   "mission_id": 7421,
+   "label": "delivered_complete",
+   "rationale": "5 artefacts; checks carry '28 passed' and report id"
+  },
+  {
+   "mission_id": 7446,
+   "label": "suspect_undeclared",
+   "rationale": "3 artefacts but checks empty"
+  },
+  {
+   "mission_id": 7501,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry honest FAIL/WITHHELD criterion numbers (delivery complete, verdict FAIL)"
+  },
+  {
+   "mission_id": 7556,
+   "label": "delivered_complete",
+   "rationale": "11 artefacts; checks carry '40 passed' plus benchmark rerun time and ledger claim/finding counts"
+  },
+  {
+   "mission_id": 7636,
+   "label": "delivered_complete",
+   "rationale": "1 proposal artefact; checks carry report POST 200 with report id and cross-check claim"
+  },
+  {
+   "mission_id": 7638,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry SQL/count verification statements"
+  },
+  {
+   "mission_id": 7643,
+   "label": "delivered_partial",
+   "rationale": "6 artefacts; checks only show `ls -lh` sizes (existence evidence, no correctness statement)"
+  },
+  {
+   "mission_id": 7644,
+   "label": "suspect_undeclared",
+   "rationale": "1 proposal artefact but checks empty"
+  },
+  {
+   "mission_id": 7646,
+   "label": "delivered_complete",
+   "rationale": "3 artefacts; checks carry '7 机器门全通过' with per-gate numbers"
+  },
+  {
+   "mission_id": 7653,
+   "label": "suspect_undeclared",
+   "rationale": "9 artefacts but checks empty"
+  },
+  {
+   "mission_id": 7658,
+   "label": "delivered_complete",
+   "rationale": "9 artefacts; checks carry 6/6 PASS and byte-level comparison of self-reported vs scanned counts"
+  },
+  {
+   "mission_id": 7669,
+   "label": "delivered_complete",
+   "rationale": "5 artefacts; checks carry SQL row verification '6 done + 5 llm_error' with 0% deviation and report id=8939"
+  },
+  {
+   "mission_id": 7676,
+   "label": "suspect_undeclared",
+   "rationale": "2 artefacts but checks empty"
+  },
+  {
+   "mission_id": 7677,
+   "label": "delivered_complete",
+   "rationale": "7 artefacts; checks carry '6/6 通过' schema validator with recomputable keyword scan"
+  },
+  {
+   "mission_id": 7678,
+   "label": "suspect_undeclared",
+   "rationale": "no artefacts and checks null"
+  },
+  {
+   "mission_id": 7684,
+   "label": "suspect_undeclared",
+   "rationale": "1 on-disk artefact, checks empty"
+  },
+  {
+   "mission_id": 7694,
+   "label": "delivered_complete",
+   "rationale": "15 artefacts incl. module+tests; checks carry '29 passed'"
+  },
+  {
+   "mission_id": 7746,
+   "label": "delivered_complete",
+   "rationale": "2 artefacts; checks carry '23 passed'"
+  }
+ ]
+}

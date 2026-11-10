@@ -1,0 +1,397 @@
+{
+ "experiment": "p92w2b-n08-delivery-semantics",
+ "preregistration": "quality/delivery_semantics/evidence/preregistration.json",
+ "preregistration_sha256": "91573cc99a69d45a3adc37211bd0caeaedfabc387cee410c28d2d779d0205eef",
+ "corpus": {
+  "path": "quality/delivery_semantics/evidence/corpus_eval.json",
+  "sha256": "75e0f9b85b59a0d0c2f07e38f460fb08a37e4e3dd92865f42225dd73ec6ac409",
+  "n_units": 60,
+  "label_source": "quality/delivery_semantics/evidence/labels_human.json (rubric v1, single annotator)",
+  "label_sha256": "5071cc5b9da2f19611916b204cf058ead95a012e377e4adcbdedccac7e12c2bf",
+  "label_distribution": {
+   "suspect_undeclared": 24,
+   "delivered_complete": 31,
+   "delivered_partial": 5
+  },
+  "population_fetched": 1000,
+  "strata": {
+   "cf=0|checks=empty": 19,
+   "cf=0|checks=long": 19,
+   "cf=0|checks=medium": 33,
+   "cf=0|checks=short": 25,
+   "cf=1-2|checks=empty": 50,
+   "cf=1-2|checks=long": 36,
+   "cf=1-2|checks=medium": 74,
+   "cf=1-2|checks=short": 7,
+   "cf=3+|checks=empty": 55,
+   "cf=3+|checks=long": 374,
+   "cf=3+|checks=medium": 275,
+   "cf=3+|checks=short": 33
+  }
+ },
+ "variants": {
+  "A0_v1_shipped": {
+   "confusion": {
+    "delivered_complete": {
+     "delivered_complete": 0,
+     "delivered_partial": 21,
+     "suspect_undeclared": 10
+    },
+    "delivered_partial": {
+     "delivered_complete": 0,
+     "delivered_partial": 3,
+     "suspect_undeclared": 2
+    },
+    "suspect_undeclared": {
+     "delivered_complete": 0,
+     "delivered_partial": 12,
+     "suspect_undeclared": 12
+    }
+   },
+   "metrics": {
+    "delivered_complete": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 31,
+     "support": 31,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "delivered_partial": {
+     "tp": 3,
+     "fp": 33,
+     "fn": 2,
+     "support": 5,
+     "precision": 0.0833,
+     "recall": 0.6,
+     "f1": 0.1463
+    },
+    "suspect_undeclared": {
+     "tp": 12,
+     "fp": 12,
+     "fn": 12,
+     "support": 24,
+     "precision": 0.5,
+     "recall": 0.5,
+     "f1": 0.5
+    },
+    "macro_f1": 0.2154,
+    "accuracy": 0.25
+   }
+  },
+  "A1_trivial": {
+   "confusion": {
+    "delivered_complete": {
+     "delivered_complete": 31,
+     "delivered_partial": 0,
+     "suspect_undeclared": 0
+    },
+    "delivered_partial": {
+     "delivered_complete": 5,
+     "delivered_partial": 0,
+     "suspect_undeclared": 0
+    },
+    "suspect_undeclared": {
+     "delivered_complete": 24,
+     "delivered_partial": 0,
+     "suspect_undeclared": 0
+    }
+   },
+   "metrics": {
+    "delivered_complete": {
+     "tp": 31,
+     "fp": 29,
+     "fn": 0,
+     "support": 31,
+     "precision": 0.5167,
+     "recall": 1.0,
+     "f1": 0.6813
+    },
+    "delivered_partial": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 5,
+     "support": 5,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "suspect_undeclared": {
+     "tp": 0,
+     "fp": 0,
+     "fn": 24,
+     "support": 24,
+     "precision": 0.0,
+     "recall": 0.0,
+     "f1": 0.0
+    },
+    "macro_f1": 0.2271,
+    "accuracy": 0.5167
+   }
+  },
+  "A2_frozen_preregistered": {
+   "confusion": {
+    "delivered_complete": {
+     "delivered_complete": 28,
+     "delivered_partial": 3,
+     "suspect_undeclared": 0
+    },
+    "delivered_partial": {
+     "delivered_complete": 1,
+     "delivered_partial": 4,
+     "suspect_undeclared": 0
+    },
+    "suspect_undeclared": {
+     "delivered_complete": 0,
+     "delivered_partial": 0,
+     "suspect_undeclared": 24
+    }
+   },
+   "metrics": {
+    "delivered_complete": {
+     "tp": 28,
+     "fp": 1,
+     "fn": 3,
+     "support": 31,
+     "precision": 0.9655,
+     "recall": 0.9032,
+     "f1": 0.9333
+    },
+    "delivered_partial": {
+     "tp": 4,
+     "fp": 3,
+     "fn": 1,
+     "support": 5,
+     "precision": 0.5714,
+     "recall": 0.8,
+     "f1": 0.6667
+    },
+    "suspect_undeclared": {
+     "tp": 24,
+     "fp": 0,
+     "fn": 0,
+     "support": 24,
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0
+    },
+    "macro_f1": 0.8667,
+    "accuracy": 0.9333
+   }
+  },
+  "A2_current": {
+   "confusion": {
+    "delivered_complete": {
+     "delivered_complete": 30,
+     "delivered_partial": 1,
+     "suspect_undeclared": 0
+    },
+    "delivered_partial": {
+     "delivered_complete": 1,
+     "delivered_partial": 4,
+     "suspect_undeclared": 0
+    },
+    "suspect_undeclared": {
+     "delivered_complete": 0,
+     "delivered_partial": 0,
+     "suspect_undeclared": 24
+    }
+   },
+   "metrics": {
+    "delivered_complete": {
+     "tp": 30,
+     "fp": 1,
+     "fn": 1,
+     "support": 31,
+     "precision": 0.9677,
+     "recall": 0.9677,
+     "f1": 0.9677
+    },
+    "delivered_partial": {
+     "tp": 4,
+     "fp": 1,
+     "fn": 1,
+     "support": 5,
+     "precision": 0.8,
+     "recall": 0.8,
+     "f1": 0.8
+    },
+    "suspect_undeclared": {
+     "tp": 24,
+     "fp": 0,
+     "fn": 0,
+     "support": 24,
+     "precision": 1.0,
+     "recall": 1.0,
+     "f1": 1.0
+    },
+    "macro_f1": 0.9226,
+    "accuracy": 0.9667
+   }
+  }
+ },
+ "primary_preregistered_frozen": {
+  "variant": "A2_frozen_preregistered",
+  "macro_f1": 0.8667,
+  "threshold": 0.9,
+  "criterion_a_met": false,
+  "accuracy": 0.9333,
+  "note": "pre-registered primary run; deviation D3 (extractor vocabulary) applied afterwards"
+ },
+ "primary": {
+  "variant": "A2_current",
+  "macro_f1": 0.9226,
+  "threshold": 0.9,
+  "criterion_a_met": true,
+  "accuracy": 0.9667,
+  "accuracy_wilson95": [
+   0.8864,
+   0.9908
+  ],
+  "macro_f1_bootstrap95": [
+   0.7804,
+   1.0
+  ]
+ },
+ "baseline_contrast": {
+  "A0_v1_shipped": {
+   "macro_f1": 0.2154,
+   "accuracy": 0.25,
+   "complete_recall": 0.0,
+   "complete_precision": 0.0
+  },
+  "A1_trivial": {
+   "macro_f1": 0.2271,
+   "accuracy": 0.5167,
+   "complete_recall": 1.0,
+   "complete_precision": 0.5167
+  },
+  "A2_frozen_preregistered": {
+   "macro_f1": 0.8667,
+   "accuracy": 0.9333,
+   "complete_recall": 0.9032,
+   "complete_precision": 0.9655
+  },
+  "A2_current": {
+   "macro_f1": 0.9226,
+   "accuracy": 0.9667,
+   "complete_recall": 0.9677,
+   "complete_precision": 0.9677
+  }
+ },
+ "weak_label": {
+  "definition": "implementation present AND len(checks) >= 20",
+  "weak_positives": 36,
+  "predicted_complete": 31,
+  "recall": 0.8611,
+  "precision": 1.0,
+  "thresholds": {
+   "recall_min": 0.85,
+   "precision_min": 0.9
+  },
+  "criterion_b_met": true
+ },
+ "fail_closed": {
+  "controls": [
+   {
+    "name": "missing_changed_files",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "changed_files"
+    ]
+   },
+   {
+    "name": "missing_checks",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "checks"
+    ]
+   },
+   {
+    "name": "empty_result",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "changed_files",
+     "checks"
+    ]
+   },
+   {
+    "name": "null_result",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "result"
+    ]
+   },
+   {
+    "name": "checks_null",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "checks",
+     "claim"
+    ]
+   },
+   {
+    "name": "checks_blank_string",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "checks",
+     "claim"
+    ]
+   },
+   {
+    "name": "only_free_text_claim",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "changed_files",
+     "checks"
+    ]
+   },
+   {
+    "name": "impl_only_from_self_report",
+    "state": "suspect_undeclared",
+    "violation": false,
+    "missing": [
+     "changed_files"
+    ]
+   }
+  ],
+  "violations": 0,
+  "criterion_c_met": true
+ },
+ "shadow_mode": {
+  "forbidden_tokens_found": [],
+  "golden_sha256": "ae12aee2246d54072b1364b058fb2e87ec9fae849e0f1223fd0bc04fcb5c0c1f",
+  "rerun_sha256": "ae12aee2246d54072b1364b058fb2e87ec9fae849e0f1223fd0bc04fcb5c0c1f",
+  "bitwise_identical": true,
+  "criterion_d_met": true
+ },
+ "domain_scan": {
+  "files": {
+   "delivery_state.py": {
+    "hits": [],
+    "n": 0
+   },
+   "mvd_checkpoint.py": {
+    "hits": [],
+    "n": 0
+   },
+   "kpi_delivery.py": {
+    "hits": [],
+    "n": 0
+   }
+  },
+  "total_hits": 0,
+  "terms_pattern_count": 8,
+  "criterion_e_met": true
+ },
+ "git_head": "2f15b10a8081764562b3d900e8282b0f155e36fa",
+ "all_criteria_met": true
+}
