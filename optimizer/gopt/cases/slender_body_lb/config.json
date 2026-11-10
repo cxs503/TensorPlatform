@@ -1,0 +1,85 @@
+{
+  "case_id": "slender_body_lb",
+  "title": "Slender-body L/B optimisation for minimum resistance at fixed displacement",
+  "objective_family": "C_D and R_t versus length-to-diameter ratio, displacement volume held constant",
+  "library": "optimizer/gopt",
+  "geometry_family": {
+    "type": "prolate_spheroid",
+    "why": "closed-form wetted area and enclosed volume, so the fixed-displacement constraint can be applied exactly; the family passes through the published reference hull principal dimensions (L, D) where its wetted area is within 1.4 % of the published value, which is the geometry gate",
+    "datum": {
+      "length_m": 4.356,
+      "diameter_m": 0.508,
+      "wetted_surface_m2": 5.42,
+      "note": "principal dimensions of the reference axisymmetric hull (see references.source); used only as the datum of the family, not as a claim that the offsets are identical"
+    },
+    "cb_cyl_analytic": 0.6666666666666666,
+    "cb_source": "spheroid: nabla / ((pi/4) D^2 L) = 2/3 exactly"
+  },
+  "design": {
+    "variable": "L_over_D",
+    "lower": 5.0,
+    "upper": 9.0,
+    "speed_ms": 3.0,
+    "rho_kg_m3": 1025.0,
+    "nu_m2_s": 1.004e-06,
+    "g_m_s2": 9.81,
+    "volume_fixed": true,
+    "note": "3.0 m/s is the lowest published experimental condition of the reference hull, so the whole design sweep stays inside the resistance model's calibrated Froude envelope (Fr <= 0.62)"
+  },
+  "objectives": [
+    {
+      "key": "CD_wetted",
+      "label": "C_D = C_F + C_R (wetted-area basis, platform model)",
+      "units": "-"
+    },
+    {
+      "key": "Rt_platform",
+      "label": "R_t = 1/2 rho S V^2 C_D at fixed displacement [N]",
+      "units": "N"
+    },
+    {
+      "key": "Rt_form_factor",
+      "label": "R_t with Hoerner form factor (1+k) on the viscous term [N]",
+      "units": "N"
+    },
+    {
+      "key": "Rv_viscous_only",
+      "label": "viscous + form drag only (wave term removed) [N]",
+      "units": "N"
+    }
+  ],
+  "form_factor": {
+    "expression": "1 + k = 1 + 1.5 (D/L)^1.5 + 7 (D/L)^3",
+    "citation": "Hoerner, S.F. (1965) Fluid-Dynamic Drag, ch. 6 (form factor of bodies of revolution)",
+    "evidence_grade": "literature correlation, applied at case level only (the platform solver has no form-factor term)"
+  },
+  "references": {
+    "source": "backend/data/benchmark_reference_sources_v2.json",
+    "case_ids": ["SUBOFF-01", "SUBOFF-02", "SUBOFF-03", "SUBOFF-04"],
+    "citation": "Roddy, J.D. (1990) DARPA SUBOFF Model Experiments, DTRC-90/012 (as carried by the canonical platform dataset)",
+    "evidence_grade": "REAL: experimental total-resistance coefficients with provenance in the canonical benchmark dataset"
+  },
+  "literature_anchors": [
+    {
+      "key": "hoerner_min_drag_fineness",
+      "statement": "minimum-drag body of revolution at fixed volume, turbulent boundary layer: optimum fineness ratio about 4.5-5",
+      "band": [4.5, 5.0],
+      "citation": "Hoerner, S.F. (1965) Fluid-Dynamic Drag, ch. 6 (minimum-drag fineness-ratio discussion)",
+      "evidence_grade": "WITHHELD: quoted from the literature, not re-derived or independently verified offline; used as a consistency band only"
+    },
+    {
+      "key": "practice_band",
+      "statement": "underwater-vehicle design practice keeps L/D in about 7-8.5 (arrangement + structures + resistance trade-off)",
+      "band": [7.0, 8.5],
+      "citation": "design practice band, see note field",
+      "note": "this band is driven by arrangement/manoeuvring constraints as much as by drag; it is used as an order-of-magnitude consistency check, not as a measured drag optimum",
+      "evidence_grade": "WITHHELD: practice band, no single citable experiment"
+    }
+  ],
+  "acceptance": {
+    "optimizer_cross_agreement_rel": 0.01,
+    "gradient_check_rel": 5e-06,
+    "taylor_order_min": 0.9,
+    "literature_rel_tol": 0.15
+  }
+}
