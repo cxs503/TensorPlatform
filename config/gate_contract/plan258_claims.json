@@ -1,0 +1,59 @@
+{
+ "schema_version": "gate-claims/1.0",
+ "plan_id": 258,
+ "work_root": "/root/tp-agent/work",
+ "nodes": [
+  {"gate_id": "plan258-IN68-N01", "mission_id": 7182, "node_id": "IN68-N01", "repo": "ship-performance-platform", "worktree": "m7182",
+   "criteria": [
+    {"id": "C1", "statement": "analytic closed-form reproduction, worst relative error", "artifact": "artifacts/ice_interaction/anchor_results.json", "pointer": "lindqvist_sweep/per_parameter/h", "select": "absmax", "field": "max_rel_err", "scale": 100.0, "op": "le", "threshold": 1.0, "unit": "%"},
+    {"id": "C2", "statement": "coefficient envelope membership", "artifact": "artifacts/ice_interaction/anchor_results.json", "pointer": "friction/envelope", "op": "all_in_range", "threshold": [0.02, 0.08], "unit": "-"},
+    {"id": "C3", "statement": "implementation vs closed form, worst relative error", "artifact": "artifacts/ice_interaction/anchor_results.json", "pointer": "wedge/impl_vs_closed_max_rel_err", "scale": 100.0, "op": "le", "threshold": 5.0, "unit": "%"}
+   ]},
+  {"gate_id": "plan258-IN68-N02", "mission_id": 7183, "node_id": "IN68-N02", "repo": "TensorFEM", "worktree": "m7183",
+   "criteria": [
+    {"id": "C1", "statement": "benchmark response amplitude error", "artifact": "artifacts/fsi_verification_results.json", "pointer": "key_results/turek_hron/amplitude_error_percent", "op": "le", "threshold": 10.0, "unit": "%"},
+    {"id": "C2", "statement": "benchmark response frequency error", "artifact": "artifacts/fsi_verification_results.json", "pointer": "key_results/turek_hron/frequency_error_percent", "op": "le", "threshold": 5.0, "unit": "%"},
+    {"id": "C3", "statement": "analytic boundary reproduction error (not recorded in artifact)", "artifact": "artifacts/fsi_verification_results.json", "pointer": "key_results/theodorsen/flutter_speed_error_percent", "op": "le", "threshold": 3.0, "unit": "%"}
+   ]},
+  {"gate_id": "plan258-IN68-N03", "mission_id": 7184, "node_id": "IN68-N03", "repo": "TensorFEM", "worktree": "m7184",
+   "criteria": [
+    {"id": "C1", "statement": "closed-form displacement error", "artifact": "artifacts/foundation_verification.json", "pointer": "results/0/y_max_error", "op": "le", "threshold": 1e-06, "unit": "m"},
+    {"id": "C2", "statement": "closed-form moment relative error", "artifact": "artifacts/foundation_verification.json", "pointer": "results/0/M_max_error", "op": "le", "threshold": 0.05, "unit": "-"}
+   ]},
+  {"gate_id": "plan258-IN68-N04", "mission_id": 7185, "node_id": "IN68-N04", "repo": "TensorLBM", "worktree": "m7185",
+   "criteria": [
+    {"id": "C1", "statement": "conservation relative error, refinement tier 1", "artifact": "artifacts/dg_verification_report.json", "pointer": "tests/conservation/P1/relative_error", "op": "le", "threshold": 1e-10, "unit": "-"},
+    {"id": "C2", "statement": "conservation relative error, refinement tier 2", "artifact": "artifacts/dg_verification_report.json", "pointer": "tests/conservation/P2/relative_error", "op": "le", "threshold": 1e-10, "unit": "-"},
+    {"id": "C3", "statement": "constant-field derivative residual", "artifact": "artifacts/dg_verification_report.json", "pointer": "tests/operators/P2/constant_derivative_avg", "op": "abs_le", "threshold": 1e-12, "unit": "-"}
+   ]},
+  {"gate_id": "plan258-IN68-N05", "mission_id": 7186, "node_id": "IN68-N05", "repo": "TensorLBM", "worktree": "m7186",
+   "criteria": [
+    {"id": "C1", "statement": "collision-operator mass conservation relative error", "artifact": "runs/scalar_verification/verify_buoyant_plume.json", "pointer": "results/scalar_collision_conservation/relative_error", "op": "le", "threshold": 1e-06, "unit": "-"},
+    {"id": "C2", "statement": "self-similarity power-law fit quality", "artifact": "runs/scalar_verification/verify_buoyant_plume.json", "pointer": "results/plume_self_similarity/r_squared", "op": "ge", "threshold": 0.95, "unit": "-"}
+   ]},
+  {"gate_id": "plan258-IN68-N06", "mission_id": 7187, "node_id": "IN68-N06", "repo": "ship-performance-platform", "worktree": "m7187",
+   "criteria": [
+    {"id": "C1", "statement": "critical frequency relative error", "artifact": "artifacts/structural_acoustics/acceptance.json", "pointer": "criteria/c1_critical_frequency/worst_rel_err_pct", "op": "le", "threshold": 1.0, "unit": "%"},
+    {"id": "C2", "statement": "radiation efficiency error", "artifact": "artifacts/structural_acoustics/acceptance.json", "pointer": "criteria/c2_radiation_efficiency/worst_err_dB", "op": "abs_le", "threshold": 2.0, "unit": "dB"},
+    {"id": "C3", "statement": "cabin level error", "artifact": "artifacts/structural_acoustics/acceptance.json", "pointer": "criteria/c5_cabin_spl/worst_delta_dB", "op": "abs_le", "threshold": 2.0, "unit": "dB"}
+   ]},
+  {"gate_id": "plan258-IN68-N07", "mission_id": 7188, "node_id": "IN68-N07", "repo": "ship-performance-platform", "worktree": "m7188",
+   "criteria": [
+    {"id": "C1", "statement": "wake field vs momentum theory error", "artifact": "artifacts/propeller_rudder_in68n07/gate.json", "pointer": "criteria/C1_wake_vs_momentum_pct", "op": "le", "threshold": 5.0, "unit": "%"},
+    {"id": "C2", "statement": "moment coefficient vs reference model error", "artifact": "artifacts/propeller_rudder_in68n07/gate.json", "pointer": "criteria/C5_moment_vs_mmg_pct", "op": "le", "threshold": 10.0, "unit": "%"},
+    {"id": "C3", "statement": "lift-slope vs thin-aerofoil reference error", "artifact": "artifacts/propeller_rudder_in68n07/gate.json", "pointer": "criteria/C3_lift_slope_vs_thinwing_pct", "op": "le", "threshold": 10.0, "unit": "%"}
+   ]},
+  {"gate_id": "plan258-IN68-N08", "mission_id": 7189, "node_id": "IN68-N08", "repo": "ship-performance-platform", "worktree": "m7189",
+   "criteria": [
+    {"id": "C1", "statement": "geometry consistency relative error (Cb/L/B)", "artifact": "artifacts/stranding_m7189/evidence.json", "pointer": "geometry/verify/rel_error", "op": "le", "threshold": 1e-06, "unit": "-"},
+    {"id": "C2", "statement": "three-balance closure, normalised residual", "artifact": "artifacts/stranding_m7189/evidence.json", "pointer": "equilibrium/normalised_max", "op": "le", "threshold": 1e-06, "unit": "-"},
+    {"id": "C3", "statement": "anchor-point support reproduction error", "artifact": "artifacts/stranding_m7189/evidence.json", "pointer": "anchor_point_support/Q_max_rel_error", "op": "le", "threshold": 0.05, "unit": "-"}
+   ]},
+  {"gate_id": "plan258-IN68-N09", "mission_id": 7190, "node_id": "IN68-N09", "repo": "ship-performance-platform", "worktree": "m7190",
+   "criteria": [
+    {"id": "C1", "statement": "exchange mass-closure relative error", "artifact": "artifacts/m7190_ballast_exchange/cases.json", "pointer": "cases/0/ledger/closure_rel", "op": "le", "threshold": 1e-09, "unit": "-"},
+    {"id": "C2", "statement": "minimum stability margin above limit", "artifact": "artifacts/m7190_ballast_exchange/cases.json", "pointer": "cases/0/gm/gm_min", "op": "ge", "threshold": 0.15, "unit": "m"},
+    {"id": "C3", "statement": "final minus initial mass residual", "artifact": "artifacts/m7190_ballast_exchange/cases.json", "pointer": "cases/0/ledger/mass_final_minus_init_kg", "op": "abs_le", "threshold": 0.001, "unit": "kg"}
+   ]}
+ ]
+}

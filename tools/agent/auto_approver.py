@@ -389,11 +389,30 @@ def guard_false_kill(verdict: str, reason: str, present: list[str]) -> tuple[str
     return verdict, reason
 
 
+def _gate_front_verdict(mid: int) -> dict | None:
+    """dev_acceptance 强制前门（gate.json 证据契约）。
+
+    策略与路径全部来自 config/gate_contract/acceptance_policy.json；
+    门模块缺失/异常一律返回 None（不改旧行为），绝不因门崩掉审批流。
+    """
+    try:
+        _root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        if _root not in sys.path:
+            sys.path.insert(0, _root)
+        from tools.gate_contract.acceptance import precheck_mission
+        return precheck_mission(int(mid))
+    except Exception:
+        return None
+
+
 def verify_dev_acceptance(api: API, mission: dict,
                           evidence: dict) -> tuple[str, str]:
     """返回 (verdict, evidence_text)。verdict ∈ approve/reject/escalate。
     evidence 来自审批行（complete 端点写入）：branch/head_commit/summary/checks。"""
     mid = mission["id"]
+    _front = _gate_front_verdict(mid)
+    if _front is not None and _front.get("decision") not in (None, "allow_auto_approve"):
+        return _front["approver_verdict"], _front["note"]
     repo_dir = (mission["repo"] or "").split("/")[0]
     wt = os.path.join(WORK_ROOT, f"m{mid}", repo_dir)
     # worktree 的 .git 是文件（gitdir 指针）不是目录——用 exists 判存在
