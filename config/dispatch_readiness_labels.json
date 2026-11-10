@@ -1,0 +1,18 @@
+{
+  "schema": "dispatch-readiness-labels/1.0",
+  "note": "Workflow vocabulary only (block-reason cause classes). No physics/domain terms. Injected at runtime via TP_DISPATCH_READINESS_LABELS or this default path; when the file is missing the backtester emits no labels (identity degrade).",
+  "primary_target": "delivery_gap",
+  "include_infra_in_primary": false,
+  "upstream_cause_needles": [
+    "上游",
+    "全 done",
+    "未齐",
+    "待放"
+  ],
+  "infra_cause_needles": [
+    "agent_lost",
+    "llm_error",
+    "hollow success",
+    "infra x"
+  ]
+}
