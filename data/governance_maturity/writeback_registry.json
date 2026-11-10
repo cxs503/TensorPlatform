@@ -1,0 +1,38 @@
+{
+  "schema": "writeback-registry/1.0",
+  "note": "Metric names and expressions are data. The identities below are synthetic (no physical meaning); they exist to exercise derived self-consistency.",
+  "config": {
+    "recompute_rtol": 1e-09,
+    "regression_rtol": 1e-06,
+    "freshness_slo_s": 86400.0,
+    "allowed_units": [
+      "ratio",
+      "count",
+      "second"
+    ],
+    "direction": {
+      "repro_rate": "up",
+      "coverage_ratio": "up"
+    },
+    "identities": [
+      {
+        "name": "share",
+        "expression": "numerator / denominator",
+        "fields": [
+          "numerator",
+          "denominator"
+        ],
+        "target": "declared_share"
+      },
+      {
+        "name": "total",
+        "expression": "left + right",
+        "fields": [
+          "left",
+          "right"
+        ],
+        "target": "declared_total"
+      }
+    ]
+  }
+}

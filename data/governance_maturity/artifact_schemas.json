@@ -1,0 +1,199 @@
+{
+  "schema": "artifact-registry/1.0",
+  "purpose": "Cross-task artifact contracts: which producer emits which payload shape/version, and which downstream module accepts it. Domain-neutral: names below are transport/module identifiers, not physical quantities.",
+  "schemas": [
+    {
+      "artifact_type": "metric_row",
+      "version": "1.2.0",
+      "producer": "TensorPlatform::tools/metric_gate",
+      "strict_fields": true,
+      "fields": [
+        {
+          "name": "metric",
+          "type": "string"
+        },
+        {
+          "name": "value",
+          "type": "number"
+        },
+        {
+          "name": "unit",
+          "type": "string",
+          "enum": [
+            "ratio",
+            "count",
+            "second"
+          ]
+        },
+        {
+          "name": "window",
+          "type": "string"
+        },
+        {
+          "name": "evidence_count",
+          "type": "integer",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "artifact_type": "criterion",
+      "version": "1.1.0",
+      "producer": "TensorPlatform::tools/criteria_governance",
+      "strict_fields": true,
+      "fields": [
+        {
+          "name": "criterion_id",
+          "type": "string"
+        },
+        {
+          "name": "comparator",
+          "type": "string",
+          "enum": [
+            "<=",
+            ">=",
+            "<",
+            ">",
+            "==",
+            "!="
+          ]
+        },
+        {
+          "name": "threshold",
+          "type": "number",
+          "minimum": 0.0
+        },
+        {
+          "name": "source_type",
+          "type": "string",
+          "enum": [
+            "analytic",
+            "empirical",
+            "standard",
+            "heuristic"
+          ]
+        },
+        {
+          "name": "source_ref",
+          "type": "string"
+        },
+        {
+          "name": "decidable",
+          "type": "boolean"
+        },
+        {
+          "name": "probe",
+          "type": "string",
+          "required": false
+        }
+      ]
+    },
+    {
+      "artifact_type": "mission_report",
+      "version": "1.0.0",
+      "producer": "TensorPlatform::tools/report_pipeline",
+      "strict_fields": true,
+      "fields": [
+        {
+          "name": "mission_id",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "name": "title",
+          "type": "string"
+        },
+        {
+          "name": "verdict",
+          "type": "string",
+          "enum": [
+            "PASS",
+            "FAIL"
+          ]
+        },
+        {
+          "name": "section_count",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "name": "criteria_count",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "name": "checks_passed",
+          "type": "integer",
+          "minimum": 0
+        }
+      ]
+    },
+    {
+      "artifact_type": "verification_result",
+      "version": "1.3.0",
+      "producer": "TensorFEM::benchmarks",
+      "strict_fields": true,
+      "fields": [
+        {
+          "name": "case_id",
+          "type": "string"
+        },
+        {
+          "name": "anchor_count",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "name": "passed",
+          "type": "boolean"
+        },
+        {
+          "name": "failure_count",
+          "type": "integer",
+          "minimum": 0
+        },
+        {
+          "name": "failing_anchors",
+          "type": "array",
+          "items_type": "string"
+        }
+      ]
+    }
+  ],
+  "consumers": [
+    {
+      "name": "report_pipeline",
+      "repo": "TensorPlatform",
+      "module": "tools/report_pipeline",
+      "accepts": {
+        "metric_row": {
+          "major": 1,
+          "min_minor": 0
+        },
+        "criterion": {
+          "major": 1,
+          "min_minor": 0
+        },
+        "verification_result": {
+          "major": 1,
+          "min_minor": 0
+        },
+        "mission_report": {
+          "major": 1,
+          "min_minor": 0
+        }
+      }
+    },
+    {
+      "name": "metric_gate",
+      "repo": "TensorPlatform",
+      "module": "tools/metric_gate",
+      "accepts": {
+        "metric_row": {
+          "major": 1,
+          "min_minor": 2
+        }
+      }
+    }
+  ]
+}
