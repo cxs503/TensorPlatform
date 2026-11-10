@@ -1,0 +1,151 @@
+{
+  "schema": "capability-upgrade-rules/1.0",
+  "ladder": [
+    "NOT_SUPPORTED",
+    "STUB",
+    "MOCK",
+    "WITHHELD",
+    "REAL"
+  ],
+  "rules": [
+    {
+      "rule_id": "r.not_supported->stub",
+      "from_level": "NOT_SUPPORTED",
+      "to_level": "STUB",
+      "description": "an implementation exists (callable code path present)",
+      "requirements": [
+        {
+          "key": "implementation_present",
+          "op": "is_true",
+          "value": true,
+          "label": "implementation present"
+        }
+      ]
+    },
+    {
+      "rule_id": "r.stub->mock",
+      "from_level": "STUB",
+      "to_level": "MOCK",
+      "description": "implementation runs, its smoke test passes and the output responds to its input",
+      "requirements": [
+        {
+          "key": "implementation_present",
+          "op": "is_true",
+          "value": true,
+          "label": "implementation present"
+        },
+        {
+          "key": "smoke_test_passed",
+          "op": "is_true",
+          "value": true,
+          "label": "smoke test passed"
+        },
+        {
+          "key": "input_response",
+          "op": "is_true",
+          "value": true,
+          "label": "output responds to input"
+        }
+      ]
+    },
+    {
+      "rule_id": "r.mock->withheld",
+      "from_level": "MOCK",
+      "to_level": "WITHHELD",
+      "description": "at least one anchored verification inside tolerance",
+      "requirements": [
+        {
+          "key": "min_anchors",
+          "op": ">=",
+          "value": 1,
+          "label": "independent verification anchors"
+        },
+        {
+          "key": "max_error_pct",
+          "op": "<=",
+          "value": 15.0,
+          "label": "worst relative error [%]"
+        }
+      ]
+    },
+    {
+      "rule_id": "r.withheld->real",
+      "from_level": "WITHHELD",
+      "to_level": "REAL",
+      "description": "evidence chain complete: anchors + tolerance + independent review + no open defect",
+      "requirements": [
+        {
+          "key": "min_anchors",
+          "op": ">=",
+          "value": 3,
+          "label": "independent verification anchors"
+        },
+        {
+          "key": "max_error_pct",
+          "op": "<=",
+          "value": 15.0,
+          "label": "worst relative error [%]"
+        },
+        {
+          "key": "independent_reviews",
+          "op": ">=",
+          "value": 1,
+          "label": "independent reviews passed"
+        },
+        {
+          "key": "open_defects",
+          "op": "==",
+          "value": 0,
+          "label": "open defects"
+        }
+      ]
+    }
+  ],
+  "rollback_rules": [
+    {
+      "defect_kind": "implementation_absent",
+      "target_level": "NOT_SUPPORTED",
+      "description": "the code path does not exist any more"
+    },
+    {
+      "defect_kind": "smoke_test_failed",
+      "target_level": "STUB",
+      "description": "the code path exists but no longer runs"
+    },
+    {
+      "defect_kind": "no_response_to_input",
+      "target_level": "MOCK",
+      "description": "output does not move with its input (hardcoded value fingerprint)"
+    },
+    {
+      "defect_kind": "error_above_threshold",
+      "target_level": "WITHHELD",
+      "description": "verification error exceeds the configured tolerance"
+    },
+    {
+      "defect_kind": "insufficient_anchors",
+      "target_level": "WITHHELD",
+      "description": "too few independent anchors to support the level"
+    },
+    {
+      "defect_kind": "provenance_broken",
+      "target_level": "WITHHELD",
+      "description": "evidence lost its content address and is not admissible"
+    },
+    {
+      "defect_kind": "review_revoked",
+      "target_level": "WITHHELD",
+      "description": "the independent review was withdrawn or contradicted"
+    },
+    {
+      "defect_kind": "evidence_regression",
+      "target_level": "WITHHELD",
+      "description": "a later evidence bundle no longer satisfies the rung"
+    },
+    {
+      "defect_kind": "unspecified",
+      "target_level": "WITHHELD",
+      "description": "fallback: unproven until re-adjudicated"
+    }
+  ]
+}
