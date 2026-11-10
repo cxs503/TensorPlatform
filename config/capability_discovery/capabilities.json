@@ -1,0 +1,79 @@
+{
+  "capabilities": [
+    {
+      "id": "calc.resistance",
+      "description": "船舶阻力计算（Holtrop/Mennen 等经验公式）",
+      "domain": "resistance",
+      "claimed_level": "REAL",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "propeller.open_water",
+      "description": "螺旋桨敞水性能计算",
+      "domain": "propulsion",
+      "claimed_level": "REAL",
+      "expected_level": "MOCK"
+    },
+    {
+      "id": "calc.stability",
+      "description": "船舶稳性计算（GM/GZ/初稳性/大倾角）",
+      "domain": "stability",
+      "claimed_level": "REAL",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "seakeeping.rao",
+      "description": "耐波性 RAO 计算（STF 切片理论）",
+      "domain": "seakeeping",
+      "claimed_level": "WITHHELD",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "maneuvering.mmg",
+      "description": "操纵性 MMG 模型计算",
+      "domain": "maneuvering",
+      "claimed_level": "WITHHELD",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "geometry.generate",
+      "description": "船体几何生成",
+      "domain": "geometry",
+      "claimed_level": "REAL",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "geometry.hydro_curves",
+      "description": "静水力曲线计算",
+      "domain": "geometry",
+      "claimed_level": "REAL",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "structure.buckling",
+      "description": "板格屈曲校核",
+      "domain": "structure",
+      "claimed_level": "WITHHELD",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "green.eedi",
+      "description": "EEDI 能效设计指数计算",
+      "domain": "green",
+      "claimed_level": "WITHHELD",
+      "expected_level": "WITHHELD"
+    },
+    {
+      "id": "ice.lindqvist",
+      "description": "冰区航行 Lindqvist 冰阻力计算",
+      "domain": "ice",
+      "claimed_level": "WITHHELD",
+      "expected_level": "WITHHELD"
+    }
+  ],
+  "metadata": {
+    "version": "1.0",
+    "created_at": "2026-11-10T00:00:00Z",
+    "description": "能力发现配置文件（零领域语义：domain 仅为通用标签）"
+  }
+}
