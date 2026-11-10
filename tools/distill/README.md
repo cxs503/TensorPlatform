@@ -172,5 +172,3 @@ python3 -m pytest tests/test_campaign_distill.py tests/test_distill_run_case.py 
 域中性用例额外带**反空转断言**：`domain_leak_scan` 对不存在的路径是静默跳过
 （只打印"扫描 N 个文件"），所以断言 `files_missing == []` 且
 `len(files_scanned) == len(paths)`——路径写错/文件被删时必须变红，不许假绿。
-| `make_figures.py` | 把账本画成可核验的图，不重算任何数字 | **本 PR** |
-python3 -m pytest tests/test_campaign_distill.py -q     # 21 passed
