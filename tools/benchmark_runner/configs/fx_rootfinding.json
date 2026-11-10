@@ -1,0 +1,66 @@
+{
+  "suite": "fx_rootfinding",
+  "version": 1,
+  "description": "Synthetic bisection suite: root of x^2-c vs closed form, with iteration-count and bracket-width checks. Zero domain semantics.",
+  "drift_threshold": 0.03,
+  "cases": [
+    {
+      "id": "fx_root_sqrt2_tol1e12",
+      "title": "bisection sqrt(2), tol=1e-12",
+      "workload": "tools.benchmark_runner.synthetic:bisect_root",
+      "inputs": {"c": 2.0, "lo": 1.0, "hi": 2.0, "tol": 1e-12},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:root_reference",
+                    "inputs": {"c": 2.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-11},
+        {"metric": "iterations", "op": "in_range", "min": 30, "max": 60},
+        {"metric": "bracket_width", "op": "<=", "value": 1e-11}
+      ],
+      "tags": ["rootfinding"]
+    },
+    {
+      "id": "fx_root_sqrt10_tol1e12",
+      "title": "bisection sqrt(10), tol=1e-12",
+      "workload": "tools.benchmark_runner.synthetic:bisect_root",
+      "inputs": {"c": 10.0, "lo": 3.0, "hi": 4.0, "tol": 1e-12},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:root_reference",
+                    "inputs": {"c": 10.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-11},
+        {"metric": "bracket_width", "op": "<=", "value": 1e-11}
+      ],
+      "tags": ["rootfinding"]
+    },
+    {
+      "id": "fx_root_sqrt3_tol1e9",
+      "title": "bisection sqrt(3), tol=1e-9",
+      "workload": "tools.benchmark_runner.synthetic:bisect_root",
+      "inputs": {"c": 3.0, "lo": 1.0, "hi": 2.0, "tol": 1e-9},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:root_reference",
+                    "inputs": {"c": 3.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-8},
+        {"metric": "iterations", "op": "<=", "value": 40}
+      ],
+      "tags": ["rootfinding"]
+    },
+    {
+      "id": "fx_root_sqrt2_tol1e6",
+      "title": "bisection sqrt(2), tol=1e-6 (loose)",
+      "workload": "tools.benchmark_runner.synthetic:bisect_root",
+      "inputs": {"c": 2.0, "lo": 1.0, "hi": 2.0, "tol": 1e-6},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:root_reference",
+                    "inputs": {"c": 2.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-6},
+        {"metric": "iterations", "op": "<=", "value": 25}
+      ],
+      "tags": ["rootfinding"]
+    }
+  ],
+  "suite_criteria": [
+    {"metric": "n_cases", "op": ">=", "value": 4},
+    {"metric": "pass_ratio", "op": ">=", "value": 1.0},
+    {"metric": "max_rel_error", "op": "<=", "value": 1e-6}
+  ]
+}
