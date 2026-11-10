@@ -49,6 +49,16 @@
       ]
     }
 
+输入契约机裁（``validate_bundle``）
+----------------------------------
+``main`` 读入 bundle 后**先**过一遍 ``validate_bundle``，问题（缺 ``nodes`` / node 缺
+``node_key`` / 判据缺 id / 证据段类型错 / ``bundle_version`` 不在
+``SUPPORTED_BUNDLE_VERSIONS`` …）一次报全，stdout 输出
+``{"ok": false, "stage": "bundle_contract", "contract_errors": [...]}`` 并以**退出码 2**
+返回：与"报告自检有违规"（1）语义分开，且**一件产物都不落盘**。
+此前这些情况是 ``KeyError`` 抛栈 + 退出码 1，调用方分不清"数据坏了"与"内容不合格"；
+``bundle_version`` 也从未被读取，跨版本 bundle 会被静默按 1.0 语义解释。
+
 纪律
 ----
 * 纯函数、无墙钟：``snapshot_utc`` 由调用方传入，同一输入连跑两次逐字节相同。
@@ -87,6 +97,8 @@ __all__ = [
     "verify_manifest",
     "rollup_nodes",
     "graph_stats",
+    "SUPPORTED_BUNDLE_VERSIONS",
+    "validate_bundle",
 ]
 
 # 判据状态：只允许这四档，杜绝"大概通过"式自述
@@ -94,6 +106,9 @@ CRITERION_STATUSES = ("PASS_CLAIMED", "FAIL_CLAIMED", "EVIDENCE_ONLY", "NO_EVIDE
 
 # 证据等级（与平台证据分级一致：REAL/MOCK/STUB/WITHHELD/NOT_SUPPORTED）
 GRADES = ("REAL", "MOCK", "STUB", "WITHHELD", "NOT_SUPPORTED")
+
+# 受支持的 bundle 契约版本（新增字段语义变化时必须抬版本号，否则旧代码静默按旧语义读）
+SUPPORTED_BUNDLE_VERSIONS = ("1.0",)
 
 DEFAULT_SPEC = {
     "graph_min_entities": 20,
@@ -131,6 +146,106 @@ def canonical_json(obj) -> str:
 def load_json(path: Path | str):
     with open(path, encoding="utf-8") as fh:
         return json.load(fh)
+
+
+def validate_bundle(bundle) -> list[dict]:
+    """机裁 bundle 输入契约，返回问题清单（空 = 合规），每条带可机器判的 ``rule``。
+
+    为什么要有这一层：下游五个机制对缺字段/类型错是直接抛 ``KeyError``/``TypeError``
+    栈——退出码与"报告自检有违规"（1）混同，调用方分不清"数据坏了"与"内容不合格"；
+    更糟的是 ``bundle_version`` 此前从未被读取，跨版本 bundle 会被静默按 1.0 语义解释
+    （新增字段名一变就是静默丢证据，假绿）。契约问题必须在动手算之前一次性报全，
+    并以退出码 2 独立语义返回，绝不留半成品账本。
+    """
+    problems: list[dict] = []
+
+    def add(rule: str, target: str, detail: str = "") -> None:
+        problems.append({"rule": rule, "target": target, "detail": detail})
+
+    if not isinstance(bundle, dict):
+        add("bundle_not_object", "<root>", f"实际类型 {type(bundle).__name__}")
+        return problems
+
+    version = bundle.get("bundle_version")
+    if version is None:
+        add("bundle_version_missing", "bundle_version",
+            f"受支持版本: {', '.join(SUPPORTED_BUNDLE_VERSIONS)}")
+    elif str(version) not in SUPPORTED_BUNDLE_VERSIONS:
+        add("bundle_version_unsupported", "bundle_version",
+            f"实际 {version!r}，受支持: {', '.join(SUPPORTED_BUNDLE_VERSIONS)}")
+
+    for key in ("campaign", "snapshot_utc"):
+        val = bundle.get(key)
+        if val is not None and not isinstance(val, (dict if key == "campaign" else str)):
+            expect = "object" if key == "campaign" else "string"
+            add(f"{key}_not_{expect}", key, f"实际类型 {type(val).__name__}")
+
+    nodes = bundle.get("nodes")
+    if not isinstance(nodes, list):
+        add("nodes_not_list", "nodes", f"缺失或类型为 {type(nodes).__name__}")
+        return problems
+    if not nodes:
+        add("nodes_empty", "nodes", "波次汇总至少需要一个节点")
+        return problems
+
+    seen_keys: set[str] = set()
+    for i, node in enumerate(nodes):
+        at = f"nodes[{i}]"
+        if not isinstance(node, dict):
+            add("node_not_object", at, f"实际类型 {type(node).__name__}")
+            continue
+        key = node.get("node_key")
+        if not isinstance(key, str) or not key.strip():
+            add("node_key_invalid", f"{at}.node_key", f"实际 {key!r}")
+        elif key in seen_keys:
+            add("node_key_duplicate", f"{at}.node_key", f"重复 node_key {key!r}")
+        else:
+            seen_keys.add(key)
+            at = f"nodes[{i}]({key})"
+
+        crits = node.get("criteria")
+        if crits is not None and not isinstance(crits, list):
+            add("criteria_not_list", f"{at}.criteria", f"实际类型 {type(crits).__name__}")
+            crits = []
+        seen_cids: set[str] = set()
+        for j, crit in enumerate(crits or []):
+            cat = f"{at}.criteria[{j}]"
+            if not isinstance(crit, dict):
+                add("criterion_not_object", cat, f"实际类型 {type(crit).__name__}")
+                continue
+            cid = crit.get("id")
+            if cid is None or str(cid).strip() == "":
+                add("criterion_id_missing", f"{cat}.id", "判据缺 id，覆盖矩阵无法逐条对照")
+                continue
+            if str(cid) in seen_cids:
+                add("criterion_duplicate", f"{cat}.id", f"节点内重复判据 id {str(cid)!r}")
+            seen_cids.add(str(cid))
+
+        ev = node.get("evidence")
+        if ev is not None and not isinstance(ev, dict):
+            add("evidence_not_object", f"{at}.evidence", f"实际类型 {type(ev).__name__}")
+            continue
+        ev = ev or {}
+        for section in ("files", "probes", "claims"):
+            items = ev.get(section)
+            if items is None:
+                continue
+            if not isinstance(items, list):
+                add("evidence_section_not_list", f"{at}.evidence.{section}",
+                    f"实际类型 {type(items).__name__}")
+                continue
+            for k, item in enumerate(items):
+                iat = f"{at}.evidence.{section}[{k}]"
+                if not isinstance(item, dict):
+                    add("evidence_item_not_object", iat, f"实际类型 {type(item).__name__}")
+                    continue
+                if section == "files" and not str(item.get("path") or "").strip():
+                    add("evidence_file_path_missing", f"{iat}.path", "工件条目缺 path")
+                if section == "claims" and item.get("criterion") is None:
+                    # 缺 criterion 的结论会被 claims_by_crit 静默丢弃（从不进覆盖矩阵）
+                    add("claim_criterion_missing", f"{iat}.criterion",
+                        "结论未标判据 id，会被静默丢弃（假绿风险）")
+    return problems
 
 
 def _node_evidence(node: dict) -> dict:
@@ -840,7 +955,20 @@ def main(argv: list[str] | None = None) -> int:
     if not bundle_path.exists():
         print(f"bundle 缺失: {bundle_path}", file=sys.stderr)
         return 2
-    bundle = load_json(bundle_path)
+    try:
+        bundle = load_json(bundle_path)
+    except (OSError, json.JSONDecodeError) as exc:
+        print(json.dumps({"ok": False, "stage": "bundle_contract", "exit_code": 2,
+                          "contract_errors": [{"rule": "bundle_unreadable",
+                                               "target": str(bundle_path),
+                                               "detail": f"{type(exc).__name__}: {exc}"}]},
+                         ensure_ascii=False))
+        return 2
+    contract = validate_bundle(bundle)
+    if contract:
+        print(json.dumps({"ok": False, "stage": "bundle_contract", "exit_code": 2,
+                          "contract_errors": contract}, ensure_ascii=False))
+        return 2
     bundle.setdefault("bundle_path", str(bundle_path))
     spec = {**DEFAULT_SPEC, **(load_json(args.spec) if args.spec else {})}
     narrative = load_json(args.narrative) if args.narrative else {}

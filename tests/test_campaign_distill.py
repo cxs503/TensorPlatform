@@ -355,3 +355,135 @@ class TestDomainNeutrality:
         assert report["hits"] == []
         assert report["files_missing"] == [], f"存在未扫到的路径（假绿风险）: {report['files_missing']}"
         assert len(report["files_scanned"]) == len(paths), report["files_scanned"]
+
+# --------------------------------------------------------------------------- #
+
+
+# --------------------------------------------------------------------------- #
+# 8. bundle 输入契约机裁：坏数据必须是退出码 2，不得抛栈、不得留半成品
+# --------------------------------------------------------------------------- #
+def _del(bundle: dict, *path: str) -> dict:
+    out = copy.deepcopy(bundle)
+    node = out
+    for k in path[:-1]:
+        node = node[int(k)] if isinstance(node, list) else node[k]
+    key = path[-1]
+    if isinstance(node, list):
+        node.pop(int(key))
+    else:
+        del node[key]
+    return out
+
+
+@pytest.mark.parametrize(
+    "mutate,rule",
+    [
+        (lambda b: _del(b, "bundle_version"), "bundle_version_missing"),
+        (lambda b: b.__setitem__("bundle_version", "9.9"), "bundle_version_unsupported"),
+        (lambda b: _del(b, "nodes"), "nodes_not_list"),
+        (lambda b: b.__setitem__("nodes", []), "nodes_empty"),
+        (lambda b: b.__setitem__("nodes", "NA,NB"), "nodes_not_list"),
+        (lambda b: b.__setitem__("campaign", "plan 9001"), "campaign_not_object"),
+        (lambda b: b.__setitem__("snapshot_utc", 20260101), "snapshot_utc_not_string"),
+        (lambda b: b["nodes"].__setitem__(0, ["NA"]), "node_not_object"),
+        (lambda b: _del(b, "nodes", "0", "node_key"), "node_key_invalid"),
+        (lambda b: b["nodes"][0].__setitem__("node_key", "  "), "node_key_invalid"),
+        (lambda b: b["nodes"][0].__setitem__("node_key", "NB"), "node_key_duplicate"),
+        (lambda b: b["nodes"][0].__setitem__("criteria", "C1,C2"), "criteria_not_list"),
+        (lambda b: _del(b, "nodes", "0", "criteria", "0", "id"), "criterion_id_missing"),
+        (lambda b: b["nodes"][0]["criteria"][1].__setitem__("id", "C1"), "criterion_duplicate"),
+        (lambda b: b["nodes"][0]["criteria"].__setitem__(0, ["C1"]), "criterion_not_object"),
+        (lambda b: b["nodes"][0].__setitem__("evidence", "files"), "evidence_not_object"),
+        (lambda b: b["nodes"][0]["evidence"].__setitem__("files", "src/alpha_impl.py"),
+         "evidence_section_not_list"),
+        (lambda b: b["nodes"][0]["evidence"]["files"].__setitem__(0, ["src/alpha_impl.py"]),
+         "evidence_item_not_object"),
+        (lambda b: _del(b, "nodes", "0", "evidence", "files", "0", "path"),
+         "evidence_file_path_missing"),
+        (lambda b: _del(b, "nodes", "0", "evidence", "claims", "0", "criterion"),
+         "claim_criterion_missing"),
+        # 反空转：probe 缺 name 不破坏任何机制 → 契约上合法，必须零误报（否则契约层成噪音）
+        (lambda b: _del(b, "nodes", "0", "evidence", "probes", "0", "name"), None),
+    ],
+    ids=[
+        "version_missing", "version_unsupported", "nodes_missing", "nodes_empty",
+        "nodes_not_list", "campaign_not_object", "snapshot_not_string", "node_not_object",
+        "node_key_missing", "node_key_blank", "node_key_duplicate", "criteria_not_list",
+        "criterion_id_missing", "criterion_duplicate", "criterion_not_object",
+        "evidence_not_object", "evidence_section_not_list", "evidence_item_not_object",
+        "evidence_file_path_missing", "claim_criterion_missing", "probe_name_optional",
+    ],
+)
+def test_validate_bundle_rules(bundle: dict, mutate, rule) -> None:
+    target = copy.deepcopy(bundle)
+    returned = mutate(target)          # 变异器可原地改（返回 None）或返回新 bundle
+    problems = cd.validate_bundle(target if returned is None else returned)
+    if rule is None:
+        assert problems == [], problems
+        return
+    assert rule in {p["rule"] for p in problems}, problems
+    # 每条问题都必须能机器定位：rule + target 齐备，不能是空话
+    assert all(p["rule"] and p["target"] for p in problems)
+
+
+def test_validate_bundle_accepts_fixture(bundle: dict) -> None:
+    assert cd.validate_bundle(bundle) == []
+
+
+def test_validate_bundle_reports_all_problems_at_once(bundle: dict) -> None:
+    """契约问题一次报全（不是改一个报一个），否则修复要跑 N 遍。"""
+    bad = copy.deepcopy(bundle)
+    bad["bundle_version"] = "9.9"
+    bad["nodes"][0]["node_key"] = ""
+    bad["nodes"][1]["criteria"] = "C1"
+    rules = {p["rule"] for p in cd.validate_bundle(bad)}
+    assert {"bundle_version_unsupported", "node_key_invalid", "criteria_not_list"} <= rules
+
+
+def test_validate_bundle_not_object() -> None:
+    problems = cd.validate_bundle(["nodes"])
+    assert [p["rule"] for p in problems] == ["bundle_not_object"]
+
+
+def test_mechanisms_would_raise_but_contract_reports(bundle: dict) -> None:
+    """对照基线：不设契约层时缺字段是抛栈（KeyError），退出码与"内容不合格"混同。"""
+    broken = _del(bundle, "nodes")
+    assert cd.validate_bundle(broken)[0]["rule"] == "nodes_not_list"
+    with pytest.raises(KeyError):
+        cd.build_coverage(broken)
+
+
+def test_cli_contract_error_exits_2_without_outputs(bundle: dict, tmp_path: Path) -> None:
+    """坏 bundle：退出码 2、stdout 是机器可读 JSON、且**一件产物都不落盘**。"""
+    broken = _del(bundle, "nodes", "0", "node_key")
+    bpath = tmp_path / "bad_bundle.json"
+    bpath.write_text(json.dumps(broken, ensure_ascii=False), encoding="utf-8")
+    out = tmp_path / "out"
+    report = tmp_path / "report.md"
+    archive = tmp_path / "verified"
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "tools/distill/campaign_distill.py"),
+         "--bundle", str(bpath), "--out", str(out), "--report", str(report),
+         "--archive", str(archive)],
+        capture_output=True, text=True, timeout=180,
+    )
+    assert proc.returncode == 2, proc.stdout + proc.stderr
+    assert "Traceback" not in proc.stderr, proc.stderr
+    payload = json.loads(proc.stdout.strip().splitlines()[-1])
+    assert payload["ok"] is False and payload["stage"] == "bundle_contract"
+    assert "node_key_invalid" in {p["rule"] for p in payload["contract_errors"]}
+    assert not out.exists() and not report.exists() and not archive.exists()
+
+
+def test_cli_unreadable_bundle_exits_2(tmp_path: Path) -> None:
+    bpath = tmp_path / "bundle.json"
+    bpath.write_text("{not json", encoding="utf-8")
+    proc = subprocess.run(
+        [sys.executable, str(ROOT / "tools/distill/campaign_distill.py"),
+         "--bundle", str(bpath), "--out", str(tmp_path / "out")],
+        capture_output=True, text=True, timeout=180,
+    )
+    assert proc.returncode == 2
+    assert "Traceback" not in proc.stderr
+    payload = json.loads(proc.stdout.strip().splitlines()[-1])
+    assert payload["contract_errors"][0]["rule"] == "bundle_unreadable"
