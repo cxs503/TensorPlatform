@@ -1,10 +1,13 @@
 name: Capability audit gate
 
-# 能力台账自动审计管线（P304W2-N08）。
-# 三层门，全部机器可算：
+# 能力台账自动审计管线（P304W2-N01 / P304W2-N08 合并落地）。
+# 四层门，全部机器可算：
 #   1) 口径漂移门：spec 必须能由注册表重新生成（生成物 git diff 必须为空）；
-#   2) 金标准门：10 项五级均衡标注语料的自动判定一致率 ≥90%（多数类基线 30%）+ pytest ≥15；
-#   3) 回归门：与冻结基线对比，任一能力等级下降（尤其 REAL→MOCK 反证）→ CI 红。
+#   2) 判据门（C6/C2）：pytest ≥15 且全绿；10 项五级均衡金标准语料一致率 ≥90%
+#      （多数类基线 30%，增益 ≥60pp）；
+#   3) 回归演练门（C3）：逐个把 REAL 能力注入造假实现，要求 gate 100% 检出；
+#   4) 真台账门（C1/C4/C5 + 回归）：21 项覆盖 100%、证据链 100%、耗时 <60s，
+#      与冻结基线对比任一等级下降（尤其 REAL→MOCK 反证）→ CI 红。
 on:
   push:
     branches: [main]
@@ -19,6 +22,15 @@ permissions:
 concurrency:
   group: capability-audit-${{ github.ref }}
   cancel-in-progress: true
+
+env:
+  # 冻结基线（版本化数据，不是构建产物）：回归防护的参照点。
+  # 有意升级能力等级 → UPGRADE 放行；有意降级 → 必须提 ack 文件（见 docs/CAPABILITY_AUDIT_GATE.md §5）。
+  BASELINE: config/capability_audit_gate/baseline.json
+  SPEC: config/capability_audit_gate/spec.json
+  GOLDEN_SPEC: config/capability_audit_gate/golden/spec.json
+  GOLDEN_ROOT: config/capability_audit_gate/golden
+  OUT: artifacts/capability_audit_gate
 
 jobs:
   audit-gate:
@@ -39,26 +51,44 @@ jobs:
           git diff --exit-code -- config/capability_audit_gate/spec.json \
             || (echo "::error::capability spec drift: regenerate via scripts/gen_capability_audit_spec.py" && exit 1)
 
-      - name: "Unit + contract tests (rules / scan / gate / report)"
+      - name: Baseline presence gate (regression reference must be versioned)
+        run: |
+          test -f "$BASELINE" \
+            || (echo "::error::frozen baseline missing: $BASELINE" && exit 1)
+
+      - name: "Unit + contract tests (rules / scan / gate / report / drill)"
         run: python -m pytest -q tests/capability_audit_gate
 
-      - name: "Golden corpus agreement gate (>=90%, majority baseline 30%)"
+      - name: "C6: pytest test-count gate (>=15)"
+        run: |
+          n=$(python -m pytest --collect-only -q tests/capability_audit_gate 2>/dev/null \
+                | grep -oE '^[0-9]+ tests collected' | grep -oE '^[0-9]+')
+          echo "collected tests: $n"
+          test "${n:-0}" -ge 15 || (echo "::error::capability audit suite has $n tests (<15)" && exit 1)
+
+      - name: "C2: golden corpus agreement gate (>=90%, majority baseline 30%)"
         run: |
           python -m tools.capability_audit_gate.cli audit \
-            --spec config/capability_audit_gate/golden/spec.json \
-            --root config/capability_audit_gate/golden \
-            --out /tmp/cag_golden --enforce-acceptance
+            --spec "$GOLDEN_SPEC" --root "$GOLDEN_ROOT" \
+            --out "$OUT/golden" --enforce-acceptance
+
+      - name: "C3: regression drill — every REAL capability tampered to MOCK must turn the gate red"
+        # 注入只发生在临时副本；同时校验演练未写坏工作树（worktree_unchanged）。
+        run: |
+          python -m tools.capability_audit_gate.cli drill \
+            --spec "$GOLDEN_SPEC" --root "$GOLDEN_ROOT" --out "$OUT/drill"
+          python -m tools.capability_audit_gate.cli drill \
+            --spec "$SPEC" --root . --out "$OUT/drill_real"
 
       - name: Real ledger audit + baseline regression gate
         # --fail-on-gate：等级下降（REAL→MOCK 等）→ 退出码 1 → CI 红；
         # --enforce-acceptance：覆盖 100% / 一致率 ≥90% / 证据链 100% / <60s 任一不达 → 退出码 3。
         run: |
           python -m tools.capability_audit_gate.cli audit \
-            --spec config/capability_audit_gate/spec.json \
-            --root . \
-            --out artifacts/capability_audit_gate \
+            --spec "$SPEC" --root . \
+            --out "$OUT" \
             --cache /tmp/cag_cache.json \
-            --baseline artifacts/capability_audit_gate/baseline.json \
+            --baseline "$BASELINE" \
             --contrast artifacts/capability_ledger/capability_ledger_resolved.json \
             --fail-on-gate --enforce-acceptance
 
@@ -72,4 +102,7 @@ jobs:
             artifacts/capability_audit_gate/report.md
             artifacts/capability_audit_gate/criteria.json
             artifacts/capability_audit_gate/gate.json
+            artifacts/capability_audit_gate/drill/drill.json
+            artifacts/capability_audit_gate/drill_real/drill.json
+            artifacts/capability_audit_gate/golden/report.json
           if-no-files-found: warn

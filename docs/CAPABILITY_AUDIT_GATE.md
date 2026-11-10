@@ -1,6 +1,7 @@
 # 能力台账自动审计管线（capability_audit_gate）
 
-**节点**：P304W2-N08 ｜ **仓库**：TensorPlatform（共性平台机制，零领域语义）
+**节点**：P304W2-N08（管线初版）＋ P304W2-N01（基线入仓 + 回归演练，见
+`docs/p304w2_n01_capability_audit_pipeline.md`）｜ **仓库**：TensorPlatform（共性平台机制，零领域语义）
 **产物**：`tools/capability_audit_gate/`、`config/capability_audit_gate/`（spec + 人审证据面 + 10 项金标准语料）、
 `tests/capability_audit_gate/`（57 用例）、`.github/workflows/capability-audit.yml`、
 `artifacts/capability_audit_gate/`（report.json / report.md / criteria.json / gate.json / baseline.json / metrics.json / 4 图）
@@ -129,13 +130,21 @@ python3 -m pytest -q tests/capability_audit_gate                   # 57 用例�
 python3 -m tools.capability_audit_gate.cli audit \
     --spec config/capability_audit_gate/golden/spec.json \
     --root config/capability_audit_gate/golden --out /tmp/golden --enforce-acceptance
+# 基线是**版本化数据**（不是构建产物）：有意升级 → UPGRADE 放行；有意降级 → 必须提 ack。
 python3 -m tools.capability_audit_gate.cli freeze \
     --spec config/capability_audit_gate/spec.json --root . \
-    --out artifacts/capability_audit_gate/baseline.json --cache artifacts/capability_audit_gate/cache.json
+    --out config/capability_audit_gate/baseline.json
+# C3 回归演练：逐个把 REAL 能力注入造假实现，要求 gate 100% 检出（注入只在临时副本）
+python3 -m tools.capability_audit_gate.cli drill \
+    --spec config/capability_audit_gate/golden/spec.json --root config/capability_audit_gate/golden \
+    --out artifacts/capability_audit_gate/drill
+python3 -m tools.capability_audit_gate.cli drill \
+    --spec config/capability_audit_gate/spec.json --root . \
+    --out artifacts/capability_audit_gate/drill_real
 python3 -m tools.capability_audit_gate.cli audit \
     --spec config/capability_audit_gate/spec.json --root . \
-    --out artifacts/capability_audit_gate --cache artifacts/capability_audit_gate/cache.json \
-    --baseline artifacts/capability_audit_gate/baseline.json \
+    --out artifacts/capability_audit_gate --cache /tmp/cag_cache.json \
+    --baseline config/capability_audit_gate/baseline.json \
     --contrast artifacts/capability_ledger/capability_ledger_resolved.json \
     --fail-on-gate --enforce-acceptance
 python3 scripts/capability_audit_figures.py                        # 4 图 + metrics.json
@@ -143,6 +152,18 @@ python3 scripts/capability_audit_figures.py                        # 4 图 + met
 
 退出码：`0` 通过 / `1` 回归违规 / `3` 验收判据未达 / `4` spec·基线·ack 配置错误。
 降级需显式 ack（`--ack config/capability_audit_gate/ack.json`（模板见 `ack.example.json`），内含 id 与理由），ack 会写进报告 `gate.json`。
+
+## 8b. P304W2-N01 补丁（2026-11-10）：回归门从"名存实亡"修成"可证伪"
+
+* **发现（缺陷）**：CI 第 4 步引用 `artifacts/capability_audit_gate/baseline.json`，但该文件
+  从未入仓 → CLI 以退出码 4（配置错误）中止。PR 上的"红"是配置缺失，不是能力退化，C3 名存实亡
+  （基线缺失时 `--fail-on-gate` 根本没跑到比对）。
+* **修复**：基线冻结进 `config/capability_audit_gate/baseline.json`（版本化数据）；
+  workflow 增加"基线在场门"；新增 `drill` 子命令把"REAL→MOCK 必红"变成可复算演练
+  （金标准 2/2、真台账 1/1 检出，并自校验演练未写坏工作树）；新增端到端负控证据
+  `artifacts/capability_audit_gate/evidence/ci_red_proof.txt`（exit_code=1 + REFUTATION 行）。
+* **测试**：`tests/capability_audit_gate/test_drill.py` 6 例（含"仓内基线必须与当前树一致"，
+  防陈旧基线造成假红），套件 57→64 例。
 
 ## 9. 安全与资源上限（§11）
 
