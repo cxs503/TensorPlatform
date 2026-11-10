@@ -1,0 +1,41 @@
+{
+  "schema": "multi_solver_contracts/v1",
+  "purpose": "Standardized coupling-interface contracts (field names, SI units, sign convention) for the multi-solver energy-conservation verification. Declared as data so solver pairs can be added without touching Python (TensorPlatform iron rule: zero application semantics in code).",
+  "sign_convention": {
+    "mode": "canonical_x",
+    "statement": "Every exchanged flux is the +x component of the flux vector q = -k grad(T); at a shared interface conservation reads q_A == q_B. A per-domain outward-normal convention (q_A + q_B == 0) is rejected; it is detected as a sign violation with closure residual ~2.",
+    "doc": "backend/services/multi_solver_coupling/solvers/base.py"
+  },
+  "pairs": [
+    {
+      "pair": ["FVM", "FEM"],
+      "application": "thermal_conduction_1d",
+      "state_fields": [{"name": "temperature", "units": "K", "aliases": ["T", "u"]}],
+      "flux_fields": [{"name": "heat_flux", "units": "W/m", "aliases": ["q", "flux"]}],
+      "field_aliases": {
+        "temperature": {"FVM": "T", "FEM": "T"},
+        "heat_flux": {"FVM": "face_flux", "FEM": "boundary_flux"}
+      }
+    },
+    {
+      "pair": ["FVM", "BEM"],
+      "application": "thermal_conduction_1d",
+      "state_fields": [{"name": "temperature", "units": "K", "aliases": ["T", "u"]}],
+      "flux_fields": [{"name": "heat_flux", "units": "W/m", "aliases": ["q", "flux"]}],
+      "field_aliases": {
+        "temperature": {"FVM": "T", "BEM": "T"},
+        "heat_flux": {"FVM": "face_flux", "BEM": "neumann_data"}
+      }
+    },
+    {
+      "pair": ["FEM", "BEM"],
+      "application": "thermal_conduction_1d",
+      "state_fields": [{"name": "temperature", "units": "K", "aliases": ["T", "u"]}],
+      "flux_fields": [{"name": "heat_flux", "units": "W/m", "aliases": ["q", "flux"]}],
+      "field_aliases": {
+        "temperature": {"FEM": "T", "BEM": "T"},
+        "heat_flux": {"FEM": "boundary_flux", "BEM": "neumann_data"}
+      }
+    }
+  ]
+}
