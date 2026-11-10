@@ -1,0 +1,1099 @@
+{
+ "endpoints": [
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-001",
+   "expected_level": "REAL",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-002",
+   "expected_level": "REAL",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-003",
+   "expected_level": "REAL",
+   "grid": [
+    64,
+    256,
+    1024
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.00023530974249119652
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-004",
+   "expected_level": "REAL",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-005",
+   "expected_level": "REAL",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-006",
+   "expected_level": "REAL",
+   "grid": [
+    2,
+    8,
+    32
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 8.037600319940898e-05
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-007",
+   "expected_level": "REAL",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-008",
+   "expected_level": "REAL",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "ok",
+   "defect_params": {},
+   "endpoint_id": "fz-pos-009",
+   "expected_level": "REAL",
+   "grid": [
+    2,
+    8,
+    32
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 6.984919309616089e-08
+  },
+  {
+   "defect": "constant",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-const-010",
+   "expected_level": "MOCK",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "scaled_constant",
+   "defect_params": {
+    "factor": 1.5
+   },
+   "endpoint_id": "fz-mock-scaled-011",
+   "expected_level": "MOCK",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "drifting",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-drift-012",
+   "expected_level": "MOCK",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "lattice",
+   "defect_params": {
+    "step": 0.003
+   },
+   "endpoint_id": "fz-mock-lattice-013",
+   "expected_level": "MOCK",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "constant",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-const-014",
+   "expected_level": "MOCK",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "scaled_constant",
+   "defect_params": {
+    "factor": 1.5
+   },
+   "endpoint_id": "fz-mock-scaled-015",
+   "expected_level": "MOCK",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "drifting",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-drift-016",
+   "expected_level": "MOCK",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "lattice",
+   "defect_params": {
+    "step": 0.003
+   },
+   "endpoint_id": "fz-mock-lattice-017",
+   "expected_level": "MOCK",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "constant",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-const-018",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "scaled_constant",
+   "defect_params": {
+    "factor": 1.5
+   },
+   "endpoint_id": "fz-mock-scaled-019",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "drifting",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-drift-020",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "lattice",
+   "defect_params": {
+    "step": 0.003
+   },
+   "endpoint_id": "fz-mock-lattice-021",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "constant",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-const-022",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "scaled_constant",
+   "defect_params": {
+    "factor": 1.5
+   },
+   "endpoint_id": "fz-mock-scaled-023",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "drifting",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-drift-024",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "lattice",
+   "defect_params": {
+    "step": 0.003
+   },
+   "endpoint_id": "fz-mock-lattice-025",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "constant",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-const-026",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "scaled_constant",
+   "defect_params": {
+    "factor": 1.5
+   },
+   "endpoint_id": "fz-mock-scaled-027",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "drifting",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-drift-028",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "lattice",
+   "defect_params": {
+    "step": 0.003
+   },
+   "endpoint_id": "fz-mock-lattice-029",
+   "expected_level": "MOCK",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "constant",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-const-030",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "scaled_constant",
+   "defect_params": {
+    "factor": 1.5
+   },
+   "endpoint_id": "fz-mock-scaled-031",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "drifting",
+   "defect_params": {},
+   "endpoint_id": "fz-mock-drift-032",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "lattice",
+   "defect_params": {
+    "step": 0.003
+   },
+   "endpoint_id": "fz-mock-lattice-033",
+   "expected_level": "MOCK",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 1.2
+   },
+   "endpoint_id": "fz-half-biased-034",
+   "expected_level": "WITHHELD",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 0.5
+   },
+   "endpoint_id": "fz-half-biased2-035",
+   "expected_level": "WITHHELD",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "jitter",
+   "defect_params": {
+    "amplitude": 0.05
+   },
+   "endpoint_id": "fz-half-jitter-036",
+   "expected_level": "WITHHELD",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "unit_error",
+   "defect_params": {
+    "factor": 1000.0
+   },
+   "endpoint_id": "fz-half-unit-037",
+   "expected_level": "WITHHELD",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "clamped",
+   "defect_params": {
+    "cap": 64
+   },
+   "endpoint_id": "fz-half-clamp-038",
+   "expected_level": "WITHHELD",
+   "grid": [
+    16,
+    64,
+    256
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0037649647420368026
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 1.2
+   },
+   "endpoint_id": "fz-half-biased-039",
+   "expected_level": "WITHHELD",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 0.5
+   },
+   "endpoint_id": "fz-half-biased2-040",
+   "expected_level": "WITHHELD",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "jitter",
+   "defect_params": {
+    "amplitude": 0.05
+   },
+   "endpoint_id": "fz-half-jitter-041",
+   "expected_level": "WITHHELD",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "unit_error",
+   "defect_params": {
+    "factor": 1000.0
+   },
+   "endpoint_id": "fz-half-unit-042",
+   "expected_level": "WITHHELD",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "clamped",
+   "defect_params": {
+    "cap": 128
+   },
+   "endpoint_id": "fz-half-clamp-043",
+   "expected_level": "WITHHELD",
+   "grid": [
+    32,
+    128,
+    512
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 1.5,
+   "min_spread": 1e-06,
+   "routine": "quadrature",
+   "tol_pct": 0.0009412394134766799
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 1.2
+   },
+   "endpoint_id": "fz-half-biased-044",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 0.5
+   },
+   "endpoint_id": "fz-half-biased2-045",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "jitter",
+   "defect_params": {
+    "amplitude": 0.05
+   },
+   "endpoint_id": "fz-half-jitter-046",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "unit_error",
+   "defect_params": {
+    "factor": 1000.0
+   },
+   "endpoint_id": "fz-half-unit-047",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "clamped",
+   "defect_params": {
+    "cap": 16
+   },
+   "endpoint_id": "fz-half-clamp-048",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 4.894226150697459e-06
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 1.2
+   },
+   "endpoint_id": "fz-half-biased-049",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 0.5
+   },
+   "endpoint_id": "fz-half-biased2-050",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "jitter",
+   "defect_params": {
+    "amplitude": 0.05
+   },
+   "endpoint_id": "fz-half-jitter-051",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "unit_error",
+   "defect_params": {
+    "factor": 1000.0
+   },
+   "endpoint_id": "fz-half-unit-052",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "clamped",
+   "defect_params": {
+    "cap": 32
+   },
+   "endpoint_id": "fz-half-clamp-053",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 3.0,
+   "min_spread": 1e-06,
+   "routine": "ivp",
+   "tol_pct": 3.0192968171489735e-07
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 1.2
+   },
+   "endpoint_id": "fz-half-biased-054",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 0.5
+   },
+   "endpoint_id": "fz-half-biased2-055",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "jitter",
+   "defect_params": {
+    "amplitude": 0.05
+   },
+   "endpoint_id": "fz-half-jitter-056",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "unit_error",
+   "defect_params": {
+    "factor": 1000.0
+   },
+   "endpoint_id": "fz-half-unit-057",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "clamped",
+   "defect_params": {
+    "cap": 16
+   },
+   "endpoint_id": "fz-half-clamp-058",
+   "expected_level": "WITHHELD",
+   "grid": [
+    4,
+    16,
+    64
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 1.2
+   },
+   "endpoint_id": "fz-half-biased-059",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "biased",
+   "defect_params": {
+    "factor": 0.5
+   },
+   "endpoint_id": "fz-half-biased2-060",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "jitter",
+   "defect_params": {
+    "amplitude": 0.05
+   },
+   "endpoint_id": "fz-half-jitter-061",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "unit_error",
+   "defect_params": {
+    "factor": 1000.0
+   },
+   "endpoint_id": "fz-half-unit-062",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  },
+  {
+   "defect": "clamped",
+   "defect_params": {
+    "cap": 32
+   },
+   "endpoint_id": "fz-half-clamp-063",
+   "expected_level": "WITHHELD",
+   "grid": [
+    8,
+    32,
+    128
+   ],
+   "loose_tol_pct": 1.0,
+   "min_order": 0.5,
+   "min_spread": 1e-06,
+   "routine": "series",
+   "tol_pct": 1e-12
+  }
+ ],
+ "mission_id": 9811,
+ "note": "Frozen endpoint table for the auto-grading backtest. tol_pct = 3x the honest routine's finest-grid error; loose_tol_pct = the single-gate ablation bar ('looks plausible'). expected_level is ground truth.",
+ "schema": "frozen-probe-set/1.0"
+}
