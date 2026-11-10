@@ -1,0 +1,293 @@
+{
+  "schema_version": "criterion-auditor-regression/1.0",
+  "purpose": "回归测试集：≥30条标注样本（重复/新颖/边界），用于验证AUC≥0.85、重复召回≥0.8",
+  "samples": [
+    {
+      "id": "reg_001",
+      "label": "duplicate",
+      "title": "Wave resistance validation against Wigley hull",
+      "text": "Validate wave resistance computation against Wigley hull experimental data at Fn=0.2, 0.3, 0.4. Criterion: relative error ≤ 5% at all speeds.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_002",
+      "label": "duplicate",
+      "title": "Wigley hull wave resistance benchmark",
+      "text": "Benchmark wave resistance for Wigley hull at Fn=0.2, 0.3, 0.4 against experimental measurements. Target: error below 5%.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_003",
+      "label": "novel",
+      "title": "TensorBEM free-surface Green function acceleration",
+      "text": "Implement FMM-accelerated free-surface Green function for TensorBEM. Criterion: O(N log N) complexity vs O(N²) baseline, with error ≤ 1e-4 for wave elevation at Fn=0.3 in deep water.",
+      "domain_hint": "deep_water"
+    },
+    {
+      "id": "reg_004",
+      "label": "novel",
+      "title": "Ice resistance Lindqvist formula validation",
+      "text": "Validate ice resistance computation against Lindqvist formula for level ice conditions. Criterion: match within 10% for ice thickness 0.5m-1.5m, ship speed 3-7 knots.",
+      "domain_hint": "ice_condition"
+    },
+    {
+      "id": "reg_005",
+      "label": "duplicate",
+      "title": "KCS resistance at Fn=0.26",
+      "text": "Compute total resistance for KCS hull at Fn=0.26 and compare with Tokyo 2015 benchmark. Target: error ≤ 3%.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_006",
+      "label": "duplicate",
+      "title": "KCS total resistance validation",
+      "text": "Validate total resistance computation for KCS at design speed Fn=0.26 against Tokyo 2015 CFD workshop data. Criterion: relative error below 3%.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_007",
+      "label": "novel",
+      "title": "RAO computation for S175 in head seas",
+      "text": "Compute heave and pitch RAO for S175 container ship in head waves (180°). Criterion: match experimental RAO peak within 15%, natural frequency within 5%.",
+      "domain_hint": "head_sea"
+    },
+    {
+      "id": "reg_008",
+      "label": "borderline",
+      "title": "Added resistance in waves - STAWAVE-2",
+      "text": "Compute added resistance for KVLCC2 in regular head waves at Fn=0.14. Criterion: match within 20% of experimental data (known scatter in measurements).",
+      "domain_hint": "regular_waves"
+    },
+    {
+      "id": "reg_009",
+      "label": "novel",
+      "title": "TensorFEM plate bending convergence study",
+      "text": "Grid convergence study for Mindlin plate bending in TensorFEM. Criterion: L2 error converges as O(h²) for uniform mesh, verified against analytical solution for simply-supported square plate.",
+      "domain_hint": "uniform_mesh"
+    },
+    {
+      "id": "reg_010",
+      "label": "duplicate",
+      "title": "Open water characteristics for KP455",
+      "text": "Validate open water efficiency and thrust coefficient for KP455 propeller. Criterion: KT and KQ match experimental data within 3% at advance ratios J=0.5-1.0.",
+      "domain_hint": "steady_flow"
+    },
+    {
+      "id": "reg_011",
+      "label": "duplicate",
+      "title": "KP455 open water test",
+      "text": "Compute open water characteristics (KT, KQ, efficiency) for KP455 propeller and compare with experimental data. Target: error ≤ 3% for J=0.5 to 1.0.",
+      "domain_hint": "steady_flow"
+    },
+    {
+      "id": "reg_012",
+      "label": "novel",
+      "title": "TensorLBM turbulent flow past cylinder",
+      "text": "Simulate turbulent flow past circular cylinder at Re=3900 using TensorLBM. Criterion: mean drag coefficient within 5% of experimental value (Cd≈1.0), Strouhal number within 3% (St≈0.21).",
+      "domain_hint": "turbulent"
+    },
+    {
+      "id": "reg_013",
+      "label": "borderline",
+      "title": "Wave pattern comparison for Wigley hull",
+      "text": "Compare wave elevation patterns for Wigley hull at Fn=0.3 with experimental wave cuts. Criterion: qualitative agreement in wave pattern, peak elevation within 10%.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_014",
+      "label": "novel",
+      "title": "Mass conservation verification for TensorFVM",
+      "text": "Verify mass conservation for incompressible flow solver in TensorFVM. Criterion: mass imbalance ≤ 1e-10 (machine precision) for closed domain with no sources.",
+      "domain_hint": "inviscid"
+    },
+    {
+      "id": "reg_015",
+      "label": "duplicate",
+      "title": "Heave RAO for Series 60",
+      "text": "Compute heave RAO for Series 60 hull (Cb=0.6) in head seas. Criterion: match experimental RAO within 15% at peak frequency.",
+      "domain_hint": "head_sea"
+    },
+    {
+      "id": "reg_016",
+      "label": "novel",
+      "title": "TensorDEM ice-structure interaction",
+      "text": "Implement ice-structure interaction using DEM in TensorDEM. Criterion: ice breaking force match IACS empirical formula within 20% for level ice thickness 0.8m.",
+      "domain_hint": "ice_condition"
+    },
+    {
+      "id": "reg_017",
+      "label": "borderline",
+      "title": "Resistance extrapolation method",
+      "text": "Develop resistance extrapolation from model scale to full scale using ITTC 1957 method. Criterion: extrapolated total resistance within 5% of empirical correlation line.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_018",
+      "label": "novel",
+      "title": "TensorBEM radiation damping at zero speed",
+      "text": "Compute radiation damping coefficients for floating body at zero forward speed (Fn=0). Criterion: match analytical solution for simple geometry (sphere/ellipsoid) within 5%, verify symmetry properties.",
+      "domain_hint": "zero_speed"
+    },
+    {
+      "id": "reg_019",
+      "label": "duplicate",
+      "title": "Wave resistance at low Froude number",
+      "text": "Validate wave resistance computation at low Froude numbers (Fn=0.1-0.2). Criterion: wave resistance converges to zero as Fn→0, relative error ≤ 10% compared to asymptotic theory.",
+      "domain_hint": "low_fn"
+    },
+    {
+      "id": "reg_020",
+      "label": "novel",
+      "title": "TensorFEM structural vibration modes",
+      "text": "Compute natural frequencies and mode shapes for ship hull girder using TensorFEM. Criterion: first 5 natural frequencies within 5% of beam theory predictions for uniform cross-section.",
+      "domain_hint": "static"
+    },
+    {
+      "id": "reg_021",
+      "label": "novel",
+      "title": "Broken ice resistance computation",
+      "text": "Compute resistance in broken ice field using discrete element method. Criterion: match model test data within 25% for ice concentration 70%, ship speed 5 knots.",
+      "domain_hint": "ice_condition"
+    },
+    {
+      "id": "reg_022",
+      "label": "borderline",
+      "title": "Pressure distribution on hull surface",
+      "text": "Compute pressure distribution on hull surface at Fn=0.26. Criterion: pressure coefficient Cp match experimental data within 15% at midship section.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_023",
+      "label": "novel",
+      "title": "TensorLBM mass and momentum conservation",
+      "text": "Verify mass and momentum conservation for TensorLBM solver. Criterion: mass conservation error ≤ 1e-12, momentum conservation error ≤ 1e-10 for Taylor-Green vortex decay.",
+      "domain_hint": "inviscid"
+    },
+    {
+      "id": "reg_024",
+      "label": "duplicate",
+      "title": "Pitch RAO in head waves",
+      "text": "Compute pitch RAO for floating body in head waves (180° heading). Criterion: match experimental data within 15% at peak frequency, natural period within 5%.",
+      "domain_hint": "head_sea"
+    },
+    {
+      "id": "reg_025",
+      "label": "novel",
+      "title": "TensorBEM forward speed effect on RAO",
+      "text": "Investigate forward speed effect on RAO using TensorBEM with m-body interaction. Criterion: RAO at Fn=0.2 differs from Fn=0 by at least 10% for heave, validated against experimental data.",
+      "domain_hint": "head_sea"
+    },
+    {
+      "id": "reg_026",
+      "label": "borderline",
+      "title": "Convergence study for wave resistance",
+      "text": "Grid convergence study for wave resistance computation. Criterion: wave resistance converges monotonically with mesh refinement, final value within 5% of finest mesh solution.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_027",
+      "label": "novel",
+      "title": "TensorFVM viscous resistance with wall functions",
+      "text": "Compute viscous resistance using wall functions in TensorFVM. Criterion: frictional resistance coefficient Cf within 5% of ITTC 1957 correlation line for flat plate at Re=1e6-1e8.",
+      "domain_hint": "turbulent"
+    },
+    {
+      "id": "reg_028",
+      "label": "duplicate",
+      "title": "Added mass for floating sphere",
+      "text": "Compute added mass for floating sphere in heave. Criterion: match analytical solution (half of displaced mass) within 2%.",
+      "domain_hint": "zero_speed"
+    },
+    {
+      "id": "reg_029",
+      "label": "novel",
+      "title": "TensorSPH free surface capturing",
+      "text": "Validate free surface capturing using TensorSPH for dam break problem. Criterion: water front position within 5% of experimental data at t=0.5s, 1.0s, 1.5s.",
+      "domain_hint": "unsteady_flow"
+    },
+    {
+      "id": "reg_030",
+      "label": "novel",
+      "title": "TensorDG high-order accuracy verification",
+      "text": "Verify high-order accuracy of TensorDG solver using method of manufactured solutions. Criterion: convergence order matches polynomial degree p for L2 error: O(h^(p+1)).",
+      "domain_hint": "uniform_mesh"
+    },
+    {
+      "id": "reg_031",
+      "label": "borderline",
+      "title": "Wave resistance for catamaran",
+      "text": "Compute wave resistance for catamaran configuration at Fn=0.3. Criterion: wave resistance within 20% of experimental data (limited experimental uncertainty for catamarans).",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_032",
+      "label": "novel",
+      "title": "TensorFEM thermal stress analysis",
+      "text": "Compute thermal stress in ship engine room structure using TensorFEM. Criterion: von Mises stress within 10% of analytical solution for simple beam with temperature gradient.",
+      "domain_hint": "static"
+    },
+    {
+      "id": "reg_033",
+      "label": "duplicate",
+      "title": "Resistance validation for KVLCC2",
+      "text": "Validate total resistance for KVLCC2 tanker at Fn=0.14. Criterion: match Tokyo 2015 benchmark within 3%.",
+      "domain_hint": "calm_water"
+    },
+    {
+      "id": "reg_034",
+      "label": "novel",
+      "title": "TensorBEM irregular wave response",
+      "text": "Compute ship response in irregular waves using TensorBEM with spectral method. Criterion: significant heave amplitude within 15% of experimental data for Bretschneider spectrum, Hs=2m, Tp=10s.",
+      "domain_hint": "irregular_waves"
+    },
+    {
+      "id": "reg_035",
+      "label": "borderline",
+      "title": "Efficiency prediction for propeller",
+      "text": "Predict propeller efficiency using BEM with viscous correction. Criterion: efficiency within 10% of experimental data at design point.",
+      "domain_hint": "steady_flow"
+    }
+  ],
+  "known_false_pass": [
+    {
+      "id": "c5_false_pass_001",
+      "title": "Wave resistance always matches experiment",
+      "text": "Our wave resistance computation always matches experimental data perfectly. The method is always accurate and gives correct results for all hull forms and speeds.",
+      "domain_hint": "calm_water",
+      "reason": "tautological: 'always matches', 'always accurate', no numeric criterion"
+    },
+    {
+      "id": "c5_false_pass_002",
+      "title": "Convergence is always achieved",
+      "text": "The numerical method always converges to the correct solution. Convergence is always satisfied for any mesh and any problem.",
+      "domain_hint": "uniform_mesh",
+      "reason": "tautological: 'always converges', 'always satisfied', no numeric criterion"
+    }
+  ],
+  "historical_p318_w1": [
+    {
+      "id": "p318_w1_001",
+      "title": "TensorBEM wave resistance benchmark",
+      "text": "Validate TensorBEM wave resistance against Wigley hull experimental data at Fn=0.2, 0.3, 0.4. Criterion: relative error ≤ 5% at all speeds.",
+      "domain_hint": "calm_water",
+      "actual_verdict": "accepted",
+      "reason": "genuinely novel at the time, specific numeric criterion"
+    },
+    {
+      "id": "p318_w1_002",
+      "title": "KCS resistance validation",
+      "text": "Compute total resistance for KCS hull at Fn=0.26 and compare with Tokyo 2015 benchmark. Target: error ≤ 3%.",
+      "domain_hint": "calm_water",
+      "actual_verdict": "accepted",
+      "reason": "standard benchmark, specific numeric criterion"
+    },
+    {
+      "id": "p318_w1_003",
+      "title": "RAO computation for S175",
+      "text": "Compute heave and pitch RAO for S175 container ship in head waves (180°). Criterion: match experimental RAO peak within 15%.",
+      "domain_hint": "head_sea",
+      "actual_verdict": "accepted",
+      "reason": "standard seakeeping benchmark, specific numeric criterion"
+    }
+  ]
+}
