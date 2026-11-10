@@ -101,12 +101,110 @@ def _derive_seed(*parts: object) -> int:
     return int(h[:16], 16)
 
 
-def _t_ppf(p: float, df: int) -> float:
-    """t 分位数（Cornish-Fisher 展开，df>=5 时误差 <0.5%）。"""
-    z = NormalDist().inv_cdf(p)
+_TINY = 1e-300
+
+
+def _betacf(a: float, b: float, x: float, itmax: int = 200, eps: float = 1e-13) -> float:
+    """正则化不完全贝塔的连分式（Lentz 算法）。"""
+    qab, qap, qam = a + b, a + 1.0, a - 1.0
+    c = 1.0
+    d = 1.0 - qab * x / qap
+    if abs(d) < _TINY:
+        d = _TINY
+    d = 1.0 / d
+    h = d
+    for m in range(1, itmax + 1):
+        m2 = 2 * m
+        aa = m * (b - m) * x / ((qam + m2) * (a + m2))
+        d = 1.0 + aa * d
+        if abs(d) < _TINY:
+            d = _TINY
+        c = 1.0 + aa / c
+        if abs(c) < _TINY:
+            c = _TINY
+        d = 1.0 / d
+        h *= d * c
+        aa = -(a + m) * (qab + m) * x / ((a + m2) * (qap + m2))
+        d = 1.0 + aa * d
+        if abs(d) < _TINY:
+            d = _TINY
+        c = 1.0 + aa / c
+        if abs(c) < _TINY:
+            c = _TINY
+        d = 1.0 / d
+        delta = d * c
+        h *= delta
+        if abs(delta - 1.0) < eps:
+            break
+    return h
+
+
+def _betai(a: float, b: float, x: float) -> float:
+    """正则化不完全贝塔 I_x(a,b)。"""
+    if x <= 0.0:
+        return 0.0
+    if x >= 1.0:
+        return 1.0
+    lbeta = math.lgamma(a + b) - math.lgamma(a) - math.lgamma(b)
+    front = math.exp(lbeta + a * math.log(x) + b * math.log1p(-x))
+    if x < (a + 1.0) / (a + b + 2.0):
+        return front * _betacf(a, b, x) / a
+    return 1.0 - front * _betacf(b, a, 1.0 - x) / b
+
+
+def _t_cdf(t: float, df: float) -> float:
+    """Student t 的 CDF：t>=0 时 ``P(T<=t) = 1 - I_{df/(df+t^2)}(df/2, 1/2)/2``。"""
     if df <= 0:
-        return z
-    return z + (z ** 3 + z) / (4.0 * df)
+        return NormalDist().cdf(t)
+    if t == 0.0:
+        return 0.5
+    tail = 0.5 * _betai(0.5 * df, 0.5, df / (df + t * t))
+    return 1.0 - tail if t > 0 else tail
+
+
+def _t_pdf(t: float, df: float) -> float:
+    """Student t 的密度（Newton 迭代用）。"""
+    lg = math.lgamma(0.5 * (df + 1.0)) - math.lgamma(0.5 * df)
+    return math.exp(lg - 0.5 * math.log(df * math.pi)
+                    - 0.5 * (df + 1.0) * math.log1p(t * t / df))
+
+
+def _t_ppf(p: float, df: int) -> float:
+    """Student t 分位数（Newton + 二分兜底；相对误差 <1e-9，纯 stdlib）。
+
+    与 ``scipy.stats.t.ppf`` 独立对照（``runs/m8719/probe_t_quantile.py``）：
+    df ∈ [1, 5000]、p ∈ {0.90, 0.95, 0.975, 0.995} 上实测最大相对误差 9.4e-11。
+    历史缺陷：旧实现用一阶 Cornish-Fisher 展开 ``z+(z^3+z)/(4df)`` 并声称
+    "df>=5 误差 <0.5%"，实测 df=5 偏 -5.30%、df=2 偏 -26.9%，把小样本的
+    解析 MDE/功效与 CI 半宽算窄，导致 ``min_n_for_effect(0.8)`` 少报一对
+    （14 vs 15）。修复登记见 ``docs/P143W2-N06_t_quantile_accuracy.md``。
+    """
+    if not 0.0 < p < 1.0:
+        raise ValueError(f"p 必须在 (0,1) 内（当前 {p!r}）")
+    if df <= 0:
+        return NormalDist().inv_cdf(p)
+    if p == 0.5:
+        return 0.0
+    if p < 0.5:
+        return -_t_ppf(1.0 - p, df)
+    z = NormalDist().inv_cdf(p)
+    t = max(z + (z ** 3 + z) / (4.0 * float(df)), 1e-6)  # 仅作迭代起点
+    lo, hi = 0.0, math.inf
+    for _ in range(200):
+        f = _t_cdf(t, df) - p
+        if f < 0.0:
+            lo = t
+        else:
+            hi = t
+        pdf = _t_pdf(t, df)
+        newt = t - f / pdf if pdf > 0.0 else (
+            0.5 * (lo + hi) if hi < math.inf else 2.0 * t)
+        if not (lo < newt < hi):
+            newt = 0.5 * (lo + hi) if hi < math.inf else max(2.0 * t, 1.0)
+        if abs(newt - t) <= 1e-10 * max(1.0, abs(newt)):
+            return newt
+        t = newt
+    return t
 
 
 def analytic_power_paired(
@@ -394,27 +492,24 @@ def fwer_guarantee(
 
 
 def _bonferroni_holm(p_values: List[float], alpha: float) -> List[float]:
-    """Bonferroni-Holm 逐步校正。
+    """Bonferroni-Holm 逐步校正，返回**单调化的调整 p 值**。
 
-    按 p 值升序排列，第 k 个 p 值与 alpha/(m-k+1) 比较。
-    一旦某个 p 值不显著，其后所有 p 值也视为不显著。
+    ``adj_(i) = min(1, max_{j<=i} (m-j+1) p_(j))``（按 p 升序的秩 i，1-based）。
+    拒绝规则与逐步下降等价：``adj_(i) <= alpha`` ⇔ 直至秩 i 的全部假设都被拒绝
+    ⇔ ``p_(i) <= alpha/(m-i+1)`` 且此前未被拦下。因此判决与旧实现一致。
+
+    历史缺陷（m8719-D2）：旧实现在首个"不显著"之后把后续每维的调整 p 直接写成
+    ``1.0``，对同一 p 值矩阵与同模块 ``holm_adjust`` 给出不同答案，导致
+    ``permutation_test_six_dim`` 对外暴露的 ``adjusted_p`` 数字失真（例：
+    p=[0.001, 0.04, 0.05] 第三维报 1.0，真值 0.08）。修复登记见
+    ``docs/P143W2-N06_t_quantile_accuracy.md``。
     """
     m = len(p_values)
-    indexed = sorted(enumerate(p_values), key=lambda x: x[1])
     adjusted = [0.0] * m
-    prev_adj = 0.0
-    rejected = True
-    for rank, (orig_idx, p) in enumerate(indexed):
-        if not rejected:
-            adjusted[orig_idx] = max(prev_adj, 1.0)
-            continue
-        threshold = alpha / (m - rank)
-        adj_p = min(p * (m - rank), 1.0)
-        adj_p = max(adj_p, prev_adj)
-        adjusted[orig_idx] = adj_p
-        prev_adj = adj_p
-        if p >= threshold:
-            rejected = False
+    running = 0.0
+    for rank, (orig_idx, p) in enumerate(sorted(enumerate(p_values), key=lambda x: x[1])):
+        running = max(running, min(1.0, p * (m - rank)))
+        adjusted[orig_idx] = running
     return adjusted
 
 
