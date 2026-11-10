@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.0",
+  "purpose": "结构级域面治理政策（P162-N10，判例 #608 续篇）：定义域面根目录、平台分层、归属规则与棘轮参数。政策指纹被 manifest.policy_digest 钉住，改政策必须重签基线（policy_drift → 红）。",
+  "surface_roots": [
+    "backend/api/domain"
+  ],
+  "layers": {
+    "core": [
+      "backend/api/core",
+      "backend/services",
+      "backend/services/platform",
+      "backend/models",
+      "backend/utils",
+      "backend/methods",
+      "backend/physics",
+      "backend/tasks"
+    ],
+    "route": [
+      "backend/api"
+    ],
+    "tooling": [
+      "tools",
+      "scripts"
+    ]
+  },
+  "layer_exclude": [
+    "backend/api/tests",
+    "backend/api/domain"
+  ],
+  "provider_seam": {
+    "module": "api.core.domain_provider",
+    "callable": "provide_domain",
+    "note": "域能力唯一允许的解析路径：核心层只依赖该接缝，域模块经注册表在路由层解析。核心层 import 该接缝不算违规。"
+  },
+  "ownership_rules": [
+    {
+      "names": [
+        "__init__",
+        "delivery_state",
+        "mvd_checkpoint",
+        "mission_state_machine",
+        "status_contracts",
+        "observability",
+        "iam",
+        "ops",
+        "platform",
+        "deployment",
+        "data",
+        "model",
+        "misc",
+        "tools",
+        "iot_edge"
+      ],
+      "prefix": [
+        "tensor"
+      ],
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "rationale": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "names": [
+        "physics_providers",
+        "coupling_clock_sync",
+        "ice_uq"
+      ],
+      "owner_repo": "TensorPhysics",
+      "target_layer": "domains/physics_providers",
+      "rationale": "求解器耦合/冰区不确定度等科研流程语义，按 ECOSYSTEM-MAP 归 TensorPhysics。"
+    }
+  ],
+  "default_owner_repo": "ship-performance-platform",
+  "default_target_layer": "domains/ship_performance",
+  "default_rationale": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。",
+  "default_status": "DECLARED-exempt",
+  "default_expiry": "2027-03-31",
+  "default_reason": "P162-N10 生命周期内不迁移（C7 明确不要求本单迁移模块）；归属仓与目标层已登记，迁移走独立单，到期未迁即判红。",
+  "default_dependency_reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+  "default_approval_reason": "owner 接受的结构面基线变更",
+  "approval_authority": "owner",
+  "budget_seconds": 120,
+  "min_required_modules": 36,
+  "notes": [
+    "min_required_modules=36 来自战役判据 C1（manifest ⊇ 现有 36 个 api/domain 模块，差异=0）；实测磁盘模块数更多时以磁盘为准并记录在产物里。",
+    "absent_layers 会记录政策声明但仓库中不存在的层目录（如 backend/services/platform），不视为失败——它是申报面，不是伪造绿。"
+  ]
+}
