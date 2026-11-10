@@ -10,7 +10,8 @@ export default defineConfig({
   server: {
     port: 8080,
     proxy: {
-      '/api': { target: 'http://localhost:8001', changeOrigin: true }
+      // VITE_PROXY_TARGET 供本地端到端验证指向自建后端实例（默认线上 8001）
+      '/api': { target: process.env.VITE_PROXY_TARGET || 'http://localhost:8001', changeOrigin: true }
     }
   },
   build: { sourcemap: false, chunkSizeWarningLimit: 1500 }

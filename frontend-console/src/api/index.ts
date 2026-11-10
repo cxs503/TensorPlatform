@@ -114,3 +114,18 @@ export const centersApi = {
 export const paperApi = {
   line: () => http.get<any>('/tensor/papers/line'),
 }
+
+// ── knowledge column (TensorKnowledge KE API, read-only via platform proxy) ──
+// 数据一律经 KE API（platform 代理），前端不直连 TK 库。
+export const knowledgeApi = {
+  status: () => http.get<any>('/tensor/knowledge/status'),
+  overview: () => http.get<any>('/tensor/knowledge/overview'),
+  map: () => http.get<any>('/tensor/knowledge/map'),
+  chain: (claimId: string) => http.get<any>('/tensor/knowledge/chain', { claim_id: claimId }),
+  search: (params: { q: string; kind?: string; domain?: string; limit?: number }) =>
+    http.get<any>('/tensor/knowledge/search', params),
+  assets: () => http.get<any>('/tensor/knowledge/assets'),
+  // 证据直读（免鉴权 GET，白名单在 middleware/auth_guard）
+  source: (path: string, line?: number) =>
+    http.get<any>(`/tensor/knowledge/source/${path}`, line ? { line, context: 12 } : { context: 12 }),
+}

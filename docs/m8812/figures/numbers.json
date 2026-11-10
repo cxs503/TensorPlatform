@@ -1,0 +1,278 @@
+{
+ "engine": {
+  "base": "http://127.0.0.1:8021",
+  "reachable": true,
+  "status": "ok",
+  "driver": "sqlite",
+  "write_enabled": true,
+  "version": "1.0.0",
+  "time": "2026-11-10T04:26:45Z"
+ },
+ "stats": {
+  "objects": 251,
+  "by_kind": {
+   "claim": 102,
+   "evidence": 142,
+   "provenance": 7
+  },
+  "edges": 300,
+  "review_events": 0,
+  "production_status": {
+   "draft": 251
+  },
+  "evidence_status": {
+   "contested": 7,
+   "established": 70,
+   "not-assessed": 7,
+   "provisional": 10,
+   "unassessed": 142,
+   "well-supported": 15
+  },
+  "review_status": {
+   "unreviewed": 251
+  },
+  "publication_status": {
+   "private": 251
+  }
+ },
+ "funnel": [
+  [
+   "生产",
+   251
+  ],
+  [
+   "证据",
+   102
+  ],
+  [
+   "评审",
+   0
+  ],
+  [
+   "发布",
+   0
+  ]
+ ],
+ "domains": [
+  {
+   "domain": "(未标注域)",
+   "count": 149,
+   "claim": 0,
+   "evidence": 142,
+   "provenance": 7,
+   "review": 0
+  },
+  {
+   "domain": "lattice-Boltzmann-method",
+   "count": 102,
+   "claim": 102,
+   "evidence": 0,
+   "provenance": 0,
+   "review": 0
+  }
+ ],
+ "growth": [
+  {
+   "date": "2026-11-10",
+   "count": 251
+  }
+ ],
+ "cited_top": [
+  {
+   "claim_id": "tkc:oss-lbm:kruger-shanchen-laplace",
+   "citations": 6,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "well-supported",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:kruger-ib-lbm-poiseuille",
+   "citations": 5,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "well-supported",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:kruger-tg-multi-backend-ladder",
+   "citations": 5,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "established",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:fing-wetting-via-order-parameter",
+   "citations": 4,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "provisional",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:kruger-cylinder-trt-karman",
+   "citations": 4,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "established",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:kruger-tg-analytic-solution",
+   "citations": 4,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "well-supported",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:fing-free-energy-calibration",
+   "citations": 3,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "established",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:kruger-couette-bb-moving-wall",
+   "citations": 3,
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "well-supported",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  }
+ ],
+ "refuted": [
+  {
+   "claim_id": "tkc:oss-lbm:fing-validation-no-angle-measurement",
+   "evidence_id": "tke:oss-lbm:fing-theta-declared",
+   "citation": "ebinan92/Fingering_dynamics source code, lattice_boltzmann/validation.py",
+   "locator": "fingering_dynamics@150a5739e lattice_boltzmann/validation.py:22-22",
+   "content_hash": "896e881dc516802d13fde3f9b775be9fbfd1185559597ad441cd8214a1fd8891",
+   "accessed_at": "2026-11-09",
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "contested",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  },
+  {
+   "claim_id": "tkc:oss-lbm:fing-validation-no-angle-measurement",
+   "evidence_id": "tke:oss-lbm:fing-validation-output-only-plot",
+   "citation": "ebinan92/Fingering_dynamics source code, lattice_boltzmann/validation.py",
+   "locator": "fingering_dynamics@150a5739e lattice_boltzmann/validation.py:419-421",
+   "content_hash": "b6805ce9be6f89ef825428190707557abe018d5d39342c875eaeedbc9aa2844b",
+   "accessed_at": "2026-11-09",
+   "domain": "lattice-Boltzmann-method",
+   "evidence_status": "contested",
+   "review_status": "unreviewed",
+   "publication_status": "private",
+   "content_hidden": true
+  }
+ ],
+ "chain": {
+  "claim_id": "tkc:oss-lbm:kruger-shanchen-laplace",
+  "links": 6,
+  "relations": {
+   "supports": 6
+  },
+  "assessment": {
+   "unassessed": 6
+  },
+  "record_source_hits": 6,
+  "locators": [
+   "runs/oss-lbm-kruger-8676/validation_summary.json#young_laplace",
+   "lbm-principles-practice/code@6e2c592 chapter9/shanchen.cpp:99-100",
+   "lbm-principles-practice/code@6e2c592 chapter9/shanchen.cpp:369-369",
+   "lbm-principles-practice/code@6e2c592 chapter9/shanchen.cpp:134-134",
+   "lbm-principles-practice/code@6e2c592 chapter9/shanchen.cpp:74-76",
+   "lbm-principles-practice/code@6e2c592 chapter9/shanchen.cpp:40-40"
+  ],
+  "complete": true,
+  "tk_commit": "01a70cb",
+  "claim_record_source": {
+   "path": "knowledge/oss-lbm/kruger/claims/claims.json",
+   "line": 307,
+   "commit": "01a70cb"
+  }
+ },
+ "assets": [
+  {
+   "file": "eval_manifest.json",
+   "kind": "eval",
+   "version": "eval",
+   "generated_at": "2026-11-10T03:49:42Z",
+   "upstream_commit": "edbc20a",
+   "total_claims": 27,
+   "included": 31,
+   "excluded": null,
+   "status_distribution": {},
+   "domain_distribution": {
+    "lattice-Boltzmann-method": 31
+   },
+   "tolerance_distribution": {
+    "0.03": 2,
+    "0.05": 2,
+    "0.1": 27
+   },
+   "artifact": "eval.jsonl",
+   "artifact_bytes": 23814,
+   "sha256_8": "fad2356a"
+  },
+  {
+   "file": "sft_manifest.json",
+   "kind": "sft",
+   "version": "sft",
+   "generated_at": "2026-11-10T03:49:35Z",
+   "upstream_commit": "edbc20a",
+   "total_claims": 27,
+   "included": 27,
+   "excluded": 0,
+   "status_distribution": {
+    "established": 27
+   },
+   "domain_distribution": {
+    "lattice-Boltzmann-method": 27
+   },
+   "tolerance_distribution": {},
+   "artifact": "sft.jsonl",
+   "artifact_bytes": 34034,
+   "sha256_8": "e8804c73"
+  },
+  {
+   "file": "triples_manifest.json",
+   "kind": "triples",
+   "version": "triples",
+   "generated_at": "2026-11-10T03:49:44Z",
+   "upstream_commit": "edbc20a",
+   "total_claims": null,
+   "included": null,
+   "excluded": null,
+   "status_distribution": {},
+   "domain_distribution": {
+    "lattice-Boltzmann-method": 27
+   },
+   "tolerance_distribution": {},
+   "artifact": "triples.jsonl",
+   "artifact_bytes": 17944,
+   "sha256_8": "02444cbf"
+  }
+ ],
+ "search": {
+  "q": "lattice",
+  "count": 20
+ },
+ "figures": [
+  "/root/tp-agent/work/m8812/docs/m8812/figures/fig1-knowledge-funnel-domains-citations.png",
+  "/root/tp-agent/work/m8812/docs/m8812/figures/fig2-chain-traceability.png"
+ ]
+}
