@@ -1,0 +1,54 @@
+{
+  "schema_version": "dedup-evidence/1.0",
+  "purpose": "提案去重证据可复算门（p337w1-n03）全部可调参数：被检索表清单/文本列/必需覆盖/阈值。零领域语义纪律：本文件是唯一参数来源，代码与测试夹具不得含领域词（扫描 config/domain_word_denylist.json）。 近邻判定=逐表模式互证（neighbor_min_votes/neighbor_mode_thresholds），单模式单表易过杀故要求互证。",
+  "tables": [
+    {
+      "name": "campaign_nodes",
+      "text_fields": [
+        "name",
+        "metadata.goal"
+      ]
+    },
+    {
+      "name": "campaign_plans",
+      "text_fields": [
+        "name",
+        "description"
+      ]
+    },
+    {
+      "name": "proposals",
+      "text_fields": [
+        "goal"
+      ]
+    }
+  ],
+  "required_tables": [
+    "campaign_nodes",
+    "campaign_plans",
+    "proposals"
+  ],
+  "required_modes": [
+    "ilike",
+    "keyword_set",
+    "vector"
+  ],
+  "topk_min_jaccard": 0.8,
+  "near_neighbor_threshold": 0.8,
+  "max_recompute_seconds": 2.0,
+  "default_top_k": 5,
+  "max_top_k": 50,
+  "keyword_top_terms": 12,
+  "keyword_match_ratio": 0.5,
+  "min_query_chars": 20,
+  "vector_dims": 64,
+  "vector_threshold": 0.35,
+  "score_abs_tolerance": 1e-09,
+  "fail_closed": true,
+  "neighbor_min_votes": 2,
+  "neighbor_mode_thresholds": {
+    "ilike": 0.7,
+    "keyword_set": 0.7,
+    "vector": 0.7
+  }
+}
