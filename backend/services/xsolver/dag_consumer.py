@@ -32,6 +32,12 @@ NODE_VERDICT_SCHEMA = {
     "properties": {
         "reproduction_verdict": {"type": "string", "pattern": "^(pass|fail)$"},
         "block_reason": {"anyOf": [{"type": "string"}, {"type": "null"}]},
+        # optional measured metric carried with the verdict, so the campaign router can
+        # gate on a number instead of a hand-written summary; mirror, not invention --
+        # ``tests/xsolver/test_xsolver_dag_contract.py`` keeps this equal to the API model
+        "metrics": {"anyOf": [{"type": "object", "additionalProperties": {"type": "number"}},
+                              {"type": "null"}]},
+        "metric_name": {"type": "string", "minLength": 1},
     },
 }
 

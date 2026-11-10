@@ -33,6 +33,7 @@ from typing import Any, Dict, List, Optional
 from . import normalize as N
 from .adjudicate import adjudicate
 from .conservation import FAIL, PASS, WARN, WITHHELD, gate as conservation_gate
+from .corpus import content_fingerprint
 from .corpus import coverage as corpus_coverage, harvest, load_corpus, save_corpus
 from .probe import ProbeUnavailable, run as run_probe
 from .jsonschema_lite import load_config as _load_config
@@ -41,6 +42,11 @@ from .jsonschema_lite import load_config, load_schema, validate, validate_or_rai
 
 REPO = Path(__file__).resolve().parents[3]
 ARTIFACTS = REPO / "artifacts" / "xsolver"
+
+ACCEPTANCE_CFG = load_config("acceptance")
+NODE_ID = ACCEPTANCE_CFG["node"]["id"]
+MISSION_ID = ACCEPTANCE_CFG["node"]["mission_id"]
+PRIMARY_PROBLEM = ACCEPTANCE_CFG["primary_problem_id"]
 
 C1_GEOMETRY_MIN = 0.90
 C1_QUANTITIES_MIN = 0.80
@@ -171,7 +177,8 @@ def criterion_conservation(corpus: Dict[str, Any],
 # ---------------------------------------------------------------------------
 # C3 adjudication
 # ---------------------------------------------------------------------------
-def criterion_adjudication(report: Dict[str, Any], problem_id: str = "wigley3_total_drag") -> Dict[str, Any]:
+def criterion_adjudication(report: Dict[str, Any],
+                           problem_id: str = PRIMARY_PROBLEM) -> Dict[str, Any]:
     group = next((g for g in report["groups"] if g["problem_id"] == problem_id), None)
     if group is None:
         return {"id": "C3_cross_solver_adjudication", "status": FAIL,
@@ -341,10 +348,61 @@ def criterion_traceability(index: Dict[str, Any]) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# C7 reproducibility (wave 2)
+# ---------------------------------------------------------------------------
+def criterion_reproducibility(first: Dict[str, Any],
+                              second: Optional[Dict[str, Any]] = None,
+                              byte_digests: Optional[Dict[str, str]] = None) -> Dict[str, Any]:
+    """Two harvests of the same sources must fingerprint identically.
+
+    The frame already stored ``corpus_digest`` = sha256 of the whole corpus document, and
+    that number cannot be used here: the corpus embeds ``harvested_utc``, so the byte
+    digest moves on every run even when every source artifact is unchanged (measured
+    below).  The reproducibility claim is therefore made on
+    ``content_fingerprint`` -- source sha256 + commit + parsing config per case -- and the
+    byte digest is reported next to it precisely to show it is *not* the gate.
+    """
+    if second is None:
+        return {"id": "C7_reproducibility", "status": WITHHELD,
+                "value": None, "threshold": {"cases_changed": 0},
+                "detail": "second harvest not run (reharvest disabled): reproducibility not claimed"}
+    changed = sorted(cid for cid, fp in first["per_case"].items()
+                     if second["per_case"].get(cid) != fp)
+    appeared = sorted(set(second["per_case"]) - set(first["per_case"]))
+    vanished = sorted(set(first["per_case"]) - set(second["per_case"]))
+    same = (first["content_digest"] == second["content_digest"])
+    value = {
+        "content_digest_first": first["content_digest"],
+        "content_digest_second": second["content_digest"],
+        "content_digest_stable": same,
+        "frame_config_digest": first["frame_config_digest"],
+        "frame_config_stable": first["frame_config_digest"] == second["frame_config_digest"],
+        "cases_first": first["case_count"],
+        "cases_second": second["case_count"],
+        "cases_changed": len(changed),
+        "cases_changed_ids": changed[:10],
+        "cases_appeared": appeared[:10],
+        "cases_vanished": vanished[:10],
+        "byte_digest_first": (byte_digests or {}).get("first"),
+        "byte_digest_second": (byte_digests or {}).get("second"),
+        "byte_digest_stable": (byte_digests or {}).get("first") == (byte_digests or {}).get("second"),
+    }
+    status = PASS if (same and not changed and not appeared and not vanished) else FAIL
+    detail = (f"{first['case_count']}/{second['case_count']} cases re-harvested, content_digest "
+              f"{'identical' if same else 'DIFFERENT'} ({first['content_digest'][:12]} vs "
+              f"{second['content_digest'][:12]}), {len(changed)} case(s) changed, "
+              f"{len(appeared)} appeared, {len(vanished)} vanished; byte digest "
+              f"{'identical' if value['byte_digest_stable'] else 'differs (wall clock)'}"
+              + (f"; changed: {changed[:3]}" if changed else ""))
+    return {"id": "C7_reproducibility", "status": status, "value": value,
+            "threshold": {"cases_changed": 0}, "detail": detail}
+
+
+# ---------------------------------------------------------------------------
 # C6 end-to-end (DAG consumption)
 # ---------------------------------------------------------------------------
 def criterion_end_to_end(report: Dict[str, Any],
-                         problem_id: str = "wigley3_total_drag") -> Dict[str, Any]:
+                         problem_id: str = PRIMARY_PROBLEM) -> Dict[str, Any]:
     document = build_verdict_document(report, problem_id=problem_id)
     schema_errors = validate(document, load_schema("verdict_schema"))
     consumed = consume_verdict(document)
@@ -380,7 +438,7 @@ def _figures(report: Dict[str, Any], corpus: Dict[str, Any], out_dir: Path) -> L
     out_dir.mkdir(parents=True, exist_ok=True)
     figures: List[Dict[str, Any]] = []
 
-    group = next((g for g in report["groups"] if g["problem_id"] == "wigley3_total_drag"), None)
+    group = next((g for g in report["groups"] if g["problem_id"] == PRIMARY_PROBLEM), None)
     if group:
         conditions = group["conditions"]
         solvers = sorted({a["solver"] for a in group["arms"]})
@@ -475,10 +533,34 @@ def _figures(report: Dict[str, Any], corpus: Dict[str, Any], out_dir: Path) -> L
 # driver
 # ---------------------------------------------------------------------------
 def run(out_dir: Optional[Path] = None, corpus: Optional[Dict[str, Any]] = None,
-        write: bool = True) -> Dict[str, Any]:
+        write: bool = True, reharvest: Optional[bool] = None) -> Dict[str, Any]:
     out_dir = Path(out_dir or ARTIFACTS)
     out_dir.mkdir(parents=True, exist_ok=True)
+    #: a supplied corpus is a snapshot (``--corpus``); it is not a harvest of this run,
+    #: so it cannot stand in for one of the two harvests C7 compares
+    supplied_snapshot = corpus is not None
     corpus = corpus if corpus is not None else harvest()
+
+    # -- C7: fingerprint the harvest *before* the probe appends its own case (the probe
+    #    case is measured, not harvested, so it is not part of the harvest fingerprint),
+    #    then harvest the same sources again and compare content (not wall clock).
+    if reharvest is None:
+        reharvest = bool(ACCEPTANCE_CFG.get("reproducibility", {}).get("reharvest", True))
+    harvest_fingerprint = content_fingerprint(corpus)
+    first_fingerprint = None
+    second_fingerprint = None
+    reharvest_error = None
+    byte_digests = {"first": None, "second": None}
+    if reharvest:
+        try:
+            first_corpus = harvest() if supplied_snapshot else corpus
+            second_corpus = harvest()
+            first_fingerprint = content_fingerprint(first_corpus)
+            second_fingerprint = content_fingerprint(second_corpus)
+            byte_digests = {"first": N.digest_of(first_corpus),
+                            "second": N.digest_of(second_corpus)}
+        except Exception as exc:  # noqa: BLE001 - a failed second harvest is WITHHELD, not a pass
+            reharvest_error = f"{type(exc).__name__}: {exc}"
 
     probe_result = None
     probe_note = None
@@ -506,6 +588,11 @@ def run(out_dir: Optional[Path] = None, corpus: Optional[Dict[str, Any]] = None,
         if group["status"] != "single_arm":
             verdict_documents.append(build_verdict_document(report, group["problem_id"]))
 
+    reproducibility = criterion_reproducibility(first_fingerprint, second_fingerprint,
+                                                byte_digests)
+    if reharvest_error:
+        reproducibility["detail"] += f"; second harvest failed: {reharvest_error}"
+
     criteria = [
         criterion_coverage(corpus),
         criterion_conservation(corpus, probe_result),
@@ -513,6 +600,7 @@ def run(out_dir: Optional[Path] = None, corpus: Optional[Dict[str, Any]] = None,
         criterion_negative_controls(corpus),
         criterion_traceability(index),
         criterion_end_to_end(report),
+        reproducibility,
     ]
     statuses = [c["status"] for c in criteria]
     overall = FAIL if FAIL in statuses else (WARN if WARN in statuses else PASS)
@@ -520,8 +608,8 @@ def run(out_dir: Optional[Path] = None, corpus: Optional[Dict[str, Any]] = None,
     acceptance = {
         "schema": "xsolver/acceptance/v1",
         "generated_utc": _utc(),
-        "node": "p83w1-n07-cross-solver-schema-maturity",
-        "mission_id": 7119,
+        "node": NODE_ID,
+        "mission_id": MISSION_ID,
         "overall_status": overall,
         "criteria": [{k: v for k, v in c.items() if k != "rows"} for c in criteria],
         "c2_rows": next(c for c in criteria if c["id"] == "C2_conservation_residuals").get("rows", []),
@@ -533,6 +621,10 @@ def run(out_dir: Optional[Path] = None, corpus: Optional[Dict[str, Any]] = None,
             "adjudication": str(out_dir / "adjudication.json"),
         },
         "corpus_stats": corpus["stats"],
+        "reproducibility": {"corpus_origin": "snapshot" if supplied_snapshot else "harvest",
+                            "content_digest": harvest_fingerprint["content_digest"],
+                            "frame_config_digest": harvest_fingerprint["frame_config_digest"],
+                            "reharvest": bool(second_fingerprint)},
         "report_digest": report["trace"]["report_digest"],
         "verdicts": [{"problem_id": d["problem_id"], "verdict": d["verdict"],
                       "reproduction_verdict": d["node_verdict_payload"]["reproduction_verdict"],
@@ -564,9 +656,12 @@ def main(argv: Optional[List[str]] = None) -> int:
     parser.add_argument("--out", default=str(ARTIFACTS))
     parser.add_argument("--corpus", default=None, help="reuse a snapshotted corpus.json")
     parser.add_argument("--json", action="store_true", help="print the acceptance JSON")
+    parser.add_argument("--no-reharvest", action="store_true",
+                        help="skip the second harvest (C7 becomes WITHHELD, never PASS)")
     args = parser.parse_args(argv)
     corpus = load_corpus(args.corpus) if args.corpus else None
-    result = run(out_dir=Path(args.out), corpus=corpus)
+    result = run(out_dir=Path(args.out), corpus=corpus,
+                 reharvest=False if args.no_reharvest else None)
     acceptance = result["acceptance"]
     if args.json:
         print(json.dumps(acceptance, ensure_ascii=False, indent=1))
