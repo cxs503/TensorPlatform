@@ -20,6 +20,7 @@ from api.tensor_missions import router as tensor_missions_router           # pre
 from api.tensor_mission_lifecycle import router as tensor_mission_lifecycle_router  # prefix="/tensor/missions" (lifecycle)
 from api.tensor_reports import router as tensor_reports_router             # prefix="/tensor/reports"
 from api.tensor_papers import router as tensor_papers_router             # prefix="/tensor/papers"
+from api.knowledge_hub import router as knowledge_hub_router           # prefix="/tensor/knowledge" (知识专栏)
 from api.tensor_capability import router as tensor_capability_router      # prefix="/tensor/capability" (PR-10 能力中心聚合面)
 from api.campaign_plans import router as campaign_plans_router             # prefix="/tensor/campaigns"
 from api.campaign_routing import router as campaign_routing_router         # prefix="/tensor/campaigns" (conditional DAG)
@@ -46,6 +47,7 @@ router.include_router(tensor_mission_lifecycle_router)
 router.include_router(tensor_missions_router)
 router.include_router(tensor_reports_router)
 router.include_router(tensor_papers_router)
+router.include_router(knowledge_hub_router)
 router.include_router(tensor_capability_router)
 router.include_router(campaign_plans_router)
 router.include_router(campaign_routing_router)

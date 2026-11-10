@@ -20,6 +20,8 @@ const routes: RouteRecordRaw[] = [
         meta: { title: '进展报告' } },
       { path: 'papers', name: 'papers', component: () => import('@/views/PapersView.vue'),
         meta: { title: '论文生产线' } },
+      { path: 'knowledge', name: 'knowledge', component: () => import('@/views/KnowledgeView.vue'),
+        meta: { title: '知识专栏' } },
       { path: 'executions/:id', name: 'execution-detail',
         component: () => import('@/views/ExecutionDetailView.vue'), meta: { title: '执行详情' } },
       { path: 'approvals', name: 'approvals', component: () => import('@/views/ApprovalsView.vue'),
