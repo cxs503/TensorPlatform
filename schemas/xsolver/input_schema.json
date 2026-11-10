@@ -1,0 +1,252 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/schemas/xsolver/input_schema.json",
+  "title": "cross-solver canonical case input",
+  "description": "One record per (case, solver) executed under the cross-solver verification frame. Every verified case that wants to take part in a cross-solver comparison must fill geometry + physics + solver; provenance is enforced separately by the traceability gate (C5).",
+  "type": "object",
+  "required": [
+    "schema",
+    "case_id",
+    "geometry",
+    "physics",
+    "solver",
+    "provenance"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "xsolver/input/v1"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "problem_key": {
+      "type": "string",
+      "minLength": 1,
+      "description": "identity of the physical problem this case answers. Two cases carrying the same problem_key are candidates for cross-solver adjudication."
+    },
+    "geometry": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "required": [
+        "units"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "kind": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "units": {
+          "enum": [
+            "m",
+            "lattice",
+            "mixed"
+          ]
+        },
+        "dimensions": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "grid": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "derived": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "closure": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "description": "geometry closure audit; status is PASS/FAIL/WITHHELD, checks[] carries the numbers",
+          "properties": {
+            "status": {
+              "enum": [
+                "PASS",
+                "WARN",
+                "WITHHELD",
+                "FAIL"
+              ]
+            },
+            "checks": {
+              "type": "array",
+              "items": {
+                "type": "object"
+              }
+            }
+          }
+        },
+        "source_path": {
+          "type": "string"
+        },
+        "stage": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "shared_from": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "physics": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "dimensionless": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        },
+        "parameters": {
+          "type": [
+            "object",
+            "null"
+          ],
+          "additionalProperties": {
+            "type": [
+              "number",
+              "null"
+            ]
+          }
+        }
+      }
+    },
+    "solver": {
+      "type": "object",
+      "required": [
+        "name"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1
+        },
+        "family": {
+          "enum": [
+            "LB",
+            "FV",
+            "FEM",
+            "BEM",
+            "SPH",
+            "DEM",
+            "DG",
+            "OTHER"
+          ]
+        },
+        "version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "method": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "condition": {
+      "type": [
+        "object",
+        "null"
+      ],
+      "properties": {
+        "label": {
+          "type": "string"
+        },
+        "value": {
+          "type": [
+            "number",
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "required": [
+        "source_path",
+        "source_sha256",
+        "input_digest"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "source_path": {
+          "type": "string",
+          "minLength": 1
+        },
+        "source_sha256": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "solver_version": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "git_commit": {
+          "type": [
+            "string",
+            "null"
+          ]
+        },
+        "harvested_at": {
+          "type": "string"
+        }
+      }
+    }
+  }
+}

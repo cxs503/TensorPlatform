@@ -1,0 +1,139 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/schemas/xsolver/verdict_schema.json",
+  "title": "cross-solver verdict document (campaign DAG consumable)",
+  "description": "The only thing a campaign DAG verification node needs to know: a reproduction verdict plus per-criterion numbers. It is a pure projection of xsolver/adjudication/v1, so the DAG never has to parse solver-specific artifacts. node_verdict_payload mirrors the API contract NodeVerdictUpdate (POST /api/v1/tensor/campaigns/nodes/{node_id}/verdict) one-to-one and is what the consumer hands to the DAG.",
+  "type": "object",
+  "required": [
+    "schema",
+    "problem_id",
+    "verdict",
+    "criteria",
+    "node_verdict_payload",
+    "trace"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {
+      "const": "xsolver/verdict/v1"
+    },
+    "problem_id": {
+      "type": "string",
+      "minLength": 1
+    },
+    "verdict": {
+      "enum": [
+        "pass",
+        "fail",
+        "withheld"
+      ]
+    },
+    "criteria": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "required": [
+          "id",
+          "status"
+        ],
+        "properties": {
+          "id": {
+            "type": "string"
+          },
+          "status": {
+            "enum": [
+              "PASS",
+              "WARN",
+              "WITHHELD",
+              "FAIL"
+            ]
+          },
+          "value": {
+            "type": [
+              "number",
+              "string",
+              "boolean",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "threshold": {
+            "type": [
+              "number",
+              "string",
+              "boolean",
+              "array",
+              "object",
+              "null"
+            ]
+          },
+          "detail": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "node_verdict_payload": {
+      "type": "object",
+      "required": [
+        "reproduction_verdict"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "reproduction_verdict": {
+          "enum": [
+            "pass",
+            "fail"
+          ]
+        },
+        "block_reason": {
+          "type": [
+            "string",
+            "null"
+          ]
+        }
+      }
+    },
+    "evidence": {
+      "type": "object",
+      "additionalProperties": true
+    },
+    "trace": {
+      "type": "object",
+      "required": [
+        "input_digest"
+      ],
+      "additionalProperties": true,
+      "properties": {
+        "input_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        },
+        "solver_versions": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "git_commits": {
+          "type": "object",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          }
+        },
+        "adjudication_digest": {
+          "type": "string",
+          "pattern": "^[0-9a-f]{64}$"
+        }
+      }
+    }
+  }
+}

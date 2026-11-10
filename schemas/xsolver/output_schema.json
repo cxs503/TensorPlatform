@@ -1,0 +1,57 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/schemas/xsolver/output_schema.json",
+  "title": "cross-solver canonical case output",
+  "description": "Standardised output record. primary_quantities are the numbers the solver claims; derived_quantities are recomputed by the frame from primary ones (component decompositions, ratios); conservation_residuals are the physical gates; convergence carries the discretisation evidence used by the adjudicator to decide whether two numbers may be compared at all.",
+  "type": "object",
+  "required": ["schema", "case_id", "primary_quantities", "conservation_residuals", "convergence"],
+  "additionalProperties": false,
+  "properties": {
+    "schema": {"const": "xsolver/output/v1"},
+    "case_id": {"type": "string", "minLength": 1},
+    "primary_quantities": {
+      "type": "object",
+      "minProperties": 1,
+      "description": "artifact-native output numbers keyed by canonicalised name; empty is a hard error (see negative control C4)",
+      "additionalProperties": {"type": "number"}
+    },
+    "canonical_quantities": {
+      "type": "object",
+      "description": "subset of primary_quantities that maps onto a canonical platform quantity (C_T/C_F/C_W/...); needed for cross-solver comparison",
+      "additionalProperties": {"type": "number"}
+    },
+    "quantity_paths": {
+      "type": "object",
+      "description": "where inside the source artifact each primary quantity was read from (audit trail)",
+      "additionalProperties": {"type": "string"}
+    },
+    "derived_quantities": {
+      "type": "object",
+      "additionalProperties": {"type": ["number", "null"]}
+    },
+    "conservation_residuals": {
+      "type": "object",
+      "required": ["mass", "momentum", "energy"],
+      "additionalProperties": false,
+      "properties": {
+        "mass": {"type": ["number", "null"], "minimum": 0},
+        "momentum": {"type": ["number", "null"], "minimum": 0},
+        "energy": {"type": ["number", "null"], "minimum": 0}
+      }
+    },
+    "residual_paths": {
+      "type": "object",
+      "additionalProperties": {"type": ["string", "null"]}
+    },
+    "convergence": {
+      "type": "object",
+      "additionalProperties": false,
+      "properties": {
+        "iterative_residual": {"type": ["number", "null"]},
+        "grid_levels": {"type": ["array", "null"], "items": {"type": "number"}},
+        "observed_order": {"type": ["number", "null"]},
+        "extrapolated": {"type": ["object", "null"], "additionalProperties": {"type": ["number", "null"]}}
+      }
+    }
+  }
+}

@@ -1,0 +1,433 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Vocabulary for the cross-solver normaliser. ALL domain vocabulary lives here (never in backend/tools/tests code): which artifact keys carry geometry, which carry the physics groups, which numeric leaves count as output quantities, and which solver names belong to which discretisation family. Adding a new solver or a new artifact convention is a config edit, not a code edit.",
+  "geometry_container_keys": [
+    "geometry",
+    "hull",
+    "dims",
+    "dimensions",
+    "domain",
+    "domain_lu",
+    "body",
+    "mesh"
+  ],
+  "geometry_dimension_keys": {
+    "length": [
+      "L",
+      "L_m",
+      "length",
+      "length_m",
+      "L_pp",
+      "Lwl",
+      "Lpp",
+      "lwl",
+      "chord_phys_m",
+      "chord_m",
+      "LX",
+      "lx"
+    ],
+    "beam": [
+      "B",
+      "B_m",
+      "beam",
+      "beam_m",
+      "breadth",
+      "width",
+      "ly",
+      "LY"
+    ],
+    "draft": [
+      "T",
+      "T_m",
+      "draft",
+      "draught",
+      "draft_m"
+    ],
+    "height": [
+      "H",
+      "H_m",
+      "height",
+      "height_m",
+      "lz",
+      "LZ"
+    ],
+    "span": [
+      "span",
+      "span_m",
+      "span_length"
+    ],
+    "diameter": [
+      "D",
+      "diameter",
+      "diameter_m"
+    ],
+    "volume": [
+      "volume",
+      "volume_m3",
+      "nabla",
+      "displacement_volume"
+    ],
+    "radius": [
+      "radius",
+      "r_eq",
+      "r_eq_mean",
+      "r_init",
+      "r_list",
+      "r_o_list",
+      "r_eq_mean_lu"
+    ],
+    "cell_size": [
+      "dx",
+      "dy",
+      "dz",
+      "dx_phys_mm"
+    ],
+    "wavelength": [
+      "wavelength",
+      "lambda_wavelength"
+    ]
+  },
+  "grid_container_keys": [
+    "grid",
+    "grids",
+    "grid_levels",
+    "resolution",
+    "resolution_lu",
+    "production_grid",
+    "lattice_grid",
+    "n_cells"
+  ],
+  "grid_extent_keys": {
+    "nx": [
+      "nx",
+      "n_x",
+      "Nx",
+      "N_x",
+      "LX_cells",
+      "L_cells"
+    ],
+    "ny": [
+      "ny",
+      "n_y",
+      "Ny",
+      "N_y"
+    ],
+    "nz": [
+      "nz",
+      "n_z",
+      "Nz",
+      "N_z"
+    ],
+    "n_steps": [
+      "steps",
+      "nsteps",
+      "n_steps",
+      "max_steps"
+    ]
+  },
+  "output_container_keys": [
+    "result",
+    "results",
+    "output",
+    "outputs",
+    "primary_quantities",
+    "quantities",
+    "extrap",
+    "acceptance",
+    "gci",
+    "cases",
+    "grids",
+    "summary",
+    "metrics"
+  ],
+  "exclude_quantity_tokens": [
+    "steps",
+    "nsteps",
+    "n_steps",
+    "elapsed_s",
+    "elapsed",
+    "wall_s",
+    "wall_time",
+    "n_cells",
+    "nx",
+    "ny",
+    "nz",
+    "resolution",
+    "threads",
+    "torch_threads",
+    "seed",
+    "tau",
+    "omega",
+    "u_lid",
+    "dx",
+    "dy",
+    "dt",
+    "cfl",
+    "re",
+    "fr",
+    "ma",
+    "pr",
+    "ra",
+    "n",
+    "h",
+    "r",
+    "k",
+    "lambda",
+    "eps",
+    "lattice",
+    "version",
+    "year"
+  ],
+  "physics_dimensionless_keys": {
+    "reynolds": [
+      "re",
+      "Re",
+      "reynolds",
+      "Re_ref"
+    ],
+    "froude": [
+      "fr",
+      "Fn",
+      "froude",
+      "fr_run",
+      "Fr_run"
+    ],
+    "mach": [
+      "ma",
+      "Ma",
+      "mach",
+      "ma_max"
+    ],
+    "prandtl": [
+      "pr",
+      "Pr",
+      "prandtl"
+    ],
+    "rayleigh": [
+      "ra",
+      "Ra",
+      "rayleigh"
+    ],
+    "stokes": [
+      "st",
+      "St",
+      "stokes"
+    ]
+  },
+  "physics_parameter_keys": [
+    "u_lid",
+    "u_inf",
+    "v_inf_m_s",
+    "speed_ms",
+    "tau",
+    "nu",
+    "nu_phys",
+    "density",
+    "rho",
+    "rho0",
+    "reynolds",
+    "a_ratio",
+    "angular_velocity",
+    "gravity"
+  ],
+  "residual_keys": {
+    "mass": {
+      "relative": [
+        "mass_drift_pct",
+        "mass_drift_rel",
+        "mass_residual",
+        "mass_error_rel",
+        "mass_conservation_error"
+      ],
+      "absolute": [
+        "mass_drift",
+        "mass_delta",
+        "delta_mass"
+      ],
+      "percent_scale": [
+        "mass_drift_pct"
+      ]
+    },
+    "momentum": {
+      "relative": [
+        "momentum_drift_pct",
+        "momentum_residual",
+        "momentum_error_rel",
+        "momentum_conservation_error"
+      ],
+      "absolute": [
+        "momentum_drift",
+        "delta_momentum"
+      ],
+      "percent_scale": [
+        "momentum_drift_pct"
+      ],
+      "fallback": {
+        "from": [
+          "last_resid",
+          "resid",
+          "iterative_residual",
+          "resid_u",
+          "last_residual"
+        ],
+        "note": "no global momentum residual is recorded by most artifacts; the steady-state velocity-update residual is used as the momentum-balance proxy and reported as such"
+      }
+    },
+    "energy": {
+      "relative": [
+        "energy_drift_pct",
+        "energy_residual",
+        "energy_error_rel"
+      ],
+      "absolute": [
+        "energy_drift",
+        "delta_energy"
+      ],
+      "percent_scale": [
+        "energy_drift_pct"
+      ]
+    }
+  },
+  "solver_families": {
+    "LB": [
+      "lbm",
+      "lattice",
+      "lattice-boltzmann",
+      "d3q",
+      "d2q"
+    ],
+    "FV": [
+      "fvm",
+      "finite-volume",
+      "rans",
+      "openfoam"
+    ],
+    "FEM": [
+      "fem",
+      "finite-element"
+    ],
+    "BEM": [
+      "bem",
+      "boundary-element",
+      "rankine",
+      "michell"
+    ],
+    "SPH": [
+      "sph",
+      "smoothed-particle"
+    ],
+    "DEM": [
+      "dem",
+      "discrete-element"
+    ],
+    "DG": [
+      "dg",
+      "discontinuous-galerkin"
+    ],
+    "OTHER": []
+  },
+  "verified_predicate": {
+    "boolean_fields": [
+      "verified",
+      "verified_ok",
+      "pass"
+    ],
+    "verdict_fields": [
+      "verdict",
+      "status",
+      "result",
+      "acceptance_status"
+    ],
+    "pass_tokens": [
+      "pass",
+      "passed",
+      "ok",
+      "verified",
+      "accept",
+      "accepted"
+    ],
+    "path_tokens": [
+      "/verified/",
+      "verified_",
+      "/passed/"
+    ]
+  },
+  "known_artifact_variables": {
+    "solver_version_keys": [
+      "solver_version",
+      "version",
+      "library_version",
+      "tensorlbm_version"
+    ],
+    "method_keys": [
+      "method",
+      "method_name",
+      "solver_method",
+      "scheme"
+    ],
+    "case_name_keys": [
+      "case",
+      "case_name",
+      "benchmark",
+      "study",
+      "name",
+      "title"
+    ]
+  },
+  "input_container_keys": [
+    "geometry",
+    "hull",
+    "dims",
+    "dimensions",
+    "domain",
+    "domain_lu",
+    "body",
+    "mesh",
+    "physics",
+    "fluid",
+    "lattice",
+    "method",
+    "methods",
+    "inputs",
+    "input",
+    "params",
+    "parameters",
+    "settings",
+    "config",
+    "configuration",
+    "provenance",
+    "meta",
+    "metadata",
+    "reference",
+    "calibration",
+    "model",
+    "eos",
+    "preregistration",
+    "disclosures",
+    "notes",
+    "criteria",
+    "scope",
+    "acceptance"
+  ],
+  "quantity_limits": {
+    "max_per_case": 60,
+    "note": "bounds the corpus size; selection is deterministic (sorted by container then leaf)"
+  },
+  "selection_note": "primary_quantities default to OUTPUT unless the leaf sits under a declared input container or matches an excluded run-parameter token; that inversion is what makes the normaliser work on 100 heterogeneous artifacts without a per-artifact adapter",
+  "geometry_hint_container_keys": [
+    "params",
+    "parameters",
+    "settings",
+    "config",
+    "configuration",
+    "case_config",
+    "primary_config",
+    "setup",
+    "mesh",
+    "geometry_inputs"
+  ],
+  "dimension_match": {
+    "mode": "exact, then affix match on '_' boundaries for aliases of length >= 4",
+    "note": "affix matching is what lets 'domain_length' / 'length_a' / 'contact_radius' resolve without listing every compound key; single-letter aliases stay exact-only because 'L'/'T'/'D' are hopelessly ambiguous"
+  }
+}

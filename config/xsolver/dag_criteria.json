@@ -1,0 +1,34 @@
+{
+  "schema_version": "1.0",
+  "purpose": "How an adjudication report becomes a campaign-DAG verdict. Each criterion is a mechanical rule over the group record, so the DAG node never parses solver artifacts and cannot quietly change what 'agreement' means. A criterion whose data is absent returns WITHHELD, which can never be promoted to pass.",
+  "criteria": [
+    {
+      "id": "arms_present",
+      "rule": "min_arms",
+      "threshold": 2,
+      "description": "a cross-solver comparison needs at least two non-excluded arms"
+    },
+    {
+      "id": "conservation_gate",
+      "rule": "no_conservation_fail",
+      "description": "no arm may be flagged conservation_fail"
+    },
+    {
+      "id": "traceability",
+      "rule": "all_arms_traceable",
+      "description": "every arm carries input_digest + solver_version + git_commit"
+    },
+    {
+      "id": "cross_solver_agreement",
+      "rule": "max_rel_diff",
+      "quantity": "C_T",
+      "threshold": 0.05,
+      "description": "raw cross-solver spread on the total coefficient"
+    },
+    {
+      "id": "definition_attribution",
+      "rule": "no_unattributed_difference",
+      "description": "every remaining difference must be attributed to term coverage / normalisation / discretisation / formulation; an unattributed spread is a fail, not a rounding note"
+    }
+  ]
+}

@@ -1,0 +1,25 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Physical conservation-residual gate used by the cross-solver frame. A case whose residual exceeds the tolerance for its solver family is marked conservation_fail and is excluded from cross-solver comparison: comparing against a non-conserving run measures the failure mode, not the discretisation difference.",
+  "defaults": {
+    "mass": 1e-06,
+    "momentum": 1e-04,
+    "energy": 1e-03
+  },
+  "per_family": {
+    "LB": {"mass": 1e-06, "momentum": 1e-04, "energy": 1e-03},
+    "FV": {"mass": 1e-04, "momentum": 1e-03, "energy": 1e-02},
+    "FEM": {"mass": 1e-04, "momentum": 1e-03, "energy": 1e-02},
+    "BEM": {"mass": 1e-04, "momentum": 1e-03, "energy": 1e-02},
+    "SPH": {"mass": 1e-03, "momentum": 1e-03, "energy": 1e-02},
+    "DEM": {"mass": 1e-03, "momentum": 1e-03, "energy": 1e-02},
+    "DG": {"mass": 1e-04, "momentum": 1e-03, "energy": 1e-02},
+    "OTHER": {"mass": 1e-04, "momentum": 1e-03, "energy": 1e-02}
+  },
+  "residual_kind_priority": ["mass", "momentum", "energy"],
+  "missing_policy": {
+    "all_missing": "WITHHELD",
+    "some_missing": "WARN",
+    "note": "WITHHELD means the artifact does not record the residual, so no conservation claim can be made; WARN means the surviving residuals pass but at least one is unmeasured."
+  }
+}
