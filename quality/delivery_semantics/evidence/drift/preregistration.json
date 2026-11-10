@@ -1,0 +1,61 @@
+{
+  "schema": "delivery-drift-preregistration/1.0",
+  "mission": "p372w2-n06-criteria-lint-semantic-maturity",
+  "written_before_labeling": true,
+  "written_utc_note": "预注册先于标注：本文件落盘时 drift/labels.json 尚不存在（标注在此之后进行）。",
+  "objective": "量化交付语义分类器（backend/api/domain/delivery_state.py）在 p372 波后新 mission 上的域外泛化衰减，并建立漂移检测告警机制。",
+  "baseline": {
+    "reference_variant": "A2_current",
+    "reference_macro_f1": 0.9226,
+    "reference_corpus": "quality/delivery_semantics/evidence/corpus_eval.json (60 单冻结评估集)",
+    "reference_source": "quality/delivery_semantics/evidence/metrics.json::variants.A2_current.metrics.macro_f1",
+    "note": "基线数字是冻结工件里的既有值，本单只读取不重算（避免同源复用掩盖漂移）。"
+  },
+  "population": {
+    "definition": "campaign_nodes: plan_id > 372 AND status='done' AND mission_id NOT NULL AND mission.created_at > campaign_plans[372].created_at",
+    "observed_size": 1111,
+    "sql_sha256": "f0c06cbfa7c11ca78049099503396baaeeec4f28045bedf71029e4c8a6f027c9",
+    "artifact": "quality/delivery_semantics/evidence/drift/candidates.json"
+  },
+  "sampling": {
+    "design": "分层确定性抽样（分层代理=checks 是否含运行结果形状 且 实现清单非空；代理只用于分层，绝不作为标签）",
+    "rank_key": "sha256('p372w2-n06:<mission_id>') 升序（无 RNG，同输入必同样本）",
+    "per_stratum": 15,
+    "n_sampled": 30,
+    "acceptance_floor": 20,
+    "corpus_sha256": "0b61833158d13fe2f6ca4e31d1b5e8b0cc6dc71595fe633924d7e08d030186b9",
+    "corpus_artifact": "quality/delivery_semantics/evidence/drift/corpus_raw.json",
+    "stopping_rule": "只标注这 30 单；不因结果不理想而重抽；不因标注困难而换样本。"
+  },
+  "label_rubric": {
+    "kind": "语义人工标注（人工级：读载荷文本判『这次交付是否真的完成』，不复述分类器正则）",
+    "states": {
+      "delivered_complete": "载荷显示：①有实现产物（changed_files/on_disk_changes/head_commit 任一非空）；②checks 描述**已执行**的验证并给出结果（用例数/PASS/FAIL/退出码/哈希/计数）；③有交付声明（headline/summary/evidence/decision_note/report_id 任一）。三者齐备。",
+      "delivered_partial": "有实现产物与验证陈述，但验证**未真正执行/无结果**（如『将运行』『待跑』『未跑完』），或缺少交付声明（无 headline/evidence/report_id 等）。",
+      "suspect_undeclared": "缺实现产物，或整份载荷中没有验证字段，或 fail_stage/git_status 显示失败/零交付（声明与证据矛盾）。"
+    },
+    "independence_rule": "标注者只看 mission result 原始载荷与 rubric，不看分类器输出；标注文件 sha256 在测量前落盘冻结。",
+    "known_bias": "标注由单个智能体完成，无第二标注者 → 无 inter-annotator agreement；rubric 与分类器契约同源于三个状态名，存在结构性相关（真值不独立于分类器设计），故本测量是**衰减下界估计**而非真值误差。",
+    "why_not_classifier_proxy": "若用分类器自身正则当标签，macro-F1 恒为 1.0（自证满足）。故标注只允许语义判断，逐单写理由。"
+  },
+  "metrics": {
+    "primary": "macro_f1（三状态未加权平均 F1，仅统计 support>0 的类，口径同 evidence/tools/evaluate.py）",
+    "secondary": ["accuracy", "per_class_precision_recall_f1", "confusion_matrix"],
+    "uncertainty": {"method": "bootstrap", "n": 5000, "seed": 20261110, "ci": 0.95},
+    "determinism": "同输入同种子重跑 → metrics.json 全指标逐位一致（sha256 钉住）；唯一允许变化的是 git_head 版本戳。"
+  },
+  "decision_rule": {
+    "decay_definition": "decay_rel = (baseline_macro_f1 - new_macro_f1) / baseline_macro_f1",
+    "alert_threshold": 0.10,
+    "alert_rule": "decay_rel > 0.10 → 触发『重新训练告警』（drift_alert=true）；decay_rel <= 0.10 → 不告警。",
+    "acceptance_mapping": "战役判据『macro-F1 衰减 ≤10%（p372 波后 20 单）』→ 本单用 30 单，判据取 decay_rel <= 0.10。",
+    "honest_fail_policy": "若 decay_rel > 0.10，如实报 FAIL 并给出告警证据（不得改阈值/改口径让判据转绿）。"
+  },
+  "deviations": [],
+  "limitations": [
+    "总体 1111 单来自单一平台的单一工作流，跨平台泛化未测。",
+    "标注为单标注者，lang 无 IAA；rubric 与分类器共享状态名，测量是衰减下界。",
+    "分层代理使用 checks 形状，可能使样本在『验证陈述形态』上比总体更均衡（非均匀总体样本）。",
+    "基线 0.9226 来自 60 单冻结集，样本量小、类别极不平衡（complete 31 / partial 5 / suspect 24），比较时需看 bootstrap CI 是否重叠。"
+  ]
+}

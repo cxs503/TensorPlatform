@@ -1,0 +1,1210 @@
+{
+ "all_criteria_met": false,
+ "baseline": {
+  "accuracy": 0.9667,
+  "corpus": "quality/delivery_semantics/evidence/corpus_eval.json (n=60)",
+  "macro_f1": 0.9226,
+  "per_class": {
+   "delivered_complete": {
+    "f1": 0.9677,
+    "precision": 0.9677,
+    "recall": 0.9677,
+    "support": 31
+   },
+   "delivered_partial": {
+    "f1": 0.8,
+    "precision": 0.8,
+    "recall": 0.8,
+    "support": 5
+   },
+   "suspect_undeclared": {
+    "f1": 1.0,
+    "precision": 1.0,
+    "recall": 1.0,
+    "support": 24
+   }
+  },
+  "variant": "A2_current"
+ },
+ "confusion": {
+  "delivered_complete": {
+   "delivered_complete": 16,
+   "delivered_partial": 0,
+   "suspect_undeclared": 6
+  },
+  "delivered_partial": {
+   "delivered_complete": 0,
+   "delivered_partial": 1,
+   "suspect_undeclared": 4
+  },
+  "suspect_undeclared": {
+   "delivered_complete": 0,
+   "delivered_partial": 0,
+   "suspect_undeclared": 3
+  }
+ },
+ "criteria": {
+  "c1_decay_le_10pct": false,
+  "c2_alert_logic_correct": true,
+  "c3_deterministic_rerun": true
+ },
+ "determinism_sha256": {
+  "identical": true,
+  "run1": "58eb545a832d78cddb317b6b636e605f4344b7924a45e8de2c896724045e4edb",
+  "run2": "58eb545a832d78cddb317b6b636e605f4344b7924a45e8de2c896724045e4edb"
+ },
+ "drift": {
+  "alert_threshold": 0.1,
+  "cumulative_curve": [
+   {
+    "macro_f1": 0.6667,
+    "n": 2
+   },
+   {
+    "macro_f1": 0.8,
+    "n": 3
+   },
+   {
+    "macro_f1": 0.9,
+    "n": 4
+   },
+   {
+    "macro_f1": 0.9285,
+    "n": 5
+   },
+   {
+    "macro_f1": 0.9445,
+    "n": 6
+   },
+   {
+    "macro_f1": 0.9546,
+    "n": 7
+   },
+   {
+    "macro_f1": 0.9616,
+    "n": 8
+   },
+   {
+    "macro_f1": 0.9667,
+    "n": 9
+   },
+   {
+    "macro_f1": 0.8667,
+    "n": 10
+   },
+   {
+    "macro_f1": 0.8693,
+    "n": 11
+   },
+   {
+    "macro_f1": 0.7026,
+    "n": 12
+   },
+   {
+    "macro_f1": 0.7047,
+    "n": 13
+   },
+   {
+    "macro_f1": 0.6556,
+    "n": 14
+   },
+   {
+    "macro_f1": 0.7127,
+    "n": 15
+   },
+   {
+    "macro_f1": 0.6746,
+    "n": 16
+   },
+   {
+    "macro_f1": 0.6788,
+    "n": 17
+   },
+   {
+    "macro_f1": 0.6047,
+    "n": 18
+   },
+   {
+    "macro_f1": 0.5778,
+    "n": 19
+   },
+   {
+    "macro_f1": 0.5821,
+    "n": 20
+   },
+   {
+    "macro_f1": 0.5857,
+    "n": 21
+   },
+   {
+    "macro_f1": 0.5637,
+    "n": 22
+   },
+   {
+    "macro_f1": 0.5203,
+    "n": 23
+   },
+   {
+    "macro_f1": 0.524,
+    "n": 24
+   },
+   {
+    "macro_f1": 0.5273,
+    "n": 25
+   },
+   {
+    "macro_f1": 0.5301,
+    "n": 26
+   },
+   {
+    "macro_f1": 0.5327,
+    "n": 27
+   },
+   {
+    "macro_f1": 0.502,
+    "n": 28
+   },
+   {
+    "macro_f1": 0.487,
+    "n": 29
+   },
+   {
+    "macro_f1": 0.5168,
+    "n": 30
+   }
+  ],
+  "decay_abs": 0.4058,
+  "decay_rel": 0.4398,
+  "drift_alert": true,
+  "drift_signature": {
+   "classifier_suspect_human_complete": 6,
+   "n_disagree": 10,
+   "reason_top": {
+    "suspect_undeclared": 10
+   }
+  },
+  "verdict": "ALERT_RETRAIN"
+ },
+ "figures": [
+  "quality/delivery_semantics/evidence/drift/figures/fig1_drift_curve.png",
+  "quality/delivery_semantics/evidence/drift/figures/fig2_confusion.png",
+  "quality/delivery_semantics/evidence/drift/figures/fig3_per_class_f1.png"
+ ],
+ "git_head": "8d4d239a417a295ca9492683e7a63aea34c9f02d",
+ "label_freeze": {
+  "corpus_sha256": "0b61833158d13fe2f6ca4e31d1b5e8b0cc6dc71595fe633924d7e08d030186b9",
+  "labeled_before_measuring": true,
+  "labels_sha256": "ec1b39aae2a9f387ec72ce8a74b989598344a316ebb16320df0b239baf6a0654",
+  "preregistration_sha256": "db4cb34130be2c9e1e528aae4777829c1b68e2b98adfb7c557b970c2a88157e5"
+ },
+ "macro_f1_bootstrap95": [
+  0.3197,
+  0.7382
+ ],
+ "metrics": {
+  "accuracy": 0.6667,
+  "delivered_complete": {
+   "f1": 0.8421,
+   "fn": 6,
+   "fp": 0,
+   "precision": 1.0,
+   "recall": 0.7273,
+   "support": 22,
+   "tp": 16
+  },
+  "delivered_partial": {
+   "f1": 0.3333,
+   "fn": 4,
+   "fp": 0,
+   "precision": 1.0,
+   "recall": 0.2,
+   "support": 5,
+   "tp": 1
+  },
+  "macro_f1": 0.5168,
+  "suspect_undeclared": {
+   "f1": 0.375,
+   "fn": 0,
+   "fp": 10,
+   "precision": 0.2308,
+   "recall": 1.0,
+   "support": 3,
+   "tp": 3
+  }
+ },
+ "mission": "p372w2-n06-criteria-lint-semantic-maturity",
+ "n_units": 30,
+ "per_unit": [
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 9,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 550
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P40W3C-N03",
+   "human_label": "delivered_complete",
+   "mission_id": 7599,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 15,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "p79w1-n07-lsa-launching",
+   "human_label": "delivered_complete",
+   "mission_id": 7830,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 42,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 563
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P151W1-N10",
+   "human_label": "delivered_complete",
+   "mission_id": 8071,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 13,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 267
+   },
+   "classifier_reasons": [
+    "Verification field present but carries no machine-checkable statement (no pass/fail counts, exit code, hash or fraction)"
+   ],
+   "classifier_state": "delivered_partial",
+   "ext_id": "P155W1-N04",
+   "human_label": "delivered_partial",
+   "mission_id": 8235,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 13,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 691
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "IN421-W2-N02",
+   "human_label": "delivered_complete",
+   "mission_id": 8352,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 10,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 53
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "p422w3-n06-cavitation-erosion",
+   "human_label": "delivered_complete",
+   "mission_id": 8368,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 12,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 77
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "p158w2-n04-electric-propulsion-noise",
+   "human_label": "delivered_complete",
+   "mission_id": 8495,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 27,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 446
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "IN102-N02",
+   "human_label": "delivered_complete",
+   "mission_id": 8998,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 20,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 714
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P142W3-N06",
+   "human_label": "delivered_complete",
+   "mission_id": 9022,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 17,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "P162W1-N02",
+   "human_label": "suspect_undeclared",
+   "mission_id": 9071,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 10,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 61
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "p106w2-n08-spp-loading-stability",
+   "human_label": "delivered_complete",
+   "mission_id": 9164,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 13,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "IN71-N06",
+   "human_label": "delivered_partial",
+   "mission_id": 9267,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 26,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 846
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P96W3-N08",
+   "human_label": "delivered_complete",
+   "mission_id": 9298,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 16,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "P96W3-N09",
+   "human_label": "delivered_complete",
+   "mission_id": 9299,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 12,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "P165W2-N05",
+   "human_label": "suspect_undeclared",
+   "mission_id": 9316,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 8,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "p216w3-n05-ice-wear",
+   "human_label": "delivered_complete",
+   "mission_id": 9353,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 34,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 449
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P270W1-N10",
+   "human_label": "delivered_complete",
+   "mission_id": 9383,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 16,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "p199w1-N02-ice_dem_contact",
+   "human_label": "delivered_partial",
+   "mission_id": 9395,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 14,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "p199w1-N10-power_maturity",
+   "human_label": "delivered_complete",
+   "mission_id": 9403,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 41,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 720
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "p284w3-n09-6dof-motion-prediction",
+   "human_label": "delivered_complete",
+   "mission_id": 9420,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 9,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 50
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P74-N07",
+   "human_label": "delivered_complete",
+   "mission_id": 9468,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 6,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "P74-N09",
+   "human_label": "delivered_complete",
+   "mission_id": 9474,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 5,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "IN71-N04",
+   "human_label": "delivered_partial",
+   "mission_id": 9573,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 14,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 61
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "p200w1-N07-seakeeping_rao",
+   "human_label": "delivered_complete",
+   "mission_id": 9818,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 31,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 687
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P152W5-N07",
+   "human_label": "delivered_complete",
+   "mission_id": 9833,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 34,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 644
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P152W5-N01",
+   "human_label": "delivered_complete",
+   "mission_id": 9839,
+   "stratum": "proxy_yes"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 50,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": true,
+    "verification_len": 892
+   },
+   "classifier_reasons": [
+    "Implementation, machine-checkable verification and claim artifacts present"
+   ],
+   "classifier_state": "delivered_complete",
+   "ext_id": "P266W2-N09",
+   "human_label": "delivered_complete",
+   "mission_id": 9942,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 12,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "P210W2-N02",
+   "human_label": "delivered_partial",
+   "mission_id": 9966,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": false,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 15,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "p302w1-n09-underwater-attached-ice-maturity",
+   "human_label": "delivered_complete",
+   "mission_id": 10124,
+   "stratum": "proxy_no"
+  },
+  {
+   "agree": true,
+   "classifier_facts": {
+    "claim_present": true,
+    "has_result": true,
+    "implementation_count": 6,
+    "missing_optional": [
+     "figures",
+     "report_id"
+    ],
+    "verification_concrete": false,
+    "verification_len": 0
+   },
+   "classifier_reasons": [
+    "Critical artifact fact(s) absent: checks (success claimed without the corresponding artifact fact)"
+   ],
+   "classifier_state": "suspect_undeclared",
+   "ext_id": "p223w3-n06-ship-irregular-wave",
+   "human_label": "suspect_undeclared",
+   "mission_id": 10562,
+   "stratum": "proxy_no"
+  }
+ ],
+ "schema": "delivery-drift-metrics/1.0",
+ "variants": {
+  "A2_current_default": {
+   "accuracy": 0.6667,
+   "cumulative_curve": [
+    {
+     "macro_f1": 0.6667,
+     "n": 2
+    },
+    {
+     "macro_f1": 0.8,
+     "n": 3
+    },
+    {
+     "macro_f1": 0.9,
+     "n": 4
+    },
+    {
+     "macro_f1": 0.9285,
+     "n": 5
+    },
+    {
+     "macro_f1": 0.9445,
+     "n": 6
+    },
+    {
+     "macro_f1": 0.9546,
+     "n": 7
+    },
+    {
+     "macro_f1": 0.9616,
+     "n": 8
+    },
+    {
+     "macro_f1": 0.9667,
+     "n": 9
+    },
+    {
+     "macro_f1": 0.8667,
+     "n": 10
+    },
+    {
+     "macro_f1": 0.8693,
+     "n": 11
+    },
+    {
+     "macro_f1": 0.7026,
+     "n": 12
+    },
+    {
+     "macro_f1": 0.7047,
+     "n": 13
+    },
+    {
+     "macro_f1": 0.6556,
+     "n": 14
+    },
+    {
+     "macro_f1": 0.7127,
+     "n": 15
+    },
+    {
+     "macro_f1": 0.6746,
+     "n": 16
+    },
+    {
+     "macro_f1": 0.6788,
+     "n": 17
+    },
+    {
+     "macro_f1": 0.6047,
+     "n": 18
+    },
+    {
+     "macro_f1": 0.5778,
+     "n": 19
+    },
+    {
+     "macro_f1": 0.5821,
+     "n": 20
+    },
+    {
+     "macro_f1": 0.5857,
+     "n": 21
+    },
+    {
+     "macro_f1": 0.5637,
+     "n": 22
+    },
+    {
+     "macro_f1": 0.5203,
+     "n": 23
+    },
+    {
+     "macro_f1": 0.524,
+     "n": 24
+    },
+    {
+     "macro_f1": 0.5273,
+     "n": 25
+    },
+    {
+     "macro_f1": 0.5301,
+     "n": 26
+    },
+    {
+     "macro_f1": 0.5327,
+     "n": 27
+    },
+    {
+     "macro_f1": 0.502,
+     "n": 28
+    },
+    {
+     "macro_f1": 0.487,
+     "n": 29
+    },
+    {
+     "macro_f1": 0.5168,
+     "n": 30
+    }
+   ],
+   "decay_rel": 0.4398,
+   "drift_alert": true,
+   "macro_f1": 0.5168,
+   "n_agree": 20,
+   "per_class": {
+    "delivered_complete": {
+     "f1": 0.8421,
+     "fn": 6,
+     "fp": 0,
+     "precision": 1.0,
+     "recall": 0.7273,
+     "support": 22,
+     "tp": 16
+    },
+    "delivered_partial": {
+     "f1": 0.3333,
+     "fn": 4,
+     "fp": 0,
+     "precision": 1.0,
+     "recall": 0.2,
+     "support": 5,
+     "tp": 1
+    },
+    "suspect_undeclared": {
+     "f1": 0.375,
+     "fn": 0,
+     "fp": 10,
+     "precision": 0.2308,
+     "recall": 1.0,
+     "support": 3,
+     "tp": 3
+    }
+   }
+  },
+  "A3_fallback_v12": {
+   "accuracy": 0.9,
+   "cumulative_curve": [
+    {
+     "macro_f1": 1.0,
+     "n": 2
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 3
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 4
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 5
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 6
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 7
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 8
+    },
+    {
+     "macro_f1": 1.0,
+     "n": 9
+    },
+    {
+     "macro_f1": 0.5556,
+     "n": 10
+    },
+    {
+     "macro_f1": 0.5556,
+     "n": 11
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 12
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 13
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 14
+    },
+    {
+     "macro_f1": 0.5556,
+     "n": 15
+    },
+    {
+     "macro_f1": 0.5556,
+     "n": 16
+    },
+    {
+     "macro_f1": 0.5556,
+     "n": 17
+    },
+    {
+     "macro_f1": 0.5833,
+     "n": 18
+    },
+    {
+     "macro_f1": 0.5833,
+     "n": 19
+    },
+    {
+     "macro_f1": 0.5833,
+     "n": 20
+    },
+    {
+     "macro_f1": 0.5833,
+     "n": 21
+    },
+    {
+     "macro_f1": 0.5833,
+     "n": 22
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 23
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 24
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 25
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 26
+    },
+    {
+     "macro_f1": 0.6,
+     "n": 27
+    },
+    {
+     "macro_f1": 0.6111,
+     "n": 28
+    },
+    {
+     "macro_f1": 0.6111,
+     "n": 29
+    },
+    {
+     "macro_f1": 0.5897,
+     "n": 30
+    }
+   ],
+   "decay_rel": 0.3608,
+   "drift_alert": true,
+   "macro_f1": 0.5897,
+   "n_agree": 27,
+   "per_class": {
+    "delivered_complete": {
+     "f1": 1.0,
+     "fn": 0,
+     "fp": 0,
+     "precision": 1.0,
+     "recall": 1.0,
+     "support": 22,
+     "tp": 22
+    },
+    "delivered_partial": {
+     "f1": 0.7692,
+     "fn": 0,
+     "fp": 3,
+     "precision": 0.625,
+     "recall": 1.0,
+     "support": 5,
+     "tp": 5
+    },
+    "suspect_undeclared": {
+     "f1": 0.0,
+     "fn": 3,
+     "fp": 0,
+     "precision": 0.0,
+     "recall": 0.0,
+     "support": 3,
+     "tp": 0
+    }
+   }
+  }
+ }
+}
