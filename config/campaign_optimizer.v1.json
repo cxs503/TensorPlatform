@@ -1,0 +1,306 @@
+{
+  "schema": "campaign_optimizer.v1",
+  "_comment": "Zero-domain-semantics configuration: only status vocabulary, graph/cost/queue parameters and declarative rule predicates. No project-specific terms, no case data.",
+  "status_vocab": {
+    "satisfied": [
+      "done",
+      "degraded",
+      "skipped",
+      "verified",
+      "completed",
+      "merged",
+      "accepted"
+    ],
+    "blocking": [
+      "blocked",
+      "failed",
+      "orphan",
+      "revoked"
+    ],
+    "active": [
+      "in-flight",
+      "in_flight",
+      "in-progress",
+      "in_progress",
+      "running",
+      "claimed",
+      "pending",
+      "dispatched",
+      "assigned"
+    ]
+  },
+  "detect": {
+    "stall_age_s": 21600,
+    "risk_requires_blocked_upstream": true,
+    "risk_statuses": [
+      "pending",
+      "in-flight",
+      "in_progress",
+      "running",
+      "claimed"
+    ],
+    "severity_weights": {
+      "gates_plan_completion": 1.0,
+      "downstream_gated": 0.6,
+      "on_critical_path": 0.4,
+      "downstream_weight_share": 0.2,
+      "stall_age": 0.2
+    },
+    "bottleneck_severity_floor": 0.5
+  },
+  "rootcause": {
+    "classes": [
+      "upstream_not_delivered",
+      "artifact_mismatch",
+      "resource_shortage",
+      "code_error",
+      "unknown"
+    ],
+    "short_delivery_ratio": 2.0,
+    "repeat_fail_threshold": 2,
+    "rules": [
+      {
+        "id": "barrier_unreleased",
+        "class": "upstream_not_delivered",
+        "when": {
+          "all": [
+            {
+              "feature": "node_type",
+              "op": "in",
+              "value": [
+                "gate",
+                "checkpoint",
+                "review"
+              ]
+            },
+            {
+              "feature": "has_mission",
+              "op": "eq",
+              "value": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "delivered_but_hollow",
+        "class": "artifact_mismatch",
+        "when": {
+          "all": [
+            {
+              "feature": "consecutive_fails",
+              "op": "gte",
+              "value": 2
+            },
+            {
+              "feature": "mission_class",
+              "op": "eq",
+              "value": "succeeded"
+            },
+            {
+              "feature": "duration_ratio",
+              "op": "lte",
+              "value": 2.0
+            }
+          ]
+        }
+      },
+      {
+        "id": "repeated_task_failure",
+        "class": "code_error",
+        "when": {
+          "all": [
+            {
+              "feature": "consecutive_fails",
+              "op": "gte",
+              "value": 2
+            }
+          ]
+        }
+      },
+      {
+        "id": "executor_lost_no_delivery",
+        "class": "resource_shortage",
+        "when": {
+          "all": [
+            {
+              "feature": "mission_class",
+              "op": "eq",
+              "value": "failed"
+            }
+          ]
+        }
+      },
+      {
+        "id": "unmounted_node",
+        "class": "upstream_not_delivered",
+        "when": {
+          "all": [
+            {
+              "feature": "has_mission",
+              "op": "eq",
+              "value": false
+            }
+          ]
+        }
+      },
+      {
+        "id": "detached_after_delivery",
+        "class": "resource_shortage",
+        "when": {
+          "all": [
+            {
+              "feature": "mission_class",
+              "op": "in",
+              "value": [
+                "succeeded",
+                "active",
+                "other"
+              ]
+            }
+          ]
+        }
+      },
+      {
+        "id": "upstream_cascade",
+        "class": "upstream_not_delivered",
+        "when": {
+          "all": [
+            {
+              "feature": "upstream_unsatisfied",
+              "op": "gte",
+              "value": 1
+            }
+          ]
+        }
+      },
+      {
+        "id": "fallback",
+        "class": "unknown",
+        "when": {
+          "all": []
+        }
+      }
+    ],
+    "mission_class": {
+      "succeeded": [
+        "succeeded",
+        "success",
+        "done",
+        "completed",
+        "merged",
+        "accepted",
+        "verified"
+      ],
+      "failed": [
+        "failed",
+        "stopped",
+        "orphan",
+        "revoked",
+        "timeout",
+        "error",
+        "abandoned",
+        "cancelled",
+        "canceled",
+        "rejected"
+      ],
+      "active": [
+        "running",
+        "claimed",
+        "in_progress",
+        "pending",
+        "queued",
+        "dispatched",
+        "awaiting_acceptance",
+        "in-flight",
+        "assigned"
+      ]
+    },
+    "split": {
+      "test_ratio": 0.4,
+      "seed": 20261110
+    }
+  },
+  "schedule": {
+    "capacity": 40,
+    "baseline": {
+      "priority": "dispatch_order",
+      "retry_max": 2,
+      "intervention_latency_s": 0.0,
+      "attempt_divisor": 5
+    },
+    "improved": {
+      "priority": "critical_first",
+      "retry_by_rootcause": {
+        "upstream_not_delivered": 0,
+        "artifact_mismatch": 1,
+        "resource_shortage": 1,
+        "code_error": 1,
+        "unknown": 2
+      },
+      "intervention_latency_s": 0.0,
+      "attempt_divisor": 5,
+      "priority_candidates": [
+        "critical_first",
+        "dispatch_order"
+      ]
+    },
+    "sensitivity": {
+      "baseline_retry_max": [
+        2,
+        3,
+        5
+      ],
+      "attempt_divisor": [
+        5,
+        2
+      ],
+      "capacity": [
+        40,
+        8,
+        4
+      ]
+    },
+    "default_duration_s": 10800,
+    "min_duration_s": 60
+  },
+  "advice": {
+    "capacity_increment": 8,
+    "min_expected_saving_s": 1800,
+    "actions": {
+      "requeue_fresh_worker": "requeue on a freshly provisioned worker instead of retrying the same executor",
+      "defer_dispatch": "hold dispatch until upstream delivery is satisfied",
+      "rework_delivery": "rework the rejected deliverable against the declared output contract before re-dispatch",
+      "retry_after_fix": "retry after a code-level fix, with retry budget capped at 1",
+      "raise_priority": "promote node priority so the critical path is served first",
+      "scale_capacity": "add parallel capacity: the critical path is queue-bound"
+    },
+    "action_by_rootcause": {
+      "resource_shortage": "requeue_fresh_worker",
+      "upstream_not_delivered": "defer_dispatch",
+      "artifact_mismatch": "rework_delivery",
+      "code_error": "retry_after_fix",
+      "unknown": "raise_priority"
+    }
+  },
+  "backtest": {
+    "seed": 20261110,
+    "random_dag_trials": 200,
+    "random_dag_nodes": [
+      6,
+      14
+    ],
+    "random_dag_edge_p": 0.25,
+    "fpr_threshold": 0.1,
+    "throughput_gain_threshold": 0.2,
+    "max_plans": 60,
+    "random_status_mix": {
+      "done": 0.62,
+      "pending": 0.12,
+      "in-flight": 0.17,
+      "blocked": 0.09
+    },
+    "rootcause_accuracy_threshold": 0.7,
+    "flagship_plan_id": 233
+  },
+  "required_hours": 0.0
+}
