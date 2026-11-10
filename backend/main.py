@@ -727,6 +727,28 @@ try:  # pragma: no cover - 环境相关
 except Exception:  # pragma: no cover
     logger.warning("capability-upgrade API not mounted", exc_info=True)
 
+# ── 能力台账语义三元分层 + NOT_SUPPORTED 误用治理（P266W1-N10）─────────────
+# 只读 artifacts/capability_semantics/ 工件；判定逻辑在 tools/capability_semantics
+#（零领域语义：能力 id/依赖边来自 config/capability_semantics.json）。挂载失败不拖垮主应用。
+try:  # pragma: no cover - 环境相关
+    from api.capability_semantics import router as _capability_semantics_router
+
+    app.include_router(_capability_semantics_router, prefix="/api/v1")
+    logger.info("capability-semantics API mounted at /api/v1/tensor/capabilities/semantics")
+except Exception:  # pragma: no cover
+    logger.warning("capability-semantics API not mounted", exc_info=True)
+
+# ── 能力证据审计（既有 api/capability_audit.py，此前**从未挂载**）──────────────
+# P266W1-N10 接线时发现：该 router 在仓内存在但 main.py 无 include → 线上
+# /tensor/capabilities/audit 一直 404（文档与审计脚本引用了它）。此处一并接线。
+try:  # pragma: no cover - 环境相关
+    from api.capability_audit import router as _capability_audit_router
+
+    app.include_router(_capability_audit_router, prefix="/api/v1")
+    logger.info("capability-audit API mounted at /api/v1/tensor/capabilities/audit")
+except Exception:  # pragma: no cover
+    logger.warning("capability-audit API not mounted", exc_info=True)
+
 
 @app.exception_handler(StarletteHTTPException)
 async def starlette_http_exception_handler(request: Request, exc: StarletteHTTPException):
