@@ -1,0 +1,111 @@
+{
+  "schema_version": "1.0",
+  "repos": {
+    "ship-performance-platform": {
+      "base": "main",
+      "base_sha": "7017a6235786f457cbf5d345079a1a75e795a2ec",
+      "pattern": "agent/*",
+      "baseline_unmerged": 1423,
+      "baseline_by_class": {
+        "A": 0,
+        "B": 47,
+        "C": 1376,
+        "D": 224
+      },
+      "baseline_total_branches": 1647,
+      "allowance": 0,
+      "ceiling": 1423,
+      "frozen_at": "2026-11-10T14:41:25+00:00",
+      "history": [
+        {
+          "at": "2026-11-10T14:11:19+00:00",
+          "event": "freeze",
+          "unmerged": 1396,
+          "ceiling": 1396,
+          "base_sha": "7017a6235786f457cbf5d345079a1a75e795a2ec"
+        },
+        {
+          "at": "2026-11-10T14:27:14+00:00",
+          "event": "accepted-increase",
+          "from_ceiling": 1396,
+          "to_ceiling": 1410,
+          "reason": "扫描窗口内并发任务仍在建分支（活仓库），基线按实测重设"
+        },
+        {
+          "at": "2026-11-10T14:27:14+00:00",
+          "event": "freeze",
+          "unmerged": 1410,
+          "ceiling": 1410,
+          "base_sha": "7017a6235786f457cbf5d345079a1a75e795a2ec"
+        },
+        {
+          "at": "2026-11-10T14:41:25+00:00",
+          "event": "accepted-increase",
+          "from_ceiling": 1410,
+          "to_ceiling": 1423,
+          "reason": "扫描窗口内并发任务仍在建分支（活仓库），基线按实测重设"
+        },
+        {
+          "at": "2026-11-10T14:41:25+00:00",
+          "event": "freeze",
+          "unmerged": 1423,
+          "ceiling": 1423,
+          "base_sha": "7017a6235786f457cbf5d345079a1a75e795a2ec"
+        }
+      ]
+    },
+    "TensorPlatform": {
+      "base": "main",
+      "base_sha": "aecadc9fd91f5199e63c94fe74ea5951ce4b2b4c",
+      "pattern": "agent/*",
+      "baseline_unmerged": 1513,
+      "baseline_by_class": {
+        "A": 98,
+        "B": 101,
+        "C": 1412,
+        "D": 588
+      },
+      "baseline_total_branches": 2199,
+      "allowance": 0,
+      "ceiling": 1513,
+      "frozen_at": "2026-11-10T14:41:24+00:00",
+      "history": [
+        {
+          "at": "2026-11-10T14:12:56+00:00",
+          "event": "freeze",
+          "unmerged": 1501,
+          "ceiling": 1501,
+          "base_sha": "aecadc9fd91f5199e63c94fe74ea5951ce4b2b4c"
+        },
+        {
+          "at": "2026-11-10T14:27:13+00:00",
+          "event": "accepted-increase",
+          "from_ceiling": 1501,
+          "to_ceiling": 1504,
+          "reason": "扫描窗口内并发任务仍在建分支（活仓库），基线按实测重设"
+        },
+        {
+          "at": "2026-11-10T14:27:13+00:00",
+          "event": "freeze",
+          "unmerged": 1504,
+          "ceiling": 1504,
+          "base_sha": "aecadc9fd91f5199e63c94fe74ea5951ce4b2b4c"
+        },
+        {
+          "at": "2026-11-10T14:41:24+00:00",
+          "event": "accepted-increase",
+          "from_ceiling": 1504,
+          "to_ceiling": 1513,
+          "reason": "扫描窗口内并发任务仍在建分支（活仓库），基线按实测重设"
+        },
+        {
+          "at": "2026-11-10T14:41:24+00:00",
+          "event": "freeze",
+          "unmerged": 1513,
+          "ceiling": 1513,
+          "base_sha": "aecadc9fd91f5199e63c94fe74ea5951ce4b2b4c"
+        }
+      ]
+    }
+  }
+}
