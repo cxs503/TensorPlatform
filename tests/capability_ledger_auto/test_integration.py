@@ -85,8 +85,8 @@ class TestFullPipeline:
         registry = CapabilityRegistry()
         registry.capabilities["test.resistance"] = cap
 
-        # 运行流水线
-        scanner = EvidenceScanner(tmp_path, registry)
+        # 运行流水线（真实执行测试文件：REAL 判级要求执行证据，不接受静态推断）
+        scanner = EvidenceScanner(tmp_path, registry, exec_tests=True)
         scan_result = scanner.scan_capability(cap)
 
         chain = build_evidence_chain(cap, scan_result, tmp_path)
@@ -104,7 +104,9 @@ class TestFullPipeline:
         # 验证证据链
         assert chain.five_tuple.present_count >= 4
 
-        # 验证等级：五元齐全 + 测试通过 + 报告 PASS → REAL
+        assert scan_result.test_evidence_source == "executed"
+
+        # 验证等级：五元齐全 + 测试真实执行通过 + 报告 PASS → REAL
         assert grade_result.grade == "REAL"
         assert grade_result.confidence >= 0.85
 
