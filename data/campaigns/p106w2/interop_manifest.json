@@ -1,0 +1,455 @@
+{
+  "campaign": "p106w2",
+  "gate": "p106w2-n11-integration-gate",
+  "_comment": "跨求解器互裁集成门清单：全部阈值/契约/工件路径均为注入数据，代码零领域语义。负控=任一 check FAIL 即门 FAIL 并输出断裂点。",
+  "defaults": {
+    "series_rel": 0.1,
+    "shared_param_rel": 0.02,
+    "additivity_rel": 0.03
+  },
+  "artifacts": {
+    "n01_bubble": {
+      "path": "raw/n01/results.json",
+      "missing_reason": "节点 p106w2-n01 (mission 10135) in-flight，未交付工件"
+    },
+    "n02_slip_report": {
+      "path": "raw/n02/slip_report.md",
+      "sha256": "2739c3139136a9e23fd9d29c9ba93487e4e9e11b2b0b50f05a75d731743ce937"
+    },
+    "n02_slip_derived": {
+      "path": "raw/n02/derived.json",
+      "sha256": "19212a2a2d09f2e32c2f068b4e6afdd63f29963f9135c0d0b51b2b195b5c036e"
+    },
+    "n05_campaign": {
+      "path": "raw/n05/campaign.json",
+      "sha256": "018331e7cffd59ac071c7919d1892491e76c4a5c1c1ae345c2e9a9f4dae2c106"
+    },
+    "n05_rao": {
+      "path": "raw/n05/rao.json",
+      "missing_reason": "n05 交付频域系数 A(ω)/B(ω)/K(t)，未交付 RAO 曲线（需消费方解 Cummins 方程）"
+    },
+    "n06_summary": {
+      "path": "raw/n06/summary.json",
+      "sha256": "b47a62c95bc36a49f31a17f0cd03009cfe801383a36bf3bf5fa899780875f84c"
+    },
+    "n06_geometry": {
+      "path": "raw/n06/geometry_gate.json",
+      "sha256": "6ac17b25d52f7463697566eac4d6697e50fe3d4658544990cd30c52978807f23"
+    },
+    "n06_rao": {
+      "path": "raw/n06/rao.json",
+      "missing_reason": "n06 自评判据 rao_vs_beM_le_10pct_out_of_band 未交付（cases_run=0）"
+    },
+    "n07_results": {
+      "path": "raw/n07/results.json",
+      "sha256": "d59b6cf99193fb6e829d5f3444249c4a6860911e36e70daf43b024d3a7e442e5"
+    },
+    "n09_summary": {
+      "path": "raw/n09/results_summary.json",
+      "sha256": "334492b9f3b52b1afd7c9ee09a8a4ae8450841b4d3bfdcc5b1b5f275af9c8b62"
+    },
+    "n10_fatigue": {
+      "path": "raw/n10/results.json",
+      "missing_reason": "节点 p106w2-n10 (mission 10256) in-flight，未交付工件"
+    }
+  },
+  "items": [
+    {
+      "id": "a-mechanism-crosscheck",
+      "title": "(a) LBM 滑移边界(n02) 与 气泡减阻(n01) 减阻机理互证",
+      "checks": [
+        {
+          "id": "a.bubble_artifact_present",
+          "kind": "artifact_present",
+          "title": "气泡减阻侧工件是否可读",
+          "artifact": "n01_bubble"
+        },
+        {
+          "id": "a.slip_drag_reduction_vs_dns_band",
+          "kind": "reference_band",
+          "title": "纯滑移 ΔC_f 与 DNS 文献带互证",
+          "unit": "pct",
+          "band": {
+            "lo": {
+              "artifact": "n02_slip_derived",
+              "pointer": "/dns_band_lo_pct"
+            },
+            "hi": {
+              "artifact": "n02_slip_derived",
+              "pointer": "/dns_band_hi_pct"
+            }
+          },
+          "points": [
+            {
+              "label": "b+=10",
+              "ref": {
+                "artifact": "n02_slip_derived",
+                "pointer": "/dcf_rel_pct/2"
+              }
+            },
+            {
+              "label": "b+=20",
+              "ref": {
+                "artifact": "n02_slip_derived",
+                "pointer": "/dcf_rel_pct/3"
+              }
+            }
+          ]
+        },
+        {
+          "id": "a.dcf_monotone_in_bplus",
+          "kind": "trend_agreement",
+          "title": "ΔC_f 随 b⁺ 的变化与 b⁺ 秩一致（线性滑移律趋势）",
+          "computed": {
+            "artifact": "n02_slip_derived",
+            "pointer": "/dcf_rel_pct"
+          },
+          "min_spearman": 0.99,
+          "reference": {
+            "artifact": "n02_slip_derived",
+            "pointer": "/b_plus"
+          }
+        }
+      ]
+    },
+    {
+      "id": "b-rao-intercompare",
+      "title": "(b) BEM-Cummins 记忆核(n05) 与 FVM 波浪水池(n06) RAO 互裁（≤10%）",
+      "checks": [
+        {
+          "id": "b.n06_rao_criterion",
+          "kind": "criterion_inheritance",
+          "title": "n06 自评 RAO 判据",
+          "artifact": "n06_summary",
+          "pointer": "/criteria/rao_vs_beM_le_10pct_out_of_band"
+        },
+        {
+          "id": "b.geometry_block_coefficient",
+          "kind": "shared_parameter",
+          "title": "互裁前提：同一几何 Cb",
+          "parameter": "block_coefficient",
+          "tolerance": 0.02,
+          "entries": [
+            {
+              "label": "n05",
+              "artifact": "n05_campaign",
+              "pointer": "/case/geometry/block_coefficient"
+            },
+            {
+              "label": "n06",
+              "artifact": "n06_geometry",
+              "pointer": "/hull_3d/wigley/Cb"
+            }
+          ]
+        },
+        {
+          "id": "b.geometry_length",
+          "kind": "shared_parameter",
+          "title": "互裁前提：同一几何 L",
+          "parameter": "length_m",
+          "tolerance": 0.02,
+          "entries": [
+            {
+              "label": "n05",
+              "artifact": "n05_campaign",
+              "pointer": "/case/geometry/length"
+            },
+            {
+              "label": "n06",
+              "artifact": "n06_geometry",
+              "pointer": "/hull_3d/wigley/L"
+            }
+          ]
+        },
+        {
+          "id": "b.rao_series_intercompare",
+          "kind": "series_compare",
+          "title": "垂荡/纵摇 RAO 在 0.6<ω/ω_n<1.4 的逐点互裁",
+          "tolerance": 0.1,
+          "min_points": 5,
+          "window": {
+            "min": 0.6,
+            "max": 1.4
+          },
+          "left": {
+            "x": {
+              "artifact": "n05_rao",
+              "pointer": "/omega_over_omega_n"
+            },
+            "y": {
+              "artifact": "n05_rao",
+              "pointer": "/heave_rao"
+            }
+          },
+          "right": {
+            "x": {
+              "artifact": "n06_rao",
+              "pointer": "/omega_over_omega_n"
+            },
+            "y": {
+              "artifact": "n06_rao",
+              "pointer": "/heave_rao"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "c-fatigue-torsion-contract",
+      "title": "(c) 谱疲劳链(n10) 与 扭振(n07) 接口契约与损伤可叠加性",
+      "checks": [
+        {
+          "id": "c.fatigue_artifact_present",
+          "kind": "artifact_present",
+          "title": "疲劳链侧工件是否可读",
+          "artifact": "n10_fatigue"
+        },
+        {
+          "id": "c.torsion_field_units",
+          "kind": "field_contract",
+          "title": "生产者字段存在性 + 量纲正确性",
+          "artifact": "n07_results",
+          "contract": {
+            "name": "torsion_to_spectral_fatigue",
+            "producer": "p106w2-n07",
+            "consumer": "p106w2-n10",
+            "fields": [
+              {
+                "name": "segment_stresses",
+                "pointer": "/rated_speed_response/segment_stresses_MPa",
+                "field_name": "segment_stresses_MPa",
+                "quantity": "stress",
+                "unit_from": "field_suffix"
+              },
+              {
+                "name": "allowable_stress",
+                "pointer": "/stress_check_dnv/allowable_MPa",
+                "field_name": "allowable_MPa",
+                "quantity": "stress",
+                "unit_from": "field_suffix"
+              },
+              {
+                "name": "natural_frequencies",
+                "pointer": "/natural_frequencies_hz",
+                "field_name": "natural_frequencies_hz",
+                "quantity": "frequency",
+                "unit_from": "field_suffix"
+              },
+              {
+                "name": "excitation_frequency",
+                "pointer": "/rated_speed_response/excitation_freq_hz",
+                "field_name": "excitation_freq_hz",
+                "quantity": "frequency",
+                "unit_from": "field_suffix"
+              },
+              {
+                "name": "shaft_speed",
+                "pointer": "/system_parameters/rated_rpm",
+                "field_name": "rated_rpm",
+                "quantity": "frequency",
+                "unit_from": "field_suffix"
+              }
+            ]
+          }
+        },
+        {
+          "id": "c.torsion_declarations",
+          "kind": "field_contract",
+          "title": "疲劳消费所需声明项",
+          "artifact": "n07_results",
+          "contract": {
+            "name": "fatigue_input_declarations",
+            "producer": "p106w2-n07",
+            "consumer": "p106w2-n10",
+            "fields": [],
+            "declarations": [
+              {
+                "name": "amplitude_convention",
+                "any_of_pointers": [
+                  "/declarations/amplitude_convention",
+                  "/meta/amplitude_convention",
+                  "/rated_speed_response/amplitude_convention"
+                ],
+                "reason": "谱疲劳需知应力幅约定（峰值/零峰值/RMS），否则 N = A·S^-m 的 S 量纲对不上"
+              },
+              {
+                "name": "stress_type",
+                "any_of_pointers": [
+                  "/declarations/stress_type",
+                  "/meta/stress_type"
+                ],
+                "reason": "名义应力 vs 热点应力决定 S-N 曲线族选择"
+              },
+              {
+                "name": "load_case_id",
+                "any_of_pointers": [
+                  "/declarations/load_case_id",
+                  "/meta/load_case_id",
+                  "/case_id"
+                ],
+                "reason": "Miner 累积需可追溯到工况（多工况叠加前必须区分）"
+              },
+              {
+                "name": "s_n_reference",
+                "any_of_pointers": [
+                  "/declarations/s_n_reference",
+                  "/meta/s_n_reference"
+                ],
+                "reason": "损伤计算需 S-N 曲线标识（DNV-C/AWS 等）与阈值循环数"
+              }
+            ]
+          }
+        },
+        {
+          "id": "c.damage_additivity",
+          "kind": "additivity",
+          "title": "扭振应力幅作为疲劳输入时损伤可叠加性",
+          "tolerance": 0.03,
+          "components": {
+            "artifact": "n10_fatigue",
+            "pointer": "/damage/components"
+          },
+          "total": {
+            "artifact": "n10_fatigue",
+            "pointer": "/damage/total"
+          }
+        }
+      ]
+    },
+    {
+      "id": "d-emergence-torsion-coupling",
+      "title": "(d) 螺旋桨出水(n09) 推力波动 → 轴系扭振(n07) 激励传递",
+      "checks": [
+        {
+          "id": "d.blade_count",
+          "kind": "shared_parameter",
+          "title": "桨叶数（激励阶次来源）",
+          "parameter": "propeller_blades",
+          "tolerance": 0.0,
+          "entries": [
+            {
+              "label": "n09",
+              "artifact": "n09_summary",
+              "pointer": "/case_description/propeller/Z"
+            },
+            {
+              "label": "n07",
+              "artifact": "n07_results",
+              "pointer": "/system_parameters/propeller_blades"
+            }
+          ]
+        },
+        {
+          "id": "d.rated_speed",
+          "kind": "shared_parameter",
+          "title": "额定转速（激励频率基准）",
+          "parameter": "rated_rpm",
+          "tolerance": 0.02,
+          "entries": [
+            {
+              "label": "n09",
+              "artifact": "n09_summary",
+              "pointer": "/case_description/shaft/rated_rpm"
+            },
+            {
+              "label": "n07",
+              "artifact": "n07_results",
+              "pointer": "/system_parameters/rated_rpm"
+            }
+          ]
+        },
+        {
+          "id": "d.shaft_inertia",
+          "kind": "shared_parameter",
+          "title": "轴系惯量（响应放大分母）",
+          "parameter": "shaft_inertia_kg_m2",
+          "tolerance": 0.02,
+          "entries": [
+            {
+              "label": "n09",
+              "artifact": "n09_summary",
+              "pointer": "/case_description/shaft/I_kgm2"
+            },
+            {
+              "label": "n07",
+              "artifact": "n07_results",
+              "pointer": "/system_parameters/masses",
+              "aggregate": {
+                "sum_of": "inertia_kg_m2"
+              }
+            }
+          ]
+        },
+        {
+          "id": "d.rpm_excursion_vs_barred_band",
+          "kind": "band_overlap",
+          "title": "出水转速波动带是否穿越扭振禁区",
+          "unit": "rpm",
+          "expect": "overlap",
+          "min_fraction": 0.99,
+          "band_a": {
+            "low": {
+              "expr": "rpm * (1 - fluct / 100)",
+              "bindings": {
+                "rpm": {
+                  "artifact": "n09_summary",
+                  "pointer": "/case_description/shaft/rated_rpm"
+                },
+                "fluct": {
+                  "artifact": "n09_summary",
+                  "pointer": "/key_results/rpm_fluctuation_pct"
+                }
+              }
+            },
+            "high": {
+              "expr": "rpm * (1 + fluct / 100)",
+              "bindings": {
+                "rpm": {
+                  "artifact": "n09_summary",
+                  "pointer": "/case_description/shaft/rated_rpm"
+                },
+                "fluct": {
+                  "artifact": "n09_summary",
+                  "pointer": "/key_results/rpm_fluctuation_pct"
+                }
+              }
+            }
+          },
+          "band_b": {
+            "low": {
+              "artifact": "n07_results",
+              "pointer": "/barred_speed_ranges_rpm/0/low"
+            },
+            "high": {
+              "artifact": "n07_results",
+              "pointer": "/barred_speed_ranges_rpm/0/high"
+            }
+          }
+        },
+        {
+          "id": "d.excitation_order_coverage",
+          "kind": "order_coverage",
+          "title": "扭振受迫响应是否含桨叶阶激励",
+          "required": {
+            "artifact": "n09_summary",
+            "pointer": "/case_description/propeller/Z"
+          },
+          "provided": {
+            "expr": "excitation_hz * 60 / rated_rpm",
+            "bindings": {
+              "excitation_hz": {
+                "artifact": "n07_results",
+                "pointer": "/rated_speed_response/excitation_freq_hz"
+              },
+              "rated_rpm": {
+                "artifact": "n07_results",
+                "pointer": "/system_parameters/rated_rpm"
+              }
+            }
+          },
+          "label": "excitation order at rated speed"
+        }
+      ]
+    }
+  ]
+}

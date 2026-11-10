@@ -1,0 +1,93 @@
+{
+  "_comment": "战役 p106w2 兄弟节点工件来源声明（ingest 只读快照 + sha256 入 provenance）。worktree 路径为摄取时所在的本地检出；快照已入库，复跑无需兄弟 worktree。",
+  "campaign": "p106w2",
+  "raw_root": "data/campaigns/p106w2/raw",
+  "sources": [
+    {
+      "node": "p106w2-n02-lbm-slip-boundary",
+      "mission_id": 9159,
+      "repo": "TensorLBM",
+      "worktree": "/root/tp-agent/work/m9159",
+      "artifacts": [
+        {
+          "dest": "n02/slip_report.md",
+          "src": "docs/slip_boundary_report_m9159.md",
+          "kind": "markdown"
+        }
+      ]
+    },
+    {
+      "node": "p106w2-n05-bem-cummins-kernel",
+      "mission_id": 9162,
+      "repo": "TensorBEM",
+      "worktree": "/root/tp-agent/work/m9162",
+      "artifacts": [
+        {
+          "dest": "n05/campaign.json",
+          "src": "docs/cummins_matrix_closure/campaign.json",
+          "kind": "json"
+        }
+      ]
+    },
+    {
+      "node": "p106w2-n06-fvm-wave-tank",
+      "mission_id": 9163,
+      "repo": "TensorFVM",
+      "worktree": "/root/tp-agent/work/m9163",
+      "artifacts": [
+        {
+          "dest": "n06/summary.json",
+          "src": "docs/wave-tank-td-seakeeping/artifacts/summary.json",
+          "kind": "json"
+        },
+        {
+          "dest": "n06/geometry_gate.json",
+          "src": "docs/wave-tank-td-seakeeping/artifacts/geometry_gate.json",
+          "kind": "json"
+        }
+      ]
+    },
+    {
+      "node": "p106w2-n07-spp-torsional-vibration",
+      "mission_id": 9167,
+      "repo": "ship-performance-platform",
+      "worktree": "/root/tp-agent/work/m9167",
+      "artifacts": [
+        {
+          "dest": "n07/results.json",
+          "src": "artifacts/torsional_vibration/results.json",
+          "kind": "json"
+        }
+      ]
+    },
+    {
+      "node": "p106w2-n09-spp-propeller-emergence",
+      "mission_id": 9165,
+      "repo": "ship-performance-platform",
+      "worktree": "/root/tp-agent/work/m9165",
+      "artifacts": [
+        {
+          "dest": "n09/results_summary.json",
+          "src": "artifacts/propeller_emergence/results_summary.json",
+          "kind": "json"
+        }
+      ]
+    }
+  ],
+  "absent": [
+    {
+      "node": "p106w2-n01-lbm-bubble-turbulence",
+      "mission_id": 10135,
+      "repo": "TensorLBM",
+      "reason": "节点 in-flight（consecutive_fails=1），无 worktree 检出、无交付工件",
+      "expected_raw": "n01/results.json"
+    },
+    {
+      "node": "p106w2-n10-spp-spectral-fatigue",
+      "mission_id": 10256,
+      "repo": "ship-performance-platform",
+      "reason": "节点 in-flight，无 worktree 检出、无交付工件",
+      "expected_raw": "n10/results.json"
+    }
+  ]
+}

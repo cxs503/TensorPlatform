@@ -1,0 +1,44 @@
+{
+  "_comment": "p106w2-n11 报告散文（域内容，注入用）。原则：散文中不写具体数值，所有数值由 docgen 从 verdict.json/nodes.json/provenance.json 程序化注入，杜绝手抄漂移。",
+  "campaign": "p106w2",
+  "node": "p106w2-n11-integration-gate",
+  "title": "p106w2 跨求解器互裁集成门（n11）：滑移×气泡减阻机理互证、BEM-Cummins×FVM 水池 RAO 互裁、疲劳×扭振接口契约、桨出水×扭振耦合传递",
+  "intro": [
+    "战役 p106w2（plan 499）把四条互相独立的验证面放进同一个窗口：LBM 侧的气泡减阻微观机理（n01）与壁面部分滑移边界（n02）、BEM 侧的时域记忆核 Cummins 表示（n05）、FVM 侧的时域数值波浪水池（n06）、船舶侧的扭振（n07）与螺旋桨出水（n09）、以及谱疲劳链（n10）。n11 不生产任何新的物理量，它要回答的是一个纯工程判定问题：",
+    "> 这些节点各自的数字，能否被另一个求解器/另一条链路独立复算与接受？若不能，断裂点具体在哪一条判据上？",
+    "四类互裁之所以必须成对设计，是因为每一对都涉及**同一个物理量在两种实现里被两种口径表达**：①减阻（阻力系数的相对下降）——滑移边界给出的是平均流位移带来的层流类比量，气泡减阻给出的是湍流调制+黏性+滑移三项之和，两者在相同摩擦雷诺数下是否可比，取决于是否在同一 ΔC_f 定义下、是否含 Reynolds 应力修正；②垂荡/纵摇 RAO——频域 BEM 与水槽时域自由运动的差别可以来自几何、非线性和数值耗散三类完全不同的原因，互裁前必须先判几何是否同一；③扭振应力幅→疲劳损伤——接口契约要比对量纲（应力是 MPa 还是 Pa）、幅值约定（峰值/零峰值/RMS）与 S-N 曲线标识，缺一项则 Miner 累积在数值上不可复现；④桨出水推力波动→轴系扭振——推力波动的阶次（叶频）必须真的进入受迫响应，否则两节点各自正确也只算平行作业。",
+    "因此本门的机器判据是四类结构化的：跨求解器 RAO 互裁容差 ≤10%；接口契约要求数据格式一致且量纲可解析可比；机理互证要求与文献趋势一致；负控要求任一上游节点自评判据 FAIL 或任一互裁判据 FAIL 时，门必须 FAIL 并输出具体断裂点——而不是给出一个可以被平均掉的总分。"
+  ],
+  "method": [
+    "**门骨架（平台机制，零领域语义）**：`backend/services/xsolver/interop/` 三个模块——`units`（单位拼写/换算因子/量纲向量的注入表，支持 `MPa`/`Hz`/`rpm` 等精确拼写与 `A_per_B`、`A_Bn` 组合形式，支持从字段名后缀反推单位）、`checks`（十类声明式检查：工件存在性、上游判据继承、曲线逐点互裁、参考带、趋势一致性、字段契约、跨节点共享参数、激励阶次覆盖、区间重叠、叠加残差）、`gate`（清单校验、工件按 sha256 钉住加载、逐项汇总与断裂点输出、确定性摘要）。",
+    "**判定代数（fail-closed + honest FAIL 保护）**：单项 = 任一检查 FAIL 则 FAIL，否则任一 WITHHELD 则 WITHHELD，否则 PASS；全门 = 任一 FAIL 则 FAIL。工件缺失或 sha256 不匹配 → 该检查 WITHHELD 且**永不**升级为 PASS；检查实现抛异常 → 捕获后判 WITHHELD（不许崩成绿）。门里没有“平均分”通道：任何单点失败都会以断裂点形式出现在 `fractures` 列表里。",
+    "**域内容注入**：战役清单 `data/campaigns/p106w2/interop_manifest.json` 承载四个验收项、阈值、接口契约与工件路径；兄弟节点工件由 `tools/xsolver_interop/ingest.py` 机读快照进 `data/campaigns/p106w2/raw/`（记录来源 worktree、git commit、源文件 sha256 与快照 sha256），再由 `extract_spec.json` 从中抽取数字（表格用正则、结论带用正则），**任何模式匹配失败=摄取失败**，不保留陈旧数字。",
+    "**零域语义的机器保证**：注入词表 `data/campaigns/p106w2/domain_vocab.json` 列出域词条，`tests/test_xsolver_interop_no_domain_vocab.py` 反查机制代码路径，出现即红；战役图（域叙事）放在数据包的 `runners/figures.py` 里，由 `--figures <runner>` 挂载，平台 CLI 只认约定函数签名。"
+  ],
+  "toolchain": [
+    "Python 3.11 标准库 + matplotlib（仅出图）；无新依赖。",
+    "复现命令：",
+    "```bash",
+    "python3 -m tools.xsolver_interop.ingest --campaign p106w2 --data data/campaigns/p106w2",
+    "python3 -m tools.xsolver_interop.run_gate --manifest data/campaigns/p106w2/interop_manifest.json \\",
+    "  --data-dir data/campaigns/p106w2 --out artifacts/p106w2_interop \\",
+    "  --figures data/campaigns/p106w2/runners/figures.py",
+    "python3 -m pytest tests/test_xsolver_interop_gate.py tests/test_xsolver_interop_campaign.py \\",
+    "  tests/test_xsolver_interop_no_domain_vocab.py -q",
+    "```"
+  ],
+  "notes": [
+    "**本门判 FAIL 是结论，不是缺陷**：一方面 n01（气泡减阻）与 n10（谱疲劳链）在验收时刻仍 in-flight、无交付工件，互裁的两侧不齐；另一方面 n06 自己的 RAO 判据就是 `pass=false / cases_run=0`（切单元水槽里 2-DOF 自由运动不稳定、受迫振荡附加质量随网格变号），上游自认未交付时下游任何“互裁通过”都是伪造。",
+    "**几何前置条件是最容易被忽略的断裂点**：n05（BEM-Cummins）与 n06（水池）各自算得都对，但两条臂用的不是同一条船——不做共享参数互裁就直接比 RAO，属于把两个不同的物理对象放在一张图上，误差数字没有意义。这正是本门把 `shared_parameter` 排在 `series_compare` 之前的原因。",
+    "**接口契约的“量纲正确”与“可用”是两件事**：n07 的应力量纲是自洽的（MPa → L^-1·M·T^-2，与 `stress` 期望量纲一致），但缺幅值约定、应力类型、工况标识与 S-N 曲线标识四项声明。量纲对了，Miner 累积仍不可复现——这是量纲检查单独存在时会漏掉的失败模式。",
+    "**惯量口径不可比是真实的跨节点语义冲突**：n09 的 `I_kgm2` 是单一轴系惯量，n07 的 `masses` 是逐部件集总（含主机+飞轮、齿轮箱、艉轴承、螺旋桨）。两者相加不是“谁算错了”，而是同一个名字下两种范围（scope）；契约里缺 scope 字段时，机器无法判断该不该比。本门如实判 FAIL 并在断裂点里写明两类数值。",
+    "**负控的方向**：本门没有把“找茬”做成通过条件。共享参数里桨叶数是 PASS、出水转速波动带与扭振禁带重叠 100% 也是 PASS——这两条恰恰是“耦合真实存在”的证据，说明检查器不是一味报红。",
+    "局限：本门不重算任何节点的物理量，也不对节点内部的数值方法做独立验证（那是各仓自己的判据面）；RAO 互裁因两侧均无 RAO 曲线序列而 WITHHELD，若 n05 侧补交由 A(ω)/B(ω) 解出的 RAO、n06 侧补交稳定 2-DOF 自由运动结果，同一清单无需改代码即可出数值互裁结论；本门不判定“哪个节点的物理更可信”，只判定“能否互裁 + 断裂点在哪”。"
+  ],
+  "unblock": [
+    "n01 交付：平面湍流通道 Re_τ=180 + 单分散微气泡稳态统计（体积分数、有效滑移长度 b⁺、ΔC_f 分项），并给出去泡极限 ΔC_f→0 的退化记录 → 与 n02 的滑移 ΔC_f(b⁺) 在同一 Re_τ 下给出贡献比。",
+    "n06 交付：稳定 2-DOF 自由运动 RAO（或明确降级为受迫振荡+辐射系数路线并声明 GCI）；n05 交付：由 K(t)/A(ω)/B(ω) 解出的同几何 RAO——两者几何参数先过共享参数互裁（Cb/L/T/∇）。",
+    "n10 交付：由应力 RAO→谱矩→窄带 Rayleigh→Miner 的损伤分量与合计；n07 补齐四项声明（幅值约定/应力类型/工况标识/S-N 曲线标识）并把桨叶阶受迫响应纳入结果文件。",
+    "n09/n07 统一额定转速与惯量 scope 字段；n07 增加叶频激励通道（或在结果里显式声明“仅主机阶、未含叶频”）。"
+  ]
+}
