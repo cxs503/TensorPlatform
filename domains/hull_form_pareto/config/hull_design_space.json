@@ -1,0 +1,45 @@
+{
+  "domain": "hull_form_pareto",
+  "title": "Parametric hull form — resistance / stability / cargo capacity design space",
+  "source": "ISO/ITTC-style preliminary design ranges; Holtrop & Mennen (1982) validity domain; IS Code 2008 intact-stability minimum",
+  "n_var": 13,
+  "variables": [
+    {"name": "length_m",            "lower": 150.0, "upper": 240.0,  "unit": "m",      "description": "Length between perpendiculars L"},
+    {"name": "l_over_b",            "lower": 5.2,   "upper": 7.6,    "unit": "-",      "description": "Slenderness L/B"},
+    {"name": "b_over_t",            "lower": 2.2,   "upper": 3.4,    "unit": "-",      "description": "Beam/draft B/T"},
+    {"name": "cb",                  "lower": 0.60,  "upper": 0.86,   "unit": "-",      "description": "Block coefficient Cb"},
+    {"name": "cm",                  "lower": 0.94,  "upper": 0.995,  "unit": "-",      "description": "Midship section coefficient Cm (Cp = Cb/Cm)"},
+    {"name": "lcb_pct",             "lower": -2.5,  "upper": 2.0,    "unit": "% L",    "description": "Longitudinal centre of buoyancy (positive = aft of midship)"},
+    {"name": "d_over_t",            "lower": 1.20,  "upper": 1.45,   "unit": "-",      "description": "Depth/draft D/T (freeboard + hold depth)"},
+    {"name": "kg_ratio",            "lower": 0.72,  "upper": 0.88,   "unit": "-",      "description": "KG/D (lightship + outfit + cargo vertical centre)"},
+    {"name": "hold_len_frac",       "lower": 0.55,  "upper": 0.75,   "unit": "-",      "description": "Cargo hold window length / L (舱容积分 window)"},
+    {"name": "double_bottom_ratio", "lower": 0.10,  "upper": 0.16,   "unit": "-",      "description": "Double-bottom height / D"},
+    {"name": "speed_kn",            "lower": 12.0,  "upper": 16.0,   "unit": "kn",     "description": "Design speed"},
+    {"name": "bulb_area_ratio",     "lower": 0.0,   "upper": 0.035,  "unit": "ABT/(B T)","description": "Bulbous-bow transverse area ratio"},
+    {"name": "transom_area_ratio",  "lower": 0.0,   "upper": 0.05,   "unit": "AT/(B T)", "description": "Immersed transom area ratio"}
+  ],
+  "fixed": {},
+  "constants": {
+    "rho_seawater": 1025.0,
+    "g": 9.80665,
+    "hold_er_fraction": 0.08,
+    "hold_fwd_margin": 0.03,
+    "eta_stow": 0.92,
+    "hb_over_t": 0.45,
+    "kx_over_b": 0.35,
+    "gm_min_imo_m": 0.15,
+    "roll_period_min_s": 10.0,
+    "n_stations": 201
+  },
+  "acceptance": {
+    "zdt1_hausdorff_relative_max": 0.05,
+    "hypervolume_delta_max": 0.01,
+    "spacing_max": 0.10,
+    "pareto_spearman_r_gm_max": 0.0,
+    "single_objective_gap_max": 0.01,
+    "population": 100,
+    "generations": 200,
+    "crossover_prob": 0.9,
+    "mutation_prob": 0.1
+  }
+}
