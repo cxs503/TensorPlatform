@@ -1,0 +1,94 @@
+{
+  "schema": "tp.write_lease.policy/v1",
+  "lease": {
+    "default_ttl_s": 1.0,
+    "wait_timeout_s": 6.0,
+    "poll_s": 0.0005,
+    "modes": [
+      "rw",
+      "r"
+    ],
+    "revoke_on": [
+      "deadlock_victim",
+      "heartbeat_missing",
+      "explicit"
+    ]
+  },
+  "reclaim": {
+    "ttl_expiry_margin_s": 0.0,
+    "heartbeat_gap_ratio": 0.25,
+    "note": "回收两路：内核 flock 已释放（进程死）→ 立即；心跳+TTL 过期（活着但卡住）→ 撤销标记"
+  },
+  "cas": {
+    "hash": "blake2b-256",
+    "on_mismatch": "reject_write_and_emit_lost_update_event",
+    "hash_alternatives": [
+      "sha256"
+    ]
+  },
+  "graduation": {
+    "default_mode": "shadow",
+    "promote_after_real_writes": 200,
+    "note": "灰度：shadow 先跑满阈值真实写，再切 enforcing（门槛是计数，不是拍脑袋）"
+  },
+  "governance": {
+    "domain_terms_source": "external config injection (no hardcoded domain semantics in code)",
+    "domain_terms": [
+      "ship",
+      "hull",
+      "resistance",
+      "propulsion",
+      "seakeeping",
+      "manoeuvring",
+      "stability",
+      "cavitation",
+      "ice-class",
+      "froude",
+      "wigley",
+      "kcs",
+      "kvlcc",
+      "tanker",
+      "bulbous",
+      "slamming",
+      "heave",
+      "pitch",
+      "roll",
+      "draft",
+      "displacement",
+      "阻力",
+      "推进",
+      "耐波",
+      "操纵",
+      "稳性",
+      "螺旋桨",
+      "船体",
+      "冰区",
+      "吃水",
+      "排水量"
+    ]
+  },
+  "acceptance": {
+    "d1_workers": 40,
+    "d1_rounds": 100,
+    "d1_total_writes": 100,
+    "d1_stale_probes": 50,
+    "d1_ttl": 2.0,
+    "d2_cases_per_class": 5,
+    "d2_ttl": 0.6,
+    "d3_acquires": 10000,
+    "d3_bench_ops": 60,
+    "d3_ttl": 2.0,
+    "d3_max_throughput_drop_pct": 10,
+    "d4_cases": 10,
+    "d4_ttl": 0.6,
+    "d5_writes": 200,
+    "d5_ttl": 1.0,
+    "d7_runs": 3,
+    "d3_payload_bytes": [
+      2048,
+      65536,
+      524288
+    ],
+    "d3_criterion_payload_bytes": 2048
+  }
+}
