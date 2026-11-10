@@ -1,0 +1,52 @@
+#0  0x0 in __futex_abstimed_wait_common () (??)
+#1  0x0 in __new_sem_wait_slow64 () (??)
+#2  0x0 in PyThread_acquire_lock_timed () (??)
+#3  0x0 in faulthandler_thread () (??)
+#4  0x0 in pythread_wrapper () (??)
+#5  0x0 in start_thread () (??)
+#6  0x0 in __thread_start () (??)
+#7  0x0 in __strlen_lasx () (??)
+#8  0x0 in string_at () (??)
+#9  0x0 in ffi_call_asm () (??)
+#10 0x0 in ffi_call_int () (??)
+#11 0x0 in _ctypes_callproc () (??)
+#12 0x0 in PyCFuncPtr_call () (??)
+#13 0x0 in _PyObject_MakeTpCall () (??)
+#14 0x0 in _PyEval_EvalFrameDefault () (??)
+#15 0x0 in _PyEval_Vector () (??)
+#16 0x0 in PyEval_EvalCode () (??)
+#17 0x0 in builtin_exec () (??)
+#18 0x0 in cfunction_vectorcall_FASTCALL_KEYWORDS () (??)
+
+-- gdb transcript --
+[New LWP 781240]
+[Thread debugging using libthread_db enabled]
+Using host libthread_db library "/lib64/libthread_db.so.1".
+0x00007ffff009210c in __strlen_lasx () from /lib64/libc.so.6
+  Id   Target Id                                    Frame 
+* 1    Thread 0x7fffeff54020 (LWP 781104) "python3" 0x00007ffff009210c in __strlen_lasx () from /lib64/libc.so.6
+  2    Thread 0x7ffeebfff1a0 (LWP 781240) "python3" 0x00007ffff006ead8 in __futex_abstimed_wait_common () from /lib64/libc.so.6
+
+Thread 2 (Thread 0x7ffeebfff1a0 (LWP 781240) "python3"):
+#0  0x00007ffff006ead8 in __futex_abstimed_wait_common () from /lib64/libc.so.6
+#1  0x00007ffff007c710 in __new_sem_wait_slow64 () from /lib64/libc.so.6
+#2  0x00007ffff0342748 in PyThread_acquire_lock_timed () from /lib64/libpython3.11.so.1.0
+#3  0x00007ffff04a189c in faulthandler_thread () from /lib64/libpython3.11.so.1.0
+#4  0x00007ffff046bbc4 in pythread_wrapper () from /lib64/libpython3.11.so.1.0
+#5  0x00007ffff0072d1c in start_thread () from /lib64/libc.so.6
+#6  0x00007ffff00ef70c in __thread_start () from /lib64/libc.so.6
+
+Thread 1 (Thread 0x7fffeff54020 (LWP 781104) "python3"):
+#0  0x00007ffff009210c in __strlen_lasx () from /lib64/libc.so.6
+#1  0x00007fffec8d3054 in string_at () from /usr/lib64/python3.11/lib-dynload/_ctypes.cpython-311-loongarch64-linux-gnu.so
+#2  0x00007fffec8c2d1c in ffi_call_asm () from /lib64/libffi.so.8
+#3  0x00007fffec8bffbc in ffi_call_int () from /lib64/libffi.so.8
+#4  0x00007fffec8de150 in _ctypes_callproc () from /usr/lib64/python3.11/lib-dynload/_ctypes.cpython-311-loongarch64-linux-gnu.so
+#5  0x00007fffec8dd35c in PyCFuncPtr_call () from /usr/lib64/python3.11/lib-dynload/_ctypes.cpython-311-loongarch64-linux-gnu.so
+#6  0x00007ffff03595e0 in _PyObject_MakeTpCall () from /lib64/libpython3.11.so.1.0
+#7  0x00007ffff0365a88 in _PyEval_EvalFrameDefault () from /lib64/libpython3.11.so.1.0
+#8  0x00007ffff035f5ac in _PyEval_Vector () from /lib64/libpython3.11.so.1.0
+#9  0x00007ffff04146b0 in PyEval_EvalCode () from /lib64/libpython3.11.so.1.0
+#10 0x00007ffff04390e4 in builtin_exec () from /lib64/libpython3.11.so.1.0
+#11 0x00007ffff03766a4 in cfunction_vectorcall_FASTCALL_KEYWORDS () from /lib64/libpython3.11.so.1.0
+process 781104
