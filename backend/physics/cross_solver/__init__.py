@@ -378,17 +378,52 @@ def run_mutual_arbitration(
 # ---------------------------------------------------------------------------
 # Wigley hull cross-validation (BEM Neumann-Kelvin / LBM two-phase)
 # ---------------------------------------------------------------------------
-from .wigley_bem_nk import NKResult, solve_wigley_nk, WigleyGeometry
-from .wigley_lbm_twophase import LBMResult, solve_wigley_lbm, grid_convergence_study
-from .cross_validation import (
-    CrossValidationEntry,
-    SensitivityResult,
-    CrossValidationReport,
-    run_cross_validation,
-    run_sensitivity_analysis,
-    generate_comparison_figures,
-    update_capability_ledger,
-    build_full_report,
+# The cross-validation layer depends on the optional solver-case modules; those
+# files are not always present in a given checkout (they can be filtered by
+# release gates).  Keep the package importable regardless: the schema /
+# traceability / conservation-gate part above is always available, and the
+# optional block degrades to ``_OPTIONAL_IMPORT_ERROR`` instead of breaking every
+# importer of ``physics.cross_solver``.
+_OPTIONAL_IMPORT_ERROR: Exception | None = None
+try:  # pragma: no cover - availability depends on the checkout
+    from .wigley_bem_nk import NKResult, solve_wigley_nk, WigleyGeometry
+    from .wigley_lbm_twophase import (LBMResult, solve_wigley_lbm,
+                                      grid_convergence_study)
+    from .cross_validation import (
+        CrossValidationEntry,
+        SensitivityResult,
+        CrossValidationReport,
+        run_cross_validation,
+        run_sensitivity_analysis,
+        generate_comparison_figures,
+        update_capability_ledger,
+        build_full_report,
+    )
+except Exception as _exc:  # noqa: BLE001
+    _OPTIONAL_IMPORT_ERROR = _exc
+
+#: Bit-reproducible checkpoint / state-serialisation layer (always importable;
+#: it depends on numpy only).
+from .checkpoint import (  # noqa: E402
+    CODEC_LZMA,
+    CODEC_NONE,
+    CODEC_ZSTD,
+    CheckpointCorruption,
+    CheckpointError,
+    CheckpointManager,
+    CheckpointStore,
+    CoupledRunner,
+    CoupledSolver,
+    EnergyLedger,
+    ExchangeBus,
+    NoValidCheckpoint,
+    SolverState,
+    TimeSynchronizer,
+    available_codecs,
+    extrapolate_to,
+    flip_bit_in_file,
+    measure_io_throughput,
+    run_restart_equivalence,
 )
 
 __all__ = [
@@ -427,4 +462,24 @@ __all__ = [
     "generate_comparison_figures",
     "update_capability_ledger",
     "build_full_report",
+    # Checkpoint / bit-reproducibility layer
+    "CODEC_LZMA",
+    "CODEC_NONE",
+    "CODEC_ZSTD",
+    "CheckpointCorruption",
+    "CheckpointError",
+    "CheckpointManager",
+    "CheckpointStore",
+    "CoupledRunner",
+    "CoupledSolver",
+    "EnergyLedger",
+    "ExchangeBus",
+    "NoValidCheckpoint",
+    "SolverState",
+    "TimeSynchronizer",
+    "available_codecs",
+    "extrapolate_to",
+    "flip_bit_in_file",
+    "measure_io_throughput",
+    "run_restart_equivalence",
 ]
