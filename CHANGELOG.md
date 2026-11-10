@@ -3,6 +3,17 @@
  CHANGELOG.md - 示例组织 AI 平台改进记录
 """
 
+## [Unreleased] - 2026-11-10 · p228w1-N10 自主续航运维矩阵
+
+- 新增 `tools/sustainment/`（零领域语义，四模块独立可调用）：工件血缘 DAG（sha256 + 证据分级边 +
+  证据强度环消解 + 冻结/篡改检测）、报告证据链校验（图 sha256 / 数字溯源 / 判据重算 / 诚实 FAIL 披露）、
+  备份恢复演练（隔离命名空间 + 三重对拍 + 三类坏备份负控 + RPO/RTO 账本）、工作树六类治理
+  （tar+zstd 归档 + 磁盘压力门 85/90% + flock 互斥 + 未注册目录盲区测量）。
+- 修：GC 指标语义（`reclaimed_bytes` 曾误记归档压缩体积，现为被移除树体积，另设 `archive_bytes`）。
+- 修：血缘审计自噬（输出目录现自动排除出扫描域）与 verifier 未重放环消解导致的伪漂移。
+- 新增 `config/sustain_core_tables.json`（5 张平台元数据表）与 `scripts/sustain/p228w1_n10_report.py`
+  （报告数字程序化注入）与 `tests/test_sustain_*.py`（65 用例）。
+
 # 当前版本: v2.2.0 - 2026-06-21
 
 ## [v2.2.0] - 2026-06-21
