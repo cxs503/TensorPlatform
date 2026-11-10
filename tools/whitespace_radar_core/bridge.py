@@ -23,6 +23,7 @@ GATE_SCHEMA = "radar-gate/v1"
 
 _DECISION = {
     "covered": "block_duplicate",
+    "generic_only": "narrow_claim",
     "partial": "narrow_claim",
     "blank": "allow",
 }
@@ -62,6 +63,18 @@ def dedup_gate(verdict_envelope: Dict[str, Any]) -> Dict[str, Any]:
             "allow": "attach zero_hit_proof verbatim; a reviewer must be able to re-run it",
         }[decision],
     }
+    if verdict == "generic_only":
+        # The refusal itself is the evidence: hand the reviewer the ledger of
+        # probes that were found but not corroborated, plus the generic wording.
+        ledger = verdict_envelope.get("generic_ledger") or {}
+        payload["generic_ledger"] = {
+            "witness_doc": ledger.get("witness_doc"),
+            "generic_terms": [r["term"] for r in ledger.get("generic_terms") or []],
+            "refused_probes": [
+                {k: p.get(k) for k in ("probe", "df", "best_doc", "best_doc_score", "why")}
+                for p in ledger.get("generic_probes") or []
+            ],
+        }
     if verdict == "blank":
         proof = verdict_envelope.get("zero_hit_proof") or {}
         payload["zero_hit_proof"] = {

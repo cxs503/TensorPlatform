@@ -1,4 +1,4 @@
-"""Tri-state adjudicator: ``covered | partial | blank`` with a zero-hit proof.
+"""Tri-state adjudicator: ``covered | generic_only | partial | blank``.
 
 Two independent pieces of evidence per topic
 --------------------------------------------
@@ -26,8 +26,26 @@ Decision procedure
 2. no specific probe exists        -> **blank** — the proof carries every probe,
    its df, and the executed window/stride/tokenisation parameters
 3. ``top_score >= s_covered`` and ``# existing specific probes >=
-   min_existing_probes`` and ``specific_coverage >= c_covered`` -> **covered**
-4. otherwise                       -> **partial** (adjacent work exists)
+   min_existing_probes`` and ``specific_coverage >= c_covered``
+   **and the discriminative probes corroborate in one document**
+   (>= ``min_existing_probes`` distinct specific probes inside a single document
+   whose score also clears ``s_covered``) -> **covered**
+4. 3 without corroboration          -> **generic_only** (specificity discipline:
+   the pool's strongest match is carried by *scattered lone mentions*, i.e. by
+   generic wording, so "covered" would be an over-claim; the envelope keeps the
+   generic-probe ledger — every discriminative probe, its df, and the document
+   it was found in — so a reviewer can see exactly which evidence was refused)
+5. otherwise                       -> **partial** (adjacent work exists)
+
+Specificity discipline (added on top of the existence probes)
+-------------------------------------------------------------
+"Probes exist somewhere" is a *union* over documents, and a union is trivially
+satisfied by boilerplate: a query glued together from generic meta words can
+have every 4-char window land in a different document while no single document
+talks about the subject.  ``covered`` therefore demands a **witness document**:
+one document that carries >= ``min_existing_probes`` distinct discriminative
+probes.  Anything weaker is reported as ``generic_only`` with the generic
+ledger attached, never silently rounded up to ``covered``.
 
 Every threshold is embedded in the evidence file so a replay cannot drift, and
 ``drop_terms`` lets the killer test remove a probe from the query without
@@ -35,18 +53,23 @@ touching the index.
 """
 from __future__ import annotations
 
-import re
 from dataclasses import asdict, dataclass
-from typing import Any, Dict, List, Optional, Sequence
+from typing import Any, Dict, List, Optional, Sequence, Tuple
 
 from .evidence import SCHEMA, seal
 from .index import Bm25Index
 from .tokenize import _CJK_RE, _LATIN_RE, terms
 
 COVERED = "covered"
+GENERIC_ONLY = "generic_only"
 PARTIAL = "partial"
 BLANK = "blank"
-LABELS = (COVERED, PARTIAL, BLANK)
+LABELS = (COVERED, GENERIC_ONLY, PARTIAL, BLANK)
+
+#: verdicts that mean "the pool already covers this topic" (block the proposal)
+COVERING = (COVERED,)
+#: verdicts that mean "adjacent work exists; the claim must be narrowed"
+ADJACENT = (GENERIC_ONLY, PARTIAL)
 
 
 @dataclass(frozen=True)
@@ -103,24 +126,34 @@ def build_probes(topic: str, th: Thresholds, drop: Sequence[str] = ()) -> List[D
     return out
 
 
+def _probe_docs(index: Bm25Index, row: Dict[str, Any]) -> List[str]:
+    """Full (untruncated) doc-id list for a probe — the corroboration input."""
+    if row["type"] == "token":
+        return sorted(index.postings.get(row["probe"], {}))
+    return index.contains(row["probe"])
+
+
 def query_plan(
     index: Bm25Index, topic: str, th: Thresholds, drop: Sequence[str] = ()
 ) -> Dict[str, Any]:
-    """Probe classification for one topic — the part a reviewer can audit."""
+    """Probe classification for one topic — the part a reviewer can audit.
+
+    ``probes[*]["docs"]`` is truncated to 5 ids for the evidence file; the
+    corroboration step uses ``_probe_docs`` (full lists) so that a probe which
+    exists in many documents is never mistaken for an absent one.
+    """
     probes = build_probes(topic, th, drop)
     n = max(index.n_docs, 1)
     rows: List[Dict[str, Any]] = []
     for p in probes:
-        if p["type"] == "token":
-            docs = sorted(index.postings.get(p["probe"], {}))
-        else:
-            docs = index.contains(p["probe"])
+        docs = _probe_docs(index, p)
         df = len(docs)
         rows.append(
             {
                 "probe": p["probe"],
                 "type": p["type"],
                 "df": df,
+                "n_docs_hit": df,
                 "specific": (df / n) <= th.rare_frac,
                 "docs": docs[:5],
             }
@@ -140,6 +173,136 @@ def query_plan(
     }
 
 
+def _doc_scores(index: Bm25Index, query_terms: Sequence[str]) -> Dict[str, float]:
+    """BM25 score of *every* matching doc (no top-k truncation)."""
+    scores, _ = index.search(query_terms, top_k=index.n_docs or 1)
+    return scores
+
+
+def corroboration(
+    index: Bm25Index,
+    plan: Dict[str, Any],
+    doc_scores: Dict[str, float],
+    th: Thresholds,
+    limit: int = 3,
+) -> Dict[str, Any]:
+    """Find the witness document: the doc carrying the most discriminative probes.
+
+    This is the specificity discipline's measurement step.  A topic is
+    *corroborated* when a single document holds >= ``min_existing_probes``
+    distinct specific probes **and** that document's own BM25 score clears
+    ``s_covered`` — i.e. the document is both about the topic and about its
+    discriminative core.
+    """
+    per_doc: Dict[str, List[str]] = {}
+    for row in plan["probes"]:
+        if not row["specific"] or row["df"] == 0:
+            continue
+        for doc_id in _probe_docs(index, row):
+            per_doc.setdefault(doc_id, []).append(row["probe"])
+    rolls: List[Dict[str, Any]] = []
+    for doc_id in sorted(per_doc):
+        probes = sorted(set(per_doc[doc_id]))
+        score = doc_scores.get(doc_id, 0.0)
+        rolls.append(
+            {
+                "doc_id": doc_id,
+                "n_probes": len(probes),
+                "probes": probes,
+                "score": _round(score),
+                "kind": index.doc_meta.get(doc_id, {}).get("kind", ""),
+                "title": index.doc_meta.get(doc_id, {}).get("title", ""),
+                "ref": index.doc_meta.get(doc_id, {}).get("ref", ""),
+            }
+        )
+    rolls.sort(key=lambda r: (-r["n_probes"], -r["score"], r["doc_id"]))
+    best = rolls[0] if rolls else None
+    n_best = best["n_probes"] if best else 0
+    best_score = best["score"] if best else 0.0
+    return {
+        "rule": (
+            "covered requires one witness document holding >= min_existing_probes "
+            "distinct discriminative probes and scoring >= s_covered"
+        ),
+        "min_probes": th.min_existing_probes,
+        "score_floor": th.s_covered,
+        "doc_id": best["doc_id"] if best else None,
+        "n_probes": n_best,
+        "score": best_score,
+        "probes": best["probes"] if best else [],
+        "corroborated": bool(n_best >= th.min_existing_probes and best_score >= th.s_covered),
+        "witness_candidates": rolls[:limit],
+        "n_docs_with_probes": len(rolls),
+    }
+
+
+def generic_ledger(
+    index: Bm25Index,
+    topic: str,
+    plan: Dict[str, Any],
+    corrob: Dict[str, Any],
+    doc_scores: Dict[str, float],
+    th: Thresholds,
+) -> Dict[str, Any]:
+    """The refused-evidence ledger attached to a ``generic_only`` verdict.
+
+    Two lists, both literal and greppable:
+
+    * **generic probes** — every discriminative probe with its df and the best
+      document score it can point at, plus a machine reason why it was refused
+      as corroboration (``lone_mention`` / ``below_floor`` / ``absent``);
+    * **generic terms** — the topic's own 2-grams/tokens whose df/N exceeds
+      ``rare_frac``: the *generic wording* the topic is built from.  This is the
+      "泛词清单" a reviewer reads to see what the proposal would have to add.
+    """
+    witness = corrob.get("doc_id")
+    probes: List[Dict[str, Any]] = []
+    for row in plan["probes"]:
+        if not row["specific"]:
+            continue
+        docs = _probe_docs(index, row)
+        best_doc, best_score = None, 0.0
+        for doc_id in docs:
+            score = doc_scores.get(doc_id, 0.0)
+            if score > best_score or (score == best_score and best_doc is None):
+                best_doc, best_score = doc_id, score
+        if not docs:
+            why = "absent"
+        elif witness in docs:
+            why = "not_witness"  # present in the witness but not part of its core
+        elif best_score < th.s_covered:
+            why = "below_floor"
+        else:
+            why = "lone_mention"
+        probes.append(
+            {
+                "probe": row["probe"],
+                "type": row["type"],
+                "df": row["df"],
+                "df_frac": _round(row["df"] / max(index.n_docs, 1)),
+                "best_doc": best_doc,
+                "best_doc_score": _round(best_score),
+                "why": why,
+            }
+        )
+    generic_terms = []
+    for term in terms(topic):
+        df = index.df(term)
+        frac = df / max(index.n_docs, 1)
+        generic_terms.append(
+            {"term": term, "df": df, "df_frac": _round(frac), "generic": frac > th.rare_frac}
+        )
+    generic_terms.sort(key=lambda r: (-r["df_frac"], r["term"]))
+    return {
+        "generic_probes": probes,
+        "generic_terms": [r for r in generic_terms if r["generic"]],
+        "all_terms": generic_terms,
+        "n_generic_probes": sum(1 for p in probes if p["why"] != "absent"),
+        "witness_doc": witness,
+        "witness_probes": corrob.get("probes") or [],
+    }
+
+
 def analyze(
     index: Bm25Index,
     topic: str,
@@ -153,31 +316,46 @@ def analyze(
     """Adjudicate one free-text topic; returns a sealed ``radar/v1`` envelope."""
     th = thresholds or Thresholds()
     plan = query_plan(index, topic, th, drop_terms)
+    doc_scores = _doc_scores(index, plan["terms"])
     _, ranked = index.search(plan["terms"], top_k=top_k)
     top_score = _round(ranked[0][1]) if ranked else 0.0
     hits = [(d, s) for d, s in ranked if s >= th.s_floor]
     top_doc = ranked[0][0] if ranked else None
     top_existing = (
-        [r["probe"] for r in plan["probes"] if r["specific"] and r["df"] > 0 and top_doc in r["docs"]]
+        [
+            r["probe"]
+            for r in plan["probes"]
+            if r["specific"] and r["df"] > 0 and top_doc in _probe_docs(index, r)
+        ]
         if top_doc
         else []
     )
+    corrob = corroboration(index, plan, doc_scores, th)
 
+    gate_ok = (
+        top_score >= th.s_covered
+        and plan["n_existing_specific"] >= th.min_existing_probes
+        and plan["specific_coverage"] >= th.c_covered
+    )
     if plan["n_specific"] == 0:
         verdict = PARTIAL
         reason = "no discriminative probe in the query; refusing to rule blank"
     elif plan["n_existing_specific"] == 0:
         verdict = BLANK
         reason = "every discriminative probe (literal window/token) is absent from the pool"
-    elif (
-        top_score >= th.s_covered
-        and plan["n_existing_specific"] >= th.min_existing_probes
-        and plan["specific_coverage"] >= th.c_covered
-    ):
+    elif gate_ok and corrob["corroborated"]:
         verdict = COVERED
         reason = (
             "literal probes exist, specific coverage and BM25 top score clear the "
-            "covered thresholds"
+            "covered thresholds, and one witness document carries the discriminative "
+            "core"
+        )
+    elif gate_ok:
+        verdict = GENERIC_ONLY
+        reason = (
+            "score/coverage clear the covered thresholds but no single document carries "
+            f">= {th.min_existing_probes} distinct discriminative probes at score >= "
+            f"{th.s_covered}: the match is generic wording only, refusing to rule covered"
         )
     else:
         verdict = PARTIAL
@@ -202,6 +380,11 @@ def analyze(
             "specific_coverage": plan["specific_coverage"],
             "dropped_terms": sorted(set(drop_terms)),
             "term_trail": index.explain(plan["terms"], top_k=top_k)["terms"],
+        },
+        "specificity": {
+            "corroboration": corrob,
+            "covered_requires_witness": True,
+            "downgraded": verdict == GENERIC_ONLY,
         },
         "hits": {
             "count": len(hits),
@@ -252,6 +435,8 @@ def analyze(
         "index": index.as_manifest(),
         "schema_target": SCHEMA,
     }
+    if verdict == GENERIC_ONLY:
+        payload["generic_ledger"] = generic_ledger(index, topic, plan, corrob, doc_scores, th)
     return seal(payload)
 
 
@@ -259,6 +444,7 @@ def triage(verdict: str) -> str:
     """Human-facing one-liner used by the CLI / arbitration bridge."""
     return {
         COVERED: "already worked on: cite the hits",
+        GENERIC_ONLY: "match is generic wording only: cite the ledger, narrow the claim",
         PARTIAL: "adjacent work exists: narrow the claim",
         BLANK: "no evidence in pool: safe to propose (attach the zero-hit proof)",
     }.get(verdict, "unknown")

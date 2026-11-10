@@ -46,6 +46,7 @@ from tools.whitespace_radar_core.bridge import GATE_SCHEMA, dedup_gate  # noqa: 
 from tools.whitespace_radar_core.pool_build import build_manifest, inventory_repo  # noqa: E402
 
 POOL_MANIFEST = os.path.join(REPO_ROOT, "data/whitespace_radar/pool/manifest.json")
+POOL_PIN = os.path.join(REPO_ROOT, "data/whitespace_radar/pool/pin.json")
 BENCH = os.path.join(REPO_ROOT, "data/whitespace_radar/replay_bench.json")
 NEUTRALITY = os.path.join(REPO_ROOT, "data/whitespace_radar/domain_terms.json")
 CLI = os.path.join(REPO_ROOT, "tools/whitespace_radar.py")
@@ -83,7 +84,17 @@ def synthetic_docs(n_filler: int = 60) -> list:
 
 @pytest.fixture(scope="module")
 def pool():
-    docs = load_pool(REPO_ROOT, POOL_MANIFEST)
+    """The **pinned** pool: the replay labels were frozen on this document set.
+
+    The live working tree keeps growing (docs/ is part of the pool), and unfrozen
+    growth silently invalidates frozen labels — that defect is what the pin
+    exists to prevent, so every replay here runs against the pinned snapshot.
+    See ``tests/test_whitespace_specificity.py`` for the drift assertions.
+    """
+    from tools.whitespace_radar_core import load_pin
+
+    pin = load_pin(POOL_PIN)
+    docs = load_pool(REPO_ROOT, POOL_MANIFEST, pin=pin)
     return docs, Bm25Index.build(docs), pool_digest(docs)
 
 

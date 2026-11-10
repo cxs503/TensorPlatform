@@ -212,8 +212,92 @@ _ADAPTERS = {
 }
 
 
-def load_pool(root: str, manifest_path: str) -> List[Doc]:
+PIN_SCHEMA = "radar-pool-pin/v1"
+#: kinds whose sources are re-scanned from the working tree on every run;  these
+#: are the ones a *pin* has to freeze by content hash.  ``module`` docs come from
+#: a committed JSON snapshot, so they are already frozen by their own file.
+LIVE_KINDS = ("doc", "proposal", "campaign.plan", "campaign.node")
+
+
+def doc_digest(doc: Doc) -> str:
+    """Content digest of one doc as it enters the index (kind/id/title/text)."""
+    h = hashlib.sha256()
+    for part in (doc.kind, doc.doc_id, doc.title, doc.text):
+        h.update(part.encode("utf-8"))
+        h.update(b"\x00")
+    return h.hexdigest()
+
+
+def build_pin(docs: Sequence[Doc], *, source: str = "", note: str = "") -> Dict[str, Any]:
+    """Freeze a pool: one content hash per *live* doc, sorted by ``doc_id``."""
+    entries = [
+        {"doc_id": d.doc_id, "kind": d.kind, "ref": d.ref, "sha256": doc_digest(d)}
+        for d in sorted(docs, key=lambda x: x.doc_id)
+        if d.kind in LIVE_KINDS
+    ]
+    return {
+        "schema": PIN_SCHEMA,
+        "source": source,
+        "note": note,
+        "n_docs": len(entries),
+        "docs": entries,
+    }
+
+
+def load_pin(path: str) -> Dict[str, Any]:
+    payload = _json(path)
+    if payload.get("schema") != PIN_SCHEMA:
+        raise ValueError(f"pin schema {payload.get('schema')!r} != {PIN_SCHEMA!r}")
+    return payload
+
+
+def pin_report(docs: Sequence[Doc], pin: Dict[str, Any]) -> Dict[str, Any]:
+    """Drift between the live working tree and a frozen pool.
+
+    ``missing``  pinned doc that no longer exists (deleted)
+    ``modified`` pinned doc whose content hash changed (edited)
+    ``extra``    doc that appeared after the pin (added later)
+    ``drift``    True iff any of the three is non-empty
+    """
+    pinned = {e["doc_id"]: e["sha256"] for e in pin.get("docs") or []}
+    live = {d.doc_id: doc_digest(d) for d in docs if d.kind in LIVE_KINDS}
+    missing = sorted(set(pinned) - set(live))
+    extra = sorted(set(live) - set(pinned))
+    modified = sorted(k for k in set(pinned) & set(live) if pinned[k] != live[k])
+    return {
+        "n_pinned": len(pinned),
+        "n_live": len(live),
+        "missing": missing,
+        "modified": modified,
+        "extra": extra,
+        "n_extra": len(extra),
+        "n_missing": len(missing),
+        "n_modified": len(modified),
+        "drift": bool(missing or modified or extra),
+        "frozen_source": pin.get("source", ""),
+    }
+
+
+def apply_pin(docs: Sequence[Doc], pin: Dict[str, Any]) -> List[Doc]:
+    """Keep only the pinned *and unmodified* live docs (stable order)."""
+    pinned = {e["doc_id"]: e["sha256"] for e in pin.get("docs") or []}
+    out = []
+    for d in docs:
+        if d.kind in LIVE_KINDS:
+            if pinned.get(d.doc_id) != doc_digest(d):
+                continue
+        out.append(d)
+    return sorted(out, key=lambda d: d.doc_id)
+
+
+def load_pool(root: str, manifest_path: str, pin: Optional[Dict[str, Any]] = None) -> List[Doc]:
     """Load and return all docs of the pool described by ``manifest_path``.
+
+    ``pin`` (from :func:`load_pin`) restricts the *live-scanned* sources to the
+    documents frozen at labelling time, so that a replay benchmark keeps scoring
+    against the pool it was labelled on instead of silently drifting as the repo
+    grows.  Docs of kind ``module`` come from a committed JSON snapshot and are
+    already frozen by it.
 
     ``exclude_globs`` in the manifest are matched against repo-relative doc refs
     and dropped *after* loading.  This exists because benchmark or tool
@@ -248,6 +332,8 @@ def load_pool(root: str, manifest_path: str) -> List[Doc]:
             raise ValueError(f"unknown pool source type {kind!r}")
     if exclude:
         docs = [d for d in docs if not any(fnmatch.fnmatch(d.ref, pat) for pat in exclude)]
+    if pin is not None:
+        docs = apply_pin(docs, pin)
     # de-duplicate by doc_id, keep first, then sort -> filesystem-order free
     seen = {}
     for d in docs:
