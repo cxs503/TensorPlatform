@@ -1,0 +1,219 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://tensorplatform.local/schemas/claim.json",
+  "title": "Time-bounded numeric claim (claim/1.0)",
+  "description": "Structural record of one numeric claim plus everything needed to decide, by machine and without human judgement, whether the number is still trustworthy. The record binds (a) the artifact that carries the number through its sha256, (b) the environment the number was obtained in through an environment fingerprint, and (c) the set of upstream artifacts the number depends on through depends_on. A claim carries NO domain vocabulary: 'unit' is an opaque token, 'artifact_uri' is an opaque locator and 'value' is a plain number or string. Freshness is decided by tools/claim_watch/checker.py, which never reads domain semantics: it compares hashes and fingerprints only.",
+  "type": "object",
+  "required": [
+    "schema_version",
+    "claim_id",
+    "value",
+    "artifact_uri",
+    "artifact_sha256",
+    "verified_at",
+    "evidence_grade"
+  ],
+  "additionalProperties": false,
+  "properties": {
+    "schema_version": {
+      "const": "claim/1.0"
+    },
+    "claim_id": {
+      "type": "string",
+      "minLength": 3,
+      "maxLength": 240,
+      "pattern": "^[A-Za-z0-9][A-Za-z0-9._:/#-]*$",
+      "description": "Stable identifier, unique inside one ledger. Opaque to the checker."
+    },
+    "value": {
+      "type": [
+        "number",
+        "string"
+      ],
+      "description": "The asserted number, or an opaque digest token for artifact-state claims (for example 'sha256:1f2e...')."
+    },
+    "unit": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 32,
+      "description": "Opaque unit token. The checker never interprets it; an empty or foreign token is not a defect."
+    },
+    "artifact_uri": {
+      "type": "string",
+      "minLength": 1,
+      "maxLength": 400,
+      "description": "Locator of the artifact that carries the number. Accepted forms: '<repo>:<path>', 'file:///abs/path', or a worktree-relative path resolved against the ledger's roots."
+    },
+    "artifact_sha256": {
+      "$ref": "#/$defs/sha256"
+    },
+    "env_fingerprint": {
+      "description": "Environment in which the number was produced. null means 'not asserted' and the checker then reports env_assurance='unasserted' instead of inventing a verdict.",
+      "anyOf": [
+        {
+          "$ref": "#/$defs/fingerprint"
+        },
+        {
+          "type": "null"
+        }
+      ]
+    },
+    "depends_on": {
+      "type": "array",
+      "maxItems": 128,
+      "description": "Upstream artifacts whose content the number was derived from. A change to any of them invalidates the number (STALE).",
+      "items": {
+        "$ref": "#/$defs/dependency"
+      }
+    },
+    "verified_at": {
+      "type": "string",
+      "format": "date-time",
+      "description": "Instant at which the binding (artifact hash + env + dependency set) was established."
+    },
+    "evidence_grade": {
+      "enum": [
+        "REAL",
+        "MOCK",
+        "STUB",
+        "WITHHELD"
+      ],
+      "description": "Grade declared when the binding was established. The checker only ever downgrades this value, never upgrades it."
+    },
+    "pointer": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 240,
+      "description": "Optional selector ('/<key>/<index>' style) of the value inside the artifact. Metadata only: a hash-verified artifact makes a stale pointer impossible."
+    },
+    "producer": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 240,
+      "description": "Optional name of the tool or document that authored the claim. Never used as evidence by the checker."
+    },
+    "notes": {
+      "type": [
+        "string",
+        "null"
+      ],
+      "maxLength": 500
+    }
+  },
+  "$defs": {
+    "sha256": {
+      "type": "string",
+      "pattern": "^[0-9a-f]{64}$"
+    },
+    "dependency": {
+      "type": "object",
+      "required": [
+        "uri",
+        "kind"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "uri": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 400
+        },
+        "sha256": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/sha256"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "description": "Content hash of the dependency at binding time. null means 'declared but unpinned': freshness cannot be proven, so the checker reports STALE with cause dep_unpinned."
+        },
+        "kind": {
+          "enum": [
+            "artifact",
+            "declaration"
+          ],
+          "description": "artifact = data the number was computed from; declaration = a manifest/lock/registry that enumerates or parameterises the computation."
+        },
+        "role": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 80
+        }
+      }
+    },
+    "fingerprint": {
+      "type": "object",
+      "required": [
+        "arch",
+        "platform",
+        "byteorder",
+        "pointer_bits",
+        "python",
+        "digest"
+      ],
+      "additionalProperties": false,
+      "properties": {
+        "arch": {
+          "type": "string",
+          "minLength": 1,
+          "maxLength": 40,
+          "description": "Raw machine string, for example 'x86_64' or 'loongarch64'."
+        },
+        "arch_family": {
+          "type": [
+            "string",
+            "null"
+          ],
+          "maxLength": 40,
+          "description": "Normalised family of 'arch'. Two fingerprints whose families differ are never portable across each other (SUSPECT)."
+        },
+        "platform": {
+          "type": "string",
+          "maxLength": 60
+        },
+        "byteorder": {
+          "enum": [
+            "little",
+            "big"
+          ]
+        },
+        "pointer_bits": {
+          "type": "integer",
+          "enum": [
+            32,
+            64
+          ]
+        },
+        "python": {
+          "type": "string",
+          "maxLength": 24
+        },
+        "packages": {
+          "type": "object",
+          "description": "name -> version (null when the package is absent). Only versions explicitly normalised by the producer are compared.",
+          "additionalProperties": {
+            "type": [
+              "string",
+              "null"
+            ]
+          },
+          "maxProperties": 64
+        },
+        "digest": {
+          "$ref": "#/$defs/sha256",
+          "description": "sha256 over the canonical JSON of the fields above except digest itself."
+        }
+      }
+    }
+  }
+}
