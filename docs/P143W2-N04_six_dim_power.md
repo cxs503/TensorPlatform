@@ -2,9 +2,10 @@
 
 > 节点：P143W2-N04（PR#870 重开整合版，mission 8716）
 > 实现：`tools/abm/six_dim_power.py`（纯函数，零领域语义；stdlib 实现，scipy 仅作可选的精确区间）
-> 验收：`tests/abm/test_six_dim_power.py`（74 条）+ `tests/abm/test_abm_protocol.py`（acceptance E 环 3 条）
+> 验收：`tests/abm/test_six_dim_power.py`（108 条）+ `tests/abm/test_abm_protocol.py`（15 条，含 acceptance E 环 3 条）
+> （m9713 复核定数：`tests/abm` 共 161 条全绿 = 108 + 15 + 38 溯源守卫）
 > 配套：`tools/abm/acceptance.py`（验收聚合，含可选 E 环统计功效）
-> 复现：`python runs/m8716/build_validation.py` → `artifacts/m8716/validation.json`
+> 复现：`python docs/m9713/build_six_dim_power_validation.py` → `docs/m9713/six_dim_power_validation.json`
 
 ## 1. 问题的形状
 
@@ -90,7 +91,13 @@ res["n_significant_better"]   # 通过 Holm 的维数
 res["dimensions"]["accuracy"]["p_holm"], res["dimensions"]["accuracy"]["effect"]["cohen_dz"]
 ```
 
-## 4. 实测结果（全部来自 `artifacts/m8716/validation.json`）
+## 4. 实测结果（全部来自 `docs/m9713/six_dim_power_validation.json`）
+
+> **溯源状态（m9713 重开复核）**：工件由 `docs/m9713/build_six_dim_power_validation.py` 在**当前 main** 上
+> 重新生成（原 PR#939 的工件放在 `artifacts/m8716/` 与 `runs/m8716/`，被平台推送门禁的
+> `^(artifacts?/|runs/)` 整目录滤除而从未随主线落盘，本节数字一度脱链；本单迁址到 `docs/m9713/` 以随主线走）。模拟侧数字与 seed 逐位一致；
+> 解析参照列因 m8719 的 t 分位精确化上移 ≤0.4%，本节已按新工件更新印值。
+> `tests/abm/test_m8716_provenance.py` 把「文档印值 == 工件重算值」做成机器判据（34 个数字逐项钉死）。
 
 ### 4.1 G25 判决行为
 
@@ -114,8 +121,8 @@ res["dimensions"]["accuracy"]["p_holm"], res["dimensions"]["accuracy"]["effect"]
 
 | 量 | 实测 | 解析（正态 + t 修正） | 相对误差 |
 |---|---|---|---|
-| d=0.5, n=20, rho=0.7, 单侧检出率（400 次模拟 × 999 置换） | 0.880 | 0.877 | **0.31%** |
-| d=0.5, n=20, rho=0（最保守） | 0.4325 | 0.443 | 2.4% |
+| d=0.5, n=20, rho=0.7, 单侧检出率（400 次模拟 × 999 置换） | 0.880 | 0.8765 | **0.40%** |
+| d=0.5, n=20, rho=0（最保守） | 0.4325 | 0.4412 | 2.0% |
 
 rho 扫描（d=0.5, n=20, 300 次模拟/行，单侧）：0.0 → 0.457；0.3 → 0.560；0.5 → 0.707；
 0.7 → 0.863；0.85 → 0.993（配对收益单调；rho 是**设计假设**，rho=0 行必须同报）。
@@ -136,19 +143,19 @@ rho 扫描（d=0.5, n=20, 300 次模拟/行，单侧）：0.0 → 0.457；0.3 �
 
 | n | 数值 MDE | 解析 MDE | 偏差 |
 |---|---|---|---|
-| 20 | 0.6937 | 0.6544 | +6.0% |
-| 40 | 0.4100 | 0.4526 | −9.4% |
+| 20 | 0.6937 | 0.6562 | +5.7% |
+| 40 | 0.4100 | 0.4529 | −9.5% |
 
 ## 5. 误差判定（逐项回答「是否 <3%」）
 
 | 关键量 vs 基准 | 误差 | <3%？ |
 |---|---|---|
-| 功效正控检出率 0.880 vs 解析 0.877（d=0.5, n=20, rho=0.7） | 0.31% | **是** |
-| 功效正控检出率 0.4325 vs 解析 0.443（rho=0，最保守行） | 2.4% | **是** |
+| 功效正控检出率 0.880 vs 解析 0.8765（d=0.5, n=20, rho=0.7） | 0.40% | **是** |
+| 功效正控检出率 0.4325 vs 解析 0.4412（rho=0，最保守行） | 2.0% | **是** |
 | 族判决功效内部一致性：0.608 vs 独立维预测 0.644 | 绝对 0.036（相对 5.5%） | **否**（Monte-Carlo + 独立维近似；已如实列出） |
 | A/A 族误报率 0.000 vs α=0.05 | 0/200，CI 上界 0.060 | 估计量本身在 CI 内；不予“<3%”声明 |
 | 零效应族族级 FWER 0.060 vs α=0.05 | 点估计 +0.010，CI [0.031, 0.102] 覆盖 0.05 | **否**（200 族分辨率 0.05/族，只能声明 CI 覆盖） |
-| MDE(n) n=20 / n=40 vs 解析 2.802σ/√n 口径 | +6.0% / −9.4% | **否**（在 15% 精度标准内；小 n 由 t 分位修正主导） |
+| MDE(n) n=20 / n=40 vs 解析 2.802σ/√n 口径 | +5.7% / −9.5% | **否**（在 15% 精度标准内；小 n 由 t 分位修正主导） |
 
 > 更新（m8719）：上表「解析」一列用的 t 分位数曾由一阶 Cornish-Fisher 展开给出（df<20 偏 0.6%–27%），已改为精确分位；n≥20 各行的解析参照变化 <0.4%，**上表结论不变**。小样本（n=9..15）的解析 MDE 与 `min_n_for_effect` 修正见 `docs/P143W2-N06_t_quantile_accuracy.md`。
 
@@ -186,13 +193,28 @@ rho 扫描（d=0.5, n=20, 300 次模拟/行，单侧）：0.0 → 0.457；0.3 �
 | `tools/abm/six_dim_power.py` | 核心实现（引擎 + G25 + 设计期功效，纯 stdlib） |
 | `tools/abm/acceptance.py` | 验收聚合 + 可选 E 环 `E1_six_dim_advantage_statistical` |
 | `tools/abm/__init__.py` | 包级导出同步 |
-| `tests/abm/test_six_dim_power.py` | 74 条测试（原 45 + 新增 29） |
+| `tests/abm/test_six_dim_power.py` | 108 条测试（原 45 + 新增 29 + 后续缺陷回归） |
+| `tests/abm/test_m8716_provenance.py` | 溯源守卫 38 条：文档印值 ↔ 工件重算值 ↔ 独立复现（防手抄/防漂移） |
 | `tests/abm/test_abm_protocol.py` | acceptance E 环 3 条 |
-| `runs/m8716/build_validation.py` | 全部测量 + 两联图，程序化写 `artifacts/m8716/validation.json` |
-| `artifacts/m8716/validation.json` | 原始测量（本节所有数字的唯一来源） |
-| `artifacts/m8716/fig_g25_power.png` | 族判决功效 vs n；检出率 vs rho |
+| `docs/m9713/build_six_dim_power_validation.py` | 全部测量 + 两联图，程序化写 `docs/m9713/six_dim_power_validation.json` |
+| `docs/m9713/six_dim_power_validation.json` | 原始测量（本节所有数字的唯一来源，随主线入库） |
+| `docs/m9713/six_dim_power_fig_g25_power.png` | 族判决功效 vs n；检出率 vs rho |
 
 ```bash
-python -m pytest tests/abm -q                     # 89 passed
-python runs/m8716/build_validation.py             # 重新生成测量与图
+python -m pytest tests/abm -q                     # 161 passed（含 38 条溯源守卫）
+python docs/m9713/build_six_dim_power_validation.py   # 重新生成测量与图
 ```
+
+### 8.1 溯源与防漂移（m9713 重开补齐）
+
+| 环节 | 事实 | 守卫 |
+|---|---|---|
+| 工件缺位 | 原 PR#939 的工件放在 `artifacts/m8716/`、`runs/m8716/`——平台推送门禁 `_EXCLUDE=^(artifacts?/|runs/|results-/)` 整目录滤除记录类路径，故从未随主线落盘，§4/§5 数字一度无出处；本单把证据迁到 `docs/m9713/`（门禁对 `docs/` 下 `.png/.json` 放行） | `test_provenance_chain_intact`（文档→脚本→工件 三环存在性） |
+| 重建 | 在当前 main 上重跑脚本：模拟侧（G25 判决 / 零效应族 / A/A / 功效正控 / rho 扫描 / 族功效曲线 / MDE）与 seed 逐位一致 | `test_g25_scenario_reproduced_bitwise`（同 seed 独立复现 p_perm/p_holm/d_z 逐位相等） |
+| 解析列漂移 | m8719 把 t 分位从 Cornish-Fisher 展开改为精确分位，解析参照上移 ≤0.4%，故 §4.3/§4.5 印值随之更新（结论方向不变） | `test_doc_claims_pinned_to_artifact`（34 个印值逐一 == 工件重算值） |
+| 结论边界 | 族判决误报率 ≤ α、FWER 的 95% CI 覆盖 α、功效正控相对误差 <3% | `test_calibration_bounds` |
+
+复现口径：`python docs/m9713/build_six_dim_power_validation.py` → 覆写
+`docs/m9713/six_dim_power_validation.json` 与 `docs/m9713/six_dim_power_fig_g25_power.png`；随后
+`python -m pytest tests/abm/test_m8716_provenance.py -q` 应全绿——**红了就说明文档印值与工件脱钩**，
+先改文档或改工件，不许改测试容差。
