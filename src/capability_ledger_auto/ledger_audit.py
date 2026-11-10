@@ -19,6 +19,8 @@ from pathlib import Path
 from typing import Any, Iterable
 
 from .evidence_chain import EvidenceChain, build_evidence_chain
+from .fingerprint import FINGERPRINT_SCHEMA, fingerprint_chain, record_digest
+from .provenance import canonical_json, sha256_text
 from .grader import DEFAULT_POLICY, GradeDeterminer, GradeResult
 from .registry import CapabilityRegistry, LEVELS
 from .scanner import DEFAULT_EXCLUDE_PREFIXES, PASSING_LEVELS, EvidenceScanner, sha256_file
@@ -107,6 +109,7 @@ def grade_capabilities(
     exec_budget_s: int = 420,
     test_cache: dict[str, dict[str, Any]] | None = None,
     policy: dict[str, Any] | None = None,
+    code_roots: Iterable[str] | None = None,
 ) -> tuple[dict[str, EvidenceChain], dict[str, GradeResult], dict[str, Any]]:
     """扫描 + 建链 + 判级；返回 (chains, grades, scanner_ledger)。"""
     root = Path(root)
@@ -121,6 +124,7 @@ def grade_capabilities(
         exclude_prefixes=exclude_prefixes,
         test_cache=test_cache,
         exec_only=exec_candidates,
+        code_roots=code_roots,
     )
     scans = scanner.scan_all()
     exclude_for_chain = tuple(exclude_prefixes) + (registry.source_path,)
@@ -180,6 +184,7 @@ def build_payload(
         chain = chains[cid]
         chain_dict = chain.to_dict()
         manual = manual_reference.get(cid, {})
+        fp = fingerprint_chain(chain, registry_sha256=registry_sha)
         capabilities[cid] = {
             "grade": g.grade,
             "confidence": round(g.confidence, 4),
@@ -192,7 +197,28 @@ def build_payload(
             "test_cache_keys": sorted(
                 t.file_path for t in chain.scan_result.test_evidence if t.source == "executed"
             ),
+            # 证据指纹：sha256 溯源链根 + 叶子规模 + 被有界截断的条数
+            "evidence_fingerprint": {
+                "schema": FINGERPRINT_SCHEMA,
+                "root": fp.root,
+                "leaf_count": fp.leaf_count,
+                "truncated_by_kind": dict(fp.truncated_by_kind),
+                "registry_sha256": registry_sha,
+            },
+            "record_digest": record_digest({
+                "capability_id": cid,
+                "registry_sha256": registry_sha,
+                "grade": g.grade,
+                "confidence": round(g.confidence, 4),
+                "evidence_root": fp.root,
+                "leaf_count": fp.leaf_count,
+            }),
         }
+
+    # 整个台账的证据状态摘要：任何一条能力的证据或判级变化都会改这个值
+    roots_digest = sha256_text(canonical_json(
+        [[cid, capabilities[cid]["evidence_fingerprint"]["root"]] for cid in capabilities]
+    ))
 
     tally = {lv: 0 for lv in LEVELS}
     for cid, cap in capabilities.items():
@@ -200,6 +226,7 @@ def build_payload(
 
     payload: dict[str, Any] = {
         "schema_version": SCHEMA_VERSION,
+        "evidence_state_digest": roots_digest,
         "engine": "capability_ledger_auto",
         "repo": "TensorPlatform",
         "git_commit": git_commit(root),
@@ -284,6 +311,7 @@ def run_audit(
     policy: dict[str, Any] | None = None,
     test_cache_path: str | Path | None = None,
     write: bool = True,
+    code_roots: Iterable[str] | None = None,
 ) -> dict[str, Any]:
     """完整审计：静态扫描 → 候选能力真实执行 → 判级 → 落盘。"""
     root = Path(root)
@@ -308,6 +336,7 @@ def run_audit(
     base_chains, base_grades, base_ledger = grade_capabilities(
         root, registry, exec_tests=False, corpus_paths=corpora,
         adjudication_ledgers=adj_ledgers, test_cache=cache, policy=policy,
+        code_roots=code_roots,
     )
     static_elapsed = time.time() - t0
 
@@ -319,7 +348,7 @@ def run_audit(
         exec_chains, exec_grades, exec_ledger = grade_capabilities(
             root, registry, exec_tests=True, corpus_paths=corpora,
             adjudication_ledgers=adj_ledgers, exec_candidates=candidates,
-            test_cache=cache, policy=policy,
+            test_cache=cache, policy=policy, code_roots=code_roots,
         )
         exec_elapsed = time.time() - t1
         for cid in candidates:

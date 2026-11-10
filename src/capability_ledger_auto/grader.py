@@ -17,6 +17,7 @@ from dataclasses import dataclass, field
 from pathlib import Path
 from typing import Any
 
+from .confidence import evidence_confidence
 from .evidence_chain import EvidenceChain
 from .registry import LEVEL_RANK, LEVELS
 from .scanner import FAILING_LEVELS, PASSING_LEVELS, ScanResult
@@ -28,6 +29,9 @@ DEFAULT_POLICY: dict[str, Any] = {
     "real_chain_quality_min": 0.60,
     "require_executed_tests_for_real": True,  # 静态推断不得冒充验证证据
     "mock_from_static_failures": True,        # 静态推断失败也可降级 MOCK（但记 strength=static）
+    # 节点级 MOCK 标记的**主导性**门槛：标记只出现在少数实现节点里时，它是
+    # "可疑"而不是"造假"——单点污染不得否决整条能力（与 D3/D4 同一血缘）。
+    "mock_marker_dominance": 0.5,
 }
 TEST_PASS_THRESHOLD = DEFAULT_POLICY["test_pass_threshold"]
 REAL_FIVE_TUPLE_MIN = DEFAULT_POLICY["real_five_tuple_min"]
@@ -66,6 +70,8 @@ class GradeDeterminer:
             "code_count": scan.code_count,
             "substantive_code_count": scan.substantive_code_count,
             "stub_only_code_count": scan.stub_only_code_count,
+            "weak_code_count": getattr(scan, "weak_code_count", 0),
+            "code_roots": list(getattr(scan, "code_roots", []) or []),
             "test_count": scan.test_count,
             "report_count": scan.report_count,
             "test_pass_rate": scan.test_pass_rate,
@@ -79,6 +85,11 @@ class GradeDeterminer:
             "adjudicated_source": scan.adjudicated_source,
             "report_verdicts": scan.report_verdicts,
         }
+        marker_nodes, impl_nodes, marks = GradeDeterminer._marker_share(scan)
+        out["mock_marker_nodes"] = marker_nodes
+        out["impl_node_count"] = impl_nodes
+        out["mock_marker_share"] = round(marker_nodes / impl_nodes, 4) if impl_nodes else 0.0
+        out["mock_marker_suspicion"] = bool(marks) and marker_nodes / max(1, impl_nodes) < 0.5
         if chain is not None:
             out["five_tuple_present"] = chain.five_tuple.present_count
             out["five_tuple_missing"] = list(chain.missing_items)
@@ -86,6 +97,17 @@ class GradeDeterminer:
         return out
 
     # -- 主判定 ----------------------------------------------------------
+    def _grade(self, capability_id: str, grade: str, reasoning: list[str],
+               scan: ScanResult, chain: EvidenceChain,
+               mock_reason_count: int = 0) -> GradeResult:
+        """统一出口：等级 + 证据驱动置信度（不再是规则常量）。"""
+        confidence, features = evidence_confidence(
+            grade, scan, chain, mock_reason_count=mock_reason_count, policy=self.policy,
+        )
+        summary = self._summary(scan, chain)
+        summary["confidence_features"] = features
+        return GradeResult(capability_id, grade, confidence, reasoning, summary)
+
     def determine(self, chain: EvidenceChain) -> GradeResult:
         scan = chain.scan_result
         five = chain.five_tuple
@@ -99,9 +121,7 @@ class GradeDeterminer:
         if (not has_any_code and not scan.has_tests and not scan.has_reports
                 and five.present_count == 0):
             reasoning.append("无任何代码/测试/报告/五元痕迹")
-            return GradeResult(
-                chain.capability_id, "NOT_SUPPORTED", 0.95, reasoning, self._summary(scan, chain),
-            )
+            return self._grade(chain.capability_id, "NOT_SUPPORTED", reasoning, scan, chain)
 
         # 证据强度归一口径：未标注来源但有测试 → 视为静态推断（不得冒充执行证据）
         if not scan.test_evidence_source and scan.has_tests:
@@ -114,9 +134,8 @@ class GradeDeterminer:
         mock_reasons = self._mock_reasons(scan)
         if mock_reasons:
             reasoning.extend(mock_reasons)
-            return GradeResult(
-                chain.capability_id, "MOCK", 0.85, reasoning, self._summary(scan, chain),
-            )
+            return self._grade(chain.capability_id, "MOCK", reasoning, scan, chain,
+                               mock_reason_count=len(mock_reasons))
 
         # Rule 2: STUB（只有签名，没有实现）
         subst, stub_only, mock_marks = self._node_counts(scan)
@@ -125,9 +144,7 @@ class GradeDeterminer:
                 f"匹配到的 {stub_only} 处实现全为接口声明"
                 "（docstring/pass/.../NotImplementedError），实质实现 0 处"
             )
-            return GradeResult(
-                chain.capability_id, "STUB", 0.85, reasoning, self._summary(scan, chain),
-            )
+            return self._grade(chain.capability_id, "STUB", reasoning, scan, chain)
 
         # Rule 3: REAL（五元齐全 + 真实执行测试通过 + 报告最新裁决 PASS）
         real_blockers = self._real_blockers(scan, chain)
@@ -140,25 +157,39 @@ class GradeDeterminer:
             )
             reasoning.append(f"报告最新裁决 {scan.adjudicated_level}（as_of={scan.adjudicated_as_of}）")
             reasoning.append(f"证据链质量 {chain.chain_quality:.2f} >= {self.policy['real_chain_quality_min']}")
-            return GradeResult(
-                chain.capability_id, "REAL", 0.90, reasoning, self._summary(scan, chain),
-            )
+            return self._grade(chain.capability_id, "REAL", reasoning, scan, chain)
 
         # Rule 4: WITHHELD（有实现/有部分证据，但不足以判 REAL）
         reasoning.append("有痕迹但验证证据不足，不足以判 REAL")
         reasoning.extend(real_blockers)
-        return GradeResult(
-            chain.capability_id, "WITHHELD", 0.70, reasoning, self._summary(scan, chain),
-        )
+        return self._grade(chain.capability_id, "WITHHELD", reasoning, scan, chain)
 
     # -- 规则实现 --------------------------------------------------------
+    @staticmethod
+    def _marker_share(scan: ScanResult) -> tuple[int, int, list[str]]:
+        """携带 MOCK 标记的实现节点数 / 实现节点总数 / 标记清单。"""
+        impl_nodes = 0
+        marker_nodes = 0
+        marks: list[str] = []
+        for e in scan.code_evidence:
+            if e.match_type not in ("function", "class"):
+                continue
+            impl_nodes += 1
+            if e.mock_markers:
+                marker_nodes += 1
+                for m in e.mock_markers:
+                    marks.append(f"{e.file_path}:{e.matched_text}:{m}")
+        if not marks:
+            marks = list(scan.mock_markers)
+        return marker_nodes, impl_nodes, marks
+
     @staticmethod
     def _node_counts(scan: ScanResult) -> tuple[int, int, list[str]]:
         """节点级实现的 (实质, 仅接口, MOCK标记)；手工构造的 ScanResult 也能判定。"""
         subst = scan.substantive_code_count
         stub_only = scan.stub_only_code_count
         mock_marks = list(scan.mock_markers)
-        if not subst and not stub_only:
+        if not getattr(scan, "counts_authoritative", False) and not subst and not stub_only:
             for e in scan.code_evidence:
                 if e.match_type in ("function", "class", "text"):
                     if e.is_stub_like:
@@ -179,9 +210,13 @@ class GradeDeterminer:
                 f"报告最新裁决为 {adj}（{scan.adjudicated_source}，as_of={scan.adjudicated_as_of}）："
                 "实现存在但证据反向"
             )
-        _, _, mock_marks = self._node_counts(scan)
-        if mock_marks:
-            reasons.append(f"匹配节点体内出现 MOCK 标记 {len(mock_marks)} 处: {mock_marks[:3]}")
+        marker_nodes, impl_nodes, mock_marks = self._marker_share(scan)
+        if mock_marks and (impl_nodes <= 1
+                           or marker_nodes / impl_nodes >= self.policy["mock_marker_dominance"]):
+            reasons.append(
+                f"匹配节点体内出现 MOCK 标记 {len(mock_marks)} 处"
+                f"（{marker_nodes}/{impl_nodes} 个实现节点携带: {mock_marks[:3]}）"
+            )
         if scan.test_evidence_source == "executed" and scan.test_pass_rate < self.policy["test_pass_threshold"]:
             reasons.append(
                 f"测试真实执行通过率 {scan.test_pass_rate:.1%} < "

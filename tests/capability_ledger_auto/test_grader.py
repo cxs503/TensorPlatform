@@ -73,7 +73,9 @@ class TestGradeDeterminer:
         determiner = GradeDeterminer()
         result = determiner.determine(chain)
         assert result.grade == "NOT_SUPPORTED"
-        assert result.confidence == 0.95
+        # 置信度改为证据驱动（不再是与证据无关的规则常量）：无任何痕迹时
+        # 仍落在 NOT_SUPPORTED 的高置信带内。
+        assert 0.80 <= result.confidence <= 0.97
 
     def test_stub(self):
         chain = _make_chain(
@@ -146,7 +148,9 @@ class TestGradeDeterminer:
         determiner = GradeDeterminer()
         result = determiner.determine(chain)
         assert result.grade == "REAL"
-        assert result.confidence == 0.90
+        # 证据驱动置信度：本例通过率 90%、五元齐全，落在 REAL 带的上段；
+        # 精确值可复算（见 confidence.evidence_features）。
+        assert 0.70 <= result.confidence <= 0.98
 
     def test_withheld_no_tests(self):
         chain = _make_chain(
