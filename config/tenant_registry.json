@@ -1,0 +1,99 @@
+{
+  "schema_version": "1.0",
+  "purpose": "12-repo tenant registry for the platform-wide isolation mechanism. Tenant identity, repo binding, allowed domain tokens, data classification and per-cycle resource quota are DATA injected here, never hardcoded into backend/tools/tests (zero domain semantics rule).",
+  "policy": {
+    "default_decision": "deny",
+    "shared_read_roots": ["shared", "platform_shared"],
+    "artifact_root": "artifacts/tenants",
+    "report_root": "tensor_reports/tenants",
+    "event_root": "events/tenants"
+  },
+  "resource_keys": ["cpu_core_hours", "memory_gb_hours", "storage_gb", "concurrent_tasks", "periodic_tasks"],
+  "data_classifications": ["public", "internal", "restricted"],
+  "tenants": [
+    {
+      "name": "tenant-lbm",
+      "repo": "TensorLBM",
+      "allowed_domains": ["dom-a1"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 400.0, "memory_gb_hours": 800.0, "storage_gb": 60.0, "concurrent_tasks": 8, "periodic_tasks": 4}
+    },
+    {
+      "name": "tenant-fem",
+      "repo": "TensorFEM",
+      "allowed_domains": ["dom-a2"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 500.0, "memory_gb_hours": 1000.0, "storage_gb": 80.0, "concurrent_tasks": 10, "periodic_tasks": 5}
+    },
+    {
+      "name": "tenant-fvm",
+      "repo": "TensorFVM",
+      "allowed_domains": ["dom-a3"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 450.0, "memory_gb_hours": 900.0, "storage_gb": 70.0, "concurrent_tasks": 9, "periodic_tasks": 4}
+    },
+    {
+      "name": "tenant-dem",
+      "repo": "TensorDEM",
+      "allowed_domains": ["dom-a4"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 300.0, "memory_gb_hours": 600.0, "storage_gb": 50.0, "concurrent_tasks": 6, "periodic_tasks": 3}
+    },
+    {
+      "name": "tenant-bem",
+      "repo": "TensorBEM",
+      "allowed_domains": ["dom-a5"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 350.0, "memory_gb_hours": 700.0, "storage_gb": 55.0, "concurrent_tasks": 7, "periodic_tasks": 3}
+    },
+    {
+      "name": "tenant-sph",
+      "repo": "TensorSPH",
+      "allowed_domains": ["dom-a6"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 320.0, "memory_gb_hours": 640.0, "storage_gb": 45.0, "concurrent_tasks": 6, "periodic_tasks": 3}
+    },
+    {
+      "name": "tenant-dg",
+      "repo": "TensorDG",
+      "allowed_domains": ["dom-a7"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 280.0, "memory_gb_hours": 560.0, "storage_gb": 40.0, "concurrent_tasks": 5, "periodic_tasks": 2}
+    },
+    {
+      "name": "tenant-cad",
+      "repo": "TensorCAD",
+      "allowed_domains": ["dom-a8"],
+      "data_classification": "public",
+      "resource_quota": {"cpu_core_hours": 200.0, "memory_gb_hours": 400.0, "storage_gb": 30.0, "concurrent_tasks": 4, "periodic_tasks": 2}
+    },
+    {
+      "name": "tenant-platform",
+      "repo": "TensorPlatform",
+      "allowed_domains": ["dom-a9"],
+      "data_classification": "restricted",
+      "resource_quota": {"cpu_core_hours": 600.0, "memory_gb_hours": 1200.0, "storage_gb": 100.0, "concurrent_tasks": 12, "periodic_tasks": 6}
+    },
+    {
+      "name": "tenant-physics",
+      "repo": "TensorPhysics",
+      "allowed_domains": ["dom-b1"],
+      "data_classification": "restricted",
+      "resource_quota": {"cpu_core_hours": 380.0, "memory_gb_hours": 760.0, "storage_gb": 65.0, "concurrent_tasks": 8, "periodic_tasks": 4}
+    },
+    {
+      "name": "tenant-app-domain",
+      "repo": "ship-performance-platform",
+      "allowed_domains": ["dom-b2"],
+      "data_classification": "restricted",
+      "resource_quota": {"cpu_core_hours": 300.0, "memory_gb_hours": 600.0, "storage_gb": 50.0, "concurrent_tasks": 6, "periodic_tasks": 3}
+    },
+    {
+      "name": "tenant-papers",
+      "repo": "TensorPapers",
+      "allowed_domains": ["dom-b3"],
+      "data_classification": "internal",
+      "resource_quota": {"cpu_core_hours": 150.0, "memory_gb_hours": 300.0, "storage_gb": 90.0, "concurrent_tasks": 3, "periodic_tasks": 2}
+    }
+  ]
+}
