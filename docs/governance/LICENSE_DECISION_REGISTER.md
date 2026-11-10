@@ -32,7 +32,7 @@
 | TensorData | Apache-2.0 (added 2026-11-10) | Initial software license added; package metadata now declares Apache-2.0. | Dataset rights remain governed by per-asset manifests; see `LICENSE_SCOPE.md`; continue dependency audit. |
 | TensorBench | Apache-2.0 | Retain Apache-2.0. | Verify any imported benchmark code, datasets and benchmark result artifacts separately. |
 | TensorPapers (private) | No root LICENSE found | Keep private and unlicensed at repository level until content is classified. Do not add a blanket Apache license to papers or publisher PDFs. | Classify authored notes/code versus third-party papers, figures, supplementary data and publisher content. |
-| ship-performance-platform (private) | No root LICENSE found | Apache-2.0 for original software if/when approved for open-source release; customer/commissioned data and deliverables remain separately restricted. | Confirm ownership, customer/contract restrictions, dependencies and intended publication scope. |
+| ship-performance-platform (private) | MIT (added 2026-11-10; matches README declaration) | MIT added for original software; customer/commissioned data and deliverables explicitly excluded. | Continue dependency and third-party audit; verify customer/contract restrictions before any public release. |
 
 **Scope note:** The observed-license column is based on fetching the exact root path `LICENSE` from each default branch on 2026-11-10. A missing root file does not prove every file is unlicensed or establish ownership. Alternative license filenames, nested licenses, file headers, dependency metadata, submodules and full PR histories still require inspection.
 
@@ -93,4 +93,4 @@ A repository is not considered license-ready merely because a root LICENSE file 
 
 ## 6. Approval record
 
-Initial root licenses were added on 2026-11-10 for TensorData (Apache-2.0), TensorKnowledge (Apache-2.0), TensorDEM (Apache-2.0), and TensorPhysics (MIT, matching existing package metadata). No existing license was changed. These initial grants are scoped by each repository's `LICENSE_SCOPE.md`; full dependency, third-party asset, and historical contribution audits remain outstanding. All future license transitions remain pending explicit human approval after evidence review.
+Initial root licenses were added on 2026-11-10 for TensorData (Apache-2.0), TensorKnowledge (Apache-2.0), TensorDEM (Apache-2.0), TensorPhysics (MIT, matching existing package metadata), and ship-performance-platform (MIT, matching its existing README declaration). No existing license was changed. These grants are scoped by each repository's `LICENSE_SCOPE.md`; full dependency, third-party asset, and historical contribution audits remain outstanding. TensorPapers remains without a blanket repository license because it is a paper/content workspace containing third-party material. All future license transitions remain pending explicit human approval after evidence review.
