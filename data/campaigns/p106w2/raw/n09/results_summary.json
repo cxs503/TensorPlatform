@@ -1,0 +1,72 @@
+{
+  "case_description": {
+    "ship": {
+      "L_m": 150.0,
+      "B_m": 22.0,
+      "T_m": 8.0,
+      "Cb": 0.65,
+      "displacement_t": 20000.0
+    },
+    "propeller": {
+      "D_m": 5.5,
+      "Z": 5,
+      "P_D": 1.0,
+      "Ae_Ao": 0.6
+    },
+    "shaft": {
+      "I_kgm2": 5000.0,
+      "rated_rpm": 110.0,
+      "rated_power_kW": 8000.0
+    },
+    "wave": {
+      "Hs_m": 4.0,
+      "Tz_s": 8.0,
+      "heading_deg": 180.0
+    },
+    "speed_kn": 15.0
+  },
+  "key_results": {
+    "heave_RAO_m_per_m": 2.5,
+    "heave_amplitude_m": 5.0,
+    "Ae_mean": 0.700026247041128,
+    "Ae_min": 0.0,
+    "thrust_loss_pct": 64.873265626458,
+    "rpm_fluctuation_pct": 55.90132197105744,
+    "energy_closure_error_pct": 0.0
+  },
+  "machine_criteria": {
+    "degradation_limit": {
+      "KT_error_at_Ae1": 0.0,
+      "KQ_error_at_Ae1": 0.0,
+      "threshold": 0.005,
+      "pass": true
+    },
+    "energy_conservation": {
+      "closure_error": 0.0,
+      "threshold": 0.02,
+      "pass": true
+    },
+    "monotonicity": {
+      "monotonic": true,
+      "pass": true
+    },
+    "negative_control": {
+      "delta_n_over_n": 0.0,
+      "threshold": 0.002,
+      "pass": true
+    },
+    "froude_scaling": {
+      "alpha": 0.09804966304184415,
+      "residual_rms": 0.00963626097901699,
+      "threshold": 0.03,
+      "pass": true
+    }
+  },
+  "evidence_grade": {
+    "degradation_closure": "REAL (structural: exact A_e=1 limit, linear area weighting)",
+    "shaft_dynamics": "REAL (ODE integration with engine model)",
+    "energy_budget": "REAL (first-law closure verified)",
+    "wave_immersion": "REAL (geometric bow-area model)",
+    "experimental_validation": "WITHHELD (no model test data available for this specific case)"
+  }
+}

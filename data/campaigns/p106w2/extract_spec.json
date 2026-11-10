@@ -1,0 +1,25 @@
+{
+  "_comment": "从兄弟节点工件里机器抽取数字（禁止手抄）。任何模式匹配失败=摄取失败（fail-closed），不保留陈旧数字。",
+  "campaign": "p106w2",
+  "documents": {
+    "n02": {
+      "source": "n02/slip_report.md",
+      "out": "n02/derived.json",
+      "tables": [
+        {
+          "name": "dcf_vs_bplus",
+          "require_heading": "### 3.6",
+          "columns": ["b_plus", "dcf_rel_pct"],
+          "row_pattern": "^\\|\\s*(?P<b_plus>\\d+(?:\\.\\d+)?)\\s*\\|\\s*(?P<dcf_rel_pct>\\d+(?:\\.\\d+)?)\\s*\\|$"
+        }
+      ],
+      "prose": [
+        {
+          "name": "dns_band",
+          "pattern": "报告该区间约\\s*([0-9.]+)\\s*-\\s*([0-9.]+)\\s*%",
+          "keys": ["dns_band_lo_pct", "dns_band_hi_pct"]
+        }
+      ]
+    }
+  }
+}

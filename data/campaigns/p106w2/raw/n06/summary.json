@@ -1,0 +1,166 @@
+{
+  "artifacts": [
+    "control_no_beach_T1.00",
+    "geometry_gate",
+    "propagation_coarse_T0.90",
+    "summary",
+    "wave_T1.00",
+    "wave_T1.00_ns24",
+    "wave_T1.00_p16"
+  ],
+  "criteria": {
+    "added_resistance_vs_bem_le_15pct": {
+      "cases_run": 0,
+      "note": "not delivered: needs a stable floating-body run; the far-field measurement chain itself is verified (tests + TensorBEM coefficient)",
+      "pass": false
+    },
+    "dispersion_k_error_le_1pct": {
+      "measured_pct": 0.3949424459350993,
+      "note": "three-probe phase fit vs omega^2 = g k tanh(kh)",
+      "pass": true,
+      "threshold": 1.0
+    },
+    "geometry_gate_Cb_L_B_nabla": {
+      "C33_rel_error_vs_energy_hessian": 8.358112851871849e-10,
+      "C55_rel_error_vs_energy_hessian": 6.065186299202675e-09,
+      "kcs_Cb": 0.6506183542240142,
+      "kcs_Cb_abs_error": 0.0005862454316219242,
+      "pass": true,
+      "section_GM": 0.575,
+      "wigley_Cb": 0.44441597265625,
+      "wigley_Cb_abs_error": 6.406152343746419e-05
+    },
+    "negative_control_C_R_ge_20pct": {
+      "measured_pct": 110.50563213125835,
+      "note": "identical tank with the beach removed: the gate must fail open",
+      "pass": true,
+      "threshold": 20.0
+    },
+    "rao_vs_beM_le_10pct_out_of_band": {
+      "cases_run": 0,
+      "note": "not delivered: the 2-DOF free-motion run is unstable in the cut-cell tank and the forced-oscillation radiation coefficients are grid dependent; see README sections 4.3-4.4",
+      "pass": false
+    },
+    "reflection_C_R_le_5pct": {
+      "measured_pct": 0.46995217457157423,
+      "note": "Goda two-point between the wavemaker and the beach, best run",
+      "pass": true,
+      "threshold": 5.0
+    },
+    "two_grid_gci_le_5pct": {
+      "note": "grid refinement of the body-coupled quantities is not meaningful while the forced-oscillation added mass changes sign between grids (see forced-oscillation records in README section 4.4)",
+      "pass": false
+    },
+    "wave_height_error_le_3pct": {
+      "measured_pct": 3.04820487792683,
+      "note": "designated run wave_T1.00_p16: grid 200x22, spp=90, 1440 steps; max over 7 probes",
+      "pass": false,
+      "sensitivity": {
+        "wave_T1.00": 30.000072249363352,
+        "wave_T1.00_ns24": 3.3377954186787795,
+        "wave_T1.00_p16": 3.04820487792683
+      },
+      "threshold": 3.0
+    }
+  },
+  "failed": [
+    "wave_height_error_le_3pct",
+    "rao_vs_beM_le_10pct_out_of_band",
+    "added_resistance_vs_bem_le_15pct",
+    "two_grid_gci_le_5pct"
+  ],
+  "node": "p106w2-n06-fvm-wave-tank",
+  "pass_all": false,
+  "table": [
+    [
+      "geometry gate: Wigley Cb",
+      0.44441597265625,
+      0.4444444444444444,
+      "PASS",
+      "Cb/L/B/nabla + GM>0 + K33,K55 = energy Hessian"
+    ],
+    [
+      "geometry gate: KCS Cb",
+      0.6506183542240142,
+      0.651,
+      "PASS",
+      "simplified KCS reference hull"
+    ],
+    [
+      "hydrostatic K33 vs potential-energy Hessian",
+      8.358112851871849e-10,
+      1e-05,
+      "PASS",
+      "0.6 x 0.2 m floating section, freeboard 0.05 m"
+    ],
+    [
+      "hydrostatic K55 vs potential-energy Hessian",
+      6.065186299202675e-09,
+      1e-05,
+      "PASS",
+      "rho g nabla GM, GM = 0.575 m"
+    ],
+    [
+      "wave-height error (max over 7 probes)",
+      3.04820487792683,
+      3.0,
+      "FAIL",
+      "Stokes-II target, 12 m tank"
+    ],
+    [
+      "dispersion k error (three probes)",
+      0.3949424459350993,
+      1.0,
+      "PASS",
+      "k_fit=4.04414 vs 4.02823"
+    ],
+    [
+      "reflection C_R (Goda two-point)",
+      0.46995217457157423,
+      5.0,
+      "PASS",
+      "beach = 1.5 lambda"
+    ],
+    [
+      "negative control C_R (no beach)",
+      110.50563213125835,
+      ">= 20",
+      "PASS",
+      "closed 7 m tank, total reflection"
+    ],
+    [
+      "RAO vs potential flow (out of band)",
+      NaN,
+      10.0,
+      "FAIL",
+      "free-body coupling unstable (honest FAIL)"
+    ],
+    [
+      "added resistance vs BEM (second order)",
+      NaN,
+      15.0,
+      "FAIL",
+      "needs the same stable run (honest FAIL)"
+    ]
+  ],
+  "waves": [
+    {
+      "period": 1.0,
+      "steepness_ka": 0.08056463419998552,
+      "wavelength": 1.5597874599871802,
+      "wavenumber": 4.028231709999276
+    },
+    {
+      "period": 1.0,
+      "steepness_ka": 0.08056463419998552,
+      "wavelength": 1.5597874599871802,
+      "wavenumber": 4.028231709999276
+    },
+    {
+      "period": 1.0,
+      "steepness_ka": 0.08056463419998552,
+      "wavelength": 1.5597874599871802,
+      "wavenumber": 4.028231709999276
+    }
+  ]
+}

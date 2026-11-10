@@ -1,0 +1,39 @@
+{
+  "_comment": "域词表（注入数据）：机制代码（backend/services/xsolver/interop、tools/xsolver_interop）必须零出现；pytest 门 tests/test_xsolver_interop_no_domain_vocab.py 反查。域内容只允许存在于 data/campaigns/<campaign>/ 与 config/xsolver/。",
+  "version": "1.0.0",
+  "forbidden_in_mechanism_code": [
+    "wigley",
+    "rao",
+    "heave",
+    "pitch",
+    "torsional",
+    "propeller",
+    "blade_order",
+    "fatigue",
+    "miner",
+    "rainflow",
+    "block_coefficient",
+    "cummins",
+    "seakeeping",
+    "slip_length",
+    "drag_reduction",
+    "bubble",
+    "shaft_inertia",
+    "barred_speed",
+    "damage",
+    "stress_amplitude",
+    "dnv",
+    "kcs",
+    "wave_tank"
+  ],
+  "scope": {
+    "paths": [
+      "backend/services/xsolver/interop",
+      "tools/xsolver_interop"
+    ],
+    "extensions": [
+      ".py"
+    ],
+    "note": "tests/ 下的战役实例测试按设计使用域词条（它就是域内容），机制单测用合成域名词；本门口径只扫机制代码。"
+  }
+}
