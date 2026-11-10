@@ -1,0 +1,80 @@
+{
+  "title": "Synthetic demo registry (P218-N01) — zero domain semantics",
+  "note": "Capability ids, metric names and thresholds are illustrative only; the pipeline reads them from this document at runtime. The numeric evidence used by the demo is computed live by tools/capability_upgrade/numeric_probe.py against closed-form references, never hardcoded.",
+  "capabilities": [
+    {
+      "capability_id": "demo.analytic_integration",
+      "label": "synthetic trapezoid quadrature vs closed form",
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "demo.under_sampled",
+      "label": "synthetic quadrature with insufficient sampling",
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "demo.contradicted",
+      "label": "synthetic capability whose own evidence is labelled MOCK",
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "demo.absent",
+      "label": "synthetic capability with an absence-only audit trail",
+      "initial_level": "WITHHELD"
+    }
+  ],
+  "criteria": [
+    {
+      "criterion_id": "crit.demo.analytic_integration.real",
+      "capability_id": "demo.analytic_integration",
+      "target_level": "REAL",
+      "description": ">=2 independent quadrature verifications, each error <= 3%, sha256-anchored",
+      "spec": {
+        "evidence_kinds": ["numeric_verification"],
+        "min_matching": 2,
+        "min_sources": 2,
+        "require_source_sha256": true,
+        "forbid_observed_levels": ["MOCK", "STUB", "NOT_SUPPORTED"],
+        "metrics": [
+          {"name": "error_pct", "op": "<=", "value": 3.0, "agg": "all"},
+          {"name": "n_samples", "op": ">=", "value": 32, "agg": "min"}
+        ]
+      }
+    },
+    {
+      "criterion_id": "crit.demo.under_sampled.real",
+      "capability_id": "demo.under_sampled",
+      "target_level": "REAL",
+      "description": ">=2 verifications with error <= 3% (deliberately unsatisfiable by the demo evidence)",
+      "spec": {
+        "evidence_kinds": ["numeric_verification"],
+        "min_matching": 2,
+        "require_source_sha256": true,
+        "metrics": [{"name": "error_pct", "op": "<=", "value": 3.0, "agg": "all"}]
+      }
+    },
+    {
+      "criterion_id": "crit.demo.contradicted.real",
+      "capability_id": "demo.contradicted",
+      "target_level": "REAL",
+      "description": ">=1 verification with error <= 3% (blocked by the evidence's own MOCK label)",
+      "spec": {
+        "evidence_kinds": ["numeric_verification"],
+        "min_matching": 1,
+        "require_source_sha256": true,
+        "metrics": [{"name": "error_pct", "op": "<=", "value": 3.0, "agg": "all"}]
+      }
+    },
+    {
+      "criterion_id": "crit.demo.absent.real",
+      "capability_id": "demo.absent",
+      "target_level": "REAL",
+      "description": ">=1 verification with error <= 3% (none exists)",
+      "spec": {
+        "evidence_kinds": ["numeric_verification"],
+        "min_matching": 1,
+        "metrics": [{"name": "error_pct", "op": "<=", "value": 3.0, "agg": "all"}]
+      }
+    }
+  ]
+}
