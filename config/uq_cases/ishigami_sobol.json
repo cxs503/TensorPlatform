@@ -1,0 +1,72 @@
+{
+  "case_id": "ishigami_sobol",
+  "title": "Ishigami & Homma (1990) analytic Sobol' decomposition recovered by the non-intrusive PCE kernel",
+  "model": {
+    "path": "tools.uq_bench.references:ishigami",
+    "call_style": "array"
+  },
+  "inputs": [
+    {
+      "name": "x1",
+      "family": "uniform",
+      "lower": -3.141592653589793,
+      "upper": 3.141592653589793
+    },
+    {
+      "name": "x2",
+      "family": "uniform",
+      "lower": -3.141592653589793,
+      "upper": 3.141592653589793
+    },
+    {
+      "name": "x3",
+      "family": "uniform",
+      "lower": -3.141592653589793,
+      "upper": 3.141592653589793
+    }
+  ],
+  "pce": {
+    "method": "projection",
+    "order": 8,
+    "q_norm": 1.0
+  },
+  "mc": {
+    "n": 10000,
+    "sampler": "lhs",
+    "seed": 20261110,
+    "surrogate_draws": 40000,
+    "band_probs": [
+      0.05,
+      0.5,
+      0.95
+    ]
+  },
+  "reference": {
+    "kind": "closed_form",
+    "name": "ishigami",
+    "kwargs": {
+      "a": 7.0,
+      "b": 0.1
+    }
+  },
+  "criteria": {
+    "sobol_max_abs_error": 0.05
+  },
+  "notes": "Analytic verification case: the reference Sobol' indices come from the closed-form variance decomposition of Ishigami & Homma (1990), not from the code under test. x3 has zero first-order and non-zero total-order effect, which is the discriminating feature for the ANOVA grouping.",
+  "presentation": {
+    "response": {
+      "label": "$f(x_1,x_2,x_3)$",
+      "unit": "-",
+      "scale": 1.0
+    },
+    "input_labels": {
+      "x1": "$x_1$",
+      "x2": "$x_2$",
+      "x3": "$x_3$"
+    }
+  },
+  "docs": {
+    "intro": "config/uq_cases/ishigami_sobol.intro.md",
+    "caveats": "config/uq_cases/ishigami_sobol.caveats.md"
+  }
+}
