@@ -1,0 +1,36 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "cases": [
+    {
+      "case_id": "synth-parabolic-form-hydrostatics",
+      "domain": "synthetic-quadrature",
+      "reference_kind": "analytic",
+      "implementation": "tools.verification_harness.anchors.synthetic:parabolic_form_quadrature",
+      "reference": "tools.verification_harness.anchors.synthetic:parabolic_form_closed_form",
+      "inputs": {
+        "length": 60.0,
+        "beam": 9.0,
+        "draft": 3.2,
+        "nx": 200,
+        "nz": 200
+      },
+      "quantities": {
+        "volume": {
+          "rtol": 0.0001
+        },
+        "waterplane_area": {
+          "rtol": 0.0001
+        },
+        "block_coefficient": {
+          "rtol": 0.0001
+        }
+      },
+      "description": "Synthetic parabolic test form (mathematical shape functions, not a vessel): composite midpoint quadrature of volume / waterplane area vs closed-form integrals.",
+      "tags": [
+        "anchor",
+        "quadrature",
+        "form-integrals"
+      ]
+    }
+  ]
+}

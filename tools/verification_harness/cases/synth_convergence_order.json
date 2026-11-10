@@ -1,0 +1,18 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "cases": [
+    {
+      "case_id": "synth-convergence-order",
+      "domain": "synthetic-convergence",
+      "reference_kind": "analytic",
+      "implementation": "tools.verification_harness.anchors.synthetic:convergence_observed_order",
+      "reference": "tools.verification_harness.anchors.synthetic:convergence_theoretical_order",
+      "inputs": {"rate": 1.5, "duration": 1.0, "x0": 1.0, "coarse_steps": 20, "refinement": 2},
+      "quantities": {
+        "observed_order": {"rtol": 0.02}
+      },
+      "description": "Self-referential anchor: the measured order of accuracy between two grids is compared with the theoretical order of classical RK4 (p = 4).",
+      "tags": ["anchor", "order-of-accuracy"]
+    }
+  ]
+}

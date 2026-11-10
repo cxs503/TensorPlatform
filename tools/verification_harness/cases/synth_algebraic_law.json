@@ -1,0 +1,18 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "cases": [
+    {
+      "case_id": "synth-algebraic-law",
+      "domain": "synthetic-rootfinding",
+      "reference_kind": "external_reference",
+      "implementation": "tools.verification_harness.anchors.synthetic:algebraic_law_newton",
+      "reference": "tools.verification_harness.anchors.synthetic:algebraic_law_bisection",
+      "inputs": {"reynolds": 250000.0, "roughness_ratio": 0.0002},
+      "quantities": {
+        "friction_factor": {"rtol": 1e-9}
+      },
+      "description": "Implicit algebraic law solved by Newton vs by bisection on the same residual (two independent algorithms, same equation).",
+      "tags": ["anchor", "implicit"]
+    }
+  ]
+}
