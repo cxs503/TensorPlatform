@@ -1,0 +1,106 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Where the cross-solver corpus comes from. The frame never hard-codes a case: it discovers artifacts by glob under one or more roots, keeps only the ones that carry an explicit verification verdict, snapshots them into artifacts/xsolver/corpus (with sha256 + source git commit) so the corpus is reproducible without the source repos present, and groups cases that answer the same physical question via problem_links / matrix_expansions.",
+  "roots": [
+    {
+      "id": "ecosystem",
+      "path_env": "XSOLVER_ECOSYSTEM_ROOT",
+      "default": "/root/tensor-ecosystem",
+      "repos": [
+        "TensorLBM",
+        "TensorFVM",
+        "TensorBEM",
+        "TensorFEM",
+        "TensorSPH",
+        "TensorDEM",
+        "TensorCAD"
+      ]
+    }
+  ],
+  "artifact_globs": [
+    "benchmarks/**/result*.json",
+    "benchmarks/**/results*.json",
+    "docs/*/outputs/**/results*.json"
+  ],
+  "harvest_limits": {
+    "max_files": 900,
+    "max_file_bytes": 8000000,
+    "max_cases": 400
+  },
+  "verified_filter": {
+    "require_explicit_verdict": true,
+    "note": "a case enters the corpus only if its artifact states a verification verdict (verified:true / verdict PASS / status verified) or lives under a /verified/ tree; everything else is counted as 'seen' but not promoted"
+  },
+  "matrix_expansions": [
+    {
+      "id": "wigley3_total_drag",
+      "source_glob": "TensorLBM/benchmarks/wigley3_cross_solver/results.json",
+      "matrix_path": "solver_results",
+      "problem_id": "wigley3_total_drag",
+      "condition_label": "Fn",
+      "geometry_from": "hull",
+      "quantity_map": {
+        "C_T": "c_t",
+        "C_F": "c_f",
+        "C_W": "c_w",
+        "C_R": "c_r",
+        "C_ITTCT57": "cf_ittc57",
+        "S_wet": "wetted_area_m2"
+      },
+      "physics_map": {
+        "reynolds": "reynolds",
+        "froude": "fn"
+      },
+      "solver_name_key": "solver",
+      "solver_method_key": "method"
+    }
+  ],
+  "problem_links": [
+    {
+      "problem_id": "wigley3_hydrostatics",
+      "description": "the same static geometry answered by three independent discretisations; Cb is the dimensionless closure every arm must reproduce",
+      "compare_quantities": [
+        "Cb",
+        "S_wet"
+      ],
+      "members": [
+        {
+          "root": "ecosystem",
+          "source_glob": "TensorLBM/benchmarks/verified/wigley_hydrostatics/result*.json",
+          "quantities": {
+            "Cb": {
+              "path": "grids[].C_B",
+              "select": "finest"
+            }
+          }
+        },
+        {
+          "root": "ecosystem",
+          "source_glob": "TensorBEM/benchmarks/verified/bem_wigley_hydrostatics/results*.json",
+          "quantities": {
+            "Cb": {
+              "path": "levels[].Cb",
+              "select": "finest"
+            },
+            "S_wet": "wetted_area_reference"
+          }
+        },
+        {
+          "root": "ecosystem",
+          "source_glob": "TensorCAD/docs/wigley/results*.json",
+          "is_reference": true,
+          "quantities": {
+            "Cb": "analytic.block_coefficient",
+            "S_wet": "analytic.wetted_surface_area_m2"
+          }
+        }
+      ],
+      "shared_geometry_from": {
+        "root": "ecosystem",
+        "source_glob": "TensorBEM/benchmarks/verified/bem_wigley_hydrostatics/results*.json",
+        "path": "geometry",
+        "note": "all three arms solve the same body; the declared L/B/T is taken once from the panel-method artifact so an arm that does not restate it is not left without geometry"
+      }
+    }
+  ]
+}

@@ -1,0 +1,50 @@
+{
+ "backends": {
+  "tensorlbm": {
+   "api": [
+    "equilibrium",
+    "collide_bgk",
+    "stream",
+    "macroscopic"
+   ],
+   "module": "tensorlbm",
+   "repo_default": "/root/tensor-ecosystem",
+   "repo_env": "XSOLVER_ECOSYSTEM_ROOT",
+   "repo_relpath": "TensorLBM",
+   "version_attr": "__version__"
+  }
+ },
+ "certification": {
+  "note": "the probe certifies mass/momentum conservation at the declared certification_horizon and reports the whole horizon table plus the measured per-step defect, because a linearly accumulating defect makes the horizon part of the claim"
+ },
+ "probe": {
+  "backend": "tensorlbm",
+  "certification_horizon": 100,
+  "dtype": "float64",
+  "grid": {
+   "nx": 32,
+   "ny": 32
+  },
+  "horizons": [
+   10,
+   100,
+   1000,
+   5000
+  ],
+  "id": "lb_periodic_uniform_equilibrium",
+  "tau": 0.8,
+  "velocity": 0.05
+ },
+ "provenance": {
+  "note": "the backend package is imported by file location under the declared repo, and the resolved module_file/sha256 is stored with the residual; a module resolved outside the declared repo raises ProvenanceError so the residual is WITHHELD. Reason (measured 2026-11-10): an unpinned `import tensorlbm` on a shared host resolved to another agent's worktree while the artifact recorded this repo's commit -> mass defect 9.3e-7 attributed to a checkout whose kernel actually conserves to 1.1e-16.",
+  "require_pinned_repo": true,
+  "shadow_copies": "recorded in artifacts/xsolver/probe/*.json (provenance.shadow_copies)"
+ },
+ "purpose": "Kernel conservation probe. Reading residuals out of finished artifacts only tells you what a past run happened to record; this probe *measures* mass and momentum conservation for an actual solver kernel on a problem whose exact answer is known (periodic domain, uniform equilibrium, no walls: streaming is a permutation and the collision operator must conserve mass and momentum exactly up to working precision). The probe is what makes the C2 residual claim measurable rather than quotable.",
+ "residual_definitions": {
+  "energy": "not defined for an isothermal model: the D2Q9 collision has no energy equation, so no energy-conservation claim is made",
+  "mass": "|sum(rho_N) - sum(rho_0)| / sum(rho_0) over the whole periodic box",
+  "momentum": "|P_x(N) - P_x(0)| / |P_x(0)| with P_x = sum(rho u_x); the y-component is reported separately as an absolute value because its reference magnitude vanishes"
+ },
+ "schema_version": "1.0"
+}
