@@ -12,13 +12,21 @@ verdict_flip     critical  基线 pass → 当前 fail
 case_error       critical  当前算例抛异常
 drift            warn      相对漂移 > 容差
 drift            critical  相对漂移 > 3×容差（显著退化）
-case_missing     warn      基线有、当前无（覆盖度下降 = 静默失守）
+case_missing     critical  基线有、当前无（覆盖度下降 = 静默失守，**算回归**）
 case_new         info      当前新增算例（非回归，但入账）
 baseline_absent  info      无基线可对比（首次运行，不允许当"无回归"吹）
 ===============  ========  ====================================================
 
 **重要**：基线缺失返回的是 ``status="no_baseline"`` 而不是 "干净"——"没比过"
 绝不等于"没退化"（诚实纪律）。
+
+覆盖度纪律（v1.1 修补，fail-closed）
+-----------------------------------
+v1.0 把 ``case_missing`` 只记 ``warn`` 且 ``has_regression()`` 不看它 —— 实测漏洞：
+基线 5 算例、本次只剩 1 算例（其余 4 个连跑都没跑）时 ``status="noted"``、
+退出码 0，"少了 80% 的覆盖面"被读成"没有回归"。这是标准的静默失守（门还在，
+但门后面已经没人）。v1.1 起 ``case_missing`` 升为 critical 并计入
+``has_regression()``：**算例消失 = 回归**。"新增算例"仍为 info（不是回归）。
 """
 from __future__ import annotations
 
@@ -105,8 +113,9 @@ def compare(suite: Mapping[str, Any],
                            "message": f"case {cid} added since baseline (not a regression)"})
             continue
         if c is None:
-            alerts.append({"kind": "case_missing", "severity": "warn", "case_id": cid,
-                           "message": f"case {cid} present in baseline but absent now (coverage loss)"})
+            alerts.append({"kind": "case_missing", "severity": "critical", "case_id": cid,
+                           "message": f"case {cid} present in baseline but absent now (coverage loss) "
+                                      f"- a vanished case is a regression, not a pass"})
             continue
         if c.get("status") == "error":
             alerts.append({"kind": "case_error", "severity": "critical", "case_id": cid,
@@ -135,9 +144,12 @@ def compare(suite: Mapping[str, Any],
         "compared_cases": len(set(base_cases) & set(cur_cases)),
         "drift": sum(1 for a in alerts if a["kind"] == "drift"),
         "critical": sum(1 for a in alerts if a["severity"] == "critical"),
+        "missing": sum(1 for a in alerts if a["kind"] == "case_missing"),
         "info": sum(1 for a in alerts if a["severity"] == "info"),
     }
     status = "clean" if not alerts else ("regression" if counts["critical"] or counts["drift"] else "noted")
+    if counts["missing"]:
+        status = "regression"
     return {
         "status": status,
         "drift_threshold": drift_threshold,
@@ -150,5 +162,9 @@ def compare(suite: Mapping[str, Any],
 
 
 def has_regression(report: Mapping[str, Any]) -> bool:
-    """存在漂移或 critical 告警 → True（runner 据此置退出码 2）。"""
-    return any(a["kind"] in ("drift", "verdict_flip", "case_error") for a in report.get("alerts", []))
+    """存在漂移 / 裁决翻转 / 算例出错 / 算例消失 → True（runner 据此置退出码 2）。
+
+    ``case_missing``（覆盖度下降）自 v1.1 起计入：算例不见了不能算"没退化"。
+    """
+    return any(a["kind"] in ("drift", "verdict_flip", "case_error", "case_missing")
+               for a in report.get("alerts", []))

@@ -240,3 +240,100 @@ def write_manifest(out_dir: str | pathlib.Path,
         "manifest_digest": sha256_obj(entries),
     }
     return write_json(d / "manifest.json", manifest)
+
+
+# ── 证据链回验（tamper detection） ────────────────────────────────────────
+# "有产物" ≠ "产物可信"。manifest 记录了 sha256，但**只有有人真的重算一遍**，
+# 这个哈希才有约束力——否则它只是一行看着像证据的字符串。本函数就是那次重算：
+# 逐文件重算 sha256 → 与 manifest 比；检查清单自身 digest；检查是否有未登记的
+# 多余文件；再校验每个算例 JSON 自带的 ``artifact_sha256``（自洽性）。
+def verify_manifest(out_dir: str | pathlib.Path) -> Dict[str, Any]:
+    """回验 ``manifest.json`` 记录的哈希链，返回裁决 dict（``ok`` 严格为 bool）。
+
+    检查项：
+    (a) 每个登记文件存在且 sha256 与字节数一致；
+    (b) manifest 的 ``manifest_digest``（对 entries 列表的摘要）可重算一致；
+    (c) 目录内不存在未登记的额外文件（防"偷偷多塞一个工件"）；
+    (d) ``cases/*.json`` 的 ``artifact_sha256`` 与自身内容一致（防局部改写）。
+
+    任一项不满足 → ``ok=False``（fail-closed：证据不可信就是不可信）。
+    """
+    d = pathlib.Path(out_dir)
+    mpath = d / "manifest.json"
+    result: Dict[str, Any] = {
+        "ok": False, "root": str(d), "checked": 0, "mismatch": [], "missing": [],
+        "extra": [], "case_self_hash_errors": [], "manifest_digest_ok": None,
+        "manifest_sha256": None,
+    }
+    if not mpath.is_file():
+        result["reason"] = "manifest.json missing: no evidence chain to verify"
+        return result
+    result["manifest_sha256"] = sha256_file(mpath)
+    try:
+        manifest = json.loads(mpath.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        result["reason"] = f"manifest.json unreadable: {exc}"
+        return result
+
+    entries = manifest.get("files") or []
+    listed: set[str] = set()
+    for e in entries:
+        rel = e.get("path")
+        if not isinstance(rel, str) or not rel:
+            result["mismatch"].append({"path": None, "reason": "entry without path"})
+            continue
+        listed.add(rel)
+        f = d / rel
+        if not f.is_file():
+            result["missing"].append(rel)
+            continue
+        got = sha256_file(f)
+        if got != e.get("sha256"):
+            result["mismatch"].append({"path": rel, "reason": "sha256 mismatch",
+                                       "expected": e.get("sha256"), "actual": got})
+        elif f.stat().st_size != e.get("bytes"):
+            result["mismatch"].append({"path": rel, "reason": "size mismatch",
+                                       "expected": e.get("bytes"),
+                                       "actual": f.stat().st_size})
+    result["checked"] = len(listed)
+
+    result["manifest_digest_ok"] = (manifest.get("manifest_digest") == sha256_obj(entries))
+    for q in sorted(d.rglob("*")):
+        if q.is_file() and q.name != "manifest.json":
+            rel = str(q.relative_to(d))
+            if rel not in listed:
+                result["extra"].append(rel)
+
+    cases_dir = d / "cases"
+    if cases_dir.is_dir():
+        for q in sorted(cases_dir.glob("*.json")):
+            try:
+                payload = json.loads(q.read_text(encoding="utf-8"))
+            except json.JSONDecodeError:
+                result["case_self_hash_errors"].append(str(q.relative_to(d)))
+                continue
+            claimed = payload.pop("artifact_sha256", None)
+            if not claimed or sha256_obj(payload) != claimed:
+                result["case_self_hash_errors"].append(str(q.relative_to(d)))
+
+    result["ok"] = (not result["missing"] and not result["mismatch"] and not result["extra"]
+                    and not result["case_self_hash_errors"]
+                    and result["manifest_digest_ok"] is True)
+    if not result["ok"]:
+        result["reason"] = "evidence chain broken (see missing/mismatch/extra/self-hash fields)"
+    return result
+
+
+def main(argv: Optional[Sequence[str]] = None) -> int:
+    """CLI：``python3 -m tools.benchmark_runner.artifact --verify <工件目录>``。"""
+    import argparse
+    ap = argparse.ArgumentParser(description="benchmark 工件证据链回验（零领域语义）")
+    ap.add_argument("--verify", required=True, metavar="DIR", help="含 manifest.json 的工件目录")
+    args = ap.parse_args(argv)
+    report = verify_manifest(args.verify)
+    print(json.dumps(report, indent=2, ensure_ascii=False))
+    return 0 if report["ok"] else 1
+
+
+if __name__ == "__main__":  # pragma: no cover
+    raise SystemExit(main())
