@@ -1,0 +1,36 @@
+{
+  "suite": "cross_solver_regression",
+  "version": 1,
+  "description": "Cross-solver benchmark regression detection suite. Covers TensorLBM, TensorFEM, TensorDEM, TensorFVM with ≥10 cases. Zero domain semantics (synthetic domain names).",
+  "drift_threshold": 0.05,
+  "timeout_s": 30.0,
+  "min_cases": 10,
+  "min_solvers": 3,
+  "cases_per_solver": 3,
+  "solvers": {
+    "TensorLBM": {
+      "description": "Lattice-Boltzmann-style diffusion solver",
+      "workload": "tools.cross_solver_regression.solver_stubs:lbm_solver",
+      "reference": "tools.cross_solver_regression.solver_stubs:lbm_reference"
+    },
+    "TensorFEM": {
+      "description": "Finite-element-style Poisson solver",
+      "workload": "tools.cross_solver_regression.solver_stubs:fem_solver",
+      "reference": "tools.cross_solver_regression.solver_stubs:fem_reference"
+    },
+    "TensorDEM": {
+      "description": "Discrete-element-style packing solver",
+      "workload": "tools.cross_solver_regression.solver_stubs:dem_solver",
+      "reference": "tools.cross_solver_regression.solver_stubs:dem_reference"
+    },
+    "TensorFVM": {
+      "description": "Finite-volume-style advection solver",
+      "workload": "tools.cross_solver_regression.solver_stubs:fvm_solver",
+      "reference": "tools.cross_solver_regression.solver_stubs:fvm_reference"
+    }
+  },
+  "suite_criteria": [
+    {"metric": "pass_ratio", "op": ">=", "value": 1.0},
+    {"metric": "n_regression", "op": "<=", "value": 0}
+  ]
+}
