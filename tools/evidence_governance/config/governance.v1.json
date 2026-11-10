@@ -1,0 +1,98 @@
+{
+  "schema_version": "evidence-governance-config/1.0",
+  "purpose": "Single configuration for the unified evidence-governance pipeline. Every subject-specific word or threshold lives here or in an injected data file, never in the package code.",
+  "withheld_level": "WITHHELD",
+  "withheld_token": "WITHHELD",
+  "level_rank": {
+    "NOT_SUPPORTED": 0,
+    "STUB": 1,
+    "MOCK": 2,
+    "WITHHELD": 3,
+    "REAL": 4
+  },
+  "library_sources": [
+    {
+      "id": "resolved_ledger",
+      "kind": "ledger_rows",
+      "path": "artifacts/capability_ledger/capability_ledger_resolved.json",
+      "record_path": "capabilities",
+      "id_field": "id",
+      "level_field": "reconciled_level",
+      "claimed_field": "claimed_level",
+      "evidence_field": "evidence_refs",
+      "text_fields": ["basis", "divergence"]
+    },
+    {
+      "id": "raw_ledger",
+      "kind": "ledger_rows_aux",
+      "path": "artifacts/capability_ledger/capability_ledger.json",
+      "record_path": "capabilities",
+      "id_field": "id",
+      "text_fields": ["note", "action"]
+    },
+    {
+      "id": "declaration_corpus",
+      "kind": "text_corpus",
+      "path": "tests/fixtures/capability_ledger/reports_corpus.json",
+      "containers": ["reports", "docs"],
+      "text_fields": ["title", "markdown", "body", "why"]
+    }
+  ],
+  "capability_class_map": {
+    "path": "artifacts/evidence_governance/inputs/capability_class.json",
+    "record_path": "capabilities"
+  },
+  "evidence_ladder": [
+    "physical_consistency",
+    "cross_validation",
+    "mesh_convergence",
+    "analytical_solution",
+    "experimental"
+  ],
+  "magnitude": {
+    "evidence_count_saturation": 3,
+    "independent_ref_saturation": 2,
+    "weights": {
+      "evidence_gap": 0.45,
+      "claim_gap": 0.35,
+      "corroboration_gap": 0.2
+    }
+  },
+  "priority": {
+    "weights": {
+      "magnitude": 0.5,
+      "criticality": 0.3,
+      "overclaim": 0.2
+    },
+    "non_evidence_band": "P3",
+    "bands": [
+      {"band": "P0", "min": 0.75},
+      {"band": "P1", "min": 0.5},
+      {"band": "P2", "min": 0.0}
+    ]
+  },
+  "classification": {
+    "rules_path": "tools/evidence_governance/config/classifier_rules.v1.json",
+    "labels_path": "tools/evidence_governance/fixtures/labeled_debts.json",
+    "accuracy_threshold": 0.95,
+    "saturation": 3.0,
+    "default_type": "unknown",
+    "tie_break_order": [
+      "analytical_solution",
+      "experimental",
+      "mesh_convergence",
+      "physical_consistency",
+      "cross_validation",
+      "unknown"
+    ]
+  },
+  "verification": {
+    "manifest_path": "artifacts/evidence_governance/inputs/verification_manifest.json",
+    "accept_level": "REAL",
+    "min_independent_refs": 2,
+    "require_content_hashes": true
+  },
+  "output": {
+    "dir": "artifacts/evidence_governance"
+  }
+}

@@ -1,0 +1,116 @@
+{
+  "schema_version": "synthetic-library/1.0",
+  "note": "Synthetic library used by the loopback demo and the test-suite. Capability ids and text are invented (synth.*): the governance package must not depend on any real subject vocabulary.",
+  "capabilities": [
+    {
+      "id": "synth.alpha",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [],
+      "basis": "无证据",
+      "divergence": "UNVERIFIED",
+      "note": "需补一份解析解对照（closed-form）后再判。",
+      "action": "生成解析基准用例"
+    },
+    {
+      "id": "synth.beta",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [
+        {"report_id": "rpt-1", "asserted_level": "MOCK", "stance": "contradicts"},
+        {"report_id": "rpt-2", "asserted_level": "MOCK", "stance": "contradicts"}
+      ],
+      "basis": "最新证据 rpt-2 stance=contradicts → WITHHELD",
+      "divergence": "OVERCLAIM",
+      "note": "需要与另一实现交叉验证（cross-validation）。",
+      "action": "安排第二实现独立复算"
+    },
+    {
+      "id": "synth.gamma",
+      "claimed_level": "MOCK",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [],
+      "basis": "无证据",
+      "divergence": "OK",
+      "note": "需做网格收敛研究（网格无关）才能给出残差。",
+      "action": null
+    },
+    {
+      "id": "synth.delta",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [],
+      "basis": "无证据",
+      "divergence": "UNVERIFIED",
+      "note": "需检查守恒与对称性（physical consistency）。",
+      "action": null
+    },
+    {
+      "id": "synth.epsilon",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [],
+      "basis": "无证据",
+      "divergence": "UNVERIFIED",
+      "note": "缺实测数据，误差无法量化。",
+      "action": null
+    },
+    {
+      "id": "synth.zeta",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [],
+      "basis": "无证据",
+      "divergence": "UNVERIFIED",
+      "note": null,
+      "action": null
+    },
+    {
+      "id": "synth.eta",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [
+        {"report_id": "rpt-3", "asserted_level": "WITHHELD", "stance": "withheld"}
+      ],
+      "basis": "最新证据 rpt-3 stance=withheld → WITHHELD",
+      "divergence": "OK",
+      "note": "需独立复算（另一个实现）。",
+      "action": null
+    },
+    {
+      "id": "synth.theta",
+      "claimed_level": "REAL",
+      "reconciled_level": "WITHHELD",
+      "evidence_refs": [],
+      "basis": "无证据",
+      "divergence": "UNVERIFIED",
+      "note": "需补解析基准并做量纲检查。",
+      "action": null
+    },
+    {
+      "id": "synth.iota",
+      "claimed_level": "REAL",
+      "reconciled_level": "REAL",
+      "evidence_refs": [
+        {"report_id": "rpt-4", "asserted_level": "REAL", "stance": "supports"},
+        {"report_id": "rpt-5", "asserted_level": "REAL", "stance": "supports"}
+      ],
+      "basis": "最新证据 rpt-5 stance=supports → REAL",
+      "divergence": "OK",
+      "note": "两条独立证据同向。",
+      "action": null
+    },
+    {
+      "id": "synth.kappa",
+      "claimed_level": "REAL",
+      "reconciled_level": "MOCK",
+      "evidence_refs": [
+        {"report_id": "rpt-6", "asserted_level": "MOCK", "stance": "contradicts"}
+      ],
+      "basis": "最新证据 rpt-6 stance=contradicts → MOCK",
+      "divergence": "OVERCLAIM",
+      "note": "重写后再裁。",
+      "action": null
+    }
+  ]
+}

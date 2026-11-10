@@ -1,0 +1,92 @@
+{
+  "schema_version": "evidence-verification-manifest/1.0",
+  "dataset": "synthetic-library/1.0",
+  "note": "Verification outcomes for the loopback demo. Hashes are synthetic placeholders; the point is the gate behaviour (independent sources, non-empty checks, content hashes), not the evidence itself. Three rows deliberately fail the gate so the KPI cannot be inflated.",
+  "outcomes": [
+    {
+      "capability_id": "synth.alpha",
+      "status": "pass",
+      "reason": "closed-form comparison reproduced offline",
+      "evidence_refs": [
+        {"source_id": "src-a1", "kind": "analytic_case", "sha256": "5d5b1c9aa1d1e5ca1c1b0a9c2e3f4a5b6c7d8e9f0a1b2c3d4e5f60718293a4b5"},
+        {"source_id": "src-a2", "kind": "solver_output", "sha256": "8a7b6c5d4e3f2a1b0c9d8e7f6a5b4c3d2e1f0a9b8c7d6e5f4a3b2c1d0e9f8a7b"}
+      ],
+      "checks": [
+        {"name": "max_rel_error_pct", "passed": true, "value": 0.8, "limit": 3.0},
+        {"name": "n_cases", "passed": true, "value": 3, "limit": 3}
+      ]
+    },
+    {
+      "capability_id": "synth.beta",
+      "status": "pass",
+      "reason": "two independent implementations agree",
+      "evidence_refs": [
+        {"source_id": "src-b1", "kind": "impl_one", "sha256": "1f2e3d4c5b6a79880f1e2d3c4b5a69780f1e2d3c4b5a69780f1e2d3c4b5a6978"},
+        {"source_id": "src-b2", "kind": "impl_two", "sha256": "2e3d4c5b6a79880f1e2d3c4b5a69780f1e2d3c4b5a69780f1e2d3c4b5a69780f"}
+      ],
+      "checks": [
+        {"name": "disagreement_pct", "passed": true, "value": 1.4, "limit": 5.0}
+      ]
+    },
+    {
+      "capability_id": "synth.gamma",
+      "status": "fail",
+      "reason": "residual above pre-declared tolerance on the finest grid",
+      "evidence_refs": [
+        {"source_id": "src-c1", "kind": "study_log", "sha256": "3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b"},
+        {"source_id": "src-c2", "kind": "study_log", "sha256": "4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c"}
+      ],
+      "checks": [
+        {"name": "residual_pct", "passed": false, "value": 17.2, "limit": 5.0}
+      ]
+    },
+    {
+      "capability_id": "synth.delta",
+      "status": "pass",
+      "reason": "single-source claim (the classic copy trap)",
+      "evidence_refs": [
+        {"source_id": "src-d1", "kind": "report", "sha256": "5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d"}
+      ],
+      "checks": [
+        {"name": "residual_pct", "passed": true, "value": 0.2, "limit": 1.0}
+      ]
+    },
+    {
+      "capability_id": "synth.epsilon",
+      "status": "pass",
+      "reason": "two sources but one acceptance check failed",
+      "evidence_refs": [
+        {"source_id": "src-e1", "kind": "campaign", "sha256": "6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e"},
+        {"source_id": "src-e2", "kind": "campaign", "sha256": "708192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f"}
+      ],
+      "checks": [
+        {"name": "max_rel_error_pct", "passed": true, "value": 2.1, "limit": 10.0},
+        {"name": "n_cases", "passed": false, "value": 1, "limit": 3}
+      ]
+    },
+    {
+      "capability_id": "synth.zeta",
+      "status": "pass",
+      "reason": "two sources, one without a content hash",
+      "evidence_refs": [
+        {"source_id": "src-f1", "kind": "report", "sha256": "8192a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f70"},
+        {"source_id": "src-f2", "kind": "link"}
+      ],
+      "checks": [
+        {"name": "disagreement_pct", "passed": true, "value": 0.9, "limit": 5.0}
+      ]
+    },
+    {
+      "capability_id": "synth.eta",
+      "status": "pass",
+      "reason": "independent re-computation agrees",
+      "evidence_refs": [
+        {"source_id": "src-g1", "kind": "impl_one", "sha256": "92a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f7081"},
+        {"source_id": "src-g2", "kind": "impl_two", "sha256": "a3b4c5d6e7f8091a2b3c4d5e6f708192a3b4c5d6e7f8091a2b3c4d5e6f708192"}
+      ],
+      "checks": [
+        {"name": "disagreement_pct", "passed": true, "value": 0.3, "limit": 5.0}
+      ]
+    }
+  ]
+}
