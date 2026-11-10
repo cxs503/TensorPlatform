@@ -259,6 +259,32 @@ def test_stage_subset_only_runs_requested(case_json: Path, tmp_path: Path) -> No
     assert not (wd / "figures").exists()
 
 
+def test_bad_bundle_contract_is_recorded_stage_failure(case_json: Path, tmp_path: Path) -> None:
+    """bundle 契约坏了：distill 阶段须记 ``distill_exit``/退出码 2，不得整条链路抛栈。
+
+    对照基线（加契约层之前）：``campaign_distill`` 对缺 ``node_key`` 直接 ``KeyError``
+    抛栈，案例入口只能以 ``stage_exception`` 兜住——退出码 2（数据坏）与 1（内容不合格）
+    在记录里分不开，下游无法机判该重采数据还是重写报告。
+    """
+    bundle_path = tmp_path / "case" / "bundle.json"
+    payload = json.loads(bundle_path.read_text(encoding="utf-8"))
+    payload["nodes"][0].pop("node_key")
+    bundle_path.write_text(json.dumps(payload, ensure_ascii=False), encoding="utf-8")
+
+    wd = tmp_path / "run_badbundle"
+    code = rc.main(["--case", str(case_json), "--workdir", str(wd), "--quiet"])
+    assert code == 1
+    record = json.loads((wd / "case_run.json").read_text(encoding="utf-8"))
+    distill = next(r for r in record["stages"] if r["name"] == "distill")
+    assert distill["ok"] is False
+    assert distill["detail"]["exit_code"] == 2
+    rules = _rules(distill)
+    assert "distill_exit" in rules
+    assert "stage_exception" not in rules, "契约问题不该再走异常兜底路径"
+    # 契约不过 → 一件账本都不该有（半成品比没有更危险）
+    assert not (wd / "out" / "distill_summary.json").exists()
+
+
 # --------------------------------------------------------------------------- #
 # 4. 确定性：内容稳定 vs 已披露的路径敏感性
 # --------------------------------------------------------------------------- #
