@@ -1,0 +1,21 @@
+{
+  "arm_id": "lbm-d32",
+  "case_id": "bluff-body-2d-re100",
+  "check_every": 1000,
+  "declarations": [
+    "lattice D2Q9, BGK, Bouzidi interpolated wall closure; kernel certified against the Taylor decay rate (0.7 % on nu) and the analytic channel profile (0.09 % L2 at 32 cells)",
+    "transverse direction periodic: the configuration is an array of obstacles spaced 24 diameters apart (about 4 % blockage), which sits a couple of percent above the unbounded force coefficient"
+  ],
+  "diameter": 32.0,
+  "domain_height": 24.0,
+  "domain_length": 30.0,
+  "inflow_velocity": 0.1,
+  "interpolated_bb": true,
+  "max_steps": 45000,
+  "model": "lbm",
+  "obstacle_x": 10.0,
+  "reynolds": 100.0,
+  "solver_family": "LBM",
+  "solver_version": "d2q9-bgk-bouzidi/1.0",
+  "steady_tol": 0.0001
+}

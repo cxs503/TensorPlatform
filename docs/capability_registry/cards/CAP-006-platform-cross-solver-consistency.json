@@ -1,0 +1,43 @@
+{
+  "card_id": "CAP-006",
+  "name": "Cross-solver consistency gate (three-dimension mutual adjudication)",
+  "version": "1.0.0",
+  "repo": "TensorPlatform",
+  "capability_key": "platform.cross_solver_consistency",
+  "level": "REAL",
+  "interface": {
+    "input": "arm records (solver family, quantities, surface profiles, energy ledger, provenance) + one JSON configuration",
+    "output": "digest-stamped JSON report with a solver x quantity difference matrix, per-dimension verdicts and an investigation list"
+  },
+  "applicability": {
+    "dimensions": [
+      "scalar quantity",
+      "profile/curve",
+      "energy ledger"
+    ],
+    "verdict_bands": {
+      "acceptable": 0.15,
+      "consistent": 0.05
+    },
+    "min_arms": 2
+  },
+  "validation_evidence": {
+    "report": "artifacts/consistency/bluff-body-2d-re100/consistency_report.json",
+    "report_sha256": "9e8113694d6cff53bc7e13e8f47aaabfe079a6c6268aa6962056d19e6a9d46b6",
+    "digest_recomputed_ok": true,
+    "pytest": "tests/test_consistency_gate.py",
+    "case": "bluff-body-2d-re100",
+    "arms": [
+      "polar-n64",
+      "polar-n96"
+    ],
+    "measured_force_coefficient_spread": 0.025848110806010682,
+    "verdict": "withheld"
+  },
+  "failure_modes": [
+    "fewer than two comparable arms -> withheld, never 'consistent'",
+    "arms with different case_id or duplicate ids are rejected, not averaged",
+    "a dimension that exceeds the acceptable band returns inconsistent and queues an investigation instead of being rounded into a pass"
+  ],
+  "status": "active"
+}

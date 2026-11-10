@@ -1,0 +1,38 @@
+{
+  "schema_version": "1.0.0",
+  "case_id": "bluff-body-2d-re100",
+  "title": "Two-dimensional steady wake behind a circular obstacle, Re=100: cross-solver adjudication of the force coefficient, the surface pressure distribution and the energy ledger",
+  "injected_by": "config (the gate code carries no domain vocabulary)",
+  "quantities": [
+    {
+      "name": "cd",
+      "role": "primary",
+      "description": "non-dimensional streamwise force coefficient on the obstacle, based on projected height and free-stream dynamic head",
+      "reference": 1.34,
+      "reference_source": "Dennis & Chang (1970) J. Fluid Mech. 42:471 -- grid-converged steady solution at Re=100, C_D = 1.34",
+      "reference_tolerance": 0.08
+    }
+  ],
+  "profiles": [
+    {
+      "name": "cp_surface",
+      "coordinate": "s_over_d",
+      "description": "surface pressure coefficient against arc length measured from the upstream stagnation point, normalised by the obstacle height",
+      "n_grid": 401
+    }
+  ],
+  "energy": {
+    "input_term": "power_in",
+    "dissipation_term": "dissipation",
+    "closure_tolerance": 0.08,
+    "description": "steady state: the power the mean flow delivers through the body force equals the viscous dissipation integrated over the domain; both terms are non-dimensionalised with rho=U=D=1, so power_in = cd/2 and dissipation = (1/Re) * integral of enstrophy"
+  },
+  "verdict": {
+    "consistent": 0.05,
+    "acceptable": 0.15
+  },
+  "arms": {
+    "required": ["LBM", "FVM"],
+    "minimum": 2
+  }
+}
