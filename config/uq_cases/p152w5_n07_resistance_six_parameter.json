@@ -1,0 +1,51 @@
+{
+  "case_id": "p152w5_n07_resistance_six_parameter",
+  "title": "Six-parameter input uncertainty (L, B, T, Cb, V, kinematic viscosity) propagated through the calm-water resistance regression: 95% uncertainty band and Sobol' ranking, with Monte Carlo acceleration",
+  "model": {
+    "path": "holtrop_mennen:holtrop_resistance",
+    "file": "backend/api/domain/holtrop_mennen.py",
+    "output": "rt_n",
+    "call_style": "kwargs"
+  },
+  "inputs": [
+    {"name": "length", "family": "normal", "mean": 200.0, "std": 1.0},
+    {"name": "beam", "family": "normal", "mean": 32.0, "std": 0.40},
+    {"name": "draft", "family": "normal", "mean": 11.0, "std": 0.15},
+    {"name": "cb", "family": "normal", "mean": 0.65, "std": 0.02},
+    {"name": "speed_ms", "family": "normal", "mean": 7.7, "std": 0.15},
+    {"name": "nu", "family": "normal", "mean": 1.19e-06, "std": 4.0e-08}
+  ],
+  "design": {
+    "mode": "regression",
+    "degree": 2,
+    "q_norm": 1.0,
+    "n_samples": 64,
+    "sampler": "lhs",
+    "seed": 11
+  },
+  "band": {"probs": [0.025, 0.5, 0.975], "n_surrogate": 16384, "seed": 3},
+  "mc": {
+    "n": 10000,
+    "sampler": "lhs",
+    "seed": 20261110,
+    "reference_n": 200000,
+    "reference_sampler": "qmc",
+    "reference_seed": 987654
+  },
+  "thresholds": {
+    "moment_rel_tol": 0.03,
+    "min_eval_speedup": 100.0,
+    "min_r2": 0.99
+  },
+  "sweep": {
+    "mc_budgets": [32, 64, 128, 256, 512, 1024, 2048, 4096, 10000],
+    "pce_designs": [
+      {"degree": 1, "n_samples": 24},
+      {"degree": 2, "n_samples": 40},
+      {"degree": 2, "n_samples": 48},
+      {"degree": 2, "n_samples": 64},
+      {"degree": 2, "n_samples": 97},
+      {"degree": 3, "n_samples": 150}
+    ]
+  }
+}
