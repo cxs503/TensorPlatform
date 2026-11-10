@@ -1,0 +1,59 @@
+{
+  "schema": "green_navigation.external_anchors.v1",
+  "description": "外部对照锚点（用于 E3/E4/E5 判据）。每条锚点显式标注证据等级与置信度；离线环境不可回查的一律 WITHHELD，报告里不得当成 REAL 引用。",
+  "anchors": {
+    "imo_eedi_class_mean": {
+      "description": "IMO EEDI 数据库按船型/吨位分组的 attained EEDI 统计均值（不是单船值）",
+      "by_case": {
+        "KVLCC2_VLCC": {
+          "value_g_per_t_nm": 2.3,
+          "band_g_per_t_nm": [
+            2.0,
+            2.9
+          ],
+          "group": "tanker, DWT 280k-320k",
+          "use_for_e3": true,
+          "note": "任务书 E3 指定的主判据锚点（油轮分组均值）"
+        },
+        "CAPESIZE_BULKER": {
+          "value_g_per_t_nm": 3.1,
+          "band_g_per_t_nm": [
+            2.7,
+            3.6
+          ],
+          "group": "bulk carrier, DWT 150k-200k",
+          "use_for_e3": true
+        },
+        "KCS_CONTAINER": {
+          "value_g_per_t_nm": 22.0,
+          "band_g_per_t_nm": [
+            16.0,
+            28.0
+          ],
+          "group": "container ship, DWT 40k-60k",
+          "use_for_e3": false,
+          "note": "集装箱船 EEDI 组均值随 TEU 档位/设计年代强变化（8–30 g/(t·nm)），离线不可回查 GISIS，本锚点置信度不足 → 只作量级参考，不参与 E3 判决"
+        }
+      },
+      "grade": "WITHHELD_PROVENANCE",
+      "confidence": "CONF_MED",
+      "caveat": "分组统计均值，非该船逐船记录；离线下无法查询 GISIS 原表，故比较结论只对'组均值量级'负责，不构成单船一致性证明。"
+    },
+    "cii_dnv_calculator": {
+      "description": "DNV CII 计算器在线对照",
+      "status": "WITHHELD",
+      "reason": "离线环境无网络访问、无 DNV API 凭据，无法在线逐船对照。替代方案：以 MEPC.354(78) G4 边界表为唯一外部锚，并对判级函数做边界单调性/反解一致性/百分比断面测试。",
+      "substitute_check": "boundary_inversion_and_monotonicity"
+    },
+    "annual_degradation_clarksons": {
+      "description": "年度 CII 退化率统计带（无坞修/无清洗条件下船体粗糙度增长导致的能效退化）",
+      "band_pct_per_year": [
+        0.5,
+        1.5
+      ],
+      "grade": "WITHHELD_PROVENANCE",
+      "confidence": "CONF_MED",
+      "caveat": "行业统计区间（船体+螺旋桨污损合计能效退化 ~0.5-1.5 %/年）；本链只建模船体粗糙度 Δk_s 通道，不含螺旋桨污损与主机退化，因此落在带下限附近是预期行为。"
+    }
+  }
+}

@@ -1,0 +1,28 @@
+{
+  "schema": "green_navigation.cii_rating_boundaries.v1",
+  "description": "CII A–E 评级边界向量 dd1..dd4（比值 attained/required）",
+  "provenance": {
+    "source": "MEPC.354(78) G4 评级边界向量表转录",
+    "grade": "WITHHELD_PROVENANCE",
+    "confidence": "CONF_MED",
+    "note": "离线环境未回读决议原文逐字校对；边界常数按船型转录。判级逻辑（比值与 dd 逐级比较）是 REAL，常数是 WITHHELD。容量相关型边界（气体运输船 / LNG 船的 dd 随 Capacity 变化）本版不实现，显式 NOT_SUPPORTED。"
+  },
+  "rating_rule": {
+    "A": "ratio <= dd1",
+    "B": "dd1 < ratio <= dd2",
+    "C": "dd2 < ratio <= dd3",
+    "D": "dd3 < ratio <= dd4",
+    "E": "ratio > dd4",
+    "ratio_definition": "attained_CII / required_CII(year)"
+  },
+  "dd_vectors": {
+    "bulk_carrier": [0.86, 0.94, 1.06, 1.18],
+    "tanker": [0.82, 0.93, 1.08, 1.28],
+    "container_ship": [0.83, 0.94, 1.07, 1.19],
+    "general_cargo": [0.83, 0.94, 1.06, 1.19],
+    "refrigerated_cargo": [0.78, 0.91, 1.07, 1.20],
+    "combination_carrier": [0.87, 0.96, 1.06, 1.14],
+    "ro_ro_cargo": [0.76, 0.89, 1.08, 1.27]
+  },
+  "capacity_dependent_types_not_supported": ["gas_carrier", "lng_carrier", "ro_ro_passenger", "cruise_passenger"]
+}
