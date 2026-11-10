@@ -25,6 +25,7 @@ TEST_FILES = [
     ROOT / "tests" / "test_coupling_clock.py",
     ROOT / "tests" / "test_coupling_twin.py",
     ROOT / "tests" / "test_coupling_platform_neutrality.py",
+    ROOT / "tests" / "test_multiphysics_coupling.py",
 ]
 
 # core modules: what a solver loop may depend on
@@ -34,7 +35,7 @@ ALLOWED_TOP_LEVEL = {
     "ast", "pytest", "tools",
 }
 # CLI/reporting helpers may additionally use a CLI parser and the plotting stack
-TOOLING_MODULES = {"acceptance.py", "figures.py", "report.py"}
+TOOLING_MODULES = {"acceptance.py", "figures.py", "report.py", "multiphysics_figures.py"}
 ALLOWED_TOOLING_EXTRA = {"argparse", "matplotlib", "base64"}
 
 
@@ -95,7 +96,11 @@ def test_public_api_is_exported_and_documented():
     assert coupling.__doc__ and "Domain" in coupling.__doc__
 
 
-@pytest.mark.parametrize("module", ["mesh", "remap", "conservation", "clock", "twin", "provenance"])
+@pytest.mark.parametrize(
+    "module",
+    ["mesh", "remap", "conservation", "clock", "twin", "provenance",
+     "multiphysics", "multiphysics_figures"],
+)
 def test_each_module_has_a_module_docstring(module):
     import importlib
 
