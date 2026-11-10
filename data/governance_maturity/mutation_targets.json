@@ -1,0 +1,75 @@
+{
+  "schema": "mutation-targets/1.0",
+  "note": "Targets are pinned by module sha256 at run time. repo_root may point outside this worktree; such modules are read-only inputs (never edited) and their revision is recorded in the ledger.",
+  "targets": [
+    {
+      "name": "platform_expression_registry",
+      "repo": "TensorPlatform",
+      "repo_root": ".",
+      "module": "tools/metric_gate/expr_registry.py",
+      "test_cmd": [
+        "python3",
+        "-m",
+        "pytest",
+        "tools/metric_gate/tests/test_metric_gate.py",
+        "-x",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "copy_paths": [
+        "tools"
+      ],
+      "env": {},
+      "timeout_s": 180
+    },
+    {
+      "name": "external_geometry_contract",
+      "repo": "TensorBEM",
+      "repo_root": "artifacts/governance_maturity/targets/TensorBEM",
+      "module": "src/tensorbem/geometry.py",
+      "test_cmd": [
+        "python3",
+        "-m",
+        "pytest",
+        "tools/governance_maturity/tests/contracts/test_contract_external_geometry.py",
+        "-x",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "copy_paths": [
+        "src/tensorbem/geometry.py",
+        "worktree::tools/governance_maturity/tests/contracts/test_contract_external_geometry.py"
+      ],
+      "env": {
+        "GM_TARGET_MODULE": "src/tensorbem/geometry.py"
+      },
+      "timeout_s": 120
+    },
+    {
+      "name": "external_regression_contract",
+      "repo": "TensorBEM",
+      "repo_root": "artifacts/governance_maturity/targets/TensorBEM",
+      "module": "src/tensorbem/series60.py",
+      "test_cmd": [
+        "python3",
+        "-m",
+        "pytest",
+        "tools/governance_maturity/tests/contracts/test_contract_external_regression.py",
+        "-x",
+        "-q",
+        "-p",
+        "no:cacheprovider"
+      ],
+      "copy_paths": [
+        "src/tensorbem/series60.py",
+        "worktree::tools/governance_maturity/tests/contracts/test_contract_external_regression.py"
+      ],
+      "env": {
+        "GM_TARGET_MODULE": "src/tensorbem/series60.py"
+      },
+      "timeout_s": 120
+    }
+  ]
+}
