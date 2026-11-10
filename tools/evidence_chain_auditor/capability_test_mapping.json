@@ -1,0 +1,179 @@
+{
+  "schema_version": "1.0",
+  "description": "Capability-to-test mapping for evidence chain integrity auditing. Maps each capability_id to its test modules and minimum coverage requirements.",
+  "mappings": [
+    {
+      "capability_id": "propeller.open_water",
+      "domain": "推进",
+      "test_modules": [
+        "tests/test_propulsion_openwater_gate.py",
+        "tests/test_propulsion_audit.py",
+        "tests/test_propulsion_anchors.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "calc.stability",
+      "domain": "稳性",
+      "test_modules": [
+        "tests/test_stability_analytic_benchmark.py",
+        "tests/test_stability_gz_benchmark.py",
+        "tests/test_intact_stability_baseline.py",
+        "tests/test_m1564_stability_canon.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "calc.resistance",
+      "domain": "阻力",
+      "test_modules": [
+        "tests/test_resistance_m1775_verification.py",
+        "tests/test_resistance_identity_audit_m1817.py",
+        "tests/test_suboff_resistance_validation.py",
+        "tests/test_wigley_michell_resistance.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "geometry.hydro_curves",
+      "domain": "几何",
+      "test_modules": [
+        "tests/test_geometry_audit.py",
+        "tests/test_geometry_hydrostatics_anchors.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "geometry.generate",
+      "domain": "几何",
+      "test_modules": [
+        "tests/test_geometry_audit.py",
+        "tests/test_std_geometry_gate.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "geometry.list_models",
+      "domain": "几何",
+      "test_modules": [
+        "tests/test_geometry_audit.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "geometry.verify_official",
+      "domain": "几何",
+      "test_modules": [
+        "tests/test_geometry_audit.py",
+        "tests/test_m1586_geometry_gate.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "shiphull.generate",
+      "domain": "几何",
+      "test_modules": [
+        "tests/test_geometry_audit.py",
+        "tests/test_std_geometry_gate.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "stdmodels.lookup",
+      "domain": "数据",
+      "test_modules": [
+        "tests/test_stdmodels_lookup_verification.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "gov.stats",
+      "domain": "平台",
+      "test_modules": [
+        "tests/test_governance_bench_acceptance.py",
+        "tests/test_governance_dag.py",
+        "tests/test_governance_evidence_ledger.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "knowledge.docs",
+      "domain": "平台",
+      "test_modules": [
+        "tests/test_knowledge_distill_pipeline.py",
+        "tests/test_knowledge_distill_extract.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.gate_5415",
+      "domain": "开发",
+      "test_modules": [
+        "tests/test_toolchain_integration_schema.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.git",
+      "domain": "开发",
+      "test_modules": [
+        "tests/test_toolchain_integration_dag.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.logs",
+      "domain": "开发",
+      "test_modules": [],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.nginx_audit",
+      "domain": "开发",
+      "test_modules": [],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.probe",
+      "domain": "开发",
+      "test_modules": [
+        "tests/test_toolchain_integration_e2e.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.restart",
+      "domain": "开发",
+      "test_modules": [],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "dev.services",
+      "domain": "开发",
+      "test_modules": [
+        "tests/test_toolchain_integration_perf.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "ai.predict",
+      "domain": "AI",
+      "test_modules": [],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "methods.computation",
+      "domain": "方法",
+      "test_modules": [
+        "tests/test_knowledge_distill_features.py"
+      ],
+      "min_test_cases": 3
+    },
+    {
+      "capability_id": "misc.stubs",
+      "domain": "杂项",
+      "test_modules": [],
+      "min_test_cases": 3
+    }
+  ]
+}
