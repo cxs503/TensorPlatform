@@ -1,0 +1,191 @@
+{
+ "construction_rule": "topic = <rare 4-char window A> <rare 4-char window B> <generic connector>; A and B are title-derived windows with df/N <= rare_frac and df >= min_df; A and B have disjoint document support (no pool document contains both); the topic is kept only if the legacy union-of-probes gate calls it covered",
+ "expected_property": "every probe must be downgraded to generic_only and carry the generic ledger",
+ "n_probes": 6,
+ "pool_digest": "16ebe14d172927188559e8edafecda7384e80cc53b1fd56f44a9fbabec7aa826",
+ "pool_pin_source": "commit 51eb9368 (2026-11-09) docs/ snapshot; labels frozen with it",
+ "probes": [
+  {
+   "co_occur_docs": 0,
+   "connector": "协同机制",
+   "expected_verdict": "generic_only",
+   "id": "FC01",
+   "legacy_gate": {
+    "n_existing_specific": 2,
+    "specific_coverage": 0.666667,
+    "top_score": 23.084376
+   },
+   "probe_a": {
+    "df": 8,
+    "docs": [
+     "doc:docs/IN47_N08_cross_model_maturity.md",
+     "doc:docs/audit/m1856_error_claim_consistency_audit.md",
+     "doc:docs/benchmarks/benchmark_data_integrity.md"
+    ],
+    "window": "一致性审"
+   },
+   "probe_b": {
+    "df": 7,
+    "docs": [
+     "doc:docs/skills_eval/P07_scores.md",
+     "doc:docs/skills_training/P07-1.md",
+     "doc:docs/skills_training/P07-1/design_doc.md"
+    ],
+    "window": "上传端点"
+   },
+   "topic": "一致性审 上传端点 协同机制"
+  },
+  {
+   "co_occur_docs": 0,
+   "connector": "联动口径",
+   "expected_verdict": "generic_only",
+   "id": "FC02",
+   "legacy_gate": {
+    "n_existing_specific": 2,
+    "specific_coverage": 0.666667,
+    "top_score": 20.067521
+   },
+   "probe_a": {
+    "df": 10,
+    "docs": [
+     "doc:docs/audit/m1703_stability_criteria_verification.md",
+     "doc:docs/audits/structure_vibration_verification_m1600.md",
+     "doc:docs/audits/vibration_noise_domain_audit.md"
+    ],
+    "window": "上层建筑"
+   },
+   "probe_b": {
+    "df": 5,
+    "docs": [
+     "doc:docs/IN56-N07_external_validity_calibration.md",
+     "doc:docs/IN58-N07_external_validity.md",
+     "doc:docs/eval_validity_calibration.md"
+    ],
+    "window": "下游真实"
+   },
+   "topic": "上层建筑 下游真实 联动口径"
+  },
+  {
+   "co_occur_docs": 0,
+   "connector": "贯通流程",
+   "expected_verdict": "generic_only",
+   "id": "FC03",
+   "legacy_gate": {
+    "n_existing_specific": 2,
+    "specific_coverage": 0.666667,
+    "top_score": 20.851303
+   },
+   "probe_a": {
+    "df": 5,
+    "docs": [
+     "doc:docs/abm/ABM-03_多Agent协作规范.md",
+     "doc:docs/abm/ABM-05_独立审查规范.md",
+     "doc:docs/abm/ABM-07_成果分级规范.md"
+    ],
+    "window": "不同模型"
+   },
+   "probe_b": {
+    "df": 36,
+    "docs": [
+     "doc:docs/IN28_N07_council_ledger_pg_corpus.md",
+     "doc:docs/IN35-N07_eval_timeliness.md",
+     "doc:docs/IN47_N08_cross_model_maturity.md"
+    ],
+    "window": "不确定度"
+   },
+   "topic": "不同模型 不确定度 贯通流程"
+  },
+  {
+   "co_occur_docs": 0,
+   "connector": "闭环台账",
+   "expected_verdict": "generic_only",
+   "id": "FC04",
+   "legacy_gate": {
+    "n_existing_specific": 2,
+    "specific_coverage": 0.666667,
+    "top_score": 17.29885
+   },
+   "probe_a": {
+    "df": 32,
+    "docs": [
+     "doc:docs/architecture/AGENT_NATIVE_IT_TENSORPLATFORM_WHITEPAPER_v0.1.md",
+     "doc:docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+     "doc:docs/audit/m2032_roll_verification_debt.md"
+    ],
+    "window": "不确定性"
+   },
+   "probe_b": {
+    "df": 8,
+    "docs": [
+     "doc:docs/m1547/seakeeping_d5_fix_report.md",
+     "doc:docs/reports/m796_marine_icing.md",
+     "doc:docs/seakeeping_verification_report_m1822.md"
+    ],
+    "window": "与解析基"
+   },
+   "topic": "不确定性 与解析基 闭环台账"
+  },
+  {
+   "co_occur_docs": 0,
+   "connector": "交接排期",
+   "expected_verdict": "generic_only",
+   "id": "FC05",
+   "legacy_gate": {
+    "n_existing_specific": 2,
+    "specific_coverage": 0.666667,
+    "top_score": 13.229384
+   },
+   "probe_a": {
+    "df": 7,
+    "docs": [
+     "doc:docs/PLATFORM_VERIFICATION_STATUS_M1671.md",
+     "doc:docs/architecture/platform_physics_boundary_audit.md",
+     "doc:docs/audit/boundary_gates_baseline.md"
+    ],
+    "window": "互不自洽"
+   },
+   "probe_b": {
+    "df": 5,
+    "docs": [
+     "doc:docs/cmaes_literature_verification.md",
+     "doc:docs/ice_crosscheck/REPORT.md",
+     "doc:docs/m5180/evaluation_wave.md"
+    ],
+    "window": "交叉复核"
+   },
+   "topic": "互不自洽 交叉复核 交接排期"
+  },
+  {
+   "co_occur_docs": 0,
+   "connector": "复核清单",
+   "expected_verdict": "generic_only",
+   "id": "FC06",
+   "legacy_gate": {
+    "n_existing_specific": 2,
+    "specific_coverage": 0.666667,
+    "top_score": 15.280776
+   },
+   "probe_a": {
+    "df": 16,
+    "docs": [
+     "doc:docs/IN47_N08_cross_model_maturity.md",
+     "doc:docs/adr/AIL_ADR_001.md",
+     "doc:docs/architecture/platform_physics_boundary_audit.md"
+    ],
+    "window": "互相矛盾"
+   },
+   "probe_b": {
+    "df": 7,
+    "docs": [
+     "doc:docs/architecture/AUTONOMOUS_AGENT_ORGANIZATION_GOVERNANCE_SPEC_v1.2.md",
+     "doc:docs/m1479_resistance_benchmark_report.md",
+     "doc:docs/operator_shift_488.md"
+    ],
+    "window": "代码变更"
+   },
+   "topic": "互相矛盾 代码变更 复核清单"
+  }
+ ],
+ "purpose": "Adversarial probe set for the specificity discipline: topics whose rare probes all exist in the pool but never in the same document, so the legacy union-of-probes gate over-claims covered.",
+ "schema": "radar-falsecovered/v1"
+}
