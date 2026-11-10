@@ -1,0 +1,46 @@
+{
+  "schema_version": "conservation-law.v1",
+  "law_id": "interface.flux.quadratic.v1",
+  "description": "Interface flux handed from side A to side B of a two-subdomain exchange; second-order-accurate greedy transfer with a fixed-point loop certificate.",
+  "quantity_kind": "interface_flux",
+  "norm": "l2_relative",
+  "interface_operator": {
+    "kind": "quadratic_projection",
+    "order_class": 2.0,
+    "stencil": 3
+  },
+  "residual": {
+    "relative_tolerance": 0.0001,
+    "analytic_tolerance": 0.0001
+  },
+  "refinement_gate": {
+    "levels": [24, 48, 96, 192],
+    "ratio": 1.5,
+    "min_observed_order": 1.95,
+    "floor": 1e-12
+  },
+  "loop_gate": {
+    "scheme": "jacobi",
+    "relaxation": "aitken",
+    "tolerance": 1e-10,
+    "max_iterations": 500,
+    "rho_max": 1.0,
+    "min_iteration_reduction": 0.4
+  },
+  "sensitivity": {
+    "parameter": "flux_scale",
+    "relative_tolerance": 0.02,
+    "step": 1e-05
+  },
+  "negative_controls": [
+    {"name": "jittered_flux", "kind": "jittered_flux", "must_fail": true, "amplitude": 0.3, "seed": 7},
+    {"name": "noisy_operator", "kind": "noisy_operator", "must_fail": true, "amplitude": 0.002, "seed": 11},
+    {"name": "divergent_loop", "kind": "divergent_loop", "must_fail": true}
+  ],
+  "provenance": {
+    "owner": "TensorPlatform",
+    "source_node": "p351w1_n01",
+    "created": "2026-11-10",
+    "notes": "Platform-level example: no domain vocabulary, quantity kind is opaque to the platform code."
+  }
+}
