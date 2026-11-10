@@ -12,6 +12,7 @@
 
 from __future__ import annotations
 
+import copy
 import glob
 import json
 import sys
@@ -21,6 +22,7 @@ if __package__ in (None, ""):
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
 from tools.gate_contract.backfill import backfill
+from tools.gate_contract.crossarch import report as crossarch_report
 from tools.gate_contract.ledger import append_verdict, connect, rows, trace_back
 from tools.gate_contract.negcontrol import build_cases, measure_cases
 from tools.gate_contract.verify import verify_gate
@@ -77,16 +79,55 @@ def main() -> int:
             structural.append({"case": label, "grade": None, "raised": True,
                                "error": type(exc).__name__})
 
-    cluster_path = OUT / "verify_all_cluster.json"
-    cluster = json.loads(cluster_path.read_text(encoding="utf-8")) if cluster_path.is_file() else None
-    cross = {"available": cluster is not None}
-    if cluster is not None:
-        want = verify_all["digests"]
-        got = cluster.get("digests", {})
-        same = [g for g in want if got.get(g) == want[g]]
-        cross.update({"n_compared": len(want), "n_identical": len(same),
-                      "consistency": len(same) / len(want) if want else 0.0,
-                      "mismatched": sorted(set(want) - set(same))})
+    # C4：跨架构一致性（异构指纹回填 + libc 往返 + 远端实测件比对）
+    cross = crossarch_report(GATE_ROOT, GATE_ROOT / "criteria_registry.json", CLAIMS, OUT,
+                             remote_artifact=OUT / "verify_all_cluster.json")
+
+    (OUT / "crossarch.json").write_text(
+        json.dumps(cross, ensure_ascii=False, indent=1, sort_keys=True) + "\n", encoding="utf-8")
+
+    # C7：硬化探针 —— 每条 fail-closed 判据都要有一个「应当 withhold」的最小反例
+    probes = []
+    gate0 = Path(gate_paths[0])
+    base_doc = json.loads(gate0.read_text(encoding="utf-8"))
+
+    def _drop(doc):
+        doc["criteria"].pop()
+
+    def _dup(doc):
+        doc["criteria"].append(copy.deepcopy(doc["criteria"][0]))
+
+    def _escape(doc):
+        doc["criteria"][0]["artifact"]["path"] = "../../../etc/passwd"
+
+    def _identity(doc):
+        return None
+
+    probe_specs = (
+        ("registry_omitted", _identity, None, None),
+        ("criterion_dropped", _drop, "registry", None),
+        ("criterion_duplicate", _dup, "registry", None),
+        ("path_escape", _escape, "registry", None),
+        ("gate_ambiguous", _identity, "registry", [{"code": "gate_ambiguous", "detail": "dup"}]),
+        ("registry_tampered", _identity, "registry",
+         [{"code": "registry_tampered", "detail": "pin"}]),
+    )
+    for label, mutate, reg_mode, pre in probe_specs:
+        doc = copy.deepcopy(base_doc)
+        mutate(doc)
+        reg = None if reg_mode is None else registry
+        res = verify_gate(gate_doc=doc, registry=reg, evidence_root=gate0.parent,
+                          pre_issues=pre)
+        probes.append({"probe": label, "grade": res["grade"],
+                       "withheld": res["grade"] == "WITHHELD",
+                       "codes": sorted({i["code"] for i in res["issues"]})})
+    hardening = {
+        "probes": probes,
+        "n_probes": len(probes),
+        "n_withheld": sum(1 for p in probes if p["withheld"]),
+        "fail_open": [p["probe"] for p in probes if not p["withheld"]],
+        "artifact": "artifacts/gate_contract/summary.json#C7_hardening",
+    }
 
     domain_scan = OUT / "domain_scan_new_files.json"
     ds = json.loads(domain_scan.read_text(encoding="utf-8")) if domain_scan.is_file() else {}
@@ -98,7 +139,9 @@ def main() -> int:
                         "grades": grades,
                         "silent_pass": sum(1 for r in results if r["grade"] == "PASS"
                                            and not r["registry_checked"]),
-                        "gate_paths": gate_paths,
+                        "gate_paths": [str(Path(p).resolve().relative_to(ROOT))
+                                       if Path(p).resolve().is_relative_to(ROOT) else p
+                                       for p in gate_paths],
                         "artifact": "artifacts/gate_contract/backfill_summary.json"},
         "C2_negative_control": {"classes": sorted(nc["by_class"]),
                                 "n_cases": nc["n_cases"],
@@ -110,10 +153,7 @@ def main() -> int:
                                       "exceptions": sum(1 for s in structural if s["raised"]),
                                       "all_withheld": all(s["grade"] == "WITHHELD" for s in structural)},
         "C4_cross_arch": {**cross,
-                          "determinism": (json.loads((OUT / "determinism.json").read_text(encoding="utf-8"))
-                                          if (OUT / "determinism.json").is_file() else None),
-                          "artifact": "artifacts/gate_contract/verify_all_cluster.json",
-                          "note": "verdict_digest 不含 env_fingerprint（构造性架构无关）+ 两台机器实测比对"},
+                          "artifact": "artifacts/gate_contract/crossarch.json"},
         "C5_ledger": {"rows": ledger_total, "sampled": trace["checked"],
                       "evidence_rows": trace["evidence_rows"],
                       "traceable": trace["traceable"], "ratio": trace["ratio"],
@@ -121,6 +161,7 @@ def main() -> int:
         "C6_domain_scan": {"scanned_files": ds.get("scanned_files"), "hits": ds.get("hits"),
                            "n_hits": len(ds.get("hits") or []),
                            "artifact": "artifacts/gate_contract/domain_scan_new_files.json"},
+        "C7_hardening": hardening,
         "positive_controls": {"n": len(nc["positive_controls"]), "pass": nc["positive_pass"],
                               "fail": nc["positive_fail"]},
     }
