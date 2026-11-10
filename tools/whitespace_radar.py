@@ -38,7 +38,9 @@ from tools.whitespace_radar_core import (  # noqa: E402
     check_compatible,
     dumps,
     load_bench,
+    load_pin,
     load_pool,
+    pin_report,
     passes_acceptance,
     pool_digest,
     replay,
@@ -56,6 +58,7 @@ from tools.whitespace_radar_core.pool_build import (  # noqa: E402
 REPO_ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 DEFAULT_POOL = "data/whitespace_radar/pool/manifest.json"
 DEFAULT_BENCH = "data/whitespace_radar/replay_bench.json"
+DEFAULT_PIN = "data/whitespace_radar/pool/pin.json"
 CACHE_DIR = ".cache/whitespace_radar"
 
 
@@ -64,10 +67,27 @@ def _abs(path: str) -> str:
 
 
 def _load_index(
-    pool_manifest: str, *, use_cache: bool = True, stats: Optional[Dict[str, Any]] = None
-) -> tuple[Bm25Index, List[Any], str]:
+    pool_manifest: str,
+    *,
+    use_cache: bool = True,
+    stats: Optional[Dict[str, Any]] = None,
+    pin_path: Optional[str] = None,
+) -> tuple[Bm25Index, List[Any], str, Dict[str, Any]]:
+    """Build the (pinned) pool + index.
+
+    Returns ``(index, docs, pool_digest, pin_drift)``.  ``pin_drift`` is empty
+    when no pin is configured; otherwise it records which live documents were
+    added / edited / deleted since the pool was frozen, so a replay can never
+    quote an accuracy without saying which evidence snapshot it used.
+    """
     t0 = time.perf_counter()
-    docs = load_pool(REPO_ROOT, _abs(pool_manifest))
+    resolved = _abs(pin_path or DEFAULT_PIN)
+    pin = load_pin(resolved) if resolved and os.path.isfile(resolved) else None
+    drift: Dict[str, Any] = {}
+    if pin is not None:
+        live = load_pool(REPO_ROOT, _abs(pool_manifest))
+        drift = pin_report(live, pin)
+    docs = load_pool(REPO_ROOT, _abs(pool_manifest), pin=pin)
     digest = pool_digest(docs)
     t1 = time.perf_counter()
     cache = os.path.join(REPO_ROOT, CACHE_DIR, f"{digest}.pkl")
@@ -97,9 +117,10 @@ def _load_index(
                 "n_terms": len(index.postings),
                 "n_tokens": index.as_manifest()["n_tokens"],
                 "pool_digest": digest,
+                "pin_drift": drift.get("drift", False),
             }
         )
-    return index, docs, digest
+    return index, docs, digest, drift
 
 
 def _write_json(path: str, payload: Dict[str, Any]) -> None:
@@ -124,7 +145,9 @@ def _emit(envelope: Dict[str, Any], json_out: Optional[str], quiet: bool) -> Non
 
 def cmd_query(args: argparse.Namespace) -> int:
     stats: Dict[str, Any] = {}
-    index, docs, digest = _load_index(args.pool, use_cache=not args.no_cache, stats=stats)
+    index, docs, digest, _drift = _load_index(
+        args.pool, use_cache=not args.no_cache, stats=stats, pin_path=args.pin
+    )
     th = Thresholds(s_floor=args.s_floor) if args.s_floor else Thresholds()
     results = [
         analyze(
@@ -159,16 +182,25 @@ def cmd_query(args: argparse.Namespace) -> int:
 
 def cmd_bench(args: argparse.Namespace) -> int:
     stats: Dict[str, Any] = {}
-    index, docs, digest = _load_index(args.pool, use_cache=not args.no_cache, stats=stats)
+    index, docs, digest, drift = _load_index(
+        args.pool, use_cache=not args.no_cache, stats=stats, pin_path=args.pin
+    )
     bench_path = _abs(args.bench)
     bench = load_bench(bench_path)
     import hashlib as _hl
     bench_sha = _hl.sha256(open(bench_path, "rb").read()).hexdigest()
     th = Thresholds(s_floor=args.s_floor) if args.s_floor else Thresholds()
-    report = replay(index, bench, thresholds=th, pool_digest=digest, as_of=f"pool:{digest[:16]}")
+    report = replay(
+        index,
+        bench,
+        thresholds=th,
+        pool_digest=digest,
+        as_of=f"pool:{digest[:16]}",
+        pool_pin=drift,
+    )
     report["acceptance"] = {
-        "min_correct": 16,
-        "passed": passes_acceptance(report),
+        "min_correct": report["n_topics"],
+        "passed": passes_acceptance(report, require_all=True),
         "blank_zero_false_positive": report["blank_false_positive"] == 0,
     }
     if args.calibrate:
@@ -216,7 +248,9 @@ def cmd_query_json(args: argparse.Namespace) -> int:
     with open(_abs(args.query_json), encoding="utf-8") as fh:
         payload = json.load(fh)
     _validate_query_file(payload)
-    index, _docs, digest = _load_index(args.pool, use_cache=not args.no_cache)
+    index, _docs, digest, _drift = _load_index(
+        args.pool, use_cache=not args.no_cache, pin_path=args.pin
+    )
     th = Thresholds(s_floor=args.s_floor) if args.s_floor else Thresholds()
     results = []
     for item in payload["topics"]:
@@ -301,6 +335,11 @@ def build_parser() -> argparse.ArgumentParser:
     p.add_argument("--json-out", help="write sealed radar/v1 JSON here")
     p.add_argument("--pool", default=DEFAULT_POOL, help=f"pool manifest (default {DEFAULT_POOL})")
     p.add_argument("--bench", default=DEFAULT_BENCH, help="replay benchmark JSON")
+    p.add_argument(
+        "--pin",
+        default=DEFAULT_PIN,
+        help=f"frozen pool snapshot for replays (default {DEFAULT_PIN}; empty string = live pool)",
+    )
     p.add_argument("--calibrate", action="store_true", help="also emit the threshold grid")
     p.add_argument("--s-floor", type=float, help="override the relevance floor")
     p.add_argument("--drop-term", action="append", help="remove a term from the query (killer test)")
