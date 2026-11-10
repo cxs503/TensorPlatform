@@ -750,6 +750,36 @@ except Exception:  # pragma: no cover
     logger.warning("capability-audit API not mounted", exc_info=True)
 
 
+# ── 能力台账自动升账（p262w1-N07）──────────────────────────────────────────
+# 证据链完整 → 升 REAL；回归/证据断裂 → 降 MOCK/WITHHELD；每次操作落 append-only
+# sha256 链审计日志。规格由 config/capability_chain_spec.json 注入（零领域语义），
+# 能力 id 是不透明路径参数。挂载失败不得拖垮主应用。
+try:  # pragma: no cover - 环境相关
+    from pathlib import Path as _Path
+
+    from tools.capability_auto_audit.api import build_router as _auto_audit_build_router
+    from tools.capability_auto_audit.auto_audit_engine import AutoAuditEngine as _AutoAuditEngine
+    from tools.capability_auto_audit.evidence_chain import ChainSpec as _ChainSpec
+
+    _repo_root = _Path(__file__).resolve().parents[1]
+    _auto_audit_root = _repo_root / "artifacts" / "capability_auto_audit" / "runtime"
+    _auto_audit_spec_path = _repo_root / "config" / "capability_chain_spec.json"
+    _auto_audit_engine = _AutoAuditEngine(
+        verified_dir=_auto_audit_root / "verified",
+        state_path=_auto_audit_root / "ledger_state.json",
+        log_path=_auto_audit_root / "audit_log.jsonl",
+        spec=(_ChainSpec.from_file(_auto_audit_spec_path)
+              if _auto_audit_spec_path.is_file() else _ChainSpec()),
+    )
+    app.include_router(
+        _auto_audit_build_router(_auto_audit_engine, _require_auth),
+        prefix="/api/v1",
+    )
+    logger.info("capability auto-audit API mounted at /api/v1/capabilities/{id}/auto-audit")
+except Exception:  # pragma: no cover
+    logger.warning("capability auto-audit API not mounted", exc_info=True)
+
+
 # ── 多租户隔离机制 v1 的 HTTP 面（P337W1-N02）───────────────────────────────
 # 只做服务层透传：拒绝一律 403/409，调用方不会把拒绝误当成功。租户事实由
 # config/tenant_registry.json 注入（零领域语义）；挂载失败不得拖垮主应用。
