@@ -15,6 +15,8 @@ Tensor follows a **fully open-source core** strategy.
 
 This policy is a governance target. It does not itself relicense any existing repository or third-party contribution.
 
+The repository-by-repository target and migration queue are maintained in [LICENSE_DECISION_REGISTER.md](LICENSE_DECISION_REGISTER.md). The register is a proposed plan, not an authorization to change any repository license.
+
 ## 2. License by asset type
 
 | Asset | Default policy | Notes |
