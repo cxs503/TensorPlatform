@@ -10,6 +10,11 @@ Provides:
 - FEMtoDEMTransfer: FEM→DEM fracture transfer with four-ledger conservation
 - LBMtoFVMInterpolator: LBM→FVM flow field interpolation with mass conservation
 - ClockSynchronizer: conservative/optimistic clock synchronization
+- TemporalCoordinator: LBM/FEM/DEM three-field coupling time step coordination
+- CausalOrderVerifier: causal order verification for data exchange
+- EnergyConservationTracker: energy conservation tracking across solvers
+- AdaptiveTimeStepper: CFL-based adaptive time stepping
+- EventDrivenCoupler: event-driven coupling with bounded capture delay
 
 All domain semantics are injected via configuration; this module is domain-agnostic.
 """
@@ -39,6 +44,22 @@ from .clock_sync import (
     SyncResult,
     SyncMode,
 )
+from .temporal_sync import (
+    TemporalCoordinator,
+    CausalOrderVerifier,
+    CausalEvent,
+    EnergyConservationTracker,
+    EnergySnapshot,
+    AdaptiveTimeStepper,
+    CFLReport,
+    EventDrivenCoupler,
+    CouplingEvent,
+    MacroStepResult,
+    SolverType,
+    SolverTimeConfig,
+    harmonic_oscillator_energy,
+    weakly_damped_oscillator_energy,
+)
 
 __all__ = [
     "FieldExchange",
@@ -67,4 +88,18 @@ __all__ = [
     "SyncState",
     "SyncResult",
     "SyncMode",
+    "TemporalCoordinator",
+    "CausalOrderVerifier",
+    "CausalEvent",
+    "EnergyConservationTracker",
+    "EnergySnapshot",
+    "AdaptiveTimeStepper",
+    "CFLReport",
+    "EventDrivenCoupler",
+    "CouplingEvent",
+    "MacroStepResult",
+    "SolverType",
+    "SolverTimeConfig",
+    "harmonic_oscillator_energy",
+    "weakly_damped_oscillator_energy",
 ]
