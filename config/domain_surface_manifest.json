@@ -1,0 +1,914 @@
+{
+  "schema_version": "1.0",
+  "generated_by": "tools/audit/domain_surface_manifest.py",
+  "policy_digest": "8a83fd0017f6ff2d181bc4be408ff2735b042ecd116d7ff25395174774674fae",
+  "surface_roots": [
+    "backend/api/domain"
+  ],
+  "layers": {
+    "core": [
+      "backend/api/core",
+      "backend/services",
+      "backend/services/platform",
+      "backend/models",
+      "backend/utils",
+      "backend/methods",
+      "backend/physics",
+      "backend/tasks"
+    ],
+    "route": [
+      "backend/api"
+    ],
+    "tooling": [
+      "tools",
+      "scripts"
+    ]
+  },
+  "absent_layers": [
+    "backend/services/platform"
+  ],
+  "modules": [
+    {
+      "path": "backend/api/domain/__init__.py",
+      "sha256": "6a93adeb09a314e0515e36bafc8eb551fc10b92473af69b692d83377ea53c156",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/benchmark_audit.py",
+      "sha256": "78f94b54aff9418dfecadbe71990fa7b2673e846b73930aa2d25771e684967c9",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/coupling_clock_sync.py",
+      "sha256": "be9dc7db8a0691b18d804a940477c4d04abc0d1256ba9d637dc4db2c6025bb62",
+      "owner_repo": "TensorPhysics",
+      "target_layer": "domains/physics_providers",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "求解器耦合/冰区不确定度等科研流程语义，按 ECOSYSTEM-MAP 归 TensorPhysics。"
+    },
+    {
+      "path": "backend/api/domain/data.py",
+      "sha256": "24943fe12dee9888f9868a7bde39a2ab13c94d27260d1f60c439c112a15d52f3",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/delivery_state.py",
+      "sha256": "d0f87e7b5ed75ac5eb35b6c7a7c019701ce3ee35ec10d6b763821360e49977bd",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/deployment.py",
+      "sha256": "593ac146cf38fd7f6ecc0f5a82fa01724bfc02bfccbfb00fd7e6586f2d52e9a3",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/holtrop_mennen.py",
+      "sha256": "015bfa565511d1645a8ab3b2bb2639247d3dabe602913fabee2009b565b6a20e",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/hull_geometry.py",
+      "sha256": "a1025bcdbf928076d6e6100af98ae6b02b5afc5bb2e557df4fe3dfbf737fb3a5",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/iam.py",
+      "sha256": "5f9e0394879bd65ac1f2ec193c943f5a07ce2e4840b2c53e597792e58aeab70a",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/ice_uq.py",
+      "sha256": "c0e248498d1c351e2a991f1703d1904529e33921e4e609b70a6569dc6d412372",
+      "owner_repo": "TensorPhysics",
+      "target_layer": "domains/physics_providers",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "求解器耦合/冰区不确定度等科研流程语义，按 ECOSYSTEM-MAP 归 TensorPhysics。"
+    },
+    {
+      "path": "backend/api/domain/iot_edge.py",
+      "sha256": "e29e16b9fd97b625aab9d949ddf2aaf38ca3dc6a7ba7a3afa14d2ac5646a3aff",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/manoeuvring.py",
+      "sha256": "6de70fec00c5f10bfa68b45b1d701d0cb3f4ccadcca0a5b3390175d6ed2c9a58",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/misc.py",
+      "sha256": "10691610efc41a5f9b17bdf44dca8f9caf2c3462c88840ea738a6376c5e9503d",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/mission_state_machine.py",
+      "sha256": "9968d36c8b0a47b800ed81c31f5ed55fee69b687fcf90b7fb2554be7fec84c50",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/model.py",
+      "sha256": "d25995cfab360123514dc1fb016d2b28c3de98b8ca8b7a73ad61389d7374baa1",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/mvd_checkpoint.py",
+      "sha256": "bb9a35064ccfbd0b14ed2d5fc9d057ca92238e4d9a6daca4bf5429e1cd69f291",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/observability.py",
+      "sha256": "5f22b06279f5189a30e47a56239f86bf1b3d4c37fb7d08cf233489051030dc3f",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/ops.py",
+      "sha256": "765473033e6f5a5fb629733b9fcc525c9bf70306b8fb8cdb4c6be86f1a881e3b",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/physics_providers.py",
+      "sha256": "10728af7df144f632a69568538afcf0a2ec8e147654035298e5e90a99993bb3a",
+      "owner_repo": "TensorPhysics",
+      "target_layer": "domains/physics_providers",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "求解器耦合/冰区不确定度等科研流程语义，按 ECOSYSTEM-MAP 归 TensorPhysics。"
+    },
+    {
+      "path": "backend/api/domain/platform.py",
+      "sha256": "e3d5dbdd3d1ea6c0f39f2237c719f5a41e1b93fc0ffa348e558993a77fe0b97a",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/polar.py",
+      "sha256": "870b4e0717e07db8e0545506a8b632ba00257987f6cf22ef720a4e2d80958916",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/propeller_open_water.py",
+      "sha256": "cccf7f33faa29cea99059e2edf5354f8ff7720214abe057dcade1b0a4aab12a2",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/resistance_core.py",
+      "sha256": "0d5ddf05b76397f2efa2bb06712a4b3a2672f55b8e73b0af0182c3f09a725cfe",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/resistance_core_service.py",
+      "sha256": "ae43079a6c2f8ad3eb00b1e12bbcdae178de0910825b56a8a390622a389b907d",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/resistance_holtrop.py",
+      "sha256": "27ba0a9b26648e7cb16945581426d8ac4409dc060a4a54c1fe95fb4877e9cc21",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/resistance_model.py",
+      "sha256": "05f0bd46cb1b0cb70749a83957832e2e16ea54ad784b21ab0343c166a8b2edd4",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_batch.py",
+      "sha256": "b187219dc428ff6ae0ddd4caf79c1b09e796765a41f6f249a75d527a3ab83d8c",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_benchmark.py",
+      "sha256": "ff8f2aea40d50050f307cc597600eb7533a91ab5596ffbf604256e7b58d45ece",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_green.py",
+      "sha256": "8d91c80cb6df82c2aae2e76d1cd011431f02b0833317a7255dcaf24a3b417562",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_icing.py",
+      "sha256": "0d11dbb2358df701f33c03c97117972a3d34d021bbcab054dedaecb99d60b2ef",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_resistance.py",
+      "sha256": "b78a30016e1c705eb9b932db6227c0441ab159d8b69c39f7e0062a9b15b9ccd9",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_samples.py",
+      "sha256": "70daf3ca5cf2f7a8abfa409ebbdf184147408c1b89230614b08613ff137c7036",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_seakeeping.py",
+      "sha256": "2969ce330ae964982dff10ecda138b4a030c04967572ad3d932e7c7a27cbccd1",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/ship_vibration.py",
+      "sha256": "601d97cbce56c2283d1d5a79f778f003dcdf5b7376d531e2344274d46b04f0e4",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
+      "path": "backend/api/domain/status_contracts.py",
+      "sha256": "815180a07fb03011566b5bd90fe9fd26b18acd3aa194e8a1cd44beb3a72f26c9",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/tensor.py",
+      "sha256": "c9417025b2014f3531094b5f05cdce019db3833c3c12610973c24d8adc5c9655",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/tensor_common.py",
+      "sha256": "790706e1640aca5fa6c96fc9d428e4f08c9540ded57c05c1ee5d7ac221914102",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/tools.py",
+      "sha256": "963d5466986469226b939dc994a38fae24a4ceda9499402019d9d26fe17acdfc",
+      "owner_repo": "TensorPlatform",
+      "target_layer": "backend/api/core",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "P162W1-N10",
+      "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    }
+  ],
+  "dependency_exemptions": [
+    {
+      "path": "backend/api/auth.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        184
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/breakthrough_problems.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        27
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/calculations.py",
+      "module": "api.domain.ship_resistance",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        39
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/campaign_plans.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        29
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/campaign_routing.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        27
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/factory_residents.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        11
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/factory_strategy.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        14
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/kpi_delivery.py",
+      "module": "api.domain.delivery_state",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        46
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/outcome_evaluations.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        30
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/soul_runtime.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        23
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_activity.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        20
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_approvals.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 2,
+      "lines": [
+        18,
+        252
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 2
+    },
+    {
+      "path": "backend/api/tensor_capability.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        19
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_centers.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        35
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_executions.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        23
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_llm.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        18
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_mission_lifecycle.py",
+      "module": "api.domain.mission_state_machine",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        34
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_mission_lifecycle.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        41
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_missions.py",
+      "module": "api.domain.mvd_checkpoint",
+      "kind": "from",
+      "sites": 2,
+      "lines": [
+        496,
+        754
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 2
+    },
+    {
+      "path": "backend/api/tensor_missions.py",
+      "module": "api.domain.status_contracts",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        55
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_missions.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        32
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_reconcile.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        22
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_reports.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        22
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_repro.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        29
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_scenarios.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        12
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_sessions.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        13
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_system.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        12
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensorphysics_runs.py",
+      "module": "api.domain.status_contracts",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        30
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/users.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        67
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "scripts/audit_benchmark_chain_m1388.py",
+      "module": "api.domain.ship_benchmark",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        35
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "scripts/audit_benchmark_chain_m1388.py",
+      "module": "api.domain.ship_resistance",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        39
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "scripts/generate_m1772_figures.py",
+      "module": "api.domain.ship_resistance",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        29
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/benchmark_audit_report.py",
+      "module": "api.domain",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        28
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/contracts/vocab_contract_audit.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        167
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/p92w3_n10/adjudicate.py",
+      "module": "api.domain.delivery_state",
+      "kind": "from",
+      "sites": 2,
+      "lines": [
+        23,
+        38
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 2
+    },
+    {
+      "path": "tools/p92w3_n10/domain_scan.py",
+      "module": "api.domain.delivery_state",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        17
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/p92w3_n10/evaluate.py",
+      "module": "api.domain.delivery_state",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        26
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/p92w3_n10/shadow_golden.py",
+      "module": "api.domain",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        26
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/p92w3_n10/shadow_golden.py",
+      "module": "api.domain.delivery_state",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        27
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "tools/verif/geometry/std_geometry_gate.py",
+      "module": "api.domain.ship_resistance",
+      "kind": "from",
+      "sites": 2,
+      "lines": [
+        112,
+        123
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 2
+    },
+    {
+      "path": "tools/verify/resistance_benchmark_audit.py",
+      "module": "api.domain.holtrop_mennen",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        42
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    }
+  ],
+  "integrity": {
+    "content_sha256": "ee26ba31e3e73725aa28580a1ba8046ac3dc7149f9771715c7dbceccefcff3cf",
+    "algorithm": "sha256/canonical-json"
+  }
+}
