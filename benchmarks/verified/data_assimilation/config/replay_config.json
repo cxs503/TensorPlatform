@@ -1,0 +1,26 @@
+{
+  "note": "Sources for the real-table replay. Every number used by the replay is read from these files at run time; nothing is transcribed into code or into the report.",
+  "table_source": "tests/data/reference_corpus/resistance_reference.json",
+  "entries_pointer": "/entries",
+  "case_id": "kcs_design_24kn",
+  "columns": {
+    "coefficient_total": "reference/ct",
+    "coefficient_viscous": "reference/cf",
+    "form_factor": "reference/one_plus_k1",
+    "speed": "inputs/Vs_ms",
+    "length": "inputs/L",
+    "speed_ratio": "reference/fn"
+  },
+  "geometry_source": "optimizer/interfaces/kcs_bow_param.py",
+  "geometry_symbol": "KCS_BASELINE",
+  "geometry_keys": {"length": "L", "speed_ratio": "Fn_design"},
+  "fluids": {
+    "full": {"density_kg_m3": 1025.0, "viscosity_m2_s": 1.188e-06},
+    "reduced": {"density_kg_m3": 998.2, "viscosity_m2_s": 1.004e-06}
+  },
+  "tolerance_pct": 15.0,
+  "seed_claim": {
+    "deviation_pct": -16.5,
+    "note": "the seeding node quoted -16.5% for this table; the machine recomputes the deviation and attributes it"
+  }
+}
