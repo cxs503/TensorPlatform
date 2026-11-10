@@ -72,3 +72,9 @@ router.include_router(negative_knowledge_router)
 # ── PR#732: Proposal Gate — 提案→战役播种供给链机器门 ──
 from api.proposal_gate import router as proposal_gate_router          # prefix="/proposals"
 router.include_router(proposal_gate_router)
+
+# ── m9254: Platform Capability Audit & Autonomous Sustainability ──
+from api.capability_audit import router as capability_audit_router      # prefix="/tensor/capabilities"
+from api.platform_kpi_api import router as platform_kpi_api_router     # prefix="/tensor/kpi"
+router.include_router(capability_audit_router)
+router.include_router(platform_kpi_api_router)
