@@ -1,0 +1,31 @@
+{
+  "_comment": "证据链规格（p262w1-N07 能力台账自动升账）。零领域语义：只描述证据强度判据，不含任何域词条；由 tools/capability_auto_audit/evidence_chain.ChainSpec 读取。",
+  "min_pytest_passed": 3,
+  "max_pytest_failed": 0,
+  "max_pytest_errors": 0,
+  "required_report_elements": [
+    "case",
+    "method",
+    "results",
+    "figures",
+    "notes",
+    "error_judgement"
+  ],
+  "max_rel_error": 0.03,
+  "claim_tol": 1e-09,
+  "error_expression": "abs(measured - reference) / abs(reference)",
+  "error_metric_name": "rel_error",
+  "require_independent_review": true,
+  "review_pass_values": [
+    "PASS",
+    "APPROVED",
+    "ACCEPTED"
+  ],
+  "artifact_filename": "artifact.json",
+  "report_filename": "report.json",
+  "metrics_filename": "metrics.json",
+  "review_filename": "review.json",
+  "pytest_xml_filename": "pytest.xml",
+  "pytest_json_filename": "pytest.json",
+  "default_level": "WITHHELD"
+}

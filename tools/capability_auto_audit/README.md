@@ -184,3 +184,35 @@ This system integrates with:
 
 The auto-audit system extends (not replaces) the existing infrastructure,
 adding automation, SQL provenance, and rollback capabilities.
+
+---
+
+## p262w1-N07: evidence-chain driven auto-upgrade / auto-downgrade
+
+The IN63-N09 modules above classify evidence statically. The p262w1-N07 modules
+close the loop: a **complete evidence chain promotes a capability to REAL, a
+broken one demotes it**, and every operation lands in a sha256-chained
+append-only audit log.
+
+| Module | Purpose |
+|--------|---------|
+| `evidence_chain.py` | Five-link chain (`artifact` / `pytest` / `report` / `error` / `review`) → `ChainVerdict`; the error link is recomputed by `tools.metric_gate` |
+| `level_machine.py` | Level state machine: complete chain → REAL, regression → MOCK, lost evidence → WITHHELD |
+| `append_only_log.py` | Append-only JSONL audit log, `prev_sha256` + `sha256` per entry, `verify()` detects tampering / deletion / reordering |
+| `auto_audit_engine.py` | `audit()`, `watch_once()`, `run()` / `start_background()` watcher, atomic ledger-state file |
+| `api.py` | `POST /capabilities/{id}/auto-audit`, `GET /capabilities/{id}/level`, `GET /capabilities/audit-log[/verify]` |
+| `n07_acceptance.py` | Recomputes the F1–F6 acceptance numbers + figure into `artifacts/capability_auto_audit/` |
+| `n07_report.py` | Emits `docs/capability_auto_audit/N07_capability_auto_audit.md` and the platform report payload |
+
+Evidence bundle layout (all thresholds come from `config/capability_chain_spec.json`):
+
+```
+verified/<capability_id>/
+  artifact.json   # {"case_id": ..., "inputs_sha256": ...}
+  pytest.xml      # or pytest.json: {"passed": n, "failed": m}
+  report.json     # case / method / results / figures / notes / error_judgement
+  metrics.json    # {"measured": ..., "reference": ..., "rel_error": <claimed>}
+  review.json     # {"reviewer": ..., "verdict": "PASS", "independent": true}
+```
+
+Tests: `python3 -m pytest tests/capability_auto_audit -q` (60 cases).
