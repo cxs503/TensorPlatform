@@ -32,6 +32,7 @@ from api.kpi import router as kpi_router                                   # pre
 from api.failure_postmortems import router as failure_postmortems_router   # prefix="/tensor/failure-postmortems" (IN59-A4)
 from api.tensor_reconcile import router as tensor_reconcile_router         # prefix="/tensor/reconcile" (p254w1-n01 报告对账门)
 from api.negative_knowledge import router as negative_knowledge_router     # prefix="/tensor/negative-knowledge" (P155W1-N03 否定性知识台账)
+from api.knowledge_sediment import router as knowledge_sediment_router     # prefix="/knowledge" (p351w1-N03 四契约沉淀检索)
 
 router.include_router(tensor_scenarios_router)
 router.include_router(tensor_executions_router)
@@ -68,6 +69,7 @@ router.include_router(tensor_reconcile_router)
 
 # ── P155W1-N03: Negative Knowledge Registry (否定性知识台账) ──
 router.include_router(negative_knowledge_router)
+router.include_router(knowledge_sediment_router)
 
 # ── PR#732: Proposal Gate — 提案→战役播种供给链机器门 ──
 from api.proposal_gate import router as proposal_gate_router          # prefix="/proposals"
