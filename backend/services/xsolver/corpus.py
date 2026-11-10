@@ -432,6 +432,66 @@ def coverage(corpus: Dict[str, Any]) -> Dict[str, Any]:
 
 
 # ---------------------------------------------------------------------------
+# reproducibility fingerprint
+# ---------------------------------------------------------------------------
+#: config files that participate in normalisation; their bytes decide how an
+#: artifact turns into a case, so a case fingerprint means nothing without them
+FRAME_CONFIGS = ("normalization_rules", "quantity_aliases", "conservation_tolerances",
+                 "corpus_sources")
+
+#: keys whose value is wall clock / host layout rather than harvested content
+VOLATILE_KEYS = ("harvested_utc",)
+
+
+def _config_digests() -> Dict[str, Optional[str]]:
+    from .jsonschema_lite import CONFIG_DIR
+    out: Dict[str, Optional[str]] = {}
+    for name in FRAME_CONFIGS:
+        path = CONFIG_DIR / f"{name}.json"
+        out[name] = N.file_sha256(path) if path.exists() else None
+    return out
+
+
+def case_fingerprint(case: Dict[str, Any]) -> str:
+    """Per-case fingerprint of the *content*: source bytes + parsing outcome + attribution.
+
+    ``source_path`` and ``harvested_utc`` are deliberately absent -- they change when the
+    same bytes are read on another host or one second later, and a fingerprint that moves
+    with the clock cannot answer "was this the same harvest?".
+    """
+    prov = case.get("provenance") or {}
+    return N.digest_of({
+        "case_id": case.get("case_id"),
+        "problem_id": case.get("problem_id"),
+        "source_sha256": prov.get("source_sha256"),
+        "git_commit": prov.get("git_commit"),
+        "solver_version": prov.get("solver_version"),
+        "input_digest": (case.get("input", {}).get("provenance") or {}).get("input_digest"),
+        "condition": case.get("condition"),
+    })
+
+
+def content_fingerprint(corpus: Dict[str, Any]) -> Dict[str, Any]:
+    """Stable digest of what was harvested, so two harvests are comparable.
+
+    ``digest_of(corpus)`` (the byte digest kept in the index as ``corpus_digest``)
+    *cannot* serve this purpose: the corpus embeds ``harvested_utc``, so it changes on
+    every run even when every source artifact is byte-identical.  This function is the
+    reproducibility gate: equal ``content_digest`` <=> same case set, same source bytes,
+    same commits, same parsing config.
+    """
+    cases = sorted((case_fingerprint(c) for c in corpus.get("cases", [])))
+    frame = _config_digests()
+    return {
+        "content_digest": N.digest_of({"cases": cases, "frame_config": frame}),
+        "case_count": len(cases),
+        "frame_config": frame,
+        "frame_config_digest": N.digest_of(frame),
+        "per_case": {c.get("case_id"): case_fingerprint(c) for c in corpus.get("cases", [])},
+    }
+
+
+# ---------------------------------------------------------------------------
 # persistence
 # ---------------------------------------------------------------------------
 def save_corpus(corpus: Dict[str, Any], out_dir: Path) -> Tuple[Path, Path]:
@@ -440,10 +500,15 @@ def save_corpus(corpus: Dict[str, Any], out_dir: Path) -> Tuple[Path, Path]:
     corpus_path = out_dir / "corpus.json"
     corpus_path.write_text(json.dumps(corpus, ensure_ascii=False, indent=1, sort_keys=True),
                            encoding="utf-8")
+    fingerprint = content_fingerprint(corpus)
     index = {
         "schema": "xsolver/corpus_index/v1",
         "corpus_path": str(corpus_path),
+        # byte digest of this exact run (includes harvested_utc: identity, not reproducibility)
         "corpus_digest": N.digest_of(corpus),
+        # content digest (excludes wall clock / host paths: the reproducibility gate)
+        "content_digest": fingerprint["content_digest"],
+        "frame_config_digest": fingerprint["frame_config_digest"],
         "case_count": len(corpus.get("cases", [])),
         "harvested_utc": corpus.get("harvested_utc"),
         "coverage": corpus.get("stats", {}).get("coverage"),

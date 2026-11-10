@@ -1,0 +1,15 @@
+{
+  "schema_version": "1.0",
+  "purpose": "Which problem the acceptance driver adjudicates, and which campaign node the run it writes belongs to. The driver code carries mechanics only: the primary problem id, the node id and the mission number are governance/domain vocabulary and live here, so re-pointing the acceptance run at another problem family is a config edit rather than a source change.",
+  "node": {
+    "id": "p83w2-n09-cross-solver-schema-maturity",
+    "mission_id": 9262,
+    "predecessor": "p83w1-n07-cross-solver-schema-maturity"
+  },
+  "primary_problem_id": "wigley3_total_drag",
+  "primary_problem_note": "the only problem in this wave whose arms each report the total-resistance coefficient, so the adjudication criterion has at least three comparable arms; changing it requires a problem with the same property",
+  "reproducibility": {
+    "reharvest": true,
+    "note": "C7 re-harvests the sources inside the same run and compares content_digest (wall-clock-free) rather than corpus_digest (byte identity), because the corpus embeds harvested_utc and its byte digest necessarily moves between runs"
+  }
+}
