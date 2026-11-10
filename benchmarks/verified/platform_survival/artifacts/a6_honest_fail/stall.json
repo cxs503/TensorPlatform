@@ -1,0 +1,111 @@
+{
+  "detected": true,
+  "events": [
+    {
+      "action": "restate",
+      "barren_budget": 20.0,
+      "budget_fraction": 0.3,
+      "budget_total": 200.0,
+      "budget_used": 60.0,
+      "credits_at_detection": 6.349977578351645,
+      "detail": {},
+      "index": 0,
+      "level": "restate"
+    },
+    {
+      "action": "reroute",
+      "barren_budget": 20.0,
+      "budget_fraction": 0.4,
+      "budget_total": 200.0,
+      "budget_used": 80.0,
+      "credits_at_detection": 6.349977578351645,
+      "detail": {
+        "blacklisted": "fruitful_early",
+        "queue_exhausted": false,
+        "switched_to": "barren"
+      },
+      "index": 1,
+      "level": "reroute"
+    },
+    {
+      "action": "shrink",
+      "barren_budget": 20.0,
+      "budget_fraction": 0.5,
+      "budget_total": 200.0,
+      "budget_used": 100.0,
+      "credits_at_detection": 6.349977578351645,
+      "detail": {
+        "minimal_strategy": null,
+        "scope": "minimal_provable_unit"
+      },
+      "index": 2,
+      "level": "shrink"
+    },
+    {
+      "action": "honest_fail",
+      "barren_budget": 20.0,
+      "budget_fraction": 0.6,
+      "budget_total": 200.0,
+      "budget_used": 120.0,
+      "credits_at_detection": 6.349977578351645,
+      "detail": {
+        "retain_artifacts": true,
+        "scope": "final"
+      },
+      "index": 3,
+      "level": "honest_fail"
+    }
+  ],
+  "first_detection_fraction": 0.3,
+  "honest_fail": true,
+  "levels_seen": [
+    "restate",
+    "reroute",
+    "shrink",
+    "honest_fail"
+  ],
+  "plan": {
+    "blacklist": [
+      {
+        "at_budget": 80.0,
+        "reason": "stall_barren_window",
+        "strategy": "fruitful_early"
+      }
+    ],
+    "current": {
+      "active_until_budget": null,
+      "description": "",
+      "minimal": false,
+      "name": "barren",
+      "yield_per_budget": 0.0
+    },
+    "order": [
+      {
+        "active_until_budget": 40,
+        "description": "",
+        "minimal": false,
+        "name": "fruitful_early",
+        "yield_per_budget": 0.1
+      },
+      {
+        "active_until_budget": null,
+        "description": "",
+        "minimal": false,
+        "name": "barren",
+        "yield_per_budget": 0.0
+      }
+    ],
+    "switches": [
+      {
+        "at_budget": 80.0,
+        "from": "fruitful_early",
+        "reason": "stall_reroute",
+        "to": "barren"
+      }
+    ]
+  },
+  "recoveries": [],
+  "schema": "progress_meter.stall/1",
+  "stall_frac": 0.1,
+  "stall_window_budget": 20.0
+}
