@@ -1,0 +1,87 @@
+{
+  "schema_version": "1.1",
+  "purpose": "Canonical quantity names for cross-solver comparison. alias lists are matched case-insensitively against flattened artifact paths (last path segment first, then full path tail). component_identity declares how a total coefficient decomposes, which is what the adjudicator uses to attribute a cross-solver difference to term coverage instead of numerical error.",
+  "quantities": {
+    "C_T": {
+      "aliases": ["c_t", "ct", "cd_total", "c_total", "c_d", "cd", "total_drag_coefficient", "drag_coefficient"],
+      "unit": "-",
+      "kind": "total"
+    },
+    "C_F": {
+      "aliases": ["c_f", "cf", "cd_friction", "c_friction", "friction_drag_coefficient", "cf_ittc57_ref"],
+      "unit": "-",
+      "kind": "component"
+    },
+    "C_W": {
+      "aliases": ["c_w", "cw", "cd_wave", "c_wave", "wave_drag_coefficient"],
+      "unit": "-",
+      "kind": "component"
+    },
+    "C_R": {
+      "aliases": ["c_r", "cr", "cd_residuary", "c_residuary", "residuary_drag_coefficient"],
+      "unit": "-",
+      "kind": "component"
+    },
+    "C_P": {
+      "aliases": ["c_p", "cp", "cd_pressure", "c_pressure", "pressure_drag_coefficient"],
+      "unit": "-",
+      "kind": "component"
+    },
+    "C_L": {
+      "aliases": ["c_l", "cl", "lift_coefficient"],
+      "unit": "-",
+      "kind": "other"
+    },
+    "Nu": {
+      "aliases": ["nusselt", "nusselt_number", "nu_mean", "nu_avg"],
+      "unit": "-",
+      "kind": "other"
+    },
+    "Cb": {
+      "aliases": ["cb", "c_b", "block_coefficient", "block_coefficient_measured"],
+      "unit": "-",
+      "kind": "geometry"
+    },
+    "S_wet": {
+      "aliases": ["s_wet", "wetted_area", "wetted_area_m2", "swet", "s_wet_phys_m2",
+                  "wetted_area_reference", "wetted_surface_area_m2"],
+      "unit": "m2",
+      "kind": "geometry"
+    },
+    "C_ITTCT57": {
+      "aliases": ["cf_ittc57", "c_f_ittc57", "ittc57_cf", "cf_itcc57"],
+      "unit": "-",
+      "kind": "reference"
+    }
+  },
+  "component_identity": {
+    "total": "C_T",
+    "components": ["C_F", "C_W", "C_R", "C_P"],
+    "closure_tolerance_rel": 0.02,
+    "coverage_reference": "a solver is 'full-coverage' when it reports a total and at least two non-zero components whose sum closes onto that total"
+  },
+  "comparison_quantities": ["C_T", "Cb"],
+  "reference_baselines": {
+    "C_F_vs_C_ITTCT57": {
+      "numerator": "C_F",
+      "denominator": "C_ITTCT57",
+      "description": "if two solvers cite the same frictional-correlation baseline but report friction coefficients differing from it by very different factors, the difference is a normalisation (denominator area / unit chain) difference and NOT numerical error"
+    }
+  },
+  "normalization_analyses": [
+    {
+      "id": "friction_definition_factor",
+      "quantity": "C_F",
+      "reference_quantity": "C_ITTCT57",
+      "form": "ratio",
+      "description": "C_F / C_ITTCT57 per arm; a healthy friction arm sits near O(1) of the correlation it cites"
+    },
+    {
+      "id": "friction_integral_form",
+      "quantity": "C_F",
+      "scale_quantity": "S_wet",
+      "form": "product",
+      "description": "C_F * S_wet removes the reference-area definition, leaving the dimensionless friction force; arms with different wetted-area conventions must agree in this form if they agree physically"
+    }
+  ]
+}
