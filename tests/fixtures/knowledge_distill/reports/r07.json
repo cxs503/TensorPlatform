@@ -1,0 +1,11 @@
+{
+  "title": "synthetic node n07",
+  "mission_id": 9007,
+  "campaign": "plan-beta",
+  "status": "done",
+  "limitations": [
+    "配置项仅启动期读取，缺热更新入口，调参需重启"
+  ],
+  "markdown": "## 1. 案例介绍\n合成域算例。\n\n## 5. 注意点（踩过的坑/局限/适用范围）\n- 日志采样率不可按路由配置，只能全局设定\n- 稀疏线性求解器只实现了对角预条件，缺 ILU/AMG 一类预条件子，大问题收敛慢\n\n## 6. 下一步\n- 任务队列缺 checkpoint 断点续跑，进程重启后只能整段重跑\n",
+  "node_key": "r07"
+}
