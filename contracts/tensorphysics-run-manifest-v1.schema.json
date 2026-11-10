@@ -34,6 +34,27 @@
     "environment": { "type": "object" },
     "resources": { "type": "object" },
     "metrics": { "type": "object" },
+    "coupling_clock": {
+      "type": "object",
+      "description": "Required when the run couples solvers that advance on different clocks. Records the exchange period, the master step, the admissible synchronisation tolerance, the observed skew, and (optionally) the sub-cycling ratios and exchange schedule, so that a coupled run is reproducible and its synchronisation auditable. Four fields are mandatory once the block is present.",
+      "required": ["coupling_interval_s", "master_dt_s", "sync_tolerance_s", "max_skew_s"],
+      "properties": {
+        "scheme": { "type": "string", "minLength": 1 },
+        "coupling_interval_s": { "type": "number", "exclusiveMinimum": 0 },
+        "master_dt_s": { "type": "number", "exclusiveMinimum": 0 },
+        "sync_tolerance_s": { "type": "number", "exclusiveMinimum": 0 },
+        "max_skew_s": { "type": "number", "minimum": 0 },
+        "align_last_substep": { "type": "boolean" },
+        "subcycle_ratios": {
+          "type": "object",
+          "additionalProperties": { "type": "number", "exclusiveMinimum": 0 }
+        },
+        "n_coupling_points": { "type": "integer", "minimum": 0 },
+        "coupling_points_s": { "type": "array", "items": { "type": "number" } },
+        "exchanged_fields": { "type": "array", "items": { "type": "string", "minLength": 1 } }
+      },
+      "additionalProperties": true
+    },
     "validation": {
       "type": "object",
       "properties": {
