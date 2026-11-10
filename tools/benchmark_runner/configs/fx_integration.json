@@ -1,0 +1,79 @@
+{
+  "suite": "fx_integration",
+  "version": 1,
+  "description": "Synthetic numerical-integration suite: composite Simpson vs closed-form integral. Zero domain semantics (engine only sees numbers).",
+  "drift_threshold": 0.03,
+  "cases": [
+    {
+      "id": "fx_int_sin_n32",
+      "title": "Simpson sin on [0,1.5], 32 intervals",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {"func": "sin", "a": 0.0, "b": 1.5, "n": 32},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:integral_reference",
+                    "inputs": {"func": "sin", "a": 0.0, "b": 1.5}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-6},
+        {"metric": "value", "op": "in_range", "min": 0.0, "max": 2.0},
+        {"metric": "intervals", "op": ">=", "value": 32}
+      ],
+      "tags": ["integration", "convergence"]
+    },
+    {
+      "id": "fx_int_sin_n128",
+      "title": "Simpson sin on [0,1.5], 128 intervals (tighter predeclared tolerance)",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {"func": "sin", "a": 0.0, "b": 1.5, "n": 128},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:integral_reference",
+                    "inputs": {"func": "sin", "a": 0.0, "b": 1.5}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-9},
+        {"metric": "value", "op": "in_range", "min": 0.0, "max": 2.0}
+      ],
+      "tags": ["integration", "convergence"]
+    },
+    {
+      "id": "fx_int_exp_n64",
+      "title": "Simpson exp on [0,1], 64 intervals",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {"func": "exp", "a": 0.0, "b": 1.0, "n": 64},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:integral_reference",
+                    "inputs": {"func": "exp", "a": 0.0, "b": 1.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-9},
+        {"metric": "value", "op": "in_range", "min": 1.7, "max": 1.75}
+      ],
+      "tags": ["integration"]
+    },
+    {
+      "id": "fx_int_cubic_n64",
+      "title": "Simpson cubic on [0,2]: degree<=3 must be integrated exactly",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {"func": "cubic", "a": 0.0, "b": 2.0, "n": 64},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:integral_reference",
+                    "inputs": {"func": "cubic", "a": 0.0, "b": 2.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-12},
+        {"metric": "value", "op": "==", "value": 2.0, "tol": 1e-12}
+      ],
+      "tags": ["integration", "exactness"]
+    },
+    {
+      "id": "fx_int_cos_n16",
+      "title": "Simpson cos on [0,2], 16 intervals (loose predeclared tolerance)",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {"func": "cos", "a": 0.0, "b": 2.0, "n": 16},
+      "reference": {"workload": "tools.benchmark_runner.synthetic:integral_reference",
+                    "inputs": {"func": "cos", "a": 0.0, "b": 2.0}},
+      "criteria": [
+        {"metric": "rel_error", "op": "<=", "value": 1e-5},
+        {"metric": "value", "op": "in_range", "min": 0.8, "max": 1.0}
+      ],
+      "tags": ["integration"]
+    }
+  ],
+  "suite_criteria": [
+    {"metric": "n_cases", "op": ">=", "value": 5},
+    {"metric": "pass_ratio", "op": ">=", "value": 1.0},
+    {"metric": "max_rel_error", "op": "<=", "value": 1e-5}
+  ]
+}

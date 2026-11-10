@@ -1,0 +1,74 @@
+{
+  "suite": "fx_negative_control",
+  "version": 1,
+  "description": "NEGATIVE CONTROL (must FAIL). Proves the gate has discriminating power: (a) an under-resolved SUT against a tight predeclared tolerance, (b) a case that declares no criteria at all (fail-closed). Exit code is expected to be 1; a green run here would mean the gate is vacuous.",
+  "drift_threshold": 0.03,
+  "cases": [
+    {
+      "id": "fx_neg_coarse_integral",
+      "title": "Simpson sin on [0,1.5] with 4 intervals but tol 1e-12 (under-resolved)",
+      "workload": "tools.benchmark_runner.synthetic:numeric_integral",
+      "inputs": {
+        "func": "sin",
+        "a": 0.0,
+        "b": 1.5,
+        "n": 4
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.synthetic:integral_reference",
+        "inputs": {
+          "func": "sin",
+          "a": 0.0,
+          "b": 1.5
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ],
+      "tags": [
+        "negative-control"
+      ]
+    },
+    {
+      "id": "fx_neg_no_criteria",
+      "title": "Case with no criteria declared: must be judged FAIL, never a silent pass",
+      "workload": "tools.benchmark_runner.synthetic:series_partial_sum",
+      "inputs": {
+        "ratio": 0.5,
+        "terms": 5
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.synthetic:series_reference",
+        "inputs": {
+          "ratio": 0.5
+        }
+      },
+      "criteria": [],
+      "tags": [
+        "negative-control",
+        "fail-closed"
+      ]
+    }
+  ],
+  "suite_criteria": [
+    {
+      "metric": "n_cases",
+      "op": ">=",
+      "value": 2
+    },
+    {
+      "metric": "pass_ratio",
+      "op": ">=",
+      "value": 1.0
+    },
+    {
+      "metric": "max_rel_error",
+      "op": "<=",
+      "value": 1e-12
+    }
+  ]
+}
