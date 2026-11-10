@@ -1,0 +1,216 @@
+{
+  "schema_version": "1.0",
+  "title": "能力台账语义三元分层配置（capability / delivery / evidence）",
+  "zero_domain_semantics": "本仓代码（tools/capability_semantics、backend/api/capability_semantics.py）不含任何域词条；能力 id / 标签 / 学科 / 依赖边 / 交付扫描根目录全部经此文件注入。",
+  "level_rank": {
+    "NOT_SUPPORTED": 0,
+    "STUB": 1,
+    "MOCK": 2,
+    "WITHHELD": 3,
+    "REAL": 4
+  },
+  "thresholds": {
+    "numeric_pass_pct": 3.0,
+    "numeric_accept_pct": 15.0,
+    "entry_loss_max_ratio": 0.05,
+    "withheld_ratio_max": 0.3,
+    "orphan_ratio_max": 0.05,
+    "min_graded_entries": 20,
+    "min_misuse_fixes": 3,
+    "min_numeric_assert_tests_mock": 1
+  },
+  "delivery_discovery": {
+    "endpoint_roots": [
+      "backend/api/domain"
+    ],
+    "scan_subdirs": [
+      "backend",
+      "src",
+      "tests",
+      "docs"
+    ],
+    "endpoint_decorator_regex": "@(?:router|app)\\.(?:get|post|put|patch|delete)\\(",
+    "unbound_module_allowlist": [
+      "backend/api/domain/__init__.py"
+    ],
+    "exclude_glob_patterns": [
+      "artifacts/capability_semantics/**",
+      "docs/reports/P266W1_N10_*",
+      "docs/reports/capability_semantics/**",
+      "tools/capability_semantics/**"
+    ],
+    "exclude_rationale": "自指证据治理：本节点的产物（报告/工件/模块自身）若被扫描器当成验证工件，会把『报告里写了数字』变成『有能力证据』的循环论证，必须排除。"
+  },
+  "capabilities": [
+    {
+      "id": "geometry.generate",
+      "label": "几何生成",
+      "domain": "几何",
+      "graph_role": "domain",
+      "depends_on": []
+    },
+    {
+      "id": "geometry.hydro_curves",
+      "label": "静水力曲线",
+      "domain": "几何",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.generate"
+      ]
+    },
+    {
+      "id": "shiphull.generate",
+      "label": "船型生成",
+      "domain": "几何",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.generate"
+      ]
+    },
+    {
+      "id": "geometry.list_models",
+      "label": "模型列表",
+      "domain": "几何",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.generate"
+      ]
+    },
+    {
+      "id": "stdmodels.lookup",
+      "label": "标准模型查询",
+      "domain": "数据",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.list_models"
+      ]
+    },
+    {
+      "id": "geometry.verify_official",
+      "label": "几何校验",
+      "domain": "几何",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.generate",
+        "stdmodels.lookup"
+      ]
+    },
+    {
+      "id": "methods.computation",
+      "label": "计算方法注册",
+      "domain": "方法",
+      "graph_role": "domain",
+      "depends_on": []
+    },
+    {
+      "id": "calc.resistance",
+      "label": "阻力计算",
+      "domain": "阻力",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.hydro_curves",
+        "methods.computation"
+      ]
+    },
+    {
+      "id": "calc.stability",
+      "label": "稳性计算",
+      "domain": "稳性",
+      "graph_role": "domain",
+      "depends_on": [
+        "geometry.hydro_curves",
+        "methods.computation"
+      ]
+    },
+    {
+      "id": "propeller.open_water",
+      "label": "螺旋桨敞水性能",
+      "domain": "推进",
+      "graph_role": "domain",
+      "depends_on": [
+        "calc.resistance"
+      ]
+    },
+    {
+      "id": "ai.predict",
+      "label": "AI 预测",
+      "domain": "AI",
+      "graph_role": "domain",
+      "depends_on": [
+        "calc.resistance"
+      ]
+    },
+    {
+      "id": "gov.stats",
+      "label": "治理统计",
+      "domain": "平台",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "knowledge.docs",
+      "label": "知识库",
+      "domain": "平台",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "dev.gate_5415",
+      "label": "开发门禁",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": [
+        "geometry.verify_official"
+      ]
+    },
+    {
+      "id": "dev.git",
+      "label": "Git 状态",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "dev.logs",
+      "label": "日志查询",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "dev.nginx_audit",
+      "label": "Nginx 审计",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "dev.probe",
+      "label": "健康探针",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "dev.restart",
+      "label": "服务重启",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "dev.services",
+      "label": "服务状态",
+      "domain": "开发",
+      "graph_role": "tooling",
+      "depends_on": []
+    },
+    {
+      "id": "misc.stubs",
+      "label": "占位端点",
+      "domain": "杂项",
+      "graph_role": "tooling",
+      "depends_on": []
+    }
+  ]
+}
