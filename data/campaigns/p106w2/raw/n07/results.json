@@ -1,0 +1,143 @@
+{
+  "system_parameters": {
+    "masses": [
+      {
+        "name": "Engine+Flywheel",
+        "inertia_kg_m2": 8500.0,
+        "position_m": 0.0
+      },
+      {
+        "name": "Gearbox",
+        "inertia_kg_m2": 120.0,
+        "position_m": 3.0
+      },
+      {
+        "name": "SternBearing",
+        "inertia_kg_m2": 45.0,
+        "position_m": 11.0
+      },
+      {
+        "name": "Propeller",
+        "inertia_kg_m2": 4200.0,
+        "position_m": 15.0
+      }
+    ],
+    "segments": [
+      {
+        "length_m": 3.0,
+        "outer_d_m": 0.45,
+        "inner_d_m": 0.15,
+        "stiffness_MN_m_rad": 105.10100047814228
+      },
+      {
+        "length_m": 8.0,
+        "outer_d_m": 0.4,
+        "inner_d_m": 0.1,
+        "stiffness_MN_m_rad": 24.815514001783598
+      },
+      {
+        "length_m": 4.0,
+        "outer_d_m": 0.38,
+        "inner_d_m": 0.0,
+        "stiffness_MN_m_rad": 40.58331106166513
+      }
+    ],
+    "engine_cylinders": 6,
+    "propeller_blades": 5,
+    "rated_rpm": 120.0
+  },
+  "natural_frequencies_hz": [
+    4.495846332806203e-07,
+    10.98165026838196,
+    150.51778893147895,
+    204.98291491641857
+  ],
+  "mode_descriptions": [
+    "Rigid body",
+    "1-node",
+    "2-node",
+    "3-node"
+  ],
+  "critical_speeds": {
+    "engine_order": 3.0,
+    "blade_order": 5,
+    "engine_critical_rpm": [
+      219.63300536763919,
+      3010.3557786295787,
+      4099.6582983283715
+    ],
+    "blade_critical_rpm": [
+      131.77980322058352,
+      1806.2134671777471,
+      2459.794978997023
+    ]
+  },
+  "barred_speed_ranges_rpm": [
+    {
+      "low": 122.55521699514266,
+      "high": 141.00438944602436
+    }
+  ],
+  "rated_speed_response": {
+    "amplitudes_deg": [
+      0.12356789596886525,
+      0.1366223510481682,
+      0.1909728994618355,
+      0.2239057429879934
+    ],
+    "segment_stresses_MPa": [
+      1.3551003914874202,
+      1.8805941772936228,
+      2.1650790515685054
+    ],
+    "excitation_freq_hz": 5.999999999999999
+  },
+  "stress_check_dnv": {
+    "allowable_MPa": 132.0,
+    "min_safety_factor": 60.967750763821655,
+    "overall_pass": true,
+    "segments": [
+      {
+        "segment": 0,
+        "actual_stress_MPa": 1.3551003914874202,
+        "allowable_stress_MPa": 132.0,
+        "safety_factor": 97.40975711409156,
+        "pass": true
+      },
+      {
+        "segment": 1,
+        "actual_stress_MPa": 1.8805941772936228,
+        "allowable_stress_MPa": 132.0,
+        "safety_factor": 70.190582101005,
+        "pass": true
+      },
+      {
+        "segment": 2,
+        "actual_stress_MPa": 2.1650790515685054,
+        "allowable_stress_MPa": 132.0,
+        "safety_factor": 60.967750763821655,
+        "pass": true
+      }
+    ]
+  },
+  "power_balance": {
+    "input_power_W": 3.3531097730616692,
+    "dissipated_power_W": 3.3531097730616692,
+    "stored_power_W": 2.3559664307137164e-16,
+    "balance_error_pct": 0.0
+  },
+  "verification": {
+    "single_dof": {
+      "analytical_hz": 3.558812717085886,
+      "numerical_hz": 3.558812717352797,
+      "error_pct": 7.499999550826089e-09,
+      "pass": true
+    },
+    "two_dof": {
+      "analytical_hz": 4.109362960409999,
+      "numerical_hz": 4.10936296041,
+      "error_pct": 4.322706114095651e-14,
+      "pass": true
+    }
+  }
+}
