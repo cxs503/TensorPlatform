@@ -1,0 +1,4714 @@
+{
+  "expectations": {
+    "A1_timeout": {
+      "nodes": [
+        "TO-1",
+        "TO-2",
+        "TO-3"
+      ],
+      "required_kinds": [
+        "node_timeout",
+        "node_timeout_kill"
+      ],
+      "required_state": "timeout_kill"
+    },
+    "A2_idle": {
+      "idle_heartbeats": 10,
+      "nodes": [
+        "ID-1",
+        "ID-2",
+        "ID-3"
+      ],
+      "required_kinds": [
+        "node_idle"
+      ],
+      "required_state": "idle_kill"
+    },
+    "A3_leak": {
+      "metrics": {
+        "RL-1": "mem_pct",
+        "RL-2": "disk_pct"
+      },
+      "nodes": [
+        "RL-1",
+        "RL-2"
+      ],
+      "required_kinds": [
+        "resource_pressure"
+      ],
+      "required_state": "resource_warn"
+    },
+    "A4_negative": {
+      "max_alerts": 0,
+      "nodes": [
+        "H-1",
+        "H-2",
+        "H-3",
+        "H-4",
+        "H-5"
+      ],
+      "required_state": "healthy"
+    },
+    "A5_salvage": {
+      "released_edges": [
+        [
+          "TO-1",
+          "DS-A1"
+        ],
+        [
+          "TO-1",
+          "DS-A2"
+        ],
+        [
+          "TO-2",
+          "DS-A3"
+        ],
+        [
+          "TO-3",
+          "DS-A3"
+        ],
+        [
+          "ID-1",
+          "DS-A4"
+        ]
+      ],
+      "runnable": [
+        "DS-A1",
+        "DS-A3",
+        "DS-A4"
+      ],
+      "still_blocked": [
+        "DS-A2"
+      ],
+      "untouched_edges": [
+        [
+          "H-1",
+          "DS-A2"
+        ],
+        [
+          "RL-1",
+          "DS-A5"
+        ],
+        [
+          "DS-A1",
+          "DS-A6"
+        ]
+      ]
+    }
+  },
+  "generator": "tools/campaign_health_scenario.py",
+  "nodes": [
+    {
+      "expect": {
+        "detect_offset_min": {
+          "node_timeout": 90.0,
+          "node_timeout_kill": 120.0
+        },
+        "forbidden_kinds": [
+          "node_idle",
+          "resource_pressure"
+        ],
+        "kinds": [
+          "node_timeout",
+          "node_timeout_kill"
+        ],
+        "state": "timeout_kill"
+      },
+      "group": "timeout",
+      "monitored": true,
+      "name": "synthetic-timeout-plain",
+      "node_id": "TO-1",
+      "planned_minutes": 60,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:25:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:30:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:30:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:35:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:35:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:40:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:40:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:45:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:45:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:50:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:50:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:55:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:55:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 12,
+          "ts": "2026-11-09T01:00:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T01:00:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 13,
+          "ts": "2026-11-09T01:05:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T01:05:00Z",
+            "new_files": 14
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 14,
+          "ts": "2026-11-09T01:10:00Z",
+          "workspace": {
+            "commit": "c14",
+            "max_mtime": "2026-11-09T01:10:00Z",
+            "new_files": 15
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 15,
+          "ts": "2026-11-09T01:15:00Z",
+          "workspace": {
+            "commit": "c15",
+            "max_mtime": "2026-11-09T01:15:00Z",
+            "new_files": 16
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 16,
+          "ts": "2026-11-09T01:20:00Z",
+          "workspace": {
+            "commit": "c16",
+            "max_mtime": "2026-11-09T01:20:00Z",
+            "new_files": 17
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 17,
+          "ts": "2026-11-09T01:25:00Z",
+          "workspace": {
+            "commit": "c17",
+            "max_mtime": "2026-11-09T01:25:00Z",
+            "new_files": 18
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 18,
+          "ts": "2026-11-09T01:30:00Z",
+          "workspace": {
+            "commit": "c18",
+            "max_mtime": "2026-11-09T01:30:00Z",
+            "new_files": 19
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 19,
+          "ts": "2026-11-09T01:35:00Z",
+          "workspace": {
+            "commit": "c19",
+            "max_mtime": "2026-11-09T01:35:00Z",
+            "new_files": 20
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 20,
+          "ts": "2026-11-09T01:40:00Z",
+          "workspace": {
+            "commit": "c20",
+            "max_mtime": "2026-11-09T01:40:00Z",
+            "new_files": 21
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 21,
+          "ts": "2026-11-09T01:45:00Z",
+          "workspace": {
+            "commit": "c21",
+            "max_mtime": "2026-11-09T01:45:00Z",
+            "new_files": 22
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 22,
+          "ts": "2026-11-09T01:50:00Z",
+          "workspace": {
+            "commit": "c22",
+            "max_mtime": "2026-11-09T01:50:00Z",
+            "new_files": 23
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 23,
+          "ts": "2026-11-09T01:55:00Z",
+          "workspace": {
+            "commit": "c23",
+            "max_mtime": "2026-11-09T01:55:00Z",
+            "new_files": 24
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 24,
+          "ts": "2026-11-09T02:00:00Z",
+          "workspace": {
+            "commit": "c24",
+            "max_mtime": "2026-11-09T02:00:00Z",
+            "new_files": 25
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 25,
+          "ts": "2026-11-09T02:05:00Z",
+          "workspace": {
+            "commit": "c25",
+            "max_mtime": "2026-11-09T02:05:00Z",
+            "new_files": 26
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 26,
+          "ts": "2026-11-09T02:10:00Z",
+          "workspace": {
+            "commit": "c26",
+            "max_mtime": "2026-11-09T02:10:00Z",
+            "new_files": 27
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "node_timeout": 45.0,
+          "node_timeout_kill": 60.0
+        },
+        "forbidden_kinds": [
+          "node_idle",
+          "resource_pressure"
+        ],
+        "kinds": [
+          "node_timeout",
+          "node_timeout_kill"
+        ],
+        "state": "timeout_kill"
+      },
+      "group": "timeout",
+      "monitored": true,
+      "name": "synthetic-timeout-moderate-load",
+      "node_id": "TO-2",
+      "planned_minutes": 30,
+      "samples": [
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:25:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:30:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:30:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:35:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:35:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:40:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:40:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:45:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:45:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:50:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:50:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:55:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:55:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 12,
+          "ts": "2026-11-09T01:00:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T01:00:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 70.0,
+          "disk_pct": 50.0,
+          "mem_pct": 68.0,
+          "progress": 13,
+          "ts": "2026-11-09T01:05:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T01:05:00Z",
+            "new_files": 14
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "node_timeout": 15.0,
+          "node_timeout_kill": 20.0
+        },
+        "forbidden_kinds": [
+          "node_idle",
+          "resource_pressure"
+        ],
+        "kinds": [
+          "node_timeout",
+          "node_timeout_kill"
+        ],
+        "state": "timeout_kill"
+      },
+      "group": "timeout",
+      "monitored": true,
+      "name": "synthetic-timeout-short-budget",
+      "node_id": "TO-3",
+      "planned_minutes": 10,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:01:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:03:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:04:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:07:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:08:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:09:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:11:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T00:13:00Z",
+            "new_files": 14
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c14",
+            "max_mtime": "2026-11-09T00:14:00Z",
+            "new_files": 15
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c15",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 16
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c16",
+            "max_mtime": "2026-11-09T00:16:00Z",
+            "new_files": 17
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c17",
+            "max_mtime": "2026-11-09T00:17:00Z",
+            "new_files": 18
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c18",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 19
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c19",
+            "max_mtime": "2026-11-09T00:19:00Z",
+            "new_files": 20
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c20",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 21
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 21,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c21",
+            "max_mtime": "2026-11-09T00:21:00Z",
+            "new_files": 22
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 22,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c22",
+            "max_mtime": "2026-11-09T00:22:00Z",
+            "new_files": 23
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "node_idle": 4.5
+        },
+        "forbidden_kinds": [
+          "node_timeout",
+          "resource_pressure"
+        ],
+        "idle_run": 10,
+        "kinds": [
+          "node_idle"
+        ],
+        "state": "idle_kill"
+      },
+      "group": "idle",
+      "monitored": true,
+      "name": "synthetic-idle-static",
+      "node_id": "ID-1",
+      "planned_minutes": 240,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:01:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:02:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:03:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:04:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:05:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:06:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:07:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:08:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:09:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:10:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:11:30Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 55.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "node_idle": 12.0
+        },
+        "forbidden_kinds": [
+          "node_timeout",
+          "resource_pressure"
+        ],
+        "idle_run": 10,
+        "kinds": [
+          "node_idle"
+        ],
+        "state": "idle_kill"
+      },
+      "group": "idle",
+      "monitored": true,
+      "name": "synthetic-idle-after-start",
+      "node_id": "ID-2",
+      "planned_minutes": 120,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:01:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 52.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "node_idle": 15.0
+        },
+        "forbidden_kinds": [
+          "node_timeout",
+          "resource_pressure"
+        ],
+        "idle_run": 10,
+        "kinds": [
+          "node_idle"
+        ],
+        "state": "idle_kill"
+      },
+      "group": "idle",
+      "monitored": true,
+      "name": "synthetic-idle-progress-then-flat",
+      "node_id": "ID-3",
+      "planned_minutes": 180,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:23:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:24:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 58.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "resource_pressure": 15.0
+        },
+        "forbidden_kinds": [
+          "node_timeout",
+          "node_idle"
+        ],
+        "kinds": [
+          "resource_pressure"
+        ],
+        "metric": "mem_pct",
+        "state": "resource_warn"
+      },
+      "group": "leak",
+      "monitored": true,
+      "name": "synthetic-leak-mem-ramp",
+      "node_id": "RL-1",
+      "planned_minutes": 200,
+      "samples": [
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 50.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 52.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 54.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 56.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:03:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 58.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 60.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 62.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 64.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 66.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 68.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:09:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 82.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 83.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 81.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 82.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 83.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 81.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 82.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 83.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 81.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 82.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 83.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 81.0,
+          "progress": 21,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:21:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 82.0,
+          "progress": 22,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 83.0,
+          "progress": 23,
+          "ts": "2026-11-09T00:23:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 55.0,
+          "mem_pct": 81.0,
+          "progress": 24,
+          "ts": "2026-11-09T00:24:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:24:00Z",
+            "new_files": 9
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "detect_offset_min": {
+          "resource_pressure": 7.0
+        },
+        "forbidden_kinds": [
+          "node_timeout",
+          "node_idle"
+        ],
+        "kinds": [
+          "resource_pressure"
+        ],
+        "metric": "disk_pct",
+        "state": "resource_warn"
+      },
+      "group": "leak",
+      "monitored": true,
+      "name": "synthetic-leak-disk-plateau",
+      "node_id": "RL-2",
+      "planned_minutes": 150,
+      "samples": [
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 70.0,
+          "mem_pct": 50.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "d0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 70.0,
+          "mem_pct": 50.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "d0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "d1",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 84.0,
+          "mem_pct": 50.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "d0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 85.0,
+          "mem_pct": 50.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "d2",
+            "max_mtime": "2026-11-09T00:04:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "d1",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 84.0,
+          "mem_pct": 50.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "d3",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 85.0,
+          "mem_pct": 50.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "d2",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "d4",
+            "max_mtime": "2026-11-09T00:08:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 84.0,
+          "mem_pct": 50.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "d3",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 85.0,
+          "mem_pct": 50.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "d5",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "d4",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 84.0,
+          "mem_pct": 50.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "d6",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 85.0,
+          "mem_pct": 50.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "d5",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "d7",
+            "max_mtime": "2026-11-09T00:14:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 84.0,
+          "mem_pct": 50.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "d6",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 85.0,
+          "mem_pct": 50.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "d8",
+            "max_mtime": "2026-11-09T00:16:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "d7",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 84.0,
+          "mem_pct": 50.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "d9",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 85.0,
+          "mem_pct": 50.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "d8",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 45.0,
+          "disk_pct": 86.0,
+          "mem_pct": 50.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "d10",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 11
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "kinds": [],
+        "max_alerts": 0,
+        "state": "healthy"
+      },
+      "group": "healthy",
+      "monitored": true,
+      "name": "synthetic-healthy-normal",
+      "node_id": "H-1",
+      "planned_minutes": 60,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:01:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:03:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:04:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:07:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:08:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:09:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:11:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T00:13:00Z",
+            "new_files": 14
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c14",
+            "max_mtime": "2026-11-09T00:14:00Z",
+            "new_files": 15
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c15",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 16
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c16",
+            "max_mtime": "2026-11-09T00:16:00Z",
+            "new_files": 17
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c17",
+            "max_mtime": "2026-11-09T00:17:00Z",
+            "new_files": 18
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c18",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 19
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c19",
+            "max_mtime": "2026-11-09T00:19:00Z",
+            "new_files": 20
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c20",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 21
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 21,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c21",
+            "max_mtime": "2026-11-09T00:21:00Z",
+            "new_files": 22
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 22,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c22",
+            "max_mtime": "2026-11-09T00:22:00Z",
+            "new_files": 23
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 23,
+          "ts": "2026-11-09T00:23:00Z",
+          "workspace": {
+            "commit": "c23",
+            "max_mtime": "2026-11-09T00:23:00Z",
+            "new_files": 24
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 24,
+          "ts": "2026-11-09T00:24:00Z",
+          "workspace": {
+            "commit": "c24",
+            "max_mtime": "2026-11-09T00:24:00Z",
+            "new_files": 25
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 25,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c25",
+            "max_mtime": "2026-11-09T00:25:00Z",
+            "new_files": 26
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 26,
+          "ts": "2026-11-09T00:26:00Z",
+          "workspace": {
+            "commit": "c26",
+            "max_mtime": "2026-11-09T00:26:00Z",
+            "new_files": 27
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 27,
+          "ts": "2026-11-09T00:27:00Z",
+          "workspace": {
+            "commit": "c27",
+            "max_mtime": "2026-11-09T00:27:00Z",
+            "new_files": 28
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 28,
+          "ts": "2026-11-09T00:28:00Z",
+          "workspace": {
+            "commit": "c28",
+            "max_mtime": "2026-11-09T00:28:00Z",
+            "new_files": 29
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 29,
+          "ts": "2026-11-09T00:29:00Z",
+          "workspace": {
+            "commit": "c29",
+            "max_mtime": "2026-11-09T00:29:00Z",
+            "new_files": 30
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 30,
+          "ts": "2026-11-09T00:30:00Z",
+          "workspace": {
+            "commit": "c30",
+            "max_mtime": "2026-11-09T00:30:00Z",
+            "new_files": 31
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 31,
+          "ts": "2026-11-09T00:31:00Z",
+          "workspace": {
+            "commit": "c31",
+            "max_mtime": "2026-11-09T00:31:00Z",
+            "new_files": 32
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 32,
+          "ts": "2026-11-09T00:32:00Z",
+          "workspace": {
+            "commit": "c32",
+            "max_mtime": "2026-11-09T00:32:00Z",
+            "new_files": 33
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 33,
+          "ts": "2026-11-09T00:33:00Z",
+          "workspace": {
+            "commit": "c33",
+            "max_mtime": "2026-11-09T00:33:00Z",
+            "new_files": 34
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 34,
+          "ts": "2026-11-09T00:34:00Z",
+          "workspace": {
+            "commit": "c34",
+            "max_mtime": "2026-11-09T00:34:00Z",
+            "new_files": 35
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 35,
+          "ts": "2026-11-09T00:35:00Z",
+          "workspace": {
+            "commit": "c35",
+            "max_mtime": "2026-11-09T00:35:00Z",
+            "new_files": 36
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 36,
+          "ts": "2026-11-09T00:36:00Z",
+          "workspace": {
+            "commit": "c36",
+            "max_mtime": "2026-11-09T00:36:00Z",
+            "new_files": 37
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 37,
+          "ts": "2026-11-09T00:37:00Z",
+          "workspace": {
+            "commit": "c37",
+            "max_mtime": "2026-11-09T00:37:00Z",
+            "new_files": 38
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 38,
+          "ts": "2026-11-09T00:38:00Z",
+          "workspace": {
+            "commit": "c38",
+            "max_mtime": "2026-11-09T00:38:00Z",
+            "new_files": 39
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 39,
+          "ts": "2026-11-09T00:39:00Z",
+          "workspace": {
+            "commit": "c39",
+            "max_mtime": "2026-11-09T00:39:00Z",
+            "new_files": 40
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 40,
+          "ts": "2026-11-09T00:40:00Z",
+          "workspace": {
+            "commit": "c40",
+            "max_mtime": "2026-11-09T00:40:00Z",
+            "new_files": 41
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 41,
+          "ts": "2026-11-09T00:41:00Z",
+          "workspace": {
+            "commit": "c41",
+            "max_mtime": "2026-11-09T00:41:00Z",
+            "new_files": 42
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 42,
+          "ts": "2026-11-09T00:42:00Z",
+          "workspace": {
+            "commit": "c42",
+            "max_mtime": "2026-11-09T00:42:00Z",
+            "new_files": 43
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 43,
+          "ts": "2026-11-09T00:43:00Z",
+          "workspace": {
+            "commit": "c43",
+            "max_mtime": "2026-11-09T00:43:00Z",
+            "new_files": 44
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 44,
+          "ts": "2026-11-09T00:44:00Z",
+          "workspace": {
+            "commit": "c44",
+            "max_mtime": "2026-11-09T00:44:00Z",
+            "new_files": 45
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 45,
+          "ts": "2026-11-09T00:45:00Z",
+          "workspace": {
+            "commit": "c45",
+            "max_mtime": "2026-11-09T00:45:00Z",
+            "new_files": 46
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 46,
+          "ts": "2026-11-09T00:46:00Z",
+          "workspace": {
+            "commit": "c46",
+            "max_mtime": "2026-11-09T00:46:00Z",
+            "new_files": 47
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 47,
+          "ts": "2026-11-09T00:47:00Z",
+          "workspace": {
+            "commit": "c47",
+            "max_mtime": "2026-11-09T00:47:00Z",
+            "new_files": 48
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 48,
+          "ts": "2026-11-09T00:48:00Z",
+          "workspace": {
+            "commit": "c48",
+            "max_mtime": "2026-11-09T00:48:00Z",
+            "new_files": 49
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 49,
+          "ts": "2026-11-09T00:49:00Z",
+          "workspace": {
+            "commit": "c49",
+            "max_mtime": "2026-11-09T00:49:00Z",
+            "new_files": 50
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 50,
+          "ts": "2026-11-09T00:50:00Z",
+          "workspace": {
+            "commit": "c50",
+            "max_mtime": "2026-11-09T00:50:00Z",
+            "new_files": 51
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "kinds": [],
+        "max_alerts": 0,
+        "note": "compute-bound: static workspace but progress advances",
+        "state": "healthy"
+      },
+      "group": "healthy",
+      "monitored": true,
+      "name": "synthetic-healthy-compute-bound",
+      "node_id": "H-2",
+      "planned_minutes": 120,
+      "samples": [
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        },
+        {
+          "cpu_pct": 78.0,
+          "disk_pct": 60.0,
+          "mem_pct": 72.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-08T21:00:00Z",
+            "new_files": 0
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "kinds": [],
+        "max_alerts": 0,
+        "note": "2-min CPU spike < sustain window (5 min)",
+        "state": "healthy"
+      },
+      "group": "healthy",
+      "monitored": true,
+      "name": "synthetic-healthy-cpu-spike",
+      "node_id": "H-3",
+      "planned_minutes": 90,
+      "samples": [
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:01:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:03:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:04:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:07:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:08:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:09:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 92.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 92.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:11:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 92.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T00:13:00Z",
+            "new_files": 14
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c14",
+            "max_mtime": "2026-11-09T00:14:00Z",
+            "new_files": 15
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c15",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 16
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c16",
+            "max_mtime": "2026-11-09T00:16:00Z",
+            "new_files": 17
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c17",
+            "max_mtime": "2026-11-09T00:17:00Z",
+            "new_files": 18
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c18",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 19
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c19",
+            "max_mtime": "2026-11-09T00:19:00Z",
+            "new_files": 20
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c20",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 21
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 21,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c21",
+            "max_mtime": "2026-11-09T00:21:00Z",
+            "new_files": 22
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 22,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c22",
+            "max_mtime": "2026-11-09T00:22:00Z",
+            "new_files": 23
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 23,
+          "ts": "2026-11-09T00:23:00Z",
+          "workspace": {
+            "commit": "c23",
+            "max_mtime": "2026-11-09T00:23:00Z",
+            "new_files": 24
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 24,
+          "ts": "2026-11-09T00:24:00Z",
+          "workspace": {
+            "commit": "c24",
+            "max_mtime": "2026-11-09T00:24:00Z",
+            "new_files": 25
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 25,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c25",
+            "max_mtime": "2026-11-09T00:25:00Z",
+            "new_files": 26
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 26,
+          "ts": "2026-11-09T00:26:00Z",
+          "workspace": {
+            "commit": "c26",
+            "max_mtime": "2026-11-09T00:26:00Z",
+            "new_files": 27
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 27,
+          "ts": "2026-11-09T00:27:00Z",
+          "workspace": {
+            "commit": "c27",
+            "max_mtime": "2026-11-09T00:27:00Z",
+            "new_files": 28
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 28,
+          "ts": "2026-11-09T00:28:00Z",
+          "workspace": {
+            "commit": "c28",
+            "max_mtime": "2026-11-09T00:28:00Z",
+            "new_files": 29
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 29,
+          "ts": "2026-11-09T00:29:00Z",
+          "workspace": {
+            "commit": "c29",
+            "max_mtime": "2026-11-09T00:29:00Z",
+            "new_files": 30
+          }
+        },
+        {
+          "cpu_pct": 30.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 30,
+          "ts": "2026-11-09T00:30:00Z",
+          "workspace": {
+            "commit": "c30",
+            "max_mtime": "2026-11-09T00:30:00Z",
+            "new_files": 31
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "kinds": [],
+        "max_alerts": 0,
+        "note": "79.5% memory stays below 80% threshold",
+        "state": "healthy"
+      },
+      "group": "healthy",
+      "monitored": true,
+      "name": "synthetic-healthy-near-threshold",
+      "node_id": "H-4",
+      "planned_minutes": 60,
+      "samples": [
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:01:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:03:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:04:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:07:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:08:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:09:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:11:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T00:13:00Z",
+            "new_files": 14
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c14",
+            "max_mtime": "2026-11-09T00:14:00Z",
+            "new_files": 15
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c15",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 16
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c16",
+            "max_mtime": "2026-11-09T00:16:00Z",
+            "new_files": 17
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c17",
+            "max_mtime": "2026-11-09T00:17:00Z",
+            "new_files": 18
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c18",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 19
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c19",
+            "max_mtime": "2026-11-09T00:19:00Z",
+            "new_files": 20
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c20",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 21
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 21,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c21",
+            "max_mtime": "2026-11-09T00:21:00Z",
+            "new_files": 22
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 22,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c22",
+            "max_mtime": "2026-11-09T00:22:00Z",
+            "new_files": 23
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 23,
+          "ts": "2026-11-09T00:23:00Z",
+          "workspace": {
+            "commit": "c23",
+            "max_mtime": "2026-11-09T00:23:00Z",
+            "new_files": 24
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 24,
+          "ts": "2026-11-09T00:24:00Z",
+          "workspace": {
+            "commit": "c24",
+            "max_mtime": "2026-11-09T00:24:00Z",
+            "new_files": 25
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 25,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c25",
+            "max_mtime": "2026-11-09T00:25:00Z",
+            "new_files": 26
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 26,
+          "ts": "2026-11-09T00:26:00Z",
+          "workspace": {
+            "commit": "c26",
+            "max_mtime": "2026-11-09T00:26:00Z",
+            "new_files": 27
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 27,
+          "ts": "2026-11-09T00:27:00Z",
+          "workspace": {
+            "commit": "c27",
+            "max_mtime": "2026-11-09T00:27:00Z",
+            "new_files": 28
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 28,
+          "ts": "2026-11-09T00:28:00Z",
+          "workspace": {
+            "commit": "c28",
+            "max_mtime": "2026-11-09T00:28:00Z",
+            "new_files": 29
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 29,
+          "ts": "2026-11-09T00:29:00Z",
+          "workspace": {
+            "commit": "c29",
+            "max_mtime": "2026-11-09T00:29:00Z",
+            "new_files": 30
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 30,
+          "ts": "2026-11-09T00:30:00Z",
+          "workspace": {
+            "commit": "c30",
+            "max_mtime": "2026-11-09T00:30:00Z",
+            "new_files": 31
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 31,
+          "ts": "2026-11-09T00:31:00Z",
+          "workspace": {
+            "commit": "c31",
+            "max_mtime": "2026-11-09T00:31:00Z",
+            "new_files": 32
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 32,
+          "ts": "2026-11-09T00:32:00Z",
+          "workspace": {
+            "commit": "c32",
+            "max_mtime": "2026-11-09T00:32:00Z",
+            "new_files": 33
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 33,
+          "ts": "2026-11-09T00:33:00Z",
+          "workspace": {
+            "commit": "c33",
+            "max_mtime": "2026-11-09T00:33:00Z",
+            "new_files": 34
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 34,
+          "ts": "2026-11-09T00:34:00Z",
+          "workspace": {
+            "commit": "c34",
+            "max_mtime": "2026-11-09T00:34:00Z",
+            "new_files": 35
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 35,
+          "ts": "2026-11-09T00:35:00Z",
+          "workspace": {
+            "commit": "c35",
+            "max_mtime": "2026-11-09T00:35:00Z",
+            "new_files": 36
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 36,
+          "ts": "2026-11-09T00:36:00Z",
+          "workspace": {
+            "commit": "c36",
+            "max_mtime": "2026-11-09T00:36:00Z",
+            "new_files": 37
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 37,
+          "ts": "2026-11-09T00:37:00Z",
+          "workspace": {
+            "commit": "c37",
+            "max_mtime": "2026-11-09T00:37:00Z",
+            "new_files": 38
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 38,
+          "ts": "2026-11-09T00:38:00Z",
+          "workspace": {
+            "commit": "c38",
+            "max_mtime": "2026-11-09T00:38:00Z",
+            "new_files": 39
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 39,
+          "ts": "2026-11-09T00:39:00Z",
+          "workspace": {
+            "commit": "c39",
+            "max_mtime": "2026-11-09T00:39:00Z",
+            "new_files": 40
+          }
+        },
+        {
+          "cpu_pct": 60.0,
+          "disk_pct": 70.0,
+          "mem_pct": 79.5,
+          "progress": 40,
+          "ts": "2026-11-09T00:40:00Z",
+          "workspace": {
+            "commit": "c40",
+            "max_mtime": "2026-11-09T00:40:00Z",
+            "new_files": 41
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "expect": {
+        "kinds": [],
+        "max_alerts": 0,
+        "note": "1.35x budget stays below 1.5x warn factor",
+        "state": "healthy"
+      },
+      "group": "healthy",
+      "monitored": true,
+      "name": "synthetic-healthy-tight-budget",
+      "node_id": "H-5",
+      "planned_minutes": 20,
+      "samples": [
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 0,
+          "ts": "2026-11-09T00:00:00Z",
+          "workspace": {
+            "commit": "c0",
+            "max_mtime": "2026-11-09T00:00:00Z",
+            "new_files": 1
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 1,
+          "ts": "2026-11-09T00:01:00Z",
+          "workspace": {
+            "commit": "c1",
+            "max_mtime": "2026-11-09T00:01:00Z",
+            "new_files": 2
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 2,
+          "ts": "2026-11-09T00:02:00Z",
+          "workspace": {
+            "commit": "c2",
+            "max_mtime": "2026-11-09T00:02:00Z",
+            "new_files": 3
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 3,
+          "ts": "2026-11-09T00:03:00Z",
+          "workspace": {
+            "commit": "c3",
+            "max_mtime": "2026-11-09T00:03:00Z",
+            "new_files": 4
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 4,
+          "ts": "2026-11-09T00:04:00Z",
+          "workspace": {
+            "commit": "c4",
+            "max_mtime": "2026-11-09T00:04:00Z",
+            "new_files": 5
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 5,
+          "ts": "2026-11-09T00:05:00Z",
+          "workspace": {
+            "commit": "c5",
+            "max_mtime": "2026-11-09T00:05:00Z",
+            "new_files": 6
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 6,
+          "ts": "2026-11-09T00:06:00Z",
+          "workspace": {
+            "commit": "c6",
+            "max_mtime": "2026-11-09T00:06:00Z",
+            "new_files": 7
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 7,
+          "ts": "2026-11-09T00:07:00Z",
+          "workspace": {
+            "commit": "c7",
+            "max_mtime": "2026-11-09T00:07:00Z",
+            "new_files": 8
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 8,
+          "ts": "2026-11-09T00:08:00Z",
+          "workspace": {
+            "commit": "c8",
+            "max_mtime": "2026-11-09T00:08:00Z",
+            "new_files": 9
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 9,
+          "ts": "2026-11-09T00:09:00Z",
+          "workspace": {
+            "commit": "c9",
+            "max_mtime": "2026-11-09T00:09:00Z",
+            "new_files": 10
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 10,
+          "ts": "2026-11-09T00:10:00Z",
+          "workspace": {
+            "commit": "c10",
+            "max_mtime": "2026-11-09T00:10:00Z",
+            "new_files": 11
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 11,
+          "ts": "2026-11-09T00:11:00Z",
+          "workspace": {
+            "commit": "c11",
+            "max_mtime": "2026-11-09T00:11:00Z",
+            "new_files": 12
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 12,
+          "ts": "2026-11-09T00:12:00Z",
+          "workspace": {
+            "commit": "c12",
+            "max_mtime": "2026-11-09T00:12:00Z",
+            "new_files": 13
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 13,
+          "ts": "2026-11-09T00:13:00Z",
+          "workspace": {
+            "commit": "c13",
+            "max_mtime": "2026-11-09T00:13:00Z",
+            "new_files": 14
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 14,
+          "ts": "2026-11-09T00:14:00Z",
+          "workspace": {
+            "commit": "c14",
+            "max_mtime": "2026-11-09T00:14:00Z",
+            "new_files": 15
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 15,
+          "ts": "2026-11-09T00:15:00Z",
+          "workspace": {
+            "commit": "c15",
+            "max_mtime": "2026-11-09T00:15:00Z",
+            "new_files": 16
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 16,
+          "ts": "2026-11-09T00:16:00Z",
+          "workspace": {
+            "commit": "c16",
+            "max_mtime": "2026-11-09T00:16:00Z",
+            "new_files": 17
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 17,
+          "ts": "2026-11-09T00:17:00Z",
+          "workspace": {
+            "commit": "c17",
+            "max_mtime": "2026-11-09T00:17:00Z",
+            "new_files": 18
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 18,
+          "ts": "2026-11-09T00:18:00Z",
+          "workspace": {
+            "commit": "c18",
+            "max_mtime": "2026-11-09T00:18:00Z",
+            "new_files": 19
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 19,
+          "ts": "2026-11-09T00:19:00Z",
+          "workspace": {
+            "commit": "c19",
+            "max_mtime": "2026-11-09T00:19:00Z",
+            "new_files": 20
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 20,
+          "ts": "2026-11-09T00:20:00Z",
+          "workspace": {
+            "commit": "c20",
+            "max_mtime": "2026-11-09T00:20:00Z",
+            "new_files": 21
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 21,
+          "ts": "2026-11-09T00:21:00Z",
+          "workspace": {
+            "commit": "c21",
+            "max_mtime": "2026-11-09T00:21:00Z",
+            "new_files": 22
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 22,
+          "ts": "2026-11-09T00:22:00Z",
+          "workspace": {
+            "commit": "c22",
+            "max_mtime": "2026-11-09T00:22:00Z",
+            "new_files": 23
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 23,
+          "ts": "2026-11-09T00:23:00Z",
+          "workspace": {
+            "commit": "c23",
+            "max_mtime": "2026-11-09T00:23:00Z",
+            "new_files": 24
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 24,
+          "ts": "2026-11-09T00:24:00Z",
+          "workspace": {
+            "commit": "c24",
+            "max_mtime": "2026-11-09T00:24:00Z",
+            "new_files": 25
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 25,
+          "ts": "2026-11-09T00:25:00Z",
+          "workspace": {
+            "commit": "c25",
+            "max_mtime": "2026-11-09T00:25:00Z",
+            "new_files": 26
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 26,
+          "ts": "2026-11-09T00:26:00Z",
+          "workspace": {
+            "commit": "c26",
+            "max_mtime": "2026-11-09T00:26:00Z",
+            "new_files": 27
+          }
+        },
+        {
+          "cpu_pct": 40.0,
+          "disk_pct": 50.0,
+          "mem_pct": 45.0,
+          "progress": 27,
+          "ts": "2026-11-09T00:27:00Z",
+          "workspace": {
+            "commit": "c27",
+            "max_mtime": "2026-11-09T00:27:00Z",
+            "new_files": 28
+          }
+        }
+      ],
+      "started_at_utc": "2026-11-09T00:00:00Z",
+      "status": "running"
+    },
+    {
+      "dependencies": [
+        "TO-1"
+      ],
+      "group": "downstream",
+      "monitored": false,
+      "name": "synthetic-downstream-single-dep",
+      "node_id": "DS-A1",
+      "samples": [],
+      "status": "blocked"
+    },
+    {
+      "dependencies": [
+        "TO-1",
+        "H-1"
+      ],
+      "group": "downstream",
+      "monitored": false,
+      "name": "synthetic-downstream-mixed-dep",
+      "node_id": "DS-A2",
+      "samples": [],
+      "status": "blocked"
+    },
+    {
+      "dependencies": [
+        "TO-2",
+        "TO-3"
+      ],
+      "group": "downstream",
+      "monitored": false,
+      "name": "synthetic-downstream-two-killed-deps",
+      "node_id": "DS-A3",
+      "samples": [],
+      "status": "blocked"
+    },
+    {
+      "dependencies": [
+        "ID-1"
+      ],
+      "group": "downstream",
+      "monitored": false,
+      "name": "synthetic-downstream-idle-dep",
+      "node_id": "DS-A4",
+      "samples": [],
+      "status": "blocked"
+    },
+    {
+      "dependencies": [
+        "RL-1"
+      ],
+      "group": "downstream",
+      "monitored": false,
+      "name": "synthetic-downstream-warned-only",
+      "node_id": "DS-A5",
+      "samples": [],
+      "status": "blocked"
+    },
+    {
+      "dependencies": [
+        "DS-A1"
+      ],
+      "group": "downstream",
+      "monitored": false,
+      "name": "synthetic-downstream-transitive",
+      "node_id": "DS-A6",
+      "samples": [],
+      "status": "blocked"
+    }
+  ],
+  "scenario_id": "p250-n04-campaign-health-monitor",
+  "thresholds": {
+    "idle_heartbeats": 10,
+    "resource_pct": 80.0,
+    "resource_sustain_min": 5.0,
+    "timeout_kill_factor": 2.0,
+    "timeout_warn_factor": 1.5
+  },
+  "time_origin_utc": "2026-11-09T00:00:00Z"
+}
