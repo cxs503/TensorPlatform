@@ -1,0 +1,86 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/schemas/optimizer_problem.v1.schema.json",
+  "title": "unified optimizer problem definition (DSL v1)",
+  "description": "Engine-agnostic description of a continuous optimisation problem: variables with box bounds, one objective expression, optional analytic gradients, inequality/equality constraints. Expressions may only contain arithmetic and whitelisted math calls over the declared variable names (see tools/optimizer/unified/expr.py). The document is domain neutral: nothing here knows what the objective means physically.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema", "problem_id", "variables", "objective"],
+  "properties": {
+    "schema": {"const": "optimizer/problem/v1"},
+    "problem_id": {"type": "string", "minLength": 1, "pattern": "^[A-Za-z0-9_][A-Za-z0-9_.\\-]*$"},
+    "variables": {
+      "type": "array",
+      "minItems": 1,
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "lower", "upper"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+          "lower": {"type": "number"},
+          "upper": {"type": "number"},
+          "x0": {"type": "number", "description": "optional starting point; defaults to the bound midpoint"}
+        }
+      }
+    },
+    "objective": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["expr"],
+      "properties": {
+        "expr": {"type": "string", "minLength": 1},
+        "sense": {"enum": ["minimize", "maximize"], "default": "minimize"},
+        "gradient": {
+          "type": "array",
+          "minItems": 1,
+          "items": {"type": "string", "minLength": 1},
+          "description": "analytic d objective / d variable, one expression per variable in declaration order; omit to use central finite differences"
+        }
+      }
+    },
+    "constraints": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "expr"],
+        "properties": {
+          "name": {"type": "string", "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"},
+          "kind": {"enum": ["ineq", "eq"], "default": "ineq"},
+          "sense": {
+            "enum": ["le", "ge", "eq"],
+            "default": "le",
+            "description": "comparison of expr against threshold: le -> expr <= threshold, ge -> expr >= threshold, eq -> expr == threshold (inequalities are normalised internally to g(x) >= 0)"
+          },
+          "expr": {"type": "string", "minLength": 1},
+          "threshold": {"type": "number", "default": 0.0},
+          "jac": {
+            "type": "array",
+            "minItems": 1,
+            "items": {"type": "string", "minLength": 1},
+            "description": "analytic gradient of the constraint expression, one per variable in declaration order"
+          }
+        }
+      }
+    },
+    "metadata": {
+      "type": "object",
+      "description": "free-form notes plus, optionally, the published reference optimum used to score the solve",
+      "properties": {
+        "reference": {
+          "type": "object",
+          "additionalProperties": true,
+          "properties": {
+            "objective": {"type": "number"},
+            "x": {"type": "object", "additionalProperties": {"type": "number"}},
+            "source": {"type": "string"},
+            "kind": {"type": "string"}
+          }
+        },
+        "class": {"type": "string"}
+      },
+      "additionalProperties": true
+    }
+  }
+}

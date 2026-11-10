@@ -1,0 +1,79 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/schemas/optimizer_result.v1.schema.json",
+  "title": "unified optimizer standardised solve result (v1)",
+  "description": "Output of any engine adapter. Carries the optimal point, convergence status, iteration history, constraint violation, an engine-independent KKT residual and environment provenance. Nullable numbers are used only when the engine or algorithm is unavailable/unsupported: the toolchain then claims no number at all rather than inventing one.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema", "problem_id", "engine", "algorithm", "status", "success",
+    "x", "objective", "constraint_violation", "n_iter", "n_eval", "elapsed_s",
+    "history", "provenance"
+  ],
+  "properties": {
+    "schema": {"const": "optimizer/result/v1"},
+    "problem_id": {"type": "string", "minLength": 1},
+    "problem_fingerprint": {"type": "string"},
+    "engine": {"type": "string", "minLength": 1},
+    "algorithm": {"type": "string", "minLength": 1},
+    "status": {
+      "enum": ["converged", "max_iterations", "infeasible", "unsupported", "unavailable", "failed"]
+    },
+    "success": {"type": "boolean"},
+    "x": {
+      "type": "object",
+      "minProperties": 1,
+      "additionalProperties": {"type": ["number", "null"]}
+    },
+    "objective": {"type": ["number", "null"]},
+    "constraint_violation": {"type": ["number", "null"], "minimum": 0},
+    "kkt": {
+      "type": "object",
+      "additionalProperties": {"type": "number"},
+      "properties": {
+        "stationarity": {"type": "number"},
+        "primal_feasibility": {"type": "number"},
+        "dual_feasibility": {"type": "number"},
+        "complementarity": {"type": "number"},
+        "kkt_residual": {"type": "number"},
+        "max_multiplier": {"type": "number"},
+        "gradient_norm_inf": {"type": "number"}
+      }
+    },
+    "n_iter": {"type": "integer", "minimum": 0},
+    "n_eval": {"type": "integer", "minimum": 0},
+    "elapsed_s": {"type": "number", "minimum": 0},
+    "message": {"type": "string"},
+    "history": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["iteration", "objective", "constraint_violation"],
+        "properties": {
+          "iteration": {"type": "integer", "minimum": 0},
+          "objective": {"type": "number"},
+          "constraint_violation": {"type": "number", "minimum": 0},
+          "x": {"type": "object", "additionalProperties": {"type": "number"}}
+        }
+      }
+    },
+    "history_total": {"type": "integer", "minimum": 0},
+    "options": {"type": "object"},
+    "reference_objective": {"type": ["number", "null"]},
+    "objective_error": {"type": ["number", "null"]},
+    "objective_rel_error": {"type": ["number", "null"]},
+    "provenance": {
+      "type": "object",
+      "required": ["timestamp_utc", "python", "platform", "library_versions"],
+      "properties": {
+        "timestamp_utc": {"type": "string"},
+        "python": {"type": "string"},
+        "platform": {"type": "string"},
+        "machine": {"type": "string"},
+        "library_versions": {"type": "object", "additionalProperties": {"type": "string"}}
+      },
+      "additionalProperties": true
+    }
+  }
+}
