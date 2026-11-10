@@ -235,6 +235,33 @@ def judgeability_gate(goal, meta=None):
 
 
 
+# ── 判据可判定性 lint 派发前门（p372w2-n06；机制归 tools/criteria_lint.py）──────────
+# 与 judgeability 门的分工：judgeability 判「整篇有没有阈值/参照面」（P1/P2/P3 文档级）；
+# criteria_lint 判「**逐条判据**是否三要素齐备（阈值/基准/判定记号）」并给原因码，
+# 可消费节点 metadata.acceptance_criteria 结构化判据（口径更硬）。
+# 模式（env TP_CRITERIA_LINT_GATE）：off 旁路 / advisory 只记录（默认）/ enforce 追加
+# 回填槽位（只追加、可剥离）/ block 硬拦。铁律：任何异常一律 fail-open。
+CRITERIA_LINT_MODE = os.getenv("TP_CRITERIA_LINT_GATE", "advisory")
+
+
+def criteria_lint_gate(goal, meta=None):
+    """返回 (goal, decision|None)。decision 为 None = 门未生效（off/导入失败/异常）。"""
+    mode = os.getenv("TP_CRITERIA_LINT_GATE", CRITERIA_LINT_MODE)
+    if mode == "off":
+        return goal, None
+    try:
+        root = os.path.dirname(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+        if root not in sys.path:
+            sys.path.insert(0, root)
+        from tools.criteria_lint import pre_dispatch as _cl_pre   # 延迟导入：缺模块不影响派发
+        d = _cl_pre(goal, mode=mode, meta=meta or {})
+        return d.get("goal", goal) or goal, d
+    except Exception as e:
+        log(f"WARN criteria_lint gate 跳过（fail-open）: {type(e).__name__}: {str(e)[:120]}")
+        return goal, None
+
+
+
 def _hollow(mid, started_ep):
     """成果落盘门（m763 事故 2026-10-31；v5.4 竞态修正）：任务报成功但零提交=空转成功。
     修正：tp_pusher 会自动收编未跟踪成果（m779 实证 09:02 银行化晚于 08:57 判罚）——
@@ -362,6 +389,23 @@ def dispatch_one(nodes, st, nid, r, token):
                                      "hard_missing": jd.get("hard_missing")}, pid=int(plan_id))
         log(f"GATE {ext} 拒发（judgeability {jd.get('mode')}，缺 {', '.join(jd.get('hard_missing') or [])}）")
         return None
+    goal, cl = criteria_lint_gate(goal, meta=meta)
+    if cl:
+        if cl.get("action") == "refuse":
+            event("node_status_change", {"node": ext, "gate": "criteria_lint",
+                                         "action": "refuse", "mode": cl.get("mode"),
+                                         "reason_codes": cl.get("reason_codes")},
+                  pid=int(plan_id))
+            log(f"GATE {ext} 拒发（criteria_lint {cl.get('mode')}，原因码 "
+                f"{', '.join(cl.get('reason_codes') or [])}）")
+            return None
+        if cl.get("action") in ("inject", "pass_logged"):
+            event("node_status_change", {"node": ext, "gate": "criteria_lint",
+                                         "action": cl.get("action"),
+                                         "mode": cl.get("mode"),
+                                         "blocked_items": cl.get("blocked_items"),
+                                         "report_sha256": cl.get("report_sha256")},
+                  pid=int(plan_id))
     payload = {"goal": goal, "repo": repo, "runner": "native",
                "origin": "owner", "task_key": task_key, "budget": BUDGET}
     code, d = api("/api/v1/tensor/missions", payload, token)
