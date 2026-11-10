@@ -1,0 +1,116 @@
+{
+  "schema_version": "1.0",
+  "provenance": {
+    "purpose": "Real-repo instantiation of the cross-mission regression guard: which tracked code artifacts certify which platform tasks, and how those tasks sit in the campaign DAG.",
+    "authorship": "Authored from the repository's own import graph (tools.regression_guard scanner) plus the test files each artifact's importers reach; every task entry cites the test file that certifies it.",
+    "scope_note": "Platform-layer mechanisms only (solver kernel, API surface, capability ledger, the guard itself). No ship-domain physics vocabulary is encoded here: domain capabilities arrive through feature_ledger rows, not through this file.",
+    "task_id_convention": "T-<AREA>-<SLUG>",
+    "updated_at": "2026-11-10"
+  },
+  "artifacts": [
+    {
+      "artifact_id": "solver.pce_kernel",
+      "kind": "solver_core",
+      "paths": ["backend/services/pce_uq/kernel.py"],
+      "description": "Non-intrusive polynomial-chaos kernel: projection/regression fitting, spectral moments, Sobol indices."
+    },
+    {
+      "artifact_id": "platform.audit_api",
+      "kind": "platform_api",
+      "paths": ["backend/api/audit.py"],
+      "description": "Audit-log HTTP surface (list/export/stats endpoints)."
+    },
+    {
+      "artifact_id": "platform.capability_ledger",
+      "kind": "platform_ledger",
+      "paths": ["tools/capability_discovery/store.py", "tools/capability_discovery"],
+      "description": "Capability discovery ledger store: append-only capability records consumed by the audit pipeline."
+    },
+    {
+      "artifact_id": "platform.regression_guard",
+      "kind": "platform_mechanism",
+      "paths": ["tools/regression_guard", "tools/regression_guard/**/*.py"],
+      "description": "This mechanism: change -> dependency -> test re-run pipeline (self-guarded)."
+    }
+  ],
+  "features": [
+    {"feature_id": "feat.pce_kernel", "artifacts": ["solver.pce_kernel"]},
+    {"feature_id": "feat.uq_pipeline", "artifacts": [], "depends_on": ["feat.pce_kernel"]},
+    {"feature_id": "feat.audit_surface", "artifacts": ["platform.audit_api"]},
+    {"feature_id": "feat.capability_ledger", "artifacts": ["platform.capability_ledger"]},
+    {"feature_id": "feat.regression_guard", "artifacts": ["platform.regression_guard"]}
+  ],
+  "tasks": [
+    {
+      "task_id": "T-PCE-KERNEL-M9011",
+      "feature_ids": ["feat.pce_kernel"],
+      "tests": ["tests/test_pce_uq_kernel_m9011.py"],
+      "campaign_node": "n-pce-core",
+      "title": "PCE kernel acceptance (analytic polynomial exactness)"
+    },
+    {
+      "task_id": "T-PCE-PIPELINE",
+      "feature_ids": ["feat.uq_pipeline"],
+      "tests": ["tests/test_uq_pipeline/test_pipeline.py"],
+      "campaign_node": "n-pce-core",
+      "title": "UQ pipeline integration over the PCE kernel"
+    },
+    {
+      "task_id": "T-PCE-P152W5-N07",
+      "feature_ids": ["feat.pce_kernel"],
+      "tests": ["tests/test_pce_p152w5_n07.py"],
+      "campaign_node": "n-pce-core",
+      "title": "PCE case driver (imports the kernel transitively via tools/pce)"
+    },
+    {
+      "task_id": "T-AUDIT-UNIT",
+      "feature_ids": ["feat.audit_surface"],
+      "tests": ["backend/tests/test_audit_unit.py"],
+      "campaign_node": "n-audit-surface",
+      "title": "Audit endpoint unit surface"
+    },
+    {
+      "task_id": "T-AUDIT-DRIFT",
+      "feature_ids": ["feat.audit_surface"],
+      "tests": ["backend/tests/feat/test_drift_and_inference.py"],
+      "campaign_node": "n-audit-surface",
+      "title": "Drift/inference endpoint behaviour (env-dependent; baseline has known failures)"
+    },
+    {
+      "task_id": "T-CAPLEDGER-LEDGER",
+      "feature_ids": ["feat.capability_ledger"],
+      "tests": ["tests/test_capability_discovery_ledger.py"],
+      "campaign_node": "n-capability-ledger",
+      "title": "Capability ledger record invariants"
+    },
+    {
+      "task_id": "T-CAPLEDGER-PIPELINE",
+      "feature_ids": ["feat.capability_ledger"],
+      "tests": ["tests/test_capability_discovery_pipeline.py"],
+      "campaign_node": "n-capability-ledger",
+      "title": "Capability discovery pipeline"
+    },
+    {
+      "task_id": "T-CAPLEDGER-ARTIFACTS",
+      "feature_ids": ["feat.capability_ledger"],
+      "tests": ["tests/test_capability_discovery_artifacts.py"],
+      "campaign_node": "n-capability-ledger",
+      "title": "Capability artifact emission (baseline has one known failure)"
+    },
+    {
+      "task_id": "T-RGUARD-SELFTEST",
+      "feature_ids": ["feat.regression_guard"],
+      "tests": ["tests/regression_guard"],
+      "campaign_node": "n-regression-guard",
+      "title": "Regression guard self-test suite (criteria a-e)"
+    }
+  ],
+  "nodes": [
+    {"node_id": "n-pce-core", "depends_on": []},
+    {"node_id": "n-audit-surface", "depends_on": []},
+    {"node_id": "n-capability-ledger", "depends_on": []},
+    {"node_id": "n-regression-guard", "depends_on": []},
+    {"node_id": "n-integration", "depends_on": ["n-pce-core", "n-audit-surface", "n-capability-ledger", "n-regression-guard"]},
+    {"node_id": "n-release", "depends_on": ["n-integration"]}
+  ]
+}
