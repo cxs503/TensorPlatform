@@ -1,0 +1,109 @@
+{
+  "case_id": "resistance_six_parameter",
+  "title": "Six-parameter input uncertainty propagation through the Holtrop-Mennen calm-water resistance regression: uncertainty band + Sobol' ranking + Monte Carlo acceleration",
+  "model": {
+    "path": "holtrop_mennen:holtrop_resistance",
+    "file": "backend/api/domain/holtrop_mennen.py",
+    "output": "rt_n",
+    "call_style": "kwargs"
+  },
+  "inputs": [
+    {
+      "name": "length",
+      "family": "normal",
+      "mean": 200.0,
+      "std": 1.0
+    },
+    {
+      "name": "beam",
+      "family": "normal",
+      "mean": 32.0,
+      "std": 0.096
+    },
+    {
+      "name": "draft",
+      "family": "normal",
+      "mean": 11.0,
+      "std": 0.22
+    },
+    {
+      "name": "cb",
+      "family": "normal",
+      "mean": 0.82,
+      "std": 0.0082
+    },
+    {
+      "name": "speed_ms",
+      "family": "normal",
+      "mean": 7.7,
+      "std": 0.154
+    },
+    {
+      "name": "lcb_frac",
+      "family": "normal",
+      "mean": -0.02,
+      "std": 0.005
+    }
+  ],
+  "pce": {
+    "method": "projection",
+    "order": 2,
+    "level": 2,
+    "q_norm": 1.0
+  },
+  "mc": {
+    "n": 10000,
+    "sampler": "lhs",
+    "seed": 20261110,
+    "reference_n": 200000,
+    "reference_sampler": "qmc",
+    "reference_seed": 987654,
+    "surrogate_draws": 40000,
+    "band_probs": [
+      0.05,
+      0.5,
+      0.95
+    ]
+  },
+  "criteria": {
+    "mean_rel_error": 0.03,
+    "std_rel_error": 0.03,
+    "speedup_model_evaluations_min": 100,
+    "speedup_wall_clock_min": 100
+  },
+  "notes": "Geometric (L, B, T, Cb, lcb) and operational (V) uncertainty of an early-design bulk-carrier case; the black box is the published Holtrop-Mennen (1982/1984) regression module already in the repository. Uncertainty levels: L 0.5%, B 0.3%, T 2%, Cb 1%, V 2% (1 sigma), lcb -2%L +-0.5%L. The reference moments come from a 2e5 scrambled-Sobol QMC run so that the Monte Carlo noise floor can be separated from the surrogate error. Configuration choice: quadratic (order 2) sparse-projection PCE on a Smolyak level-2 grid (13 model evaluations, exact to total degree 3). The cost/accuracy sweep in the ledger shows the neighbouring configurations (level 3 -> 97 evaluations, 0.05% moment error; level 4 -> 533 evaluations, 0.015%) so the chosen accuracy is not a lucky single point.",
+  "presentation": {
+    "response": {
+      "label": "$R_T$",
+      "unit": "kN",
+      "scale": 0.001,
+      "long_label": "calm-water total resistance"
+    },
+    "input_labels": {
+      "length": "$L$",
+      "beam": "$B$",
+      "draft": "$T$",
+      "cb": "$C_B$",
+      "speed_ms": "$V$",
+      "lcb_frac": "LCB"
+    },
+    "annotations": {
+      "geom_volume": {
+        "expr": "length*beam*draft*cb",
+        "format": ".0f"
+      },
+      "l_b_ratio": {
+        "expr": "length/beam",
+        "format": ".2f"
+      },
+      "b_t_ratio": {
+        "expr": "beam/draft",
+        "format": ".2f"
+      }
+    }
+  },
+  "docs": {
+    "intro": "config/uq_cases/resistance_six_parameter.intro.md",
+    "caveats": "config/uq_cases/resistance_six_parameter.caveats.md"
+  }
+}
