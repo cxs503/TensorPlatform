@@ -1,0 +1,24 @@
+{
+  "node": "syn-alpha-quadrature",
+  "generator": "tools/evidence_pipeline/generators/syn_alpha_quadrature.py",
+  "params": {"n0": 8},
+  "timeout_s": 120,
+  "gates": [
+    {
+      "id": "convergence_order",
+      "type": "numeric",
+      "thresholds": {
+        "p_order": {"min": 1.9},
+        "err_fine": {"max": 0.002},
+        "integral_rel_error": {"max": 0.002}
+      }
+    }
+  ],
+  "regression": {
+    "enabled": true,
+    "baseline": "artifacts/P167W2-N11/baselines/syn-alpha-quadrature.json",
+    "tol": 1e-06,
+    "reruns": 2,
+    "floors": {"p_order": 1e-09, "err_fine": 1e-09, "err_coarse": 1e-09, "integral_rel_error": 1e-09}
+  }
+}
