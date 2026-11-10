@@ -1,0 +1,24 @@
+{
+  "expressions": {
+    "repro_rate": "reproduced / total",
+    "pass_rate": "passed / total",
+    "coverage": "covered / total_cases",
+    "success_rate": "succeeded / (succeeded + failed)"
+  },
+  "default_tol": 1e-6,
+  "per_metric_tol": {
+    "repro_rate": 1e-9,
+    "pass_rate": 1e-9
+  },
+  "regression_tol": 5.0,
+  "base_tol": 1e-6,
+  "higher_is_better": true,
+  "min_evidence": 1,
+  "per_metric_sentinel": {
+    "repro_rate": {
+      "regression_tol": 5.0,
+      "base_tol": 0.01,
+      "higher_is_better": true
+    }
+  }
+}
