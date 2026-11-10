@@ -1,0 +1,217 @@
+{
+  "schema_version": "1.0",
+  "title": "能力定义注册表（零领域语义）",
+  "description": "21 项能力定义，仅包含模式匹配规则，不硬编码任何域词条。扫描器通过此注册表的模式匹配来识别证据。",
+  "capabilities": [
+    {
+      "capability_id": "calc.resistance",
+      "label": "阻力计算",
+      "description": "船舶阻力计算能力，包含经验公式与数值方法",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["resistance", "holtrop", "ITTC", "Cf", "Rt"],
+      "test_patterns": ["test_resistance", "test_holtrop", "test_itc"],
+      "report_patterns": ["resistance"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "calc.stability",
+      "label": "稳性计算",
+      "description": "船舶稳性计算能力，包含 GZ 曲线、初稳性等",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["stability", "GZ", "metacentric", "KB", "KM", "GM"],
+      "test_patterns": ["test_stability", "test_gz", "test_metacentric"],
+      "report_patterns": ["stability"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "propeller.open_water",
+      "label": "螺旋桨敞水性能",
+      "description": "螺旋桨敞水性能计算，包含 KT/KQ/eta0",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["open_water", "open-water", "KQ", "KT", "eta0"],
+      "test_patterns": ["test_open_water", "test_propeller"],
+      "report_patterns": ["propeller", "open_water"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "geometry.generate",
+      "label": "几何生成",
+      "description": "船体型线生成能力",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["geometry", "hull", "generate", "型线"],
+      "test_patterns": ["test_geometry", "test_hull"],
+      "report_patterns": ["geometry"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "geometry.hydro_curves",
+      "label": "静水力曲线",
+      "description": "静水力曲线计算能力",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["hydrostat", "静水力", "bonjean", "hydro_curve"],
+      "test_patterns": ["test_hydrostat", "test_hydro"],
+      "report_patterns": ["hydrostat"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "geometry.list_models",
+      "label": "模型列表",
+      "description": "标准船型模型列表查询",
+      "expected_evidence_types": ["code", "config", "data"],
+      "code_patterns": ["list_models", "stdmodels"],
+      "test_patterns": ["test_list_models", "test_stdmodels"],
+      "report_patterns": ["list_models"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "geometry.verify_official",
+      "label": "几何校验",
+      "description": "官方几何校验能力，包含 Cb/L/B 验证",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["verify_official", "Cb", "方型系数"],
+      "test_patterns": ["test_verify", "test_geometry_verify"],
+      "report_patterns": ["verify"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "shiphull.generate",
+      "label": "船型生成",
+      "description": "船体型表生成能力",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["shiphull", "hull_form", "offset"],
+      "test_patterns": ["test_shiphull", "test_hull_form"],
+      "report_patterns": ["shiphull"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "stdmodels.lookup",
+      "label": "标准模型查询",
+      "description": "标准船型数据查询能力",
+      "expected_evidence_types": ["code", "config", "data"],
+      "code_patterns": ["stdmodels", "KVLCC2", "KCS", "DTMB", "SUBOFF"],
+      "test_patterns": ["test_stdmodels", "test_lookup"],
+      "report_patterns": ["stdmodels"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "gov.stats",
+      "label": "治理统计",
+      "description": "平台治理统计能力",
+      "expected_evidence_types": ["code", "config", "report"],
+      "code_patterns": ["gov_stats", "governance", "stats"],
+      "test_patterns": ["test_gov", "test_stats"],
+      "report_patterns": ["governance"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "knowledge.docs",
+      "label": "知识库",
+      "description": "知识库检索能力",
+      "expected_evidence_types": ["code", "config", "data"],
+      "code_patterns": ["knowledge", "knowledge_base"],
+      "test_patterns": ["test_knowledge"],
+      "report_patterns": ["knowledge"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.gate_5415",
+      "label": "开发门禁",
+      "description": "DTMB 5415 开发门禁",
+      "expected_evidence_types": ["code", "config", "report"],
+      "code_patterns": ["5415", "gate_5415", "dtmb"],
+      "test_patterns": ["test_gate", "test_5415"],
+      "report_patterns": ["5415"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.git",
+      "label": "Git 状态",
+      "description": "Git 状态查询能力",
+      "expected_evidence_types": ["code", "config"],
+      "code_patterns": ["git_status", "git log"],
+      "test_patterns": ["test_git"],
+      "report_patterns": ["git"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.logs",
+      "label": "日志查询",
+      "description": "日志查询能力",
+      "expected_evidence_types": ["code", "config"],
+      "code_patterns": ["log_tail", "dev_logs"],
+      "test_patterns": ["test_logs"],
+      "report_patterns": ["logs"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.nginx_audit",
+      "label": "Nginx 审计",
+      "description": "Nginx 配置审计能力",
+      "expected_evidence_types": ["code", "config", "report"],
+      "code_patterns": ["nginx"],
+      "test_patterns": ["test_nginx"],
+      "report_patterns": ["nginx"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.probe",
+      "label": "健康探针",
+      "description": "服务健康探针能力",
+      "expected_evidence_types": ["code", "config", "report"],
+      "code_patterns": ["probe", "healthcheck"],
+      "test_patterns": ["test_probe", "test_health"],
+      "report_patterns": ["probe"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.restart",
+      "label": "服务重启",
+      "description": "服务重启能力",
+      "expected_evidence_types": ["code", "config"],
+      "code_patterns": ["restart", "systemctl"],
+      "test_patterns": ["test_restart"],
+      "report_patterns": ["restart"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "dev.services",
+      "label": "服务状态",
+      "description": "服务状态查询能力",
+      "expected_evidence_types": ["code", "config", "report"],
+      "code_patterns": ["supervisorctl", "systemctl status"],
+      "test_patterns": ["test_services"],
+      "report_patterns": ["services"],
+      "initial_level": "WITHHELD"
+    },
+    {
+      "capability_id": "ai.predict",
+      "label": "AI 预测",
+      "description": "AI 代理模型预测能力",
+      "expected_evidence_types": ["theory", "code", "config", "data", "report"],
+      "code_patterns": ["predict", "surrogate", "neural"],
+      "test_patterns": ["test_predict", "test_ai"],
+      "report_patterns": ["predict"],
+      "initial_level": "NOT_SUPPORTED"
+    },
+    {
+      "capability_id": "methods.computation",
+      "label": "计算方法",
+      "description": "求解器注册与调度能力",
+      "expected_evidence_types": ["theory", "code", "config", "report"],
+      "code_patterns": ["solver registry", "求解器注册", "methods"],
+      "test_patterns": ["test_methods", "test_solver"],
+      "report_patterns": ["methods"],
+      "initial_level": "NOT_SUPPORTED"
+    },
+    {
+      "capability_id": "misc.stubs",
+      "label": "占位端点",
+      "description": "占位端点集合",
+      "expected_evidence_types": ["code"],
+      "code_patterns": ["stub", "placeholder", "example_endpoint"],
+      "test_patterns": ["test_stub"],
+      "report_patterns": ["stub"],
+      "initial_level": "STUB"
+    }
+  ]
+}
