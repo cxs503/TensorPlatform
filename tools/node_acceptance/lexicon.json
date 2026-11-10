@@ -1,0 +1,235 @@
+{
+  "schema_version": "node-acceptance-lexicon/1.0",
+  "note": "Configuration for tools/node_acceptance. This file is the ONE place where metric naming vocabulary lives; the engine code stays vocabulary-free. Terms are generic engineering-methodology words only - no domain vocabulary (no ship/ice/blade/plate terms). Add a term here rather than in code. Role allowlists decide which artifacts are trusted as criterion declarations and which human status fields are authoritative. error_precedence ranks error-like leaf names so a method name containing 'difference' never shadows the recorded relative_error.",
+  "metric_hints": {
+    "error": [
+      "error",
+      "errors",
+      "abs_error",
+      "absolute_error",
+      "relative_error",
+      "rel_err",
+      "err",
+      "max_diff",
+      "diff",
+      "difference",
+      "deviation",
+      "residual",
+      "mismatch",
+      "偏差",
+      "误差",
+      "残差",
+      "不一致",
+      "相对误差",
+      "绝对误差",
+      "rel_err",
+      "residual"
+    ],
+    "duration": [
+      "duration_s",
+      "duration",
+      "elapsed_s",
+      "elapsed",
+      "runtime_s",
+      "runtime",
+      "wall_time",
+      "time_s",
+      "耗时",
+      "用时",
+      "时长",
+      "运行时间"
+    ],
+    "test_count": [
+      "n_tests",
+      "num_tests",
+      "test_count",
+      "tests_total",
+      "total_tests",
+      "用例数",
+      "测试数",
+      "测试项",
+      "项测试",
+      "test case",
+      "test cases"
+    ],
+    "test_pass_rate": [
+      "pass_rate",
+      "通过率",
+      "success_rate",
+      "green_rate"
+    ],
+    "case_count": [
+      "n_cases",
+      "case_count",
+      "num_cases",
+      "verified_cases",
+      "案例数",
+      "算例数",
+      "验证案例数",
+      "cases",
+      "案例"
+    ],
+    "ratio": [
+      "agreement",
+      "agreement_rate",
+      "一致率",
+      "hit_rate",
+      "coverage",
+      "recall",
+      "正确率",
+      "准确率",
+      "accuracy"
+    ],
+    "all_true": [
+      "all_passed",
+      "all_pass",
+      "all_green",
+      "全绿",
+      "全部通过",
+      "all green",
+      "green"
+    ],
+    "element": [
+      "six_elements",
+      "elements",
+      "section",
+      "要素",
+      "章节",
+      "六要素"
+    ],
+    "count": [
+      "count",
+      "n_",
+      "数量",
+      "个数"
+    ]
+  },
+  "tolerance_keys": [
+    "tolerance",
+    "threshold",
+    "eps",
+    "epsilon",
+    "atol",
+    "rtol"
+  ],
+  "status_true_tokens": [
+    "pass",
+    "passed",
+    "ok",
+    "true",
+    "green",
+    "success",
+    "succeeded",
+    "met",
+    "verified"
+  ],
+  "status_false_tokens": [
+    "fail",
+    "failed",
+    "red",
+    "false",
+    "error",
+    "broken",
+    "unmet",
+    "missing",
+    "regressed"
+  ],
+  "element_names": {
+    "case_intro": [
+      "case_intro",
+      "案例介绍",
+      "背景"
+    ],
+    "method": [
+      "method",
+      "方法",
+      "流程"
+    ],
+    "results": [
+      "results",
+      "结果",
+      "数字表"
+    ],
+    "figures": [
+      "figures",
+      "图"
+    ],
+    "caveats": [
+      "caveats",
+      "注意点",
+      "局限"
+    ],
+    "error_judgement": [
+      "error_judgement",
+      "误差判定",
+      "误差"
+    ]
+  },
+  "connectors": [
+    "并且",
+    "且",
+    "同时",
+    "；",
+    ";",
+    " and ",
+    "&&",
+    "、"
+  ],
+  "artifact_roles": {
+    "validation_report": "(^|/)validation_report\\.json$",
+    "validation_report_variant": "(^|/)validation_report[^/]*\\.json$",
+    "report": "(^|/)report\\.json$",
+    "criteria": "(^|/)(acceptance_criteria|criteria)[^/]*\\.json$",
+    "figures": "(^|/)figures(/|$)",
+    "verified": "(^|/)verified(/|$)"
+  },
+  "artifact_top_level_globs": [
+    "*validation*report*.json",
+    "report*.json",
+    "*verification*.json",
+    "acceptance_criteria*.json",
+    "criteria*.json"
+  ],
+  "artifact_search_roots": [
+    "artifacts",
+    "benchmarks",
+    "runs",
+    "docs"
+  ],
+  "scan_limits": {
+    "max_depth": 3,
+    "max_files": 500,
+    "max_json_files": 30,
+    "max_json_bytes": 4000000,
+    "max_metrics": 60000
+  },
+  "precision_reference_percent": 3.0,
+  "criteria_role_allowlist": [
+    "validation_report",
+    "criteria"
+  ],
+  "human_claim_role_priority": [
+    "validation_report",
+    "criteria",
+    "validation_report_variant",
+    "report",
+    "json",
+    "other"
+  ],
+  "error_precedence": [
+    "relative_error",
+    "rel_err",
+    "relative_residual",
+    "abs_error",
+    "absolute_error",
+    "max_relative_error",
+    "max_error",
+    "error",
+    "residual",
+    "err",
+    "deviation",
+    "mismatch",
+    "difference",
+    "diff"
+  ]
+}
