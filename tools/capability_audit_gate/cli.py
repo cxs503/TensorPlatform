@@ -5,6 +5,7 @@
 ``audit``   跑审计（可选基线回归判定 / 验收判据 / Markdown+JSON 报告）
 ``freeze``  把审计结果冻结成基线（回归防护的参照点）
 ``validate``只跑一致率校验（要求 spec 带 ``expected_level``，即标注语料）
+``drill``   回归防护演练：逐个把 REAL 能力注入降级，要求 gate 100% 检出（C3）
 
 退出码
 ------
@@ -20,7 +21,8 @@ from pathlib import Path
 if __package__ in (None, ""):  # pragma: no cover - 允许直接执行
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
-from tools.capability_audit_gate import engine, gate as gate_mod, report as report_mod, spec as spec_mod
+from tools.capability_audit_gate import (drill as drill_mod, engine, gate as gate_mod,
+                                         report as report_mod, spec as spec_mod)
 
 EXIT_OK, EXIT_GATE, EXIT_ACCEPT, EXIT_CONFIG = 0, 1, 3, 4
 
@@ -81,6 +83,23 @@ def cmd_freeze(args) -> int:
     return EXIT_OK
 
 
+def cmd_drill(args) -> int:
+    """回归防护演练：逐个把 REAL 能力做成 MOCK，要求 gate 100% 检出（C3 的机器证据）。"""
+    spec = _build(args)
+    result = drill_mod.run_drill(spec, root=args.root, target_level=args.target_level,
+                                 out_dir=args.out)
+    print(f"drill targets={result['targets']} detected={result['detected']} "
+          f"rate={result['detection_rate']} worktree_unchanged={result['worktree_unchanged']} "
+          f"runtime={result['runtime_sec']}s pass={result['pass']}")
+    if result.get("note"):
+        print(f"  note: {result['note']}", file=sys.stderr)
+    if not result["pass"]:
+        for cid in result["missed"]:
+            print(f"  MISSED {cid}: injected downgrade not detected", file=sys.stderr)
+        return EXIT_CONFIG if not result["targets"] else EXIT_GATE
+    return EXIT_OK
+
+
 def cmd_validate(args) -> int:
     spec = _build(args)
     rep = engine.run_audit(spec, root=args.root, cache_path=args.cache)
@@ -97,7 +116,7 @@ def cmd_validate(args) -> int:
 def main(argv=None) -> int:
     ap = argparse.ArgumentParser(description="能力台账自动审计 + 回归防护")
     sub = ap.add_subparsers(dest="cmd", required=True)
-    for name in ("audit", "freeze", "validate"):
+    for name in ("audit", "freeze", "validate", "drill"):
         p = sub.add_parser(name)
         src = p.add_mutually_exclusive_group(required=True)
         src.add_argument("--spec", help="审计 spec JSON")
@@ -108,6 +127,9 @@ def main(argv=None) -> int:
                                          else "artifacts/capability_audit_gate"))
         p.add_argument("--cache", default=None, help="增量扫描缓存路径（缺省不落盘）")
         p.add_argument("--min-agreement", type=float, default=0.9)
+        if name == "drill":
+            p.add_argument("--target-level", default="REAL",
+                           help="被注入降级的目标等级（默认 REAL）")
         if name == "audit":
             p.add_argument("--baseline", default=None)
             p.add_argument("--ack", default=None)
@@ -120,7 +142,8 @@ def main(argv=None) -> int:
             p.add_argument("--max-runtime", type=float, default=60.0)
     args = ap.parse_args(argv)
     try:
-        return {"audit": cmd_audit, "freeze": cmd_freeze, "validate": cmd_validate}[args.cmd](args)
+        return {"audit": cmd_audit, "freeze": cmd_freeze, "validate": cmd_validate,
+                "drill": cmd_drill}[args.cmd](args)
     except (spec_mod.SpecError, gate_mod.BaselineError) as exc:
         print(f"config error: {exc}", file=sys.stderr)
         return EXIT_CONFIG
