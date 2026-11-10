@@ -1,0 +1,78 @@
+{
+  "preregistration_id": "p92w2b-n08-delivery-semantics",
+  "registered_at_utc": "2026-11-09T03:05:00Z",
+  "registered_before_any_outcome_inspection": true,
+  "git_branch": "agent/m7804",
+  "decision": "Adopt, keep unchanged, or reject the artifact-fact delivery-state classifier (delivered_complete / delivered_partial / suspect_undeclared) plus the 70%-budget MVD checkpoint as the refinement of the terminal 'succeeded' status.",
+  "alternatives": [
+    "A0 baseline: binary status (succeeded | failed) as shipped, no refinement.",
+    "A1 trivial structural baseline: 'delivered_complete' iff result is a non-empty dict.",
+    "A2 artifact-fact classifier under test (backend/api/domain/delivery_state.py + payload-shape adapter).",
+    "A3 independent provenance oracle: platform-side provenance facts (branch/commits/report/reproduction present), used as a label cross-check and never as classifier input."
+  ],
+  "hypotheses": [
+    "H1 (primary): A2 macro-F1 >= 0.90 against the 60-unit manual annotation of real succeeded missions.",
+    "H2: A2 weak-label (cheap artifact proxy) recall >= 0.85 and precision >= 0.90.",
+    "H3 (fail-closed): any result missing changed_files (or checks) is never labelled delivered_complete.",
+    "H4 (shadow safety): classification and 70% checkpoint are pure functions; shadow mode produces zero database writes; golden outputs identical byte-for-byte.",
+    "H5 (zero domain semantics): domain-term scan hits = 0 on all delivery-semantics modules and their tests."
+  ],
+  "outcome_metrics": {
+    "primary": "macro-F1 of A2 over the three delivery states vs manual labels (macro over states with support > 0)",
+    "secondary": [
+      "per-class precision, recall, F1 and the 3x3 confusion matrix",
+      "A0 and A1 macro-F1 on the same 60 units (baseline contrast)",
+      "agreement (Cohen kappa) between manual labels and the A3 provenance oracle",
+      "weak-label recall/precision (H2)",
+      "state distribution over the 60 units and over the fetched succeeded population"
+    ]
+  },
+  "unit_of_analysis": "one tensor_dev_missions row with status='succeeded' and non-null result",
+  "thresholds": {
+    "macro_f1_min": 0.90,
+    "weak_label_recall_min": 0.85,
+    "weak_label_precision_min": 0.90,
+    "domain_scan_hits_max": 0,
+    "shadow_db_writes_max": 0,
+    "fail_closed_violations_max": 0
+  },
+  "annotation_rubric_manual": {
+    "labeler": "agent m7804 (single annotator, rubric v1 frozen before data inspection)",
+    "delivered_complete": "Implementation artifacts are named AND the verification evidence contains at least one concrete, machine-checkable statement (test count, PASS/FAIL list, exit code, numeric criterion) AND the unit's own completion claim is consistent with those artifacts.",
+    "delivered_partial": "Some artifacts exist (e.g. changed_files or checks) but a required element is absent or vacuous: evidence is boilerplate/unverifiable, or the report/summary element is missing while the mission claims success.",
+    "suspect_undeclared": "The unit claims success but carries no implementation artifact or no verification evidence at all, so completion is undeclared by facts.",
+    "tie_break": "If borderline between complete and partial, choose delivered_partial (conservative against false completeness)."
+  },
+  "sampling_plan": {
+    "population": "tensor_dev_missions where status='succeeded' and result is a non-null object, fetched page-wise (200/page, up to 5 pages) through the authenticated platform API",
+    "strata": "changed_files bucket {0, 1-2, 3+} x checks-text length bucket {empty, short<60, medium<400, long}",
+    "split_design": "disjoint: 30-unit calibration split (contract discovery ONLY: payload shape, no threshold tuning) and 60-unit evaluation split (frozen classifier, measured once)",
+    "seed": 20261109,
+    "exclusions": ["status != succeeded", "result null or empty", "duplicate mission_id"],
+    "repetition_rationale": "Deterministic functions + fixed corpus => no run-to-run variance, so repetitions are not used for the primary metric. Sampling variability is reported as the 95% Wilson interval of accuracy on n=60.",
+    "stopping_rule": "Single evaluation run with the frozen artifacts. If macro-F1 < 0.90 the result is reported as honest FAIL; no threshold edits, no corpus edits, no re-runs after inspection."
+  },
+  "controlled_variables": [
+    "corpus snapshot (SHA-256 pinned)", "classifier version (git commit)", "label rubric", "label file"
+  ],
+  "changed_variables": ["classifier variant A0 / A1 / A2"],
+  "confounders_and_limits": [
+    "Single annotator (no inter-annotator kappa); mitigated by a published rubric, a provenance-oracle cross-check, and honest FAIL reporting.",
+    "Only succeeded missions are sampled, so the population-level estimate covers false completeness, not false failure detection.",
+    "Label leakage risk: the manual rubric shares the notion of 'artifact exists' with A2; the rubric additionally requires machine-checkable evidence content, which A2 cannot see, so exact agreement is not structurally guaranteed.",
+    "Mission records come from one platform instance (no cross-instance generalisation claim)."
+  ],
+  "environment": {
+    "platform_api": "http://127.0.0.1:8010/api/v1 (health-checked before fetching)",
+    "arch": "loong64 sandbox, python 3.11",
+    "commands": [
+      "python3 runs/p92w2b-n08/tools/fetch_corpus.py --limit 400",
+      "python3 runs/p92w2b-n08/tools/build_corpus.py --pages 5",
+      "python3 runs/p92w2b-n08/tools/evaluate.py",
+      "python3 -m pytest backend/tests/test_delivery_semantics_eval.py -q"
+    ],
+    "raw_data_location": "runs/p92w2b-n08/corpus_*.json (sha256 recorded in metrics.json)"
+  },
+  "analysis_plan": "Aggregate with a fixed confusion-matrix routine; accuracy with 95% Wilson interval; no outlier removal; missing labels reported, never imputed; every number in the report is emitted by evaluate.py into metrics.json (no hand transcription).",
+  "safety_and_resources": "Read-only API access, no DB writes during evaluation, classification is in-process, shadow mode has no side effects; computation is minutes on one node, no cluster use needed."
+}

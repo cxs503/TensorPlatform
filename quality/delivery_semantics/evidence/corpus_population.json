@@ -1,0 +1,27 @@
+{
+ "population_fetched": 1000,
+ "population_usable": 1000,
+ "seed": 20261109,
+ "source_urls": [
+  "http://127.0.0.1:8010/api/v1/tensor/missions?status=succeeded&limit=200&offset=0",
+  "http://127.0.0.1:8010/api/v1/tensor/missions?status=succeeded&limit=200&offset=200",
+  "http://127.0.0.1:8010/api/v1/tensor/missions?status=succeeded&limit=200&offset=400",
+  "http://127.0.0.1:8010/api/v1/tensor/missions?status=succeeded&limit=200&offset=600",
+  "http://127.0.0.1:8010/api/v1/tensor/missions?status=succeeded&limit=200&offset=800"
+ ],
+ "status_filter": "succeeded",
+ "strata": {
+  "cf=0|checks=empty": 19,
+  "cf=0|checks=long": 19,
+  "cf=0|checks=medium": 33,
+  "cf=0|checks=short": 25,
+  "cf=1-2|checks=empty": 50,
+  "cf=1-2|checks=long": 36,
+  "cf=1-2|checks=medium": 74,
+  "cf=1-2|checks=short": 7,
+  "cf=3+|checks=empty": 55,
+  "cf=3+|checks=long": 374,
+  "cf=3+|checks=medium": 275,
+  "cf=3+|checks=short": 33
+ }
+}

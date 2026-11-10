@@ -186,8 +186,7 @@ bootstrap 下界 0.78 说明换一批抽样可能跌破阈值）；预注册冻�
 ## 复现命令
 
 ```bash
-python3 runs/p92w2b-n08/tools/build_corpus.py --pages 5        # 只读 API + 分层抽样（seed 20261109）
-python3 runs/p92w2b-n08/tools/evaluate.py                      # → metrics.json（所有数字唯一来源）
+python3 quality/delivery_semantics/tools/evaluate.py           # 只读冻结工件 → metrics.json（所有数字唯一来源）
 cd backend && python3 -m pytest tests/test_delivery_semantics_eval.py \
     tests/test_delivery_state.py tests/test_mvd_checkpoint.py \
     tests/test_p92w3_n10_layering.py -q
@@ -259,8 +258,9 @@ A/B 由 `backend/tests/test_delivery_semantics_eval.py::TestRegressionGuard` **�
    （`CRITICAL_FIELDS = {changed_files, checks}`），同时把 `missing` 枚举改成
    "先全量枚举缺失项、再由 critical/graded 决定档位"，因此排名 KPI
    （`compute_missing_item_counts`）的完整性与 P92W3-N10 的 `claim==2` 断言仍然成立。
-2. 证据工件入库（`runs/p92w2b-n08/`：预注册、抽样元数据、60 单原始载荷、冻结标注、
-   `metrics.json`）＋`tools/{build_corpus,evaluate}.py`：任何被引用的数字都可重算。
+2. 证据工件入库（预注册、抽样元数据、60 单原始载荷、冻结标注、`metrics.json`）＋
+   `tools/evaluate.py`：任何被引用的数字都可重算。**仓库内位置见 §8**（轮次 3 迁至
+   `quality/delivery_semantics/evidence/`：`runs/` 是推送黑名单，放那里永远进不了 main）。
 3. 防复发：新增 `TestEvidenceIsCommitted`（工件存在性 + 哈希钉），
    使"缺证据就静默 skip"在正式仓里变成**红灯**；新增 `TestRegressionGuard`（A/B 守卫）。
 4. `test_delivery_state.py` / `test_p92w3_n10_layering.py` 两处断言与细则对齐（含理由注释）。
@@ -289,10 +289,102 @@ A/B 由 `backend/tests/test_delivery_semantics_eval.py::TestRegressionGuard` **�
   tests/test_mvd_checkpoint.py tests/test_p92w3_n10_layering.py tests/test_tensor_centers_contract.py
   tests/test_alertmanager_webhook.py tests/test_quality_gate_admission.py -q` → **168 项，0 失败，
   4 skip（`runs/p92w3-n10/` 语料仍缺）**。
-- 重算：`python3 runs/p92w2b-n08/tools/evaluate.py` → `metrics.json`（macro-F1 0.9226，
+- 重算：`python3 quality/delivery_semantics/tools/evaluate.py` → `metrics.json`（macro-F1 0.9226，
   fail-closed 违规 0，shadow 逐位一致）。
 - **未完成**：全量 `backend/tests`（165 文件）在本环境跑不到底——本机缺 `prometheus_client`
   （2 个文件收集失败，与本次改动无关），loong64 单节点跑全量时出现 Segmentation/Bus error，
   分片派发又遇 ssh 30 s 超时。这是环境限制，不是本次改动的证据；如需全量证据需在集群
   重新分片跑并单独记账。`test_taskplane_infra.py` 的 3 项失败属 compose/env 断言，本 PR
   未触碰相关文件（该文件 0 处引用 delivery），判定为既有失败。
+
+---
+
+## ⑧ 轮次 3（m8729 重开管到底）：证据入库位置修复 ——「提交了 4 次，main 上 0 次」
+
+### 8.1 现象（实测）
+
+在 main `2f15b10a` 上直接跑本节点的验收测试：
+
+```
+pytest backend/tests/test_delivery_semantics_eval.py -q
+→ 3 failed, 7 skipped（迁移后若证据再丢：4 failed / 7 skipped，新增守卫把"丢证据"变红灯）
+  FAILED TestEvidenceIsCommitted::test_evidence_artifacts_are_committed
+  FAILED TestEvidenceIsCommitted::test_metrics_pins_match_committed_artifacts
+  FAILED TestEvidenceIsCommitted::test_primary_criterion_is_artifact_backed
+```
+
+即 ⑦ 里加的「防复发守卫」在正式仓里**自己红了**，而语料相关 7 项仍静默 skip：
+`runs/p92w2b-n08/` 在 main 上不存在。git 侧证据：历史上已有 4 个把语料提交到
+`runs/p92w2b-n08/` 的分支（`41cafb9d` / `ab5b653f` / `3bf1629f` / `52f53333`），
+**没有一个是 main 的祖先**（`git merge-base --is-ancestor` 全 NO）。
+
+### 8.2 根因（结构性，不是操作失误）
+
+`ops/taskplane/tp_pusher.py:232`
+
+```python
+_EXCLUDE = re.compile(r'^(artifacts?/|runs/|results[-/]|REPORT_GATE)')
+```
+
+推送器把 `runs/` 当「纯运行记录」整目录滤除（`skipped.append(path + "[record]")`），
+所以 **任何** 提交在 `runs/` 下的验收证据都不可能到达 GitHub。实测佐证：#880（m8732）
+本地分支 `git diff --stat origin/main...HEAD` 含 8 个 `runs/p92w2b-n08/*` 文件，
+合入 main 的 `d64e7d33` 只有 5 个文件、`runs/` 全部缺席；`git ls-tree origin/main runs/`
+只剩 `runs/m591`、`runs/m1614` 两个历史目录。
+
+结论：⑦ 的守卫设计（证据放 `runs/` + 哈希钉住）与推送策略**直接矛盾**，
+每次重开都会重复"提交→滤除→再红"的循环。这不是把测试调绿能解决的问题。
+
+### 8.3 修复（最小、可机器复核）
+
+1. **证据迁移到可推送前缀** `quality/delivery_semantics/evidence/`
+   （同源先例：`quality/maturity/evidence/` 已被 `test_model_factory_experiment_evidence_gate.py`
+   读取，属既定证据入库惯例）：预注册、抽样元数据、60 单评估集/原始载荷、冻结标注、`metrics.json`。
+2. 重算脚本迁移 + 路径参数化：`quality/delivery_semantics/tools/evaluate.py`
+   （`RUN = parents[1]/"evidence"`，`metrics.json` 内记录的路径前缀改为
+   `EVIDENCE_REL = "quality/delivery_semantics/evidence"`）。
+3. 测试跟随：`backend/tests/test_delivery_semantics_eval.py::RUN` 指向新证据目录；
+   `metrics.json` 的 corpus/labels 哈希钉照旧生效。
+4. **防复发升级为结构性守卫**（新增 `TestEvidenceHomeIsPushable`）：
+   从 `tp_pusher.py` **实时读取** `_EXCLUDE` 正则并作用到证据目录相对路径上——
+   谁把证据挪回 `runs/`（或推送黑名单再扩容），测试立刻红并给出正确修法。
+
+### 8.4 本轮复算（当前 main `2f15b10a`，脚本产出，零手抄）
+
+| 变体 | macro-F1 | 准确率 | complete 召回/精确 |
+|---|---|---|---|
+| A0 上线版 | 0.2154 | 0.2500 | 0.000 / 0.000 |
+| A1 平凡基线 | 0.2271 | 0.5167 | 1.000 / 0.5167 |
+| A2 预注册冻结版 | 0.8667 | 0.9333 | 0.9032 / 0.9655 |
+| **A2 当前版** | **0.9226** | **0.9667** | **0.9677 / 0.9677** |
+
+`all_criteria_met = true`：a) macro-F1 0.9226 ≥ 0.90；b) 弱标签 recall 0.8611 ≥ 0.85、
+precision 1.0000 ≥ 0.90；c) fail-closed 8 项负控 **0 违例**；d) shadow 逐位一致
+（`golden_sha256 == rerun_sha256`）；e) 领域词命中 **0**（3 个模块、8 条词型）。
+`git_head` 字段记录复算时的 main tip（`2f15b10a`）——即 ⑦ 的 fail-closed 语义
+在合入后的 main 上**仍然成立**，不是只在原分支成立。
+
+### 8.5 验证记录（跑了什么）
+
+- `cd backend && pytest tests/test_delivery_semantics_eval.py -q` → **32 passed / 0 skip**
+  （迁移前：3 failed / 7 skipped；把证据目录临时移走可复现 4 failed / 7 skipped 的负控）。
+- `pytest tests/test_delivery_state.py tests/test_mvd_checkpoint.py -q` → 全绿。
+- `python3 quality/delivery_semantics/tools/evaluate.py` → 重算 `metrics.json`（上表全部数字的唯一来源）。
+
+### 8.6 残余缺口（诚实申报，未修）
+
+- **`runs/p92w3-n10/` 同样缺失**（`test_p92w3_n10_layering.py` 4 项红，同一根因、
+  同一修法）：属 m8456 节点自有证据基，本轮不越界代建；修法已在
+  `quality/delivery_semantics/README.md` 写清（迁到 `quality/p92w3_n10/evidence/` 并改 `RUN`）。
+- **单标注者 + 宽 CI**：60 单单人标注、无 kappa，macro-F1 95% CI ≈ [0.78, 1.00]，
+  0.9226 距阈值 +2.51% 相对裕度——留出集复现仍是下一个节点的活。
+- 分类器语义、KPI/DB 口径、`mvd_checkpoint` 预算逻辑本轮**未改**（无缺陷证据，不做无谓改动）。
+
+### 8.7 误差判定
+
+| 关键量 | 基准 | 误差 | 是否 <3% |
+|---|---|---|---|
+| macro-F1（迁移后复算 vs ⑦ 记录值） | 0.9226（历史） | **0.00%（逐位一致）** | 是 |
+| macro-F1 vs 预注册阈值 0.90 | 0.90 | +2.51% 相对裕度 | 是（裕度薄） |
+| 语料/标注完整性 | `metrics.json` 内 sha256 钉 | 3/3 全匹配 | 是 |
+| 物理量误差 | 无（平台共性机制，不含物理量） | — | N/A（口径说明） |
