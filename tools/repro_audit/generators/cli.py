@@ -21,7 +21,7 @@ import json
 import os
 import sys
 
-from . import inventory, gate, run_generator
+from . import inventory, gate, maturity, run_generator
 
 
 def cmd_list(args):
@@ -82,6 +82,31 @@ def cmd_gate(args):
     sys.exit(0 if result["passed"] else 1)
 
 
+def cmd_channels(args):
+    """数值通道：审计 / 入库门 / 基线（maturity 模块的统一入口）。"""
+    if args.gate:
+        result = maturity.gate(args.repo, args.ledger, args.min_coverage,
+                               args.min_grade, args.total_required)
+    elif args.baseline:
+        base = maturity.legacy_baseline(args.repo)
+        os.makedirs(os.path.dirname(os.path.abspath(args.out)) or ".", exist_ok=True)
+        with open(args.out, "w", encoding="utf-8") as fh:
+            json.dump(base, fh, indent=2, sort_keys=True, ensure_ascii=False)
+            fh.write("\n")
+        result = {"baseline": args.out, "grades": base["grades"],
+                  "coverage": base["coverage"]}
+    else:
+        ledger = maturity.audit(args.repo)
+        maturity.write_ledger(ledger, args.out)
+        manifest_out = os.path.join(os.path.dirname(args.out), "channels.json")
+        maturity.write_manifest(manifest_out)
+        result = {"ledger": args.out, "manifest": manifest_out,
+                  "coverage": ledger["coverage"], "grades": ledger["grades"]}
+    print(json.dumps(result, indent=2, ensure_ascii=False))
+    if args.gate and not result.get("passed"):
+        sys.exit(1)
+
+
 def main():
     parser = argparse.ArgumentParser(description="Generator CLI")
     subparsers = parser.add_subparsers(dest="command")
@@ -111,7 +136,22 @@ def main():
     p_gate.add_argument("--repo", default=".", help="Repository root")
     p_gate.add_argument("--tol", type=float, default=1e-6, help="Relative tolerance")
     p_gate.set_defaults(func=cmd_gate)
-    
+
+    # channels：数值通道成熟度（审计 / 门 / 基线）
+    p_ch = subparsers.add_parser(
+        "channels", help="Numeric-channel maturity: audit / gate / baseline")
+    p_ch.add_argument("--gate", action="store_true", help="fail-closed 入库门")
+    p_ch.add_argument("--baseline", action="store_true",
+                      help="给历史 gen_*.py 注册表评级（基线）")
+    p_ch.add_argument("--repo", default=".", help="Repository root")
+    p_ch.add_argument("--out", default=maturity.DEFAULT_OUT, help="台账/基线输出")
+    p_ch.add_argument("--ledger", default=maturity.DEFAULT_LEDGER,
+                      help="入库门读取的台账")
+    p_ch.add_argument("--min-coverage", type=int, default=24)
+    p_ch.add_argument("--min-grade", default="L3", choices=sorted(maturity.GRADE_ORDER))
+    p_ch.add_argument("--total-required", type=int, default=None)
+    p_ch.set_defaults(func=cmd_channels)
+
     args = parser.parse_args()
     if not args.command:
         parser.print_help()
