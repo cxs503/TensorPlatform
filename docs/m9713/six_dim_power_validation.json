@@ -1,0 +1,430 @@
+{
+  "aa_null_control": {
+    "ci_upper_family": 0.05962949228616691,
+    "family_ge_min_dims": {
+      "hi": 0.05962949228616691,
+      "k": 0,
+      "level": 0.95,
+      "lo": 0.0,
+      "method": "clopper-pearson",
+      "n": 60,
+      "p_hat": 0.0
+    },
+    "n_pooled_families": 180,
+    "pass": true,
+    "pooled_per_dim": {
+      "accuracy": {
+        "hi": 0.047932200496390846,
+        "k": 3,
+        "level": 0.95,
+        "lo": 0.0034503441969729364,
+        "method": "clopper-pearson",
+        "n": 180,
+        "p_hat": 0.016666666666666666
+      },
+      "applicability": {
+        "hi": 0.020285204570112986,
+        "k": 0,
+        "level": 0.95,
+        "lo": 0.0,
+        "method": "clopper-pearson",
+        "n": 180,
+        "p_hat": 0.0
+      },
+      "correctness": {
+        "hi": 0.030563341008136593,
+        "k": 1,
+        "level": 0.95,
+        "lo": 0.00014064459742276156,
+        "method": "clopper-pearson",
+        "n": 180,
+        "p_hat": 0.005555555555555556
+      },
+      "efficiency": {
+        "hi": 0.030563341008136593,
+        "k": 1,
+        "level": 0.95,
+        "lo": 0.00014064459742276156,
+        "method": "clopper-pearson",
+        "n": 180,
+        "p_hat": 0.005555555555555556
+      },
+      "reproducibility": {
+        "hi": 0.030563341008136593,
+        "k": 1,
+        "level": 0.95,
+        "lo": 0.00014064459742276156,
+        "method": "clopper-pearson",
+        "n": 180,
+        "p_hat": 0.005555555555555556
+      },
+      "stability": {
+        "hi": 0.020285204570112986,
+        "k": 0,
+        "level": 0.95,
+        "lo": 0.0,
+        "method": "clopper-pearson",
+        "n": 180,
+        "p_hat": 0.0
+      }
+    },
+    "two_sided_family_ge_min_dims": {
+      "hi": 0.05962949228616691,
+      "k": 0,
+      "level": 0.95,
+      "lo": 0.0,
+      "method": "clopper-pearson",
+      "n": 60,
+      "p_hat": 0.0
+    }
+  },
+  "family_decision_power": {
+    "abs_error_n20": 0.03567291666666672,
+    "analytic_normal_single_n20": 0.8296043338586436,
+    "holm_alpha_per_test": 0.008333333333333333,
+    "n_perm": 499,
+    "n_perm_resolution_ok": true,
+    "n_rep": 120,
+    "note": "解析正态近似在 n=20 系统性高估置换功效（离散 p + t 修正口径差异），故判据用同一置换机制的实测分解，不用正态解析",
+    "predicted_both_significant": 0.64400625,
+    "required_n_grid_hit": 26,
+    "rows": [
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 0.6166666666666667,
+        "n_pairs": 9,
+        "power_all_affected": 0.13333333333333333,
+        "power_ge_min_dims": 0.14166666666666666
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 0.9583333333333334,
+        "n_pairs": 12,
+        "power_all_affected": 0.23333333333333334,
+        "power_ge_min_dims": 0.24166666666666667
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 1.3166666666666667,
+        "n_pairs": 16,
+        "power_all_affected": 0.45,
+        "power_ge_min_dims": 0.4583333333333333
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 1.6083333333333334,
+        "n_pairs": 20,
+        "power_all_affected": 0.6083333333333333,
+        "power_ge_min_dims": 0.6166666666666667
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 1.825,
+        "n_pairs": 26,
+        "power_all_affected": 0.825,
+        "power_ge_min_dims": 0.825
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 2.05,
+        "n_pairs": 32,
+        "power_all_affected": 0.975,
+        "power_ge_min_dims": 0.975
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 2.0166666666666666,
+        "n_pairs": 40,
+        "power_all_affected": 0.9666666666666667,
+        "power_ge_min_dims": 0.9666666666666667
+      },
+      {
+        "alpha_per_dim_rate_0": 4.0,
+        "mean_rejections": 2.05,
+        "n_pairs": 60,
+        "power_all_affected": 1.0,
+        "power_ge_min_dims": 1.0
+      }
+    ],
+    "sim_n20_power_all_affected": 0.6083333333333333,
+    "single_dim_power_at_holm_alpha_measured": 0.8025,
+    "target_power": 0.8
+  },
+  "g25_null": {
+    "decision_pass": false,
+    "max_p_perm": 1.0,
+    "n_significant_better": 0
+  },
+  "g25_two_dim_improvement": {
+    "decision_pass": true,
+    "errors": [],
+    "min_perm_for_holm": 119,
+    "n_pairs_by_dim": {
+      "accuracy": 12,
+      "applicability": 12,
+      "correctness": 12,
+      "efficiency": 12,
+      "reproducibility": 12,
+      "stability": 12
+    },
+    "n_perm_resolution_ok": true,
+    "n_significant_better": 2,
+    "per_dim": {
+      "accuracy": {
+        "cohen_dz": 1.9374655371312566,
+        "direction": "treatment_better",
+        "p_holm": 0.0024000000000000002,
+        "p_perm": 0.0004
+      },
+      "applicability": {
+        "cohen_dz": 0.0,
+        "direction": "indistinguishable",
+        "p_holm": 1.0,
+        "p_perm": 1.0
+      },
+      "correctness": {
+        "cohen_dz": 0.0,
+        "direction": "indistinguishable",
+        "p_holm": 1.0,
+        "p_perm": 1.0
+      },
+      "efficiency": {
+        "cohen_dz": 1.6496620553125385,
+        "direction": "treatment_better",
+        "p_holm": 0.0025,
+        "p_perm": 0.0005
+      },
+      "reproducibility": {
+        "cohen_dz": 0.0,
+        "direction": "indistinguishable",
+        "p_holm": 1.0,
+        "p_perm": 1.0
+      },
+      "stability": {
+        "cohen_dz": 0.0,
+        "direction": "indistinguishable",
+        "p_holm": 1.0,
+        "p_perm": 1.0
+      }
+    }
+  },
+  "mde_curve_check": {
+    "analytic": {
+      "20": 0.6562066353775445,
+      "40": 0.45288751675543004
+    },
+    "points": [
+      {
+        "alpha": 0.05,
+        "mde": 0.6937,
+        "mde_analytic": 0.6562,
+        "n": 20,
+        "n_perm": 1000,
+        "power_achieved": 0.77
+      },
+      {
+        "alpha": 0.05,
+        "mde": 0.41,
+        "mde_analytic": 0.4529,
+        "n": 40,
+        "n_perm": 1000,
+        "power_achieved": 0.77
+      }
+    ]
+  },
+  "null_family_fwer": {
+    "family_all": {
+      "hi": 0.01827534035513624,
+      "k": 0,
+      "level": 0.95,
+      "lo": 0.0,
+      "method": "clopper-pearson",
+      "n": 200,
+      "p_hat": 0.0
+    },
+    "family_any": {
+      "hi": 0.1024618313083245,
+      "k": 12,
+      "level": 0.95,
+      "lo": 0.031383953893483446,
+      "method": "clopper-pearson",
+      "n": 200,
+      "p_hat": 0.06
+    },
+    "family_ge_min_dims": {
+      "hi": 0.01827534035513624,
+      "k": 0,
+      "level": 0.95,
+      "lo": 0.0,
+      "method": "clopper-pearson",
+      "n": 200,
+      "p_hat": 0.0
+    },
+    "n_families": 200,
+    "n_pairs": 20,
+    "n_perm": 499,
+    "n_perm_resolution_ok": true,
+    "nominal_alpha": 0.05,
+    "per_dim": {
+      "accuracy": {
+        "dimension": "accuracy",
+        "direction": -1,
+        "hi": 0.035654668397239776,
+        "k": 2,
+        "level": 0.95,
+        "lo": 0.0012133490137360308,
+        "method": "clopper-pearson",
+        "n": 200,
+        "p_hat": 0.01
+      },
+      "applicability": {
+        "dimension": "applicability",
+        "direction": 1,
+        "hi": 0.0432082819177126,
+        "k": 3,
+        "level": 0.95,
+        "lo": 0.00310410762155351,
+        "method": "clopper-pearson",
+        "n": 200,
+        "p_hat": 0.015
+      },
+      "correctness": {
+        "dimension": "correctness",
+        "direction": 1,
+        "hi": 0.01827534035513624,
+        "k": 0,
+        "level": 0.95,
+        "lo": 0.0,
+        "method": "clopper-pearson",
+        "n": 200,
+        "p_hat": 0.0
+      },
+      "efficiency": {
+        "dimension": "efficiency",
+        "direction": -1,
+        "hi": 0.02754189845720562,
+        "k": 1,
+        "level": 0.95,
+        "lo": 0.00012658102786701836,
+        "method": "clopper-pearson",
+        "n": 200,
+        "p_hat": 0.005
+      },
+      "reproducibility": {
+        "dimension": "reproducibility",
+        "direction": -1,
+        "hi": 0.0504136090898963,
+        "k": 4,
+        "level": 0.95,
+        "lo": 0.0054755658795564485,
+        "method": "clopper-pearson",
+        "n": 200,
+        "p_hat": 0.02
+      },
+      "stability": {
+        "dimension": "stability",
+        "direction": 1,
+        "hi": 0.035654668397239776,
+        "k": 2,
+        "level": 0.95,
+        "lo": 0.0012133490137360308,
+        "method": "clopper-pearson",
+        "n": 200,
+        "p_hat": 0.01
+      }
+    },
+    "per_dim_max_rate": 0.02
+  },
+  "power_positive_control": {
+    "abs_error_rho_0.7": 0.003509871089700023,
+    "rel_error_rho_0.7": 0.0040044616293211256,
+    "rho_0.0": {
+      "analytic_power_normal_t": 0.44117375902843137,
+      "d": 0.5,
+      "detection_ci": {
+        "hi": 0.4826493897021147,
+        "k": 173,
+        "level": 0.95,
+        "lo": 0.3833566637882083,
+        "method": "clopper-pearson",
+        "n": 400,
+        "p_hat": 0.4325
+      },
+      "detection_rate": 0.4325,
+      "dz_realized": 0.3516574203787595,
+      "n_pairs": 20,
+      "n_perm": 999,
+      "n_sims": 400,
+      "rho_assumed": 0.0,
+      "rho_realized": 0.0010033005617566492
+    },
+    "rho_0.7": {
+      "analytic_power_normal_t": 0.8764901289103,
+      "d": 0.5,
+      "detection_ci": {
+        "hi": 0.9101817952664785,
+        "k": 352,
+        "level": 0.95,
+        "lo": 0.8440606367550165,
+        "method": "clopper-pearson",
+        "n": 400,
+        "p_hat": 0.88
+      },
+      "detection_rate": 0.88,
+      "dz_realized": 0.6541348615921136,
+      "n_pairs": 20,
+      "n_perm": 999,
+      "n_sims": 400,
+      "rho_assumed": 0.7,
+      "rho_realized": 0.7061510399666466
+    }
+  },
+  "power_vs_rho": {
+    "design": "d=0.5, n_pairs=20，rho 扫描（配对收益敏感性）",
+    "n_perm": 499,
+    "n_sims": 300,
+    "note": "rho 是设计假设：同谱系/同席位、只改一条路线时两臂强相关是预期的；rho=0 行是最保守情形，必须与主结果同时呈现",
+    "rows": [
+      {
+        "analytic_greater": 0.44117375902843137,
+        "analytic_two-sided": 0.30448498511929917,
+        "dz": 0.35355339059327373,
+        "power_greater": 0.45666666666666667,
+        "power_two-sided": 0.3333333333333333,
+        "rho": 0.0
+      },
+      {
+        "analytic_greater": 0.5638310412052313,
+        "analytic_two-sided": 0.4195227436118157,
+        "dz": 0.4225771273642583,
+        "power_greater": 0.56,
+        "power_two-sided": 0.43333333333333335,
+        "rho": 0.3
+      },
+      {
+        "analytic_greater": 0.6938998448379721,
+        "analytic_two-sided": 0.5568797401463863,
+        "dz": 0.5,
+        "power_greater": 0.7066666666666667,
+        "power_two-sided": 0.5366666666666666,
+        "rho": 0.5
+      },
+      {
+        "analytic_greater": 0.8764901289103,
+        "analytic_two-sided": 0.7863232139960207,
+        "dz": 0.6454972243679028,
+        "power_greater": 0.8633333333333333,
+        "power_two-sided": 0.76,
+        "rho": 0.7
+      },
+      {
+        "analytic_greater": 0.9906974460070583,
+        "analytic_two-sided": 0.9766747105910791,
+        "dz": 0.9128709291752768,
+        "power_greater": 0.9933333333333333,
+        "power_two-sided": 0.9666666666666667,
+        "rho": 0.85
+      }
+    ]
+  }
+}
