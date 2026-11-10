@@ -1,0 +1,77 @@
+name: branch-hygiene-gate
+
+# 交付面卫生门（只减不增）：未合并 `agent/*` 分支数不得超过基线 ceiling。
+#
+# 触发面
+#   - pull_request：机制自测（禁止改坏分类器/门）
+#   - schedule：每 6 小时扫一次 origin 上的 agent/* 分支，跑门裁决
+#   - workflow_dispatch：手动
+#
+# 口径与边界（诚实声明）
+#   1. CI 只能看到**已推送到 origin** 的分支；分支堆积主要发生在 worker 主机的本地 refs 上，
+#      所以 GitHub 侧这道门拦的是「推上去却没合并」的那部分。主战场是宿主运行时，跑同一条 CLI：
+#          python3 -m tools.delivery_hygiene.cli gate --repo <repo> --baseline <baseline> --strict-new
+#      建议宿主 cron：`17 */6 * * * ... gate ... || notify`。
+#   2. 基线里 ceiling 只能降；要抬高必须 `freeze --accept-increase <理由>` 留痕（棘轮）。
+
+on:
+  pull_request:
+    paths:
+      - "tools/delivery_hygiene/**"
+      - "tests/test_delivery_hygiene.py"
+      - "config/delivery_hygiene_baseline.json"
+      - ".github/workflows/branch-hygiene-gate.yml"
+  schedule:
+    - cron: "17 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  self-test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 1
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: python -m pip install --upgrade pytest
+      - name: Mechanism self-test (synthetic repos)
+        run: python -m pytest tests/test_delivery_hygiene.py -q
+
+  gate:
+    if: github.event_name != 'pull_request'
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Fetch all branches (gate needs the whole ref population)
+        run: git fetch --prune origin '+refs/heads/*:refs/remotes/origin/*'
+      - name: Scan + ledger (dry-run; this job never mutates refs)
+        run: |
+          python3 -m tools.delivery_hygiene.cli scan \
+            --repo . --label TensorPlatform --base origin/main \
+            --include-remote --pattern 'agent/*' \
+            --out artifacts/delivery_hygiene/ci \
+            --crosscheck 8
+      - name: Gate (non-zero exit = block)
+        run: |
+          python3 -m tools.delivery_hygiene.cli gate \
+            --ledger artifacts/delivery_hygiene/ci/ledger.json \
+            --baseline config/delivery_hygiene_baseline.json \
+            --json-out artifacts/delivery_hygiene/ci/gate.json
+      - name: Upload ledger
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: delivery-hygiene-ci
+          path: artifacts/delivery_hygiene/ci
+          if-no-files-found: warn
