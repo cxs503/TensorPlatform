@@ -16,7 +16,7 @@ def _make_chain(
     has_code=False, has_tests=False, has_reports=False,
     test_pass_rate=0.0, report_verdicts=None,
     five_present=0, chain_quality=0.0,
-    scan_notes=None, code_evidence=None,
+    scan_notes=None, code_evidence=None, test_evidence_source="",
 ):
     """Helper to create a test EvidenceChain."""
     if report_verdicts is None:
@@ -38,6 +38,7 @@ def _make_chain(
         test_pass_rate=test_pass_rate,
         report_verdicts=report_verdicts,
         scan_notes=scan_notes,
+        test_evidence_source=test_evidence_source,
     )
 
     ft = FiveTuple()
@@ -77,10 +78,11 @@ class TestGradeDeterminer:
     def test_stub(self):
         chain = _make_chain(
             has_code=True,
-            scan_notes=["STUB markers in src/x.py: ['NotImplementedError']"],
+            scan_notes=["stub-only 实现 1 处（仅签名/NotImplementedError），实质实现 0 处"],
             code_evidence=[CodeEvidence(
                 file_path="src/x.py", line_number=1, match_type="function",
                 matched_text="def stub_func", line_sha256="abc", file_sha256="def",
+                is_stub_like=True,
             )],
         )
         determiner = GradeDeterminer()
@@ -134,8 +136,8 @@ class TestGradeDeterminer:
             has_code=True, has_tests=True, has_reports=True,
             test_pass_rate=0.9,
             report_verdicts=["PASS"],
-            five_present=5,
-            chain_quality=0.8,
+            five_present=5, chain_quality=0.8,
+            test_evidence_source="executed",
             code_evidence=[CodeEvidence(
                 file_path="src/x.py", line_number=1, match_type="function",
                 matched_text="def calc", line_sha256="abc", file_sha256="def",
@@ -202,6 +204,7 @@ class TestGradeDeterminer:
             "cap2": _make_chain("cap2", has_code=True, has_tests=True, has_reports=True,
                                 test_pass_rate=0.9, report_verdicts=["PASS"],
                                 five_present=5, chain_quality=0.8,
+                                test_evidence_source="executed",
                                 code_evidence=[CodeEvidence(
                                     file_path="src/x.py", line_number=1, match_type="function",
                                     matched_text="def calc", line_sha256="abc", file_sha256="def",
