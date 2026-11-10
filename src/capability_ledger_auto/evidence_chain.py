@@ -1,22 +1,45 @@
 """证据链构建器（evidence chain builder）。
 
 对每项能力收集 theory/code/config/data/report 五元，缺件标记。
+
 零领域语义：仅通过能力定义注册表的模式匹配。
+
+反自指纪律：``exclude_paths`` 用于剔除"注册表文件自身 / 扫描引擎自身"这类
+**元数据文件**，否则 ``config/capabilities.json`` 因为含有能力模式字符串，
+会让每条能力的 config 证据无条件为真（历史上确实如此，五元完整性被虚抬）。
 """
 from __future__ import annotations
 
 import hashlib
-import json
 import re
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any
+from typing import Any, Iterable
 
 from .registry import CapabilityDef, EVIDENCE_TYPES
-from .scanner import ScanResult
+from .scanner import ScanResult, as_of_sort_key
+
+_REPORT_SOURCE_PRIORITY = {"repo_json": 3, "adjudication_ledger": 2, "corpus": 1}
 
 # 五元证据类型
 FIVE_TUPLE_TYPES = ["theory", "code", "config", "data", "report"]
+
+# 报告裁决 → 质量分（治理词表，与写域词条无关）
+VERDICT_QUALITY = {
+    "PASS": 1.0,
+    "REAL": 1.0,
+    "WARN": 0.5,
+    "WITHHELD": 0.3,
+    "UNKNOWN": 0.0,
+    "FAIL": 0.0,
+    "HONEST_FAIL": 0.0,
+    "MOCK": 0.0,
+    "STUB": 0.1,
+    "NOT_SUPPORTED": 0.0,
+}
+
+THEORY_MARKERS = ("方程", "equation", "算法", "algorithm", "理论", "theory",
+                  "公式", "formula", "governing", "推导", "derivation")
 
 
 @dataclass
@@ -94,13 +117,19 @@ class EvidenceChain:
             "five_tuple": self.five_tuple.to_dict(),
             "scan_summary": {
                 "code_count": self.scan_result.code_count,
+                "substantive_code_count": self.scan_result.substantive_code_count,
+                "stub_only_code_count": self.scan_result.stub_only_code_count,
                 "test_count": self.scan_result.test_count,
                 "report_count": self.scan_result.report_count,
                 "has_implementation": self.scan_result.has_implementation,
                 "has_tests": self.scan_result.has_tests,
                 "has_reports": self.scan_result.has_reports,
                 "test_pass_rate": self.scan_result.test_pass_rate,
+                "test_evidence_source": self.scan_result.test_evidence_source,
                 "report_verdicts": self.scan_result.report_verdicts,
+                "adjudicated_level": self.scan_result.adjudicated_level,
+                "adjudicated_as_of": self.scan_result.adjudicated_as_of,
+                "adjudicated_source": self.scan_result.adjudicated_source,
             },
             "missing_items": self.missing_items,
             "chain_quality": round(self.chain_quality, 4),
@@ -108,89 +137,119 @@ class EvidenceChain:
         }
 
 
+def _rel(root: Path, path: Path) -> str:
+    try:
+        return str(path.resolve().relative_to(root.resolve())).replace("\\", "/")
+    except ValueError:
+        return str(path)
+
+
+def _excluded(rel_path: str, exclude_paths: Iterable[str], root: Path | None = None) -> bool:
+    """排除判定：同时接受相对路径与绝对路径形态的排除项。"""
+    rel_path = rel_path.replace("\\", "/")
+    for raw in exclude_paths:
+        p = str(raw).replace("\\", "/")
+        if rel_path == p or rel_path.startswith(p.rstrip("/") + "/"):
+            return True
+        if root is not None and Path(raw).is_absolute():
+            try:
+                p_rel = str(Path(raw).resolve().relative_to(root.resolve())).replace("\\", "/")
+            except ValueError:
+                continue
+            if rel_path == p_rel or rel_path.startswith(p_rel.rstrip("/") + "/"):
+                return True
+    return False
+
+
 def build_evidence_chain(
     cap: CapabilityDef,
     scan_result: ScanResult,
     root: Path,
+    exclude_paths: Iterable[str] = (),
 ) -> EvidenceChain:
     """为单条能力构建证据链。
 
     五元证据构建规则：
-    - theory: 从 docs/ 或 src/ 中查找理论描述（物理方程/算法说明）
-    - code: 从 scan_result.code_evidence 提取
-    - config: 从 config/ 或 *.json/*.yaml 中查找配置
-    - data: 从 data/ 或 tensor_reports/ 中查找数据/报告
-    - report: 从 scan_result.report_evidence 提取
+    - theory: docs/ 下的文档（含量化/推导性内容才算）
+    - code: 从 scan_result.code_evidence 提取（实质实现优先）
+    - config: config/ 下的配置文件
+    - data: data/ 下的数据文件
+    - report: 从 scan_result.report_evidence 取**最新裁决**
     """
+    root = Path(root)
+    exclude_paths = tuple(exclude_paths)
     five_tuple = FiveTuple()
-    missing = []
+    missing: list[str] = []
 
-    # 1. theory: 查找理论文档
-    theory_item = _find_theory_evidence(cap, root)
+    # 1. theory
+    theory_item = _find_theory_evidence(cap, root, exclude_paths)
     five_tuple.theory = theory_item
     if not theory_item or not theory_item.is_present:
         missing.append("theory")
 
-    # 2. code: 从扫描结果提取
-    if scan_result.code_evidence:
+    # 2. code
+    substantive = [e for e in scan_result.code_evidence
+                   if e.match_type in ("function", "class", "text") and not e.is_stub_like]
+    if substantive:
+        ev = substantive[0]
+        five_tuple.code = EvidenceItem(
+            evidence_type="code",
+            source_path=ev.file_path,
+            content_hash=ev.file_sha256,
+            description=f"实质实现: {ev.matched_text}",
+            is_present=True,
+            quality_score=min(1.0, 0.3 + 0.1 * len(substantive)),
+        )
+    elif scan_result.code_evidence:
         ev = scan_result.code_evidence[0]
         five_tuple.code = EvidenceItem(
             evidence_type="code",
             source_path=ev.file_path,
             content_hash=ev.file_sha256,
-            description=f"代码实现: {ev.matched_text}",
+            description=f"仅接口声明: {ev.matched_text}",
             is_present=True,
-            quality_score=min(1.0, scan_result.code_count * 0.3),
+            quality_score=0.1,
         )
     else:
         missing.append("code")
 
-    # 3. config: 查找配置文件
-    config_item = _find_config_evidence(cap, root)
+    # 3. config
+    config_item = _find_config_evidence(cap, root, exclude_paths)
     five_tuple.config = config_item
     if not config_item or not config_item.is_present:
         missing.append("config")
 
-    # 4. data: 查找数据文件
-    data_item = _find_data_evidence(cap, root)
+    # 4. data
+    data_item = _find_data_evidence(cap, root, exclude_paths)
     five_tuple.data = data_item
     if not data_item or not data_item.is_present:
         missing.append("data")
 
-    # 5. report: 从扫描结果提取
-    if scan_result.report_evidence:
-        ev = scan_result.report_evidence[0]
-        # 报告质量评分：PASS=1.0, WARN=0.5, FAIL/HONEST_FAIL=0.0
-        verdict_score = {
-            "PASS": 1.0,
-            "WARN": 0.5,
-            "FAIL": 0.0,
-            "HONEST_FAIL": 0.0,
-            "WITHHELD": 0.3,
-        }.get(ev.verdict, 0.0)
+    # 5. report（取最新裁决，非"第一条"）
+    report_ev = sorted(
+        scan_result.report_evidence,
+        key=lambda r: (as_of_sort_key(r.as_of), _REPORT_SOURCE_PRIORITY.get(r.source_kind, 0), r.file_path),
+    )
+    if report_ev:
+        ev = report_ev[-1]
+        level = ev.asserted_level or ev.verdict
         five_tuple.report = EvidenceItem(
             evidence_type="report",
             source_path=ev.file_path,
             content_hash=ev.file_sha256,
-            description=f"报告: scenario={ev.scenario_key}, verdict={ev.verdict}",
+            description=f"报告: scenario={ev.scenario_key}, 裁决={level}",
             is_present=True,
-            quality_score=verdict_score,
+            quality_score=VERDICT_QUALITY.get(level, 0.0),
         )
     else:
         missing.append("report")
 
-    # 计算链质量
     scores = []
     for item in [five_tuple.theory, five_tuple.code, five_tuple.config, five_tuple.data, five_tuple.report]:
-        if item and item.is_present:
-            scores.append(item.quality_score)
-        else:
-            scores.append(0.0)
+        scores.append(item.quality_score if (item and item.is_present) else 0.0)
     chain_quality = sum(scores) / len(scores) if scores else 0.0
 
-    notes = []
-    if scan_result.scan_notes:
-        notes.extend(scan_result.scan_notes)
+    notes = list(scan_result.scan_notes)
     if missing:
         notes.append(f"缺失证据项: {missing}")
 
@@ -204,126 +263,91 @@ def build_evidence_chain(
     )
 
 
-def _find_theory_evidence(cap: CapabilityDef, root: Path) -> EvidenceItem | None:
-    """查找理论证据（docs/ 下的文档）。"""
+def _first_matching_file(
+    base: Path,
+    root: Path,
+    patterns: list[str],
+    exclude_paths: Iterable[str],
+    extensions: tuple[str, ...],
+) -> tuple[Path, str] | None:
+    """在目录内找首个匹配文件；返回 (path, content)。排序保证确定性。"""
+    if not base.exists():
+        return None
+    candidates: list[Path] = []
+    for ext in extensions:
+        candidates.extend(sorted(base.rglob(f"*{ext}")))
+    for fpath in sorted(set(candidates)):
+        rel = _rel(root, fpath)
+        if _excluded(rel, exclude_paths, root):
+            continue
+        try:
+            content = fpath.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        if any(re.search(p, content, re.IGNORECASE) for p in patterns):
+            return fpath, content
+    return None
+
+
+def _find_theory_evidence(cap: CapabilityDef, root: Path, exclude_paths: Iterable[str] = ()) -> EvidenceItem:
+    """查找理论证据（docs/ 下的文档，且含推导/公式内容）。"""
     docs_dir = root / "docs"
     if not docs_dir.exists():
-        return EvidenceItem(
-            evidence_type="theory",
-            source_path="",
-            content_hash="",
-            description="docs/ 目录不存在",
-            is_present=False,
-        )
+        return EvidenceItem("theory", "", "", "docs/ 目录不存在", False)
 
-    # 搜索包含能力关键词的文档
-    patterns = cap.code_patterns + [cap.capability_id, cap.label]
-    for pattern in patterns:
-        for fpath in docs_dir.rglob("*.md"):
-            try:
-                content = fpath.read_text(encoding="utf-8", errors="replace")
-                if re.search(pattern, content, re.IGNORECASE):
-                    # 检查是否有理论内容（方程、公式、算法描述）
-                    theory_markers = ("方程", "equation", "算法", "algorithm", "理论", "theory",
-                                     "公式", "formula", "governing")
-                    has_theory = any(m in content.lower() for m in theory_markers)
-                    if has_theory:
-                        content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
-                        return EvidenceItem(
-                            evidence_type="theory",
-                            source_path=str(fpath.relative_to(root)),
-                            content_hash=content_hash,
-                            description=f"理论文档: {fpath.name}",
-                            is_present=True,
-                            quality_score=0.7,
-                        )
-            except Exception:
-                continue
-
-    return EvidenceItem(
-        evidence_type="theory",
-        source_path="",
-        content_hash="",
-        description="未找到理论文档",
-        is_present=False,
-    )
+    patterns = cap.code_patterns + [cap.capability_id]
+    # 逐个候选文档检查"是否真含推导/公式"，不能只看第一篇匹配文件——
+    # 短模式（如 GZ/KB）会先命中无关文档，导致理论证据被静默判缺失（历史缺陷）。
+    for fpath in sorted(set(docs_dir.rglob("*.md"))):
+        rel = _rel(root, fpath)
+        if _excluded(rel, exclude_paths, root):
+            continue
+        try:
+            content = fpath.read_text(encoding="utf-8", errors="replace")
+        except Exception:
+            continue
+        if not any(re.search(p, content, re.IGNORECASE) for p in patterns):
+            continue
+        if any(m in content.lower() for m in THEORY_MARKERS):
+            return EvidenceItem(
+                "theory", rel,
+                hashlib.sha256(content.encode()).hexdigest(),
+                f"理论文档: {fpath.name}", True, 0.7,
+            )
+    return EvidenceItem("theory", "", "", "未找到含推导内容的文档", False)
 
 
-def _find_config_evidence(cap: CapabilityDef, root: Path) -> EvidenceItem | None:
+def _find_config_evidence(cap: CapabilityDef, root: Path, exclude_paths: Iterable[str] = ()) -> EvidenceItem:
     """查找配置证据（config/ 下的配置文件）。"""
     config_dir = root / "config"
     if not config_dir.exists():
-        return EvidenceItem(
-            evidence_type="config",
-            source_path="",
-            content_hash="",
-            description="config/ 目录不存在",
-            is_present=False,
-        )
-
+        return EvidenceItem("config", "", "", "config/ 目录不存在", False)
     patterns = cap.code_patterns + [cap.capability_id]
-    for pattern in patterns:
-        for ext in ("*.json", "*.yaml", "*.yml", "*.toml", "*.ini"):
-            for fpath in config_dir.rglob(ext):
-                try:
-                    content = fpath.read_text(encoding="utf-8", errors="replace")
-                    if re.search(pattern, content, re.IGNORECASE):
-                        content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
-                        return EvidenceItem(
-                            evidence_type="config",
-                            source_path=str(fpath.relative_to(root)),
-                            content_hash=content_hash,
-                            description=f"配置文件: {fpath.name}",
-                            is_present=True,
-                            quality_score=0.5,
-                        )
-                except Exception:
-                    continue
-
-    return EvidenceItem(
-        evidence_type="config",
-        source_path="",
-        content_hash="",
-        description="未找到配置文件",
-        is_present=False,
-    )
+    found = _first_matching_file(config_dir, root, patterns, exclude_paths,
+                                 (".json", ".yaml", ".yml", ".toml", ".ini"))
+    if found:
+        fpath, content = found
+        return EvidenceItem(
+            "config", _rel(root, fpath),
+            hashlib.sha256(content.encode()).hexdigest(),
+            f"配置文件: {fpath.name}", True, 0.5,
+        )
+    return EvidenceItem("config", "", "", "未找到配置文件", False)
 
 
-def _find_data_evidence(cap: CapabilityDef, root: Path) -> EvidenceItem | None:
+def _find_data_evidence(cap: CapabilityDef, root: Path, exclude_paths: Iterable[str] = ()) -> EvidenceItem:
     """查找数据证据（data/ 下的数据文件）。"""
     data_dir = root / "data"
     if not data_dir.exists():
-        return EvidenceItem(
-            evidence_type="data",
-            source_path="",
-            content_hash="",
-            description="data/ 目录不存在",
-            is_present=False,
-        )
-
+        return EvidenceItem("data", "", "", "data/ 目录不存在", False)
     patterns = cap.code_patterns + [cap.capability_id]
-    for pattern in patterns:
-        for ext in ("*.json", "*.csv", "*.txt", "*.dat"):
-            for fpath in data_dir.rglob(ext):
-                try:
-                    content = fpath.read_text(encoding="utf-8", errors="replace")
-                    if re.search(pattern, content, re.IGNORECASE):
-                        content_hash = hashlib.sha256(content.encode()).hexdigest()[:16]
-                        return EvidenceItem(
-                            evidence_type="data",
-                            source_path=str(fpath.relative_to(root)),
-                            content_hash=content_hash,
-                            description=f"数据文件: {fpath.name}",
-                            is_present=True,
-                            quality_score=0.6,
-                        )
-                except Exception:
-                    continue
-
-    return EvidenceItem(
-        evidence_type="data",
-        source_path="",
-        content_hash="",
-        description="未找到数据文件",
-        is_present=False,
-    )
+    found = _first_matching_file(data_dir, root, patterns, exclude_paths,
+                                 (".json", ".csv", ".txt", ".dat"))
+    if found:
+        fpath, content = found
+        return EvidenceItem(
+            "data", _rel(root, fpath),
+            hashlib.sha256(content.encode()).hexdigest(),
+            f"数据文件: {fpath.name}", True, 0.6,
+        )
+    return EvidenceItem("data", "", "", "未找到数据文件", False)
