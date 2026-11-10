@@ -1,0 +1,25 @@
+{
+  "schema": "green_navigation.sfoc_reference.v1",
+  "description": "大型低速二冲程主机部分负荷 SFOC 参考表（用于标定 SFOC(P/P_MCR) 抛物线模型）",
+  "engine_family": "representative large-bore two-stroke (RT-flex / MC-C class), ISO 3046/1 reference conditions",
+  "reference_sfoc_g_kwh_at_mcr": 174.0,
+  "provenance": {
+    "source": "厂家产品指南部分负荷 SFOC 曲线转录（2-stroke, 名义 MCR SFOC 174 g/kWh, 厂家容差 ±5%）",
+    "grade": "WITHHELD_PROVENANCE",
+    "confidence": "CONF_MED",
+    "note": "离线环境未回读厂家 PDF 原文；本表只作为 SFOC 曲线的形状锚点。拟合残差相对于本表是 REAL（可逐点复算），但本表自身的绝对精度继承厂家 ±5% 容差。任何绝对油耗结论必须带这条限制。"
+  },
+  "points": [
+    {"load": 0.25, "sfoc_g_kwh": 189.0, "note": "低负荷段（涡轮增压器效率下降 + 扫气过量）"},
+    {"load": 0.40, "sfoc_g_kwh": 179.0, "note": ""},
+    {"load": 0.50, "sfoc_g_kwh": 175.5, "note": ""},
+    {"load": 0.60, "sfoc_g_kwh": 173.0, "note": ""},
+    {"load": 0.70, "sfoc_g_kwh": 171.5, "note": ""},
+    {"load": 0.75, "sfoc_g_kwh": 171.0, "note": "EEDI 参考点（75% MCR）"},
+    {"load": 0.80, "sfoc_g_kwh": 170.8, "note": "最优点附近"},
+    {"load": 0.85, "sfoc_g_kwh": 171.0, "note": ""},
+    {"load": 0.90, "sfoc_g_kwh": 171.6, "note": ""},
+    {"load": 0.95, "sfoc_g_kwh": 172.6, "note": ""},
+    {"load": 1.00, "sfoc_g_kwh": 174.0, "note": "MCR（厂家标定点）"}
+  ]
+}

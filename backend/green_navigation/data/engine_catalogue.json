@@ -1,0 +1,21 @@
+{
+  "schema": "green_navigation.engine_catalogue.v1",
+  "description": "低速二冲程主机功率档位（按缸数线性档位），用于按设计裕度规则选型",
+  "family": "MAN B&W K90MC-C / S70MC-C / S80MC-C 档位",
+  "kw_per_cylinder": {"K90MC-C": 4570.0, "S80MC-C": 3630.0, "S70MC-C": 3110.0},
+  "rated": [
+    {"model": "6S70MC-C", "family": "S70MC-C", "cylinders": 6, "mcr_kw": 18660.0, "mcr_rpm": 91.0},
+    {"model": "7S80MC-C", "family": "S80MC-C", "cylinders": 7, "mcr_kw": 25400.0, "mcr_rpm": 78.0},
+    {"model": "8S80MC-C", "family": "S80MC-C", "cylinders": 8, "mcr_kw": 29030.0, "mcr_rpm": 78.0},
+    {"model": "9K90MC-C", "family": "K90MC-C", "cylinders": 9, "mcr_kw": 41130.0, "mcr_rpm": 104.0},
+    {"model": "10K90MC-C", "family": "K90MC-C", "cylinders": 10, "mcr_kw": 45700.0, "mcr_rpm": 104.0},
+    {"model": "11K90MC-C", "family": "K90MC-C", "cylinders": 11, "mcr_kw": 50270.0, "mcr_rpm": 104.0},
+    {"model": "12K90MC-C", "family": "K90MC-C", "cylinders": 12, "mcr_kw": 54840.0, "mcr_rpm": 104.0}
+  ],
+  "provenance": {
+    "source": "MAN B&W MC-C 机型额定档位转录（每缸 kW × 缸数）",
+    "grade": "WITHHELD_PROVENANCE",
+    "confidence": "CONF_MED",
+    "note": "档位用于选型规则的离散化；单机绝对额定未回读厂家项目指南，故由本目录选出的 MCR 不承担独立验证责任。"
+  }
+}

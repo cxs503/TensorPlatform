@@ -1,0 +1,153 @@
+{
+  "schema": "green_navigation.cases.v1",
+  "description": "绿色航行能效链的三条参考算例（船型参数 / 螺旋桨 / 主机 / 轴系）。全部字段带 provenance 与 confidence，代码不硬编码任何船名。",
+  "engine_catalogue_file": "engine_catalogue.json",
+  "cases": [
+    {
+      "case_id": "KVLCC2_VLCC",
+      "label": "KVLCC2 型 VLCC 油轮（320k DWT）",
+      "ship_type": "tanker",
+      "geometry": {
+        "L_m": 320.0,
+        "B_m": 58.0,
+        "T_m": 20.8,
+        "cb": 0.8098
+      },
+      "dwt_t": 300000.0,
+      "displacement_t": 320400.0,
+      "design_speed_kn": 15.5,
+      "propeller": {
+        "diameter_m": 9.86,
+        "pitch_ratio": 0.72,
+        "ae_ao": 0.431,
+        "blades": 4,
+        "wake_fraction": 0.35,
+        "thrust_deduction": 0.2,
+        "relative_rotative_efficiency": 1.0
+      },
+      "engine": {
+        "selection": "fixed",
+        "model": "7S80MC-C",
+        "mcr_kw": 25400.0,
+        "mcr_rpm": 78.0,
+        "sfoc_ref_g_kwh": 174.0
+      },
+      "powertrain": {
+        "eta_shaft": 0.99,
+        "eta_gear": 1.0
+      },
+      "fuel": {
+        "main": "hfo",
+        "aux": "mdo"
+      },
+      "provenance": {
+        "geometry": "KVLCC2 公开标模主尺度（Lpp=320 m, B=58 m, T=20.8 m, Cb=0.8098）; CONF_HIGH",
+        "dwt_t": "名义标签 320k DWT 实为满载**排水量**量级：Cb·L·B·T·ρ = 320,400 t，扣除轻船重量后可载货 ≈ 300,000 t → 本算例 EEDI/CII 分母取 DWT=300,000 t；320k 口径作为敏感性对照在报告中给出。CONF_MED",
+        "displacement_t": "Cb·L·B·T·ρ_sea = 0.8098×320×58×20.8×1.025 = 320,400 t（与几何门逐位自洽）CONF_HIGH",
+        "propeller": "D=9.86 m, P/D=0.72, Ae/Ao=0.431, Z=4 —— 标模螺旋桨公开参数; CONF_MED",
+        "wake_thrust": "w=0.35, t=0.20 —— 单桨肥大型油轮经验带（w 0.30-0.40, t 0.18-0.22）; CONF_MED",
+        "engine": "MAN B&W 7S80MC-C 额定 25,400 kW @ 78 r/min —— 该船型典型的直接驱动低速机档位; CONF_MED",
+        "published_wetted_surface_m2": "KVLCC2 公开湿表面积 27,194 m²（用于几何门/Holtrop 湿表面积校验）CONF_HIGH"
+      },
+      "nominal_dwt_label_t": 320000,
+      "published_wetted_surface_m2": 27194.0
+    },
+    {
+      "case_id": "CAPESIZE_BULKER",
+      "label": "好望角型散货船（180k DWT）",
+      "ship_type": "bulk_carrier",
+      "geometry": {
+        "L_m": 292.0,
+        "B_m": 45.0,
+        "T_m": 18.2,
+        "cb": 0.8212
+      },
+      "dwt_t": 180000.0,
+      "displacement_t": 201000.0,
+      "design_speed_kn": 14.5,
+      "propeller": {
+        "diameter_m": 7.2,
+        "pitch_ratio": 0.75,
+        "ae_ao": 0.5,
+        "blades": 4,
+        "wake_fraction": 0.32,
+        "thrust_deduction": 0.2,
+        "relative_rotative_efficiency": 1.0
+      },
+      "engine": {
+        "selection": "fixed",
+        "model": "6S70MC-C",
+        "mcr_kw": 18660.0,
+        "mcr_rpm": 91.0,
+        "sfoc_ref_g_kwh": 174.0
+      },
+      "powertrain": {
+        "eta_shaft": 0.99,
+        "eta_gear": 1.0
+      },
+      "fuel": {
+        "main": "hfo",
+        "aux": "mdo"
+      },
+      "provenance": {
+        "geometry": "Capesize 典型主尺度（L≈292 m, B=45 m, T=18.2 m, Cb≈0.82）; CONF_MED",
+        "dwt_t": "180,000 t 载重吨（Capesize 分档上沿）; CONF_HIGH",
+        "propeller": "D=7.2 m, P/D=0.75, Ae/Ao=0.50, Z=4 —— 该功率档典型桨; CONF_MED",
+        "engine": "MAN B&W 6S70MC-C 额定 18,660 kW @ 91 r/min; CONF_MED"
+      },
+      "published_wetted_surface_m2": null
+    },
+    {
+      "case_id": "KCS_CONTAINER",
+      "label": "KCS 型 3600 TEU 集装箱船",
+      "ship_type": "container_ship",
+      "geometry": {
+        "L_m": 230.0,
+        "B_m": 32.2,
+        "T_m": 10.8,
+        "cb": 0.6505
+      },
+      "dwt_t": 45000.0,
+      "displacement_t": 52000.0,
+      "design_speed_kn": 24.0,
+      "capacity_rule": "container_0_7_dwt",
+      "propeller": {
+        "diameter_m": 7.9,
+        "pitch_ratio": 0.997,
+        "ae_ao": 0.8,
+        "blades": 5,
+        "wake_fraction": 0.18,
+        "thrust_deduction": 0.17,
+        "relative_rotative_efficiency": 1.0
+      },
+      "engine": {
+        "selection": "catalogue_rule",
+        "family": "K90MC-C",
+        "mcr_kw": null,
+        "mcr_rpm": null,
+        "sfoc_ref_g_kwh": 174.0
+      },
+      "powertrain": {
+        "eta_shaft": 0.99,
+        "eta_gear": 1.0
+      },
+      "fuel": {
+        "main": "hfo",
+        "aux": "mdo"
+      },
+      "provenance": {
+        "geometry": "KCS（KRISO Container Ship）公开标模主尺度 Lpp=230 m, B=32.2 m, T=10.8 m, Cb=0.6505; CONF_HIGH",
+        "dwt_t": "3600 TEU 船型典型载重吨 45,000 t; CONF_MED",
+        "propeller": "KP505 公开桨型（D=7.9 m, P/D=0.997, Ae/Ao=0.80, Z=5）; CONF_MED",
+        "engine": "由机舱选型规则确定（最小 ≥ P_B/0.85 的 K90MC-C 档位），非独立厂家额定 —— 故该案 E2 不计入独立验证",
+        "hull_coeffs": "KCS 公开船型系数 Cm=0.9794, Cwp=0.8551（替代 Holtrop 内部经验估值）CONF_HIGH",
+        "published_wetted_surface_m2": "KCS 公开湿表面积 9,424 m²（湿表面积校验锚点）CONF_HIGH"
+      },
+      "hull_coeffs": {
+        "cm": 0.9794,
+        "cwp": 0.8551
+      },
+      "published_wetted_surface_m2": 9424.0
+    }
+  ]
+}
