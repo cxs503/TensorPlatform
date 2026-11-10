@@ -1,30 +1,32 @@
 # Contributing to TensorPlatform
 
-TensorPlatform is part of the Tensor ecosystem and follows the project-wide policy in [License Governance](docs/governance/LICENSE_GOVERNANCE.md).
+TensorPlatform follows the project-wide [License Governance](docs/governance/LICENSE_GOVERNANCE.md) and [Agent Contribution Policy](docs/governance/AGENT_CONTRIBUTION_POLICY.md).
+
+## Operating model
+
+Tensor currently operates with one accountable human maintainer and multiple agents. Agents may produce, test, review and integrate work, but they are not legal persons and must not fabricate human identities, signatures, permissions or approvals.
 
 ## Before submitting
 
 1. Read the target repository's current license. Do not assume every Tensor repository uses Apache-2.0.
 2. Identify the origin and license of copied, adapted, generated, vendored or otherwise imported material.
-3. Preserve all upstream copyright, license and NOTICE statements.
+3. Preserve upstream copyright, attribution and NOTICE statements.
 4. Do not submit proprietary, confidential, leaked, or rights-unclear code, datasets, model weights, figures or benchmark assets.
 5. For data/model assets, include an asset-level rights/provenance manifest or keep the asset quarantined.
 6. Include tests and explain how the contribution was verified.
+7. Material agent work must disclose agent/tool, model and run metadata where available, reviewer evidence, risk tier and accountable human maintainer.
 
-## DCO sign-off
+## DCO sign-off — humans only
 
-For contributions governed by the Tensor DCO policy, sign off each commit with:
+Where DCO is required, the accountable human contributor signs off their own commit with `git commit -s` after reading the DCO and reviewing the contribution. Agents must never create, forge or apply a human `Signed-off-by` line.
 
-```bash
-git commit -s
-```
+A human maintainer must not sign off unless they can truthfully make the DCO representations and have a reasonable basis to establish the rights to submit the work. If rights cannot be established, quarantine, rewrite or exclude the contribution. DCO is not a substitute for permission or ownership.
 
-The resulting commit message must contain a `Signed-off-by: Full Name <email>` line. Sign off only after reading and accepting the Developer Certificate of Origin. A sign-off is not permission to contribute material whose rights you do not own or control.
+## Risk-based review
 
-## AI-agent contributions
+- R0 routine changes may use automated checks and periodic sampling.
+- R1 bounded changes require independent agent verification and automated checks.
+- R2 material changes require independent review and maintainer approval before merge/release.
+- R3 critical legal, license, security, sensitive-data and external-release changes require explicit human approval; no agent-only approval.
 
-AI tools may assist with implementation, but an accountable human or organization must submit and review the contribution. In the pull request, disclose the agent/tool where practical, identify the accountable submitter, review the output for copied or incompatible material, and verify the tests. Do not claim that a model-generated result is original or legally cleared without checking its sources.
-
-## Pull request evidence
-
-Complete the repository pull request template, especially the provenance and SPDX sections. For ambiguous third-party rights, stop and request review rather than guessing.
+See the [Agent Contribution Policy](docs/governance/AGENT_CONTRIBUTION_POLICY.md) for full requirements.
