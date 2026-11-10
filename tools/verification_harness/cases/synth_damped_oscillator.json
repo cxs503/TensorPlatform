@@ -1,0 +1,19 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "cases": [
+    {
+      "case_id": "synth-damped-oscillator",
+      "domain": "synthetic-ode",
+      "reference_kind": "analytic",
+      "implementation": "tools.verification_harness.anchors.synthetic:damped_oscillator_rk4",
+      "reference": "tools.verification_harness.anchors.synthetic:damped_oscillator_closed_form",
+      "inputs": {"omega": 2.0, "zeta": 0.1, "x0": 1.0, "duration": 5.0, "steps": 4000},
+      "quantities": {
+        "x_end": {"rtol": 1e-8, "atol": 1e-10},
+        "v_end": {"rtol": 1e-8, "atol": 1e-8}
+      },
+      "description": "Classical RK4 integration of an underdamped linear oscillator vs its closed-form solution.",
+      "tags": ["anchor", "time-integration"]
+    }
+  ]
+}

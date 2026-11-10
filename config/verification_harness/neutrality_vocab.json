@@ -1,0 +1,39 @@
+{
+  "schema_version": "verification-harness/1.0",
+  "purpose": "Injected vocabulary for the zero-domain-semantics gate (criterion A4). Mechanism code may only know about cases, callables, quantities and tolerances; the tokens below are real vessels / real waterways / real operating conditions and must never appear in the harness mechanism.",
+  "scope": {
+    "paths": [
+      "tools/verification_harness/model.py",
+      "tools/verification_harness/registry.py",
+      "tools/verification_harness/runner.py",
+      "tools/verification_harness/evidence.py",
+      "tools/verification_harness/cli.py"
+    ],
+    "extensions": [".py"],
+    "import_must_not_reach": [
+      "tools.verification_harness.anchors"
+    ]
+  },
+  "forbidden_in_mechanism_code": [
+    "KCS",
+    "KVLCC2",
+    "KVLCC",
+    "KRISO",
+    "JBC",
+    "DTMB",
+    "Series 60",
+    "Wigley",
+    "Suez",
+    "Panama Canal",
+    "Yangtze",
+    "Rotterdam",
+    "Singapore Strait",
+    "Beaufort",
+    "sea state 5",
+    "Hs = 2.5",
+    "T = 7.5 s",
+    "design draft 14.5",
+    "service speed 15.5"
+  ],
+  "quantity_names_note": "quantity names are injected per case by configuration, never enumerated in mechanism code"
+}
