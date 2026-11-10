@@ -1,0 +1,187 @@
+{
+  "schema_version": "proposal-chain-config/1.0",
+  "purpose": "提案→战役供给链成熟化的三道机器门（TF-IDF 语义去重 / 战役节点 metadata 契约 / 播种覆盖率账本）的全部可调参数。零领域语义纪律：本文件是唯一参数与词表来源，代码内不得出现域词；域词表/缺口账本一律以工件路径注入。",
+  "repo_whitelist": [
+    "TensorLBM",
+    "TensorFEM",
+    "TensorFVM",
+    "TensorDEM",
+    "TensorBEM",
+    "TensorSPH",
+    "TensorDG",
+    "TensorCAD",
+    "TensorPlatform",
+    "TensorPhysics",
+    "TensorPapers",
+    "ship-performance-platform"
+  ],
+  "text": {
+    "min_latin_token_length": 2,
+    "cjk_bigram": true,
+    "keep_single_cjk": true,
+    "markup_tokens": [
+      "**",
+      "__",
+      "`",
+      "~~",
+      "##",
+      "#",
+      ">"
+    ]
+  },
+  "tfidf": {
+    "sublinear_tf": true,
+    "idf_smoothing": 1.0,
+    "min_df": 1,
+    "max_df_ratio": 0.6,
+    "l2_normalize": true,
+    "text_fields": [
+      "title",
+      "goal",
+      "objective",
+      "why_frontier",
+      "physics_domain",
+      "kpi_impact",
+      "acceptance_criteria"
+    ],
+    "claim_sentences": 2
+  },
+  "dedup": {
+    "dup_threshold": 0.85,
+    "review_threshold": 0.65,
+    "max_merge_group_size": 12,
+    "top_shared_terms": 6,
+    "pair_scan_cap": 20000,
+    "emit_pair_cap": 4000,
+    "cross_campaign_only": false,
+    "blocking": {
+      "mode": "rare_term",
+      "rare_terms_per_doc": 8,
+      "exhaustive_max_docs": 600
+    },
+    "representation": "claim"
+  },
+  "node_schema": {
+    "required_fields": [
+      "ext_id",
+      "repo",
+      "goal",
+      "acceptance_criteria"
+    ],
+    "field_aliases": {
+      "ext_id": [
+        "ext_id",
+        "extid",
+        "node_ext_id"
+      ],
+      "repo": [
+        "repo",
+        "repository",
+        "target_repo"
+      ],
+      "goal": [
+        "goal",
+        "objective",
+        "physical_goal"
+      ],
+      "acceptance_criteria": [
+        "acceptance_criteria",
+        "acceptance",
+        "criteria"
+      ]
+    },
+    "known_key_typos": {
+      "is_marity": "is_maturity"
+    },
+    "on_missing": "degrade",
+    "degrade_defaults": {
+      "repo": "__unknown_repo__",
+      "goal": "__missing_goal__",
+      "acceptance_criteria": [],
+      "ext_id": null
+    },
+    "numeric_pattern": "[+-]?\\d+(?:\\.\\d+)?(?:[eE][+-]?\\d+)?",
+    "comparator_pattern": "≥|≤|>=|<=|>|<|=|＞|＜",
+    "sample_size": 100,
+    "sample_seed": 20261110
+  },
+  "coverage": {
+    "topic_top_k": 8,
+    "match_threshold": 0.35,
+    "ledger_match_threshold": 0.3,
+    "min_topic_df": 5,
+    "max_topics": 40,
+    "gap_ledger_path": "artifacts/proposal_chain/gap_ledger_snapshot.json",
+    "gap_id_pattern": "GAP-[A-Z0-9-]+",
+    "states": {
+      "covered_by_node": "covered_by_node",
+      "proposal_pending": "proposal_pending",
+      "uncovered": "uncovered"
+    },
+    "ledger_parse": {
+      "table_text_column": -1,
+      "text_max_chars": 400,
+      "section_status": [
+        {
+          "heading_contains": "四、",
+          "declared_status": "planned"
+        },
+        {
+          "heading_contains": "五、",
+          "declared_status": "open"
+        },
+        {
+          "heading_contains": "缺口",
+          "declared_status": "open"
+        }
+      ]
+    },
+    "gap_ledger_source": "/root/tp-agent/PANORAMA.md",
+    "domain_split_chars": "/（(；;·,，:"
+  },
+  "labels": {
+    "path": "artifacts/proposal_chain/labels/labeled_pairs.json",
+    "positive_floor": 50,
+    "recall_target": 0.9,
+    "fp_rate_target": 0.1,
+    "rare_df_cap": 12,
+    "min_shared_rare_terms": 2,
+    "holdout_mod": 2,
+    "protocol": "候选对由与相似度无关的结构规则抽取；标注者只读标题+仓+campaign 判 overlap/distinct；阈值只在 tune 半集上选，指标在 holdout 半集上报告。",
+    "representation": "claim",
+    "sweep_grid": [
+      0.4,
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9
+    ],
+    "representation_selection_note": "表示选择纪律：只在 tune 半集上比较 claim/title/full 三种表示；title 在标注上得分更高，但标注本身只读标题（标注-表示同源会高估），因此生产配置采用 claim（标题+首句）；full 表示在 pin 语料上按 tune 校准后档案召回低于 0.90，故不选。"
+  },
+  "paths": {
+    "proposals_root": "/root/tp-agent/proposals",
+    "artifacts_dir": "artifacts/proposal_chain",
+    "docs_path": "docs/P234W2_N01_proposal_chain_maturity.md",
+    "nodes_snapshot": "artifacts/proposal_chain/nodes_snapshot.json",
+    "corpus_gz": "artifacts/proposal_chain/corpus_compact.json.gz"
+  },
+  "sources": {
+    "campaign_api": "http://127.0.0.1:8010/api/v1",
+    "plans_limit": 200,
+    "node_text_max_chars": 4000,
+    "prefer_corpus_snapshot": true
+  },
+  "lsa": {
+    "enabled": true,
+    "dim": 200,
+    "seed": 20261110,
+    "power_iters": 4,
+    "oversample": 20,
+    "purpose": "TF-IDF → 随机化 SVD 截断（LSA）→ 余弦。裸 TF-IDF 对改写的召回在 0.85 阈值下仅 0.35（实测），LSA 把同义改写拉近；无 numpy 时自动降级为裸 TF-IDF 并在结果里标注 backend。"
+  }
+}
