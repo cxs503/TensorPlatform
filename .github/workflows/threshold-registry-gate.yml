@@ -22,6 +22,7 @@ on:
       - "schemas/threshold_registry.schema.json"
       - "data/criteria/**"
       - "tests/test_threshold_registry.py"
+      - "tests/test_threshold_registry_axes.py"
       - "config/*.json"
       - ".github/workflows/threshold-registry-gate.yml"
   schedule:
@@ -42,7 +43,9 @@ jobs:
           python -m pip install pytest jsonschema matplotlib numpy
 
       - name: 单元 + 集成测试（含反事实：错的必须判红）
-        run: python -m pytest tests/test_threshold_registry.py -q
+        run: |
+          python -m pytest tests/test_threshold_registry.py -q
+          python -m pytest tests/test_threshold_registry_axes.py -q
 
       - name: 结构门（schema + 口径自洽 + 可裁标注不许说谎）
         run: |
@@ -72,6 +75,16 @@ jobs:
           assert d["C5"]["n_checked"] >= 3, d["C5"]["n_checked"]
           assert d["C6"]["sourced_ratio"] is not None and d["C6"]["derivable_ratio"] is not None, d["C6"]
           assert d["C7"]["ok"], d["C7"]
+          # P493-N05：阈值 = dependency(h, p, N, ε) 的函数 —— "覆盖了哪条轴"必须是可查的数
+          axes = d["axes"]
+          for ax in ("h", "N", "eps"):
+              assert axes["declared_by_axis"].get(ax, 0) >= 1, (ax, axes["declared_by_axis"])
+              assert axes["derived_by_axis"].get(ax, 0) >= 1, (ax, axes["derived_by_axis"])
+              assert axes["checked_by_axis"].get(ax, {}).get("checked", 0) >= 1, (ax, axes["checked_by_axis"])
+          # 声明了依赖量却测不了 = 静默假绿，必须零条
+          assert axes["n_unchecked"] == 0, axes
+          assert len(d["C5"]["axes"]) >= 2, d["C5"]["axes"]
+          print("axis ledger:", json.dumps(axes["checked_by_axis"], ensure_ascii=False))
           print("criteria ledger:", json.dumps({k: d[k]["statement"] for k in ("C1","C2","C3","C4","C5","C6","C7")}, ensure_ascii=False))
           PY
 
