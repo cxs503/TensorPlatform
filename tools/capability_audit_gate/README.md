@@ -24,16 +24,20 @@ spec.json / curated.json ──► resolve（绑定优先/词元兜底）──�
 | `gate.py` | 基线冻结 / 降级检出 / ack / 规则集版本门 |
 | `report.py` | JSON + Markdown（逐能力证据链、一致率与多数类基线、回归结论、局限） |
 | `engine.py` | 编排 + 覆盖率/一致率/证据链/耗时 + 验收判据（C1–C5） |
-| `cli.py` | `audit` / `freeze` / `validate`；退出码 0/1/3/4 |
+| `drill.py` | 回归演练：逐个把 REAL 能力注入造假实现，要求 gate 100% 检出（C3） |
+| `cli.py` | `audit` / `freeze` / `validate` / `drill`；退出码 0/1/3/4 |
 
 快速上手见 `docs/CAPABILITY_AUDIT_GATE.md`（含预声明阈值、判例坑、局限）。
 
 ```bash
-python3 -m pytest -q tests/capability_audit_gate                    # 57 用例
+python3 -m pytest -q tests/capability_audit_gate                    # 64 用例
+python3 -m tools.capability_audit_gate.cli drill \
+  --spec config/capability_audit_gate/golden/spec.json \
+  --root config/capability_audit_gate/golden --out /tmp/drill        # C3 演练
 python3 -m tools.capability_audit_gate.cli audit \
   --spec config/capability_audit_gate/spec.json --root . \
   --out artifacts/capability_audit_gate \
-  --baseline artifacts/capability_audit_gate/baseline.json \
+  --baseline config/capability_audit_gate/baseline.json \
   --contrast artifacts/capability_ledger/capability_ledger_resolved.json \
   --fail-on-gate --enforce-acceptance
 ```
