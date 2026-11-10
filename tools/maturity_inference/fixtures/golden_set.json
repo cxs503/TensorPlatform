@@ -1,0 +1,3269 @@
+{
+  "frozen_at": "2026-11-10",
+  "label_source": "人工标注（本节点作者按冻结判据表给出，标签与引擎实现分离）",
+  "labeling_protocol": "标签在跑推断之前按 ARCHETYPES 显式表写定（证据原型 → 期望等级），由独立于引擎的判读口径给出；引擎不得反读标签。合成键（synth.*）保证零领域语义。",
+  "levels": [
+    "not_supported",
+    "implemented",
+    "tested",
+    "benchmark_verified",
+    "coupled_prototype",
+    "engineering_qualified"
+  ],
+  "rows": [
+    {
+      "archetype": "bench_no_tol",
+      "capability_key": "synth.benchnot0.notol",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.benchnot0.notol",
+          "node_id": "ev:d8f61a8bf2e076f8",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d8f61a8bf2e076f8296b8c985b73bf19809d112c0748811e86538e1abd88685f"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "3a68d74b8e37a55f9ae6bc5e20b19c19a04d35f5338770d5095497868083e7b5",
+            "kind": "source",
+            "locator": "synth/benchnot0/notol/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchnot0.notol",
+          "node_id": "ev:8ab339f1a19bc1d3",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "8ab339f1a19bc1d3377a5bcb2eb698134d9bd78412bcc84a82d17f52dabacc5d"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchnot0_notol_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "5b77fd05f077b6317bd32016ff7f80ae4ea2049fdbfeb352a40da816ba7d7e55",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "b5d3c79137bf952e8db66f731f1ed2ee32220dafcfc4133648dda944edeffb99",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchnot0_notol_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchnot0.notol",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:d78a35d800a54553",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d78a35d800a5455322c55f1fd43feb08baadb83dce534aa6f41b218eabc52533"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchnot0_notol_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "575e769ab5cefc6b1cb68e7a94084962e0d7197c29cfc9c497d0d7104770be09",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "8babe79f117c4336f31a0f2a24d1cbd899eae702b90e5bab3fa37a80251f207a",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchnot0_notol_0/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据缺容差 → 不可判 → tested"
+    },
+    {
+      "archetype": "bench_no_tol",
+      "capability_key": "synth.benchnot1.notol",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.benchnot1.notol",
+          "node_id": "ev:1133d9d00c6f7295",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "1133d9d00c6f72956ea26c499fa32d8eab6f5f0727cebdc0e8d51a6716fa7b6d"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "2148de2bd71f37cc36e1928b749d97b4adfec0bf0f46dea4149a666f6920dbba",
+            "kind": "source",
+            "locator": "synth/benchnot1/notol/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchnot1.notol",
+          "node_id": "ev:525bd6ebf9c7813a",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "525bd6ebf9c7813a667e9e70edc86540b544a6e944a83d970afe7e1131c5011e"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchnot1_notol_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "74c5a4f18f6929f0dde59d032332f79d044019db473a779e08f8d9ddeb594530",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "0b0a0ae48e7d27eb35475d5eec396cef3c86b78cd133b9b8292a47763de9f6a9",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchnot1_notol_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchnot1.notol",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:a1e662c81d0a8835",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "a1e662c81d0a883589651490659a4de113bdeee5cbaa97eae6b050bc73b3ada3"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchnot1_notol_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "2d00a3a445a694db01dfc2a0e6ab63ba8687d29616d364fb9d34a9c67bb22121",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "cd8041220b2e1fd214df6e21c3892572b6001c088f785a2a972ad944a19f3743",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchnot1_notol_1/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据缺容差 → 不可判 → tested"
+    },
+    {
+      "archetype": "bench_ok",
+      "capability_key": "synth.benchok0.bench",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "benchmark_verified",
+      "nodes": [
+        {
+          "capability_key": "synth.benchok0.bench",
+          "node_id": "ev:f862e8d606773e3b",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "f862e8d606773e3b8cf5fc67b12d0eccb82c46a6616fb037e539b23ca502c460"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "c024e9b2968fca64f982bfb12eac212413b4292c1145f0efc224b5e8e99d3341",
+            "kind": "source",
+            "locator": "synth/benchok0/bench/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok0.bench",
+          "node_id": "ev:c8f620ecd4d2b482",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "c8f620ecd4d2b482c4b6c6f3318e7f3d2414e2025c78c8a90ab56305d4f60441"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchok0_bench_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "7bf1b0d1a99e555ea2613eb819f1026eaaaa60526ad0a22ffa32079ccda227fd",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "ad5df04d8093f305caddf51f81c5f03fd4ae75e25951e8429b5a3bfe619f23d2",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchok0_bench_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok0.bench",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:be38a2d788cd8d6a",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "be38a2d788cd8d6ad5a425abb62b8135441d5767f3e24d5bbe067fa91a06b6c0"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchok0_bench_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "3c626cf87b64f6dbc260650391c85f1346f3b23c339505534d944510e55d72ad",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "a26cc1117739fcc76f4774bed17dd11cec6b12b9dbc643a5b2556a964245d329",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchok0_bench_0/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据数值落容差内 → benchmark_verified"
+    },
+    {
+      "archetype": "bench_ok",
+      "capability_key": "synth.benchok1.bench",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "benchmark_verified",
+      "nodes": [
+        {
+          "capability_key": "synth.benchok1.bench",
+          "node_id": "ev:2a6feec6ddac2a84",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "2a6feec6ddac2a84a18e9d175218c1b9364142e7504dcb59339ff7c4f552beea"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "21424e7dfcca01367ee51d94905677caa296e365b457fa1246be51859fb049a0",
+            "kind": "source",
+            "locator": "synth/benchok1/bench/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok1.bench",
+          "node_id": "ev:0a50d4baa7e8915d",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "0a50d4baa7e8915d768db415780e8ee3ff3a267117962e5cec5f4750cff765f2"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchok1_bench_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "688cc24a360ba096673798177f76c5f176453a2b6732eefb221359258e15ea20",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "654c7dc9e58ec8231e952857cdfaed8d3dc9cd1bb9e59db0afb9c3a4706602e6",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchok1_bench_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok1.bench",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:cf1ad913bc459a65",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "cf1ad913bc459a65d6017b946991c9488d28e30dad524e7e005a0d61381e15c4"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchok1_bench_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "806d2f50932cbc016f27b33b5adb8b6cd7abd3df181bde03e21ba054b15f84dc",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "8fed01af2b30b639fca0a18e667978184688020fd0074db08eb9023a3b60eb09",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchok1_bench_1/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据数值落容差内 → benchmark_verified"
+    },
+    {
+      "archetype": "bench_ok",
+      "capability_key": "synth.benchok2.bench",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "benchmark_verified",
+      "nodes": [
+        {
+          "capability_key": "synth.benchok2.bench",
+          "node_id": "ev:37c0599db3c00a36",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "37c0599db3c00a360c1e1b1a7153b9275b8befeb7cc73b4c4126cafa5a9da8e9"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "2e50d1293c4fedc976085e7ea558018928f3cc833770371167d43acd2479146b",
+            "kind": "source",
+            "locator": "synth/benchok2/bench/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok2.bench",
+          "node_id": "ev:e060a30fcd80eb49",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "e060a30fcd80eb49987effe790909b5e4fbd4243d6fe58912f9b73185db212a8"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchok2_bench_2.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "788d82023841acde68343f9cf0a70af2b52ca3767e698c6a70bad20647135234",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "294a204064912ab7f327d68cac35b1e11c72f1b9c599bff8951136ac508b5afe",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchok2_bench_2.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok2.bench",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:94afdec744b0bd70",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "94afdec744b0bd7081ada550b2bfb84046a4a5acb857cfdb6da408c6b3ee2d63"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchok2_bench_2.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "d1c1f47182711e1eac3fc8b1d32e825faee0c93bd05aec2f1f496f9747f2e200",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "af984bfbedc0e10a216a1c23ca5ad80653dd1343e69c6ddde653d514155e489a",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchok2_bench_2/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据数值落容差内 → benchmark_verified"
+    },
+    {
+      "archetype": "bench_ok",
+      "capability_key": "synth.benchok3.bench",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "benchmark_verified",
+      "nodes": [
+        {
+          "capability_key": "synth.benchok3.bench",
+          "node_id": "ev:74858713b27e9a14",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "74858713b27e9a14066aa0b45ae2d4bd073e18c8c2787f2d4ed4d2feb850ffd3"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "6dd4eecea91bacf958a954d66efd931469309151a24436bc1c33b19f3f4084b9",
+            "kind": "source",
+            "locator": "synth/benchok3/bench/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok3.bench",
+          "node_id": "ev:fad1f6ff1c9a18d2",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "fad1f6ff1c9a18d22c2b16497ef1af84bd6f93e9d72c23e066f3da8c56dad1c0"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchok3_bench_3.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "ed0bb4bca9828dc716033006142e7d474dea02432e951a5f453bad1feb681f26",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "632f4b9dc907b6a43f397aecfbbdac1833553c7c61b9af3f4c56403433285749",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchok3_bench_3.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchok3.bench",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:790ae19a03602a7e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "790ae19a03602a7e12caf4933b060805b1fc7a2c07b77a1b76e3b8315c206693"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchok3_bench_3.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "a74d8c3388bdb6c6bcb8c4ad8670ef38532f873c473a7aad41dd35a6d51aedcf",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "35e3e1f9ceca2e666601192ed53792c9294e42ed9bca6f53eef4c720a20a228c",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchok3_bench_3/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据数值落容差内 → benchmark_verified"
+    },
+    {
+      "archetype": "bench_out_of_tol",
+      "capability_key": "synth.benchout0.over",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.benchout0.over",
+          "node_id": "ev:49947b3c231d983e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "49947b3c231d983e4d33b7119f07241166f5efc52ca65a4a118f2022b97d96a1"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "40c2fbe263ff20aa98d73938c9fff1b2a59f38b9c43a9e10b8c1a7574b934b8a",
+            "kind": "source",
+            "locator": "synth/benchout0/over/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchout0.over",
+          "node_id": "ev:6a5af1d8cf55797b",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "6a5af1d8cf55797ba6aabd153f09efdc21e182d303ea11cacfab12df8bfd47ef"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchout0_over_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "eee8caff32c9d6a7c75110a0d1131045bf5346e0cf6a9e2980bb92845f672115",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "8f3375761c99d4d0dbe8fb3111392c695b0614f7b79d4a212b9f7e33de4d6660",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchout0_over_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchout0.over",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.62
+          },
+          "node_id": "ev:152d4e985fd59afc",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "152d4e985fd59afcb7dbe53721c55a332ff36e3d28dfb95d889953010d62a1e2"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchout0_over_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "96baac464833fb54b14b9a476c9771959421473cf2dfa51bfa9ba9d4b7950e90",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "36be59827f797134c53dfdae8c492f2f0bb473b75c85021770a6d0121108c25e",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchout0_over_0/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据越差 > 容差 → 退回 tested（数字不达标不许挂 bench）"
+    },
+    {
+      "archetype": "bench_out_of_tol",
+      "capability_key": "synth.benchout1.over",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.benchout1.over",
+          "node_id": "ev:52716fdafcb5949f",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "52716fdafcb5949fa8f272674471e1349d21e47f78d96c5779a73d299764734a"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "20bd409960f66d4afe86719998a02298f5042774b76e297693507d701eca9640",
+            "kind": "source",
+            "locator": "synth/benchout1/over/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchout1.over",
+          "node_id": "ev:36265db4bbc31cc8",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "36265db4bbc31cc83459d32f6f4d3f65341b2cdc2fccb40cc790320690912b9d"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_benchout1_over_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "4747ec87698769bdeedc3357f65acdde318d786db4024db27908081961a94acf",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "2198b0eefe6d11f79ebccc0a8230308a5893fec49d40233a36a0ba5180256a5e",
+            "kind": "pytest",
+            "locator": "tests/test_synth_benchout1_over_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.benchout1.over",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.62
+          },
+          "node_id": "ev:27b3e10225cbdfd7",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "27b3e10225cbdfd7e4a5374a1ba8f8bf99771f9ea15613e268a772347ea7de70"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_benchout1_over_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "edf52aeb14ba7b6e0cf2eac06314f29aec17f3350b3bab84f46ee0b391e4dd10",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "b506fbc6bf6734fa18442680983807476f50dc21249dd48a6f0278e256ba5339",
+            "kind": "artifact",
+            "locator": "artifacts/synth_benchout1_over_1/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "判据越差 > 容差 → 退回 tested（数字不达标不许挂 bench）"
+    },
+    {
+      "archetype": "claim_only",
+      "capability_key": "synth.claimonl0.claim",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "not_supported",
+      "nodes": [],
+      "note": "只有自述 REAL，零证据 → 不允许抬级"
+    },
+    {
+      "archetype": "claim_only",
+      "capability_key": "synth.claimonl1.claim",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "not_supported",
+      "nodes": [],
+      "note": "只有自述 REAL，零证据 → 不允许抬级"
+    },
+    {
+      "archetype": "claim_only",
+      "capability_key": "synth.claimonl2.claim",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "not_supported",
+      "nodes": [],
+      "note": "只有自述 REAL，零证据 → 不允许抬级"
+    },
+    {
+      "archetype": "coupled_ok",
+      "capability_key": "synth.coupledo0.e2e",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "coupled_prototype",
+      "nodes": [
+        {
+          "capability_key": "synth.coupledo0.e2e",
+          "node_id": "ev:d2684ba13c0e939c",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d2684ba13c0e939cfe02ea7387639dd7338630c685a4ca93da6188960d99677a"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "2c97f962e5c22018dbf8749a8efe57caa58c68140ebe160a0e4b9566cfd511e6",
+            "kind": "source",
+            "locator": "synth/coupledo0/e2e/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo0.e2e",
+          "node_id": "ev:37f5d7fbb1a55567",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "37f5d7fbb1a555673e9ee3fbb0c782fc33d57d38fa61189218da18b703da26ea"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupledo0_e2e_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "4cc50ff2d9fa91f0cb5ee15ac76e5530ac7fbcf1573a8b7fc6990441cd052a60",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "d50533395a9fe6247e89c9a5ba5b352139757502a7f910370807ea8ad03cc8a5",
+            "kind": "pytest",
+            "locator": "tests/test_synth_coupledo0_e2e_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo0.e2e",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:3d6431f49b3261f1",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "3d6431f49b3261f15ca2e9fc2023d761eb9080e31481dfe1985e2d796664a361"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_coupledo0_e2e_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "4eaa9b3f14b2ca6d98fdf692b83a2f42db474018fef035c60f64061fa6e274c7",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "da98b1dfcf81ffc9116a2b2953c6004b5fb5b1f281473a9057c4d0492a79c24d",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupledo0_e2e_0/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo0.e2e",
+          "coupling": {
+            "components": [
+              "synth.coupledo0.e2e.left",
+              "synth.coupledo0.e2e.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_coupledo0_e2e_0_e2e.py",
+            "interface_digest": "6b36007934f9f55d04909aabf0248c3249f8c04168e64256682e3c13cda086e4"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:5dc338529026b309",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "5dc338529026b309bfa9bb3eba10be55806323c169a26270c04eb18bb619c7d0"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupledo0_e2e_0_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "27492e7f8ce2c45ea9e5a9bcce0035b85823a62c8dc4949b83eedf3626364104",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "4314f184c8feab4ce62965d1388a35590a0b1c339762e2ba06df858e376d7837",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupledo0_e2e_0/e2e.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "双组件耦合 + 接口摘要 + 端到端重跑 → coupled_prototype"
+    },
+    {
+      "archetype": "coupled_ok",
+      "capability_key": "synth.coupledo1.e2e",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "coupled_prototype",
+      "nodes": [
+        {
+          "capability_key": "synth.coupledo1.e2e",
+          "node_id": "ev:d242b74458a21b6b",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d242b74458a21b6b0332fd1981f84305c29550526933c88a5ab8db562cc2170d"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "d2c18c874e2eff5333bcb881f5971ca1c5c5660e35d2bdd113dd5a892d8c4bca",
+            "kind": "source",
+            "locator": "synth/coupledo1/e2e/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo1.e2e",
+          "node_id": "ev:96651f39dd8ed658",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "96651f39dd8ed6586eb5a09b2bb307ee1e4029d45acaf5f7bf87d48636a23670"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupledo1_e2e_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "bd5788850da0e02729d6bb81d5a3975c743c300f7e2acb009e71977a1171daf6",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "74dde405a4f94fcce95fd703a806a18b5bbe0e58cf6bcd9a583d88d78ab4d3d5",
+            "kind": "pytest",
+            "locator": "tests/test_synth_coupledo1_e2e_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo1.e2e",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:75f05270ca9b8ce0",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "75f05270ca9b8ce0d2af74130a397721972b687f484184e0d409d70f4dc1cacd"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_coupledo1_e2e_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "b5677ef89bd51c10a73524dd0cc5af41288ac5632b1be64802aba280dca11507",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "c839a6d6aee523e204816f73563375babc246009b8bd077f8ed8f69aa36b251a",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupledo1_e2e_1/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo1.e2e",
+          "coupling": {
+            "components": [
+              "synth.coupledo1.e2e.left",
+              "synth.coupledo1.e2e.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_coupledo1_e2e_1_e2e.py",
+            "interface_digest": "e98fcab3e18b967d98c3a3df4e9b35947ea133c33dac868fd699b1385f739b51"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:d28f41316a0af7c7",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d28f41316a0af7c719bbd530be685d39339ae44cf583dc5a56a4604c1b8e5683"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupledo1_e2e_1_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "12756573a5ccfd7374edb8d360000c2f2beb0bbfccb6cc35973751be3a596ca8",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "ebe49a1dc35a05ee6a6345ec8f5b03d475d1d84d10c801c5501fe259859e797f",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupledo1_e2e_1/e2e.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "双组件耦合 + 接口摘要 + 端到端重跑 → coupled_prototype"
+    },
+    {
+      "archetype": "coupled_ok",
+      "capability_key": "synth.coupledo2.e2e",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "coupled_prototype",
+      "nodes": [
+        {
+          "capability_key": "synth.coupledo2.e2e",
+          "node_id": "ev:2af812a3ba1fced3",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "2af812a3ba1fced30eef45ca754ee668992992aba9e303ac563aafe52b47c671"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "610c2214825a52feab410990023de06adc4b5b8fb57e56f1ce1a4d816c5b150b",
+            "kind": "source",
+            "locator": "synth/coupledo2/e2e/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo2.e2e",
+          "node_id": "ev:8ba55cd4808fe271",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "8ba55cd4808fe27170bc797bec2c6c65ba49ca0dcfc7671e9d16256ea3e00777"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupledo2_e2e_2.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "eb71363854c2f8affa2d7e24af8d76173014d872a543092bb3dfd8d43d62bf6d",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "eec152d6a44fff0be2d89bb30f1d918e046e8b5dbc78953b58dc18b7db77cd37",
+            "kind": "pytest",
+            "locator": "tests/test_synth_coupledo2_e2e_2.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo2.e2e",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:9182919e31e0a554",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "9182919e31e0a5547e20ee8aae6123a0a5b6ed7cd1a2f884dd9bf6a168511d25"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_coupledo2_e2e_2.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "b5e771e845699ccdacc169af0ebecf6f98affa6784c39823ef5399a4017d3d31",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "b76d15683e8debd0fe1691a2a29b9701708299b9e350bd5f97522b637da2b15c",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupledo2_e2e_2/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupledo2.e2e",
+          "coupling": {
+            "components": [
+              "synth.coupledo2.e2e.left",
+              "synth.coupledo2.e2e.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_coupledo2_e2e_2_e2e.py",
+            "interface_digest": "eccd7a5e63de5368ac991b5dd4b999ef556f1159faa5cde16b8214821c68a6e2"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:edf5bcd3c04f7c25",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "edf5bcd3c04f7c25759f635492218b5bf7b565056b5c5e96f6820e0cf6b635fd"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupledo2_e2e_2_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "e53b02aa0f0878de3258024918b5f050d4062a850140451ba88f64b571266654",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "a710902e614a9412d60d101f53d1fe955f1fa318b33a011b95f6cb2ba9d03b8e",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupledo2_e2e_2/e2e.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "双组件耦合 + 接口摘要 + 端到端重跑 → coupled_prototype"
+    },
+    {
+      "archetype": "coupled_single",
+      "capability_key": "synth.coupleds0.one",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "benchmark_verified",
+      "nodes": [
+        {
+          "capability_key": "synth.coupleds0.one",
+          "node_id": "ev:29e3b5d615f18659",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "29e3b5d615f1865925b0305709f692c0932d9484f7b1a0676dfc13d192af0cc4"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "05c8500f0159471a119dc0a3f1f5e6eab515a381289557dbfad64fd69af50021",
+            "kind": "source",
+            "locator": "synth/coupleds0/one/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupleds0.one",
+          "node_id": "ev:63d83b8f084b2fda",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "63d83b8f084b2fda07743618edc32ee7de9c5ade96b2ea79d8979bdeb15b8f0b"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupleds0_one_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "ba18ef6c936c6a78c4ce5228e2dc45d76f6307006643d826e604539baaaf61b5",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "57499b92c3d21aa8cb0b2407d666518ed1877d1bd112a781aa80ac64db888460",
+            "kind": "pytest",
+            "locator": "tests/test_synth_coupleds0_one_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupleds0.one",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:fe747f86aceaa6d6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "fe747f86aceaa6d6c4545919450f726a84dd4ff4587ad8b2450b4e794f143bb6"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_coupleds0_one_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "7a240fea6423f2ab90ebe02b1f24f7602de120c7b99b7a1f847a8ddac533af31",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "6c158b71167ad79e2444bd545cbb127cd681f8ed1b400713e45e942e464b7399",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupleds0_one_0/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupleds0.one",
+          "coupling": {
+            "components": [
+              "only.one"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_coupleds0_one_0_e2e.py",
+            "interface_digest": "403208393c8e7a3a6999bbe5e39fac8ab9d1352732a4c7e649667c2d7b9cdd30"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:77ee508b86f85172",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "77ee508b86f8517265025e2abdfcd1d6ce615becaa8fae7560dcbece74af3a9e"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupleds0_one_0_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "4420ee89847e53d05c0b512f5d3489a8331f591576405b14499adb9acf5f156e",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "9bb7f53f0cc2b02751eeb0cd180f12aa452ed6d5bbbbe08a29ed7e7670d8ea06",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupleds0_one_0/e2e.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "耦合只 1 个组件 → 退回 benchmark_verified"
+    },
+    {
+      "archetype": "coupled_single",
+      "capability_key": "synth.coupleds1.one",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "benchmark_verified",
+      "nodes": [
+        {
+          "capability_key": "synth.coupleds1.one",
+          "node_id": "ev:22bf1f2b7f04aec6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "22bf1f2b7f04aec62b9297277f00107af513706ec00e02a7c7d153b3fa91208e"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "abb9d4990d3ff0d2069540d1d4fd3754ba7af9ae88c79de983114a73a540bc7b",
+            "kind": "source",
+            "locator": "synth/coupleds1/one/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupleds1.one",
+          "node_id": "ev:d71b5ed8b579c593",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d71b5ed8b579c593a0c653e5866d3f84624ce9d0a1b3c7d4674c01947965ad92"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupleds1_one_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "83a6b26dac0ff4190b657bc8c62708c3b078121d75880bebb6bf9af7ac50037d",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "40d197d04ddc09839537372bca183a1c3f2b68f20a6c76c264fa41540d9d33d5",
+            "kind": "pytest",
+            "locator": "tests/test_synth_coupleds1_one_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupleds1.one",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:aaed235017faf8a1",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "aaed235017faf8a159bc951844b3885795ac129fc0776ecc75c51c47bcba0d1d"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_coupleds1_one_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "cff0cb0db3b3e6079643f33fe44db8e25a02eb4cdc3fc9be694f3c95ae4f0a7b",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "35c984e723c0764755edd643379ccae205d49b98001a8967cd8c3a804eaf9a20",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupleds1_one_1/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.coupleds1.one",
+          "coupling": {
+            "components": [
+              "only.one"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_coupleds1_one_1_e2e.py",
+            "interface_digest": "685c5000afd8391778669687bed94769ff08ac7997afaa2e137088cb4c7295e8"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:e9d11ab0cc9bea66",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "e9d11ab0cc9bea66ea065057083a660a3c3c86cc89d3f9020750ec524391b46c"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_coupleds1_one_1_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "fc6abdba3405bc30acc286865826a3fec2ef3acb68c6cad91d2daa588bad737c",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "97721fd71af4649f015fc59902450492c4417d6b2706da024c6e80d0fdfe8d0a",
+            "kind": "artifact",
+            "locator": "artifacts/synth_coupleds1_one_1/e2e.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "耦合只 1 个组件 → 退回 benchmark_verified"
+    },
+    {
+      "archetype": "eng_ok",
+      "capability_key": "synth.engok0.qual",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "engineering_qualified",
+      "nodes": [
+        {
+          "capability_key": "synth.engok0.qual",
+          "node_id": "ev:82b6a59f905c0c5b",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "82b6a59f905c0c5bbd32668449e56a98652230ff7de1f2d09e89adeb36adf692"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "af2aed354467384e788f0c2e74e7b2cfe15474af610909359e88fc7561cab879",
+            "kind": "source",
+            "locator": "synth/engok0/qual/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok0.qual",
+          "node_id": "ev:f7533c15aadf839d",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "f7533c15aadf839ddbc8e48280484da9d80eecd8fe06f808060f8c0a9bb070f6"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok0_qual.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "ffe13bc936d1deb0cc1e56e6bf0d90a781d1954a5a9384486fdc4ea612db564a",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "6793bc3d8e690f6fece8ccb58773381087bb523e4774ddb8bfaa276b0841b8fc",
+            "kind": "pytest",
+            "locator": "tests/test_synth_engok0_qual.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok0.qual",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:955db81d6f3f272b",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "955db81d6f3f272b55a91228a00dfaff084ab95cededc1dc7825afe6927eaada"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_engok0_qual.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "22537b5a8c01e8dae1a252f2fa917e0916bb7d74271202e8e6ea71c0a070612a",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "fb5b659c189dc34b00c70af7878f2d0a73d2a1fdf464c1cac1ae3f316718aeca",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok0_qual/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok0.qual",
+          "coupling": {
+            "components": [
+              "synth.engok0.qual.left",
+              "synth.engok0.qual.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engok0_qual_e2e.py",
+            "interface_digest": "e612ea9d03c19c7948e202c3c07e7200a648fa96636c3896ea6e7a98ea55d3fe"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:1f95aaf207dfe507",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "1f95aaf207dfe507f6c0deea9e7c387b83671c5177aba313f98ed5eef36f639a"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok0_qual_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "3f98173227aebe33346b4ad63090e31e799c7c1266485044956224ae2f772196",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "b0b37186ec47789baf2c4fcb35aeeceebe92069e67bce306921988f40eb503fa",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok0_qual/e2e.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok0.qual",
+          "coupling": {
+            "components": [
+              "synth.engok0.qual.left",
+              "synth.engok0.qual.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engok0_qual_e2e.py",
+            "interface_digest": "e612ea9d03c19c7948e202c3c07e7200a648fa96636c3896ea6e7a98ea55d3fe"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:d56775f6dcf1a641",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d56775f6dcf1a641f3458d08f329f8ebf7257057ced5e5c389a9a986f86e8977"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "c879a1c8fcaaf2a287433c7d6e1eb5aeec44bbcfa3da85980251210453b1612d",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "6178e816392f4e405a004d3d4d37fb65ca51b3b285097d7a65573cefc778a5d6",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "b081c324c744ac3f9db4be48179ae80dcfcc6b582762244f3663e8b212bce1d4"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok0_qual_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "05a8e3add675e85e8ca821d607ffcebd82e05d18cd677c427ff283da4a1fdff0",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "0b8fbfb34a957b439eb5f9f1394bd433e59b4d00458e80a8f8f92ca426a0acec",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok0_qual/qualification.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "独立复核 + 两次互异 sha 重跑 + 包线 + 签署 → engineering_qualified"
+    },
+    {
+      "archetype": "eng_ok",
+      "capability_key": "synth.engok1.qual",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "engineering_qualified",
+      "nodes": [
+        {
+          "capability_key": "synth.engok1.qual",
+          "node_id": "ev:4efd9a8f039db857",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "4efd9a8f039db857e420a535bcb3330e0464e6872f680e0729147bf42d0ae7e6"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "8d42d43480590c61d2827021e38cc0f62fea5da8a4f05a24894e03c9009c9fbf",
+            "kind": "source",
+            "locator": "synth/engok1/qual/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok1.qual",
+          "node_id": "ev:7c8abdbc06ae4c79",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "7c8abdbc06ae4c79f48899d72b99cfb7c30237a2e8558d6f04bef0a80135e4af"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok1_qual.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "0129ad6c49a3b9f30b26a08dfb85c722b345a6296d76712f5acd531554e7c844",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "dfc7fb04119dd3735ccb11c8c9d7d32a313a10c3e4f64df09bfdb92214a39074",
+            "kind": "pytest",
+            "locator": "tests/test_synth_engok1_qual.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok1.qual",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:869ad36e434b10a0",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "869ad36e434b10a0b303b0442cf654a564b84dee746b3048b9728e0ae5fae3c4"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_engok1_qual.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "f267609c3cd7678e0d4ad9784c94bca1ddfad17ad7a5cee2840d68209973cd09",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "821060a35c38330d12cffe52403ab84c8b87e2516c795688b40ce57b7db35f99",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok1_qual/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok1.qual",
+          "coupling": {
+            "components": [
+              "synth.engok1.qual.left",
+              "synth.engok1.qual.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engok1_qual_e2e.py",
+            "interface_digest": "6ad68093c040485940ee8f7f4d06e080a60e8e2dc8fe56cf4d803005c96acd0a"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:90e8d4747c11d633",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "90e8d4747c11d633a09209ea59bd8e13f3fe65cfaddc6bff4bd8ca8a6ea8f43b"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok1_qual_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "a4ec7448ec1fcd72b270487b5221bbe32fc8b514bdcf3627e56b12e423231fd7",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "1b66abf15c155abc224cea1e32c79d68fc488ee1d0cb17f38cde6662d8eb0469",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok1_qual/e2e.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok1.qual",
+          "coupling": {
+            "components": [
+              "synth.engok1.qual.left",
+              "synth.engok1.qual.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engok1_qual_e2e.py",
+            "interface_digest": "6ad68093c040485940ee8f7f4d06e080a60e8e2dc8fe56cf4d803005c96acd0a"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:4b163851ac0ee95c",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "4b163851ac0ee95cd4e1f324a5e784a440ccac4c04d589e247cea203a24c66e7"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "f8d8a67f0fae21ec59523e9809936e961e45ffe02b76d254fc0a4a83063e20ec",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "780d5fe0dd9d148de09ea219d49ab33a7c04b276709c569d61cd9026e5617135",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "1c5469b69e669d85fc365b3dc5b75b3b6e8ee1be60d9a7b910ba43a73888bd19"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok1_qual_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "e0a79bf9c3ab0900715be98660f390fe0822a72a240798123f30cf35c4baf485",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "8dd8a60d9189f3668fccc49f9f9ca26a8fcc94db46cd20c930aaa7ea18406d77",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok1_qual/qualification.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "独立复核 + 两次互异 sha 重跑 + 包线 + 签署 → engineering_qualified"
+    },
+    {
+      "archetype": "eng_ok",
+      "capability_key": "synth.engok2.qual",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "engineering_qualified",
+      "nodes": [
+        {
+          "capability_key": "synth.engok2.qual",
+          "node_id": "ev:e0735aed3f17a050",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "e0735aed3f17a0505a44734327793d1401359e81c37baf0ae2f4ecca2baec3e3"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "922920aaf7a75ded9a56ad3a46b40975ee5fc0696ed4528fccef88837549740e",
+            "kind": "source",
+            "locator": "synth/engok2/qual/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok2.qual",
+          "node_id": "ev:1e48752c12651763",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "1e48752c12651763a4b23b1f90f0c0a1e281cd42a5448c0243ed43918cf25ed8"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok2_qual.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "c51f2f2dfc3762d3308306fe1301a77cbb2a63c88c6f9465dd1114e693b87549",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "563e63794635692db46529f3fe2b8ac376181d5ad4551c9689a6a4069d217a0b",
+            "kind": "pytest",
+            "locator": "tests/test_synth_engok2_qual.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok2.qual",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:97ac0e38f7d77fd4",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "97ac0e38f7d77fd4114d67d65480401cf0e6a9faac59ef33cba8aed631b836ee"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_engok2_qual.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "82c4352172d08fb471f7f60bd0f2e26e53f0ce07b9dcdee0a5de3429b174a9d8",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "71916b673142d7006b54ba95de36c69567a97c91dfb854d11ec655239fd35b50",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok2_qual/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok2.qual",
+          "coupling": {
+            "components": [
+              "synth.engok2.qual.left",
+              "synth.engok2.qual.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engok2_qual_e2e.py",
+            "interface_digest": "ae6ea37afcb24ed575ac8a1e39ff25c97fb799f23637e988118e413d92b3b99f"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:0e4d9bf71aa2cc2f",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "0e4d9bf71aa2cc2f2fdd7de101b15d9e36e410e09cf1efb26b36df3857927ea0"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok2_qual_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "17dec3c2c2e3587895f5c57b442d6e3517018dceb8202ba9cd27bacde5a926b5",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "ca95d36f6f94a15b4274f9683a7ade8a73f315c7c926221d56e3ffd059f8396e",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok2_qual/e2e.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engok2.qual",
+          "coupling": {
+            "components": [
+              "synth.engok2.qual.left",
+              "synth.engok2.qual.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engok2_qual_e2e.py",
+            "interface_digest": "ae6ea37afcb24ed575ac8a1e39ff25c97fb799f23637e988118e413d92b3b99f"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:b28f83a1817d5167",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "b28f83a1817d5167e7c18b6f833b385cd28222bb5f72fe7cc666f345a8f40aea"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "acf1bc43fcf3037f886abe29026cdb51c36a5f2310c3066270a2becbbf631a53",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "1791e8b5d3fe81237c43cea3c5706233f8d98081e4910c7cdba713bdfcb970b4",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "f32577ac8600ddbc943016cf51debb452d1c50baeea88ab2f10d4ed9dde600d5"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engok2_qual_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "fe6151497d210c50c8ecac0e44d1c9f7a04a3be494657d9dc3adb8bfd7af0703",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "877d0c9ccaf1ee31373d8a1bd02e35b04d00476488accf6cc45440f0f4549c6d",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engok2_qual/qualification.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "独立复核 + 两次互异 sha 重跑 + 包线 + 签署 → engineering_qualified"
+    },
+    {
+      "archetype": "eng_same_repeat",
+      "capability_key": "synth.engsamer0.rep",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "coupled_prototype",
+      "nodes": [
+        {
+          "capability_key": "synth.engsamer0.rep",
+          "node_id": "ev:3b0ac9b8524559b9",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "3b0ac9b8524559b977947c5bbe706358ff80a085ecfe065b613e5e07309dee1c"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "13a5720778f1271d0ee4d22ba6d5ca46fc8c13344278f82022e87382674db3d2",
+            "kind": "source",
+            "locator": "synth/engsamer0/rep/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer0.rep",
+          "node_id": "ev:9ac44e0f65f05750",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "9ac44e0f65f057502a2fd425fa7ee8ca62702d6e79405d233576f21c15909c37"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engsamer0_rep_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "ba0e3f0f642a99ffaf7cf4979edff9ea2e4dd45b666997c9332c3863205bd6c1",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "01c239afed6077ca8553383c4eb5a13950be4d3ca976e7944b58c109e5de7037",
+            "kind": "pytest",
+            "locator": "tests/test_synth_engsamer0_rep_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer0.rep",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:28e6f4a553594f8c",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "28e6f4a553594f8c8c7ae7db8d244831528a7d3df92287e49c32ec0803f96266"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_engsamer0_rep_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "dc5dc3e191294a1d0d82603bbfdb6616b4f75475b846f9000afacca3d89440a8",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "d7fa89f7a141a7c221cc83c95441b4a4877502097d4e206baacfc08b8e0b0580",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engsamer0_rep_0/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer0.rep",
+          "coupling": {
+            "components": [
+              "synth.engsamer0.rep.left",
+              "synth.engsamer0.rep.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engsamer0_rep_0_e2e.py",
+            "interface_digest": "6d928e42b28603ecc685fd2f5484b8f1367d8474cc8945def7a351ed149d4bda"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:0bacdadb8fd0e222",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "0bacdadb8fd0e22236e225e1729b40fd6421bded52b0c6ddacefd7ddf5793b65"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engsamer0_rep_0_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "1d1bbb5e34eebebfb035a25f58314bb0bb4245fa2663a5a61d04e1b53ec49bf8",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "5dbba92cec9ceb3b8e0626ac59f6ebf9c4e459f62a041c48403411bbb62d9d7d",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engsamer0_rep_0/e2e.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer0.rep",
+          "coupling": {
+            "components": [
+              "synth.engsamer0.rep.left",
+              "synth.engsamer0.rep.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engsamer0_rep_0_e2e.py",
+            "interface_digest": "6d928e42b28603ecc685fd2f5484b8f1367d8474cc8945def7a351ed149d4bda"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:1edcfd7d6f02d148",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "1edcfd7d6f02d148ec8eaf00efe96df7eb32694fcaa63978a78c0c4c1e2968bf"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "cdd9a55879c31393c7d69468ba0cd1e433c9c9d1520c82380c7604e3582c2d84",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "cdd9a55879c31393c7d69468ba0cd1e433c9c9d1520c82380c7604e3582c2d84",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "eb0421819ab560c24cfec27ca6086d1048f37e1b4efc376dcf9b0312870ce37d"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engsamer0_rep_0_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "87b4bf2c8b9a0456f70f01d30f038497ee673c0e2a12bc853a7e1101326e859c",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "a00bb1c4f2380bcb956b2fd05927374c22e32b60b3d283106cc37aec4b4b34ca",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engsamer0_rep_0/qualification.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "复跑 sha 相同（不独立）→ 退回 coupled_prototype"
+    },
+    {
+      "archetype": "eng_same_repeat",
+      "capability_key": "synth.engsamer1.rep",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "coupled_prototype",
+      "nodes": [
+        {
+          "capability_key": "synth.engsamer1.rep",
+          "node_id": "ev:b324be4f18ca6ddf",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "b324be4f18ca6ddf56176ac6e1ce05a20023757203806453b576ca2cf47bcad1"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "8a11bdfe0ccb739e636f96b52dd468e6d3fdac9abe767dc7cdc7422abbab5485",
+            "kind": "source",
+            "locator": "synth/engsamer1/rep/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer1.rep",
+          "node_id": "ev:69a01e5fa1412ecd",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "69a01e5fa1412ecdbc791d7a3a7c9d942a6cc24bbbefc0424ac1f37e2f7ff279"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engsamer1_rep_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "687367895b98a7b5e0c7de7ee76eefd27bff319ec417341bf9515a47e168d780",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "e56f7347f1e2fef90e438a178338758c8b8d8c3def4a38696678015902dae1ea",
+            "kind": "pytest",
+            "locator": "tests/test_synth_engsamer1_rep_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer1.rep",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:d99364f7f85d92f9",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d99364f7f85d92f99dcee3bac90cfa874bf143313640e13222e88d1c245ce7be"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_engsamer1_rep_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "ff6e801b3f428f1482fc4c59475321f730341ed1b91eaa9e3ab198daed739a19",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "0ef4b8cc6763359679a4432c1b74add6172a93088b55f4d622b8409923d4436b",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engsamer1_rep_1/bench.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer1.rep",
+          "coupling": {
+            "components": [
+              "synth.engsamer1.rep.left",
+              "synth.engsamer1.rep.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engsamer1_rep_1_e2e.py",
+            "interface_digest": "7e2334bd9bf580ec9b7c677449b44d63d601a416dc3e2636c7e20a6dd9e7113d"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:c25eaadaba600f3c",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "c25eaadaba600f3cb8203849084f36d2542ab6e869e1244fe6aeca46e69f76de"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engsamer1_rep_1_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "6980eed6c3628429c23db8579cc547b68d9597c09d475185d061d6827135e25a",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "8efb57ac10f715a3520ecbd476f42e68f8cf597d4e4d0349dc04c61307bb8cdf",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engsamer1_rep_1/e2e.json",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.engsamer1.rep",
+          "coupling": {
+            "components": [
+              "synth.engsamer1.rep.left",
+              "synth.engsamer1.rep.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_engsamer1_rep_1_e2e.py",
+            "interface_digest": "7e2334bd9bf580ec9b7c677449b44d63d601a416dc3e2636c7e20a6dd9e7113d"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:609f979f11dfd6a8",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "609f979f11dfd6a8ebf07b143f1139f21217c3f68ff7e359cb142d903376d056"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "02fbb2ba913d1d29fcd96d5c12a0deff40638a2efa94aa14618684c41dfb8321",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "02fbb2ba913d1d29fcd96d5c12a0deff40638a2efa94aa14618684c41dfb8321",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "52e8b5368c0d548eb243fcfb135d9d76259b504f04aab97ee1fa8f4a580466b5"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_engsamer1_rep_1_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "f7329a19d306961ef7298b1e9116bacf3e4ee14c5cf0aede95d0741df4ebf402",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "92fd39ac936e10cd595daf0b476a9cfa360b6d869da23dfac0fbcb3aaefc9227",
+            "kind": "artifact",
+            "locator": "artifacts/synth_engsamer1_rep_1/qualification.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "复跑 sha 相同（不独立）→ 退回 coupled_prototype"
+    },
+    {
+      "archetype": "fixture_capped",
+      "capability_key": "synth.fixturec0.fix",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.fixturec0.fix",
+          "node_id": "ev:34d9ef928af26e40",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "34d9ef928af26e409d5ec15f2f7694d00967666d72e2360e2c103bce8a969fc8"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "05beb60d6c036ef5976d32ff835e6935abc440fb8307d32dc3b59c15a88077bc",
+            "kind": "source",
+            "locator": "synth/fixturec0/fix/impl.py",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec0.fix",
+          "node_id": "ev:eaefa2e968ed0d9d",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "eaefa2e968ed0d9d4e10b96e9c0888d01ad300c42543875d47de737957195ef7"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_fixturec0_fix.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "2b238095a2b21b4b416c549c1abf449892a72a820bf60f9f5418b8a26ffa1e58",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "59ce42a18eb5270b7b12444a3c6ff7a95c87422c176609948ee2d2f21b6926ac",
+            "kind": "pytest",
+            "locator": "tests/test_synth_fixturec0_fix.py",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec0.fix",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:5eb09c176b281f99",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "5eb09c176b281f99f48a473e72bb1ee61d0d53296dc4dab45662cb305850c96e"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_fixturec0_fix.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "78b6d746ca60f971d2adb40ebd96b08faaa1e3949693c9ed71b38a9a49e9b0e7",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "023bafaaaa16a60950079e83554f7cd4c4b754cf469d5fa861499b81a65544fa",
+            "kind": "artifact",
+            "locator": "artifacts/synth_fixturec0_fix/bench.json",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec0.fix",
+          "coupling": {
+            "components": [
+              "synth.fixturec0.fix.left",
+              "synth.fixturec0.fix.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_fixturec0_fix_e2e.py",
+            "interface_digest": "10f4978e3232921adc9024d214c2d7e8f42cb84c353b77688b1a5aa1e4ef3a5b"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:6491979a03656d7f",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "6491979a03656d7fa8e221f6249f3aab69ec2c24b7349392332ac155fb827f68"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_fixturec0_fix_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "55d1dbf8381636977ea9c7f8bbdb587208cdb1bb0fad51c833aeaba9214c132a",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "3a9c46df4fef0a6869be5d590fa4ec8499f29fb0a3d25a47a8781fe1fa0bca2d",
+            "kind": "artifact",
+            "locator": "artifacts/synth_fixturec0_fix/e2e.json",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec0.fix",
+          "coupling": {
+            "components": [
+              "synth.fixturec0.fix.left",
+              "synth.fixturec0.fix.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_fixturec0_fix_e2e.py",
+            "interface_digest": "10f4978e3232921adc9024d214c2d7e8f42cb84c353b77688b1a5aa1e4ef3a5b"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:107d0987fe7cf1a6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "107d0987fe7cf1a6ee8a4d1752135426bb89f8993929e553e32967bdc66fe765"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "12d6a55726bebeb2b8f34afb95343e11081b5d3ad9980258c000c1e51fe515d6",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "e91fb43a58e84cefa3afc6ef7cabf1575d5814a58615f8dc7f64051a4c2e0523",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "a1c3f3d30fda6ed5c5cd7501ac21043de764967b343ac5d6ff0cf6ca59c83309"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_fixturec0_fix_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "e2a79de696378b1bb78fef82e88a8fdef0bb2557a44037f705b73edab6a3607e",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "a52b1cea4a364d943ed4fc44a9c77263a9accae397375349af41fbf0a373bdb8",
+            "kind": "artifact",
+            "locator": "artifacts/synth_fixturec0_fix/qualification.json",
+            "scope": "fixture"
+          }
+        }
+      ],
+      "note": "全套证据但作用域=夹具 → 封顶 tested（负控 a）"
+    },
+    {
+      "archetype": "fixture_capped",
+      "capability_key": "synth.fixturec1.fix",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.fixturec1.fix",
+          "node_id": "ev:29b5908300ffa16c",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "29b5908300ffa16cd28595c81912f4cacd9660290344cedfa316f83e0c6a4420"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "082f4f90166788d9281d8b381ba0bbc64f71bf45102f8500f85369d97f4b0339",
+            "kind": "source",
+            "locator": "synth/fixturec1/fix/impl.py",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec1.fix",
+          "node_id": "ev:7d88e3a48baff0eb",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "7d88e3a48baff0eb74d4a828336fe94da498d284e36be71766c0a70eba53528d"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_fixturec1_fix.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "577c8de9b262f3924ea666f1b4316881c9f66114017656ae057c779315a5d571",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "e70b858cd5279be45d219920dabffc477c87580c59b1e0dc43926b340a60d1ad",
+            "kind": "pytest",
+            "locator": "tests/test_synth_fixturec1_fix.py",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec1.fix",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:95f3d68a9b423d90",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "95f3d68a9b423d906023bbb6ce0d77ce8740eb96594f8d61ee0cdca42b22a902"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_fixturec1_fix.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "51b2778f2013495fb4d2ff336856a1de2c05a4a5aebd978a7614d74879dd5134",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "772d0041bf9d0bbbb97e1a84e0981c5d332724f364554f6431ccc6427f588d74",
+            "kind": "artifact",
+            "locator": "artifacts/synth_fixturec1_fix/bench.json",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec1.fix",
+          "coupling": {
+            "components": [
+              "synth.fixturec1.fix.left",
+              "synth.fixturec1.fix.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_fixturec1_fix_e2e.py",
+            "interface_digest": "d65e442022a7df125b7414b3ccc39c7ff9c709ec2ad251bd701c56a5e7a7c617"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.4,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.4
+          },
+          "node_id": "ev:97ab8ce8abc24fe1",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "97ab8ce8abc24fe1aedd74657221bcbb91b9dd5f9e70cc2f955dfa6be6f33ecb"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_fixturec1_fix_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "ea2221cf9bede0cf4f8c3091195580fdbd0c1a7df1bc62d7da3c185304c0f40c",
+            "status": "passed"
+          },
+          "rung": "coupled_prototype",
+          "source": {
+            "artifact_sha256": "3ed3d3eb15ac7aab02d8e23271e69d938df33f571cf3f2dd7cc3d2136035fa39",
+            "kind": "artifact",
+            "locator": "artifacts/synth_fixturec1_fix/e2e.json",
+            "scope": "fixture"
+          }
+        },
+        {
+          "capability_key": "synth.fixturec1.fix",
+          "coupling": {
+            "components": [
+              "synth.fixturec1.fix.left",
+              "synth.fixturec1.fix.right"
+            ],
+            "end_to_end_rerun": "pytest -q tests/test_synth_fixturec1_fix_e2e.py",
+            "interface_digest": "d65e442022a7df125b7414b3ccc39c7ff9c709ec2ad251bd701c56a5e7a7c617"
+          },
+          "criterion": {
+            "baseline": "reference",
+            "baseline_ref": 0.3,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.02,
+            "unit": "-",
+            "value": 0.3
+          },
+          "node_id": "ev:d837fb52c5642b95",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d837fb52c5642b9584a12324ed082f6a39bcc61131b414bd1f45dc49b18a21cd"
+          },
+          "qualification": {
+            "envelope": "operating envelope: bounded inputs, n<=3",
+            "repeat_runs": [
+              {
+                "sha256": "cb514ce376ef3e210e644642c1f4879701d3e95c4b8e18b096cacc1dab7ef795",
+                "verdict": "pass"
+              },
+              {
+                "sha256": "afb0203c3715ef383cfc85cfb9fed562add242e7947dcc5e2df67ccabecde0a7",
+                "verdict": "pass"
+              }
+            ],
+            "reviewer": "seat-independent-verifier",
+            "signoff_sha256": "6778cddaaa7b87f406499db72d0990415bbd5fcab513a9583155910db39a3c21"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_fixturec1_fix_e2e.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "bd72c8f2103f24e850eb0090b9db9969911b9113c18aa2ab51daae78a4217e14",
+            "status": "passed"
+          },
+          "rung": "engineering_qualified",
+          "source": {
+            "artifact_sha256": "3ae109341c68fe0b3623f12f7639955325d3537884a9c8639b5e5185874e978c",
+            "kind": "artifact",
+            "locator": "artifacts/synth_fixturec1_fix/qualification.json",
+            "scope": "fixture"
+          }
+        }
+      ],
+      "note": "全套证据但作用域=夹具 → 封顶 tested（负控 a）"
+    },
+    {
+      "archetype": "impl_bad_sha",
+      "capability_key": "synth.implbads0.badsha",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "not_supported",
+      "nodes": [
+        {
+          "capability_key": "synth.implbads0.badsha",
+          "node_id": "ev:aa9fbdc11bb90bc0",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "aa9fbdc11bb90bc06b01ca5dcb37554bd3bb0e586f7442116a03c90a07dd0579"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "ZZ-not-a-sha",
+            "kind": "source",
+            "locator": "synth/implbads0/badsha/impl.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "实现工件 sha256 形状非法 → fail-closed 到 not_supported"
+    },
+    {
+      "archetype": "impl_bad_sha",
+      "capability_key": "synth.implbads1.badsha",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "not_supported",
+      "nodes": [
+        {
+          "capability_key": "synth.implbads1.badsha",
+          "node_id": "ev:8f81c5961e8f4513",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "8f81c5961e8f4513546240dbf675f341fbdf27b396804bde9d8fd8a6f0c9294d"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "ZZ-not-a-sha",
+            "kind": "source",
+            "locator": "synth/implbads1/badsha/impl.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "实现工件 sha256 形状非法 → fail-closed 到 not_supported"
+    },
+    {
+      "archetype": "impl_ok",
+      "capability_key": "synth.implok0.impl",
+      "claim": "MOCK",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.implok0.impl",
+          "node_id": "ev:7579475086e771d6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "7579475086e771d6252a96a56845ac93c2debe3c91723c80330ad21b5ee92100"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "8ccdca1b995de433cebb28ed8a96b0749293822c66475a43b53a00f63e45d35f",
+            "kind": "source",
+            "locator": "synth/implok0/impl/impl.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "实现工件 sha256 可追溯 → implemented（自述 MOCK 不改结果）"
+    },
+    {
+      "archetype": "impl_ok",
+      "capability_key": "synth.implok1.impl",
+      "claim": "MOCK",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.implok1.impl",
+          "node_id": "ev:60807c08749bac2e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "60807c08749bac2e7935dec3cbdc30bacef7d225f59915bf277e5a647ec58e02"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "b6d1b5e0ac6b377c9e319bcfb6931ac7c6d7f2abfa032eb6e29a77e77698833e",
+            "kind": "source",
+            "locator": "synth/implok1/impl/impl.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "实现工件 sha256 可追溯 → implemented（自述 MOCK 不改结果）"
+    },
+    {
+      "archetype": "impl_ok",
+      "capability_key": "synth.implok2.impl",
+      "claim": "MOCK",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.implok2.impl",
+          "node_id": "ev:86ee1f15662ac0f2",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "86ee1f15662ac0f2682b9391d9a2d97e78dfd91e8f8690f51892e869c38ec45d"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "e4da41cf36601e6c16a54dad8c8854223d12976666872706691a9af302e5e209",
+            "kind": "source",
+            "locator": "synth/implok2/impl/impl.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "实现工件 sha256 可追溯 → implemented（自述 MOCK 不改结果）"
+    },
+    {
+      "archetype": "mock_contradiction",
+      "capability_key": "synth.mockcont0.mock",
+      "claim": "REAL",
+      "contradictions": [
+        "MOCK"
+      ],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.mockcont0.mock",
+          "node_id": "ev:d663925b5cc4fa4f",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d663925b5cc4fa4f2ccfc5ef2073ef75d55b15e49f3c01b7663448ca63ae3a44"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "ecadc6a038b278148b6d1816ff903b1c7cfbadba41c6787e398e0b64f1ee6fc2",
+            "kind": "source",
+            "locator": "synth/mockcont0/mock/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.mockcont0.mock",
+          "node_id": "ev:348a6f61a5c5f67c",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "348a6f61a5c5f67c40765de9d5890c73e637ae989d0e76d489aa0772f73fdf25"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_mockcont0_mock_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "2276b188f42b7cfaf72e24849c23a74bbf5d734e0690d90003ed2fa29b499293",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "29350e9109763c8bd72e78cf32e5276d8cd78ae94d0faf7261fdefd22e22a574",
+            "kind": "pytest",
+            "locator": "tests/test_synth_mockcont0_mock_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.mockcont0.mock",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:9c59719dc635cfc6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "9c59719dc635cfc6bbd6e76993eacb97f48b332bfb4daa3847fa9e80e0614d9f"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_mockcont0_mock_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "7bace1e807b513708dc8e17898a3f4e7318061a17479058625bd95a4e89cf705",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "9dc71c0d06561935d84a487877e6d251cd72a17880605295dbf23789037f0bd1",
+            "kind": "artifact",
+            "locator": "artifacts/synth_mockcont0_mock_0/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "矛盾证据断言 MOCK → 封顶 implemented（负控 c 的合成镜像）"
+    },
+    {
+      "archetype": "mock_contradiction",
+      "capability_key": "synth.mockcont1.mock",
+      "claim": "REAL",
+      "contradictions": [
+        "MOCK"
+      ],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.mockcont1.mock",
+          "node_id": "ev:7c61752faaaff3d1",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "7c61752faaaff3d1fcfdb449da706a647efa5ee37e098f2087bffb9d5880a1b8"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "9e224aaa8956664e0065c8da1415c66fe7edb5208cd421810fe05f8721923228",
+            "kind": "source",
+            "locator": "synth/mockcont1/mock/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.mockcont1.mock",
+          "node_id": "ev:386e6fdff128f033",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "386e6fdff128f033e4e8d7444ebedd63700ac7c5af792e659faa29fffbd9b7f9"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_mockcont1_mock_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "e28c14028171fa23b24ac9244a15139e41b8503b0e651226bbe96b4f7b20ef8e",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "d895a6b490f50efbeca9a9277d71d1b43c5d6fee24765963dc01b45eb8767c5f",
+            "kind": "pytest",
+            "locator": "tests/test_synth_mockcont1_mock_1.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.mockcont1.mock",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:7812e4623368b3ab",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "7812e4623368b3ab05f18d4cedbaf4e07a28fc19e20aaafcf649a3ec8da474f8"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_mockcont1_mock_1.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "4b5b88d15811ea8eff9302caa0aeb855b818bbe77f8c0a9bd8cd7df40972ea54",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "9b4d45af89b4d0be07c88deb557157fce6270bdee5b92fc3c78cd26e2fdf89ef",
+            "kind": "artifact",
+            "locator": "artifacts/synth_mockcont1_mock_1/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "矛盾证据断言 MOCK → 封顶 implemented（负控 c 的合成镜像）"
+    },
+    {
+      "archetype": "tested_fail",
+      "capability_key": "synth.testedfa0.fail",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.testedfa0.fail",
+          "node_id": "ev:b92dddc1c494ff1e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "b92dddc1c494ff1e47215de6bd8fe17820b288c9ed0d1fc3849cdcb7e809ab60"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "171081759abff25a79ef85d383de8460db5d940c46a39f69c38ad3f8d2cd116e",
+            "kind": "source",
+            "locator": "synth/testedfa0/fail/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedfa0.fail",
+          "node_id": "ev:5c7a2179830391d6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "5c7a2179830391d67bb37ad76782145e4f61e5686382d3541b75a839a6faac01"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedfa0_fail_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "69e446302ccf6118ca0cd41db4e2d1b55b653b1d6b822a0cfa3c2ca7bf865475",
+            "status": "failed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "44b2654797b8ee509b9557cb3f5df86e1461eb055ab9a4581ec8c31a3d97205d",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedfa0_fail_0.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "重跑判 failed → 只能 implemented（负控 a 的强化版）"
+    },
+    {
+      "archetype": "tested_fail",
+      "capability_key": "synth.testedfa1.fail",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.testedfa1.fail",
+          "node_id": "ev:135fea1f8cc8943f",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "135fea1f8cc8943f348b77ffe4cdf8ecedbfeb999c12678b3313d0e3fd50e583"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "f3e2e3c5dfe9d25a21fb65f1c1a5916f6287952477c3ce1fb33406abe07c368a",
+            "kind": "source",
+            "locator": "synth/testedfa1/fail/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedfa1.fail",
+          "node_id": "ev:a28abe6117a1844a",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "a28abe6117a1844a04064cb9be9e707adcd7c859548ddea74adb2ac788ea23a0"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedfa1_fail_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "b72076e3e0419ce8b5a1db31a34d0a976fba7f8c3df6cd8f1e0f6735847d6a3b",
+            "status": "failed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "2e18188ec88242f0902882c33c80789138601e8e9f6845612e17ef5827e2f89c",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedfa1_fail_1.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "重跑判 failed → 只能 implemented（负控 a 的强化版）"
+    },
+    {
+      "archetype": "tested_fail",
+      "capability_key": "synth.testedfa2.fail",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.testedfa2.fail",
+          "node_id": "ev:8d2b4dd4b4ded128",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "8d2b4dd4b4ded128f7d7ae912a7c06218a26e9bbf3ce9cd493bbfd448d5b4f2f"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "02a5aea256a1c094c47b1a00c1947126f6c13f21db9ed5571dd8eb13c061eec2",
+            "kind": "source",
+            "locator": "synth/testedfa2/fail/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedfa2.fail",
+          "node_id": "ev:e81cb404da01b405",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "e81cb404da01b40598f059004f5d5b9203b8128c7f1b535fb7eadc9a8381c7c7"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedfa2_fail_2.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "3a581e49e272114030b4ef60617d167ae72a53b75c0e5dcd164b725771099b1c",
+            "status": "failed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "69ca263777138396b5ffa494e3d62e3e9055d5d8698a0b951572675c515174b7",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedfa2_fail_2.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "重跑判 failed → 只能 implemented（负控 a 的强化版）"
+    },
+    {
+      "archetype": "tested_missing_cmd",
+      "capability_key": "synth.testedmi0.nocmd",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.testedmi0.nocmd",
+          "node_id": "ev:509282768b0cf681",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "509282768b0cf681ff57356bad232dd05bae80d1ebe6a64ae07da1408386f0ff"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "cab0c3dc5a1a0482bb606b59c886cac20f3e1e748daf78e1805a75f8f304cd6f",
+            "kind": "source",
+            "locator": "synth/testedmi0/nocmd/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedmi0.nocmd",
+          "node_id": "ev:475f1d9ec60d80f4",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "475f1d9ec60d80f467be337bd026ba4e6774689ad33ae9a8532795f1fdf2c690"
+          },
+          "rerun": {
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "d8b21422d2516279773ad45785afff3fd01790e531f1a899bc39be8c476e27bf",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "0795ce991aaf8221785952447e4c755721720ec3e939d20390c54b9c9036b739",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedmi0_nocmd_0.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "缺重跑命令 → 不可执行 → implemented"
+    },
+    {
+      "archetype": "tested_missing_cmd",
+      "capability_key": "synth.testedmi1.nocmd",
+      "claim": "REAL",
+      "contradictions": [],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.testedmi1.nocmd",
+          "node_id": "ev:74b128be87526597",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "74b128be875265973a870f32515b9103c20ed73ec87fd0af805d4faa784c3bed"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "d418fe90927a56e7b2b4ed12db9f9cd540f2d993603304f121f588cdef410e4d",
+            "kind": "source",
+            "locator": "synth/testedmi1/nocmd/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedmi1.nocmd",
+          "node_id": "ev:5ebcc33263dafa1d",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "5ebcc33263dafa1d2f5b9aa5770a0ee27066e74dca43976fae49759cf95a1dfb"
+          },
+          "rerun": {
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "1c7d0127838bb3064ebe3bbc47e43159b64adb1ce5231dc3830d6f3d9508242e",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "f53c0b48a8e29dd2ac0d9c9769764d78fe284a7e4c65210a7a5bf20f18a03cbb",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedmi1_nocmd_1.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "缺重跑命令 → 不可执行 → implemented"
+    },
+    {
+      "archetype": "tested_ok",
+      "capability_key": "synth.testedok0.test",
+      "claim": "WITHHELD",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.testedok0.test",
+          "node_id": "ev:7cc90fa27c79f7de",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "7cc90fa27c79f7de5f3bfeb271a6551a0071a0a9c97192ff5fe770828436fa6c"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "3c17f4e89b40ad355573c951f36239da84387d8a55f117299289c2674cc88016",
+            "kind": "source",
+            "locator": "synth/testedok0/test/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedok0.test",
+          "node_id": "ev:d1ae6c457f102ed6",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "d1ae6c457f102ed6a2a8dfa700492c2ead096cfc878d0cebd2717c7b733a23bf"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedok0_test_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "b417fa8592d2191dfcb2333ad696a61f05cbd736202a63a14362b412a92c9def",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "4f8b639586a02ad02a6e1832b410bc81e332001be04b1e6c00551dbe6ea281c6",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedok0_test_0.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "有重跑命令+通过+日志 sha → tested"
+    },
+    {
+      "archetype": "tested_ok",
+      "capability_key": "synth.testedok1.test",
+      "claim": "WITHHELD",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.testedok1.test",
+          "node_id": "ev:f3648bfa74e11a31",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "f3648bfa74e11a312b5ee2d3216faf48777194941760587c6c05cc4d7b8320ee"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "4f64d11effc7cce484b03c353caff419dda3fd0c6302fea5491350c4a1b0ce7f",
+            "kind": "source",
+            "locator": "synth/testedok1/test/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedok1.test",
+          "node_id": "ev:89f217dfb3250417",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "89f217dfb3250417921044da86733da2d41bf4920bc9c8b35420b1909409039f"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedok1_test_1.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "58b6b6529350936f6c710be6aceb775d16901518bd2fc1a345f387de96dceea8",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "8cded5de94a6b1b72129914d2a042e82a51f9325c558b043f0addbbbf9c70f15",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedok1_test_1.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "有重跑命令+通过+日志 sha → tested"
+    },
+    {
+      "archetype": "tested_ok",
+      "capability_key": "synth.testedok2.test",
+      "claim": "WITHHELD",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.testedok2.test",
+          "node_id": "ev:6f37a091c0f8a24e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "6f37a091c0f8a24ea0a4ba28aa37e9410e6f3e81bb905865d4e3f1561f581dc4"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "c9463a698fc1cf4ca496f590d76d5217f94eacfc648eb24ba99fd66b0e36af2a",
+            "kind": "source",
+            "locator": "synth/testedok2/test/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedok2.test",
+          "node_id": "ev:f0eab9e6fff96e4e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "f0eab9e6fff96e4e813765e127c7d80ba5e2f0624d58144f5a14a915bd8c09b8"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedok2_test_2.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "897e5114d7d0e1bc34e4515f2eecdd136c5999a5ccf3497d6011408e65a65fc1",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "9ce7a648da7c0ea9b90691f9963f4d3db189ce810713859fe2bd96c489e2bb14",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedok2_test_2.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "有重跑命令+通过+日志 sha → tested"
+    },
+    {
+      "archetype": "tested_ok",
+      "capability_key": "synth.testedok3.test",
+      "claim": "WITHHELD",
+      "contradictions": [],
+      "expected_level": "tested",
+      "nodes": [
+        {
+          "capability_key": "synth.testedok3.test",
+          "node_id": "ev:ac0448620cfb2b7e",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "ac0448620cfb2b7ea9f3f9b603c82f8aa0743abff49694d26255db75eaa14325"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "92338da77f3bb01269eed114cb65613072f7a3dcb1632eaa20b1b4ac008c8ce0",
+            "kind": "source",
+            "locator": "synth/testedok3/test/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.testedok3.test",
+          "node_id": "ev:39a32889aa213ec1",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "39a32889aa213ec1f97a37e2e05b4bc32c45b5f4f1231aff5335fdc74c51bbc5"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_testedok3_test_3.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "d88aa69eadb1e050d03e6572c39bdaece11b512ebb503dac666d21fa31398802",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "1e61115316bcbfbdd5fb3c0381cf10c4f9bcd0e2addc136d36c296375bbbafa3",
+            "kind": "pytest",
+            "locator": "tests/test_synth_testedok3_test_3.py",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "有重跑命令+通过+日志 sha → tested"
+    },
+    {
+      "archetype": "withheld_contradiction",
+      "capability_key": "synth.withheld0.whld",
+      "claim": "REAL",
+      "contradictions": [
+        "WITHHELD"
+      ],
+      "expected_level": "implemented",
+      "nodes": [
+        {
+          "capability_key": "synth.withheld0.whld",
+          "node_id": "ev:8741c992cbff4823",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "8741c992cbff4823c30491f102d12137b021cd3370cfaf7db57bf4f5016b31d0"
+          },
+          "rung": "implemented",
+          "source": {
+            "artifact_sha256": "b037d848b07640a22e1e848684f034f6f9500b56855d1d1a3f119aa55769098b",
+            "kind": "source",
+            "locator": "synth/withheld0/whld/impl.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.withheld0.whld",
+          "node_id": "ev:414fa5d42b97b28f",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "414fa5d42b97b28f737aec91be1ec21415ecfb9da8639aa93492865f5748a9d7"
+          },
+          "rerun": {
+            "cmd": "pytest -q tests/test_synth_withheld0_whld_0.py",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "056dea727664a435223d9c86acae9c4587f730a7a9e247e7ff9ab373d7d58f7d",
+            "status": "passed"
+          },
+          "rung": "tested",
+          "source": {
+            "artifact_sha256": "ed48d67fb3e1110db0cefb4bd81600f4b92ea0207affe8b4af09b00ec744770d",
+            "kind": "pytest",
+            "locator": "tests/test_synth_withheld0_whld_0.py",
+            "scope": "repo"
+          }
+        },
+        {
+          "capability_key": "synth.withheld0.whld",
+          "criterion": {
+            "baseline": "analytic",
+            "baseline_ref": 0.5,
+            "name": "rel_err",
+            "satisfied": true,
+            "tolerance": 0.01,
+            "unit": "-",
+            "value": 0.5
+          },
+          "node_id": "ev:14bf96df7ae62505",
+          "provenance": {
+            "producer": "maturity-inference-golden-builder",
+            "recorded_at": "2026-11-10T00:00:00+00:00",
+            "sha256": "14bf96df7ae62505c6c255cbbf04b0710193ff5c9a2429eddabe8d93b33405f9"
+          },
+          "rerun": {
+            "cmd": "python3 -m synth_withheld0_whld_0.bench",
+            "executed_at": "2026-11-10T00:00:00+00:00",
+            "log_sha256": "e009c164b9f19064d9a856f4dbc01a8ec8e35f2dd3599e4cb3c7f1391e7fb1ca",
+            "status": "passed"
+          },
+          "rung": "benchmark_verified",
+          "source": {
+            "artifact_sha256": "0246526c0905776453afd9caed96151de03b1d775cf736216ad2c9a4e5ca2e02",
+            "kind": "artifact",
+            "locator": "artifacts/synth_withheld0_whld_0/bench.json",
+            "scope": "repo"
+          }
+        }
+      ],
+      "note": "矛盾证据断言 WITHHELD → 封顶 implemented"
+    }
+  ],
+  "schema_version": "1.0",
+  "title": "五级成熟度推断引擎黄金集（40 行，合成键，零领域语义）"
+}
