@@ -28,6 +28,12 @@ from audit.report_reconcile import (
     inject_synthetic_done_node,
     inject_synthetic_report,
     cleanup_synthetic,
+    dispatch_missing_reports,
+    close_resolved_dispatches,
+    snapshot_coverage,
+    coverage_trend,
+    gate_status,
+    dispatch_key_for,
 )
 
 router = APIRouter(prefix="/tensor/reconcile", tags=["报告对账门"])
@@ -87,23 +93,34 @@ class KPIResponse(BaseModel):
 
 @router.get("")
 def run_reconcile(
+    plan_ids: str = Query(default="", description="Comma-separated campaign plan ids (empty = whole org)"),
+    include_non_terminal: bool = Query(default=False, description="Also scan in-flight nodes"),
+    verify_ownership: bool = Query(
+        default=False,
+        description="Re-verify each report's submitter against the mission claimant "
+                    "(reuses the p130 submission-time ownership tooling; off by "
+                    "default because pre-gate legacy rows cannot be judged retroactively)"),
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
     """
-    Run full bidirectional reconciliation.
-    Returns four ledger categories + KPI.
-    Performance target: ≤ 30s.
+    Run bidirectional reconciliation: terminal nodes ↔ reports.
+    Returns the four gate categories + informational orphans + KPI + gate verdict.
+    Performance target: ≤ 30s (single pass, indexed).
     """
     org_id = resolved_org(None, user, db)
-    result = reconcile(db, org_id)
+    result = reconcile(db, org_id, plan_ids=plan_ids or None,
+                       include_non_terminal=include_non_terminal,
+                       verify_ownership=verify_ownership)
+
+    payload = result.to_dict()
+    payload["gate"] = gate_status(result)
 
     # Performance guard
     if result.elapsed_seconds > 30.0:
-        # Still return results but flag as slow
-        result.kpi["performance_warning"] = f"Reconciliation took {result.elapsed_seconds:.1f}s (target ≤30s)"
-
-    return result.to_dict()
+        payload["kpi"]["performance_warning"] = (
+            f"Reconciliation took {result.elapsed_seconds:.1f}s (target ≤30s)")
+    return payload
 
 
 @router.get("/evaluate")
@@ -194,7 +211,7 @@ def dispatch_supplement(
     dispatch_key = f"supplement:{mid}"
     existing_dispatch = db.execute(
         text("""
-            SELECT id FROM tensor_dispatch_queue
+            SELECT dispatch_id FROM tensor_report_supplement_queue
             WHERE dispatch_key = :key AND organization_id = :org
         """),
         {"key": dispatch_key, "org": org_id},
@@ -204,47 +221,30 @@ def dispatch_supplement(
         return DispatchResponse(
             dispatched=False,
             mission_id=mid,
-            dispatch_id=str(existing_dispatch["id"]),
+            dispatch_id=str(existing_dispatch["dispatch_id"]),
             idempotent=True,
-            message=f"Dispatch already pending (id={existing_dispatch['id']})",
+            message=f"Dispatch already pending (id={existing_dispatch['dispatch_id']})",
         )
 
-    # ── Create dispatch entry ────────────────────────────────────────
-    # Try to insert into dispatch queue; fall back to metadata if table doesn't exist
-    try:
-        row = db.execute(
-            text("""
-                INSERT INTO tensor_dispatch_queue
-                    (organization_id, dispatch_key, dispatch_type, mission_id, priority, status)
-                VALUES (:org, :key, 'supplement_report', :mid, :priority, 'pending')
-                RETURNING id
-            """),
-            {"org": org_id, "key": dispatch_key, "mid": mid, "priority": body.priority},
-        ).mappings().first()
-        db.commit()
-        dispatch_id = str(row["id"])
-    except Exception:
-        db.rollback()
-        # Fallback: store in mission metadata
-        db.execute(
-            text("""
-                UPDATE tensor_dev_missions
-                SET metadata = jsonb_set(
-                    COALESCE(metadata, '{}')::jsonb,
-                    '{supplement_dispatched}', 'true'::jsonb
-                )
-                WHERE id = :mid
-            """),
-            {"mid": mid},
-        )
-        db.commit()
-        dispatch_id = None
+    # ── Create dispatch entry (shared outbox, portable DDL, no jsonb) ─
+    from audit.report_reconcile import ReconcileEntry, _insert_dispatch, ensure_supplement_queue
+    ensure_supplement_queue(db)
+    created = _insert_dispatch(
+        db,
+        org_id,
+        ReconcileEntry(category="done_no_report", node_id=None, mission_id=mid, report_id=None,
+                       plan_id=None, node_name=None, node_status="done"),
+        body.priority,
+    )
+    dispatch_id = dispatch_key_for(mid)
 
     return DispatchResponse(
-        dispatched=True,
+        dispatched=created,
         mission_id=mid,
         dispatch_id=dispatch_id,
-        message=f"补报单 dispatched for mission {mid}",
+        idempotent=not created,
+        message=(f"补报单 dispatched for mission {mid}" if created
+                 else f"Dispatch already pending for mission {mid}"),
     )
 
 
@@ -307,3 +307,75 @@ def test_cleanup_synthetic(
     """Clean up synthetic test data. ADMIN only."""
     cleanup_synthetic(db, node_id, report_id)
     return {"cleaned": {"node_id": node_id, "report_id": report_id}}
+
+
+# ─────────────── Closure endpoints: batch dispatch + KPI ────────────
+
+class BatchDispatchRequest(BaseModel):
+    plan_ids: str = Field(default="", description="Comma-separated campaign plan ids (empty = whole org)")
+    priority: str = Field(default="normal", pattern="^(normal|high|urgent)$")
+    dry_run: bool = Field(default=False, description="Only list candidates, write nothing")
+
+
+class BatchDispatchResponse(BaseModel):
+    dry_run: bool
+    organization_id: int
+    plan_ids: list[int]
+    candidates: int
+    dispatched: int
+    already_queued: int
+    resolved: int
+    tickets: list[dict]
+
+
+@router.post("/dispatch/batch", response_model=BatchDispatchResponse)
+def dispatch_batch(
+    body: BatchDispatchRequest,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_role("ADMIN", "MANAGER", "ENGINEER")),
+):
+    """
+    Auto-generate补报单 for every terminal node without a report.
+
+    Idempotency key = mission_id (UNIQUE organization_id+dispatch_key):
+    running twice creates zero new rows. Tickets whose mission later produced a
+    report are auto-closed to 'resolved' (账本只增不改).
+    """
+    org_id = resolved_org(None, user, db)
+    return dispatch_missing_reports(
+        db, org_id, plan_ids=body.plan_ids or None,
+        priority=body.priority, dry_run=body.dry_run,
+    )
+
+
+@router.post("/dispatch/close")
+def dispatch_close(
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_role("ADMIN", "MANAGER")),
+):
+    """Mark pending tickets resolved once their report exists (自动消账)."""
+    org_id = resolved_org(None, user, db)
+    return close_resolved_dispatches(db, org_id)
+
+
+@router.post("/kpi/snapshot")
+def publish_kpi_snapshot(
+    plan_ids: str = Query(default="", description="Comma-separated plan ids (empty = whole org)"),
+    notes: str = Query(default="", description="Free-form round/batch label"),
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_role("ADMIN", "MANAGER")),
+):
+    """Run reconciliation and persist report_coverage_rate into tensor_guide_tracker."""
+    org_id = resolved_org(None, user, db)
+    return snapshot_coverage(db, org_id, plan_ids=plan_ids or None, notes=notes)
+
+
+@router.get("/kpi/trend")
+def get_kpi_trend(
+    limit: int = Query(default=60, ge=1, le=500),
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Trend line of report_coverage_rate snapshots."""
+    org_id = resolved_org(None, user, db)
+    return coverage_trend(db, org_id, limit=limit)
