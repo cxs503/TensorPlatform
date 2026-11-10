@@ -1,0 +1,40 @@
+{
+  "schema_version": "1.0",
+  "kind": "capability_maturity_synthetic_trial_register",
+  "namespace": "synth",
+  "note": "合成域能力的初始证据等级登记（框架验收用；初始化等级=升级前基线，非事后填写的结论）。命名遵循仓库规约：TensorPlatform 只允许合成域名做夹具，船舶域能力由领域仓升级后回传证据。",
+  "capabilities": [
+    {
+      "capability_id": "synth.linalg.cholesky_solve",
+      "declared_level": "MOCK",
+      "reconciled_level": "MOCK",
+      "domain": "合成/数值线性代数",
+      "summary": "对称正定方程组求解：旧实现用对角元近似（x≈b/A_ii），无分解",
+      "upgrade_target": "Cholesky 分解 + 前代/回代，对标 LAPACK 通用 LU"
+    },
+    {
+      "capability_id": "synth.stats.normal_ppf",
+      "declared_level": "STUB",
+      "reconciled_level": "STUB",
+      "domain": "合成/统计分布",
+      "summary": "标准正态分位数：旧实现恒返回 ±1.96，与 p 无关",
+      "upgrade_target": "闭式 CDF 有界根搜索，对标 mpmath 60dps 求逆"
+    },
+    {
+      "capability_id": "synth.integrate.adaptive_simpson",
+      "declared_level": "MOCK",
+      "reconciled_level": "MOCK",
+      "domain": "合成/数值积分",
+      "summary": "一维定积分：旧实现端点梯形，不细分不查误差",
+      "upgrade_target": "自适应 Simpson + Richardson 外推，对标 mpmath.quad"
+    },
+    {
+      "capability_id": "synth.stats.mean_reference",
+      "declared_level": "REAL",
+      "reconciled_level": "REAL",
+      "domain": "合成/统计分布",
+      "summary": "负控对象：Kahan 补偿求和均值，已是 REAL，升级流水线必须 no-op",
+      "upgrade_target": "(无) 负控"
+    }
+  ]
+}
