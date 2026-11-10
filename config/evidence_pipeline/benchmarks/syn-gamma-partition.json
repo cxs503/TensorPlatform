@@ -1,0 +1,41 @@
+{
+  "node": "syn-gamma-partition",
+  "generator": "tools/evidence_pipeline/generators/syn_gamma_partition.py",
+  "params": {"factor": 2, "operator": "overlap_p1", "moment_exact": false},
+  "timeout_s": 120,
+  "gates": [
+    {
+      "id": "linear_reproduction",
+      "type": "numeric",
+      "thresholds": {
+        "linear_repro_error": {"max": 0.05},
+        "nonneg_violation": {"max": 1e-12},
+        "overshoot_ratio": {"max": 1.0}
+      }
+    },
+    {
+      "id": "partition_conservation",
+      "type": "conservation",
+      "fields": {"src": "src", "dst": "dst"},
+      "thresholds": {
+        "sum_rel_residual": 1e-14,
+        "moment_rel_residual": 5e-3,
+        "nonneg_violation": 1e-12,
+        "overshoot_ratio": 1.0
+      }
+    }
+  ],
+  "regression": {
+    "enabled": true,
+    "baseline": "artifacts/P167W2-N11/baselines/syn-gamma-partition.json",
+    "tol": 1e-06,
+    "reruns": 2,
+    "floors": {
+      "sum_rel_residual": 1e-09,
+      "moment_rel_residual": 1e-09,
+      "linear_repro_error": 1e-09,
+      "min_dst": 1e-09,
+      "overshoot_ratio": 1e-09
+    }
+  }
+}
