@@ -1,0 +1,34 @@
+{
+  "_source": "raw/n02/slip_report.md",
+  "_source_sha256": "2739c3139136a9e23fd9d29c9ba93487e4e9e11b2b0b50f05a75d731743ce937",
+  "_patterns": {
+    "dcf_vs_bplus": {
+      "regex": "^\\|\\s*(?P<b_plus>\\d+(?:\\.\\d+)?)\\s*\\|\\s*(?P<dcf_rel_pct>\\d+(?:\\.\\d+)?)\\s*\\|$",
+      "heading": "### 3.6",
+      "matched_lines": [
+        "| 0 | 0.000 |",
+        "| 5 | 0.118 |",
+        "| 10 | 0.236 |",
+        "| 20 | 0.472 |"
+      ]
+    },
+    "dns_band": {
+      "regex": "报告该区间约\\s*([0-9.]+)\\s*-\\s*([0-9.]+)\\s*%",
+      "matched_text": "报告该区间约 5-15%"
+    }
+  },
+  "b_plus": [
+    0.0,
+    5.0,
+    10.0,
+    20.0
+  ],
+  "dcf_rel_pct": [
+    0.0,
+    0.118,
+    0.236,
+    0.472
+  ],
+  "dns_band_lo_pct": 5.0,
+  "dns_band_hi_pct": 15.0
+}

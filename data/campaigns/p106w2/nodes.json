@@ -1,0 +1,188 @@
+{
+  "_comment": "战役 p106w2（plan 499）节点表：由平台 /tensor/campaigns/plans/499/nodes 机器抽取（ext_id/mission_id/repo/status/自评判据），供集成门报告与工件对齐使用。",
+  "campaign": "p106w2",
+  "plan_id": 499,
+  "nodes": [
+    {
+      "node": "p106w2-n01-lbm-bubble-turbulence",
+      "plan_node_id": 2883,
+      "mission_id": 10135,
+      "repo": "TensorLBM",
+      "status": "in-flight",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "气泡体积分数积分误差≤1%",
+        "u_τ三口径自洽≤2%",
+        "三项减阻之和偏差≤3%",
+        "气泡密度→0退化到单相流≤0.5%",
+        "pytest≥6含负控"
+      ],
+      "goal_excerpt": "物理目标：用LBM两相流直接数值模拟揭示微气泡如何调制湍流边界层结构，定量分离三种减阻机理。实现路径：(a)平面湍流通道流(Re_τ=180)注入单分散微气泡(d⁺=5-20)，统计稳态后速度剖面/湍流强度/雷诺应力；(b)气泡对平均速度剖面影响：提取有效滑移长度b⁺，与纯滑移边界比较，量化气泡vs滑移减阻贡献比；(c)气泡对湍流结构调制：Q准则识别涡结构，统计猝发频率/强度变化；(d)雷诺应力各分量变化：<u'u'>,<v'v'>,<"
+    },
+    {
+      "node": "p106w2-n02-lbm-slip-boundary",
+      "plan_node_id": 2884,
+      "mission_id": 9159,
+      "repo": "TensorLBM",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "平面Poiseuille b反演误差≤2%",
+        "圆管Poiseuille b反演误差≤5%",
+        "标定律R²≥0.999",
+        "σ=0恢复无滑移≤0.5%",
+        "pytest≥6含负控"
+      ],
+      "goal_excerpt": "物理目标：把壁面从无滑移推广到可控滑移长度b，并用解析解反标定b，最后给出减阻率与净收益。实现路径：(a)混合反弹(镜面分数σ与反弹分数1−σ)+与Maxwell一阶滑移条件等价性证明(近壁速度梯度外推)；(b)平面滑移Poiseuille解析u(y)=G/(2μ)(H²−y²)+G·H·b/μ反解b，与设定b相对误差≤2%；(c)圆管滑移Poiseuille闭式(柱坐标)反演b误差≤5%；(d)标定律b(σ)：给出单调且R²≥0.99"
+    },
+    {
+      "node": "p106w2-n03-fem-detail-fatigue",
+      "plan_node_id": 2885,
+      "mission_id": 9160,
+      "repo": "TensorFEM",
+      "status": "blocked",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "T型接头SCF与IIW偏差≤5%",
+        "网格加密SCF变化≤2%(GCI≤3%)",
+        "热点应力外推R²≥0.999",
+        "疲劳寿命幂律指数残差≤1%",
+        "r→∞时SCF→1≤0.5%",
+        "pytest≥6含负控"
+      ],
+      "goal_excerpt": "【成熟化物理目标】用FEM计算典型焊接接头(T型、对接、肘板)的焊趾应力集中因子，用热点应力法评估疲劳寿命，并与整体梁理论接口。实现路径：(a)典型接头几何：T型接头(板厚t=10-20mm，焊趾半径r=0.5-2mm)、对接接头、肘板趾部；(b)应力集中因子SCF计算：用FEM精细网格(焊趾处网格尺寸≤t/10)计算几何应力集中，与IIW推荐值比较；(c)热点应力法：在焊趾前方0.5t和1.5t处提取应力，线性外推到焊趾得到热点应力σ"
+    },
+    {
+      "node": "p106w2-n04-bem-multihull",
+      "plan_node_id": 2886,
+      "mission_id": 9161,
+      "repo": "TensorBEM",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "B(ω→0)/B_max≤0.01",
+        "|A(ω→∞)-A_geom|/A_geom≤2%",
+        "辐射阻尼B(ω)≥0对所有ω",
+        "d/L>2时|σ-1|≤0.05",
+        "ω→0且d→0退化到单体≤1%",
+        "pytest≥6含负控"
+      ],
+      "goal_excerpt": "物理目标：用BEM计算多体(双体船、三体船)的附加质量A(ω)与阻尼B(ω)随频率的变化，验证零/无限频率渐近行为，并确定干扰随距离的衰减标度律。实现路径：(a)双体几何：两个Wigley船体，间距d/L=0.1-2.0，频率范围ω/ω_n=0.1-3.0；(b)附加质量A(ω)与阻尼B(ω)的频率扫描：垂荡、纵摇、横荡三个自由度；(c)零频率极限：A(0)应与静水附加质量一致，B(0)→0(无辐射阻尼)；(d)无限频率极限：A(∞)应"
+    },
+    {
+      "node": "p106w2-n05-bem-cummins-kernel",
+      "plan_node_id": 2887,
+      "mission_id": 9162,
+      "repo": "TensorBEM",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "频↔时稳态响应逐点≤2%",
+        "因果性K(t<0)=0",
+        "ζ_decay与频域阻尼比相差≤5%",
+        "B(ω)置零时ζ_decay=0误差≤0.5%",
+        "几何前置门Cb/L/B/∇/S",
+        "pytest≥6含负控"
+      ],
+      "goal_excerpt": "物理目标：由频域A(ω)、B(ω)生成记忆核K(t)=(2/π)∫₀^∞B(ω)cos(ωt)dω，使Cummins时域辐射力与频域辐射力在三个独立口径上闭合，并给出常附加质量近似的误差包络。实现路径：(a)频域扫描ω∈[0.2,4]ω_n，自适应ω步长保证时域截断混叠ε_τ=Σ_{n≥1}|B(ω+2πn/Δt)|<1%(写入manifest)；(b)K(t)尾部截断t_max使|K(t_max)|/max|K|<0.5%，记录截断误"
+    },
+    {
+      "node": "p106w2-n06-fvm-wave-tank",
+      "plan_node_id": 2888,
+      "mission_id": 9163,
+      "repo": "TensorFVM",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "波高误差≤3%",
+        "三点探针反演k误差≤1%",
+        "反射系数C_R≤5%",
+        "RAO与BEM互裁≤10%(非谐振区)",
+        "增阻与BEM二阶漂力互裁≤15%",
+        "负控：无阻尼带C_R≥20%判FAIL"
+      ],
+      "goal_excerpt": "物理目标：在TensorFVM内建可用的时域数值波浪水池(造波稳定、消波有效、浮体自由运动)，产出顶浪增阻与运动RAO并与势流互裁。实现路径：(a)松弛法(relaxation zone)造波注入Stokes-II目标波；(b)下游阻尼带长度≥1.5λ消波；(c)6DOF模块：纵荡固定+垂荡/纵摇自由；(d)目标几何Wigley与KCS简化体，几何先过Cb/L/B/∇前置门。机器判据：波高误差≤3%；三点探针反演k对ω²=gk·tanh"
+    },
+    {
+      "node": "p106w2-n08-spp-loading-stability",
+      "plan_node_id": 2889,
+      "mission_id": 9164,
+      "repo": "ship-performance-platform",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "排水量变化误差≤0.1%",
+        "重心位置偏差≤0.5%",
+        "GM与静水力插值偏差≤1%",
+        "弯矩/剪力与解析解偏差≤2%",
+        "空船退化到轻载≤1%",
+        "对称装卸横倾角→0≤0.1°"
+      ],
+      "goal_excerpt": "【成熟化物理目标】建立装卸货过程的稳性-强度耦合分析模型，优化装卸货顺序，校核许用弯矩/剪力，生成装卸货手册。实现路径：(a)货舱/油舱模型：每个舱的装载量、重心位置、自由液面修正；(b)稳性计算：排水量Δ、重心KG、稳心KM、初稳性高GM、GZ曲线随装载量的变化；(c)强度计算：船体梁弯矩M(x)、剪力V(x)随装载量的变化，与许用值M_allow、V_allow比较；(d)装卸货顺序优化：以最小化装卸时间或最大化稳性裕度为目标，约束"
+    },
+    {
+      "node": "p106w2-n09-spp-propeller-emergence",
+      "plan_node_id": 2890,
+      "mission_id": 9165,
+      "repo": "ship-performance-platform",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "A_e=1退化到敞水K_T误差≤0.5%",
+        "机械功-轴功-损失闭合≤2%",
+        "ΔT/T标度最小二乘残差≤3%",
+        "A_e≡1时Δn/n=0偏差≤0.2%",
+        "pytest≥6含负控"
+      ],
+      "goal_excerpt": "物理目标：给定RAO与波况，计算盘面浸没面积比A_e(t)/A_0，得到推力/扭矩退化与轴系转速波动，并闭合能量账本。实现路径：(a)退化闭包K_T(J,A_e)、K_Q(J,A_e)：以部分浸没有效盘面积加权，且A_e=1必须精确退化到已交付敞水K_T(J)(相对误差≤0.5%)——这是可判的自洽极限；(b)轴系方程I·dω/dt=Q_e(ω)−Q_p(J(t),A_e(t))，用周期平均能量法积分得Δn/n与平均推力损失；(c)与p"
+    },
+    {
+      "node": "p106w2-n10-spp-spectral-fatigue",
+      "plan_node_id": 2891,
+      "mission_id": 10256,
+      "repo": "ship-performance-platform",
+      "status": "in-flight",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "ε→0时|D_RF−D_NB|/D_NB≤3%",
+        "Wirsching修正后误差≤10%",
+        "Miner求和与解析和一致≤2%",
+        "S-N斜率变化幂律残差≤1%",
+        "D随Hs标度复现",
+        "几何前置门Cb/L/B/∇"
+      ],
+      "goal_excerpt": "【成熟化物理目标】把波浪弯矩RAO变成带长期损伤D，并用两条独立数值路径互裁。实现路径：(a)几何/剖面前置门：Cb/L/B/∇与剖面模数Z(z)一致性先过门(不合格不出数)；(b)应力RAO Δσ(ω,β)=M_w(ω,β)/Z；(c)长期谱矩m0,m2,m4由海况散射整合(若离线无散射表，用显式参数化的双参数Weibull长期分布并标注为synthetic，禁止冒充实测)；(d)窄带Reyleigh损伤闭式D_NB与ASTM E10"
+    },
+    {
+      "node": "p106w2-n11-integration-gate",
+      "plan_node_id": 2892,
+      "mission_id": 9562,
+      "repo": "TensorPlatform",
+      "status": "in-flight",
+      "node_type": "gate",
+      "acceptance_criteria": [
+        "跨求解器RAO互裁≤10%",
+        "疲劳-扭振接口量纲正确",
+        "任一节点FAIL则集成门FAIL",
+        "减阻机理互证趋势一致"
+      ],
+      "goal_excerpt": "【成熟化集成门】验收本战役10个节点的跨求解器互裁与接口契约。验收项：(a)LBM滑移边界(n02)与气泡减阻(n01)的减阻机理互证：纯滑移ΔC_f,slip与气泡ΔC_f,bubble在相同Re_τ下的贡献比是否与文献趋势一致；(b)BEM-Cummins记忆核(n05)与FVM波浪水池(n06)的RAO互裁：同一Wigley几何在0.6<ω/ω_n<1.4范围内的垂荡/纵摇RAO相对误差≤10%；(c)谱疲劳链(n10)与扭振分析"
+    },
+    {
+      "node": "p106w2-n07-spp-torsional-vibration",
+      "plan_node_id": 2893,
+      "mission_id": 9167,
+      "repo": "ship-performance-platform",
+      "status": "done",
+      "node_type": "task",
+      "acceptance_criteria": [
+        "单质量-单弹簧解析解误差小于0.5%",
+        "转速禁区边界偏差小于1%",
+        "输入-耗散-存储功率平衡小于2%",
+        "脉动幅值趋于0退化到稳态小于0.2%",
+        "pytest大于等于6含负控"
+      ],
+      "goal_excerpt": "【成熟化物理目标】建立主机-轴系-螺旋桨扭振模型，计算固有频率、共振回避、与扭矩脉动的耦合响应，并校核许用应力。实现路径：(a)集中参数模型：主机飞轮-轴段-螺旋桨的扭转振动方程；(b)固有频率计算：无阻尼自由振动特征值问题，给出1节点、2节点、3节点扭振频率；(c)共振回避：转速禁区(barred speed range)的确定，要求工作转速避开共振正负7%；(d)强迫振动响应：主机扭矩脉动与螺旋桨叶频脉动的耦合，计算扭振振幅与剪切应"
+    }
+  ]
+}
