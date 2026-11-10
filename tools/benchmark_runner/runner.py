@@ -4,8 +4,10 @@
 
 1. 读 suite 配置（JSON/YAML），校验阈值（预声明）；
 2. 逐算例经点分路径解析 SUT 与参考解 → 执行 → 派生 ``abs_error`` / ``rel_error``；
-3. 判据门（:mod:`.gate`）逐条裁决，fail-closed；
-4. 工件生成（:mod:`.artifact`）：逐算例 JSON + suite ``result.json`` + PNG + ``manifest.json``（sha256）；
+3. 判据门（:mod:`.gate`）逐条裁决，fail-closed；每算例带预声明墙钟预算
+   （:mod:`.timeout`），挂死的 SUT → 超时 FAIL，绝不把门链挂住；
+4. 工件生成（:mod:`.artifact`）：逐算例 JSON + suite ``result.json`` + PNG + ``manifest.json``（sha256），
+   落盘后**立即回验**哈希链（``verify_manifest``），对不上即退出码 5；
 5. 回归检测（:mod:`.regression`）：与基线逐指标对比，漂移 > 阈值告警。
 
 退出码（机器可裁，CI 直接用）::
@@ -15,6 +17,7 @@
     2  检测到回归漂移（门本身可能仍通过）
     3  配置非法
     4  运行期内部错误
+    5  证据链校验失败（manifest/工件 sha256 对不上——"有产物"≠"产物可信"）
 
 CLI::
 
@@ -30,6 +33,7 @@ import importlib
 import json
 import pathlib
 import sys
+import time
 import traceback
 from datetime import datetime, timezone
 from typing import Any, Dict, List, Mapping, Optional, Sequence
@@ -41,13 +45,14 @@ from . import ENGINE_VERSION  # noqa: E402
 from . import artifact as art  # noqa: E402
 from . import gate  # noqa: E402
 from . import regression as reg  # noqa: E402
+from .timeout import CaseTimeout, call_with_timeout  # noqa: E402
 from .config import ConfigError, config_digest, load_config  # noqa: E402
 from .model import CaseVerdict, SuiteVerdict, is_finite, rel_error  # noqa: E402
 
 _REPO_ROOT = pathlib.Path(__file__).resolve().parents[2]
 _MAX_SERIES_ECHO = 64          # 工件里序列最多回显 64 个采样点（其余截断并标注）
 
-EXIT_OK, EXIT_GATE_FAIL, EXIT_REGRESSION, EXIT_CONFIG, EXIT_INTERNAL = 0, 1, 2, 3, 4
+EXIT_OK, EXIT_GATE_FAIL, EXIT_REGRESSION, EXIT_CONFIG, EXIT_INTERNAL, EXIT_INTEGRITY = 0, 1, 2, 3, 4, 5
 
 
 # ── 点分路径解析（引擎不认识任何具体求解器） ───────────────────────────────
@@ -75,21 +80,26 @@ def _as_dict(out: Any) -> Dict[str, Any]:
     return {"value": out}
 
 
-def run_case(case: Mapping[str, Any], config_digest_value: Optional[str] = None) -> CaseVerdict:
-    """执行一个算例并裁决；异常一律转成 status=error（不崩、不静默）。"""
+def run_case(case: Mapping[str, Any], config_digest_value: Optional[str] = None,
+             timeout_s: Optional[float] = None) -> CaseVerdict:
+    """执行一个算例并裁决；异常/超时一律转成 status=error（不崩、不挂、不静默）。"""
     cid = case["id"]
+    budget = timeout_s if timeout_s is not None else case.get("timeout_s")
+    started = time.monotonic()
     cv = CaseVerdict(case_id=cid, title=case.get("title", cid), inputs=dict(case.get("inputs") or {}))
     metrics: Dict[str, Any] = {}
     try:
         sut = resolve(case["workload"])
-        raw = _as_dict(sut(**case["inputs"]))
+        raw = _as_dict(call_with_timeout(sut, case["inputs"], budget,
+                                         label=f"case {cid} workload"))
         cv.outputs = {k: _trim(v) for k, v in raw.items()}
         for k, v in raw.items():
             metrics[k] = v
         value = raw.get("value")
         if case.get("reference"):
             ref_fn = resolve(case["reference"]["workload"])
-            ref_raw = _as_dict(ref_fn(**(case["reference"].get("inputs") or {})))
+            ref_raw = _as_dict(call_with_timeout(ref_fn, case["reference"].get("inputs") or {},
+                                                 budget, label=f"case {cid} reference"))
             reference = ref_raw.get("value")
             cv.outputs["reference"] = _trim(ref_raw)
             metrics["reference"] = reference
@@ -107,7 +117,8 @@ def run_case(case: Mapping[str, Any], config_digest_value: Optional[str] = None)
         cv.metrics = metrics
         cv.error = f"{type(exc).__name__}: {exc}"
         cv.checks = cv.checks or []
-        cv.failed_checks = ["__error__"]
+        cv.failed_checks = ["__timeout__" if isinstance(exc, CaseTimeout) else "__error__"]
+    cv.timing_s = round(time.monotonic() - started, 6)
     cv.outputs.setdefault("_config_sha256", config_digest_value)
     return cv
 
@@ -125,6 +136,9 @@ def suite_metrics(cases: Sequence[CaseVerdict]) -> Dict[str, Any]:
         "n_passed": passed,
         "n_failed": n - passed,
         "n_error": sum(1 for c in cases if c.status == "error"),
+        "n_timeout": sum(1 for c in cases if c.status == "error" and "__timeout__" in c.failed_checks),
+        "n_skipped_budget": sum(1 for c in cases
+                                if c.status == "error" and "__budget__" in c.failed_checks),
         "pass_ratio": (passed / n) if n else None,
         "max_rel_error": max(errs) if errs else None,
         "mean_rel_error": (sum(errs) / len(errs)) if errs else None,
@@ -136,7 +150,23 @@ def run_suite(cfg: Mapping[str, Any], run_id: Optional[str] = None) -> SuiteVerd
     """跑一整个 suite（纯执行，不写盘）。"""
     run_id = run_id or new_run_id(cfg["suite"])
     digest = config_digest(cfg)
-    verdicts = [run_case(c, config_digest_value=digest) for c in cfg["cases"]]
+    budget = cfg.get("budget_s")
+    started = time.monotonic()
+    verdicts: List[CaseVerdict] = []
+    for case in cfg["cases"]:
+        remaining = None if not budget else budget - (time.monotonic() - started)
+        if remaining is not None and remaining <= 0:
+            # 预算用尽：剩余算例记 error（fail-closed）——不许静默跳过，更不许当"通过"
+            verdicts.append(CaseVerdict(
+                case_id=case["id"], title=case.get("title", case["id"]),
+                inputs=dict(case.get("inputs") or {}), status="error", passed=False,
+                error=f"SuiteBudgetExceeded: {budget:g}s budget exhausted before this case ran",
+                failed_checks=["__budget__"]))
+            continue
+        case_timeout = case.get("timeout_s")
+        if remaining is not None:
+            case_timeout = min(case_timeout or remaining, remaining)
+        verdicts.append(run_case(case, config_digest_value=digest, timeout_s=case_timeout))
     agg = suite_metrics(verdicts)
     checks = gate.evaluate(cfg.get("suite_criteria") or [], agg, label=f"suite {cfg['suite']}")
     suite_ok = all(v.passed for v in verdicts) and gate.verdict_of(checks)
@@ -180,6 +210,12 @@ def write_artifacts(out_root: str | pathlib.Path,
                                   suite_dict, suite_dict["cases"])
     result_path = art.write_json(out_dir / "result.json", {**suite_dict, "provenance": dict(provenance)})
     reg_path = art.write_json(out_dir / "regression.json", dict(regression_report))
+    timings_path = art.write_json(out_dir / "timings.json",
+                                  {"suite": suite.suite, "run_id": suite.run_id,
+                                   "budget_s": cfg.get("budget_s"),
+                                   "cases": suite.timings(),
+                                   "wall_s": round(sum(v["timing_s"] or 0.0
+                                                       for v in suite.timings().values()), 6)})
     manifest_path = art.write_manifest(out_dir, suite_dict, provenance)
     return {
         "out_dir": str(out_dir),
@@ -187,6 +223,7 @@ def write_artifacts(out_root: str | pathlib.Path,
         "figure": str(png),
         "result": str(result_path),
         "regression": str(reg_path),
+        "timings": str(timings_path),
         "manifest": str(manifest_path),
         "manifest_sha256": art.sha256_file(manifest_path),
     }
@@ -199,9 +236,15 @@ def run_config(config_path: str | pathlib.Path,
                drift: Optional[float] = None,
                track_metrics: Optional[Sequence[str]] = None,
                run_id: Optional[str] = None,
-               write: bool = True) -> Dict[str, Any]:
+               write: bool = True,
+               timeout_s: Optional[float] = None,
+               verify: bool = True) -> Dict[str, Any]:
     """端到端：加载 → 执行 → 判据 → 工件 → 回归。返回汇总 dict（含退出码）。"""
     cfg = load_config(config_path)
+    if timeout_s is not None:
+        # CLI 覆盖只影响本次执行，仍写入工件 provenance 供追溯
+        cfg = {**cfg, "timeout_s": float(timeout_s),
+               "cases": [{**c, "timeout_s": float(timeout_s)} for c in cfg["cases"]]}
     suite = run_suite(cfg, run_id=run_id)
     threshold = float(drift if drift is not None else cfg.get("drift_threshold", reg.DEFAULT_DRIFT))
 
@@ -217,8 +260,11 @@ def run_config(config_path: str | pathlib.Path,
                          track_metrics=track_metrics)
 
     paths: Dict[str, Any] = {}
+    integrity: Dict[str, Any] = {"ok": None, "reason": "artifacts not written (--no-write)"}
     if write:
         paths = write_artifacts(out_root, cfg, suite, report, prov)
+        integrity = (art.verify_manifest(paths["out_dir"]) if verify
+                     else {"ok": None, "reason": "verification disabled"})
         if update_baseline and baseline_path:
             bp = pathlib.Path(baseline_path)
             bp.parent.mkdir(parents=True, exist_ok=True)
@@ -229,6 +275,8 @@ def run_config(config_path: str | pathlib.Path,
         exit_code = EXIT_GATE_FAIL
     elif reg.has_regression(report):
         exit_code = EXIT_REGRESSION
+    elif write and not verify_success(integrity):
+        exit_code = EXIT_INTEGRITY
 
     return {
         "suite": cfg["suite"],
@@ -240,11 +288,18 @@ def run_config(config_path: str | pathlib.Path,
                    "failed_checks": c.failed_checks, "error": c.error} for c in suite.cases],
         "suite_checks": [c.to_dict() for c in suite.checks],
         "regression": report,
+        "timings": suite.timings(),
         "paths": paths,
+        "integrity": integrity,
         "exit_code": exit_code,
         "engine_version": ENGINE_VERSION,
         "config_sha256": cfg.get("_config_sha256"),
     }
+
+
+def verify_success(integrity: Mapping[str, Any]) -> bool:
+    """证据链校验是否**确实**通过（``ok=None`` 表示没验过，不算通过）。"""
+    return integrity.get("ok") is True
 
 
 def main(argv: Optional[Sequence[str]] = None) -> int:
@@ -257,6 +312,10 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     ap.add_argument("--track", default=None, help="只跟踪这些指标（逗号分隔）")
     ap.add_argument("--run-id", default=None, help="固定 run_id（默认时间戳）")
     ap.add_argument("--no-write", action="store_true", help="只裁决不落盘（调试）")
+    ap.add_argument("--timeout", type=float, default=None,
+                    help="覆盖逐算例墙钟预算（秒；缺省取配置 timeout_s）")
+    ap.add_argument("--no-verify", action="store_true",
+                    help="跳过落盘后的 manifest 哈希链回验（不推荐：证据不可信）")
     ap.add_argument("--json", action="store_true", help="把汇总 JSON 打到 stdout")
     args = ap.parse_args(argv)
 
@@ -264,7 +323,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
     try:
         summary = run_config(args.config, out_root=args.out, baseline_path=args.baseline,
                              update_baseline=args.update_baseline, drift=args.drift,
-                             track_metrics=track, run_id=args.run_id, write=not args.no_write)
+                             track_metrics=track, run_id=args.run_id, write=not args.no_write,
+                             timeout_s=args.timeout, verify=not args.no_verify)
     except ConfigError as exc:
         print(f"[benchmark_runner] CONFIG ERROR: {exc}", file=sys.stderr)
         return EXIT_CONFIG
@@ -287,6 +347,8 @@ def main(argv: Optional[Sequence[str]] = None) -> int:
         if summary["paths"]:
             print(f"  artifacts: {summary['paths']['out_dir']}")
             print(f"  manifest : {summary['paths']['manifest']} sha256={summary['paths']['manifest_sha256']}")
+        print(f"  integrity: ok={summary['integrity'].get('ok')} "
+              f"checked={summary['integrity'].get('checked')}")
     return int(summary["exit_code"])
 
 
