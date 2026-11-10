@@ -1,0 +1,151 @@
+{
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "$id": "https://github.com/cxs503/TensorPlatform/blob/main/schemas/input_schema.json",
+  "title": "TensorPlatform Cross-Solver Verification Input Schema",
+  "description": "Unified input schema for cross-solver verification cases. All verified cases must populate this schema; missing fields are marked 'unknown' and must not be silently skipped.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": ["schema_version", "case_id", "geometry", "physics", "solver"],
+  "properties": {
+    "schema_version": {
+      "type": "string",
+      "const": "1.0.0",
+      "description": "Schema version identifier"
+    },
+    "case_id": {
+      "type": "string",
+      "minLength": 1,
+      "description": "Unique case identifier (e.g., 'wigley_iii_fn0.25', 'cavity_re1000')"
+    },
+    "geometry": {
+      "type": "object",
+      "description": "Geometric definition of the case",
+      "additionalProperties": false,
+      "required": ["type", "dimensions"],
+      "properties": {
+        "type": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Geometry type (e.g., 'wigley_parabolic', 'cylinder', 'cavity', 'poiseuille_channel', 'dtmb5415', 'suboff', 'kcs')"
+        },
+        "dimensions": {
+          "type": "object",
+          "description": "Geometric dimensions; keys depend on geometry type",
+          "additionalProperties": true,
+          "properties": {
+            "L": { "type": "number", "description": "Length (m or lu)" },
+            "B": { "type": "number", "description": "Beam/width (m or lu)" },
+            "T": { "type": "number", "description": "Draft/depth (m or lu)" },
+            "D": { "type": "number", "description": "Diameter (m or lu)" },
+            "H": { "type": "number", "description": "Height (m or lu)" },
+            "domain_size": {
+              "type": "array",
+              "items": { "type": "number" },
+              "description": "Computational domain size [Lx, Ly, Lz]"
+            }
+          }
+        },
+        "discretization": {
+          "type": ["object", "null"],
+          "description": "Mesh/discretization parameters",
+          "additionalProperties": true,
+          "properties": {
+            "method": { "type": "string", "description": "Discretization method (e.g., 'finite_volume', 'lattice_boltzmann', 'boundary_element')" },
+            "resolution": { "type": ["string", "null"], "description": "Grid resolution label (e.g., 'coarse', 'medium', 'fine', or 'Nx=256')" },
+            "cell_count": { "type": ["integer", "null"], "minimum": 1, "description": "Total number of cells/elements" },
+            "dx": { "type": ["number", "null"], "exclusiveMinimum": 0, "description": "Grid spacing" },
+            "grid_study": {
+              "type": ["array", "null"],
+              "items": { "type": "object" },
+              "description": "Grid convergence study levels"
+            }
+          }
+        },
+        "cb": { "type": ["number", "null"], "description": "Block coefficient (for ship hulls)" },
+        "cad_file": { "type": ["string", "null"], "description": "Path or URI to CAD file" }
+      }
+    },
+    "physics": {
+      "type": "object",
+      "description": "Physical parameters and boundary conditions",
+      "additionalProperties": false,
+      "required": ["boundary_conditions"],
+      "properties": {
+        "Re": { "type": ["number", "null"], "description": "Reynolds number (dimensionless)" },
+        "Fr": { "type": ["number", "null"], "description": "Froude number (dimensionless)" },
+        "Ma": { "type": ["number", "null"], "description": "Mach number (dimensionless)" },
+        "fluid_density": { "type": ["number", "null"], "description": "Fluid density (kg/m³)" },
+        "fluid_viscosity": { "type": ["number", "null"], "description": "Dynamic viscosity (Pa·s)" },
+        "gravity": { "type": ["number", "null"], "description": "Gravitational acceleration (m/s²)" },
+        "speed": { "type": ["number", "null"], "description": "Reference speed (m/s)" },
+        "boundary_conditions": {
+          "type": "object",
+          "description": "Boundary condition definitions",
+          "additionalProperties": true,
+          "properties": {
+            "inlet": { "type": ["string", "null"], "description": "Inlet BC type" },
+            "outlet": { "type": ["string", "null"], "description": "Outlet BC type" },
+            "walls": { "type": ["string", "null"], "description": "Wall BC type" },
+            "symmetry": { "type": ["string", "null"], "description": "Symmetry BC type" },
+            "free_surface": { "type": ["string", "null"], "description": "Free surface treatment" }
+          }
+        },
+        "turbulence_model": { "type": ["string", "null"], "description": "Turbulence model name (if applicable)" },
+        "flow_regime": { "type": ["string", "null"], "description": "Flow regime (e.g., 'laminar', 'turbulent', 'transitional')" }
+      }
+    },
+    "solver": {
+      "type": "object",
+      "description": "Solver identification and parameters",
+      "additionalProperties": false,
+      "required": ["name", "version"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Solver name (e.g., 'TensorLBM', 'TensorFVM', 'TensorBEM')"
+        },
+        "version": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Solver version string"
+        },
+        "parameters": {
+          "type": ["object", "null"],
+          "description": "Solver-specific parameters",
+          "additionalProperties": true
+        },
+        "git_commit": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{7,40}$",
+          "description": "Git commit SHA of the solver code used"
+        }
+      }
+    },
+    "traceability": {
+      "type": ["object", "null"],
+      "description": "Provenance and traceability metadata",
+      "additionalProperties": false,
+      "properties": {
+        "input_digest": {
+          "type": ["string", "null"],
+          "pattern": "^[0-9a-f]{64}$",
+          "description": "SHA-256 digest of the canonical input JSON"
+        },
+        "created_at": {
+          "type": ["string", "null"],
+          "format": "date-time",
+          "description": "UTC timestamp of case creation"
+        },
+        "source": {
+          "type": ["string", "null"],
+          "description": "Source of the case (e.g., 'literature', 'experiment', 'synthetic')"
+        },
+        "reference_doi": {
+          "type": ["string", "null"],
+          "description": "DOI or URL of the reference"
+        }
+      }
+    }
+  }
+}
