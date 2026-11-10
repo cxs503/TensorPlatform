@@ -108,6 +108,24 @@ MACHINE_CHECKABLE_PATTERNS = (
 )
 _MACHINE_CHECKABLE_RE = re.compile("|".join(MACHINE_CHECKABLE_PATTERNS), re.IGNORECASE)
 
+#: v1.2 词表（p372w2-n06 漂移根因修复，**opt-in**：只在 ``verification_fallback=True``
+#: 时启用，默认路径与 v1.1 逐位一致，故冻结验收指标不受影响）。
+#: 新增的是中文运行结果记号：p372 波后新 mission 的 checks 常留空，验证结论迁到
+#: ``headline``（长度被截到 180 字），且计数写成「37 项 pytest 全部通过」「27个用例全绿」
+#: 这类中文形态 —— v1.1 只认 ``\d+ passed`` 英文形态，于是整批判成 suspect_undeclared。
+MACHINE_CHECKABLE_PATTERNS_V12 = MACHINE_CHECKABLE_PATTERNS + (
+    r"\d+\s*(?:项|条|个|例)\s*(?:pytest\s*|测试\s*)?(?:用例|测试|项)?\s*"
+    r"(?:全绿|全部通过|全通过|通过|失败)",
+    r"\d+\s*(?:个|项)?\s*用例\s*(?:全绿|全部通过|通过)",
+    r"(?:pytest|测试|用例)[^，。;；\n]{0,24}?\d+\s*(?:项|条|个|例)?\s*(?:全绿|全部通过|通过|失败)",
+    r"全部通过",
+    r"全绿",
+)
+_MACHINE_CHECKABLE_V12_RE = re.compile("|".join(MACHINE_CHECKABLE_PATTERNS_V12), re.IGNORECASE)
+
+#: ``verification_fallback=True`` 时，``checks`` 为空则从这些字段回捞验证文本
+VERIFICATION_FALLBACK_KEYS = ("headline", "summary", "decision_note")
+
 # A gate list written as verdict marks (e.g. "gate A [ok] | gate B [ok]") is a
 # PASS/FAIL list even when the words PASS/FAIL never appear. Two or more marks
 # are required so a stray mark in prose does not count as verification.
@@ -163,6 +181,8 @@ class NormalizedArtifacts:
     verification_text: str = ""
     claim_present: bool = False
     missing_optional: list[str] = field(default_factory=list)
+    #: 判定词表版本：v1.1（默认，冻结口径）/ v1.2（opt-in 回捞 + 中文运行记号）
+    token_version: str = "v1.1"
 
     @property
     def implementation_present(self) -> bool:
@@ -180,7 +200,9 @@ class NormalizedArtifacts:
         words, exit code, hash, fraction, HTTP status), or a verdict-mark list
         with at least ``VERDICT_MARKS_FOR_LIST`` marks (a PASS/FAIL list).
         """
-        if _MACHINE_CHECKABLE_RE.search(self.verification_text):
+        token_re = (_MACHINE_CHECKABLE_V12_RE if self.token_version == "v1.2"
+                    else _MACHINE_CHECKABLE_RE)
+        if token_re.search(self.verification_text):
             return True
         return len(_VERDICT_MARK_RE.findall(self.verification_text)) >= VERDICT_MARKS_FOR_LIST
 
@@ -195,7 +217,8 @@ class NormalizedArtifacts:
         }
 
 
-def normalize_artifacts(result: dict[str, Any] | None) -> NormalizedArtifacts:
+def normalize_artifacts(result: dict[str, Any] | None, *,
+                        verification_fallback: bool = False) -> NormalizedArtifacts:
     """Extract artifact facts from a result payload.
 
     Accepts the production schema (``checks`` as text, claim under
@@ -217,6 +240,13 @@ def normalize_artifacts(result: dict[str, Any] | None) -> NormalizedArtifacts:
         implementation.extend(_present_list(result.get(key)))
 
     verification_text = _as_text(result.get("checks"))
+    token_version = "v1.1"
+    if verification_fallback:
+        token_version = "v1.2"
+        if not verification_text.strip():        # checks 留空 → 从声明字段回捞验证文本
+            parts = [_as_text(result.get(k)) for k in VERIFICATION_FALLBACK_KEYS
+                     if result.get(k)]
+            verification_text = "\n".join(p for p in parts if p.strip())
     claim_present = any(
         not _is_field_missing(result.get(key)) or isinstance(result.get(key), dict)
         for key in CLAIM_KEYS
@@ -232,6 +262,7 @@ def normalize_artifacts(result: dict[str, Any] | None) -> NormalizedArtifacts:
         verification_text=verification_text,
         claim_present=claim_present,
         missing_optional=missing_optional,
+        token_version=token_version,
     )
 
 
@@ -272,7 +303,8 @@ class DeliveryAssessment:
         }
 
 
-def assess_delivery(result: dict[str, Any] | None) -> DeliveryAssessment:
+def assess_delivery(result: dict[str, Any] | None, *,
+                    verification_fallback: bool = False) -> DeliveryAssessment:
     """Classify delivery completeness based on artifact facts.
 
     Parameters
@@ -323,7 +355,7 @@ def assess_delivery(result: dict[str, Any] | None) -> DeliveryAssessment:
             confidence=1.0,
         )
 
-    facts = normalize_artifacts(result)
+    facts = normalize_artifacts(result, verification_fallback=verification_fallback)
 
     # Enumerate everything that is absent first (the ranked missing-item KPI needs
     # the full picture), then let the critical/graded split decide the verdict.
