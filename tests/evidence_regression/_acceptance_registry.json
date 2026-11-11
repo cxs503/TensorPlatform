@@ -1,0 +1,746 @@
+{
+  "schema_version": "evidence_probe_registry.v1",
+  "title": "synthetic acceptance registry (tests)",
+  "entries": [
+    {
+      "capability_id": "cap.unit.01",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 1.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 1.0
+              },
+              "expect": 2.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=1"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 1.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 1.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 1.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 1.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.02",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 2.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 2.0
+              },
+              "expect": 4.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=2"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 2.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 2.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 2.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 2.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.03",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 3.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 3.0
+              },
+              "expect": 6.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=3"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 3.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 3.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 3.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 3.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.04",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 4.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 4.0
+              },
+              "expect": 8.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=4"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 4.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 4.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 4.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 4.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.05",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 5.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 5.0
+              },
+              "expect": 10.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=5"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 5.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 5.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 5.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 5.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.06",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 6.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 6.0
+              },
+              "expect": 12.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=6"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 6.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 6.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 6.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 6.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.07",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 7.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 7.0
+              },
+              "expect": 14.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=7"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 7.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 7.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 7.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 7.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.08",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 8.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 8.0
+              },
+              "expect": 16.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=8"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 8.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 8.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 8.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 8.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.09",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 9.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 9.0
+              },
+              "expect": 18.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=9"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 9.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 9.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 9.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 9.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "cap.unit.10",
+      "sys_path": [
+        "tests/evidence_regression"
+      ],
+      "target": {
+        "steps": [
+          {
+            "ref": "synthetic_lab:linear",
+            "kwargs": {
+              "x": 2.0,
+              "k": 10.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 10.0
+              },
+              "expect": 20.0,
+              "tol_rel": 1e-12
+            }
+          ],
+          "label": "analytic identity f(x)=k*x with k=10"
+        },
+        {
+          "kind": "scale_law",
+          "base": {
+            "x": 2.0,
+            "k": 10.0
+          },
+          "axis": "x",
+          "factor": 4.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-12
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 1.0,
+                "k": 10.0
+              }
+            },
+            {
+              "kwargs": {
+                "x": 5.0,
+                "k": 10.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "x": 2.0,
+                "k": 10.0
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
