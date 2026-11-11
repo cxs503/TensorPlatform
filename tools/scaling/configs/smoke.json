@@ -1,0 +1,109 @@
+{
+  "reps": 2,
+  "seed": 7,
+  "kernels": [
+    {
+      "name": "stencil5p",
+      "label": "stencil5p_strong",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 0.2,
+      "params": {
+        "nx": 512,
+        "ny": 256
+      }
+    },
+    {
+      "name": "stencil5p",
+      "label": "stencil5p_weak",
+      "mode": "weak",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 0.2,
+      "params": {
+        "nx": 512,
+        "rows_per_rank": 64
+      }
+    },
+    {
+      "name": "halo_ring",
+      "label": "halo_ring_strong",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 0.2,
+      "params": {
+        "total_elems": 1536
+      }
+    },
+    {
+      "name": "halo_ring",
+      "label": "halo_ring_weak",
+      "mode": "weak",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 0.2,
+      "params": {
+        "per_rank_elems": 1536
+      }
+    },
+    {
+      "name": "serial_frac",
+      "label": "serial_frac_s05",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "params": {
+        "target_s": 0.05,
+        "target_total_s": 0.25
+      }
+    },
+    {
+      "name": "serial_frac",
+      "label": "serial_frac_s20",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "params": {
+        "target_s": 0.2,
+        "target_total_s": 0.25
+      }
+    },
+    {
+      "name": "pseudo_par",
+      "label": "pseudo_par_control",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4
+      ],
+      "params": {
+        "total_blocks": 300
+      }
+    }
+  ]
+}
