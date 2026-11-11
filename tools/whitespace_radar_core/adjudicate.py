@@ -303,6 +303,65 @@ def generic_ledger(
     }
 
 
+GATE_SCHEMA = "specificity-gate/v1"
+
+#: The cap rule, as one auditable sentence.  ``covered`` is the only verdict
+#: that claims "someone already did this"; it is therefore the only verdict the
+#: gate may *downgrade*.  Everything weaker is left alone (the gate never
+#: upgrades a verdict).
+GATE_RULE = (
+    "covered requires >= required_specific_hits existing discriminative (df/N<=rare_frac) "
+    "literal probes AND a single witness document carrying >= min_existing_probes of them; "
+    "otherwise the verdict is capped at generic_only and the generic wording is kept in "
+    "generic_ledger"
+)
+
+
+def specificity_gate(
+    plan: Dict[str, Any],
+    corrob: Dict[str, Any],
+    thresholds: Thresholds,
+    proposed: str,
+) -> Dict[str, Any]:
+    """Verdict-cap rule for the specificity discipline (fail-closed).
+
+    The gate is deliberately *separate* from the score thresholds: raising the
+    BM25 floor can always be argued with ("the topic is just terse"), whereas
+    this rule is binary and evidence-shaped — either at least one discriminative
+    probe literally occurs in the pool and one document carries the
+    discriminative core, or the verdict may not be ``covered``.
+
+    Returns a record with the proposed verdict, the capped verdict, the rule
+    that fired and the numbers a reviewer needs to re-derive the decision.
+    """
+    specific_hits = int(plan.get("n_existing_specific") or 0)
+    required = int(thresholds.min_existing_probes)
+    witness_probes = int((corrob or {}).get("n_probes") or 0)
+    blocking: List[str] = []
+    if proposed == COVERED:
+        if specific_hits < 1:
+            blocking.append("NO_SPECIFIC_HIT")
+        if not (corrob or {}).get("corroborated"):
+            if witness_probes < required:
+                blocking.append("NO_WITNESS")
+    capped = GENERIC_ONLY if blocking else proposed
+    return {
+        "schema": GATE_SCHEMA,
+        "rule": GATE_RULE,
+        "proposed": proposed,
+        "verdict": capped,
+        "cap_applied": capped != proposed,
+        "blocking": blocking,
+        "required_specific_hits": 1,
+        "specific_hits": specific_hits,
+        "n_specific": int(plan.get("n_specific") or 0),
+        "witness_doc": (corrob or {}).get("doc_id"),
+        "witness_probes": witness_probes,
+        "min_witness_probes": required,
+        "generic_list_kept": capped == GENERIC_ONLY,
+    }
+
+
 def analyze(
     index: Bm25Index,
     topic: str,
@@ -361,6 +420,21 @@ def analyze(
         verdict = PARTIAL
         reason = "adjacent work exists but the topic's discriminative core is only partly present"
 
+    # ---- specificity gate: the only verdict the gate may touch is covered ----
+    proposed = verdict
+    gate = specificity_gate(plan, corrob, th, proposed)
+    verdict = gate["verdict"]
+    if gate["cap_applied"]:
+        reason = (
+            "specificity gate capped covered -> generic_only (blocking: "
+            + ", ".join(gate["blocking"])
+            + f"); specific hits {gate['specific_hits']}, witness probes "
+            f"{gate['witness_probes']} < {gate['min_witness_probes']}"
+        )
+    elif verdict == COVERED:
+        gate = dict(gate)
+        gate["confirmed_by"] = "gate"
+
     payload: Dict[str, Any] = {
         "topic": topic,
         "verdict": verdict,
@@ -385,6 +459,7 @@ def analyze(
             "corroboration": corrob,
             "covered_requires_witness": True,
             "downgraded": verdict == GENERIC_ONLY,
+            "gate": gate,
         },
         "hits": {
             "count": len(hits),

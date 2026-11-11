@@ -1,0 +1,24 @@
+{
+ "capture_note": "window target 1888 entries reached: the plans API exposes 920 campaign nodes (paged list capped at 100 plans); the remaining window is filled with the newest mission seeds (a mission goal is the text a seed is adjudicated on). Node-only subset census kept separately in artifacts/seed_dedup/corpus_maturity_nodes_only.json (1593 reachable nodes, id-probing variant).",
+ "endpoint": "http://127.0.0.1:8010/api/v1",
+ "file_sha256": "2c0789a37e90eaa48c03373732fe6d0323927584fddca003cc5134f5a3b5f667",
+ "frozen_at": "2026-11-11T00:15Z",
+ "goal_chars": 800,
+ "limit_reached": true,
+ "n_nodes": 1888,
+ "plans_available": 100,
+ "plans_visited": 100,
+ "schema": "seed-corpus-provenance/v1",
+ "snapshot": {
+  "alg": "sha256",
+  "scope": "canonical_json_of_nodes",
+  "sha256": "aa3f5e3ff15da5116b20608c7b530d61f20b26b009dc94b7960b4d78ef8e76c8"
+ },
+ "snapshot_file_sha256": "172d682e7a9796307a38b8f856ab375a09c8ca0513be3fc72e55710209611e88",
+ "source": "campaign-api",
+ "sources": {
+  "mission": 967,
+  "node": 921
+ },
+ "window_rule": "plans walked newest-first (plan id desc); nodes inside a plan ordered by node id asc; first 1888 nodes kept"
+}

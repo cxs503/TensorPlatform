@@ -15,6 +15,7 @@ Fail-closed: no Δ → block, Δ repeating neighbour → block, fresh Δ → all
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 import sys
@@ -32,7 +33,7 @@ from tools.whitespace_radar_core.index import Bm25Index  # noqa: E402
 from .core import SeedConfig, DualSim, dual_similarity, char_3gram_jaccard
 
 SCHEMA = "seeding-dedup/v1"
-VERSION = "ag29w1-n10-v1"
+VERSION = "p33w3-n12-v1"
 
 #: the three shapes of novelty accepted as residual Δ
 DELTA_CHANNELS: Tuple[str, ...] = ("new_quantity", "new_criterion", "new_truth")
@@ -213,6 +214,7 @@ def adjudicate(
     cfg: Optional[SeedConfig] = None,
     k: Optional[int] = None,
     theta: Optional[float] = None,
+    sim_cache: Optional[Dict[str, Any]] = None,
 ) -> Dict[str, Any]:
     """Adjudicate one seeding candidate against the near-duplicate ledger.
 
@@ -277,15 +279,29 @@ def adjudicate(
                      "reasons": reasons, "neighbours": []}, schema=SCHEMA)
 
     # ---- neighbours with dual-channel similarity ----------------------
+    # ``sim_cache`` lets a caller score one candidate against the whole ledger
+    # once and then re-decide at several thresholds (calibration sweeps) without
+    # recomputing the channels.  The cache is keyed by the candidate text's
+    # sha256 so a stale cache can never be applied to different text.
+    cache_text_sha = hashlib.sha256(cand.text.encode("utf-8")).hexdigest()
+    if sim_cache is not None and sim_cache.get("text_sha256") != cache_text_sha:
+        raise ValueError("sim_cache was built for a different candidate text")
+    cached_sims = (sim_cache or {}).get("sims") or {}
     scored: List[Dict[str, Any]] = []
     for node in nodes:
-        sim = dual_similarity(index, cand.text, node.node_id, node.text, cfg)
+        if node.node_id in cached_sims:
+            sim_dict = cached_sims[node.node_id]
+            score = float(sim_dict["score"])
+        else:
+            sim = dual_similarity(index, cand.text, node.node_id, node.text, cfg)
+            sim_dict = sim.to_dict()
+            score = sim.score
         scored.append(
             {
                 "node_id": node.node_id,
                 "status": node.status,
-                "score": sim.score,
-                "sim": sim.to_dict(),
+                "score": score,
+                "sim": sim_dict,
                 "title": node.title,
                 "goal": node.goal,
             }

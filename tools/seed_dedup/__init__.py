@@ -13,6 +13,7 @@ Zero domain semantics: all inputs are opaque strings.
 from __future__ import annotations
 
 from .core import (
+    CALIBRATED_THETA,
     SeedConfig,
     dual_similarity,
     DualSim,
@@ -41,6 +42,7 @@ from .bench import (
 
 __all__ = [
     "SeedConfig",
+    "CALIBRATED_THETA",
     "Candidate",
     "Node",
     "LedgerEntry",
@@ -61,4 +63,4 @@ __all__ = [
     "evaluate_benchmark",
     "DEFAULT_PAIRS_PATH",
 ]
-__version__ = "ag29w1-n10-v1"
+__version__ = "p33w3-n12-v1"

@@ -1,6 +1,7 @@
 {
- "schema": "radar-neutrality/v1",
+ "note": "Every module the discipline touches (radar core, radar scripts, seeding gate, its fixtures and tests) must be inside this scope; the check itself lives in data/ so it carries no subject-matter vocabulary.",
  "purpose": "Data-driven domain lexicon used ONLY to prove that the radar's code carries no subject-matter vocabulary. The list lives in data/ so the check itself contains no domain word.",
+ "schema": "radar-neutrality/v1",
  "scope": [
   "tools/whitespace_radar.py",
   "tools/whitespace_radar_core/__init__.py",
@@ -18,7 +19,20 @@
   "ops/taskplane/governance/seeding_dedup_bench.py",
   "ops/taskplane/governance/seeding_dedup_pairs.py",
   "tests/test_whitespace_specificity.py",
-  "tests/test_seeding_dedup_ledger.py"
+  "tests/test_seeding_dedup_ledger.py",
+  "tools/whitespace_radar_forms.py",
+  "tools/whitespace_radar_perf.py",
+  "tools/whitespace_gate_replay.py",
+  "tools/seed_dedup/__init__.py",
+  "tools/seed_dedup/core.py",
+  "tools/seed_dedup/ledger.py",
+  "tools/seed_dedup/bench.py",
+  "tools/seed_dedup/corpus.py",
+  "tools/seed_dedup/corpus_export.py",
+  "tools/seed_dedup/maturity.py",
+  "tests/test_seed_dedup_corpus.py",
+  "tests/test_seed_dedup_maturity.py",
+  "tests/test_whitespace_specificity_gate.py"
  ],
  "terms": [
   "ship",
@@ -51,6 +65,5 @@
   "绿色航行",
   "总强度",
   "疲劳"
- ],
- "note": "Every module the discipline touches (radar core, seeding gate, its fixtures) must be inside this scope; the check itself lives in data/ so it carries no subject-matter vocabulary."
+ ]
 }
