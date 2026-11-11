@@ -1,0 +1,167 @@
+{
+  "description": "Declared ground-truth scenarios for estimator validation (injected, not measured). alpha_true is the assumed architecture slowdown relative to the reference arm; delta_true is the genuine implementation difference that normalisation is supposed to EXPOSE, and it is applied to evaluation workloads only. Calibration workloads carry delta = 0 by construction (both architectures run the same code there), otherwise alpha and delta are confounded.",
+  "scenarios": [
+    {
+      "name": "loong64_vs_x86_like",
+      "ref": "x86_64@ref",
+      "criterion_arm": "loongarch64@3C6000",
+      "feature_names": [
+        "cells",
+        "steps"
+      ],
+      "beta": [
+        0.0,
+        1.0,
+        0.85
+      ],
+      "sigma_e": 0.05,
+      "sigma_u": 0.01,
+      "reps": 9,
+      "replicates": 100,
+      "base_seed": 2026,
+      "delta_true": {
+        "loongarch64@3C6000": 0.02
+      },
+      "arms": [
+        {
+          "arm": "x86_64@ref",
+          "isa": "x86_64",
+          "alpha_true": 1.0,
+          "hosts": [
+            "x86-host-a",
+            "x86-host-b"
+          ]
+        },
+        {
+          "arm": "loongarch64@3C6000",
+          "isa": "loongarch64",
+          "alpha_true": 2.2,
+          "hosts": [
+            "loong-host-a",
+            "loong-host-b"
+          ]
+        }
+      ],
+      "workloads": [
+        {
+          "name": "cal",
+          "role": "calibration",
+          "grid": {
+            "cells": [
+              2048,
+              4096,
+              8192,
+              16384
+            ],
+            "steps": [
+              200,
+              400,
+              800
+            ]
+          }
+        },
+        {
+          "name": "eval",
+          "role": "evaluation",
+          "grid": {
+            "cells": [
+              6144,
+              12288,
+              24576
+            ],
+            "steps": [
+              300,
+              600
+            ]
+          }
+        }
+      ],
+      "role": "criterion"
+    },
+    {
+      "name": "three_arch_mixed",
+      "ref": "x86_64@ref",
+      "criterion_arm": "loongarch64B",
+      "feature_names": [
+        "cells",
+        "steps"
+      ],
+      "beta": [
+        0.0,
+        1.02,
+        0.9
+      ],
+      "sigma_e": 0.06,
+      "sigma_u": 0.02,
+      "reps": 9,
+      "replicates": 60,
+      "base_seed": 777,
+      "delta_true": {
+        "loongarch64B": -0.015
+      },
+      "arms": [
+        {
+          "arm": "x86_64@ref",
+          "isa": "x86_64",
+          "alpha_true": 1.0,
+          "hosts": [
+            "x86-host-a"
+          ]
+        },
+        {
+          "arm": "loongarch64A",
+          "isa": "loongarch64",
+          "alpha_true": 1.5,
+          "hosts": [
+            "loong-host-a"
+          ]
+        },
+        {
+          "arm": "loongarch64B",
+          "isa": "loongarch64",
+          "alpha_true": 2.6,
+          "hosts": [
+            "loong-host-b",
+            "loong-host-c"
+          ]
+        }
+      ],
+      "workloads": [
+        {
+          "name": "cal",
+          "role": "calibration",
+          "grid": {
+            "cells": [
+              2048,
+              4096,
+              8192,
+              16384
+            ],
+            "steps": [
+              200,
+              400,
+              800
+            ]
+          }
+        },
+        {
+          "name": "eval",
+          "role": "evaluation",
+          "grid": {
+            "cells": [
+              6144,
+              12288,
+              24576
+            ],
+            "steps": [
+              300,
+              600
+            ]
+          }
+        }
+      ],
+      "role": "stress",
+      "note": "stress scenario: heterogeneous hosts (1 host on the reference arm), sigma_u=0.02 -> alpha precision degrades; reported as robustness evidence, not scored against criterion (a)"
+    }
+  ]
+}
