@@ -7,6 +7,7 @@ from __future__ import annotations
 
 import binascii
 import json
+import logging
 import os
 import re
 from pathlib import Path
@@ -26,6 +27,8 @@ from services.report_ownership import (
     ownership_verdict,
     validate_png_payload,
 )
+
+logger = logging.getLogger(__name__)
 
 router = APIRouter(prefix="/tensor/reports", tags=["科研运行台·报告"])
 
@@ -130,6 +133,88 @@ def _error(status_code: int, code: str, detail: dict) -> HTTPException:
                          headers={"X-Error-Code": code})
 
 
+def _insert_report_row(db: Session, *, org_id: int, uid: Any, body: ReportCreate,
+                       figures_meta: list[dict]) -> int:
+    """INSERT one published report row and return its id (no commit).
+
+    Single implementation shared by the normal POST path and the self-healing
+    re-send path — a second copy of this INSERT would drift and the heal would
+    restore a differently-shaped row.
+    """
+    row = db.execute(
+        text("""
+            INSERT INTO tensor_reports
+                (organization_id, title, summary, scenario_key, mission_id, stage,
+                 tags, markdown, figures, status, created_by)
+            VALUES (:org, :title, :summary, :skey, :mid, :stage,
+                    CAST(:tags AS jsonb), :markdown, CAST(:figs AS jsonb),
+                    'published', :uid)
+            RETURNING id, created_at
+        """),
+        {
+            "org": org_id, "title": body.title, "summary": body.summary,
+            "skey": body.scenario_key, "mid": body.mission_id, "stage": body.stage,
+            "tags": json.dumps(body.tags, ensure_ascii=False),
+            "markdown": body.markdown,
+            "figs": json.dumps(figures_meta, ensure_ascii=False),
+            "uid": uid,
+        },
+    ).mappings().first()
+    return row["id"]
+
+
+def _write_figure_files(report_id: int, decoded: list) -> None:
+    """Persist validated PNG bytes under ``FIGURE_DIR/<report_id>/``."""
+    for fig, raw in decoded:
+        dest = FIGURE_DIR / str(report_id) / f"{fig.name}.png"
+        dest.parent.mkdir(parents=True, exist_ok=True)
+        dest.write_bytes(raw)
+
+
+def _submission_payload(body: ReportCreate, *, org_id: int, created_by: int) -> dict:
+    """The write-side truth snapshot handed to the visibility ledger.
+
+    It is the original request body (so a re-send reproduces the exact write,
+    figures included) plus the two server-side fields a re-send needs: the
+    tenant and the original author.
+    """
+    payload = body.model_dump()
+    payload["organization_id"] = org_id
+    payload["created_by"] = created_by
+    return payload
+
+
+def _readback_after_write(db: Session, *, body: ReportCreate,
+                          figures_meta: list[dict], report_id: int,
+                          org_id: int, created_by: int) -> dict:
+    """Independent read-back + contract assertion + ledger entry.
+
+    Degrades loudly (``ok: null`` + ``degraded: true`` + reason) instead of
+    failing the POST: a bookkeeping outage must not turn a landed write into a
+    client-visible error, but it must never be reported as a pass either.
+    """
+    payload = _submission_payload(body, org_id=org_id, created_by=created_by)
+    try:
+        from services.report_visibility import ReportVisibilityService, ledger_from_env
+    except Exception as exc:  # pragma: no cover - import guard
+        return {"ok": None, "degraded": True,
+                "reason": f"import_failed:{type(exc).__name__}"}
+    try:
+        # Fresh statement on the committed connection: this reads what a later
+        # GET would read, not the write cursor's own view.
+        observed_row = db.execute(
+            text(f"{_SELECT} WHERE id = :rid AND organization_id = :org"),
+            {"rid": report_id, "org": org_id},
+        ).mappings().first()
+        observed = _row(observed_row) if observed_row else None
+        service = ReportVisibilityService(ledger=ledger_from_env())
+        return service.after_write(payload, report_id, observed=observed).as_dict()
+    except Exception as exc:
+        logger.warning("report readback assertion degraded: %s", exc)
+        return {"ok": None, "degraded": True,
+                "reason": f"{type(exc).__name__}: {str(exc)[:180]}"}
+
+
 @router.post("", dependencies=[Depends(require_role("ADMIN", "MANAGER", "ENGINEER"))])
 def create_report(
     body: ReportCreate,
@@ -158,34 +243,13 @@ def create_report(
             raise _error(exc.status_code, exc.code, exc.as_detail()) from exc
 
     figures_meta = [{"name": f.name, "caption": f.caption} for f in body.figures]
-    row = db.execute(
-        text("""
-            INSERT INTO tensor_reports
-                (organization_id, title, summary, scenario_key, mission_id, stage,
-                 tags, markdown, figures, status, created_by)
-            VALUES (:org, :title, :summary, :skey, :mid, :stage,
-                    CAST(:tags AS jsonb), :markdown, CAST(:figs AS jsonb),
-                    'published', :uid)
-            RETURNING id, created_at
-        """),
-        {
-            "org": org_id, "title": body.title, "summary": body.summary,
-            "skey": body.scenario_key, "mid": body.mission_id, "stage": body.stage,
-            "tags": json.dumps(body.tags, ensure_ascii=False),
-            "markdown": body.markdown,
-            "figs": json.dumps(figures_meta, ensure_ascii=False),
-            "uid": user["id"],
-        },
-    ).mappings().first()
-    report_id = row["id"]
+    report_id = _insert_report_row(db, org_id=org_id, uid=user["id"],
+                                   body=body, figures_meta=figures_meta)
 
     # Figures land on disk only after the row exists; any failure rolls the row
     # back so a report never references missing files (fail-closed).
     try:
-        for fig, raw in decoded:
-            dest = FIGURE_DIR / str(report_id) / f"{fig.name}.png"
-            dest.parent.mkdir(parents=True, exist_ok=True)
-            dest.write_bytes(raw)
+        _write_figure_files(report_id, decoded)
     except (ValueError, binascii.Error, OSError) as exc:
         db.execute(text("DELETE FROM tensor_reports WHERE id = :rid"), {"rid": report_id})
         db.commit()
@@ -197,6 +261,11 @@ def create_report(
     out["ownership"] = {"mission_id": body.mission_id, "owner": verdict["owner"],
                         "bypass": verdict["bypass"],
                         "figures_checked": len(decoded)}
+    # 写-读可见性契约：提交后立刻在新事务里回读同一行并逐字段断言。
+    # 这是「POST 200 但查不到」从静默变成事件的位置（见 services/report_visibility）。
+    out["readback"] = _readback_after_write(
+        db, body=body, figures_meta=figures_meta, report_id=report_id,
+        org_id=org_id, created_by=user["id"])
     return out
 
 

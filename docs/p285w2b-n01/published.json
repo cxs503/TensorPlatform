@@ -1,0 +1,18 @@
+{
+  "report_id": 12927,
+  "mission_id": 12439,
+  "endpoint": "POST /api/v1/tensor/reports",
+  "figures": [
+    {
+      "name": "fig1_detection_heal",
+      "sha256": "de04aa166c457dbd4ee3bc842817864d30c4758c52725d5a06c131283937b4ac"
+    }
+  ],
+  "acceptance_json_sha256": "c871bef9a427b22e9a133ec4d6d31f245c11a9bb7611ed87e9837e8757bb7ebb",
+  "readback": {
+    "assertion": "GET /api/v1/tensor/reports/12927 vs POSTed payload",
+    "ok": true,
+    "codes": [],
+    "markdown_identical": true
+  }
+}
