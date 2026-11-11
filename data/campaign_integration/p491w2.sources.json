@@ -1,0 +1,57 @@
+{
+  "schema": "campaign-sources/1.0",
+  "work_root": "/root/tp-agent/work",
+  "worktree_template": "m{mission_id}",
+  "evidence_dir": "artifacts/p491w2_evidence",
+  "evidence_doc_template": "artifacts/p491w2_evidence/{node_key}.json",
+  "collect_patterns": [
+    "artifacts/p491w2_evidence/*.json",
+    "artifacts/p491w2_evidence/**/*.json",
+    "artifacts/m{mission_id}/*.json"
+  ],
+  "integration_out": "artifacts/p491w2_maturity",
+  "integration_node_key": "p491w2-n10-integration-maturity",
+  "report_path": "docs/P491W2-N10_INTEGRATION_GATE.md",
+  "spec_path": "data/campaign_integration/p491w2.spec.json",
+  "defaults": {
+    "criteria_pass_threshold": 0.8,
+    "domain": "物理域",
+    "completed_states": [
+      "completed",
+      "done"
+    ]
+  },
+  "nodes": {
+    "p491w2-n06-propeller-ice": {
+      "extra_patterns": [
+        "artifacts/propeller_ice_result.json",
+        "artifacts/criteria_verification.json"
+      ],
+      "note": "该节点把可复算数字落在自有 artifacts 文件名下（非协议交付位）。收集器按此 glob 实测其交付，但协议符合性检查仍会判它不合格——判据不给分，只给「有东西」的事实。"
+    }
+  },
+  "self_capability": {
+    "slug": "platform.campaign-integration-gate",
+    "title": "战役集成与验收门：异构证据收集 + 跨节点接口契约 + 台账成熟化单（fail-closed）",
+    "capability": "campaign integration gate",
+    "domain": "平台机制",
+    "repo": "TensorPlatform",
+    "mission_id": 13929,
+    "evidence_paths": [
+      "tools/campaign_integration/cli.py",
+      "tools/campaign_integration/sources.py",
+      "tools/campaign_integration/contracts.py",
+      "tools/campaign_integration/maturity.py",
+      "tools/campaign_integration/report.py",
+      "tools/campaign_integration/sql_smoke.py",
+      "tools/campaign_integration/fetch.py",
+      "tests/test_campaign_integration_gate.py",
+      "docs/CAMPAIGN_EVIDENCE_PROTOCOL.md"
+    ],
+    "require_green_tests": true,
+    "test_targets": [
+      "tests/test_campaign_integration_gate.py"
+    ]
+  },
+  "notes": "战役 p491w2 集成节点 N10 的来源配置：规范交付位 artifacts/p491w2_evidence/<node_key>.json（协议见 docs/CAMPAIGN_EVIDENCE_PROTOCOL.md）。节点专属 extra_patterns 只声明「去哪儿找」；找到什么、符合不符合协议，由收集器的 sha256/协议块检查如实记录。"
+}

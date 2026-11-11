@@ -1,0 +1,675 @@
+{
+  "criteria_pass_threshold": 0.8,
+  "nodes": [
+    {
+      "capability": "N01: 成熟化能力台账自动升账与验证面活性巡检",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n01-ledger-liveness-maturity.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n01-ledger-liveness-maturity.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n01-ledger-liveness-maturity.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n01-ledger-liveness-maturity.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n01-ledger-liveness-maturity.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 6,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n01-ledger-liveness-maturity.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 6,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（6 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13928,
+      "node_key": "p491w2-n01-ledger-liveness-maturity",
+      "repo": "TensorPlatform",
+      "title": "N01: 成熟化能力台账自动升账与验证面活性巡检"
+    },
+    {
+      "capability": "N02: TensorLBM轴对称被动标量输运核",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n02-axisymmetric-scalar.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n02-axisymmetric-scalar.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n02-axisymmetric-scalar.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n02-axisymmetric-scalar.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n02-axisymmetric-scalar.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 5,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n02-axisymmetric-scalar.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 5,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（5 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13246,
+      "node_key": "p491w2-n02-axisymmetric-scalar",
+      "repo": "TensorLBM",
+      "title": "N02: TensorLBM轴对称被动标量输运核"
+    },
+    {
+      "capability": "N03: 冰航道复航记忆效应与时间依赖阻力演化",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n03-channel-memory.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n03-channel-memory.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n03-channel-memory.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n03-channel-memory.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n03-channel-memory.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 7,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n03-channel-memory.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 7,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（7 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13248,
+      "node_key": "p491w2-n03-channel-memory",
+      "repo": "TensorDEM",
+      "title": "N03: 冰航道复航记忆效应与时间依赖阻力演化"
+    },
+    {
+      "capability": "N04: TensorDEM堆积床有效导热第二代",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n04-bed-conductivity-gen2.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n04-bed-conductivity-gen2.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n04-bed-conductivity-gen2.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n04-bed-conductivity-gen2.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n04-bed-conductivity-gen2.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 7,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n04-bed-conductivity-gen2.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 7,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（7 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13249,
+      "node_key": "p491w2-n04-bed-conductivity-gen2",
+      "repo": "TensorDEM",
+      "title": "N04: TensorDEM堆积床有效导热第二代"
+    },
+    {
+      "capability": "N05: 冰+波浪联合载荷下船体梁极限强度",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n05-ice-wave-ultimate.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n05-ice-wave-ultimate.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n05-ice-wave-ultimate.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n05-ice-wave-ultimate.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n05-ice-wave-ultimate.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 8,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n05-ice-wave-ultimate.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 8,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（8 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13250,
+      "node_key": "p491w2-n05-ice-wave-ultimate",
+      "repo": "TensorPhysics",
+      "title": "N05: 冰+波浪联合载荷下船体梁极限强度"
+    },
+    {
+      "capability": "N06: 螺旋桨叶片积冰几何变形与水动力性能退化",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n06-propeller-ice.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n06-propeller-ice.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n06-propeller-ice.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n06-propeller-ice.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n06-propeller-ice.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 8,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n06-propeller-ice.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 8,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（8 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13926,
+      "node_key": "p491w2-n06-propeller-ice",
+      "repo": "ship-performance-platform",
+      "title": "N06: 螺旋桨叶片积冰几何变形与水动力性能退化"
+    },
+    {
+      "capability": "N07: 回转内侧桨负进速与四象限连续性",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n07-propeller-quadrant.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n07-propeller-quadrant.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n07-propeller-quadrant.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n07-propeller-quadrant.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n07-propeller-quadrant.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 6,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n07-propeller-quadrant.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 6,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（6 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13927,
+      "node_key": "p491w2-n07-propeller-quadrant",
+      "repo": "ship-performance-platform",
+      "title": "N07: 回转内侧桨负进速与四象限连续性"
+    },
+    {
+      "capability": "N08: S-N常数表knee连续性重建与谱疲劳重算",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n08-sn-knee-continuity.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n08-sn-knee-continuity.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n08-sn-knee-continuity.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n08-sn-knee-continuity.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n08-sn-knee-continuity.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 5,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n08-sn-knee-continuity.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 5,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（5 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13925,
+      "node_key": "p491w2-n08-sn-knee-continuity",
+      "repo": "ship-performance-platform",
+      "title": "N08: S-N常数表knee连续性重建与谱疲劳重算"
+    },
+    {
+      "capability": "N09: 准静水应力RAO可替代域判据",
+      "criteria": [
+        {
+          "checks": [
+            {
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n09-quasi-hydrostatic-domain.json",
+              "pointer": "delivery.artifact_count",
+              "threshold": 1,
+              "unit": "count"
+            },
+            {
+              "claim": "claim.delivered",
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n09-quasi-hydrostatic-domain.json",
+              "pointer": "delivery.delivered",
+              "threshold": true,
+              "unit": "bool"
+            }
+          ],
+          "criterion_id": "delivery",
+          "statement": "节点在规范交付位产出 ≥1 份可复算证据 artifact",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n09-quasi-hydrostatic-domain.json",
+              "pointer": "pytest.returncode",
+              "threshold": 0,
+              "unit": "code"
+            },
+            {
+              "comparator": "le",
+              "doc": "artifacts/p491w2_evidence/p491w2-n09-quasi-hydrostatic-domain.json",
+              "pointer": "pytest.failed",
+              "threshold": 0,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "tests",
+          "statement": "节点证据自报 pytest returncode=0 且 failed=0",
+          "unit": "count"
+        },
+        {
+          "checks": [
+            {
+              "comparator": "eq",
+              "doc": "artifacts/p491w2_evidence/p491w2-n09-quasi-hydrostatic-domain.json",
+              "pointer": "acceptance.declared_total",
+              "threshold": 6,
+              "unit": "count"
+            },
+            {
+              "claim": "acceptance.claim_all_pass",
+              "comparator": "ge",
+              "doc": "artifacts/p491w2_evidence/p491w2-n09-quasi-hydrostatic-domain.json",
+              "pointer": "acceptance.covered_values",
+              "threshold": 6,
+              "unit": "count"
+            }
+          ],
+          "criterion_id": "acceptance",
+          "statement": "声明验收判据（6 条）全数被可复算数值覆盖，且自述 all_pass 不得超过覆盖数",
+          "unit": "count"
+        }
+      ],
+      "mission_id": 13254,
+      "node_key": "p491w2-n09-quasi-hydrostatic-domain",
+      "repo": "ship-performance-platform",
+      "title": "N09: 准静水应力RAO可替代域判据"
+    }
+  ],
+  "notes": "由 tools.campaign_integration.sources.build_spec 从注册表快照程序化生成，零手抄。",
+  "schema_version": "1.0",
+  "spec_id": "campaign-p491w2_aggregated_seeding",
+  "title": "p491w2_aggregated_seeding"
+}
