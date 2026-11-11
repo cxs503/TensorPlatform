@@ -1,0 +1,71 @@
+{
+ "audit_mission": 15148,
+ "audited_mission": 15118,
+ "audited_anchor": "KPI-SWEEP-1000",
+ "audited_repo": "TensorPlatform",
+ "audited_commit": "2891a88fae9ec11870c6a44a904c2c958839b406",
+ "level": 2,
+ "impl_files": [
+  "docs/board_audit/m15148/evidence/scripts/kpi_sweep_1000_census.py",
+  "docs/board_audit/m15148/evidence/scripts/kpi_sweep_1000_ledger.py"
+ ],
+ "entry": [
+  "docs/board_audit/m15148/evidence/scripts/kpi_sweep_1000_ledger.py",
+  "docs/board_audit/m15148/evidence/scripts/kpi_sweep_1000_census.py"
+ ],
+ "run_artifacts": [
+  "docs/board_audit/m15148/evidence/artifacts/kpi_sweep_1000_result.json",
+  "docs/board_audit/m15148/evidence/artifacts/artifact_census.json",
+  "docs/board_audit/m15148/evidence/artifacts/samples_census.json",
+  "docs/board_audit/m15148/evidence/artifacts/fig1_kpi_tiers_and_cluster.png",
+  "docs/board_audit/m15148/evidence/stage/cluster_jobs_census.json"
+ ],
+ "tests": [],
+ "integration_callers": [],
+ "benchmark": {
+  "ref": "tensor_benchmark_cases WHERE anchor_slug='KPI-SWEEP-1000'",
+  "status": "NO_BENCHMARK_CASE",
+  "ref_rows": 0,
+  "table_rows_total": 13,
+  "note": "基准裁判空表：本锚点无登记算例/容差，L4 无法成立；计数只能自洽复算，不能对外部基准对标"
+ },
+ "repro_cmd": "cd <m15118 worktree> && python3 scripts/kpi_sweep_1000_ledger.py",
+ "external_anchor": null,
+ "audit_recompute": {
+  "headline_claimed": 12116,
+  "headline_rerun": 12116,
+  "headline_delta": 0,
+  "A_claimed": 255,
+  "A_recompute_from_artifacts": 255,
+  "A_after_removing_non_case_rows": 241,
+  "B_recompute": 12116,
+  "C_claimed": 23431,
+  "C_recompute_kb_plus_geometry": 23176,
+  "kb_samples_rows": 11861,
+  "ship_samples_kb_rows": 11861,
+  "mirror_diff_both_ways": 0,
+  "geometry_validation_rows": 11315,
+  "dedup_copies_found": 982,
+  "dedup_distinct_sha256": 1,
+  "shard_jobs_succeeded": 0
+ },
+ "audit_findings": {
+  "F1_benchmark_empty": "tensor_benchmark_cases 本锚点 0 行（全表 13 行）→ 无机器验收判据（HIGH, evidentiary）",
+  "F2_scope_gap": "headline 12,116 兑现 ≥1000 依赖 B 档公式链回填 11,861；严格求解器档 A=255（25.5%），且 A 含 14 行非工况（m11074 failclosed_matrix 测试选择矩阵）→ A'=241（HIGH, scope）",
+  "F3_repro_not_idempotent": "重跑 ledger 与入库 JSON 差 2 键（current_l1_verified_lower_bound/_note 仅存在于入库件），且输入快照 stage/ship_samples.json(24.6MB) 未入 git → 干净检出不可复跑（MEDIUM, reproducibility）",
+  "F4_tolerance_mislabel": "ledger 质量表把 1e-6 容差的 'Rt=Rf+Rw+Ra'(272/400=0.68) 标成 'Rt=sum(1e-3 tol)'；审计按 1e-3 重算为 300/300=1.0 → 低估自身质量（MEDIUM, label/correctness）",
+  "F5_ice_identity_nuance": "冰区 R_ice=Σ分量 合格率低（申报 0.1675 / 审计重抽 0.15）但 93%（279/300）行与 reference_value 误差 <10% → 属分量标度/公式变体，非物理错误；一刀切剔除 848 行过严（MEDIUM, quality claim）",
+  "F6_no_tests_no_integration": "commit 无 tests/；grep 无脚本外调用方；tensor_metric_samples 0 行（KPI 无时序采样）→ L3 不成立（MEDIUM, integration）",
+  "F7_snapshot_drift": "cluster_jobs 19:33 快照 865 job/queued 205，19:5x 实查 869/209 → 现值随时漂移，已落快照可追溯（LOW）",
+  "F8_dedup_verified": "batch_sweep_demo.json 982 份拷贝 sha256 全同 → 只计 51 工况正确；kb_samples 与 ship_samples kb_* 双向差集 0（正例，支持计数可信）"
+ },
+ "independence_limitations": [
+  "复用同一 DB(tensorplatform) 与同一 worktree 工件树：代码独立实现、数据源不独立",
+  "L1 恒等式为逐域 300 行重抽样（seed=20261111），非全量 11,861 行",
+  "未复跑 157,831 文件全盘 sha256 清单（IO 重活），改抽样复核 3 个工件族 + 4 个 batch 拷贝族",
+  "未复核 kb_samples 每行是否真由无人值守执行器产生（信 solver_kernel/source_mission_id 元数据）",
+  "cluster job 级 per-case 恢复未做（原单同样未做）"
+ ],
+ "verdict": "L2 CONFIRMED：真实实现+入口+可运行工件，计数独立复算 Δ=0；L3/L4 证据为空（无集成调用/无基准算例），不得上抬",
+ "report_id": 14263
+}
