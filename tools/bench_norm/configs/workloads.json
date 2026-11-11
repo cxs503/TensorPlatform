@@ -1,0 +1,16 @@
+{
+  "name": "lbm_channel_timing",
+  "description": "Timing workload grid for cross-architecture normalisation. Numerical kernel only: D2Q9 BGK channel flow. The grid is a crossed design (cells x steps) so that the log-linear feature model is identifiable -- a non-crossed grid makes log10(cells) and log10(steps) collinear and the fitted coefficients uninterpretable. Roles: calibration workloads are used to estimate alpha (same code on every arm), evaluation workloads are held out to measure the residual difference.",
+  "workloads": [
+    {"name": "c2048x200",  "nx": 64,  "ny": 32,  "steps": 200, "tau": 0.8, "g": 1e-4, "warmup": 100, "role": "calibration"},
+    {"name": "c2048x400",  "nx": 64,  "ny": 32,  "steps": 400, "tau": 0.8, "g": 1e-4, "warmup": 100, "role": "calibration"},
+    {"name": "c8192x200",  "nx": 128, "ny": 64,  "steps": 200, "tau": 0.8, "g": 1e-4, "warmup": 100, "role": "calibration"},
+    {"name": "c8192x400",  "nx": 128, "ny": 64,  "steps": 400, "tau": 0.8, "g": 1e-4, "warmup": 100, "role": "evaluation"},
+    {"name": "c32768x200", "nx": 256, "ny": 128, "steps": 200, "tau": 0.8, "g": 1e-4, "warmup": 100, "role": "evaluation"},
+    {"name": "c32768x400", "nx": 256, "ny": 128, "steps": 400, "tau": 0.8, "g": 1e-4, "warmup": 100, "role": "evaluation"}
+  ],
+  "physics_check": {"name": "steady_32x32", "nx": 32, "ny": 32, "steps": 20000,
+                    "tau": 0.8, "g": 1e-4, "warmup": 1000,
+                    "expect_max_rel_err": 0.01},
+  "repetitions": 9
+}
