@@ -172,11 +172,77 @@ def fig_dependency_graph(result: Mapping[str, Any], out_dir: Path) -> list[dict[
     return [{"name": out.name, "caption": "能力依赖图（灰=工具类节点，蓝=领域节点）", "path": str(out)}]
 
 
+def fig_withheld_sensitivity_and_debt(result: Mapping[str, Any],
+                                     out_dir: Path) -> list[dict[str, str]]:
+    """图4：WITHHELD 口径敏感性（左）+ 欠账台账优先级/状态（右）。
+
+    左图把同一审计在三种总体定义下的比例并列，并画 30% 阈值线——直接用图形拒绝
+    「挑一个达标口径宣布通过」。右图把比例拆成可执行欠账（优先级 × 状态）。
+    """
+    try:
+        plt = _mpl()
+    except Exception:  # noqa: BLE001
+        return []
+    crit = (result.get("acceptance", {}).get("criteria", {}) or {}).get("c_evidence_audit", {})
+    sensitivity = {k: v for k, v in (crit.get("sensitivity") or {}).items()
+                   if isinstance(v, Mapping)}
+    if not sensitivity:
+        return []
+    debt = result.get("debt", {}) or {}
+    summary = debt.get("summary", {}) or {}
+    by_priority = summary.get("by_priority", {}) or {}
+    records = debt.get("records", []) or []
+    status_order = ("OPEN", "MEASURED", "BLOCKED_OUT_OF_REPO")
+    status_colour = {"OPEN": "#ff7f0e", "MEASURED": "#2ca02c",
+                     "BLOCKED_OUT_OF_REPO": "#8c8c8c"}
+
+    fig, (ax1, ax2) = plt.subplots(1, 2, figsize=(12, 4.4))
+    labels = list(sensitivity)
+    ratios = [float(sensitivity[k].get("ratio", 0.0)) * 100.0 for k in labels]
+    counts = [f"{sensitivity[k].get('withheld', 0)}/{sensitivity[k].get('graded', 0)}"
+              for k in labels]
+    bars = ax1.bar(labels, ratios, color=["#1f77b4" if r >= 30 else "#2ca02c"
+                                          for r in ratios])
+    for b, r, c in zip(bars, ratios, counts):
+        ax1.text(b.get_x() + b.get_width() / 2, r + 0.6, f"{r:.1f}%  ({c})",
+                 ha="center", fontsize=9)
+    ax1.axhline(30.0, color="red", linestyle="--", linewidth=1.4, label="threshold 30%")
+    ax1.set_ylim(0, max(ratios + [30.0]) * 1.25)
+    ax1.set_ylabel("WITHHELD ratio (%)")
+    ax1.set_title("Criterion (c) sensitivity: ratio under 3 populations", fontsize=10)
+    ax1.legend(fontsize=8)
+
+    priorities = sorted(by_priority)
+    bottom = [0] * len(priorities)
+    for st in status_order:
+        vals = [len([r for r in records
+                     if str(r.get("priority")) == p and str(r.get("status")) == st])
+                for p in priorities]
+        ax2.bar(priorities, vals, bottom=bottom, label=st, color=status_colour[st])
+        bottom = [a + b for a, b in zip(bottom, vals)]
+    for i, total in enumerate(bottom):
+        ax2.text(i, total + 0.1, str(total), ha="center", fontsize=9)
+    ax2.set_ylabel("debt entries")
+    ax2.set_title(f"Verification debt by priority "
+                  f"(total={summary.get('debt_entries', 0)}, "
+                  f"measured={summary.get('measured_ratio', 0):.1%})", fontsize=10)
+    ax2.legend(fontsize=8)
+    out = out_dir / "fig4_withheld_sensitivity_debt.png"
+    out.parent.mkdir(parents=True, exist_ok=True)
+    fig.tight_layout()
+    fig.savefig(out, dpi=150)
+    plt.close(fig)
+    return [{"name": out.name,
+             "caption": "WITHHELD 口径敏感性（三种总体定义）与验证欠账台账（优先级×状态）",
+             "path": str(out)}]
+
+
 def make_figures(result: Mapping[str, Any], out_dir: Path | str) -> list[dict[str, str]]:
     """生成全部图；返回 [{name, caption, path}]（失败项自动缺席，不抛）。"""
     out = Path(out_dir)
     figs: list[dict[str, str]] = []
-    for fn in (fig_level_distribution, fig_tier_coverage, fig_dependency_graph):
+    for fn in (fig_level_distribution, fig_tier_coverage, fig_dependency_graph,
+               fig_withheld_sensitivity_and_debt):
         try:
             figs.extend(fn(result, out))
         except Exception:  # noqa: BLE001 - 绘图失败不阻断证据链
@@ -185,4 +251,5 @@ def make_figures(result: Mapping[str, Any], out_dir: Path | str) -> list[dict[st
 
 
 __all__ = ["make_figures", "fig_level_distribution", "fig_tier_coverage",
+           "fig_withheld_sensitivity_and_debt",
            "fig_dependency_graph"]

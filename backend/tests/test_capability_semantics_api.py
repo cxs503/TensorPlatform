@@ -28,6 +28,14 @@ except Exception as exc:  # pragma: no cover - 环境缺依赖时跳过而非误
     pytest.skip(f"backend api 依赖不可用: {exc}", allow_module_level=True)
 
 
+@pytest.fixture(autouse=True)
+def _clear_artifact_cache():
+    """每例清空工件缓存：``_load`` 以 (mtime, payload) 缓存，同秒重建同名文件会串味。"""
+    cs._CACHE.clear()
+    yield
+    cs._CACHE.clear()
+
+
 def _client() -> TestClient:
     app = FastAPI()
     app.include_router(cs.router, prefix="/api/v1")
@@ -83,6 +91,19 @@ def _write_artifacts(tmp_path: Path, monkeypatch) -> Path:
         "summary": {"cycle_count": 0, "orphan_ratio_domain": 0.0},
     }), encoding="utf-8")
     (art / "dependency_graph.dot").write_text("digraph x {}\n", encoding="utf-8")
+    (art / "verification_debt.json").write_text(json.dumps({
+        "schema": "capability_verification_debt/v1",
+        "records": [
+            {"capability_id": "synth.a", "priority": "P1", "status": "OPEN",
+             "reason_code": "UNVERIFIED_IMPLEMENTATION", "lift_condition": "补独立验证工件"},
+            {"capability_id": "synth.c", "priority": "P0", "status": "MEASURED",
+             "reason_code": "CONTRADICTED_BY_AUDIT", "measurements": {"err_pct": 12.0}},
+        ],
+        "summary": {"debt_entries": 2, "measured_ratio": 0.5,
+                    "by_priority": {"P0": 1, "P1": 1}},
+        "runs": [{"capability_id": "synth.c", "label": "run1", "status": "EXECUTED"}],
+        "policy": {"out_of_repo_capabilities": []},
+    }), encoding="utf-8")
     (art / "acceptance.json").write_text(json.dumps({
         "all_ok": True,
         "criteria": {"a_semantic_layers": {"ok": True, "note": "n"}},
@@ -157,6 +178,20 @@ def test_graph_formats(tmp_path, monkeypatch):
     assert "flowchart" in mm["mermaid"]
 
 
+def test_debt_endpoint_filters_and_discloses_policy(tmp_path, monkeypatch):
+    _write_artifacts(tmp_path, monkeypatch)
+    resp = _client().get("/api/v1/tensor/capabilities/semantics/debt")
+    assert resp.status_code == 200
+    data = resp.json()["data"]
+    assert data["schema"] == "capability_verification_debt/v1"
+    assert data["summary"]["debt_entries"] == 2
+    assert len(data["records"]) == 2
+    only_p0 = _client().get(
+        "/api/v1/tensor/capabilities/semantics/debt?priority=p0&status=measured")
+    assert only_p0.status_code == 200
+    assert [r["capability_id"] for r in only_p0.json()["data"]["records"]] == ["synth.c"]
+
+
 def test_acceptance_endpoint(tmp_path, monkeypatch):
     _write_artifacts(tmp_path, monkeypatch)
     data = _client().get("/api/v1/tensor/capabilities/semantics/acceptance").json()["data"]
@@ -195,6 +230,28 @@ def test_refresh_endpoint_monkeypatched(tmp_path, monkeypatch):
     data = _client().post("/api/v1/tensor/capabilities/semantics/refresh").json()["data"]
     assert data["all_ok"] is True
     assert data["criteria"]["a_semantic_layers"] is True
+
+def test_committed_artifacts_serve_all_endpoints(monkeypatch):
+    """判据 (e) 的机器证明：仓内**真实**工件在场时，全部只读端点必须 200。
+
+    这是 attempt-2 修的真缺陷：工件曾未随分支提交 → 服务侧恒 503（端点形同虚设）。
+    """
+    art = ROOT / "artifacts/capability_semantics"
+    required = ["semantic_layers.json", "evidence_audit_after_patch.json",
+                "misuse_report.json", "registry_patch.json", "dependency_graph.json",
+                "dependency_graph.dot", "verification_debt.json", "acceptance.json",
+                "audit_log.json"]
+    missing = [n for n in required if not (art / n).exists()]
+    assert not missing, f"committed artifacts missing: {missing}"
+    monkeypatch.setattr(cs, "ARTIFACT_DIR", art)
+    cs._CACHE.clear()
+    client = _client()
+    for path in ("", "/layers", "/evidence", "/misuse", "/graph", "/debt", "/acceptance"):
+        resp = client.get(f"/api/v1/tensor/capabilities/semantics{path}")
+        assert resp.status_code == 200, (path, resp.text[:200])
+    debt = client.get("/api/v1/tensor/capabilities/semantics/debt").json()["data"]
+    assert debt["summary"]["debt_entries"] >= 1
+
 
 def test_routers_wired_in_main_and_route_shapes():
     """接线回归：两个能力路由器都必须在 main.py 里 include；路由形状可枚举。"""
