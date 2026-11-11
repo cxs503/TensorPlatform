@@ -727,6 +727,18 @@ try:  # pragma: no cover - 环境相关
 except Exception:  # pragma: no cover
     logger.warning("capability-upgrade API not mounted", exc_info=True)
 
+# ── 平台治理三守卫（p338w3-n07）────────────────────────────────────────────
+# 能力台账完整度阈值门（含关键要求硬门）/ 报告内容指纹四方绑定 / 战役节点状态
+# 漂移检测与收敛计划。零领域语义：能力 slug、阈值、节点与 mission 状态随请求注入；
+# 挂载失败不得拖垮主应用。
+try:  # pragma: no cover - 环境相关
+    from tools.platform_governance_gates.api import build_router as _governance_gates_router
+
+    app.include_router(_governance_gates_router(), prefix="/api/v1")
+    logger.info("platform-governance gates mounted at /api/v1/platform-governance")
+except Exception:  # pragma: no cover
+    logger.warning("platform-governance gates API not mounted", exc_info=True)
+
 # ── 能力台账语义三元分层 + NOT_SUPPORTED 误用治理（P266W1-N10）─────────────
 # 只读 artifacts/capability_semantics/ 工件；判定逻辑在 tools/capability_semantics
 #（零领域语义：能力 id/依赖边来自 config/capability_semantics.json）。挂载失败不拖垮主应用。
