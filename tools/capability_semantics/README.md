@@ -1,7 +1,7 @@
 # tools/capability_semantics —— 能力台账语义三元分层 + NOT_SUPPORTED 误用治理
 
 把平台能力台账从**扁平结构**（`id / domain / 声明等级 / 自由文本证据`）重构成
-**语义三元分层**，并为「误用」与「证据」建立机器判据。P266W1-N10 交付。
+**语义三元分层**，并为「误用」与「证据」建立机器判据。P266W2-N10 交付（含 attempt-2 诚实口径与欠账台账成熟化）。
 
 ## 三层是什么
 
@@ -46,7 +46,7 @@
 ```bash
 # 全流程：工件 + 图 + 报告文档（真实扫描约 45 秒）
 python3 -m tools.capability_semantics --figures \
-    --doc docs/reports/P266W1_N10_capability_semantics.md --coverage-pct 85.0
+    --doc docs/reports/P266W2_N10_capability_semantics.md --coverage-pct 85.0
 
 # 只算不落工件（CI/调试）
 python3 -m tools.capability_semantics --dry-run --json
@@ -62,7 +62,7 @@ python3 -m pytest tools/capability_semantics/tests -q
 `prev` 必须等于上一条 `record_sha256`）。
 
 API：`backend/api/capability_semantics.py`
-（`/api/v1/tensor/capabilities/semantics{,/layers,/evidence,/misuse,/graph,/acceptance,/refresh}`）。
+（`/api/v1/tensor/capabilities/semantics{,/layers,/evidence,/misuse,/graph,/debt,/acceptance,/refresh}`）。
 
 ## 模块地图
 
@@ -76,8 +76,29 @@ API：`backend/api/capability_semantics.py`
 | `misuse.py` | 误用三分类、补丁生成、补丁后复扫验证 |
 | `graph.py` | 依赖图（环/自环/缺目标/孤立/拓扑序/DOT/Mermaid） |
 | `pipeline.py` | 一键流水线、验收判据 (a)–(f)、sha256 链、文档后回填 (e) |
-| `figures.py` | 三张报告图（等级分布 / 三层覆盖+治理前后 / 依赖图） |
+| `debt.py` | 验证欠账台账：逐条提升条件 + 真跑独立验证脚本的量测缺口（命令/sha256/退出码可复核） |
+| `figures.py` | 四张报告图（等级分布 / 三层覆盖+治理前后 / 依赖图 / 口径敏感性+欠账优先级） |
 | `cli.py` | 命令行 + Markdown 报告渲染（数字程序化注入） |
+
+## 判据 (c) 的诚实口径（attempt-2 修正）
+
+WITHHELD 比例超标就是**未达标**：给逐因分析只解释缺口，不能把 `ok` 翻成 True。
+历史版本曾用 `waived_by_analysis`（"已给原因分析"）判通过，已删除，并同时输出
+**三口径敏感性**（`all_graded` / `ledger_only` / `excluding_out_of_repo`）——
+任一口径达标不得单独宣布通过（挑分母 = 自欺）。
+
+## 验证欠账台账（`debt.py`）
+
+比例是症状，不能行动。台账把每条非 REAL 条目展开为：
+`理由码 → 提升条件（lift_condition）→ 当前量测缺口 → 欠账状态`。
+
+* 状态机：`OPEN`（无独立量测）/ `MEASURED`（已有验证脚本量测值）/
+  `BLOCKED_OUT_OF_REPO`（实现位于扫描边界外的仓，本仓不假造证据）。
+* 量测面：配置 `verification_runs` 声明 `capability_id / script / command / metrics`
+  （抽取路径支持「列表 + id 选择 + 值字段」与直路径），流水线用 `--run-verifiers` 真跑，
+  记录命令、脚本 sha256、退出码、输出 sha256、耗时与 UTC 时间；缺脚本/失败/字段缺失
+  分别记 `SKIPPED_MISSING_SCRIPT` / `EXEC_FAILED` / `PARSE_INCOMPLETE`，**从不填默认值**。
+* 边界：台账**不参与**等级判定（避免「为关账而改判」）；只解释缺口并给整改动作。
 
 ## 零领域语义
 
@@ -90,7 +111,7 @@ API：`backend/api/capability_semantics.py`
 扫描器会把仓库里带数值判据的文档当"验证工件"。如果本节点自己的报告/工件也在扫描范围内，
 就会出现循环论证：**报告里写「误差 ≤3%」→ 扫描判 pass → 变成能力证据**。
 因此 `config/capability_semantics.json` 的 `delivery_discovery.exclude_glob_patterns`
-必须排除本节点产物（`artifacts/capability_semantics/**`、`docs/reports/P266W1_N10_*`、
+必须排除本节点产物（`artifacts/capability_semantics/**`、`docs/reports/P266W2_N10_*`、
 `docs/reports/capability_semantics/**`、`tools/capability_semantics/**`），
 排除项会写进 `semantic_layers.json::stats.warnings`（可复核）。
 
@@ -100,7 +121,7 @@ API：`backend/api/capability_semantics.py`
 （无时间戳、键排序、路径相对化）——sha256 链因此可作为回归基线：
 
 ```bash
-python3 -m tools.capability_semantics --figures --doc docs/reports/P266W1_N10_capability_semantics.md
+python3 -m tools.capability_semantics --figures --doc docs/reports/P266W2_N10_capability_semantics.md
 sha256sum artifacts/capability_semantics/semantic_layers.json   # 重跑应不变
 ```
 

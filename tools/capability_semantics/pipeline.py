@@ -17,8 +17,9 @@ from __future__ import annotations
 import json
 from dataclasses import dataclass, field
 from pathlib import Path
-from typing import Any, Mapping, Sequence
+from typing import Any, Mapping, Optional, Sequence
 
+from .debt import build_debt_registry
 from .evidence import REASON_TEXT, audit_evidence, derive_level, grade_triples
 from .graph import build_graph
 from .layering import LayeredLedger, build_layers, classify_tiers
@@ -48,6 +49,7 @@ class PipelineResult:
     patch: dict[str, Any] = field(default_factory=dict)
     verification: dict[str, Any] = field(default_factory=dict)
     graph: dict[str, Any] = field(default_factory=dict)
+    debt: dict[str, Any] = field(default_factory=dict)
     acceptance: dict[str, Any] = field(default_factory=dict)
     artifacts: dict[str, str] = field(default_factory=dict)
     audit_log: list[dict[str, Any]] = field(default_factory=list)
@@ -62,6 +64,7 @@ class PipelineResult:
             "patch": self.patch,
             "verification": self.verification,
             "graph": self.graph,
+            "debt": self.debt,
             "acceptance": self.acceptance,
             "artifacts": dict(self.artifacts),
             "audit_log": list(self.audit_log),
@@ -190,6 +193,8 @@ def run_pipeline(
     coverage_pct: float | None = None,
     test_files: Sequence[str] = (),
     docs_path: str = "docs/reports/P266W1_N10_capability_semantics.md",
+    run_verifiers: bool = False,
+    verifier_runner=None,
 ) -> PipelineResult:
     """跑完整条流水线（纯计算 + 落工件）。"""
     root = Path(root).resolve()
@@ -299,9 +304,36 @@ def run_pipeline(
         "GET /api/v1/tensor/capabilities/semantics/evidence",
         "GET /api/v1/tensor/capabilities/semantics/misuse",
         "GET /api/v1/tensor/capabilities/semantics/graph",
+        "GET /api/v1/tensor/capabilities/semantics/debt",
         "GET /api/v1/tensor/capabilities/semantics/acceptance",
     ]
     docs_file = root / docs_path
+    # ── 6.5 验证欠账台账（把比例拆成可执行整改项 + 可选真跑验证量测）──
+    debt = build_debt_registry(evidence_after["entries"], cfg, root,
+                               runner=verifier_runner, run_verifiers=run_verifiers)
+    debt_summary = debt["summary"]
+    # 口径敏感性：同一份审计在不同总体定义下的 WITHHELD 比例（防止用分母挑数字）
+    def _ratio(ids: Optional[set[str]]) -> dict[str, Any]:
+        sel = [r for r in evidence_after["entries"]
+               if ids is None or str(r["capability_id"]) in ids]
+        w = [r for r in sel if r["derived_level"] == "WITHHELD"]
+        return {"graded": len(sel), "withheld": len(w),
+                "ratio": round(len(w) / len(sel), 4) if sel else 0.0,
+                "below_max": bool(sel) and (len(w) / len(sel)) < evidence_after["withheld_ratio_max"]}
+
+    out_of_repo_ids = {str(c) for c in (cfg.debt_policy.get("out_of_repo_capabilities") or [])}
+    ledger_only_ids = set(ledger_ids)
+    withheld_sensitivity = {
+        "all_graded": _ratio(None),
+        "ledger_only": _ratio(ledger_only_ids),
+        "excluding_out_of_repo": _ratio(None) if not out_of_repo_ids else {
+            **_ratio({str(r["capability_id"]) for r in evidence_after["entries"]}
+                     - out_of_repo_ids),
+            "excluded": sorted(out_of_repo_ids),
+        },
+        "note": "三种总体口径都披露；任一口径低于阈值的口径不得单独用来宣布达标",
+    }
+
     acceptance = {
         "schema_version": "1.0",
         "criteria": {
@@ -336,13 +368,17 @@ def run_pipeline(
                 # 判据文本：「WITHHELD 比例 < 30%（若 > 30% 则分析原因）」——
                 # 超额时以逐因分析替代，但 withheld_ok 如实记 False，绝不静默放行
                 "ok": bool(evidence_after["criterion_graded_ok"]
-                           and (evidence_after["criterion_withheld_ok"]
-                                or evidence_after["withheld_analysis_complete"])),
+                           and evidence_after["criterion_withheld_ok"]),
                 "withheld_ok": evidence_after["criterion_withheld_ok"],
-                "waived_by_analysis": bool(not evidence_after["criterion_withheld_ok"]
-                                           and evidence_after["withheld_analysis_complete"]),
+                # 诚实口径：比例超标就是超标，不因「给了原因分析」而改判通过。
+                # 原因分析仍逐因落盘（withheld_breakdown），但它只解释缺口、不构成达标。
+                "waived_by_analysis": False,
                 "ok_basis": ("ratio_below_max" if evidence_after["criterion_withheld_ok"]
-                             else "ratio_exceeded_analysis_provided"),
+                             else "honest_fail_ratio_above_max"),
+                "sensitivity": withheld_sensitivity,
+                "debt_entries": debt_summary.get("debt_entries"),
+                "debt_measured_ratio": debt_summary.get("measured_ratio"),
+                "debt_out_of_repo_count": debt_summary.get("out_of_repo_count"),
                 "withheld_groups": evidence_after["withheld_groups"],
                 "patch_capped": verification.get("patch_capped", []),
                 "withheld_root_causes": evidence_after["withheld_root_causes"],
@@ -402,6 +438,13 @@ def run_pipeline(
             "root": str(root),
         },
     }
+    honest_fail = sorted(k for k, c in acceptance["criteria"].items() if not bool(c.get("ok")))
+    acceptance["honest_fail"] = {
+        "criteria": honest_fail,
+        "count": len(honest_fail),
+        "fail_ok": bool(honest_fail),  # 判据不通过时如实标记，禁止补白
+        "note": "未通过判据必须如实披露；honest-FAIL 不可被「原因分析」或口径选择覆盖",
+    }
     acceptance["all_ok"] = all(c["ok"] for c in acceptance["criteria"].values())
 
     # ── 8. 落工件 + sha256 链 ────────────────────────────────
@@ -412,6 +455,7 @@ def run_pipeline(
         patch=patch,
         verification={k: v for k, v in verification.items() if k != "layered_stats_after"},
         graph={**graph.to_dict(), "summary": graph_summary},
+        debt=debt,
         acceptance=acceptance,
         warnings=list(layers.warnings),
         ledger_after=ledger_after,
@@ -435,6 +479,7 @@ def run_pipeline(
         "misuse_report.json": misuse,
         "registry_patch.json": patch,
         "dependency_graph.json": result.graph,
+        "verification_debt.json": debt,
         "acceptance.json": acceptance,
     }
     chain: list[tuple[str, str]] = []

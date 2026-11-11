@@ -197,6 +197,8 @@ class SemanticsConfig:
     thresholds: dict[str, float] = field(default_factory=lambda: dict(DEFAULT_THRESHOLDS))
     discovery: dict[str, Any] = field(default_factory=lambda: dict(DEFAULT_DISCOVERY))
     capabilities: list[dict[str, Any]] = field(default_factory=list)
+    verification_runs: list[dict[str, Any]] = field(default_factory=list)
+    debt_policy: dict[str, Any] = field(default_factory=dict)
     raw_sha256: str = ""
 
     def cap(self, capability_id: str) -> dict[str, Any]:
@@ -247,6 +249,10 @@ def load_semantics_config(path: Path) -> SemanticsConfig:
         cfg.discovery = merged
     if isinstance(payload.get("capabilities"), list):
         cfg.capabilities = [c for c in payload["capabilities"] if isinstance(c, dict)]
+    if isinstance(payload.get("verification_runs"), list):
+        cfg.verification_runs = [r for r in payload["verification_runs"] if isinstance(r, dict)]
+    if isinstance(payload.get("verification_debt"), dict):
+        cfg.debt_policy = dict(payload["verification_debt"])
     return cfg
 
 
