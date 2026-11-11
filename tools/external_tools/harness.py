@@ -54,7 +54,10 @@ def _round(value: Any) -> Any:
     if isinstance(value, float):
         if value != value or value in (float("inf"), float("-inf")):
             return repr(value)
-        return float(f"{value:.12g}")
+        # 16 significant digits: enough that a benchmark row's |ref-got| is not
+        # dominated by the ledger's own quantization; still a rounding, and the
+        # invariant decision itself is taken on the *unrounded* value.
+        return float(f"{value:.16g}")
     if isinstance(value, dict):
         return {k: _round(v) for k, v in value.items()}
     if isinstance(value, (list, tuple)):

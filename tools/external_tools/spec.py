@@ -56,6 +56,12 @@ class Invariant:
     op: str = "le"
     target: Optional[float] = None
     unit: str = ""
+    #: independent reference value the observed number is scored against.
+    #: ``None`` means "no declared reference" -> the benchmark marks the case
+    #: ``unscored`` and makes no accuracy claim (no reference, no percentage).
+    ref: Optional[float] = None
+    #: where the reference comes from (closed form / analytic identity / stdlib)
+    ref_source: str = ""
 
     def __post_init__(self) -> None:
         if self.op not in ("le", "ge", "abs"):
@@ -72,8 +78,13 @@ class Invariant:
         return abs(float(observed) - ref) <= self.limit
 
     def to_dict(self) -> Dict[str, Any]:
-        return {"metric": self.metric, "limit": self.limit, "op": self.op,
-                "target": self.target, "unit": self.unit}
+        out = {"metric": self.metric, "limit": self.limit, "op": self.op,
+               "target": self.target, "unit": self.unit}
+        if self.ref is not None:
+            out["ref"] = self.ref
+        if self.ref_source:
+            out["ref_source"] = self.ref_source
+        return out
 
 
 @dataclass(frozen=True)
@@ -132,6 +143,8 @@ def _invariants(raw: Iterable[Mapping[str, Any]]) -> Tuple[Invariant, ...]:
             op=str(item.get("op", "le")),
             target=None if item.get("target") is None else float(item["target"]),
             unit=str(item.get("unit", "")),
+            ref=None if item.get("ref") is None else float(item["ref"]),
+            ref_source=str(item.get("ref_source", "")),
         ))
     return tuple(out)
 
