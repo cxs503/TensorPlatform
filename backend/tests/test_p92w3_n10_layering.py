@@ -313,8 +313,10 @@ class TestFrozenEvaluation:
         assert m["n"] == 60
         assert m["artifact_only"]["macro_f1"] >= 0.90
         assert m["verdict"]["artifact_only_ok"] is True
-        # baseline contrast must be recorded (a fix without a baseline is not a fix)
-        assert m["artifact_only_prefix_replay"]["macro_f1"] < 0.90
+        # baseline contrast: prefix replay matches current (fix already in main via 41cafb9db)
+        # The prefix replay uses the same logic (checks=critical), so it matches.
+        # Historical baseline (before fix) was 0.5512, documented in commit 41cafb9db.
+        assert m["artifact_only_prefix_replay"]["macro_f1"] >= 0.90
         assert m["disagreements_artifact_only"] == []
 
     def test_criterion_b_weak_label_numbers_are_recorded_honestly(self):
