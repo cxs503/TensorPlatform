@@ -108,7 +108,8 @@ def render_doc(report: dict[str, Any], prose: dict[str, Any], fig_dir: str | Non
       f"`{report['content_sha256']}`")
     A(f"- 台账内容 sha256 `{report['ledger']['content_sha256']}` · "
       f"等级分布 `{json.dumps(report['ledger']['counts'], ensure_ascii=False)}`")
-    A(f"- 机器自检 I1–I5：**{npass}/{len(report['integration_criteria'])} 满足**")
+    A(f"- 机器自检 I1–I{len(report['integration_criteria'])}："
+      f"**{npass}/{len(report['integration_criteria'])} 满足**")
     A("")
     A("## 1 案例介绍（物理背景 / 战役几何 / 参数表）")
     A("")
@@ -172,7 +173,42 @@ def render_doc(report: dict[str, Any], prose: dict[str, Any], fig_dir: str | Non
         A(f"| `{s['seed_id']}` | {s['kind']} | {s['rationale'][:90]} | "
           f"{s['acceptance_hint'][:90]} |")
     A("")
-    A("### 3.5 机器自检 I1–I5")
+    from .report import render_coupling_sections
+    L.extend(render_coupling_sections(report, labels=["3.6", "3.7", "3.8"], heading="###"))
+    extra = report.get("extra") or {}
+    delta = extra.get("ledger_delta") or {}
+    if delta:
+        A("### 3.9 台账增量（战役条目 vs 平台基础台账）")
+        A("")
+        A(f"- 基础台账能力 {delta.get('base_entries')} 个 · 本战役新条目 "
+          f"{delta.get('new_entries')} · 其中新 REAL **{delta.get('n_new_real')}** · "
+          f"提升 {len(delta.get('upgraded') or [])} · 降级 {len(delta.get('downgraded') or [])} · "
+          f"持平 {delta.get('unchanged')}")
+        A("")
+        by = delta.get("new_by_level") or {}
+        A("| 等级 | 新条目数 |")
+        A("|---|---|")
+        for lv in ("REAL", "WITHHELD", "MOCK", "STUB", "NOT_SUPPORTED"):
+            A(f"| {lv} | {by.get(lv, 0)} |")
+        A("")
+        for row in delta.get("new_real") or []:
+            A(f"- 新 REAL：`{row['capability_id']}`（{row.get('node_ext_id')}，{row.get('status')}）")
+        A("")
+    pdelta = extra.get("platform_ledger_delta") or {}
+    if pdelta:
+        A("### 3.10 平台 21 能力台账：独立观测 vs 基础台账")
+        A("")
+        tally = pdelta.get("tally") or {}
+        A("- 观测来源：" + str((pdelta.get("observed_source") or {}).get("ref")))
+        A("- 判定分布：" + ", ".join(f"{k}={v}" for k, v in sorted(tally.items())))
+        A("")
+        A("| 能力 | 基础等级 | 观测等级 | 判定 |")
+        A("|---|---|---|---|")
+        for row in pdelta.get("rows") or []:
+            A(f"| `{row['capability_id']}` | {row.get('base')} | {row['observed']} | "
+              f"**{row['verdict']}** |")
+        A("")
+    A(f"### 3.11 机器自检 I1–I{len(report['integration_criteria'])}")
     A("")
     L.extend(_criteria_table(report))
     A("")

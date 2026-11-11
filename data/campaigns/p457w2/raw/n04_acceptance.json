@@ -1,0 +1,436 @@
+{
+  "node": "p457w2-n04-aeration-decalibration",
+  "repo": "TensorSPH",
+  "module": "tensorsph.aeration.{mixture_acoustics,pbm_moments,impact_law}",
+  "phase_properties": {
+    "water": {
+      "rho": 998.2,
+      "c": 1483.0,
+      "gamma": 7.0
+    },
+    "air": {
+      "rho": 1.204,
+      "c": 343.0,
+      "gamma": 1.4
+    },
+    "steel": {
+      "rho": 7850.0,
+      "c": 5900.0
+    }
+  },
+  "alpha_star": 0.5005715502522231,
+  "c_min_m_s": 23.809623277729013,
+  "criteria": {
+    "C1": {
+      "criterion": "C1 Wood closed form <= 1e-6 (pointwise) and alpha* ~ 20 m/s",
+      "max_relative_deviation_vs_60digit_mpmath": 7.105426751813295e-15,
+      "threshold": 1e-06,
+      "pass": true,
+      "alpha_star_closed_form": 0.5005715502522231,
+      "alpha_star_ternary_search": 0.5005715590854707,
+      "alpha_star_abs_difference": 8.833247577832992e-09,
+      "c_min_closed_form_m_s": 23.809623277729013,
+      "c_min_numerical_m_s": 23.809623277729017,
+      "c_min_relative_difference": 1.492133511462833e-16,
+      "dcm_dalpha_at_alpha_star": 0.0,
+      "c_min_magnitude_check_15_30_m_s": true,
+      "pass_magnitude": true
+    },
+    "C2": {
+      "criterion": "C2 alpha->0 and alpha->1 limits, residual <= 0.1%",
+      "rows": [
+        {
+          "velocity": 1.0,
+          "p_alpha0_pa": 1480330.6,
+          "reference_rho_w_c_w_v_pa": 1480330.6,
+          "residual_alpha0": 0.0,
+          "p_alpha1_pa": 412.9719999999999,
+          "reference_rho_a_c_a_v_pa": 412.972,
+          "residual_alpha1": 1.3764472860341142e-16
+        },
+        {
+          "velocity": 6.0,
+          "p_alpha0_pa": 8881983.600000001,
+          "reference_rho_w_c_w_v_pa": 8881983.600000001,
+          "residual_alpha0": 0.0,
+          "p_alpha1_pa": 2477.8319999999994,
+          "reference_rho_a_c_a_v_pa": 2477.832,
+          "residual_alpha1": 1.8352630480454854e-16
+        },
+        {
+          "velocity": 8.0,
+          "p_alpha0_pa": 11842644.8,
+          "reference_rho_w_c_w_v_pa": 11842644.8,
+          "residual_alpha0": 0.0,
+          "p_alpha1_pa": 3303.7759999999994,
+          "reference_rho_a_c_a_v_pa": 3303.776,
+          "residual_alpha1": 1.3764472860341142e-16
+        },
+        {
+          "velocity": 10.0,
+          "p_alpha0_pa": 14803306.0,
+          "reference_rho_w_c_w_v_pa": 14803306.0,
+          "residual_alpha0": 0.0,
+          "p_alpha1_pa": 4129.719999999999,
+          "reference_rho_a_c_a_v_pa": 4129.719999999999,
+          "residual_alpha1": 0.0
+        },
+        {
+          "velocity": 14.0,
+          "p_alpha0_pa": 20724628.400000002,
+          "reference_rho_w_c_w_v_pa": 20724628.400000002,
+          "residual_alpha0": 0.0,
+          "p_alpha1_pa": 5781.607999999999,
+          "reference_rho_a_c_a_v_pa": 5781.608,
+          "residual_alpha1": 1.573082612610416e-16
+        },
+        {
+          "velocity": 25.0,
+          "p_alpha0_pa": 37008265.0,
+          "reference_rho_w_c_w_v_pa": 37008265.0,
+          "residual_alpha0": 0.0,
+          "p_alpha1_pa": 10324.299999999997,
+          "reference_rho_a_c_a_v_pa": 10324.3,
+          "residual_alpha1": 1.761852526123666e-16
+        }
+      ],
+      "worst_residual": 1.8352630480454854e-16,
+      "threshold": 0.001,
+      "pass": true
+    },
+    "C3": {
+      "criterion": "C3 constant-kernel + equal-split moment evolution vs numerical, <= 1%",
+      "kernels": {
+        "epsilon": 1.0,
+        "void_fraction": 0.001,
+        "k_coagulation": 3.6319391620741555e-09,
+        "k_breakage": 0.26625565495420767,
+        "m0_equilibrium": 146619006.03101093,
+        "sauter_mean_radius": 0.0004879324972659673,
+        "hinze_radius": 0.005500333283413498,
+        "number_density": 206493268.4976488
+      },
+      "initial_moments": {
+        "M0": 206493268.4976488,
+        "M1": 0.001,
+        "M2": 1.2980328944875428e-10,
+        "M3": 4.97627089991228e-17
+      },
+      "rk4_steps": 4000,
+      "t_end": 100.0,
+      "closed_form_vs_rk4_max_residual": 6.821009132993035e-11,
+      "threshold": 0.01,
+      "pass_closed_form": true,
+      "closure_vs_double_sum_scaled_residual": 1.7383828971880983e-11,
+      "pass_closure": true,
+      "M0_initial": 206493268.4976488,
+      "M0_final": 146619006.031127,
+      "M0_equilibrium": 146619006.03101093,
+      "M0_decays": true,
+      "M1_conserved_relative_drift": 0.0,
+      "M2_initial": 1.2980328944875428e-10,
+      "M2_equilibrium": 2.728159266851102e-14,
+      "M2_rate_measured": -0.13312782747710383,
+      "M2_rate_expected_Kb_over_2": 0.13312782747710383,
+      "M2_exponential": true,
+      "M2_direction": "decay (M2_0 > M2_eq); growth is the complementary branch, pinned in tests",
+      "pass": true
+    },
+    "C4": {
+      "criterion": "C4 PBM void fraction vs specified field, deviation <= 5%",
+      "continuous_route": {
+        "mean_field": 0.0002499119691227129,
+        "mean_pbm": 0.00024991196912271287,
+        "deviation": 2.1691681600754675e-16
+      },
+      "discrete_route": {
+        "mean_field": 0.0002499119691227129,
+        "mean_discrete": 0.0002499119691227129,
+        "deviation": 0.0
+      },
+      "worst_deviation": 2.1691681600754675e-16,
+      "threshold": 0.05,
+      "pass": true
+    },
+    "C5": {
+      "criterion": "C5 k_b=0.65 replaced by the Z(alpha) law: G inside m9319 [6%,12%]",
+      "band": [
+        0.06,
+        0.12
+      ],
+      "legacy_constant": 0.65,
+      "design_envelope": {
+        "n_cases": 6,
+        "g_load_all": [
+          0.009233913235792368,
+          0.025193272564987934,
+          0.04059085439535992,
+          0.06201245071453121,
+          0.12485383775382486,
+          0.021056154715253017
+        ],
+        "g_load_mean": 0.04715674722995822,
+        "g_load_p95": 0.10914349099400145,
+        "g_load_min": 0.009233913235792368,
+        "g_load_max": 0.12485383775382486,
+        "k_b_equivalent_load_p95": 0.9878105263943424,
+        "k_b_equivalent_load_p05": 0.8908565090059986,
+        "g_peak_mean": 0.9894329658960381,
+        "g_peak_p95": 0.9919719629827471,
+        "in_band_count": 1,
+        "band": [
+          0.06,
+          0.12
+        ],
+        "cases_out_of_domain": [
+          "S3-head-seas-rough",
+          "S4-bow-flare-buried",
+          "S5-design-slam"
+        ]
+      },
+      "rows": [
+        {
+          "case": "S1-head-seas-slight",
+          "velocity_m_s": 6.0,
+          "angle_deg": 45.0,
+          "chanson_parameter": 1.4705121756294495,
+          "entrainment_flux_m2_s": 0.06775375329064072,
+          "aerated_layer_thickness_m": 0.011292292215106787,
+          "aeration_area_fraction": 0.009410243512588989,
+          "alpha_patch": 0.15522075698994736,
+          "aeration_saturated": false,
+          "local_status": "IN_DOMAIN",
+          "k_coagulation": 1.2438031326364857e-09,
+          "k_breakage": 0.01142369916406296,
+          "sauter_mean_radius_m": 0.0013881285605098284,
+          "g_peak": 0.9812618795081426,
+          "g_load": 0.009233913235792368,
+          "k_b_equivalent_load": 0.9907660867642076,
+          "legacy_g_load": 0.35,
+          "in_band": false
+        },
+        {
+          "case": "S2-head-seas-moderate",
+          "velocity_m_s": 8.0,
+          "angle_deg": 55.0,
+          "chanson_parameter": 1.9534817317584863,
+          "entrainment_flux_m2_s": 0.3051141541627156,
+          "aerated_layer_thickness_m": 0.03813926927033945,
+          "aeration_area_fraction": 0.025426179513559632,
+          "alpha_patch": 0.43490828757114297,
+          "aeration_saturated": false,
+          "local_status": "IN_DOMAIN",
+          "k_coagulation": 2.4298890481396632e-09,
+          "k_breakage": 0.09467168903629064,
+          "sauter_mean_radius_m": 0.0007123104622993028,
+          "g_peak": 0.9908398763389745,
+          "g_load": 0.025193272564987934,
+          "k_b_equivalent_load": 0.9748067274350121,
+          "legacy_g_load": 0.35,
+          "in_band": false
+        },
+        {
+          "case": "S3-head-seas-rough",
+          "velocity_m_s": 10.0,
+          "angle_deg": 60.0,
+          "chanson_parameter": 2.473096834147489,
+          "entrainment_flux_m2_s": 0.7365484170737445,
+          "aerated_layer_thickness_m": 0.07365484170737445,
+          "aeration_area_fraction": 0.040919356504096914,
+          "alpha_patch": 0.7493180529809973,
+          "aeration_saturated": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "k_coagulation": 3.561530360523072e-09,
+          "k_breakage": 0.25395892353093824,
+          "sauter_mean_radius_m": 0.0004967994710641855,
+          "g_peak": 0.9919719629827471,
+          "g_load": 0.04059085439535992,
+          "k_b_equivalent_load": 0.9594091456046401,
+          "legacy_g_load": 0.35,
+          "in_band": false
+        },
+        {
+          "case": "S4-bow-flare-buried",
+          "velocity_m_s": 12.0,
+          "angle_deg": 65.0,
+          "chanson_parameter": 3.083810599110981,
+          "entrainment_flux_m2_s": 1.5003436313599063,
+          "aerated_layer_thickness_m": 0.12502863594665886,
+          "aeration_area_fraction": 0.06251431797332943,
+          "alpha_patch": 1.9640724379996108,
+          "aeration_saturated": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "k_coagulation": 5.076576146160178e-09,
+          "k_breakage": 0.5739319395987615,
+          "sauter_mean_radius_m": 0.00036100383568581415,
+          "g_peak": 0.9919719629827471,
+          "g_load": 0.06201245071453121,
+          "k_b_equivalent_load": 0.9379875492854688,
+          "legacy_g_load": 0.35,
+          "in_band": true
+        },
+        {
+          "case": "S5-design-slam",
+          "velocity_m_s": 14.0,
+          "angle_deg": 70.0,
+          "chanson_parameter": 4.146607021492912,
+          "entrainment_flux_m2_s": 2.6431498980540464,
+          "aerated_layer_thickness_m": 0.18879642128957475,
+          "aeration_area_fraction": 0.1258642808597165,
+          "alpha_patch": 21.474694637755082,
+          "aeration_saturated": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "k_coagulation": 9.422205442643756e-09,
+          "k_breakage": 2.017471274483118,
+          "sauter_mean_radius_m": 0.00021383628798844146,
+          "g_peak": 0.9919719629827471,
+          "g_load": 0.12485383775382486,
+          "k_b_equivalent_load": 0.8751461622461751,
+          "legacy_g_load": 0.35,
+          "in_band": false
+        },
+        {
+          "case": "S6-stern-quartering",
+          "velocity_m_s": 7.0,
+          "angle_deg": 50.0,
+          "chanson_parameter": 1.5916497374453005,
+          "entrainment_flux_m2_s": 0.14909573383621574,
+          "aerated_layer_thickness_m": 0.02129939054803082,
+          "aeration_area_fraction": 0.02129939054803082,
+          "alpha_patch": 0.3310993510461235,
+          "aeration_saturated": false,
+          "local_status": "IN_DOMAIN",
+          "k_coagulation": 2.2186109400133053e-09,
+          "k_breakage": 0.07337593779633665,
+          "sauter_mean_radius_m": 0.0007778810174777728,
+          "g_peak": 0.9885801505808706,
+          "g_load": 0.021056154715253017,
+          "k_b_equivalent_load": 0.978943845284747,
+          "legacy_g_load": 0.35,
+          "in_band": false
+        }
+      ],
+      "pass": true,
+      "definition": "G_load = 1 - [f_A p(alpha_patch) + (1-f_A) p_clear]/p_clear -- the footprint-integrated slam load, which is the quantity that is like-for-like with a constant k_b"
+    },
+    "C6": {
+      "criterion": "C6 p_peak(alpha) strictly decreasing and bounded on alpha < alpha*",
+      "alpha_star": 0.5005715502522231,
+      "n_samples": 157,
+      "per_velocity": {
+        "6.0": {
+          "monotone_decreasing": true,
+          "bounded_0_to_p_clear": true,
+          "p_min_pa": 74828.34988917624,
+          "p_clear_pa": 8881295.400100818
+        },
+        "10.0": {
+          "monotone_decreasing": true,
+          "bounded_0_to_p_clear": true,
+          "p_min_pa": 124713.9164819604,
+          "p_clear_pa": 14802159.000168031
+        },
+        "14.0": {
+          "monotone_decreasing": true,
+          "bounded_0_to_p_clear": true,
+          "p_min_pa": 174599.48307474458,
+          "p_clear_pa": 20723022.600235242
+        }
+      },
+      "pass": true
+    },
+    "C7": {
+      "criterion": "C7 fail-closed OUT_OF_DOMAIN beyond alpha* / below resolution floor",
+      "alpha_star": 0.5005715502522231,
+      "alpha_min_resolvable": 1e-08,
+      "alpha_vw_max": 0.05,
+      "trials": [
+        {
+          "alpha": 0.5005715507527947,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "local_p": null,
+          "bound_p_pa": 118841.48854572058,
+          "reason": "beyond the minimum-sound-speed void fraction alpha*"
+        },
+        {
+          "alpha": 0.5055772657547454,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "local_p": null,
+          "bound_p_pa": 118841.48854572058,
+          "reason": "beyond the minimum-sound-speed void fraction alpha*"
+        },
+        {
+          "alpha": 0.75,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "local_p": null,
+          "bound_p_pa": 118841.48854572058,
+          "reason": "beyond the minimum-sound-speed void fraction alpha*"
+        },
+        {
+          "alpha": 1.0,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "local_p": null,
+          "bound_p_pa": 118841.48854572058,
+          "reason": "beyond the minimum-sound-speed void fraction alpha*"
+        },
+        {
+          "alpha": 3.0,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "local_p": null,
+          "bound_p_pa": 118841.48854572058,
+          "reason": "beyond the minimum-sound-speed void fraction alpha*"
+        },
+        {
+          "alpha": 0.0,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "reason": "below the minimum resolvable void fraction"
+        },
+        {
+          "alpha": 1e-12,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "reason": "below the minimum resolvable void fraction"
+        },
+        {
+          "alpha": -1.0,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "reason": "void fraction must be finite and non-negative"
+        },
+        {
+          "alpha": NaN,
+          "impact_pressure_raised": true,
+          "local_status": "OUT_OF_DOMAIN",
+          "reason": "void fraction must be finite and non-negative"
+        }
+      ],
+      "van_wijngaarden_domain": {
+        "0.1": "OUT_OF_DOMAIN",
+        "1.0": "OUT_OF_DOMAIN"
+      },
+      "out_of_domain_cases": [
+        "S3-head-seas-rough",
+        "S4-bow-flare-buried",
+        "S5-design-slam"
+      ],
+      "pass": true
+    }
+  },
+  "all_pass": true,
+  "figures": [
+    "docs/p457w2-n04/fig1_sound_speed.png",
+    "docs/p457w2-n04/fig2_pressure_family.png",
+    "docs/p457w2-n04/fig3_case_set.png",
+    "docs/p457w2-n04/fig4_moments.png"
+  ],
+  "notes": [
+    "m9319 case-set artefacts live in the ship-performance repository and are not readable from this worktree; the [6%,12%] band is used as the declared reference.",
+    "G_load is the footprint-integrated load reduction (linear area mixture of the aerated patch and clear water); G_peak is the local patch value."
+  ]
+}
