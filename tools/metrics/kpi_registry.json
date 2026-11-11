@@ -14,7 +14,11 @@
       "denominator_field": "den",
       "denominator_spec": {
         "definition": "终态单总数（succeeded + failed）",
-        "excludes": ["pending", "running", "cancelled"],
+        "excludes": [
+          "pending",
+          "running",
+          "cancelled"
+        ],
         "gaming_risk": "M5: 把难单挪出终态（如改 status 为 cancelled/pending）可人为抬高比率"
       },
       "sensitivity": {
@@ -37,7 +41,11 @@
       "denominator_field": "den",
       "denominator_spec": {
         "definition": "终态单总数（succeeded + failed）",
-        "excludes": ["pending", "running", "cancelled"],
+        "excludes": [
+          "pending",
+          "running",
+          "cancelled"
+        ],
         "gaming_risk": "M1: 大量 finish 空壳单（无实质工件）可稀释分母但不增加分子"
       },
       "sensitivity": {
@@ -79,14 +87,22 @@
       "target": 10,
       "formula": "扫描 benchmarks/ 下带 reference_value + sha256 的对标产物并去重",
       "recompute_scan": {
-        "scan_paths": ["artifacts/benchmark_validation.json", "artifacts/benchmark_settlement/audit.json"],
-        "required_fields": ["reference_value", "sha256"],
+        "scan_paths": [
+          "artifacts/benchmark_validation.json",
+          "artifacts/benchmark_settlement/audit.json"
+        ],
+        "required_fields": [
+          "reference_value",
+          "sha256"
+        ],
         "dedup_key": "sha256",
         "filter_condition": "reference_status='DERIVED' AND abs(error_pct) <= 15.0"
       },
       "denominator_spec": {
         "definition": "满足 filter_condition 的唯一 sha256 数",
-        "excludes": ["reference_status='WITHHELD'"],
+        "excludes": [
+          "reference_status='WITHHELD'"
+        ],
         "gaming_risk": "M3: 复制样本（改 sha256 但内容相同）刷数"
       },
       "sensitivity": {
@@ -105,14 +121,21 @@
       "target": 5,
       "formula": "扫描 tools/ 下子目录，计数有 __init__.py 且含至少 3 个 .py 文件的类别",
       "recompute_scan": {
-        "scan_paths": ["tools/"],
-        "required_fields": ["__init__.py"],
+        "scan_paths": [
+          "tools/"
+        ],
+        "required_fields": [
+          "__init__.py"
+        ],
         "min_files_per_category": 3,
         "dedup_key": "directory_name"
       },
       "denominator_spec": {
         "definition": "满足 min_files_per_category 的唯一目录数",
-        "excludes": ["空目录", "只有 __init__.py 的目录"],
+        "excludes": [
+          "空目录",
+          "只有 __init__.py 的目录"
+        ],
         "gaming_risk": "M3: 创建空 .py 文件凑数"
       },
       "sensitivity": {
@@ -131,14 +154,29 @@
       "target": 5,
       "formula": "扫描 docs/papers/, docs/standards/, docs/patents/ 下带 metadata.json 的条目",
       "recompute_scan": {
-        "scan_paths": ["docs/papers/", "docs/standards/", "docs/patents/", "docs/software_copyrights/"],
-        "required_fields": ["metadata.json"],
-        "metadata_required_keys": ["title", "authors", "date", "status"],
+        "scan_paths": [
+          "docs/papers/",
+          "docs/standards/",
+          "docs/patents/",
+          "docs/software_copyrights/"
+        ],
+        "required_fields": [
+          "metadata.json"
+        ],
+        "metadata_required_keys": [
+          "title",
+          "authors",
+          "date",
+          "status"
+        ],
         "dedup_key": "metadata.json:sha256"
       },
       "denominator_spec": {
         "definition": "带完整 metadata 的唯一条目数",
-        "excludes": ["缺 metadata.json 的目录", "status='draft'"],
+        "excludes": [
+          "缺 metadata.json 的目录",
+          "status='draft'"
+        ],
         "gaming_risk": "M1: 创建空壳 metadata.json 凑数"
       },
       "sensitivity": {
@@ -215,32 +253,78 @@
       "anti_gaming_guards": [],
       "not_recomputable": true,
       "not_recomputable_reason": "无计时基线（P3 候选）。tensor_dev_missions 有 started_at/finished_at 但无'人工工时'对照列。"
+    },
+    "trace_report_ratio": {
+      "label": "终态任务带可溯报告工件比率",
+      "unit": "%",
+      "target": 100.0,
+      "formula": "traceable / terminal * 100",
+      "recompute_sql": "SELECT count(*) FILTER (WHERE report_id IS NOT NULL OR EXISTS (SELECT 1 FROM tensor_reports r WHERE r.mission_id = m.id)) AS num, count(*) AS den FROM tensor_dev_missions m WHERE status IN ('succeeded','failed','stopped','revoked')",
+      "numerator_field": "num",
+      "denominator_field": "den",
+      "denominator_spec": {
+        "definition": "终态任务总数（succeeded+failed+stopped+revoked）",
+        "excludes": [
+          "pending",
+          "running",
+          "queued",
+          "claimed",
+          "orphan",
+          "suspended"
+        ],
+        "gaming_risk": "M5: 把难单挪出终态可人为抬高比率"
+      },
+      "sensitivity": {
+        "denominator_perturbation_pct": 10,
+        "interpretation": "分母±10%时，KPI变动幅度（绝对值百分点）"
+      },
+      "anti_gaming_guards": [
+        "终态单数不得环比下降超过 20%（防 M5 拆分）",
+        "status 变更必须有审计日志（防 M4 直改）",
+        "双通道可溯判定（report_id + tensor_reports），防单点依赖"
+      ],
+      "not_recomputable": false
     }
   },
   "gaming_vectors": {
     "M1_finish_empty": {
       "description": "finish 空壳单：创建大量无实质工件的 succeeded 单，稀释分母但不增加分子",
-      "target_kpis": ["lineage_coverage", "success_rate"],
+      "target_kpis": [
+        "lineage_coverage",
+        "success_rate"
+      ],
       "detection": "检查 succeeded 单中无报告工件的比例；若 >30% 则告警"
     },
     "M2_duplicate_artifact": {
       "description": "重复单复制同一 artifact：同一 sha256 被多个 mission_id 引用",
-      "target_kpis": ["lineage_coverage", "benchmark_cases"],
+      "target_kpis": [
+        "lineage_coverage",
+        "benchmark_cases"
+      ],
       "detection": "检查 artifact sha256 去重前后的计数差异；若差异 >10% 则告警"
     },
     "M3_copy_samples": {
       "description": "复制样本刷 kb_samples：复制样本内容但改 sample_id",
-      "target_kpis": ["kb_samples", "benchmark_cases"],
+      "target_kpis": [
+        "kb_samples",
+        "benchmark_cases"
+      ],
       "detection": "检查 content_hash 去重前后的计数差异；若差异 >5% 则告警"
     },
     "M4_modify_ledger": {
       "description": "直改 ledger JSON：直接修改字面量台账文件",
-      "target_kpis": ["all_ledger_kpis"],
+      "target_kpis": [
+        "all_ledger_kpis"
+      ],
       "detection": "ledger 文件必须有 sha256 校验链；任何修改必须留审计日志"
     },
     "M5_denominator_split": {
       "description": "分母拆分：把难单（fail）挪出终态（改 status 为 cancelled/pending）",
-      "target_kpis": ["success_rate", "lineage_coverage", "repro_rate"],
+      "target_kpis": [
+        "success_rate",
+        "lineage_coverage",
+        "repro_rate"
+      ],
       "detection": "检查终态单数环比变化；若下降 >20% 则告警"
     }
   }
