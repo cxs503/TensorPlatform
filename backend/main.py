@@ -100,6 +100,19 @@ async def lifespan(app: FastAPI):
     except Exception as e:
         logger.error(f"Database connection failed: {e}")
 
+    # 能力台账 pin 自愈（启动时自动补章，避免 PIN_MISSING 永久红灯）
+    try:
+        from tools.audit import ledger_selfheal as _LSH
+        _sh = _LSH.fix()
+        if _sh.get("fixed"):
+            logger.info("Ledger pin self-heal: wrote pin (sha256=%s)", _sh.get("sha256", "?")[:16])
+        elif _sh.get("action_taken") == _LSH.ACTION_NONE:
+            logger.info("Ledger pin self-heal: already healthy")
+        else:
+            logger.warning("Ledger pin self-heal: needs human intervention — %s", _sh.get("reasons"))
+    except Exception as e:
+        logger.warning("Ledger pin self-heal skipped: %s", e)
+
     # 初始化数据库表
     try:
         from database.config import engine, Base
