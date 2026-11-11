@@ -1,0 +1,19 @@
+{
+  "schema_version": "1.0",
+  "label": "gate-combination-matrix",
+  "thresholds": {
+    "test_pass_rate_min": 0.8,
+    "benchmark_error_max_pct": 15.0,
+    "require_independent_review": true
+  },
+  "combinations": [
+    {"combo": "000", "test_pass_rate": 0.5, "benchmark_error_pct": 20.0, "review_verdict": "fail", "expected_chain_complete": false, "expected_level": "MOCK"},
+    {"combo": "001", "test_pass_rate": 0.5, "benchmark_error_pct": 20.0, "review_verdict": "pass", "expected_chain_complete": false, "expected_level": "MOCK"},
+    {"combo": "010", "test_pass_rate": 0.5, "benchmark_error_pct": 5.0, "review_verdict": "fail", "expected_chain_complete": false, "expected_level": "WITHHELD"},
+    {"combo": "011", "test_pass_rate": 0.5, "benchmark_error_pct": 5.0, "review_verdict": "pass", "expected_chain_complete": false, "expected_level": "WITHHELD"},
+    {"combo": "100", "test_pass_rate": 0.95, "benchmark_error_pct": 20.0, "review_verdict": "fail", "expected_chain_complete": false, "expected_level": "MOCK"},
+    {"combo": "101", "test_pass_rate": 0.95, "benchmark_error_pct": 20.0, "review_verdict": "pass", "expected_chain_complete": false, "expected_level": "MOCK"},
+    {"combo": "110", "test_pass_rate": 0.95, "benchmark_error_pct": 5.0, "review_verdict": "fail", "expected_chain_complete": false, "expected_level": "WITHHELD"},
+    {"combo": "111", "test_pass_rate": 0.95, "benchmark_error_pct": 5.0, "review_verdict": "pass", "expected_chain_complete": true, "expected_level": "REAL"}
+  ]
+}
