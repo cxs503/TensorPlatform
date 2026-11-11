@@ -6,6 +6,9 @@
 - kb_samples: 知识库样本数（tensor_reports + knowledge docs），目标 ≥ 100
 - unattended: 无人值守率（auto-completed missions / total missions），目标 ≥ 0.9
 - benchmark: 基准测试通过数（passed benchmarks），目标 ≥ 5
+- qc_recheck_rate: 已合并 agent PR 的独立参考复核通过率（%），目标 100
+  —— 计量逻辑在 `tools/kpi_qc_recheck`（锚点 KPI-QC-RECHECK，只读）；
+  本服务只做平台侧内联调用，不重复实现口径。
 
 证据纪律：所有数字从 DB 程序化读取，零手抄。
 """
@@ -28,7 +31,13 @@ KPI_TARGETS = {
     "kb_samples": 100,
     "unattended": 0.9,
     "benchmark": 5,
+    # 质量控制回路维度（%）：已合并 agent PR 中经独立参考复核通过的比例
+    "qc_recheck_rate": 100.0,
 }
+
+# 前 4 维是历史存量口径，其达标判定与 all_pass 语义保持不变（向后兼容）；
+# qc_recheck_rate 单列，聚合结论见 all_pass_including_qc。
+CORE_KPI_KEYS = ("repro_rate", "kb_samples", "unattended", "benchmark")
 
 # ── 内存缓存（TTL 60s） ──────────────────────────────────────────
 _CACHE: dict[str, Any] = {}
@@ -51,12 +60,27 @@ def _set_cached(data: dict) -> None:
         _CACHE_TS = time.time()
 
 
+def _rollback_quietly(db: Session) -> None:
+    """事务回滚（容错）：Mock/轻量 Session 可能没有 rollback，不在这种细节上抛断。"""
+    rb = getattr(db, "rollback", None)
+    if callable(rb):
+        try:
+            rb()
+        except Exception:  # noqa: BLE001
+            pass
+
+
 def _safe_table(db: Session, table_name: str) -> bool:
-    """检查表是否存在。"""
+    """检查表是否存在。
+
+    失败时必须 rollback：PostgreSQL 里一条语句报错会让整个事务进入 aborted 状态，
+    后续所有查询都会报 InFailedSqlTransaction —— 那会连坐同一次请求里的其它 KPI。
+    """
     try:
         db.execute(text(f"SELECT 1 FROM {table_name} LIMIT 1"))
         return True
-    except Exception:
+    except Exception:  # noqa: BLE001
+        _rollback_quietly(db)
         return False
 
 
@@ -67,14 +91,19 @@ def _compute_repro_rate(db: Session) -> float:
     """
     # 尝试从 metered_usage 表获取（有 repro_digest 列）
     if _safe_table(db, "metered_usage"):
-        row = db.execute(text("""
-            SELECT
-                COUNT(*) as total,
-                SUM(CASE WHEN repro_digest IS NOT NULL AND repro_digest != '' THEN 1 ELSE 0 END) as repro
-            FROM metered_usage
-        """)).mappings().first()
-        if row and row["total"] > 0:
-            return row["repro"] / row["total"]
+        # 表存在不代表列存在（现行 schema 无 repro_digest）→ 列缺失时回退，
+        # 不让整块 KPI 面板因一个历史列名 500（实测 2026-11-11 曾整端点报错）。
+        try:
+            row = db.execute(text("""
+                SELECT
+                    COUNT(*) as total,
+                    SUM(CASE WHEN repro_digest IS NOT NULL AND repro_digest != '' THEN 1 ELSE 0 END) as repro
+                FROM metered_usage
+            """)).mappings().first()
+            if row and row["total"] > 0:
+                return row["repro"] / row["total"]
+        except Exception:  # noqa: BLE001
+            _rollback_quietly(db)
 
     # 回退：从 tensor_dev_missions 的 result JSON 中检查
     if _safe_table(db, "tensor_dev_missions"):
@@ -168,6 +197,25 @@ def _compute_benchmark(db: Session) -> int:
     return 0
 
 
+def _compute_qc_recheck(db: Session, days: int = 30) -> dict[str, Any]:
+    """
+    独立参考复核通过率 —— 通过 `tools.kpi_qc_recheck` 计量能力获取（只读）。
+
+    失败即 fail-closed：返回 status='unavailable' 且 value=None，
+    绝不回填 0 或猜测值（计量失败 ≠ 读数为 0）。
+    """
+    try:
+        from tools.kpi_qc_recheck.measure import measure_with_session
+    except Exception:  # noqa: BLE001 —— 工具层不可用时不影响其余 KPI
+        return {"value": None, "target": KPI_TARGETS["qc_recheck_rate"],
+                "pass": False, "status": "unavailable", "error": "tools.kpi_qc_recheck not importable"}
+    try:
+        return measure_with_session(db, days=days)
+    except Exception as exc:  # noqa: BLE001
+        return {"value": None, "target": KPI_TARGETS["qc_recheck_rate"], "pass": False,
+                "status": "unavailable", "error": f"{type(exc).__name__}: {exc}"}
+
+
 def compute_all_kpis(db: Session) -> dict[str, Any]:
     """
     计算全部 4 维度 KPI。
@@ -190,6 +238,13 @@ def compute_all_kpis(db: Session) -> dict[str, Any]:
     kb_samples = _compute_kb_samples(db)
     unattended = _compute_unattended(db)
     benchmark = _compute_benchmark(db)
+    qc = _compute_qc_recheck(db)
+    all_pass_core = all([
+        repro_rate >= KPI_TARGETS["repro_rate"],
+        kb_samples >= KPI_TARGETS["kb_samples"],
+        unattended >= KPI_TARGETS["unattended"],
+        benchmark >= KPI_TARGETS["benchmark"],
+    ])
 
     result = {
         "repro_rate": {
@@ -212,12 +267,22 @@ def compute_all_kpis(db: Session) -> dict[str, Any]:
             "target": KPI_TARGETS["benchmark"],
             "pass": benchmark >= KPI_TARGETS["benchmark"],
         },
-        "all_pass": all([
-            repro_rate >= KPI_TARGETS["repro_rate"],
-            kb_samples >= KPI_TARGETS["kb_samples"],
-            unattended >= KPI_TARGETS["unattended"],
-            benchmark >= KPI_TARGETS["benchmark"],
-        ]),
+        "qc_recheck_rate": {
+            "value": qc.get("current"),
+            "target": KPI_TARGETS["qc_recheck_rate"],
+            "pass": bool(qc.get("current") is not None
+                         and qc["current"] >= KPI_TARGETS["qc_recheck_rate"]),
+            "status": qc.get("status", "unavailable"),
+            "numerator": qc.get("numerator"),
+            "denominator": qc.get("denominator"),
+            "gap_pp": qc.get("gap"),
+        },
+        "all_pass": all_pass_core,
+        # 含质量控制回路的聚合结论（新维度不达标 → False）；all_pass 保持历史语义不变
+        "all_pass_including_qc": bool(
+            all_pass_core and qc.get("current") is not None
+            and qc["current"] >= KPI_TARGETS["qc_recheck_rate"]
+        ),
         "timestamp": __import__("datetime").datetime.now(
             __import__("datetime").timezone.utc
         ).isoformat(),
