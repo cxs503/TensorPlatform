@@ -1,0 +1,39 @@
+{
+  "schema_version": "audit-permission-matrix/1.0",
+  "description": "审计视图权限矩阵。≥12 项测试覆盖：读视图全通、写操作全拒、DDL 全拒、未授权角色亦拒。",
+  "role": "audit_reader",
+  "views": [
+    "v_audit_campaign_plans",
+    "v_audit_campaign_nodes",
+    "v_audit_missions",
+    "v_audit_reports",
+    "v_audit_capability_deltas",
+    "v_audit_capability_registry"
+  ],
+  "base_tables": [
+    "campaign_plans",
+    "campaign_nodes",
+    "tensor_dev_missions",
+    "tensor_reports",
+    "tensor_capability_deltas",
+    "capability_registry"
+  ],
+  "matrix": [
+    {"id": "PM-01", "role": "audit_reader", "object": "v_audit_campaign_plans", "action": "SELECT", "expected": "ALLOW", "category": "view_read"},
+    {"id": "PM-02", "role": "audit_reader", "object": "v_audit_campaign_nodes", "action": "SELECT", "expected": "ALLOW", "category": "view_read"},
+    {"id": "PM-03", "role": "audit_reader", "object": "v_audit_missions", "action": "SELECT", "expected": "ALLOW", "category": "view_read"},
+    {"id": "PM-04", "role": "audit_reader", "object": "v_audit_reports", "action": "SELECT", "expected": "ALLOW", "category": "view_read"},
+    {"id": "PM-05", "role": "audit_reader", "object": "v_audit_capability_deltas", "action": "SELECT", "expected": "ALLOW", "category": "view_read"},
+    {"id": "PM-06", "role": "audit_reader", "object": "v_audit_capability_registry", "action": "SELECT", "expected": "ALLOW", "category": "view_read"},
+    {"id": "PM-07", "role": "audit_reader", "object": "v_audit_campaign_plans", "action": "INSERT", "expected": "DENY", "category": "view_write"},
+    {"id": "PM-08", "role": "audit_reader", "object": "v_audit_campaign_plans", "action": "UPDATE", "expected": "DENY", "category": "view_write"},
+    {"id": "PM-09", "role": "audit_reader", "object": "v_audit_campaign_plans", "action": "DELETE", "expected": "DENY", "category": "view_write"},
+    {"id": "PM-10", "role": "audit_reader", "object": "campaign_plans", "action": "SELECT", "expected": "DENY", "category": "base_table_read"},
+    {"id": "PM-11", "role": "audit_reader", "object": "campaign_plans", "action": "INSERT", "expected": "DENY", "category": "base_table_write"},
+    {"id": "PM-12", "role": "audit_reader", "object": "campaign_plans", "action": "DDL", "expected": "DENY", "category": "ddl"},
+    {"id": "PM-13", "role": "unauthorized_role", "object": "v_audit_campaign_plans", "action": "SELECT", "expected": "DENY", "category": "negative_control"},
+    {"id": "PM-14", "role": "audit_reader", "object": "audit_access_events", "action": "INSERT", "expected": "ALLOW", "category": "audit_write"},
+    {"id": "PM-15", "role": "audit_reader", "object": "audit_access_events", "action": "SELECT", "expected": "DENY", "category": "audit_read_deny"},
+    {"id": "PM-16", "role": "audit_reader", "object": "audit_access_events", "action": "UPDATE", "expected": "DENY", "category": "audit_write_deny"}
+  ]
+}

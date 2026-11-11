@@ -1,0 +1,128 @@
+{
+  "schema_version": "audit-views-fields/1.0",
+  "description": "审计只读视图字段白名单契约。每个视图列出允许的字段及其来源表。排除字段含 PII 和内部实现细节。",
+  "views": {
+    "v_audit_campaign_plans": {
+      "source_table": "campaign_plans",
+      "description": "战役计划审计视图",
+      "included_fields": [
+        {"name": "id", "type": "BIGSERIAL", "description": "主键"},
+        {"name": "campaign_id", "type": "TEXT", "description": "战役标识符"},
+        {"name": "name", "type": "TEXT", "description": "战役名称"},
+        {"name": "status", "type": "TEXT", "description": "状态"},
+        {"name": "metadata", "type": "JSONB", "description": "元数据"},
+        {"name": "created_at", "type": "TIMESTAMPTZ", "description": "创建时间"},
+        {"name": "updated_at", "type": "TIMESTAMPTZ", "description": "更新时间"}
+      ],
+      "excluded_fields": [
+        {"name": "organization_id", "reason": "租户隔离，审计不需要"},
+        {"name": "budget_planned", "reason": "内部预算细节"},
+        {"name": "budget_actual", "reason": "内部预算细节"},
+        {"name": "created_by", "reason": "PII - 用户 ID"}
+      ]
+    },
+    "v_audit_campaign_nodes": {
+      "source_table": "campaign_nodes",
+      "description": "战役节点审计视图",
+      "included_fields": [
+        {"name": "id", "type": "BIGSERIAL", "description": "主键"},
+        {"name": "plan_id", "type": "BIGINT", "description": "所属战役计划"},
+        {"name": "name", "type": "TEXT", "description": "节点名称"},
+        {"name": "node_type", "type": "TEXT", "description": "节点类型"},
+        {"name": "status", "type": "TEXT", "description": "状态"},
+        {"name": "reproduction_verdict", "type": "TEXT", "description": "复现判决"},
+        {"name": "consecutive_fails", "type": "INT", "description": "连败计数"},
+        {"name": "block_reason", "type": "TEXT", "description": "阻塞原因"},
+        {"name": "metadata", "type": "JSONB", "description": "元数据"},
+        {"name": "created_at", "type": "TIMESTAMPTZ", "description": "创建时间"},
+        {"name": "updated_at", "type": "TIMESTAMPTZ", "description": "更新时间"}
+      ],
+      "excluded_fields": [
+        {"name": "milestone_id", "reason": "内部关联 ID"},
+        {"name": "mission_id", "reason": "内部关联 ID"},
+        {"name": "dependencies", "reason": "内部实现细节"},
+        {"name": "planned_start", "reason": "调度细节"},
+        {"name": "planned_end", "reason": "调度细节"},
+        {"name": "actual_start", "reason": "调度细节"},
+        {"name": "actual_end", "reason": "调度细节"}
+      ]
+    },
+    "v_audit_missions": {
+      "source_table": "tensor_dev_missions",
+      "description": "任务审计视图",
+      "included_fields": [
+        {"name": "id", "type": "BIGSERIAL", "description": "主键"},
+        {"name": "goal", "type": "TEXT", "description": "任务目标"},
+        {"name": "repo", "type": "VARCHAR(120)", "description": "仓库名"},
+        {"name": "base_ref", "type": "VARCHAR(120)", "description": "基准分支"},
+        {"name": "status", "type": "VARCHAR(24)", "description": "状态"},
+        {"name": "claimed_by", "type": "VARCHAR(120)", "description": "认领者"},
+        {"name": "result", "type": "JSONB", "description": "结果"},
+        {"name": "created_at", "type": "TIMESTAMPTZ", "description": "创建时间"},
+        {"name": "heartbeat_at", "type": "TIMESTAMPTZ", "description": "心跳时间"},
+        {"name": "finished_at", "type": "TIMESTAMPTZ", "description": "完成时间"}
+      ],
+      "excluded_fields": [
+        {"name": "organization_id", "reason": "租户隔离"},
+        {"name": "budget", "reason": "内部预算细节"},
+        {"name": "claim_token", "reason": "敏感令牌"},
+        {"name": "session_id", "reason": "内部关联"},
+        {"name": "created_by", "reason": "PII - 用户 ID"}
+      ]
+    },
+    "v_audit_reports": {
+      "source_table": "tensor_reports",
+      "description": "报告审计视图",
+      "included_fields": [
+        {"name": "id", "type": "SERIAL", "description": "主键"},
+        {"name": "title", "type": "TEXT", "description": "标题"},
+        {"name": "summary", "type": "TEXT", "description": "摘要"},
+        {"name": "scenario_key", "type": "TEXT", "description": "场景键"},
+        {"name": "mission_id", "type": "INT", "description": "关联任务"},
+        {"name": "stage", "type": "TEXT", "description": "阶段"},
+        {"name": "tags", "type": "JSONB", "description": "标签"},
+        {"name": "status", "type": "TEXT", "description": "状态"},
+        {"name": "created_at", "type": "TIMESTAMPTZ", "description": "创建时间"}
+      ],
+      "excluded_fields": [
+        {"name": "organization_id", "reason": "租户隔离"},
+        {"name": "markdown", "reason": "大文本，审计不需要全文"},
+        {"name": "figures", "reason": "二进制数据引用"},
+        {"name": "created_by", "reason": "PII - 用户 ID"}
+      ]
+    },
+    "v_audit_capability_deltas": {
+      "source_table": "tensor_capability_deltas",
+      "description": "能力增量（台账）审计视图",
+      "included_fields": [
+        {"name": "id", "type": "BIGSERIAL", "description": "主键"},
+        {"name": "mission_id", "type": "BIGINT", "description": "关联任务"},
+        {"name": "category", "type": "TEXT", "description": "增量类别"},
+        {"name": "summary", "type": "TEXT", "description": "摘要"},
+        {"name": "reason", "type": "TEXT", "description": "理由"},
+        {"name": "artifacts", "type": "JSONB", "description": "工件列表"},
+        {"name": "evidence", "type": "JSONB", "description": "证据"},
+        {"name": "reviewer", "type": "TEXT", "description": "审核者"},
+        {"name": "created_at", "type": "TIMESTAMPTZ", "description": "创建时间"}
+      ],
+      "excluded_fields": [
+        {"name": "organization_id", "reason": "租户隔离"},
+        {"name": "card_id", "reason": "内部关联"}
+      ]
+    },
+    "v_audit_capability_registry": {
+      "source_table": "capability_registry",
+      "description": "能力注册（声明）审计视图",
+      "included_fields": [
+        {"name": "capability_id", "type": "TEXT", "description": "能力标识符"},
+        {"name": "claimed_level", "type": "TEXT", "description": "声明等级"},
+        {"name": "expected_level", "type": "TEXT", "description": "预期等级"},
+        {"name": "registered_at", "type": "TEXT", "description": "注册时间"},
+        {"name": "updated_at", "type": "TEXT", "description": "更新时间"}
+      ],
+      "excluded_fields": [
+        {"name": "metadata", "reason": "内部附加信息"}
+      ]
+    }
+  }
+}
