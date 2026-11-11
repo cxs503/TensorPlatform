@@ -1,0 +1,142 @@
+{
+  "axis_perfect": true,
+  "cases": [
+    {
+      "case": "M1",
+      "counts_after": {
+        "cross_source": 1,
+        "evidence_support": 1,
+        "markdown": 1,
+        "quote_binding": 0
+      },
+      "counts_before": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 0,
+        "quote_binding": 0
+      },
+      "detected": 1,
+      "fired": [
+        "cross_source",
+        "markdown",
+        "evidence_support",
+        "verdict"
+      ],
+      "injected": 1,
+      "mutation": "篡改对账等级（level flip）",
+      "target_axis": "cross:reconciled_level"
+    },
+    {
+      "case": "M2",
+      "counts_after": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 0,
+        "quote_binding": 1
+      },
+      "counts_before": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 0,
+        "quote_binding": 0
+      },
+      "detected": 1,
+      "fired": [
+        "quote_binding",
+        "verdict"
+      ],
+      "injected": 1,
+      "mutation": "篡改引文行指纹（line_sha256）",
+      "target_axis": "quote_binding"
+    },
+    {
+      "case": "M3",
+      "counts_after": {
+        "cross_source": 1,
+        "evidence_support": 0,
+        "markdown": 2,
+        "quote_binding": 0
+      },
+      "counts_before": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 0,
+        "quote_binding": 0
+      },
+      "detected": 1,
+      "fired": [
+        "cross_source",
+        "markdown",
+        "verdict"
+      ],
+      "injected": 1,
+      "mutation": "抹除证据引用（evidence drop）",
+      "target_axis": "evidence_support"
+    },
+    {
+      "case": "M4",
+      "counts_after": {
+        "cross_source": 1,
+        "evidence_support": 0,
+        "markdown": 3,
+        "quote_binding": 0
+      },
+      "counts_before": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 0,
+        "quote_binding": 0
+      },
+      "detected": 1,
+      "fired": [
+        "cross_source",
+        "markdown",
+        "verdict"
+      ],
+      "injected": 1,
+      "mutation": "篡改分歧标签（divergence）",
+      "target_axis": "cross_source"
+    },
+    {
+      "case": "M5",
+      "counts_after": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 1,
+        "quote_binding": 0
+      },
+      "counts_before": {
+        "cross_source": 0,
+        "evidence_support": 0,
+        "markdown": 0,
+        "quote_binding": 0
+      },
+      "detected": 1,
+      "fired": [
+        "markdown",
+        "verdict"
+      ],
+      "injected": 1,
+      "mutation": "篡改已发布人读表数字",
+      "target_axis": "markdown"
+    }
+  ],
+  "clean_counts": {
+    "cross_source": 0,
+    "evidence_support": 0,
+    "markdown": 0,
+    "quote_binding": 0
+  },
+  "detected": 5,
+  "false_positives": 0,
+  "injected": 5,
+  "recall": 1.0,
+  "schema_version": "1.0",
+  "target_axis_hit": {
+    "M1": false,
+    "M2": true,
+    "M3": false,
+    "M4": true,
+    "M5": true
+  }
+}
