@@ -1,0 +1,110 @@
+{
+ "mission": 15118,
+ "anchor": "KPI-SWEEP-1000",
+ "audited_commit": "2891a88fae9ec11870c6a44a904c2c958839b406",
+ "C1_counts": {
+  "ship_samples_total": 23176,
+  "by_calc_type": {
+   "geometry_validation": 11315,
+   "kb_resistance": 2692,
+   "kb_green_shipping": 2500,
+   "kb_seakeeping": 2293,
+   "kb_propulsion": 2225,
+   "kb_stability": 1303,
+   "kb_ice_navigation": 848
+  },
+  "kb_samples_rows": 11861,
+  "kb_prefixed_ship_rows": 11861,
+  "geometry_validation_rows": 11315,
+  "mirror_delta_kb_minus_ship": 0,
+  "C_wide_recompute": 23176,
+  "B_headline_recompute": 12116
+ },
+ "C2_mirror": {
+  "kb_only": 0,
+  "ship_only": 0,
+  "verdict": "IDENTICAL"
+ },
+ "C3_identities": {
+  "resistance.Cf=ITTC57(Re)": {
+   "n": 300,
+   "pass": 300,
+   "rate": 1.0
+  },
+  "resistance.Rt=sum(1e-3)": {
+   "n": 300,
+   "pass": 300,
+   "rate": 1.0
+  },
+  "resistance.Re=VL/nu": {
+   "n": 300,
+   "pass": 300,
+   "rate": 1.0
+  },
+  "propulsion.eta0=J*KT/(2pi*KQ)": {
+   "n": 300,
+   "pass": 272,
+   "rate": 0.9067
+  },
+  "propulsion.T=KT*rho*n^2*D^4": {
+   "n": 300,
+   "pass": 300,
+   "rate": 1.0
+  },
+  "ice.R_ice=sum(components)": {
+   "n": 300,
+   "pass": 45,
+   "rate": 0.15
+  },
+  "ice.rel_err_vs_reference<10%": {
+   "n": 300,
+   "pass": 279,
+   "rate": 0.93
+  },
+  "stability.GM=KB+BM-KG": {
+   "n": 300,
+   "pass": 300,
+   "rate": 1.0
+  },
+  "seakeeping.significant=2sigma": {
+   "n": 300,
+   "pass": 300,
+   "rate": 1.0
+  },
+  "seakeeping.significant=4sigma": {
+   "n": 300,
+   "pass": 0,
+   "rate": 0.0
+  }
+ },
+ "C4_dedup": {
+  "copies_found": 982,
+  "distinct_sha256": 1,
+  "cases_per_copy_distinct": [],
+  "note": "若 distinct_sha256==1 则 976 份拷贝同一执行，只应计一次"
+ },
+ "C5_anchor": {
+  "anchor_rows": 0,
+  "table_rows_total": 13,
+  "verdict": "NO_BENCHMARK_CASE"
+ },
+ "C6_repro": {
+  "ledger_exit": 0,
+  "stdout_tail": [
+   " }",
+   "}",
+   "A/B/C = 255 12116 23431"
+  ],
+  "headline_committed": 12116,
+  "headline_regenerated": 12116,
+  "headline_delta": 0,
+  "keys_only_in_committed": [
+   "current_l1_verified_lower_bound",
+   "current_l1_verified_note"
+  ],
+  "keys_differing_values": [],
+  "non_idempotent": true,
+  "stage_input_committed": false,
+  "tmpdir": "/tmp/audit_m15118_6sd5pqu8"
+ }
+}
