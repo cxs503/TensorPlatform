@@ -1,0 +1,347 @@
+{
+  "audit": "m15168 board-audit of m15122 (KPI-GATE-100, repo TensorPlatform)",
+  "verdict_level": 2,
+  "T1_run_artifacts": {
+    "ok": true,
+    "named_key_present_in_result_json": false,
+    "files": [
+      {
+        "path": "artifacts/kpi_gate_100/result.json",
+        "exists": true,
+        "bytes": 28935,
+        "git_tracked": true,
+        "sha256": "0d37ee1167dd9ccc"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/probes.sql",
+        "exists": true,
+        "bytes": 407,
+        "git_tracked": true,
+        "sha256": "c55d1966cca2430f"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/benchmark_settlement.json",
+        "exists": true,
+        "bytes": 10732,
+        "git_tracked": true,
+        "sha256": "4d2d42ff304ddc32"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/benchmark_settlement_live.txt",
+        "exists": true,
+        "bytes": 2318,
+        "git_tracked": true,
+        "sha256": "72945ccb71ba422f"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/measure_gate_coverage.py",
+        "exists": true,
+        "bytes": 19080,
+        "git_tracked": true,
+        "sha256": "60ab002b7f513b10"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/make_report.py",
+        "exists": true,
+        "bytes": 16419,
+        "git_tracked": true,
+        "sha256": "03643df2a3911e05"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/KPI_GATE_100_report.md",
+        "exists": true,
+        "bytes": 10328,
+        "git_tracked": true,
+        "sha256": "0616653e89eea330"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/fig1_gate_coverage.png",
+        "exists": true,
+        "bytes": 36852,
+        "git_tracked": true,
+        "sha256": "85c01a5bb0cff26c"
+      },
+      {
+        "path": "artifacts/kpi_gate_100/fig2_report_gate_coverage.png",
+        "exists": true,
+        "bytes": 28613,
+        "git_tracked": true,
+        "sha256": "658f4c018fbe3fed"
+      }
+    ]
+  },
+  "T2_benchmark": {
+    "anchor": "KPI-GATE-100",
+    "registered_cases": 0,
+    "cases": [],
+    "registered_judge_available": false,
+    "kpi_target": 100.0,
+    "kpi_got_strict": 60.0,
+    "kpi_got_structural": 80.0,
+    "kpi_gap_pp": 40.0,
+    "kpi_target_met": false,
+    "within_registered_tolerance": null,
+    "internal_settlement_rows": [
+      {
+        "case_id": "DTMB5415-01",
+        "ref_ct": 0.0045,
+        "got_ct": 0.004343,
+        "err_pct": -3.4889,
+        "abs_err_pct": 3.4889,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "DTMB5415-02",
+        "ref_ct": 0.0038,
+        "got_ct": 0.004687,
+        "err_pct": 23.3421,
+        "abs_err_pct": 23.3421,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "DTMB5415-03",
+        "ref_ct": 0.0035,
+        "got_ct": 0.005374,
+        "err_pct": 53.5429,
+        "abs_err_pct": 53.5429,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "DTMB5415-04",
+        "ref_ct": 0.0038,
+        "got_ct": 0.00606,
+        "err_pct": 59.4737,
+        "abs_err_pct": 59.4737,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "KVLCC2-01",
+        "ref_ct": 0.0028,
+        "got_ct": 0.002886,
+        "err_pct": 3.0714,
+        "abs_err_pct": 3.0714,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "KVLCC2-02",
+        "ref_ct": 0.003,
+        "got_ct": 0.002913,
+        "err_pct": -2.9,
+        "abs_err_pct": 2.9,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "KVLCC2-03",
+        "ref_ct": 0.0031,
+        "got_ct": 0.002927,
+        "err_pct": -5.5806,
+        "abs_err_pct": 5.5806,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "KVLCC2-04",
+        "ref_ct": 0.0032,
+        "got_ct": 0.002941,
+        "err_pct": -8.0938,
+        "abs_err_pct": 8.0938,
+        "verdict": "WITHHELD",
+        "admissible": false,
+        "ref_source": "WITHHELD"
+      },
+      {
+        "case_id": "SUBOFF-01",
+        "ref_ct": 0.0038,
+        "got_ct": 0.006418,
+        "err_pct": 68.8947,
+        "abs_err_pct": 68.8947,
+        "verdict": "FAIL_OVER_15",
+        "admissible": true,
+        "ref_source": "DERIVED"
+      },
+      {
+        "case_id": "SUBOFF-02",
+        "ref_ct": 0.004,
+        "got_ct": 0.006724,
+        "err_pct": 68.1,
+        "abs_err_pct": 68.1,
+        "verdict": "FAIL_OVER_15",
+        "admissible": true,
+        "ref_source": "DERIVED"
+      },
+      {
+        "case_id": "SUBOFF-03",
+        "ref_ct": 0.0042,
+        "got_ct": 0.00703,
+        "err_pct": 67.381,
+        "abs_err_pct": 67.381,
+        "verdict": "FAIL_OVER_15",
+        "admissible": true,
+        "ref_source": "DERIVED"
+      },
+      {
+        "case_id": "SUBOFF-04",
+        "ref_ct": 0.0044,
+        "got_ct": 0.007336,
+        "err_pct": 66.7273,
+        "abs_err_pct": 66.7273,
+        "verdict": "FAIL_OVER_15",
+        "admissible": true,
+        "ref_source": "DERIVED"
+      }
+    ],
+    "internal_settlement_note": "12 行为平台船体阻力正典决算，是『基准门在拒绝』的证据，非本锚点 KPI 的 ref/got 对"
+  },
+  "T3_repro_cmd": {
+    "cmd": "python3 artifacts/kpi_gate_100/measure_gate_coverage.py",
+    "ran_here": true,
+    "rc": 0,
+    "headline_reproduced": {
+      "current": true,
+      "current_structural": true,
+      "target": true,
+      "gap": true,
+      "covered_strict": true,
+      "covered_structural": true,
+      "no_gate_lines": true
+    },
+    "booleans_reproduced": true,
+    "live_state_drift": [
+      {
+        "line": "PR",
+        "orig_G4": 0.85434,
+        "repro_G4": 0.854392,
+        "orig_num_den": [
+          5355,
+          6268
+        ],
+        "repro_num_den": [
+          5369,
+          6284
+        ],
+        "den_delta": 16,
+        "rel_delta_pct": 0.0061
+      },
+      {
+        "line": "报告",
+        "orig_G4": 0.003606,
+        "repro_G4": 0.0036,
+        "orig_num_den": [
+          34,
+          9429
+        ],
+        "repro_num_den": [
+          34,
+          9445
+        ],
+        "den_delta": 16,
+        "rel_delta_pct": -0.1664
+      },
+      {
+        "line": "基准",
+        "orig_G4": 1.0,
+        "repro_G4": 1.0,
+        "orig_num_den": [
+          12,
+          12
+        ],
+        "repro_num_den": [
+          12,
+          12
+        ],
+        "den_delta": 0,
+        "rel_delta_pct": 0.0
+      },
+      {
+        "line": "知识",
+        "orig_G4": 0.0,
+        "repro_G4": 0.0,
+        "orig_num_den": [
+          0,
+          29
+        ],
+        "repro_num_den": [
+          0,
+          30
+        ],
+        "den_delta": 1,
+        "rel_delta_pct": null
+      },
+      {
+        "line": "论文",
+        "orig_G4": null,
+        "repro_G4": null,
+        "orig_num_den": [
+          0,
+          0
+        ],
+        "repro_num_den": [
+          0,
+          0
+        ],
+        "den_delta": 0,
+        "rel_delta_pct": null
+      }
+    ],
+    "test_probes": {
+      "报告": {
+        "rc": 0,
+        "summary": "..........                                                               [100%]",
+        "failed": []
+      },
+      "基准": {
+        "rc": 0,
+        "summary": "20 passed, 1 warning in 0.22s",
+        "failed": []
+      },
+      "知识": {
+        "rc": 1,
+        "summary": "FAILED tests/test_knowledge_sediment.py::test_pipeline_reference_labels_file_is_loadable",
+        "failed": [
+          "FAILED tests/test_knowledge_sediment.py::test_pipeline_reference_labels_file_is_loadable"
+        ]
+      },
+      "PR": {
+        "rc": 0,
+        "summary": ".....s                                                                   [100%]",
+        "failed": []
+      }
+    },
+    "hermetic": false,
+    "hermetic_note": "dsn() 依赖 DATABASE_URL 或本机 :8010 uvicorn 进程 → 干净检出即 SystemExit"
+  },
+  "T4_report": {
+    "report_id": 14246,
+    "title": "KPI-GATE-100 计量：产出线×门禁覆盖矩阵真值 60%（严格口径）/ 80%（结构口径），缺口 40pp",
+    "qa_status": "pending",
+    "sections": {
+      "①": true,
+      "②": true,
+      "③": true,
+      "④": true,
+      "⑤": true,
+      "⑥": true
+    },
+    "six_sections_complete": true,
+    "figures": 2,
+    "honest_fail_declared": true
+  },
+  "integration_callers": {
+    "hits": [],
+    "count": 0,
+    "note": "git 树内除本单 artifacts/docs 外零调用方 → 不达 L3"
+  }
+}
