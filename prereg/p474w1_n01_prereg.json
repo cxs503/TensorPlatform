@@ -1,0 +1,75 @@
+{
+  "node": "p474w1-n01-evidence-chain",
+  "mission_id": 13872,
+  "registered_utc": "2026-11-11",
+  "registered_before_acceptance_run": true,
+  "purpose": "Pre-declare the decision rule, margins and stopping rule of the evidence-chain acceptance run before the acceptance artefact is produced. Pilot work (fixture construction, scanner debugging) happened before this file; the two pilot defects and their effect on the measured association rate are recorded in 'pilot_findings' below rather than being silently absorbed.",
+  "decision": "Adopt uncertainty-aware equivalence (TOST) certificates for capability upgrades and reclassify historical point-PASS declarations by their MDE coverage.",
+  "alternatives_considered": [
+    "keep the point rule 'relative error < 15%' (rejected: no sampling-uncertainty statement, PASS cannot be falsified by more data)",
+    "raise the sample size only (rejected: does not fix the missing interval / MDE reporting)",
+    "report post-hoc power only (rejected: post-hoc power is a deterministic function of the p-value and is not a design property; MDE coverage + power-at-zero are reported instead)"
+  ],
+  "hypothesis": "Real solver verification artefacts already carry enough numeric evidence to upgrade capability claims to REAL without human intervention, and a fraction of historical PASS declarations is statistically non-certifying.",
+  "unit_of_analysis": "one verification artefact file for association; one capability entry for equivalence; one historical PASS/FAIL record for reclassification",
+  "criteria_thresholds": {
+    "a_cross_repo_scan": {"repos_min": 5, "association_rate_min": 0.90},
+    "b_scenarios": {"implemented_min": 3},
+    "c_mde_table": {"rows_min": 10},
+    "d_reclassification": {"requires_recomputable_rate": true},
+    "e_pytest": {"tests_min": 20},
+    "f_zero_domain": {"max_hits": 0}
+  },
+  "equivalence_settings": {
+    "alpha": 0.05,
+    "power_target": 0.80,
+    "relative_error_margin": 0.15,
+    "conservation_margin": 1e-06,
+    "variance_ratio_theta": 2.0,
+    "distribution_margin_sup_cdf": 0.35,
+    "mde_coverage_fraction_for_adequate": 0.80,
+    "ks_bootstrap_resamples": 2000,
+    "seed": 20261111
+  },
+  "stopping_rule": "One acceptance run after the test suite is green; no re-run with altered margins or value ranges to improve a failing criterion. If a criterion fails, it is reported as FAIL with the measured number.",
+  "pilot_findings": [
+    {
+      "finding": "naive association definition counted artefacts whose only matched leaves belonged to another repository's capability, reporting 33 % association",
+      "fix": "recognition is now repo-scoped: a file counts only if a capability declared for the same repository matched",
+      "measured_before": 0.333,
+      "measured_after": 0.917
+    },
+    {
+      "finding": "per-repository file caps truncated whole directories (artefacts/..., benchmarks/... swallowed the budget before docs/), and files beyond the per-capability sample cap were counted as unbound",
+      "fix": "file caps raised so that every matching artefact is scanned; accepted files tracked separately from the truncated sample",
+      "measured_before": 0.333,
+      "measured_after": 0.917
+    },
+    {
+      "finding": "analytic TOST power initially used the observed s/ sqrt(n) as the normal scale instead of the population sigma/sqrt(n), overestimating the failure probability by ~4x when the margin is wide",
+      "fix": "power quadrature corrected and validated against Monte-Carlo (tolerance 3-4 MC standard errors) inside the test suite",
+      "measured_before": 0.9936,
+      "measured_after": 0.9993
+    }
+  ],
+  "analysis_plan": {
+    "aggregation": "per capability entry: TOST decision, dual interval, achieved power, MDE; per artefact: bound/unbound with reason; per claim: one of six classifications",
+    "uncertainty": "intervals reported at 1-2*alpha = 90 %; power/MDE from analytic quadrature (mean, variance) and Monte-Carlo with fixed seed (distribution)",
+    "outliers": "behind a declared value_range per metric family (documented in the config); the number of excluded observations is reported per group",
+    "missing_data": "reported as WITHHELD_* decisions, never imputed",
+    "comparison": "each decision is stated against its own declared margin, so no cross-capability averaging is used"
+  },
+  "environment": {
+    "python": "3.11",
+    "numpy": "2.x",
+    "scipy": "1.16",
+    "hardware": "single control-plane node, CPU only",
+    "repositories": "local ecosystem checkout; per-repository git commit recorded in the artefact"
+  },
+  "interpretation_limits": [
+    "capability samples pool different benchmark cases, so they are not independent repeated runs; the interval is a descriptive statement about the artefact population, not about a single run",
+    "cross-solver variance/distribution entries are descriptive comparisons of evidence streams, not physics equivalence claims",
+    "file caps and value ranges restrict the population; excluded counts are reported",
+    "historical reclassification is limited to declarations that expose machine-readable values, thresholds, sample sizes and spreads"
+  ]
+}
