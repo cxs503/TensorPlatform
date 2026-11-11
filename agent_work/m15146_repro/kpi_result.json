@@ -1,0 +1,615 @@
+{
+  "kpi_id": "KPI-QC-RECHECK",
+  "measured_at": "2026-11-11T19:57:19+00:00",
+  "window": {
+    "requested_days": 30,
+    "first_pr_gate_record": "2026-11-04 23:52:59.071937+00",
+    "last_pr_gate_record": "2026-11-11 19:54:47.914413+00"
+  },
+  "current": 5.14,
+  "unit": "% 已合并 agent PR 中有独立参考复核且通过的占比",
+  "target": 100.0,
+  "gap": 94.86,
+  "denominator": {
+    "value": 5334,
+    "definition": "mission_lifecycle_log.action='pr_gate' 且 detail->>'state'='merged'，按 (mission_id,repo,pr) 去重"
+  },
+  "numerator": {
+    "value": 274,
+    "definition": "该 mission 存在 outcome_evaluations reviewer_kind='independent' AND review_status='reviewed' AND status='confirmed' 记录"
+  },
+  "definition_ladder": {
+    "d0_any_record": {
+      "count": 729,
+      "rate_pct": 13.67
+    },
+    "d1_any_confirmed": {
+      "count": 690,
+      "rate_pct": 12.94
+    },
+    "d1b_incl_candidate": {
+      "count": 729,
+      "rate_pct": 13.67
+    },
+    "d2_indep_confirmed": {
+      "count": 274,
+      "rate_pct": 5.14
+    },
+    "d3_indep_xmodel": {
+      "count": 3,
+      "rate_pct": 0.06
+    }
+  },
+  "mission_granularity": {
+    "merged_missions": 3201,
+    "indep_passed_missions": 239,
+    "rate_pct": 7.47,
+    "any_review_record_missions": 502
+  },
+  "precision_among_reviewed_pct": 37.59,
+  "review_latency_hours": {
+    "n": 729,
+    "median": 3.22,
+    "p90": 37.69
+  },
+  "per_repo": [
+    {
+      "repo": "TensorLBM",
+      "merged_prs": 1068,
+      "reviewed_any": 186,
+      "indep_passed": 36,
+      "rate_pct": 3.37
+    },
+    {
+      "repo": "TensorDEM",
+      "merged_prs": 912,
+      "reviewed_any": 147,
+      "indep_passed": 46,
+      "rate_pct": 5.04
+    },
+    {
+      "repo": "ship-performance-platform",
+      "merged_prs": 901,
+      "reviewed_any": 0,
+      "indep_passed": 0,
+      "rate_pct": 0.0
+    },
+    {
+      "repo": "TensorPlatform",
+      "merged_prs": 568,
+      "reviewed_any": 57,
+      "indep_passed": 19,
+      "rate_pct": 3.35
+    },
+    {
+      "repo": "TensorFEM",
+      "merged_prs": 446,
+      "reviewed_any": 91,
+      "indep_passed": 49,
+      "rate_pct": 10.99
+    },
+    {
+      "repo": "TensorBEM",
+      "merged_prs": 334,
+      "reviewed_any": 66,
+      "indep_passed": 27,
+      "rate_pct": 8.08
+    },
+    {
+      "repo": "TensorPhysics",
+      "merged_prs": 266,
+      "reviewed_any": 22,
+      "indep_passed": 3,
+      "rate_pct": 1.13
+    },
+    {
+      "repo": "TensorFVM",
+      "merged_prs": 246,
+      "reviewed_any": 70,
+      "indep_passed": 31,
+      "rate_pct": 12.6
+    },
+    {
+      "repo": "TensorSPH",
+      "merged_prs": 174,
+      "reviewed_any": 38,
+      "indep_passed": 23,
+      "rate_pct": 13.22
+    },
+    {
+      "repo": "TensorPapers",
+      "merged_prs": 144,
+      "reviewed_any": 0,
+      "indep_passed": 0,
+      "rate_pct": 0.0
+    },
+    {
+      "repo": "TensorDG",
+      "merged_prs": 134,
+      "reviewed_any": 23,
+      "indep_passed": 19,
+      "rate_pct": 14.18
+    },
+    {
+      "repo": "TensorCAD",
+      "merged_prs": 107,
+      "reviewed_any": 29,
+      "indep_passed": 21,
+      "rate_pct": 19.63
+    },
+    {
+      "repo": "TensorKnowledge",
+      "merged_prs": 28,
+      "reviewed_any": 0,
+      "indep_passed": 0,
+      "rate_pct": 0.0
+    },
+    {
+      "repo": "TensorBench",
+      "merged_prs": 5,
+      "reviewed_any": 0,
+      "indep_passed": 0,
+      "rate_pct": 0.0
+    },
+    {
+      "repo": "TensorData",
+      "merged_prs": 1,
+      "reviewed_any": 0,
+      "indep_passed": 0,
+      "rate_pct": 0.0
+    }
+  ],
+  "daily": [
+    {
+      "date": "2026-11-05",
+      "merged": 116,
+      "reviewed_any": 116,
+      "indep_passed": 78
+    },
+    {
+      "date": "2026-11-06",
+      "merged": 135,
+      "reviewed_any": 135,
+      "indep_passed": 111
+    },
+    {
+      "date": "2026-11-07",
+      "merged": 566,
+      "reviewed_any": 478,
+      "indep_passed": 85
+    },
+    {
+      "date": "2026-11-08",
+      "merged": 496,
+      "reviewed_any": 0,
+      "indep_passed": 0
+    },
+    {
+      "date": "2026-11-09",
+      "merged": 2300,
+      "reviewed_any": 0,
+      "indep_passed": 0
+    },
+    {
+      "date": "2026-11-10",
+      "merged": 1016,
+      "reviewed_any": 0,
+      "indep_passed": 0
+    },
+    {
+      "date": "2026-11-11",
+      "merged": 705,
+      "reviewed_any": 0,
+      "indep_passed": 0
+    }
+  ],
+  "cross_checks": {
+    "git_tensorplatform_merge_commits": {
+      "available": true,
+      "window_days": 30,
+      "merge_commits_total": 1053,
+      "distinct_merge_pr_numbers": 1052,
+      "per_day": {
+        "2026-10-14": 1,
+        "2026-10-16": 2,
+        "2026-10-17": 3,
+        "2026-10-18": 6,
+        "2026-10-19": 9,
+        "2026-10-20": 9,
+        "2026-10-21": 10,
+        "2026-10-22": 10,
+        "2026-10-23": 19,
+        "2026-10-24": 14,
+        "2026-10-25": 17,
+        "2026-10-29": 1,
+        "2026-10-30": 10,
+        "2026-10-31": 49,
+        "2026-11-01": 77,
+        "2026-11-02": 199,
+        "2026-11-03": 9,
+        "2026-11-05": 2,
+        "2026-11-07": 68,
+        "2026-11-08": 55,
+        "2026-11-09": 120,
+        "2026-11-10": 164,
+        "2026-11-11": 184,
+        "2026-11-12": 15
+      }
+    },
+    "pr_gate_tensorplatform_merged_prs": 568,
+    "reconciliation_tensorplatform": {
+      "available": true,
+      "overlap_days": [
+        "2026-11-07",
+        "2026-11-08",
+        "2026-11-09",
+        "2026-11-10",
+        "2026-11-11"
+      ],
+      "git_merge_commits": 591,
+      "pr_gate_merged_prs": 568,
+      "ratio_prgate_over_git": 0.9611,
+      "per_day": [
+        {
+          "date": "2026-11-07",
+          "git": 68,
+          "pr_gate": 72
+        },
+        {
+          "date": "2026-11-08",
+          "git": 55,
+          "pr_gate": 7
+        },
+        {
+          "date": "2026-11-09",
+          "git": 120,
+          "pr_gate": 216
+        },
+        {
+          "date": "2026-11-10",
+          "git": 164,
+          "pr_gate": 177
+        },
+        {
+          "date": "2026-11-11",
+          "git": 184,
+          "pr_gate": 96
+        }
+      ],
+      "git_30d_all_days": 1053,
+      "note": "git 30 天含清场前合并（回写不覆盖），故 30 天总量 > 回写可计窗口总量"
+    }
+  },
+  "alternative_review_channels": {
+    "maturity_verdict_missions": 38,
+    "redteam_recheck_missions": 3,
+    "review_ledger_rows": 8,
+    "repro_verdict_rows": 0,
+    "split_verdict_rows": 0,
+    "repro_vote_rows": 0
+  },
+  "review_supply_daily": [
+    {
+      "d": "2026-11-07",
+      "status": "confirmed",
+      "kind": "auto_scan",
+      "n": 2917
+    },
+    {
+      "d": "2026-11-07",
+      "status": "confirmed",
+      "kind": "independent",
+      "n": 1453
+    },
+    {
+      "d": "2026-11-07",
+      "status": "candidate",
+      "kind": "independent",
+      "n": 162
+    },
+    {
+      "d": "2026-11-07",
+      "status": "rejected",
+      "kind": "independent",
+      "n": 13
+    },
+    {
+      "d": "2026-11-07",
+      "status": "pending",
+      "kind": "-",
+      "n": 1
+    },
+    {
+      "d": "2026-11-09",
+      "status": "pending",
+      "kind": "-",
+      "n": 36
+    },
+    {
+      "d": "2026-11-10",
+      "status": "pending",
+      "kind": "-",
+      "n": 1809
+    },
+    {
+      "d": "2026-11-11",
+      "status": "pending",
+      "kind": "-",
+      "n": 1030
+    },
+    {
+      "d": "2026-11-11",
+      "status": "confirmed",
+      "kind": "auto_scan",
+      "n": 1
+    }
+  ],
+  "pending_backlog": {
+    "pending_rows": 2876,
+    "pending_with_merge": 11,
+    "oldest_pending_merge": "2026-11-10 06:39:32.905638+00",
+    "pending_missions": 2876
+  },
+  "phase_split": {
+    "cut_date": "2026-11-07",
+    "definition": "cut_date = outcome_evaluations 中最后一次独立复核给出结论(confirmed/candidate/rejected)的日期",
+    "pre_cut": {
+      "merged_prs": 817,
+      "indep_passed": 274,
+      "rate_pct": 33.54
+    },
+    "post_cut": {
+      "merged_prs": 4517,
+      "indep_passed": 0,
+      "rate_pct": 0.0
+    },
+    "last_indep_confirmed_at": "2026-11-07T06:43:24+00:00",
+    "last_pending_created_at": "2026-11-11T19:53:27+00:00"
+  },
+  "evidence_mix": [
+    {
+      "reviewer_kind": "auto_scan",
+      "seat_class": null,
+      "cross_model_verified": false,
+      "status": "confirmed",
+      "n": 2917
+    },
+    {
+      "reviewer_kind": null,
+      "seat_class": null,
+      "cross_model_verified": false,
+      "status": "pending",
+      "n": 2876
+    },
+    {
+      "reviewer_kind": "independent",
+      "seat_class": "programmatic",
+      "cross_model_verified": false,
+      "status": "confirmed",
+      "n": 1391
+    },
+    {
+      "reviewer_kind": "independent",
+      "seat_class": "programmatic",
+      "cross_model_verified": false,
+      "status": "candidate",
+      "n": 149
+    },
+    {
+      "reviewer_kind": "independent",
+      "seat_class": "heterogeneous_llm",
+      "cross_model_verified": true,
+      "status": "confirmed",
+      "n": 62
+    },
+    {
+      "reviewer_kind": "independent",
+      "seat_class": "heterogeneous_llm",
+      "cross_model_verified": true,
+      "status": "candidate",
+      "n": 13
+    },
+    {
+      "reviewer_kind": "independent",
+      "seat_class": "programmatic",
+      "cross_model_verified": false,
+      "status": "rejected",
+      "n": 12
+    },
+    {
+      "reviewer_kind": "auto_scan",
+      "seat_class": "heterogeneous_llm",
+      "cross_model_verified": true,
+      "status": "confirmed",
+      "n": 1
+    },
+    {
+      "reviewer_kind": "independent",
+      "seat_class": null,
+      "cross_model_verified": false,
+      "status": "rejected",
+      "n": 1
+    }
+  ],
+  "lifecycle_actions_30d": [
+    {
+      "action": "pr_gate",
+      "n": 6293
+    },
+    {
+      "action": "custody_requeue",
+      "n": 114
+    },
+    {
+      "action": "suspend",
+      "n": 23
+    },
+    {
+      "action": "orphan_detect",
+      "n": 19
+    },
+    {
+      "action": "write_off",
+      "n": 18
+    }
+  ],
+  "pr_gate_state_coverage_all_time": [
+    {
+      "st": "open",
+      "d0": "2026-11-04",
+      "d1": "2026-11-11",
+      "n": 919
+    },
+    {
+      "st": "merged",
+      "d0": "2026-11-05",
+      "d1": "2026-11-11",
+      "n": 5358
+    },
+    {
+      "st": "closed",
+      "d0": "2026-11-05",
+      "d1": "2026-11-09",
+      "n": 16
+    }
+  ],
+  "data_sources": [
+    "postgresql:///tensorplatform  mission_lifecycle_log (action='pr_gate', detail.state='merged')",
+    "postgresql:///tensorplatform  outcome_evaluations (独立席位复判记录)",
+    "git log origin/main（TensorPlatform 仓合并提交交叉校验）",
+    "artifacts/kpi_qc_recheck/*.csv（本单派生的未复核清单/分仓/逐日/时延）"
+  ],
+  "artifacts": {
+    "unreviewed_prs.csv": "/root/tp-agent/work/m15146/agent_work/m15146_repro/unreviewed_prs.csv",
+    "per_repo.csv": "/root/tp-agent/work/m15146/agent_work/m15146_repro/per_repo.csv",
+    "daily.csv": "/root/tp-agent/work/m15146/agent_work/m15146_repro/daily.csv",
+    "latency.csv": "/root/tp-agent/work/m15146/agent_work/m15146_repro/latency.csv"
+  },
+  "sensitivity_30d": {
+    "note": "pr-gate 回写只覆盖清场后窗口，30 天口径的真实分母被低估；本段用 TensorPlatform 仓 git 30 天合并提交量做分母重算下界",
+    "git_30d_merge_commits_tensorplatform": 1053,
+    "pr_gate_covered_merged_prs_tensorplatform": 568,
+    "coverage_ratio_pct": 53.94,
+    "rate_pct_if_30d_git_denominator_tensorplatform": 1.8
+  },
+  "top_gaps": [
+    {
+      "gap": "复核供给侧停产：最后一次独立复核结论在 2026-11-07，之后合并的 4517 条 PR 全部零复核记录（通过率 0.0%）；停产前合并的 817 条通过率 33.54%",
+      "severity": "critical",
+      "evidence": "phase_split={'cut_date': '2026-11-07', 'definition': 'cut_date = outcome_evaluations 中最后一次独立复核给出结论(confirmed/candidate/rejected)的日期', 'pre_cut': {'merged_prs': 817, 'indep_passed': 274, 'rate_pct': 33.54}, 'post_cut': {'merged_prs': 4517, 'indep_passed': 0, 'rate_pct': 0.0}, 'last_indep_confirmed_at': '2026-11-07T06:43:24+00:00', 'last_pending_created_at': '2026-11-11T19:53:27+00:00'}; review_supply_daily=[{'d': '2026-11-07', 'status': 'rejected', 'kind': 'independent', 'n': 13}, {'d': '2026-11-07', 'status': 'pending', 'kind': '-', 'n': 1}, {'d': '2026-11-09', 'status': 'pending', 'kind': '-', 'n': 36}, {'d': '2026-11-10', 'status': 'pending', 'kind': '-', 'n': 1809}, {'d': '2026-11-11', 'status': 'pending', 'kind': '-', 'n': 1030}, {'d': '2026-11-11', 'status': 'confirmed', 'kind': 'auto_scan', 'n': 1}]"
+    },
+    {
+      "gap": "待复核积压 2876 条 pending 占位行（2876 个任务）只建行不裁决，缺口不会被自动填平",
+      "severity": "critical",
+      "evidence": "pending_backlog={'pending_rows': 2876, 'pending_with_merge': 11, 'oldest_pending_merge': '2026-11-10 06:39:32.905638+00', 'pending_missions': 2876}"
+    },
+    {
+      "gap": "TensorLBM 缺口 1032 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=1068, indep_passed=36, rate=3.37%"
+    },
+    {
+      "gap": "TensorDEM 缺口 866 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=912, indep_passed=46, rate=5.04%"
+    },
+    {
+      "gap": "ship-performance-platform 缺口 901 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=901, indep_passed=0, rate=0.0%"
+    },
+    {
+      "gap": "TensorPlatform 缺口 549 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=568, indep_passed=19, rate=3.35%"
+    },
+    {
+      "gap": "TensorFEM 缺口 397 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=446, indep_passed=49, rate=10.99%"
+    },
+    {
+      "gap": "TensorBEM 缺口 307 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=334, indep_passed=27, rate=8.08%"
+    },
+    {
+      "gap": "TensorPhysics 缺口 263 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=266, indep_passed=3, rate=1.13%"
+    },
+    {
+      "gap": "TensorFVM 缺口 215 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=246, indep_passed=31, rate=12.6%"
+    },
+    {
+      "gap": "TensorSPH 缺口 151 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=174, indep_passed=23, rate=13.22%"
+    },
+    {
+      "gap": "TensorPapers 缺口 144 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=144, indep_passed=0, rate=0.0%"
+    },
+    {
+      "gap": "TensorDG 缺口 115 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=134, indep_passed=19, rate=14.18%"
+    },
+    {
+      "gap": "TensorCAD 缺口 86 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=107, indep_passed=21, rate=19.63%"
+    },
+    {
+      "gap": "TensorKnowledge 缺口 28 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=28, indep_passed=0, rate=0.0%"
+    },
+    {
+      "gap": "TensorBench 缺口 5 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=5, indep_passed=0, rate=0.0%"
+    },
+    {
+      "gap": "TensorData 缺口 1 条未独立复核",
+      "severity": "high",
+      "evidence": "merged=1, indep_passed=0, rate=0.0%"
+    },
+    {
+      "gap": "复核证据构成被 auto_scan 稀释：confirmed 记录里 auto_scan 与 independent 混在一起，「通过率」若按全量 confirmed 计会虚高",
+      "severity": "high",
+      "evidence": "evidence_mix=[{'reviewer_kind': 'auto_scan', 'seat_class': None, 'cross_model_verified': False, 'status': 'confirmed', 'n': 2917}, {'reviewer_kind': 'independent', 'seat_class': 'programmatic', 'cross_model_verified': False, 'status': 'confirmed', 'n': 1391}, {'reviewer_kind': 'independent', 'seat_class': 'heterogeneous_llm', 'cross_model_verified': True, 'status': 'confirmed', 'n': 62}]"
+    },
+    {
+      "gap": "30 天窗口无 30 天数据：pr-gate 回写最早 2026-11-05（清场后重建），实际有效窗口 2026-11-04~2026-11-11",
+      "severity": "high",
+      "evidence": "first_pr_gate=2026-11-04 23:52:59.071937+00, pr_gate_rows=6293"
+    },
+    {
+      "gap": "无 GitHub 侧核验：仓库内无 gh/令牌，无法用 GitHub API 独立确认 PR 合并事实，分母只能信平台自报回写",
+      "severity": "medium",
+      "evidence": "gh CLI 缺失；tensor_quality_patrol 最近一轮 13/13 仓 GitHub 拉取失败"
+    }
+  ],
+  "proposed_anchors": [
+    {
+      "anchor": "KPI-QC-COVERAGE-80",
+      "statement": "近30天已合并 agent PR 的独立复核覆盖率 ≥ 80%（验收=SQL 复算该百分比 ≥80 且未复核清单条数 ≤ 分母 20%）"
+    },
+    {
+      "anchor": "KPI-QC-LATENCY-24H",
+      "statement": "合并→首次独立复核时延中位数 ≤ 24h（验收=latency.csv 中位数 ≤24，且 P90 ≤72h）"
+    },
+    {
+      "anchor": "KPI-QC-INDEP-PURITY",
+      "statement": "复核证据中 reviewer_kind='independent' 占比 ≥ 90%（验收=evidence_mix 口径复算，auto_scan 不得计入分子）"
+    },
+    {
+      "anchor": "KPI-QC-CROSS-CHECK",
+      "statement": "分仓合并数与 git merge 提交数偏差 ≤ 10%（验收=TensorPlatform 仓 pr-gate 计数 vs git log 计数比值落在 [0.9,1.1]）"
+    }
+  ]
+}
