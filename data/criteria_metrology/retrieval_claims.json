@@ -1,0 +1,48 @@
+{
+ "version": 1,
+ "generated_on": "2026-11-11",
+ "claims": [
+  {
+   "claim_id": "C1-degeneracy-no-prior-art",
+   "claim_kind": "novelty",
+   "statement": "除本节点模块外，平台没有判据退化三分类的机制实现（DegeneracyClass/T1 零基准判据）",
+   "expected_verdict": "SUPPORTED",
+   "note": null
+  },
+  {
+   "claim_id": "C2-adaptive-family-no-prior-art",
+   "claim_kind": "novelty",
+   "statement": "除本节点模块外，平台没有自适应判据族（量级归一化/对数比带/区间包含）实现",
+   "expected_verdict": "SUPPORTED",
+   "note": null
+  },
+  {
+   "claim_id": "C3-threshold-registry-exists",
+   "claim_kind": "coverage",
+   "statement": "判据阈值注册表（带来源与可重推导）已在平台落地——本模块必须复用它而不是重造",
+   "expected_verdict": "SUPPORTED",
+   "note": null
+  },
+  {
+   "claim_id": "C4-triad-prior-art-exists",
+   "claim_kind": "coverage",
+   "statement": "能力/交付/证据的分层在平台内已有先例（证据链 / 交付卫生），三元台账不是凭空新概念",
+   "expected_verdict": "SUPPORTED",
+   "note": null
+  },
+  {
+   "claim_id": "C5-this-node-registered",
+   "claim_kind": "coverage",
+   "statement": "本节点在节点池中有登记（mission 记录存在），节点类凭证可被重放",
+   "expected_verdict": "SUPPORTED",
+   "note": null
+  },
+  {
+   "claim_id": "C6-coarse-query-false-prior-art",
+   "claim_kind": "novelty",
+   "statement": "（负控主张）粗粒度检索词也能证明新颖性：『平台没有判据退化相关实现』",
+   "expected_verdict": "REFUTED",
+   "note": "这条主张故意用粗词，用来暴露检索门的一个真实失效模式：术语级命中会把无关用法算成先例。它必须被 REFUTED，否则说明门失灵。"
+  }
+ ]
+}
