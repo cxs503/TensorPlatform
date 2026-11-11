@@ -63,7 +63,11 @@ def _dumps(value: Any) -> str:
 
 
 def _iso(value: Any) -> str | None:
-    return value.isoformat() if value else None
+    if value is None:
+        return None
+    if isinstance(value, str):
+        return value
+    return value.isoformat()
 
 
 def _mission_row(r: Any) -> dict[str, Any]:
@@ -90,6 +94,7 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "created_at": _iso(r["created_at"]) if r.get("created_at") else None,
         "heartbeat_at": _iso(r["heartbeat_at"]) if r.get("heartbeat_at") else None,
         "finished_at": _iso(r["finished_at"]) if r.get("finished_at") else None,
+        "task_key": r.get("task_key"),
     }
 
 
@@ -462,6 +467,8 @@ def list_missions(
     status: str | None = None,
     limit: int = 50,
     offset: int = 0,
+    task_key: str | None = None,
+    task_key_like: str | None = None,
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
@@ -475,6 +482,12 @@ def list_missions(
             raise HTTPException(status_code=422, detail=f"status must be one of {MISSION_STATUSES}")
         filters += " AND status = :st"
         params["st"] = status
+    if task_key is not None:
+        filters += " AND task_key = :tk"
+        params["tk"] = task_key
+    if task_key_like is not None:
+        filters += " AND task_key LIKE :tkl"
+        params["tkl"] = f"%{task_key_like}%"
     total = db.execute(
         text(f"SELECT COUNT(*) FROM tensor_dev_missions WHERE {filters}"), params
     ).scalar()
@@ -483,13 +496,94 @@ def list_missions(
             SELECT id, goal, repo, base_ref, co_repos, parent_mission_id, budget,
                    runner, origin, model, agent_session_id, worker_role, campaign_id, campaign_phase, status,
                    claimed_by, session_id, result, created_by, created_at,
-                   heartbeat_at, finished_at
+                   heartbeat_at, finished_at, task_key
             FROM tensor_dev_missions WHERE {filters}
             ORDER BY id DESC LIMIT :limit OFFSET :offset
         """),
         {**params, "limit": limit, "offset": offset},
     ).mappings().all()
     return {"items": [_mission_row(r) for r in rows], "total": total}
+
+
+
+
+@router.get("/task-key-conflicts", dependencies=[Depends(require_auth)])
+def task_key_conflicts(
+    hours: int = 24,
+    repo: str | None = None,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """Return task_keys that appear >= 2 times within the last N hours.
+
+    Empty/NULL task_key missions are excluded. Organization isolation is enforced.
+    Works with both PostgreSQL and SQLite.
+    """
+    org_id = resolved_org(None, user, db)
+    hours = max(1, min(hours, 720))  # cap at 30 days
+
+    base_filters = "organization_id = :org AND task_key IS NOT NULL AND task_key != ''"
+    params: dict[str, Any] = {"org": org_id, "hours": hours}
+
+    if repo:
+        base_filters += " AND repo = :repo"
+        params["repo"] = repo
+
+    # Detect dialect for portable SQL
+    dialect_name = db.get_bind().dialect.name
+
+    if dialect_name == "sqlite":
+        # SQLite: use GROUP_CONCAT and datetime arithmetic
+        time_filter = "created_at >= datetime('now', '-' || :hours || ' hours')"
+        agg_expr = "GROUP_CONCAT(id) AS mission_ids, GROUP_CONCAT(status) AS statuses"
+    else:
+        # PostgreSQL
+        time_filter = "created_at >= NOW() - (:hours || ' hours')::INTERVAL"
+        agg_expr = "ARRAY_AGG(id ORDER BY id) AS mission_ids, ARRAY_AGG(status ORDER BY id) AS statuses"
+
+    conflict_rows = db.execute(
+        text(f"""
+            SELECT task_key, repo, COUNT(*) AS cnt,
+                   {agg_expr}
+            FROM tensor_dev_missions
+            WHERE {base_filters}
+              AND {time_filter}
+            GROUP BY task_key, repo
+            HAVING COUNT(*) >= 2
+            ORDER BY cnt DESC, task_key
+        """),
+        params,
+    ).mappings().all()
+
+    def _parse_ids(val):
+        if val is None:
+            return []
+        if isinstance(val, list):
+            return [int(x) for x in val]
+        # SQLite GROUP_CONCAT returns comma-separated string
+        return [int(x.strip()) for x in str(val).split(",") if x.strip()]
+
+    def _parse_statuses(val):
+        if val is None:
+            return []
+        if isinstance(val, list):
+            return list(val)
+        return [x.strip() for x in str(val).split(",") if x.strip()]
+
+    return {
+        "hours": hours,
+        "repo": repo,
+        "conflicts": [
+            {
+                "task_key": r["task_key"],
+                "repo": r["repo"],
+                "count": int(r["cnt"]),
+                "mission_ids": _parse_ids(r["mission_ids"]),
+                "statuses": _parse_statuses(r["statuses"]),
+            }
+            for r in conflict_rows
+        ],
+    }
 
 
 @router.get("/mvd-checkpoint/stats", dependencies=[Depends(require_auth)])
