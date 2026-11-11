@@ -121,7 +121,7 @@ def _figures(out_dir: Path, gate: Mapping[str, Any]) -> List[Dict[str, str]]:
     p1 = out_dir / "fig1_node_status.png"
     fig.savefig(p1, dpi=140)
     plt.close(fig)
-    figures.append({"name": "fig1_node_status.png", "path": str(p1.relative_to(REPO_ROOT)),
+    figures.append({"name": "fig1_node_status.png", "path": str((REPO_ROOT / p1).resolve().relative_to(REPO_ROOT.resolve())) if not p1.is_absolute() else str(p1.relative_to(REPO_ROOT.resolve())),
                     "caption": "每节点判据 P/N 堆叠（蓝=PASS，红=FAIL，灰=WITHHELD）+ 通过率折线"
                                "与 0.8 绿线。灰柱意味着『不知道』，不是『不过』。"})
 
@@ -139,7 +139,7 @@ def _figures(out_dir: Path, gate: Mapping[str, Any]) -> List[Dict[str, str]]:
     p2 = out_dir / "fig2_delivery_criteria.png"
     fig.savefig(p2, dpi=140)
     plt.close(fig)
-    figures.append({"name": "fig2_delivery_criteria.png", "path": str(p2.relative_to(REPO_ROOT)),
+    figures.append({"name": "fig2_delivery_criteria.png", "path": str((REPO_ROOT / p2).resolve().relative_to(REPO_ROOT.resolve())) if not p2.is_absolute() else str(p2.relative_to(REPO_ROOT.resolve())),
                     "caption": "整合节点六条交付判据看板（a 上游判据≥80%、b 跨仓集成 pytest、"
                                "c 台账双射、d 契约完整、e 报告六要素、f 零领域语义）。"})
     return figures
