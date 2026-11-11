@@ -1,0 +1,154 @@
+{
+  "schema_version": "1.0",
+  "label": "synthetic-known-label-demo",
+  "thresholds": {
+    "test_pass_rate_min": 0.8,
+    "benchmark_error_max_pct": 15.0,
+    "require_independent_review": true
+  },
+  "capabilities": [
+    {
+      "capability_id": "cap.alpha",
+      "impl_present": true,
+      "test_pass_rate": 0.98,
+      "benchmark_error_pct": 1.2,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_alpha", "bench:cap_alpha", "review:cap_alpha"],
+      "expected_level": "REAL",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.beta",
+      "impl_present": true,
+      "test_pass_rate": 1.0,
+      "benchmark_error_pct": 2.4,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_beta", "bench:cap_beta", "review:cap_beta"],
+      "expected_level": "REAL",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.gamma",
+      "impl_present": true,
+      "test_pass_rate": 0.9,
+      "benchmark_error_pct": 6.0,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_gamma", "bench:cap_gamma", "review:cap_gamma"],
+      "expected_level": "REAL",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.delta",
+      "impl_present": true,
+      "test_pass_rate": 0.85,
+      "benchmark_error_pct": 9.5,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_delta", "bench:cap_delta", "review:cap_delta"],
+      "expected_level": "REAL",
+      "current_level": "MOCK"
+    },
+    {
+      "capability_id": "cap.epsilon",
+      "impl_present": true,
+      "test_pass_rate": 0.8,
+      "benchmark_error_pct": 14.99,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_epsilon", "bench:cap_epsilon", "review:cap_epsilon"],
+      "expected_level": "REAL",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.zeta",
+      "impl_present": true,
+      "test_pass_rate": 0.95,
+      "benchmark_error_pct": 22.0,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_zeta", "bench:cap_zeta"],
+      "expected_level": "MOCK",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.eta",
+      "impl_present": true,
+      "test_pass_rate": 0.99,
+      "benchmark_error_pct": 0.4,
+      "review_verdict": "pass",
+      "mock_markers": 3,
+      "evidence_refs": ["pytest:cap_eta", "bench:cap_eta", "review:cap_eta"],
+      "expected_level": "MOCK",
+      "current_level": "REAL"
+    },
+    {
+      "capability_id": "cap.theta",
+      "impl_present": true,
+      "test_pass_rate": 0.6,
+      "benchmark_error_pct": 30.0,
+      "review_verdict": "fail",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_theta", "bench:cap_theta"],
+      "expected_level": "MOCK",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.iota",
+      "impl_present": true,
+      "test_pass_rate": null,
+      "benchmark_error_pct": null,
+      "review_verdict": "missing",
+      "mock_markers": 0,
+      "evidence_refs": [],
+      "expected_level": "STUB",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.kappa",
+      "impl_present": true,
+      "test_pass_rate": null,
+      "benchmark_error_pct": 5.0,
+      "review_verdict": "missing",
+      "mock_markers": 0,
+      "evidence_refs": ["bench:cap_kappa"],
+      "expected_level": "STUB",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.lambda",
+      "impl_present": true,
+      "test_pass_rate": 0.75,
+      "benchmark_error_pct": 8.0,
+      "review_verdict": "pass",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_lambda", "bench:cap_lambda", "review:cap_lambda"],
+      "expected_level": "WITHHELD",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.mu",
+      "impl_present": true,
+      "test_pass_rate": 0.92,
+      "benchmark_error_pct": 3.0,
+      "review_verdict": "fail",
+      "mock_markers": 0,
+      "evidence_refs": ["pytest:cap_mu", "bench:cap_mu", "review:cap_mu"],
+      "expected_level": "WITHHELD",
+      "current_level": "WITHHELD"
+    },
+    {
+      "capability_id": "cap.nu",
+      "impl_present": false,
+      "test_pass_rate": null,
+      "benchmark_error_pct": null,
+      "review_verdict": "missing",
+      "mock_markers": 0,
+      "evidence_refs": [],
+      "expected_level": "NOT_SUPPORTED",
+      "current_level": "NOT_SUPPORTED"
+    }
+  ]
+}
