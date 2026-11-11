@@ -1,13 +1,5 @@
 {
   "table_name": "negative_knowledge_ledger",
-  "schema_version": "1.0",
-  "failure_kinds": [
-    "hypothesis_falsified",
-    "method_failed",
-    "blocked",
-    "infeasible",
-    "regression"
-  ],
   "search": {
     "shingle_size": 4,
     "min_score_threshold": 0.25,
@@ -17,5 +9,13 @@
     "containment_weight": 0.8,
     "min_length_ratio": 0.3,
     "top_k": 5
-  }
+  },
+  "failure_kinds": [
+    "hypothesis_falsified",
+    "method_failed",
+    "blocked",
+    "infeasible",
+    "regression"
+  ],
+  "schema_version": "1.0"
 }
