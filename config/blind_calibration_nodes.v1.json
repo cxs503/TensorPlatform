@@ -1,0 +1,49 @@
+{
+  "schema": "blind_calibration/nodes/v1",
+  "declared_at": "2026-11-10T21:40:00Z",
+  "declared_by": "agent/m12386",
+  "note": "10 个已交付节点的工件目录（域内容经本配置注入；代码零域词条）。questions 的概率由 declaration_rule 预登记，先承诺后观测。",
+  "repo_rel_root": ".",
+  "nodes": [
+    {"node_id": "m597", "run_dir": "artifacts/m597"},
+    {"node_id": "m642", "run_dir": "artifacts/m642"},
+    {"node_id": "m1386", "run_dir": "artifacts/m1386"},
+    {"node_id": "m1388", "run_dir": "artifacts/m1388"},
+    {"node_id": "m1564", "run_dir": "artifacts/m1564"},
+    {"node_id": "m1882", "run_dir": "artifacts/m1882"},
+    {"node_id": "m1892", "run_dir": "artifacts/m1892"},
+    {"node_id": "m1393", "run_dir": "docs/m1393"},
+    {"node_id": "m1444", "run_dir": "docs/m1444"},
+    {"node_id": "m1479", "run_dir": "docs/m1479"}
+  ],
+  "questions": ["file_anchor", "utf8_text", "json_parse", "json_top_is_dict"],
+  "declaration_rule": {
+    "file_anchor": {
+      "p": 0.97,
+      "ground": "声明时刻 git status 对这 10 个目录干净（machine 记录在 program 里），故文件内容应与最后改动它的提交里的 blob 一致；留 0.03 给改名/合并/属性改写等罕见情形"
+    },
+    "utf8_text": {
+      "p_text": 0.93,
+      "p_binary": 0.02,
+      "text_exts": [".md", ".py", ".json", ".txt", ".csv", ".jsonl", ".yml", ".yaml"],
+      "ground": "文本类扩展名按 UTF-8 可解码的先验 0.93（BOM/编码混用留余量）；二进制扩展名（png 等）UTF-8 解码应失败，故 p 取 0.02"
+    },
+    "json_parse": {
+      "p": 0.90,
+      "ground": "以 .json 结尾的交付工件多为规范 JSON；留 0.10 给截断/JSONL 误命名"
+    },
+    "json_top_is_dict": {
+      "p": 0.88,
+      "ground": "结果类 json 工件顶层以 object 为主（results/report 习惯），少数为数组"
+    }
+  },
+  "excluded_questions": [
+    {"kind": "doc_mentions_node", "why": "声明时刻已从目录清单部分看到 docs/m1393、m1444、m1479 存在，答案不盲"},
+    {"kind": "any_png / n_files_ge_3 / dir_size_lt_512kib", "why": "声明前已用 find/du 看过文件数与体积，答案已知，不计入校准集（见 prior_knowledge_disclosure）"}
+  ],
+  "prior_knowledge_disclosure": [
+    "声明前已执行：git status --short artifacts docs runs（干净）",
+    "声明前已执行：各节点目录的 find 文件数与扩展名清单（文件数/扩展名已知，故只用文件内容类问题计分）",
+    "声明前未执行：任何文件内容读取、JSON 解析、git blob 复算"
+  ]
+}
