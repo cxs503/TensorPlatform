@@ -1,3 +1,6 @@
+> **返修轮1（m15199）更新**：入口 `scripts/run_kpi_tools_5.py` 一次产出台账+基准表+图+集成调用+manifest；
+> ref-vs-got 对照与预算敏感性见 `docs/KPI_TOOLS_5_repair_round.md`。本文保留第 2 轮原文。
+
 # KPI-TOOLS-5 · 外部工具类接入平台（第 2 轮：调研结合 + 实现）
 
 **锚点**：KPI-TOOLS-5 —— 「≥5 类外部工具接入平台并可用」。

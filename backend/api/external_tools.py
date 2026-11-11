@@ -4,6 +4,7 @@
 
 * ``GET  /api/v1/external-tools/classes``  —— 规格里声明的工具类 + 各自最近一次观测状态；
 * ``GET  /api/v1/external-tools/coverage`` —— KPI 口径：REAL 类数 / 目标 / 缺口 / 裁定；
+* ``GET  /api/v1/external-tools/benchmark`` —— ref-vs-got 对照表（只读已落盘台账）；
 * ``POST /api/v1/external-tools/probe``    —— 立刻跑探针+冒烟（可指定子集），可选落盘。
 
 设计同 ``api/maturity_gate.py``：**声明 ≠ 观测**，未落盘台账时 coverage 直接报错而不是
@@ -54,6 +55,16 @@ def coverage() -> Dict[str, Any]:
 
     try:
         return svc.coverage()
+    except svc.ExternalToolsError as exc:
+        raise HTTPException(status_code=503, detail=str(exc)) from exc
+
+
+@router.get("/benchmark")
+def benchmark() -> Dict[str, Any]:
+    """ref-vs-got 对照表：每个声明了参考值的指标误差 + 判据（无台账→503）。"""
+
+    try:
+        return svc.benchmark()
     except svc.ExternalToolsError as exc:
         raise HTTPException(status_code=503, detail=str(exc)) from exc
 

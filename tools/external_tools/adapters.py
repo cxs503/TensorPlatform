@@ -22,6 +22,7 @@ number change.
 
 from __future__ import annotations
 
+import hashlib
 import json
 import math
 import os
@@ -104,6 +105,7 @@ def numerical_quadrature(spec: Mapping[str, Any]) -> Dict[str, Any]:
     return {"evidence": "REAL",
             "metrics": {"quad_vs_pi_abs_err": abs_err,
                         "simpson_vs_pi_abs_err": abs(simpson - math.pi),
+                        "quad_value": float(val),
                         "quad_reported_err": float(err_est)},
             "detail": f"∫0^1 4/(1+t²)dt = {val:.15f} vs π = {math.pi:.15f}",
             "call": {"entry": "scipy.integrate.quad", "how": "finite-interval adaptive"},
@@ -206,6 +208,11 @@ def dsn_candidates(spec: Mapping[str, Any]) -> List[tuple]:
         port = os.environ.get("TP_PG_PORT", "5432")
         add(f"postgresql://{user}:{pw}@{host}:{port}/{os.environ['TP_PG_DB']}",
             "env:TP_PG_*")
+    db = os.environ.get("TP_PG_DB", "")
+    if db:
+        # local unix socket + peer auth: no secret involved, so it is safe to
+        # record as a source label.  Tried *before* the anonymous TCP form.
+        add(f"postgresql:///{db}", "env:TP_PG_DB (local socket)")
     dotenvs = [p for p in str(spec.get("dotenv") or "").split(os.pathsep) if p]
     repo = str(spec.get("repo") or "")
     if repo:
@@ -215,8 +222,18 @@ def dsn_candidates(spec: Mapping[str, Any]) -> List[tuple]:
     return out
 
 
+#: 1000 terms of i^2 -> closed form 1000*1001*2001/6 = 333833500 (integer exact).
+SERIES_N = 1000
+
+
+def _series_reference() -> int:
+    n = SERIES_N
+    return n * (n + 1) * (2 * n + 1) // 6
+
+
 def _probe_sql() -> str:
-    return "SELECT 6*7 AS answer, length(version()) AS vlen"
+    return ("SELECT 6*7 AS answer, length(version()) AS vlen, "
+            f"(SELECT sum(i::bigint*i) FROM generate_series(1,{SERIES_N}) i) AS ssum")
 
 
 def relational_store(spec: Mapping[str, Any]) -> Dict[str, Any]:
@@ -244,16 +261,20 @@ def relational_store(spec: Mapping[str, Any]) -> Dict[str, Any]:
                 try:
                     cur = conn.cursor()
                     cur.execute(sql)
-                    answer, vlen = cur.fetchone()
+                    answer, vlen, ssum = cur.fetchone()
                     cur.execute("SELECT version()")
                     version = cur.fetchone()[0]
-                    cur.execute("SELECT count(*) FROM information_schema.tables "
-                                "WHERE table_schema='public'")
+                    # pg_class (not information_schema) because the latter filters by
+                    # privilege: a restricted role would read 0 tables on a full DB.
+                    cur.execute("SELECT count(*) FROM pg_catalog.pg_class c "
+                                "JOIN pg_catalog.pg_namespace n ON n.oid=c.relnamespace "
+                                "WHERE n.nspname='public' AND c.relkind IN ('r','p')")
                     tables = cur.fetchone()[0]
                 finally:
                     conn.close()
                 return {"evidence": "REAL",
                         "metrics": {"arithmetic_answer": float(answer),
+                                    "series_sum": float(ssum),
                                     "server_version_len": float(vlen),
                                     "public_table_count": float(tables)},
                         "detail": f"{driver} round-trip via {source}; "
@@ -271,9 +292,11 @@ def relational_store(spec: Mapping[str, Any]) -> Dict[str, Any]:
         for dsn, source in cands:
             out = _run([cli, "-d", dsn, "-t", "-A", "-c", sql], timeout=30)
             if out.returncode == 0 and "|" in out.stdout:
-                answer_s, vlen_s = out.stdout.strip().splitlines()[0].split("|")
+                parts = out.stdout.strip().splitlines()[0].split("|")
+                answer_s, vlen_s, ssum_s = parts[0], parts[1], parts[2]
                 return {"evidence": "MOCK",  # honest: driver path unavailable here
                         "metrics": {"arithmetic_answer": float(answer_s),
+                                    "series_sum": float(ssum_s),
                                     "server_version_len": float(vlen_s)},
                         "detail": f"psql CLI fallback via {source} "
                                   f"(drivers unusable: {errors[:2]})",
@@ -300,14 +323,46 @@ def version_control(spec: Mapping[str, Any]) -> Dict[str, Any]:
     sha = head.stdout.strip()
     count = _run([git, "-C", repo, "rev-list", "--count", "HEAD"], timeout=60)
     tracked = _run([git, "-C", repo, "ls-files"], timeout=120)
+    files = [f for f in tracked.stdout.splitlines() if f.strip()]
+    # Non-trivial anchor: re-derive a git blob id from worktree bytes and compare
+    # with the id git itself reports for HEAD:<path>.  A git that "runs" but
+    # cannot reproduce an object id is not usable as a version-control backend.
+    blob_match = 0.0
+    catfile_match = 0.0
+    blob_path = ""
+    for rel in files[:400]:
+        full = os.path.join(repo, rel)
+        if not os.path.isfile(full):
+            continue
+        status = _run([git, "-C", repo, "status", "--porcelain", "--", rel], timeout=30)
+        if status.stdout.strip():
+            continue                      # dirty file: HEAD bytes differ, skip
+        with open(full, "rb") as fh:
+            data = fh.read()
+        oid = _run([git, "-C", repo, "rev-parse", f"HEAD:{rel}"], timeout=30)
+        if oid.returncode != 0:
+            continue
+        expected = hashlib.sha1(b"blob %d\0" % len(data) + data).hexdigest()
+        blob_match = 1.0 if oid.stdout.strip() == expected else 0.0
+        try:                              # bytes, so binary blobs cannot break decoding
+            cat = subprocess.run([git, "-C", repo, "cat-file", "-p", oid.stdout.strip()],
+                                 capture_output=True, timeout=30)
+            catfile_match = 1.0 if cat.returncode == 0 and cat.stdout == data else 0.0
+        except subprocess.TimeoutExpired:
+            catfile_match = 0.0
+        blob_path = rel
+        break
     return {"evidence": "REAL",
             "metrics": {"head_sha_len": float(len(sha)),
                         "commit_count": float(count.stdout.strip() or 0),
-                        "tracked_file_count": float(len(tracked.stdout.splitlines()))},
+                        "tracked_file_count": float(len(files)),
+                        "blob_id_reproduced": blob_match,
+                        "blob_catfile_roundtrip": catfile_match},
             "detail": f"HEAD={sha[:12]} commits={count.stdout.strip()} "
-                      f"tracked={len(tracked.stdout.splitlines())}",
-            "call": {"entry": "git rev-parse / rev-list --count / ls-files",
-                     "how": f"repo={repo}"},
+                      f"tracked={len(files)} blob_reproduced={blob_match:g} "
+                      f"({blob_path})",
+            "call": {"entry": "git rev-parse / rev-list / ls-files / cat-file",
+                     "how": f"repo={repo}; sha1('blob <n>\\0'+bytes) vs HEAD:<path>"},
             "duration_s": time.perf_counter() - t0,
             "artifacts": []}
 
@@ -372,12 +427,14 @@ def hdf5_store(spec: Mapping[str, Any]) -> Dict[str, Any]:
         with h5py.File(path, "r") as fh:
             back = fh["values"][...]
             units = fh["values"].attrs["units"]
+            compression = fh["values"].compression
         max_diff = float(np.max(np.abs(back - data)))
         digest = hashlib.sha256(open(path, "rb").read()).hexdigest()
     return {"evidence": "REAL",
             "metrics": {"roundtrip_max_abs_diff": max_diff,
                         "n_values": float(data.size),
-                        "gzip_attr_preserved": 1.0 if units == "nondimensional" else 0.0},
+                        "gzip_attr_preserved": 1.0 if units == "nondimensional" else 0.0,
+                        "gzip_filter_active": 1.0 if compression == "gzip" else 0.0},
             "detail": f"h5py {h5py.__version__} gzip round-trip sha256={digest[:16]}",
             "call": {"entry": "h5py.File create_dataset/attrs",
                      "how": "write→read 1024 float64 with gzip"},
@@ -401,23 +458,35 @@ def plotting_engine(spec: Mapping[str, Any]) -> Dict[str, Any]:
     with tempfile.TemporaryDirectory() as tmp:
         path = os.path.join(out_dir or tmp, "plotting_engine_smoke.png")
         os.makedirs(os.path.dirname(path), exist_ok=True) if os.path.dirname(path) else None
-        fig, ax = plt.subplots(figsize=(2.0, 1.5), dpi=100)
-        xs = np.linspace(0.0, 1.0, 64)
-        ax.plot(xs, xs * (1 - xs))
-        fig.tight_layout()
+        fig = plt.figure(figsize=(3.0, 3.0), dpi=100)
+        ax = fig.add_axes([0.0, 0.0, 1.0, 1.0])       # full-bleed: pixel<->data is exact
+        ax.set_xlim(0.0, 1.0)
+        ax.set_ylim(0.0, 1.0)
+        ax.axis("off")
+        ax.axhline(0.25, color="black", linewidth=1.0)   # known data ordinate
         fig.savefig(path)
         plt.close(fig)
         blob = open(path, "rb").read()
         digest = hashlib.sha256(blob).hexdigest()
         if out_dir:
             arts.append(path)
+        img = plt.imread(path)                            # HxWx4 float
+        gray = img[..., :3].mean(axis=2)
+        ink = gray < 0.5
+        height = ink.shape[0]
+        row = int(np.argmax(ink.sum(axis=1)))
+        data_y = 1.0 - (row + 0.5) / float(height)        # row 0 = top = y=1
+        coord_err = abs(data_y - 0.25)
+        ink_fraction = float(ink.mean())
     return {"evidence": "REAL",
             "metrics": {"png_bytes": float(len(blob)),
-                        "png_magic_ok": 1.0 if blob[:8] == b"\x89PNG\r\n\x1a\n" else 0.0},
+                        "png_magic_ok": 1.0 if blob[:8] == b"\x89PNG\r\n\x1a\n" else 0.0,
+                        "line_ordinate_abs_err": float(coord_err),
+                        "ink_pixel_fraction": ink_fraction},
             "detail": f"matplotlib {matplotlib.__version__} Agg PNG {len(blob)}B "
-                      f"sha256={digest[:16]}",
-            "call": {"entry": "matplotlib.figure.savefig (Agg)",
-                     "how": "2x1.5in @100dpi"},
+                      f"sha256={digest[:16]} y=0.25 rendered at data_y={data_y:.4f}",
+            "call": {"entry": "matplotlib.figure.savefig (Agg) + imread",
+                     "how": "full-bleed axhline(0.25); pixel row -> data ordinate"},
             "duration_s": time.perf_counter() - t0,
             "artifacts": arts}
 
