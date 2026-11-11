@@ -1,0 +1,130 @@
+{
+  "reps": 5,
+  "seed": 20261111,
+  "kernels": [
+    {
+      "name": "stencil5p",
+      "label": "stencil5p_strong",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 2.0,
+      "params": {
+        "nx": 4096,
+        "ny": 4096
+      }
+    },
+    {
+      "name": "stencil5p",
+      "label": "stencil5p_weak",
+      "mode": "weak",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 1.5,
+      "params": {
+        "nx": 4096,
+        "rows_per_rank": 256
+      }
+    },
+    {
+      "name": "halo_ring",
+      "label": "halo_ring_strong",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 0.25,
+      "params": {
+        "total_elems": 3072
+      }
+    },
+    {
+      "name": "halo_ring",
+      "label": "halo_ring_weak",
+      "mode": "weak",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "calibration": "iterations",
+      "target_serial_s": 0.25,
+      "params": {
+        "per_rank_elems": 3072
+      }
+    },
+    {
+      "name": "serial_frac",
+      "label": "serial_frac_s05",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "params": {
+        "target_s": 0.05,
+        "target_total_s": 3.0
+      }
+    },
+    {
+      "name": "serial_frac",
+      "label": "serial_frac_s20",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "params": {
+        "target_s": 0.2,
+        "target_total_s": 3.0
+      }
+    },
+    {
+      "name": "pseudo_par",
+      "label": "pseudo_par_control",
+      "mode": "strong",
+      "core_counts": [
+        1,
+        2,
+        4,
+        8,
+        16,
+        32
+      ],
+      "params": {
+        "total_blocks": 2000
+      }
+    }
+  ]
+}
