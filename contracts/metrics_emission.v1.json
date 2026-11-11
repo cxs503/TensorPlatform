@@ -1,0 +1,92 @@
+{
+  "contract": "metrics_emission",
+  "version": 1,
+  "owner_repo": "TensorPlatform",
+  "consumer_repos": [],
+  "description": "度量工具（pulse/chronicle/portrait）的会话事件面与工具自有 kind 命名空间的单一声明源（节点 p465w1-N07 集成体）。由 src/tensorplatform/governance_maturity/metrics_audit.py 逐项与 backend/contracts/session_event_kinds.v1.json 对拍：M2 工具触及的会话事件种类必须是契约 kinds 的子集；M3/M4/M5/M6 源码字面量与声明双向 diff=0；M7 运行时 pulse.compute 的 payload/row 键与声明一致；M8 治理消费者工具的事件种类必须是 governance_members 的子集。新增 kind 必须先改事件流契约（版本号递增）再改本声明，否则审计与 pytest 双向变红。声明由 bootstrap_declaration() 从现状生成、人工审后提交，其价值在于把未来的漂移变成可算的 diff，而不是替代契约。",
+  "event_stream_contract": "session_event_kinds",
+  "tools": {
+    "pulse": {
+      "root": "tools/pulse",
+      "event_kinds": [],
+      "payload_subtypes": [],
+      "internal_kinds": [],
+      "tables": [
+        "saturation_pulse",
+        "tensor_dev_missions"
+      ],
+      "governance_consumer": false,
+      "runtime_payload_keys": [
+        "busy",
+        "collector",
+        "fresh_workers",
+        "held",
+        "held_ids",
+        "idle",
+        "missing_tables",
+        "online",
+        "queued",
+        "released_ids",
+        "running_missions",
+        "skewed",
+        "stale_claims",
+        "v",
+        "window_s"
+      ],
+      "runtime_row_keys": [
+        "busy",
+        "held",
+        "note",
+        "online",
+        "released"
+      ]
+    },
+    "chronicle": {
+      "root": "tools/chronicle",
+      "event_kinds": [],
+      "payload_subtypes": [],
+      "internal_kinds": [
+        "count",
+        "date",
+        "decimal",
+        "error_bar",
+        "figure",
+        "integer",
+        "number",
+        "percent",
+        "range",
+        "ratio",
+        "scientific",
+        "signed",
+        "thousands",
+        "unit",
+        "version"
+      ],
+      "tables": [
+        "tensor_dev_missions"
+      ],
+      "governance_consumer": false
+    },
+    "portrait": {
+      "root": "tools/worker_portrait",
+      "event_kinds": [
+        "note"
+      ],
+      "payload_subtypes": [
+        "mission_claimed"
+      ],
+      "internal_kinds": [],
+      "tables": [
+        "tensor_agent_session_events",
+        "tensor_dev_missions"
+      ],
+      "governance_consumer": true
+    }
+  },
+  "scope": {
+    "tools_scanned": "tools/*/**/*.py（按 tools 段落里的 root 目录递归）",
+    "kind_regex": "kind\\s*(?:=|==|:)\\s*['\"]([A-Za-z0-9_]+)['\"]",
+    "table_regex": "\\b(tensor_[a-z_]+|saturation_pulse)\\b",
+    "not_covered": "SQL 文件（tools/**/*.sql）与运行时动态拼接的 kind 不在静态扫描范围，见 docs 局限一节"
+  }
+}
