@@ -1,0 +1,505 @@
+{
+  "schema_version": "invariant-audit/1.0",
+  "plan_id": "synthetic-solver-matrix",
+  "description": "Injected declarations for the cross-solver invariant audit. Every target is a synthetic arithmetic model (tools/invariant_audit/anchors); the mechanism never sees anything but callables, parameters and tolerances. Known-good targets must PASS, planted defects must FAIL, targets that do not report the required observable must be WITHHELD.",
+  "base_dimensions": [
+    "length",
+    "mass",
+    "time"
+  ],
+  "targets": [
+    {
+      "id": "synth-grid-flux-form",
+      "label": "conservative flux-form grid update",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:transport_grid",
+      "config": {
+        "cells": 200,
+        "length": 1.0,
+        "velocity": 0.2,
+        "dt": 0.01,
+        "steps": 50,
+        "pulse_center": 0.3,
+        "pulse_width": 0.05,
+        "scheme": "flux",
+        "emit_flux": true,
+        "trace": true,
+        "velocity_modulation": 0.5,
+        "stretch": 0.0
+      },
+      "invariants": [
+        {
+          "id": "mass-conservation",
+          "kind": "conservation",
+          "params": {
+            "quantity": "mass",
+            "initial": "mass_initial",
+            "final": "mass_final",
+            "flux": "boundary_flux"
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        },
+        {
+          "id": "boost-covariance",
+          "kind": "covariance",
+          "params": {
+            "input_key": "velocity",
+            "observable": "displacement",
+            "input_transform": {
+              "offset": [
+                0.05
+              ]
+            },
+            "output_transform": {
+              "offset": [
+                0.025
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-09,
+            "atol": 1e-12
+          },
+          "note": "velocity boosted by 0.05 over a horizon of 0.5 time units"
+        }
+      ]
+    },
+    {
+      "id": "synth-grid-flux-form-stretched",
+      "label": "conservative flux-form update on a stretched mesh",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:transport_grid",
+      "config": {
+        "cells": 200,
+        "length": 1.0,
+        "velocity": 0.2,
+        "dt": 0.01,
+        "steps": 50,
+        "pulse_center": 0.3,
+        "pulse_width": 0.05,
+        "scheme": "flux",
+        "emit_flux": true,
+        "trace": true,
+        "velocity_modulation": 0.5,
+        "stretch": 0.4
+      },
+      "invariants": [
+        {
+          "id": "mass-conservation",
+          "kind": "conservation",
+          "params": {
+            "quantity": "mass",
+            "initial": "mass_initial",
+            "final": "mass_final",
+            "flux": "boundary_flux"
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-grid-interpolating",
+      "label": "interpolating grid update (no flux ledger on the invariant)",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:transport_grid",
+      "config": {
+        "cells": 200,
+        "length": 1.0,
+        "velocity": 0.2,
+        "dt": 0.01,
+        "steps": 50,
+        "pulse_center": 0.3,
+        "pulse_width": 0.05,
+        "scheme": "interpolating",
+        "emit_flux": false,
+        "trace": true,
+        "velocity_modulation": 0.5,
+        "stretch": 0.4
+      },
+      "invariants": [
+        {
+          "id": "mass-conservation",
+          "kind": "conservation",
+          "params": {
+            "quantity": "mass",
+            "initial": "mass_initial",
+            "final": "mass_final"
+          },
+          "tolerance": {
+            "rtol": 1e-10,
+            "atol": 0.0
+          }
+        },
+        {
+          "id": "boost-covariance",
+          "kind": "covariance",
+          "params": {
+            "input_key": "velocity",
+            "observable": "displacement",
+            "input_transform": {
+              "offset": [
+                0.05
+              ]
+            },
+            "output_transform": {
+              "offset": [
+                0.025
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-09,
+            "atol": 1e-12
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-grid-unreported-flux",
+      "label": "conservative update that does not report its flux ledger",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:transport_grid",
+      "config": {
+        "cells": 200,
+        "length": 1.0,
+        "velocity": 0.2,
+        "dt": 0.01,
+        "steps": 50,
+        "scheme": "flux",
+        "emit_flux": false
+      },
+      "invariants": [
+        {
+          "id": "mass-conservation",
+          "kind": "conservation",
+          "params": {
+            "quantity": "mass",
+            "initial": "mass_initial",
+            "final": "mass_final",
+            "flux": "boundary_flux"
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-response-isotropic",
+      "label": "isotropic diagonal response",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:response_diagonal",
+      "config": {
+        "input_vector": [
+          0.6,
+          -0.8
+        ],
+        "weights": [
+          1.0,
+          1.0
+        ]
+      },
+      "invariants": [
+        {
+          "id": "rotate-30deg",
+          "kind": "covariance",
+          "params": {
+            "input_key": "input_vector",
+            "observable": "response",
+            "input_transform": {
+              "matrix": [
+                [
+                  0.8660254037844387,
+                  -0.49999999999999994
+                ],
+                [
+                  0.49999999999999994,
+                  0.8660254037844387
+                ]
+              ]
+            },
+            "output_transform": {
+              "matrix": [
+                [
+                  0.8660254037844387,
+                  -0.49999999999999994
+                ],
+                [
+                  0.49999999999999994,
+                  0.8660254037844387
+                ]
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        },
+        {
+          "id": "reflect-x",
+          "kind": "covariance",
+          "params": {
+            "input_key": "input_vector",
+            "observable": "response",
+            "input_transform": {
+              "matrix": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  -1.0
+                ]
+              ]
+            },
+            "output_transform": {
+              "matrix": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  -1.0
+                ]
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-response-grid-aligned",
+      "label": "grid-aligned diagonal response (anisotropic)",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:response_diagonal",
+      "config": {
+        "input_vector": [
+          0.6,
+          -0.8
+        ],
+        "weights": [
+          1.0,
+          2.5
+        ]
+      },
+      "invariants": [
+        {
+          "id": "rotate-30deg",
+          "kind": "covariance",
+          "params": {
+            "input_key": "input_vector",
+            "observable": "response",
+            "input_transform": {
+              "matrix": [
+                [
+                  0.8660254037844387,
+                  -0.49999999999999994
+                ],
+                [
+                  0.49999999999999994,
+                  0.8660254037844387
+                ]
+              ]
+            },
+            "output_transform": {
+              "matrix": [
+                [
+                  0.8660254037844387,
+                  -0.49999999999999994
+                ],
+                [
+                  0.49999999999999994,
+                  0.8660254037844387
+                ]
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-09,
+            "atol": 0.0
+          }
+        },
+        {
+          "id": "reflect-x",
+          "kind": "covariance",
+          "params": {
+            "input_key": "input_vector",
+            "observable": "response",
+            "input_transform": {
+              "matrix": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  -1.0
+                ]
+              ]
+            },
+            "output_transform": {
+              "matrix": [
+                [
+                  1.0,
+                  0.0
+                ],
+                [
+                  0.0,
+                  -1.0
+                ]
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-boost-heuristic",
+      "label": "response with an absolute velocity scale (non-covariant)",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:boost_response_heuristic",
+      "config": {
+        "velocity": 0.2,
+        "duration": 0.5,
+        "gain": 0.05
+      },
+      "invariants": [
+        {
+          "id": "boost-covariance",
+          "kind": "covariance",
+          "params": {
+            "input_key": "velocity",
+            "observable": "displacement",
+            "input_transform": {
+              "offset": [
+                0.05
+              ]
+            },
+            "output_transform": {
+              "offset": [
+                0.025
+              ]
+            }
+          },
+          "tolerance": {
+            "rtol": 1e-09,
+            "atol": 1e-12
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-postproc-ok",
+      "label": "post-processor with consistent units and formula",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:postprocess_dimensions_ok",
+      "config": {
+        "mass": 2.0,
+        "acceleration": 3.5,
+        "duration": 1.5
+      },
+      "invariants": [
+        {
+          "id": "force-dimension",
+          "kind": "dimension_consistency",
+          "params": {
+            "relations": [
+              {
+                "quantity": "reported_force",
+                "from": "mass*acceleration"
+              }
+            ],
+            "required": {
+              "reported_force": "mass*length*time**-2"
+            }
+          }
+        },
+        {
+          "id": "force-relation",
+          "kind": "relation",
+          "params": {
+            "quantity": "reported_force",
+            "expression": "mass*acceleration"
+          },
+          "tolerance": {
+            "rtol": 1e-12,
+            "atol": 0.0
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-postproc-unit-bug",
+      "label": "post-processor declaring the wrong unit",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:postprocess_dimensions_unit_bug",
+      "config": {
+        "mass": 2.0,
+        "acceleration": 3.5,
+        "duration": 1.5
+      },
+      "invariants": [
+        {
+          "id": "force-dimension",
+          "kind": "dimension_consistency",
+          "params": {
+            "relations": [
+              {
+                "quantity": "reported_force",
+                "from": "mass*acceleration"
+              }
+            ],
+            "required": {
+              "reported_force": "mass*length*time**-2"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "synth-postproc-formula-bug",
+      "label": "post-processor implementing the wrong formula",
+      "callable": "tools.invariant_audit.anchors.synthetic_models:postprocess_dimensions_formula_bug",
+      "config": {
+        "mass": 2.0,
+        "acceleration": 3.5,
+        "duration": 1.5
+      },
+      "invariants": [
+        {
+          "id": "force-relation",
+          "kind": "relation",
+          "params": {
+            "quantity": "reported_force",
+            "expression": "mass*acceleration"
+          },
+          "tolerance": {
+            "rtol": 1e-09,
+            "atol": 0.0
+          }
+        },
+        {
+          "id": "force-dimension",
+          "kind": "dimension_consistency",
+          "params": {
+            "relations": [
+              {
+                "quantity": "reported_force",
+                "from": "mass*acceleration"
+              }
+            ]
+          }
+        }
+      ]
+    }
+  ]
+}
