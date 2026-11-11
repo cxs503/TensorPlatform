@@ -288,6 +288,8 @@ REPO_WHITELIST = (
     "ship-performance-platform",
     # owner 2026-11-09 知识质量试验令（TP#779 预检/#790 试点）
     "TensorKnowledge",
+    # owner 2026-11-11 令：TensorBench/TensorData 入生态派发（第三犯治本：白名单进 main 防部署同步抹除）
+    "TensorBench", "TensorData",
 )
 
 # ── 仓可解析性门（fail-fast）：worker 侧 tp_worker.prepare_worktree 的同款解析，
