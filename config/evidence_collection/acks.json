@@ -1,0 +1,5 @@
+{
+  "schema": "evidence_collection.acks.v1",
+  "description": "回归门的降级确认文件（与人审台账 capability_audit_gate 的 ack 机制同构）。规则：等级相对冻结基线下降时，若采集证据里没有正面反证（INVARIANT_VIOLATED / REFERENCE_OVER_ACCEPT / REFERENCE_CRITERION_FAILED / SURFACE_NOT_IMPLEMENTED），则必须在此逐能力申报 basis（独立审计出处），否则 CI 红。空对象 = 本轮无需要申报的降级。",
+  "acks": {}
+}

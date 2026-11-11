@@ -106,3 +106,46 @@ jobs:
             artifacts/capability_audit_gate/drill_real/drill.json
             artifacts/capability_audit_gate/golden/report.json
           if-no-files-found: warn
+  # ── 证据自动化采集管线（P9263-N08）：执行型证据层 ────────────────────────────
+  # 与上面 job 的分工：上面是**静态**审计（源码 AST + 基准工件），不执行代码；
+  # 本 job 复核**执行型**证据快照（在线探针响应 / 绑定测试执行 / 参考误差复算）。
+  # 在线服务在 CI 内不可达是**预期**：collect 只在部署侧跑（EVIDENCE_RUNTIME=1），
+  # CI 只做三件事，且都是离线可复算的：
+  #   1) 快照完整性：每份 acceptance.json 自摘要一致、等级可由存储信号重放（verify）；
+  #   2) 判据：C1 覆盖 / C2 一致率 / C3 工件 / C4 回归门（无正面反证的降级 → 红）/ C5 零领域语义 / C6 CI 集成 / C7 pytest；
+  #   3) 采集管线自身的 pytest 套件。
+  evidence-collection:
+    name: capability evidence collection (execution evidence layer)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install --upgrade pip && pip install pytest
+
+      - name: "Pipeline self-tests (offline: stub HTTP server, no external service)"
+        run: python -m pytest -q tests/evidence_collection
+
+      - name: "Snapshot integrity: acceptance sha256 + level replay from stored signals"
+        run: python -m tools.evidence_collection.cli verify
+
+      - name: "Acceptance C1-C7 + regression gate (offline re-check of committed snapshot)"
+        run: |
+          python -m tools.evidence_collection.cli acceptance \
+            --spec config/evidence_collection/spec.json \
+            --summary artifacts/evidence_collection/summary.json \
+            --baseline config/evidence_collection/baseline.json \
+            --out artifacts/evidence_collection/acceptance_checks.json
+
+      - name: Upload evidence collection artefacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-collection
+          path: |
+            artifacts/evidence_collection/summary.json
+            artifacts/evidence_collection/acceptance_checks.json
+            artifacts/evidence_collection/verify.json
+          if-no-files-found: warn
