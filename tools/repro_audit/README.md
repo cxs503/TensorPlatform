@@ -85,6 +85,47 @@ python3 -m tools.repro_audit.generators.provoke --artifact artifacts/lineage_tes
 
 报告：`docs/repro_audit/P167W2_N09_numeric_channel_maturity.md`。
 
+## 生成器契约 + 干净重放 + 入库门（p167w2-n10）
+
+上一节（N09）解决的是"头部数字 ↔ 明细行"的内部重算；这一节解决"**工件是不是由
+提交树内的生成器产出的**"——在 `git archive HEAD` 解出的干净检出里重放，并且
+证明生成器**不是**在回抄工件。
+
+```bash
+# 审计：干净检出 → 重放 → 幂等 → 篡改取证 → 台账
+python3 -m tools.repro_audit.generators.contract_cli --audit \
+    --specs artifacts/repro_audit/generator_specs.json \
+    --out artifacts/repro_audit/generator_coverage.json
+
+# 入库门（fail-closed）：覆盖 <24 / 等级 <G2 / 无溯源 / 台账陈旧 → exit 1
+python3 -m tools.repro_audit.generators.contract_cli --gate \
+    --ledger artifacts/repro_audit/generator_coverage.json \
+    --specs artifacts/repro_audit/generator_specs.json --min-coverage 24 --min-grade G2
+
+# 历史 gen_*.py 同口径基线（before 红基线）+ 负控三刀（门禁效力实证）
+python3 -m tools.repro_audit.generators.contract_cli --legacy-baseline \
+    --out artifacts/repro_audit/generator_baseline_legacy.json
+python3 -m tools.repro_audit.generators.contract_cli --negcontrols \
+    --out artifacts/repro_audit/negcontrols.json
+```
+
+| 等级 | 判据 |
+|---|---|
+| G0 | 生成器缺失 / 跑不起来 / 没产出 —— 没有数值通道 |
+| G1 | 重放值与工件不一致（近似复算 / 漂移 / 非确定性） |
+| G2 | 值一致 + 头部篡改不回抄 + 溯源 sha256 |
+| G3 | G2 + 幂等（两次重放逐字段相等）+ 明细篡改敏感性 |
+
+两种生成器形态（同一把尺子）：`producer`（不读被审计工件，记作 **independent**，
+更强）与 `derive`（读随工件提交的明细行另路重算，记作 derivation）。
+`sys.addaudithook` 在解释器层记录所有 `open`，因此"生成器读了什么"不靠 AST 猜。
+
+模块：`contract.py`（契约裁决）· `_runner.py`（子进程重放 + 运行时读审计）·
+`recompute.py`（派生引擎壳）· `gen_node_*.py`（14 个节点生成器）·
+`negcontrols.py`（手抄 / 生成器搬走 / 硬编码随机 三刀）· `report_n10.py`（配图 + 报告）。
+
+报告：`docs/repro_audit/P167W2_N10_generator_contract.md`。
+
 ## 判据口径
 
 四类判据（与平台既有 ULP/量化协议对齐）：
