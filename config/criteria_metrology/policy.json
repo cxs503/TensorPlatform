@@ -1,0 +1,17 @@
+{
+ "version": 1,
+ "purpose": "判据退化分类策略（全部为无量纲比值；域无关）",
+ "policy": {
+  "zero_ref_rel_floor": 1e-06,
+  "zero_ref_abs_floor": 0.0,
+  "sign_cross_rel_floor": 0.001,
+  "sign_cross_err_ratio": 1.0,
+  "multi_metric_min": 2
+ },
+ "notes": [
+  "zero_ref_rel_floor: |y_ref| 低于 '被测量量级 x 该比例' 即判 T1（基准趋零）",
+  "sign_cross_rel_floor: |y| 低于 '尺度 x 该比例' 即判 T2（贴零，判决由零点漂移支配）",
+  "sign_cross_err_ratio: 朴素相对误差超过该倍数即判 T2（分母失真）",
+  "multi_metric_min: 并列口径/基准数达到该值即判 T3"
+ ]
+}
