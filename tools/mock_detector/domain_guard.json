@@ -1,0 +1,27 @@
+{
+  "schema": "mock-detector-domain-guard/1.0",
+  "purpose": "探测器源码禁词表：领域数据只能经 API/配置/工件注入，不得硬编码进 tools/mock_detector/**.py。判据 C6 机器校验（词边界匹配）。",
+  "matching": "python re, case-insensitive, (?<![a-z0-9_])word(?![a-z0-9_])",
+  "forbidden_words": [
+    "ship",
+    "hull",
+    "resistance",
+    "propeller",
+    "froude",
+    "maneuver",
+    "manoeuvr",
+    "seakeeping",
+    "ice",
+    "stability",
+    "draft",
+    "holtrop",
+    "wigley",
+    "kcs",
+    "kvlcc",
+    "displacement",
+    "rudder",
+    "lbm",
+    "fvm"
+  ],
+  "note": "词汇表本身放在数据文件里，扫描器只扫 *.py —— 否则禁词表会命中自己的定义，判据恒红（一次真实的自指陷阱）。"
+}
