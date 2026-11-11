@@ -1,0 +1,361 @@
+{
+  "suite": "pf_surfaces",
+  "version": 1,
+  "description": "existing platform verification surfaces executed unattended: accounting ETL numeric helpers, evidence-artifact hash chain, regression severity classifier (zero domain terms)",
+  "drift_threshold": 0.03,
+  "timeout_s": 60.0,
+  "budget_s": 300.0,
+  "cases": [
+    {
+      "id": "pf_kpi_hour_utc_min",
+      "title": "existing surface: hour bucket (UTC, sub-minute truncation)",
+      "workload": "tools.benchmark_runner.surfaces:kpi_hour_bucket",
+      "inputs": {
+        "ts_iso": "2026-11-10T05:37:12.345678+00:00"
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_hour_bucket",
+        "inputs": {
+          "ts_iso": "2026-11-10T05:37:12.345678+00:00"
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_hour_offset_west",
+      "title": "existing surface: hour bucket (non-UTC offset)",
+      "workload": "tools.benchmark_runner.surfaces:kpi_hour_bucket",
+      "inputs": {
+        "ts_iso": "2026-03-01T23:59:59-05:00"
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_hour_bucket",
+        "inputs": {
+          "ts_iso": "2026-03-01T23:59:59-05:00"
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_hour_epoch_zero",
+      "title": "existing surface: hour bucket (epoch origin)",
+      "workload": "tools.benchmark_runner.surfaces:kpi_hour_bucket",
+      "inputs": {
+        "ts_iso": "1970-01-01T00:00:00+00:00"
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_hour_bucket",
+        "inputs": {
+          "ts_iso": "1970-01-01T00:00:00+00:00"
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_ratio_third",
+      "title": "existing surface: ratio rounding (1/3, 4 dp)",
+      "workload": "tools.benchmark_runner.surfaces:kpi_ratio",
+      "inputs": {
+        "num": 1,
+        "den": 3,
+        "ndigits": 4
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_ratio",
+        "inputs": {
+          "num": 1,
+          "den": 3,
+          "ndigits": 4
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_ratio_eighths",
+      "title": "existing surface: ratio rounding (7/8, 3 dp)",
+      "workload": "tools.benchmark_runner.surfaces:kpi_ratio",
+      "inputs": {
+        "num": 7,
+        "den": 8,
+        "ndigits": 3
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_ratio",
+        "inputs": {
+          "num": 7,
+          "den": 8,
+          "ndigits": 3
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_ratio_zero_denominator",
+      "title": "existing surface: ratio undefined on zero denominator",
+      "workload": "tools.benchmark_runner.surfaces:kpi_ratio",
+      "inputs": {
+        "num": 5,
+        "den": 0,
+        "ndigits": 4
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_ratio",
+        "inputs": {
+          "num": 5,
+          "den": 0,
+          "ndigits": 4
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        },
+        {
+          "metric": "defined",
+          "op": "==",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_pct_round",
+      "title": "existing surface: pct rounding (12.345 -> 12.3)",
+      "workload": "tools.benchmark_runner.surfaces:kpi_pct",
+      "inputs": {
+        "value": 0.12345,
+        "ndigits": 1
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_pct",
+        "inputs": {
+          "value": 0.12345,
+          "ndigits": 1
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_kpi_pct_missing",
+      "title": "existing surface: pct of a missing value stays undefined",
+      "workload": "tools.benchmark_runner.surfaces:kpi_pct",
+      "inputs": {
+        "value": null,
+        "ndigits": 1
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_pct",
+        "inputs": {
+          "value": null,
+          "ndigits": 1
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        },
+        {
+          "metric": "defined",
+          "op": "==",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "pf_artifact_digest_order_invariance",
+      "title": "existing surface: digest invariant under key order",
+      "workload": "tools.benchmark_runner.surfaces:digest_order_invariance",
+      "inputs": {},
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_digest_order_invariance",
+        "inputs": {}
+      },
+      "criteria": [
+        {
+          "metric": "value",
+          "op": "==",
+          "value": 1
+        },
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "pf_artifact_digest_payload_sensitivity",
+      "title": "existing surface: digest sensitive to payload",
+      "workload": "tools.benchmark_runner.surfaces:digest_payload_sensitivity",
+      "inputs": {},
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_digest_payload_sensitivity",
+        "inputs": {}
+      },
+      "criteria": [
+        {
+          "metric": "value",
+          "op": "==",
+          "value": 1
+        },
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "pf_artifact_manifest_tamper_detected",
+      "title": "existing surface: hash chain flags tampered bytes",
+      "workload": "tools.benchmark_runner.surfaces:manifest_tamper_detected",
+      "inputs": {},
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_manifest_tamper_detected",
+        "inputs": {}
+      },
+      "criteria": [
+        {
+          "metric": "value",
+          "op": "==",
+          "value": 1
+        },
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 0
+        }
+      ]
+    },
+    {
+      "id": "pf_regression_clean_within_tolerance",
+      "title": "existing surface: regression silent at +2%",
+      "workload": "tools.benchmark_runner.surfaces:regression_severity_code",
+      "inputs": {
+        "current_value": 1.02,
+        "threshold": 0.03
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_regression_severity_code",
+        "inputs": {
+          "current_value": 1.02,
+          "threshold": 0.03
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_regression_warn_above_tolerance",
+      "title": "existing surface: regression warns at +5%",
+      "workload": "tools.benchmark_runner.surfaces:regression_severity_code",
+      "inputs": {
+        "current_value": 1.05,
+        "threshold": 0.03
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_regression_severity_code",
+        "inputs": {
+          "current_value": 1.05,
+          "threshold": 0.03
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    },
+    {
+      "id": "pf_regression_critical_far_above",
+      "title": "existing surface: regression escalates at +16%",
+      "workload": "tools.benchmark_runner.surfaces:regression_severity_code",
+      "inputs": {
+        "current_value": 1.16,
+        "threshold": 0.03
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.surfaces:ref_regression_severity_code",
+        "inputs": {
+          "current_value": 1.16,
+          "threshold": 0.03
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 1e-12
+        }
+      ]
+    }
+  ],
+  "suite_criteria": [
+    {
+      "metric": "n_cases",
+      "op": ">=",
+      "value": 14
+    },
+    {
+      "metric": "pass_ratio",
+      "op": ">=",
+      "value": 1.0
+    },
+    {
+      "metric": "n_timeout",
+      "op": "<=",
+      "value": 0
+    },
+    {
+      "metric": "max_rel_error",
+      "op": "<=",
+      "value": 1e-12
+    }
+  ]
+}
