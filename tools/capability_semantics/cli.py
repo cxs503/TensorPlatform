@@ -44,6 +44,13 @@ def render_markdown(result: PipelineResult, figures: Sequence[Mapping[str, str]]
     d = crit.get("d_dependency_graph", {})
     e = crit.get("e_maturity_delivery", {})
     f = crit.get("f_safety", {})
+    debt = result.debt or {}
+    debt_summary = debt.get("summary", {})
+    chain_names = sorted(set(result.artifacts) | {"audit_log.json"})
+    _sens = c.get("sensitivity") or {}
+    sens_all = (_sens.get("all_graded") or {}).get("ratio", 0.0)
+    sens_ledger = (_sens.get("ledger_only") or {}).get("ratio", 0.0)
+    sens_ex = (_sens.get("excluding_out_of_repo") or {}).get("ratio", 0.0)
 
     def _tbl(rows: Sequence[Sequence[Any]], header: Sequence[str]) -> str:
         out = ["| " + " | ".join(str(h) for h in header) + " |",
@@ -64,7 +71,7 @@ def render_markdown(result: PipelineResult, figures: Sequence[Mapping[str, str]]
         fig_lines.append("")
 
     lines = [
-        "# P266W1-N10 能力台账语义三元分层成熟化（capability / delivery / evidence）",
+        "# P266W2-N10 能力台账语义三元分层成熟化（capability / delivery / evidence）",
         "",
         "> 本文件由 `tools/capability_semantics` 程序化生成（零手抄）：所有数字来自",
         f"> `artifacts/capability_semantics/acceptance.json`（sha256 链见 `audit_log.json`）。",
@@ -113,6 +120,30 @@ def render_markdown(result: PipelineResult, figures: Sequence[Mapping[str, str]]
         "include**，线上 `/api/v1/tensor/capabilities/audit` 恒 404（探针实测：带 token 打 :8010",
         "返回 404；本节点已接线并在单测里做源码级接线回归）。",
         "",
+        "### 2.1 attempt-2 修正（本版相对上一版的实质变更）",
+        "",
+        f"1. **真缺陷修复：工件未随分支提交。** 上一版只提交了代码与报告，"
+        f"`artifacts/capability_semantics/` 未入分支 ⇒ 服务侧 `_load` 恒 503，"
+        f"「成熟化 API」形同虚设。本版把 {len(chain_names)} 个工件（含 sha256 审计链）"
+        "随分支提交，并加机器证明测试 `test_committed_artifacts_serve_all_endpoints`："
+        f"用仓内**真实**工件打 {len((e.get('api_endpoints') or []))} 个只读端点，全 200 才算过。",
+        "2. **判据 (c) 改为诚实口径。** 上一版当 WITHHELD 比例超标时按"
+        "「已给逐因分析」判 `ok=True`（`waived_by_analysis=True`）——这等于让解释替代达标。"
+        "本版删除豁免：超标即 `ok=False`，并额外给**三口径敏感性**"
+        f"（all_graded {sens_all:.2%} / ledger_only {sens_ledger:.2%} / "
+        f"excluding_out_of_repo {sens_ex:.2%}），防止挑分母宣布通过。",
+        f"3. **新增验证欠账台账**（`verification_debt.json`，"
+        f"{debt_summary.get('debt_entries', 0)} 条）：把比例拆成「优先级 + 提升条件 + "
+        "当前量测缺口」，并**真跑**配置声明的独立验证脚本"
+        f"（{debt_summary.get('verifiers_executed', 0)} 个执行成功），"
+        "记录仓内命令/sha256/退出码/输出 sha256——量测值不是手抄，重跑即得。",
+        "4. **新增只读端点** `/api/v1/tensor/capabilities/semantics/debt`"
+        "（支持 priority/status 过滤），供审计脚本机器复核。",
+        f"5. **覆盖率口径如实披露**：判据 (e) 的 {e.get('coverage_pct')}% 是 "
+        "`tools/capability_semantics` 的分支覆盖（pytest --cov-branch，见第 6 节复现命令）；"
+        "API 模块因 coverage 纯 Python tracer 与 anyio/TestClient 线程冲突（`pop from empty list`）"
+        "无法同进程测量，按「端点级黑盒断言」覆盖（12 例），不冒充行覆盖率。",
+        "",
         "## 3. 计算结果（判据 (a)–(f)）",
         "",
         _tbl([
@@ -123,7 +154,7 @@ def render_markdown(result: PipelineResult, figures: Sequence[Mapping[str, str]]
              f"fixed={b.get('fixed_count', 0)}", f"阈值 ≥{b.get('min_misuse_fixes', 0)}", b.get("ok")],
             ["(c) 证据审计", c.get("graded_entries", 0),
              f"WITHHELD {c.get('withheld_ratio', 0):.2%}"
-             + ("（超额→附逐因分析）" if c.get("waived_by_analysis") else ""),
+             + ("" if c.get("withheld_ok") else "（honest-FAIL：附逐因分解 + 欠账台账）"),
              f"阈值 <{c.get('withheld_ratio_max', 0):.0%}", c.get("ok")],
             ["(d) 依赖图", gsum.get("node_count", 0),
              f"环 {d.get('cycle_count', 0)} / 孤立 {d.get('orphan_ratio_domain', 0):.2%}",
@@ -224,10 +255,44 @@ def render_markdown(result: PipelineResult, figures: Sequence[Mapping[str, str]]
         ], ["关键量", "实测", "基准/阈值", "是否达标"]),
         "",
         (f"注：判据 (c) 的 WITHHELD 比例 {c.get('withheld_ratio', 0):.2%} "
-         f"{'超过' if c.get('waived_by_analysis') else '未超过'}阈值 "
+         f"{'低于' if c.get('withheld_ok') else '不低于'}阈值 "
          f"{c.get('withheld_ratio_max', 0):.0%}；ok_basis={c.get('ok_basis')}。"
-         f"如需硬达标，须消解 {sum(len(v) for v in (c.get('withheld_groups') or {}).values())} "
-         "条 WITHHELD（逐因清单见第 3 节）。" if c.get("waived_by_analysis") else ""),
+         + ("" if c.get("withheld_ok") else
+            f" 本条按诚实口径判 **FAIL**（原因分析不替代达标）：需消解 "
+            f"{sum(len(v) for v in (c.get('withheld_groups') or {}).values())} 条 WITHHELD，"
+            "逐条整改条件见第 3.1 节欠账台账。")),
+        "",
+        "口径敏感性（同一审计在不同总体定义下的比例；任一口径达标不得单独宣布通过）：",
+        "",
+        _tbl([[k, v.get("graded"), v.get("withheld"), f"{v.get('ratio', 0):.2%}",
+               "是" if v.get("below_max") else "否"]
+              for k, v in (c.get("sensitivity") or {}).items()
+              if isinstance(v, Mapping)] or [["—", 0, 0, "—", "—"]],
+             ["口径", "评定条目", "WITHHELD", "比例", "低于阈值"]),
+        "",
+        "### 3.1 验证欠账台账（比例→可执行整改项，`verification_debt.json`）",
+        "",
+        _tbl([[r.get("priority"), r.get("capability_id"), r.get("declared_level"),
+               r.get("derived_level"), r.get("status"),
+               ", ".join(f"{k}={v:.4g}" for k, v in (r.get("measurements") or {}).items()) or "—",
+               r.get("lift_condition")]
+              for r in (debt.get("records") or [])[:20]] or [["—"] * 7],
+             ["优先级", "能力", "声明", "实得", "欠账状态", "独立验证量测", "提升条件"]),
+        "",
+        "验证脚本执行记录（真跑，命令/脚本 sha256/退出码/输出 sha256 可复核）：",
+        "",
+        _tbl([[r.get("capability_id"), r.get("label"), r.get("status"),
+               r.get("verdict"), r.get("exit_code"),
+               f"{r.get('script_sha256', '')[:12]}…" if r.get("script_sha256") else "—",
+               (r.get("reason") or "")[:60]]
+              for r in (debt.get("runs") or [])] or [["—"] * 7],
+             ["能力", "验证脚本", "状态", "判决", "退出码", "脚本 sha256", "备注"]),
+        "",
+        (f"欠账汇总：条目 {debt_summary.get('debt_entries')}（P0 {debt_summary.get('by_priority', {}).get('P0', 0)} / "
+         f"P1 {debt_summary.get('by_priority', {}).get('P1', 0)} / "
+         f"P2 {debt_summary.get('by_priority', {}).get('P2', 0)}），"
+         f"已有独立量测占比 {debt_summary.get('measured_ratio', 0):.2%}，"
+         f"外仓实现 {debt_summary.get('out_of_repo_count', 0)} 条。"),
         "",
         "判据口径说明：本节点判的是**治理口径的误差（条目丢失率/覆盖率/比例）**，",
         "不是物理量精度——物理精度由各领域仓的验证工件承担，本流水线只按 3%/15% 两档引用其数值判据。",
@@ -264,6 +329,8 @@ def main(argv: Sequence[str] | None = None) -> int:
     ap.add_argument("--doc", default=None, help="Markdown 报告输出路径（- 表示 stdout）")
     ap.add_argument("--figures", action="store_true", help="生成报告图（默认 docs/reports/capability_semantics）")
     ap.add_argument("--figure-dir", default=None)
+    ap.add_argument("--run-verifiers", action="store_true",
+                    help="执行配置声明的独立验证脚本，把量测缺口写入欠账台账（默认关闭）")
     ap.add_argument("--dry-run", action="store_true", help="只计算，不落工件")
     ap.add_argument("--json", action="store_true", help="stdout 打 JSON 摘要")
     args = ap.parse_args(list(argv) if argv is not None else None)
@@ -282,7 +349,8 @@ def main(argv: Sequence[str] | None = None) -> int:
         result = run_pipeline(
             root=root, out_dir=out, config_path=args.config, ledger_path=args.ledger,
             patterns_path=args.patterns, extra_declaration_sources=extra,
-            coverage_pct=args.coverage_pct, test_files=args.test_file)
+            coverage_pct=args.coverage_pct, test_files=args.test_file,
+            run_verifiers=args.run_verifiers)
     except Exception as exc:  # noqa: BLE001 - CLI 边界：致命错误如实返回码
         print(f"pipeline failed: {type(exc).__name__}: {exc}", file=sys.stderr)
         return 2

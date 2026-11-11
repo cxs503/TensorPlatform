@@ -11,6 +11,7 @@ GET .../semantics/layers                    三层结构（每能力一行三元
 GET .../semantics/evidence                  证据等级评定（判据 c 明细）
 GET .../semantics/misuse                    NOT_SUPPORTED 误用扫描 + 治理补丁
 GET .../semantics/graph                     依赖图 + 环/孤立检测 + DOT 文本
+GET .../semantics/debt                      验证欠账台账（逐条整改条件 + 验证量测）
 GET .../semantics/acceptance                机器判据 (a)–(f) 原始结论
 POST .../semantics/refresh                  触发重算（真实扫描约 45 秒，写回工件）
 =========================================  ==========================================
@@ -75,6 +76,7 @@ ARTIFACTS = {
     "misuse": "misuse_report.json",
     "patch": "registry_patch.json",
     "graph": "dependency_graph.json",
+    "debt": "verification_debt.json",
     "acceptance": "acceptance.json",
 }
 
@@ -134,6 +136,7 @@ def semantics_overview(user: dict = Depends(require_auth)) -> dict[str, Any]:
             "criteria": {k: {"ok": v.get("ok"), "note": v.get("note", "")}
                          for k, v in acceptance.get("criteria", {}).items()},
             "all_ok": acceptance.get("all_ok"),
+            "honest_fail": acceptance.get("honest_fail", {}),
             "artifact_sha256": _artifact_hashes(),
             "warnings": stats.get("warnings", []),
         },
@@ -250,6 +253,36 @@ def semantics_graph(
             "edges": graph.get("edges", []),
             "roles": graph.get("roles", {}),
             "summary": graph.get("summary", {}),
+        },
+    }
+
+
+@router.get("/debt", dependencies=[Depends(require_auth)])
+def semantics_debt(
+    priority: str | None = Query(None, description="按优先级过滤: P0|P1|P2|P3"),
+    status: str | None = Query(None, description="按欠账状态过滤（OPEN/MEASURED/...）"),
+    limit: int = Query(200, ge=1, le=1000),
+    user: dict = Depends(require_auth),
+) -> dict[str, Any]:
+    """验证欠账台账：把 WITHHELD 比例拆成可执行整改项 + 独立验证量测。
+
+    只读工件；工件缺失 → 503（不用内存默认值冒充结论）。
+    """
+    registry = _load("debt")
+    records = registry.get("records", [])
+    if priority:
+        records = [r for r in records if str(r.get("priority")) == priority.upper()]
+    if status:
+        records = [r for r in records if str(r.get("status")) == status.upper()]
+    return {
+        "status": "ok",
+        "data": {
+            "schema": registry.get("schema"),
+            "summary": registry.get("summary", {}),
+            "policy": registry.get("policy", {}),
+            "runs": registry.get("runs", []),
+            "records": records[:limit],
+            "filtered_total": len(records),
         },
     }
 
