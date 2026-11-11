@@ -1,0 +1,171 @@
+{
+  "node": "p474w1-n01-evidence-chain",
+  "ledger_actions": {
+    "DOWNGRADE_OR_FIX": 7,
+    "RETAIN_WITHHELD_NO_DATA": 1,
+    "UPGRADE_TO_REAL": 8
+  },
+  "criteria": {
+    "a_cross_repo_scan": {
+      "repos_scanned": 7,
+      "files_scanned": 3250,
+      "recognized_files": 355,
+      "bound_files": 328,
+      "association_rate": 0.923943661971831,
+      "pass": true,
+      "thresholds": {
+        "repos_min": 5,
+        "association_rate_min": 0.9
+      }
+    },
+    "b_scenarios": {
+      "implemented": [
+        "mean",
+        "variance",
+        "distribution"
+      ],
+      "exercised": [
+        "distribution",
+        "mean",
+        "variance"
+      ],
+      "pass": true
+    },
+    "c_mde_table": {
+      "rows": 16,
+      "rows_with_mde": 15,
+      "pass": true,
+      "threshold": {
+        "rows_min": 10
+      }
+    },
+    "d_reclassification": {
+      "n_claims": 470,
+      "n_pass": 341,
+      "low_power_flag_rate": 1.0,
+      "recomputable": true,
+      "pass": true
+    },
+    "e_pytest": {
+      "n_tests": 71,
+      "pass": true,
+      "note": "filled by the acceptance runner from the pytest report"
+    },
+    "f_zero_domain": {
+      "status": "PASS",
+      "n_hits": 0,
+      "pass": true
+    },
+    "all_pass": true
+  },
+  "digests": {
+    "scan": "33bc9e660ec04a6b0e3aba97d2288805d1e36cc114a1f3162e73f728afc38eb3",
+    "capabilities": "95e40a6f9712598c992d7fb7a3b0173cf467706e165f6324a1648dc4c573e21d",
+    "mde_table": "8349f2ce5cc7bf8a2c95d1a8becebbdee1c6e041b27ddc9cea284571cf245424",
+    "ledger_proposals": "a36ab5ea47616c4373c120aa2ecf88105351ccdd59f67af922472a28c285dda3",
+    "reclassification": "b8f9d232fdfdb4d3cd68cabc468bc1e5c6e6f9c2f9a287acdcf7b490c479eb5d"
+  },
+  "config": {
+    "path": "/root/tp-agent/work/m13872/tools/capability_evidence_chain/configs/ecosystem_solvers.json",
+    "digest": "5be822b1c01a39084124da3d1dcc09bb8ecc2a61c459925a58fd89a2a2d20a5c",
+    "root": "/root/tensor-ecosystem",
+    "n_repos": 7,
+    "n_capabilities": 16
+  },
+  "scan_stats": {
+    "repos": 7,
+    "files": 3250,
+    "recognized_files": 488,
+    "observations": 32864,
+    "per_repo": {
+      "TensorLBM": {
+        "files": 1642,
+        "ok": 1641,
+        "invalid_json": 1,
+        "read_error": 0,
+        "too_large": 0,
+        "recognized": 176
+      },
+      "TensorFEM": {
+        "files": 205,
+        "ok": 204,
+        "invalid_json": 0,
+        "read_error": 0,
+        "too_large": 1,
+        "recognized": 75
+      },
+      "TensorBEM": {
+        "files": 177,
+        "ok": 177,
+        "invalid_json": 0,
+        "read_error": 0,
+        "too_large": 0,
+        "recognized": 53
+      },
+      "TensorDEM": {
+        "files": 150,
+        "ok": 150,
+        "invalid_json": 0,
+        "read_error": 0,
+        "too_large": 0,
+        "recognized": 34
+      },
+      "TensorFVM": {
+        "files": 903,
+        "ok": 903,
+        "invalid_json": 0,
+        "read_error": 0,
+        "too_large": 0,
+        "recognized": 111
+      },
+      "TensorDG": {
+        "files": 18,
+        "ok": 18,
+        "invalid_json": 0,
+        "read_error": 0,
+        "too_large": 0,
+        "recognized": 13
+      },
+      "TensorSPH": {
+        "files": 155,
+        "ok": 155,
+        "invalid_json": 0,
+        "read_error": 0,
+        "too_large": 0,
+        "recognized": 26
+      }
+    },
+    "commits": {
+      "TensorLBM": "3619d287450a11dad98babbafbc1302e152e3918",
+      "TensorFEM": "5fb5781f02f1959deb04cb1190a71da1e550977a",
+      "TensorBEM": "481be532a1c50c5ecfc1bf2b3088699003de55d7",
+      "TensorDEM": "ad75394deb852ba98b167ca74526c84105e67005",
+      "TensorFVM": "fe0a4b70bccf2b79e806fd5dc43652b9be5234d1",
+      "TensorDG": "81ddba95823255c861b120b8ae2c0ae9e8d66541",
+      "TensorSPH": "c3ea82d660f07adf6806955a3f1c7caca7746a8b"
+    },
+    "roots": {
+      "TensorLBM": "/root/tensor-ecosystem/TensorLBM",
+      "TensorFEM": "/root/tensor-ecosystem/TensorFEM",
+      "TensorBEM": "/root/tensor-ecosystem/TensorBEM",
+      "TensorDEM": "/root/tensor-ecosystem/TensorDEM",
+      "TensorFVM": "/root/tensor-ecosystem/TensorFVM",
+      "TensorDG": "/root/tensor-ecosystem/TensorDG",
+      "TensorSPH": "/root/tensor-ecosystem/TensorSPH"
+    }
+  },
+  "seed": 20261111,
+  "artifacts": {
+    "evidence_chain": "artifacts/p474w1_n01/evidence_chain.json",
+    "mde_table": "artifacts/p474w1_n01/mde_table.csv",
+    "reclass_claims": "artifacts/p474w1_n01/reclass_claims.csv",
+    "association": "artifacts/p474w1_n01/association.json",
+    "ledger_proposals": "artifacts/p474w1_n01/ledger_proposals.csv",
+    "figures": [
+      "docs/p474w1_n01/fig1_power_curves.png",
+      "docs/p474w1_n01/fig2_equivalence_forest.png",
+      "docs/p474w1_n01/fig3_association_and_reclass.png",
+      "docs/p474w1_n01/fig4_mde_vs_margin.png"
+    ]
+  }
+}

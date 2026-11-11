@@ -1,0 +1,580 @@
+{
+  "schema_version": "1.0",
+  "description": "Cross-repository verification-artefact evidence chain for the Tensor solver family. Repository names and paths are ecosystem structure, not physics: every numeric claim below is produced by the pipeline from the artefacts, and all margins are declared here (before the run) rather than derived from outcomes.",
+  "root_env": "TP_ECOSYSTEM_ROOT",
+  "repos": [
+    {
+      "name": "TensorLBM",
+      "path": "TensorLBM",
+      "include": [
+        "artifacts/**/*.json",
+        "benchmarks/**/*.json",
+        "docs/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**",
+        "**/__pycache__/**"
+      ],
+      "max_files": 5000
+    },
+    {
+      "name": "TensorFEM",
+      "path": "TensorFEM",
+      "include": [
+        "benchmarks/**/*.json",
+        "docs/**/*.json",
+        "verification/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**"
+      ],
+      "max_files": 5000
+    },
+    {
+      "name": "TensorBEM",
+      "path": "TensorBEM",
+      "include": [
+        "docs/**/*.json",
+        "benchmarks/**/*.json",
+        "papers/data/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**"
+      ],
+      "max_files": 5000
+    },
+    {
+      "name": "TensorDEM",
+      "path": "TensorDEM",
+      "include": [
+        "benchmarks/**/*.json",
+        "docs/**/*.json",
+        "artifacts/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**"
+      ],
+      "max_files": 5000
+    },
+    {
+      "name": "TensorFVM",
+      "path": "TensorFVM",
+      "include": [
+        "src/tensorfvm/verification/**/*.json",
+        "scripts/artifacts/**/*.json",
+        "docs/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**"
+      ],
+      "max_files": 5000
+    },
+    {
+      "name": "TensorDG",
+      "path": "TensorDG",
+      "include": [
+        "benchmarks/**/*.json",
+        "docs/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**"
+      ],
+      "max_files": 5000
+    },
+    {
+      "name": "TensorSPH",
+      "path": "TensorSPH",
+      "include": [
+        "benchmarks/**/*.json",
+        "docs/**/*.json"
+      ],
+      "exclude": [
+        "**/.git/**",
+        "**/node_modules/**"
+      ],
+      "max_files": 5000
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "tensorlbm.mass_conservation_drift",
+      "scenario": "mean",
+      "margin": 1e-06,
+      "unit": "dimensionless",
+      "note": "mass/phase drift normalised by initial mass; margin = loose conservation standard 1e-6",
+      "groups": {
+        "a": {
+          "repo": "TensorLBM",
+          "include": [
+            "artifacts/**/*.json",
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^(mass_drift|phi_drift_rel)$",
+          "value_range": [
+            0.0,
+            1.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorlbm.mass_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "relative mass error against the analytic mass; platform 15% rule",
+      "groups": {
+        "a": {
+          "repo": "TensorLBM",
+          "include": [
+            "artifacts/**/*.json",
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^mass_relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorfem.static_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "FEM field-error relative to the closed-form reference",
+      "groups": {
+        "a": {
+          "repo": "TensorFEM",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json",
+            "verification/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorfem.energy_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "FEM energy-norm relative error",
+      "groups": {
+        "a": {
+          "repo": "TensorFEM",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json",
+            "verification/**/*.json"
+          ],
+          "metric": "^energy_relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorbem.radiation_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "BEM added-mass/damping relative error against reference",
+      "groups": {
+        "a": {
+          "repo": "TensorBEM",
+          "include": [
+            "docs/**/*.json",
+            "benchmarks/**/*.json",
+            "papers/data/**/*.json"
+          ],
+          "metric": "^(relative_error|velocity_error)$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorbem.residual",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "BEM boundary-condition residual (relative)",
+      "groups": {
+        "a": {
+          "repo": "TensorBEM",
+          "include": [
+            "docs/**/*.json",
+            "benchmarks/**/*.json"
+          ],
+          "metric": "^relative_residual$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorfvm.field_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "FVM field relative error vs reference solution",
+      "groups": {
+        "a": {
+          "repo": "TensorFVM",
+          "include": [
+            "src/tensorfvm/verification/**/*.json",
+            "scripts/artifacts/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensorfvm.volume_conservation",
+      "scenario": "mean",
+      "margin": 1e-06,
+      "unit": "dimensionless",
+      "note": "FVM volume/mass drift (VOF) normalised; margin 1e-6",
+      "groups": {
+        "a": {
+          "repo": "TensorFVM",
+          "include": [
+            "src/tensorfvm/verification/**/*.json",
+            "scripts/artifacts/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^(volume_drift|mass_drift_relative)$",
+          "value_range": [
+            0.0,
+            1.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensordg.l2_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "DG L2 relative error vs manufactured/reference solution",
+      "groups": {
+        "a": {
+          "repo": "TensorDG",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^(relative_l2|relative_error)$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 150
+        }
+      }
+    },
+    {
+      "id": "tensordg.max_abs_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "absolute",
+      "note": "DG max-norm error on normalised benchmarks",
+      "groups": {
+        "a": {
+          "repo": "TensorDG",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^(max_abs_error|absolute_l2)$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 150
+        }
+      }
+    },
+    {
+      "id": "tensorsph.free_surface_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "SPH free-surface front/profile error as a fraction (percent keys excluded by design)",
+      "groups": {
+        "a": {
+          "repo": "TensorSPH",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^(rel_error|front_error)$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 150
+        }
+      }
+    },
+    {
+      "id": "tensordem.mass_relative_error",
+      "scenario": "mean",
+      "margin": 0.15,
+      "unit": "relative",
+      "note": "DEM particle mass/volume mapping relative error",
+      "groups": {
+        "a": {
+          "repo": "TensorDEM",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json",
+            "artifacts/**/*.json"
+          ],
+          "metric": "^mass_relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 150
+        }
+      }
+    },
+    {
+      "id": "tensor.cross_solver_error_spread.fem_vs_dg",
+      "scenario": "variance",
+      "theta": 2.0,
+      "margin": 2.0,
+      "unit": "variance ratio",
+      "note": "descriptive: are the relative-error *spreads* of two solver evidence streams equivalent within a factor theta",
+      "groups": {
+        "a": {
+          "repo": "TensorFEM",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json",
+            "verification/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        },
+        "b": {
+          "repo": "TensorDG",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 150
+        }
+      }
+    },
+    {
+      "id": "tensor.cross_solver_error_spread.bem_vs_fvm",
+      "scenario": "variance",
+      "theta": 2.0,
+      "margin": 2.0,
+      "unit": "variance ratio",
+      "note": "descriptive: relative-error spread equivalence between BEM and FVM evidence streams",
+      "groups": {
+        "a": {
+          "repo": "TensorBEM",
+          "include": [
+            "docs/**/*.json",
+            "benchmarks/**/*.json",
+            "papers/data/**/*.json"
+          ],
+          "metric": "^(relative_error|velocity_error)$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        },
+        "b": {
+          "repo": "TensorFVM",
+          "include": [
+            "src/tensorfvm/verification/**/*.json",
+            "scripts/artifacts/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    },
+    {
+      "id": "tensor.cross_solver_error_distribution.fem_vs_dg",
+      "scenario": "distribution",
+      "margin": 0.35,
+      "alpha": 0.05,
+      "unit": "sup-CDF distance",
+      "note": "descriptive: empirical error distributions of two solver streams compared by KS distance with equivalence margin 0.35",
+      "groups": {
+        "a": {
+          "repo": "TensorFEM",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json",
+            "verification/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        },
+        "b": {
+          "repo": "TensorDG",
+          "include": [
+            "benchmarks/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 150
+        }
+      }
+    },
+    {
+      "id": "tensor.cross_solver_error_distribution.bem_vs_fvm",
+      "scenario": "distribution",
+      "margin": 0.35,
+      "alpha": 0.05,
+      "unit": "sup-CDF distance",
+      "note": "descriptive: error-distribution equivalence between BEM and FVM streams",
+      "groups": {
+        "a": {
+          "repo": "TensorBEM",
+          "include": [
+            "docs/**/*.json",
+            "benchmarks/**/*.json",
+            "papers/data/**/*.json"
+          ],
+          "metric": "^(relative_error|velocity_error)$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        },
+        "b": {
+          "repo": "TensorFVM",
+          "include": [
+            "src/tensorfvm/verification/**/*.json",
+            "scripts/artifacts/**/*.json",
+            "docs/**/*.json"
+          ],
+          "metric": "^relative_error$",
+          "value_range": [
+            0.0,
+            10.0
+          ],
+          "max_samples": 200
+        }
+      }
+    }
+  ],
+  "reclassification": {
+    "sources": [
+      "docs/**/*.json",
+      "artifacts/**/*.json"
+    ],
+    "status_keys": [
+      "status",
+      "verdict",
+      "result"
+    ],
+    "value_keys": [
+      "value",
+      "observed",
+      "estimate",
+      "measured",
+      "rel_err_pct",
+      "deviation_pct",
+      "max_rel_err"
+    ],
+    "threshold_keys": [
+      "threshold",
+      "tolerance",
+      "margin",
+      "limit",
+      "tolerance_pct",
+      "tol_pct"
+    ],
+    "n_keys": [
+      "n",
+      "n_samples",
+      "repeats",
+      "sample_size",
+      "n_cases"
+    ],
+    "spread_keys": [
+      "sd",
+      "std",
+      "stdev",
+      "sigma",
+      "uncertainty",
+      "ci_halfwidth"
+    ],
+    "margin_default": 0.15,
+    "alpha": 0.05,
+    "power_target": 0.8,
+    "min_computable_n": 3,
+    "exclude": [
+      "artifacts/p474w1_n01/**",
+      "docs/p474w1_n01/**"
+    ],
+    "base": "."
+  }
+}
