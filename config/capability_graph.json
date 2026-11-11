@@ -1,0 +1,78 @@
+{
+  "schema_version": "1.0",
+  "title": "跨仓能力依赖图谱 + 级联失效传播 + 自动预警 配置",
+  "zero_domain_semantics": "本配置只为 tools/capability_graph 与 backend/api/capability_graph.py 提供数值/路径/判定参数；代码内不含任何域词条，能力 id 与依赖边全部来自 sources.semantics_config 引用的既有台账配置文件（单一真值）。",
+  "sources": {
+    "semantics_config": "config/capability_semantics.json",
+    "ledger": "artifacts/capability_ledger/capability_ledger.json",
+    "baseline_edges": "artifacts/capability_graph/baseline_edges.json",
+    "manual_chains": "artifacts/capability_graph/manual_chains.json",
+    "artifact_dir": "artifacts/capability_graph"
+  },
+  "level_rank": {
+    "NOT_SUPPORTED": 0,
+    "STUB": 1,
+    "MOCK": 2,
+    "WITHHELD": 3,
+    "REAL": 4
+  },
+  "level_confidence": {
+    "REAL": 1.0,
+    "WITHHELD": 0.75,
+    "MOCK": 0.4,
+    "STUB": 0.15,
+    "NOT_SUPPORTED": 0.0
+  },
+  "confidence_bands": [
+    {"min_confidence": 0.85, "level": "REAL"},
+    {"min_confidence": 0.6, "level": "WITHHELD"},
+    {"min_confidence": 0.3, "level": "MOCK"},
+    {"min_confidence": 0.1, "level": "STUB"},
+    {"min_confidence": 0.0, "level": "NOT_SUPPORTED"}
+  ],
+  "edges": {
+    "default_weight": 0.75,
+    "inferred_weight": 0.5,
+    "overrides": {},
+    "inference": {
+      "enabled": true,
+      "min_mentions": 2,
+      "source": "ledger_evidence_text"
+    }
+  },
+  "cascade": {
+    "max_iterations": 64,
+    "tolerance": 1e-09,
+    "affected_tolerance": 1e-09,
+    "cap_level_by_own_level": true
+  },
+  "alerts": {
+    "critical_on_rank_drop": 2,
+    "high_affected_count": 3,
+    "severity_levels": ["info", "medium", "high", "critical"]
+  },
+  "performance": {
+    "api_budget_ms": 500,
+    "alert_latency_budget_ms": 1000,
+    "cache_enabled": true
+  },
+  "acceptance": {
+    "jaccard_min": 0.8,
+    "baseline_edges_min": 10,
+    "cascade_manual_error_max_pct": 10.0,
+    "alert_latency_max_ms": 1000,
+    "api_response_max_ms": 500,
+    "min_tests": 10
+  },
+  "forbidden_tokens_scan": {
+    "paths": [
+      "tools/capability_graph",
+      "backend/api/capability_graph.py"
+    ],
+    "forbidden_tokens": [
+      "冰区", "船舶", "船体", "船型", "阻力", "推进", "耐波", "操纵性", "稳性",
+      "螺旋桨", "hull", "ship", "ice", "resistance", "propeller", "seakeeping",
+      "manoeuvring", "stability", "hydrostatics"
+    ]
+  }
+}
