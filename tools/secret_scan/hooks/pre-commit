@@ -1,0 +1,21 @@
+#!/usr/bin/env bash
+# Secret-leak pre-commit hook (exit 1 of three).
+#
+# Install (governance action, not automatic):
+#   ln -sf ../../tools/secret_scan/hooks/pre-commit .git/hooks/pre-commit
+#   # or, to chain with the write-boundary gate:
+#   printf '%s\n' '#!/bin/sh' 'exec "$(git rev-parse --show-toplevel)/tools/write_gate/pre-commit-hook" "$@" && exec "$(git rev-parse --show-toplevel)/tools/secret_scan/hooks/pre-commit" "$@"' > .git/hooks/pre-commit
+#
+# Exit codes: 0 = allow, 2 = blocked (commit aborted), 3 = internal error (also blocked).
+# The hook only reads `git diff --cached`; it never prints matched content.
+set -u
+
+repo_root=$(git rev-parse --show-toplevel 2>/dev/null) || {
+    echo "secret-scan: cannot locate repo root -- fail-closed, blocking" >&2
+    exit 3
+}
+cd "$repo_root" || exit 3
+
+# SECRET_SCAN_ARGS may inject --policy / --all-changes etc.
+# shellcheck disable=SC2086
+exec python3 -m tools.secret_scan.cli gate-commit --repo "$repo_root" ${SECRET_SCAN_ARGS:-}
