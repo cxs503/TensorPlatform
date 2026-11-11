@@ -1,0 +1,230 @@
+{
+  "suite_id": "external-tools/KPI-TOOLS-5",
+  "target_classes": 5,
+  "classes": [
+    {
+      "tool_id": "symbolic_cas",
+      "category": "symbolic_math",
+      "adapter": "symbolic_cas",
+      "probe": {
+        "kind": "module",
+        "name": "sympy",
+        "min_version": "1.10"
+      },
+      "invariants": [
+        {
+          "metric": "antiderivative_identity_residual",
+          "limit": 0.0,
+          "op": "le",
+          "unit": "dimensionless",
+          "note": "integrate(diff(f)) - f simplifies to 0"
+        },
+        {
+          "metric": "fd_vs_symbolic_abs_err",
+          "limit": 0.0001,
+          "op": "le"
+        }
+      ],
+      "notes": "exact-identity check: the fundamental theorem has to hold symbolically"
+    },
+    {
+      "tool_id": "numerical_quadrature",
+      "category": "numerical_integration",
+      "adapter": "numerical_quadrature",
+      "probe": {
+        "kind": "module",
+        "name": "scipy",
+        "min_version": "1.7"
+      },
+      "invariants": [
+        {
+          "metric": "quad_vs_pi_abs_err",
+          "limit": 1e-10,
+          "op": "le"
+        },
+        {
+          "metric": "simpson_vs_pi_abs_err",
+          "limit": 1e-06,
+          "op": "le"
+        }
+      ],
+      "notes": "closed form ∫0^1 4/(1+t²)dt = π is the reference; two independent rules"
+    },
+    {
+      "tool_id": "blackbox_optimization",
+      "category": "optimization",
+      "adapter": "blackbox_optimization",
+      "probe": {
+        "kind": "module",
+        "name": "optuna",
+        "min_version": "3.0"
+      },
+      "invariants": [
+        {
+          "metric": "best_objective",
+          "limit": 0.001,
+          "op": "le"
+        },
+        {
+          "metric": "distance_to_optimum",
+          "limit": 0.05,
+          "op": "le"
+        }
+      ],
+      "notes": "derivative-free TPE on a quadratic with a known minimiser at (0.3,-0.7); budget calibrated by sweep: 200 trials gives 2.3e-4/3.4e-4 (2 seeds), 80 trials gives 5.0e-3/1.3e-2 -> the 1e-3 limit is a 200-trial claim (artifacts/external_tools/sensitivity.json)"
+    },
+    {
+      "tool_id": "automatic_differentiation",
+      "category": "autodiff",
+      "adapter": "automatic_differentiation",
+      "probe": {
+        "kind": "module",
+        "name": "torch",
+        "min_version": "1.13"
+      },
+      "invariants": [
+        {
+          "metric": "grad_vs_analytic_max_abs_err",
+          "limit": 1e-10,
+          "op": "le"
+        }
+      ],
+      "notes": "reverse-mode gradient of Σx³ against the closed form 3x² in float64"
+    },
+    {
+      "tool_id": "relational_store",
+      "category": "database",
+      "adapter": "relational_store",
+      "probe": {
+        "kind": "none"
+      },
+      "fallback": "psql CLI (recorded as MOCK)",
+      "invariants": [
+        {
+          "metric": "arithmetic_answer",
+          "limit": 42.0,
+          "op": "abs",
+          "target": 42.0
+        },
+        {
+          "metric": "server_version_len",
+          "limit": 20.0,
+          "op": "ge"
+        }
+      ],
+      "notes": "DSN resolved from DATABASE_URL/TP_PG_*; driver path preferred, CLI path downgraded"
+    },
+    {
+      "tool_id": "version_control",
+      "category": "vcs",
+      "adapter": "version_control",
+      "probe": {
+        "kind": "executable",
+        "name": "git"
+      },
+      "invariants": [
+        {
+          "metric": "head_sha_len",
+          "limit": 40.0,
+          "op": "abs",
+          "target": 40.0
+        },
+        {
+          "metric": "commit_count",
+          "limit": 1.0,
+          "op": "ge"
+        }
+      ],
+      "notes": "HEAD identity is re-derivable, so a wrong sha is detectable"
+    },
+    {
+      "tool_id": "native_build_toolchain",
+      "category": "compiler",
+      "adapter": "native_build_toolchain",
+      "probe": {
+        "kind": "executable",
+        "name": "gcc",
+        "version_args": [
+          "--version"
+        ]
+      },
+      "invariants": [
+        {
+          "metric": "h10_abs_err_vs_python",
+          "limit": 1e-12,
+          "op": "le"
+        }
+      ],
+      "notes": "compile→link→execute round-trip; the C result must match the Python float"
+    },
+    {
+      "tool_id": "hdf5_store",
+      "category": "scientific_io",
+      "adapter": "hdf5_store",
+      "probe": {
+        "kind": "module",
+        "name": "h5py",
+        "min_version": "3.0"
+      },
+      "invariants": [
+        {
+          "metric": "roundtrip_max_abs_diff",
+          "limit": 0.0,
+          "op": "le"
+        },
+        {
+          "metric": "gzip_attr_preserved",
+          "limit": 1.0,
+          "op": "ge"
+        }
+      ],
+      "notes": "lossless write→read of 1024 float64 with gzip + attribute survival"
+    },
+    {
+      "tool_id": "plotting_engine",
+      "category": "visualization",
+      "adapter": "plotting_engine",
+      "probe": {
+        "kind": "module",
+        "name": "matplotlib",
+        "min_version": "3.4"
+      },
+      "invariants": [
+        {
+          "metric": "png_magic_ok",
+          "limit": 1.0,
+          "op": "ge"
+        },
+        {
+          "metric": "png_bytes",
+          "limit": 1000.0,
+          "op": "ge"
+        }
+      ],
+      "notes": "headless Agg render; a file that is not a real PNG does not count"
+    },
+    {
+      "tool_id": "json_contract_validation",
+      "category": "schema_validation",
+      "adapter": "json_contract_validation",
+      "probe": {
+        "kind": "module",
+        "name": "pydantic",
+        "min_version": "2.0"
+      },
+      "invariants": [
+        {
+          "metric": "invalid_inputs_rejected",
+          "limit": 3.0,
+          "op": "ge"
+        },
+        {
+          "metric": "valid_roundtrip_ok",
+          "limit": 1.0,
+          "op": "ge"
+        }
+      ],
+      "notes": "a validator that accepts every payload is unusable: rejection is the assertion"
+    }
+  ]
+}

@@ -501,6 +501,15 @@ from api import review_budget as _review_budget  # noqa: E402
 
 app.include_router(_review_budget.router, prefix="/api/v1")
 
+# ── 外部工具类接入面（探针→冒烟→不变式→证据；KPI-TOOLS-5 口径，零领域语义）──
+try:
+    from api import external_tools as _external_tools  # noqa: E402
+
+    app.include_router(_external_tools.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("external_tools router 接线跳过: %s", _exc)
+
+
 # ── 提案→战役播种供给链机器门（契约 / 去重 / 覆盖率账本，零领域语义）──
 try:
     from api import proposal_gate as _proposal_gate  # noqa: E402
