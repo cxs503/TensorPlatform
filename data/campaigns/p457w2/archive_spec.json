@@ -1,0 +1,20 @@
+{
+  "campaign": "p457w2",
+  "note": "战役集成门工件快照：节点自证原始工件 + 数据声明 + 轨迹 runner + 契约文档 + 门派生产物（coupling/ledger/ledger_delta/platform_ledger_delta/traces/图）。排除三类自指文件：①归档清单自身；②综述文档 docs/P457W2-N09_INTEGRATION_GATE.md 与 seed_report.{json,md}——它们内嵌清单内容 sha256，纳入会形成自指哈希环，且它们完全可由本快照内的输入程序化重生成（复现命令见 data/campaigns/p457w2/README.md）。",
+  "paths": [
+    "data/campaigns/p457w2",
+    "docs/contracts/P457W2_INTERFACES.md",
+    "artifacts/campaigns/p457w2",
+    "artifacts/capability_ledger/capability_ledger_p457w2_delta.json",
+    "tools/integration_gate",
+    "tests/test_campaign_coupling_gate.py"
+  ],
+  "exclude_globs": [
+    "**/archive_manifest.json",
+    "**/__pycache__/**",
+    "**/*.pyc",
+    "**/P457W2-N09_INTEGRATION_GATE.md",
+    "**/seed_report.json",
+    "**/seed_report.md"
+  ]
+}

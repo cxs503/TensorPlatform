@@ -327,7 +327,8 @@ def test_package_is_domain_free():
         pytest.skip("no injected domain vocabulary (data/campaigns/*/domain_vocab.json)")
     banned: list[str] = []
     for vf in vocab_files:
-        banned.extend(json.loads(vf.read_text(encoding="utf-8"))["words"])
+        voc = json.loads(vf.read_text(encoding="utf-8"))
+        banned.extend(voc.get("words") or voc.get("forbidden_in_mechanism_code") or [])
     targets = sorted((REPO / "tools" / "integration_gate").glob("*.py")) + [Path(__file__)]
     import re
     for p in targets:

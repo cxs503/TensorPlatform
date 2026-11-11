@@ -7,7 +7,8 @@
 * ``expression``— 安全算术表达式 (AST 白名单，无函数调用、无属性访问、无名字除变量外)。
 
 失败一律 ``status="error"`` + ``error`` 文本 (fail-closed，由 compare 降级为 WITHHELD)。
-每条轨迹记录：模块/脚本文件 sha256、python 版本、耗时、行值；外部 worktree 路径标记
+每条轨迹记录：模块/脚本文件 sha256、python 版本、行值（**不记耗时**，避免快照每次运行
+都不同）；外部 worktree 路径标记
 ``external=True``，使报告能区分"main 基线内可复现"与"仅本机兄弟 worktree 可见"。
 """
 
@@ -134,7 +135,9 @@ def _trace_callable(spec: dict[str, Any], repo_root: Path) -> Trace:
         status, err = "ok", ""
     except Exception as exc:  # fail-closed
         status, err = "error", f"{type(exc).__name__}: {exc}"
-    prov["elapsed_s"] = round(time.time() - t0, 6)
+    # 注意：耗时**不写入** provenance —— 它会让 traces.json 每次运行都不同，
+    # 从而破坏「同一输入逐字节相同」的工件快照纪律（wall-clock 只 print 不落盘）。
+    prov["deterministic"] = True
     return Trace(id=spec["id"], kind="callable", param=pname,
                  values=[float(v) for v in grid["values"]], rows=rows,
                  status=status, meta=dict(spec.get("meta") or {}),
@@ -169,7 +172,7 @@ def _trace_script(spec: dict[str, Any], repo_root: Path) -> Trace:
             prov["stdout_sha256"] = hashlib.sha256(cp.stdout.encode()).hexdigest()
         except Exception as exc:
             status, err = "error", f"{type(exc).__name__}: {exc}"
-    prov["elapsed_s"] = round(time.time() - t0, 6)
+    prov["deterministic"] = True
     return Trace(id=spec["id"], kind="script", param=spec["grid"]["param"],
                  values=[float(v) for v in spec["grid"]["values"]], rows=rows,
                  status=status, meta=meta, provenance=prov, error=err)

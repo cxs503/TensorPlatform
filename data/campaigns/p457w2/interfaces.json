@@ -1,0 +1,76 @@
+{
+  "schema": "tp.integration.interfaces/v1",
+  "campaign": "p457w2",
+  "interfaces": [
+    {
+      "id": "IF-1-aeration-impact-law",
+      "producer": "p457w2-n04-aeration-decalibration",
+      "consumer": "p457w2-n01-structural-fatigue",
+      "payload": {
+        "id": "g_load(alpha_patch, u_impact)",
+        "unit": "-",
+        "fields": ["g_peak", "g_load", "domain_status"],
+        "coverage": {"min": 1e-08, "max": 0.05}
+      },
+      "requirement": {"unit": "-", "min": 0.0, "max": 0.5, "fallback": "clamp_with_status"},
+      "doc_ref": "docs/contracts/P457W2_INTERFACES.md",
+      "note": "生产方认证域 = [ALPHA_MIN_RESOLVABLE=1e-8, ALPHA_VW_MAX=0.05]（van Wijngaarden 近似域，见轨迹 meta）；消费端需求上限 0.5 来自生产方自身算例集 alpha_patch 最大 0.4349（notebook 行 C5），即生产方已在其自证域外使用该律 3/6 算例；契约要求消费方接受 clamp_with_status（域外返回值标 OUT_OF_DOMAIN，不外推）。"
+    },
+    {
+      "id": "IF-2-fatigue-life-curve",
+      "producer": "p457w2-n05-pipe-seabed",
+      "consumer": "p457w2-n01-structural-fatigue",
+      "payload": {
+        "id": "log10_N(D_curve, delta_sigma)",
+        "unit": "decade",
+        "fields": ["log_a1", "log_a2", "knee", "fatigue_life"],
+        "coverage": {"min": 6.0, "max": 10.5}
+      },
+      "requirement": {"unit": "decade", "min": 6.0, "max": 10.5, "fallback": "reject"},
+      "doc_ref": "docs/contracts/P457W2_INTERFACES.md",
+      "note": "两侧都要覆盖 15–150 MPa 应力幅（log10 N 6.85–9.47，见轨迹）；参数同一性由 assumptions 键 fatigue.sn_curve.D 另行互裁（本门实测不一致）。"
+    },
+    {
+      "id": "IF-3-ice-ridge-load",
+      "producer": "p457w2-n03-ice-ridge-3d",
+      "consumer": "p457w2-n01-structural-fatigue",
+      "payload": {
+        "id": "ice_load_amplitude(ridge, speed)",
+        "unit": "MPa",
+        "fields": ["load_amplitude", "contact_area", "domain_status"],
+        "coverage": {"min": 0.0, "max": 30.0}
+      },
+      "requirement": {"unit": "MPa", "min": 0.0, "max": 20.0, "fallback": "reject"},
+      "doc_ref": "docs/contracts/P457W2_INTERFACES.md",
+      "note": "生产方（冰脊 3D）本门运行时无验收数值工件，适用域按战役任务书登记；接口状态必然为 UNATTESTED。"
+    },
+    {
+      "id": "IF-4-flooding-state-exchange",
+      "producer": "p457w2-n02-damage-stability",
+      "consumer": "p457w2-n08-cross-solver-clock-sync",
+      "payload": {
+        "id": "flooding_state(t)",
+        "unit": "m",
+        "fields": ["level_m", "dt_s", "mass_balance_kg"],
+        "coverage": {"min": 0.0, "max": 8.0}
+      },
+      "requirement": {"unit": "m", "min": 0.0, "max": 8.0, "fallback": "reject"},
+      "doc_ref": "docs/contracts/P457W2_INTERFACES.md",
+      "note": "舱高 8 m 为生产方自证算例几何（C1/C2 15x10x8 m）；交换需带 dt 与质量账本，供 n08 时钟同步校验守恒<1%。消费方 n08 无验收工件 ⇒ UNATTESTED。"
+    },
+    {
+      "id": "IF-5-loading-condition-after-flooding",
+      "producer": "p457w2-n02-damage-stability",
+      "consumer": "p457w2-n06-twin-screw-shaft-failure",
+      "payload": {
+        "id": "GM_eff_m, KG_m",
+        "unit": "m",
+        "fields": ["gm_eff", "kg", "fsc"],
+        "coverage": {"min": -1.0, "max": 5.0}
+      },
+      "requirement": {"unit": "m", "min": -0.5, "max": 3.0, "fallback": "reject"},
+      "doc_ref": "docs/contracts/P457W2_INTERFACES.md",
+      "note": "生产方实测 GM_eff 1.529–1.718 m（正浮态）与 -0.618 m（负例失稳），见轨迹 meta；操纵性侧需知失稳工况不可用。消费方 n06 无验收工件 ⇒ UNATTESTED。"
+    }
+  ]
+}

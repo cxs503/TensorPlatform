@@ -17,7 +17,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .model import LEVEL_RANK, Attestation, PairResult, cap, rank, weaker
-from .provenance import sha256_obj
+from .provenance import sha256_obj, now_utc
 
 LEDGER_SCHEMA = "tp.integration.ledger/v1"
 
@@ -173,7 +173,7 @@ def build_ledger(campaign: str, entries: list[dict[str, Any]], pairs: list[PairR
     doc = {
         "schema": LEDGER_SCHEMA,
         "campaign": campaign,
-        "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
+        "generated_at": generated_at or now_utc(),
         "base_commit": base_commit,
         "level_rank": LEVEL_RANK,
         "rules": [
@@ -190,3 +190,103 @@ def build_ledger(campaign: str, entries: list[dict[str, Any]], pairs: list[PairR
     }
     doc["content_sha256"] = sha256_obj({k: v for k, v in doc.items() if k != "generated_at"})
     return doc
+
+# ── 台账增量（战役条目 vs 平台基础台账；观测级差 vs 平台基础台账）────────
+def compute_delta(entries: list[dict[str, Any]],
+                  base_ledger: dict[str, Any] | None) -> dict[str, Any]:
+    """战役条目相对基础台账的增量。id 不在基础台账里 → 新条目（不是"提升"）。"""
+    bl = base_ledger or {}
+    base_entries = bl.get("entries") or bl.get("capabilities") or []
+    base_index: dict[str, dict[str, Any]] = {}
+    for e in base_entries:
+        if not isinstance(e, dict):
+            continue
+        cid = e.get("capability_id") or e.get("id")
+        if cid:
+            base_index[cid] = {**e, "capability_id": cid}
+    new_entries: list[dict[str, Any]] = []
+    upgraded: list[dict[str, Any]] = []
+    downgraded: list[dict[str, Any]] = []
+    unchanged = 0
+    for e in entries:
+        b = base_index.get(e["capability_id"])
+        if b is None:
+            new_entries.append({"capability_id": e["capability_id"],
+                                "node_ext_id": e.get("node_ext_id"),
+                                "level": e["level"], "status": e["status"]})
+            continue
+        before = b.get("reconciled_level") or b.get("level")
+        if before not in LEVEL_RANK:
+            new_entries.append({"capability_id": e["capability_id"],
+                                "node_ext_id": e.get("node_ext_id"),
+                                "level": e["level"], "status": e["status"]})
+            continue
+        row = {"capability_id": e["capability_id"], "before": before, "after": e["level"]}
+        if rank(e["level"]) > rank(before):
+            upgraded.append(row)
+        elif rank(e["level"]) < rank(before):
+            downgraded.append(row)
+        else:
+            unchanged += 1
+    new_real = [n for n in new_entries if n["level"] == "REAL"]
+    return {
+        "base_entries": len(base_entries),
+        "new_entries": len(new_entries),
+        "new_real": new_real,
+        "n_new_real": len(new_real),
+        "new_by_level": {lv: sum(1 for n in new_entries if n["level"] == lv)
+                         for lv in LEVEL_RANK},
+        "upgraded": upgraded,
+        "downgraded": downgraded,
+        "unchanged": unchanged,
+    }
+
+
+def platform_ledger_delta(observed: dict[str, str],
+                          base_ledger: dict[str, Any] | None) -> dict[str, Any]:
+    """把**独立观测到的**平台能力等级（如标注器扫描结果）与基础台账比。
+
+    规则（与 R2 同源，可独立复算）：
+      * 观测等级 < 基础等级 → 记 ``downgrade_candidate``（观测更保守，允许）；
+      * 观测等级 > 基础等级，且基础条目已有 contradicting 证据（honest FAIL/MOCK 裁定）
+        → 记 ``blocked_upgrade``（不得抬高，R2）；
+      * 观测等级 > 基础等级，基础条目无抗辩证据 → 记 ``upgrade_candidate``（待复核，不自动采信）；
+      * 基础台账未登记 → ``unregistered``。
+    """
+    caps = (base_ledger or {}).get("capabilities") or []
+    base_index = {c["id"]: c for c in caps if isinstance(c, dict) and c.get("id")}
+    rows: list[dict[str, Any]] = []
+    for cid, lvl in sorted(observed.items()):
+        base = base_index.get(cid)
+        if base is None:
+            rows.append({"capability_id": cid, "observed": lvl, "base": None,
+                         "verdict": "unregistered"})
+            continue
+        before = base.get("reconciled_level") or base.get("claimed_level") or "WITHHELD"
+        if before not in LEVEL_RANK:
+            before = "WITHHELD"
+        contradicted = any(isinstance(ev, dict) and ev.get("stance") == "contradicts"
+                           for ev in (base.get("evidence") or []))
+        if rank(lvl) < rank(before):
+            verdict = "downgrade_candidate"
+        elif rank(lvl) == rank(before):
+            verdict = "corroborated"
+        elif contradicted:
+            verdict = "blocked_upgrade"
+        else:
+            verdict = "upgrade_candidate"
+        flags: list[str] = []
+        if contradicted and rank(before) > rank("MOCK"):
+            flags.append("ledger_internal_conflict: 基础台账等级高于其 evidence 里 "
+                         "contradicts 记录所支持的上限")
+        rows.append({"capability_id": cid, "observed": lvl, "base": before,
+                     "base_has_contradicting_evidence": contradicted,
+                     "flags": flags, "verdict": verdict})
+    tally: dict[str, int] = {}
+    for r in rows:
+        tally[r["verdict"]] = tally.get(r["verdict"], 0) + 1
+    flagged = [r for r in rows if r.get("flags")]
+    return {"n_observed": len(rows), "tally": tally, "rows": rows,
+            "flagged": [{"capability_id": r["capability_id"], "base": r["base"],
+                         "observed": r["observed"], "flags": r["flags"]} for r in flagged],
+            "n_flagged": len(flagged)}
