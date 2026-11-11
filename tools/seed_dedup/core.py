@@ -34,7 +34,13 @@ class SeedConfig:
 
     w_bm25: float = 0.55          # weight for normalised BM25
     w_jaccard: float = 0.45       # weight for char 3-gram Jaccard
-    theta: float = 0.30           # near-duplicate threshold
+    #: Near-duplicate threshold.  **This value is the historical default, kept
+    #: for the existing regression surface; it is not a calibrated value.**  The
+    #: calibration on labelled pair sets (see ``tools/seed_dedup/maturity.py`` and
+    #: ``artifacts/seed_dedup/corpus_maturity.json``) puts the operating point at
+    #: ``CALIBRATED_THETA`` below; a caller that wants the calibrated behaviour
+    #: passes it explicitly.
+    theta: float = 0.30
     k: int = 5                    # neighbours reported
     min_title_chars: int = 4
     min_goal_chars: int = 20
@@ -50,6 +56,12 @@ class SeedConfig:
             "min_goal_chars": self.min_goal_chars,
             "min_terms": self.min_terms,
         }
+
+
+#: Threshold chosen by the labelled-pair calibration (plateau 0.70-0.85; 0.80 is
+#: its midpoint).  Recorded next to the code so the number cannot drift away from
+#: the artifact that justifies it.
+CALIBRATED_THETA = 0.80
 
 
 @dataclass(frozen=True)

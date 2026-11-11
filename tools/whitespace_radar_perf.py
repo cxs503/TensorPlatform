@@ -79,12 +79,10 @@ def main() -> int:
         "speedup_vs_rebuild": round((t2 - t1) / max(t4 - t3, 1e-9), 2),
     }
 
-    topics = [
-        "引导回路 评价牵引 派发 接线",
-        "耐波 响应谱矩 频率窗 截断 回归护栏",
-        "地幔对流谱元法并行求解",
-        "提案去重门 跨组织 联邦学习 语义相似度",
-    ]
+    # example topics come from data/ (see data/whitespace_radar/topic_examples.json)
+    with open(os.path.join(REPO_ROOT, "data/whitespace_radar/topic_examples.json"), encoding="utf-8") as fh:
+        _examples = json.load(fh)
+    topics = list(_examples["perf_topics"])
     th = Thresholds()
     t5 = time.perf_counter()
     reps = 25

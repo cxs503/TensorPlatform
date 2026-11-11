@@ -256,46 +256,68 @@ def evaluate_benchmark(
     *,
     theta: Optional[float] = None,
     k: Optional[int] = None,
+    thetas: Optional[Sequence[float]] = None,
 ) -> Dict[str, Any]:
     """Evaluate precision and recall on the benchmark pairs.
 
+    ``thetas`` evaluates several thresholds from a single similarity pass per
+    candidate (the channels do not depend on theta, only the decision does), and
+    returns ``sweeps`` alongside the metrics of the first threshold.
+
     Ground truth:
+
     - ``duplicate`` -> should be BLOCK
-    - ``novel`` -> should be ALLOW (has fresh Δ)
+    - ``novel`` -> should be ALLOW (has fresh residual delta)
     - ``unique`` -> should be ALLOW (no near neighbour)
 
     Returns metrics dict with precision, recall, and per-label breakdown.
     """
+    from .corpus import candidate_sim_cache
     from .ledger import adjudicate, ALLOW, BLOCK
 
     ledger = benchmark["ledger"]
     pairs = benchmark["pairs"]
+    from .core import SeedConfig
 
-    tp = fp = fn = tn = 0
-    per_label: Dict[str, Dict[str, int]] = {}
+    default_theta = SeedConfig().theta
+    ths = [round(float(t), 6) for t in (thetas or [theta if theta is not None else default_theta])]
+    tallies: Dict[str, Dict[str, int]] = {
+        str(t): {"tp": 0, "fp": 0, "fn": 0, "tn": 0} for t in ths
+    }
+    per_theta_label: Dict[str, Dict[str, Dict[str, int]]] = {str(t): {} for t in ths}
 
     for pair in pairs:
         cand = pair["candidate"]
         label = pair["label"]
-        env = adjudicate(cand, ledger, index, theta=theta, k=k)
-        decision = env["decision"]
-
-        if label not in per_label:
-            per_label[label] = {"allowed": 0, "blocked": 0}
-        per_label[label]["allowed" if decision == ALLOW else "blocked"] += 1
-
+        # one similarity pass per candidate; the decision is the only part that
+        # depends on theta, so a sweep costs almost nothing extra
+        cache = candidate_sim_cache(
+            index, f"{cand.get('title') or ''}\n{cand.get('goal') or ''}", ledger
+        ) if ths else None
         # Positive = should block (duplicate), Negative = should allow (novel/unique)
         should_block = label == "duplicate"
-        did_block = decision == BLOCK
+        for t in ths:
+            kwargs = {"theta": t, "k": k}
+            if cache is not None:
+                kwargs["sim_cache"] = cache
+            env = adjudicate(cand, ledger, index, **kwargs)
+            blocked = env["decision"] == BLOCK
+            tally = tallies[str(t)]
+            if should_block and blocked:
+                tally["tp"] += 1
+            elif should_block:
+                tally["fn"] += 1
+            elif blocked:
+                tally["fp"] += 1
+            else:
+                tally["tn"] += 1
+            bucket = per_theta_label[str(t)].setdefault(label, {"allowed": 0, "blocked": 0})
+            bucket["allowed" if not blocked else "blocked"] += 1
 
-        if should_block and did_block:
-            tp += 1
-        elif should_block and not did_block:
-            fn += 1
-        elif not should_block and did_block:
-            fp += 1
-        else:
-            tn += 1
+    first = str(ths[0]) if ths else ""
+    tally = tallies[first] if first else {"tp": 0, "fp": 0, "fn": 0, "tn": 0}
+    tp, fp, fn, tn = tally["tp"], tally["fp"], tally["fn"], tally["tn"]
+    per_label = per_theta_label[first] if first else {}
 
     precision = tp / (tp + fp) if (tp + fp) > 0 else 0.0
     recall = tp / (tp + fn) if (tp + fn) > 0 else 0.0
@@ -315,4 +337,17 @@ def evaluate_benchmark(
             "theta": theta,
             "k": k,
         },
+        "sweeps": [
+            {
+                "theta": round(float(t), 6),
+                **tallies[str(t)],
+                "precision": round(
+                    tallies[str(t)]["tp"] / (tallies[str(t)]["tp"] + tallies[str(t)]["fp"]), 6
+                ) if (tallies[str(t)]["tp"] + tallies[str(t)]["fp"]) else 0.0,
+                "recall": round(
+                    tallies[str(t)]["tp"] / (tallies[str(t)]["tp"] + tallies[str(t)]["fn"]), 6
+                ) if (tallies[str(t)]["tp"] + tallies[str(t)]["fn"]) else 0.0,
+            }
+            for t in ths
+        ],
     }
