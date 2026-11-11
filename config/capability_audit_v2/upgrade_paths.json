@@ -1,0 +1,56 @@
+{
+ "schema_version": "1.0",
+ "purpose": "能力台账 v2 的升级路线数据（领域内容以数据注入，代码零领域语义）。items = MOCK/STUB → REAL 的算法级路径；next_action = WITHHELD 的证据补齐动作覆盖。",
+ "paths": {
+  "propeller.open_water": {
+   "upgrade_class": "solver_integration",
+   "blocking_summary": "服务端敞水内核是双项手拟合（KQ ≡ KT/10），eta0 退化为仅随 J 变化：探针 I_pitch_response / I_blade_response 相对展布 0（阈值 1e-3），故判 MOCK。",
+   "algorithm_refs": [
+    {
+     "citation": "Oosterveld & van Oossanen (1975), Further computer-analyzed data of the Wageningen B-screw series, International Shipbuilding Progress 22(251) —— KT 39 项 / KQ 47 项回归",
+     "locator": "backend/services/wageningen_b_series.py",
+     "role": "已入库的发表回归实现（作为替换内核与数值基准）"
+    },
+    {
+     "citation": "ITTC Recommended Procedure 7.5-02-03-02.1 (2014), Open Water Test",
+     "locator": "ITTC-7.5-02-03-02.1-2014",
+     "role": "敞水试验替代口径与不确定度评定（基准工件的数据口径）"
+    }
+   ],
+   "steps": [
+    {
+     "action": "把服务端敞水内核从双项手拟合替换为已入库 B 系列回归（KT/KQ 多项式），删除 KQ = KT/10 的结构性耦合",
+     "verification": "python3 -m pytest -q tests/test_wageningen_b_series.py",
+     "acceptance": "回归实现全绿；KT(J=0) 与设计点效率落在发表值区间（同一测试文件的锚点断言）",
+     "artifact": "backend/services/wageningen_b_series.py"
+    },
+    {
+     "action": "替换后重跑可执行不变量探针：eta0 对螺距与叶数的敏感度必须超过 1e-3 阈值，且恒等式残差 ≤1e-9",
+     "verification": "python3 -m tools.capability_audit_v2.cli verify --spec config/capability_audit_v2/spec.json --paths config/capability_audit_v2/upgrade_paths.json --runs 2",
+     "acceptance": "该能力的 probe contradictions 为空（证据见 config/capability_audit_v2/spec.json 的 probe 声明）",
+     "artifact": "artifacts/capability_audit_v2/ledger.json"
+    },
+    {
+     "action": "补敞水性能基准工件（≥8 个 J 点，KT/KQ/eta0 三量）并在基础 spec 的 benchmark 段绑定，误差用 worst 口径",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/test_cascade_v2.py",
+     "acceptance": "基准 worst_error_pct ≤ 3.0（REAL 容差），audit 判级升为 REAL",
+     "artifact": "config/capability_audit_gate/spec.json"
+    },
+    {
+     "action": "冻结新基线并开 CI 回归门，禁止等级回退（MOCK 复现即红灯）",
+     "verification": "python3 -m tools.capability_audit_v2.cli audit --spec config/capability_audit_v2/spec.json --paths config/capability_audit_v2/upgrade_paths.json --out artifacts/capability_audit_v2 --repro-runs 2",
+     "acceptance": "acceptance.json 全 PASS 且 reproducibility.json equal=true",
+     "artifact": "artifacts/capability_audit_v2/acceptance.json"
+    }
+   ],
+   "risks": [
+    "回归有效域 P/D 0.5-1.4、Ae/Ao 0.30-1.05、Z 2-7：越域调用必须显式报错而不是外推",
+    "基准工件若取自二次转述而非原始图表，需在 provenance 里标注并做双源交叉核对"
+   ],
+   "effort_days": 3
+  },
+  "calc.resistance": {
+   "next_action": "对标数据里存在被拒行（CT 低于摩擦下限/无量纲口径不一致）：先核对被拒行来源与工况覆盖，补齐有效行后重算 worst 误差；越界保持 WITHHELD 并留痕。"
+  }
+ }
+}

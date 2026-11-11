@@ -1,0 +1,197 @@
+{
+ "schema_version": "2.0",
+ "title": "synthetic executable-evidence spec (tests only)",
+ "base_spec": "tests/capability_audit_v2/fixtures/spec_base.json",
+ "execution": {
+  "timeout_s": 120,
+  "env_markers": [
+   "ProviderNotRegistered",
+   "no provider registered"
+  ],
+  "confcutdir": "tests/capability_audit_v2/fixtures",
+  "minimal_plugins": true
+ },
+ "thresholds": {
+  "probe_min_contradictions": 1,
+  "exec_numeric_assertions_min": 1
+ },
+ "capabilities": {
+  "cap.alpha": {
+   "pytest": {
+    "selectors": [
+     "tests/capability_audit_v2/fixtures/case_pass.py"
+    ]
+   },
+   "probe": {
+    "target": "impl_core:full_kernel",
+    "path_prepend": [
+     "tests/capability_audit_v2/fixtures"
+    ],
+    "params": [
+     "a",
+     "b"
+    ],
+    "points": [
+     {
+      "a": 0.1,
+      "b": 0.8
+     },
+     {
+      "a": 0.1,
+      "b": 1.2
+     },
+     {
+      "a": 0.2,
+      "b": 0.8
+     },
+     {
+      "a": 0.2,
+      "b": 1.2
+     }
+    ],
+    "outputs": [
+     "KT",
+     "KQ",
+     "eta"
+    ],
+    "checks": [
+     {
+      "kind": "identity",
+      "id": "I_eta_identity",
+      "expr": "eta - a * KT / (2 * pi * KQ)",
+      "tolerance": 1e-09
+     },
+     {
+      "kind": "sensitivity_required",
+      "id": "I_second_parameter",
+      "input": "b",
+      "output": "eta",
+      "threshold": 0.01
+     },
+     {
+      "kind": "determinism",
+      "id": "I_determinism"
+     }
+    ]
+   }
+  },
+  "cap.beta": {
+   "pytest": {
+    "selectors": [
+     "tests/capability_audit_v2/fixtures/case_pass.py"
+    ]
+   },
+   "probe": {
+    "target": "impl_core:flat_kernel",
+    "path_prepend": [
+     "tests/capability_audit_v2/fixtures"
+    ],
+    "params": [
+     "a",
+     "b"
+    ],
+    "points": [
+     {
+      "a": 0.1,
+      "b": 0.8
+     },
+     {
+      "a": 0.1,
+      "b": 1.2
+     },
+     {
+      "a": 0.2,
+      "b": 0.8
+     },
+     {
+      "a": 0.2,
+      "b": 1.2
+     }
+    ],
+    "outputs": [
+     "KT",
+     "KQ",
+     "eta"
+    ],
+    "checks": [
+     {
+      "kind": "identity",
+      "id": "I_eta_identity",
+      "expr": "eta - a * KT / (2 * pi * KQ)",
+      "tolerance": 1e-09
+     },
+     {
+      "kind": "sensitivity_required",
+      "id": "I_second_parameter",
+      "input": "b",
+      "output": "eta",
+      "threshold": 0.01
+     },
+     {
+      "kind": "determinism",
+      "id": "I_determinism"
+     }
+    ]
+   },
+   "control_probe": {
+    "target": "impl_core:full_kernel",
+    "path_prepend": [
+     "tests/capability_audit_v2/fixtures"
+    ],
+    "params": [
+     "a",
+     "b"
+    ],
+    "points": [
+     {
+      "a": 0.1,
+      "b": 0.8
+     },
+     {
+      "a": 0.1,
+      "b": 1.2
+     },
+     {
+      "a": 0.2,
+      "b": 0.8
+     },
+     {
+      "a": 0.2,
+      "b": 1.2
+     }
+    ],
+    "outputs": [
+     "KT",
+     "KQ",
+     "eta"
+    ],
+    "checks": [
+     {
+      "kind": "identity",
+      "id": "I_eta_identity",
+      "expr": "eta - a * KT / (2 * pi * KQ)",
+      "tolerance": 1e-09
+     },
+     {
+      "kind": "sensitivity_required",
+      "id": "I_second_parameter",
+      "input": "b",
+      "output": "eta",
+      "threshold": 0.01
+     },
+     {
+      "kind": "determinism",
+      "id": "I_determinism"
+     }
+    ]
+   }
+  },
+  "cap.gamma": {
+   "pytest": {
+    "selectors": [
+     "tests/capability_audit_v2/fixtures/case_fail.py"
+    ]
+   }
+  }
+ }
+}

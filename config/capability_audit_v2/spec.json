@@ -1,0 +1,98 @@
+{
+ "schema_version": "2.0",
+ "title": "能力台账自动审计 v2：可执行证据面（21 项能力）",
+ "base_spec": "config/capability_audit_gate/spec.json",
+ "execution": {
+  "timeout_s": 300,
+  "env_markers": [
+   "ProviderNotRegistered",
+   "no provider registered",
+   "not registered for",
+   "ModuleNotFoundError",
+   "ImportError",
+   "OperationalError",
+   "Connection refused",
+   "connection refused",
+   "No module named",
+   "fixture 'client' not found",
+   "httpx.ConnectError"
+  ]
+ },
+ "thresholds": {
+  "probe_min_contradictions": 1,
+  "exec_numeric_assertions_min": 1
+ },
+ "capabilities": {
+  "calc.resistance": {
+   "pytest": {
+    "selectors": [
+     "backend/tests/feat/test_resistance_benchmark_validation.py",
+     "backend/tests/feat/test_benchmark_chain_m1388.py"
+    ],
+    "timeout_s": 300
+   }
+  },
+  "calc.stability": {
+   "pytest": {
+    "selectors": [
+     "tests/test_stability_gz_benchmark.py",
+     "tests/test_m1564_stability_canon.py"
+    ],
+    "timeout_s": 300
+   }
+  },
+  "propeller.open_water": {
+   "pytest": {
+    "selectors": [
+     "tests/test_propeller_open_water.py",
+     "tests/test_prop_openwater_audit.py"
+    ],
+    "timeout_s": 300
+   },
+   "probe": {
+    "target": "api.domain.propeller_open_water:serve_kernel_replay",
+    "path_prepend": ["backend"],
+    "params": ["j", "p_d", "z", "ae_ao"],
+    "points": [
+     {"j": 0.1, "p_d": 0.8, "z": 4, "ae_ao": 0.70},
+     {"j": 0.1, "p_d": 1.2, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 0.8, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 1.2, "z": 4, "ae_ao": 0.70},
+     {"j": 0.5, "p_d": 0.8, "z": 4, "ae_ao": 0.70},
+     {"j": 0.5, "p_d": 1.2, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 1.0, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 1.0, "z": 5, "ae_ao": 0.70}
+    ],
+    "outputs": ["KT", "KQ", "eta0"],
+    "checks": [
+     {"kind": "identity", "id": "I_eta_identity", "expr": "eta0 - j * KT / (2 * pi * KQ)", "tolerance": 1e-09},
+     {"kind": "sensitivity_required", "id": "I_pitch_response", "input": "p_d", "output": "eta0", "threshold": 0.001},
+     {"kind": "sensitivity_required", "id": "I_blade_response", "input": "z", "output": "eta0", "threshold": 0.001},
+     {"kind": "determinism", "id": "I_determinism"}
+    ]
+   },
+   "control_probe": {
+    "target": "api.domain.propeller_open_water:open_water",
+    "path_prepend": ["backend"],
+    "params": ["j", "p_d", "z", "ae_ao"],
+    "points": [
+     {"j": 0.1, "p_d": 0.8, "z": 4, "ae_ao": 0.70},
+     {"j": 0.1, "p_d": 1.2, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 0.8, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 1.2, "z": 4, "ae_ao": 0.70},
+     {"j": 0.5, "p_d": 0.8, "z": 4, "ae_ao": 0.70},
+     {"j": 0.5, "p_d": 1.2, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 1.0, "z": 4, "ae_ao": 0.70},
+     {"j": 0.3, "p_d": 1.0, "z": 5, "ae_ao": 0.70}
+    ],
+    "outputs": ["KT", "KQ", "eta0"],
+    "checks": [
+     {"kind": "identity", "id": "I_eta_identity", "expr": "eta0 - j * KT / (2 * pi * KQ)", "tolerance": 1e-09},
+     {"kind": "sensitivity_required", "id": "I_pitch_response", "input": "p_d", "output": "eta0", "threshold": 0.001},
+     {"kind": "sensitivity_required", "id": "I_blade_response", "input": "z", "output": "eta0", "threshold": 0.001},
+     {"kind": "determinism", "id": "I_determinism"}
+    ]
+   }
+  }
+ }
+}
