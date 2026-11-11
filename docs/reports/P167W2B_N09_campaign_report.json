@@ -1,0 +1,518 @@
+{
+  "mission": 12425,
+  "node": "P167W2B-N09",
+  "repo": "TensorPlatform",
+  "run_dir": "artifacts/benchmark_runner/campaign/20261110T2355Z",
+  "campaign": "pf_default",
+  "run_id": "20261110T2355Z",
+  "passed": true,
+  "acceptance": {
+    "runner_executes_synthetic_suites": {
+      "value": [
+        "fx_integration",
+        "fx_series",
+        "fx_rootfinding",
+        "pf_surfaces",
+        "fx_gate_band_pass"
+      ],
+      "all_passed": true,
+      "evidence": [
+        "artifacts/benchmark_runner/fx_integration/20261110T234336Z-fx_integration",
+        "artifacts/benchmark_runner/fx_series/20261110T234339Z-fx_series",
+        "artifacts/benchmark_runner/fx_rootfinding/20261110T234340Z-fx_rootfinding",
+        "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces",
+        "artifacts/benchmark_runner/fx_gate_band_pass/20261110T234342Z-fx_gate_band_pass"
+      ]
+    },
+    "gate_band_1pct_pass_5pct_fail": {
+      "pass_case_suite": "fx_gate_band_pass",
+      "fail_case_suite": "fx_gate_band_fail",
+      "pass_suite_passed": true,
+      "fail_suite_passed": false,
+      "evidence": [
+        "artifacts/benchmark_runner/fx_gate_band_pass/20261110T234342Z-fx_gate_band_pass",
+        "artifacts/benchmark_runner/fx_gate_band_fail/20261110T234343Z-fx_gate_band_fail"
+      ]
+    },
+    "artifacts_sha256_verifiable": {
+      "integrity_failures": 0.0,
+      "campaign_manifest": "artifacts/benchmark_runner/campaign/20261110T2355Z/manifest.json",
+      "campaign_manifest_sha256": "3a2abe0a17c1d643e527391d144d6ca44f4a4b0895e339b7c4c230ae649291d7",
+      "artifact_files_verified": null
+    },
+    "regression_2pct_pass_5pct_alert": {
+      "probes": {
+        "p02": {
+          "expect": "clean",
+          "observed_code": 0,
+          "observed_drift": 0.02000000000000011,
+          "ok": true
+        },
+        "p05": {
+          "expect": "warn",
+          "observed_code": 1,
+          "observed_drift": 0.050000000000000135,
+          "ok": true
+        },
+        "p16": {
+          "expect": "critical",
+          "observed_code": 2,
+          "observed_drift": 0.15999999999999992,
+          "ok": true
+        }
+      },
+      "evidence": [
+        "artifacts/benchmark_runner/probes/probe_p02/20261110T234348Z-probe_p02",
+        "artifacts/benchmark_runner/probes/probe_p05/20261110T234349Z-probe_p05",
+        "artifacts/benchmark_runner/probes/probe_p16/20261110T234350Z-probe_p16"
+      ]
+    },
+    "zero_domain_semantics": {
+      "tool": "tools/benchmark_runner/domain_guard.py",
+      "command": "python3 -m tools.benchmark_runner.domain_guard tools/benchmark_runner"
+    },
+    "unattended_cases_65_to_at_least_75": {
+      "baseline": 65,
+      "baseline_artifact": "artifacts/benchmark_runner/kpi_baseline.json",
+      "baseline_artifact_sha256": "e3542dbb70340cdeb41d70e8b46617e91592ce2c6158884f67c9cd5858c653ef",
+      "baseline_sql": "SELECT count(DISTINCT substring(goal from '案例 ([a-zA-Z0-9_]+)（')) AS cases FROM tensor_dev_missions WHERE goal LIKE '%案例 %（Tensor%' AND status='succeeded'",
+      "engine_delta": 29,
+      "delta_by_suite": {
+        "fx_gate_band_pass": 2,
+        "fx_integration": 5,
+        "fx_rootfinding": 4,
+        "fx_series": 4,
+        "pf_surfaces": 14
+      },
+      "delta_case_ids": [
+        "fx_int_cos_n16",
+        "fx_int_cubic_n64",
+        "fx_int_exp_n64",
+        "fx_int_sin_n128",
+        "fx_int_sin_n32",
+        "fx_root_sqrt10_tol1e12",
+        "fx_root_sqrt2_tol1e12",
+        "fx_root_sqrt2_tol1e6",
+        "fx_root_sqrt3_tol1e9",
+        "fx_series_r025_n20",
+        "fx_series_r050_n10",
+        "fx_series_r050_n20",
+        "fx_series_r080_n40",
+        "gb_tail_p0097",
+        "gb_tail_p0156",
+        "pf_artifact_digest_order_invariance",
+        "pf_artifact_digest_payload_sensitivity",
+        "pf_artifact_manifest_tamper_detected",
+        "pf_kpi_hour_epoch_zero",
+        "pf_kpi_hour_offset_west",
+        "pf_kpi_hour_utc_min",
+        "pf_kpi_pct_missing",
+        "pf_kpi_pct_round",
+        "pf_kpi_ratio_eighths",
+        "pf_kpi_ratio_third",
+        "pf_kpi_ratio_zero_denominator",
+        "pf_regression_clean_within_tolerance",
+        "pf_regression_critical_far_above",
+        "pf_regression_warn_above_tolerance"
+      ],
+      "combined": 94.0,
+      "target": 75.0,
+      "verdict": "pass"
+    },
+    "pytest": {
+      "file": "tests/test_benchmark_runner_p167w2b_n09.py"
+    }
+  },
+  "criteria": [
+    {
+      "id": "steps_ok_ratio",
+      "op": "==",
+      "threshold": 1.0,
+      "actual": 1.0,
+      "passed": true
+    },
+    {
+      "id": "negative_controls_held",
+      "op": "==",
+      "threshold": 4.0,
+      "actual": 4.0,
+      "passed": true
+    },
+    {
+      "id": "integrity_failures",
+      "op": "==",
+      "threshold": 0.0,
+      "actual": 0.0,
+      "passed": true
+    },
+    {
+      "id": "drift_specificity_ok",
+      "op": "==",
+      "threshold": 1.0,
+      "actual": 1.0,
+      "passed": true
+    },
+    {
+      "id": "drift_power_ok",
+      "op": "==",
+      "threshold": 1.0,
+      "actual": 1.0,
+      "passed": true
+    },
+    {
+      "id": "unattended_cases_delta",
+      "op": ">=",
+      "threshold": 10.0,
+      "actual": 29.0,
+      "passed": true
+    },
+    {
+      "id": "unattended_cases",
+      "op": ">=",
+      "threshold": 75.0,
+      "actual": 94.0,
+      "passed": true
+    }
+  ],
+  "errors": [
+    {
+      "suite": "fx_integration",
+      "n_cases": 5,
+      "max_rel_error": 1.358863899308993e-06,
+      "declared_tolerance": 1e-05,
+      "under_3pct": true,
+      "under_declared": true
+    },
+    {
+      "suite": "fx_series",
+      "n_cases": 4,
+      "max_rel_error": 0.0009765625,
+      "declared_tolerance": 0.01,
+      "under_3pct": true,
+      "under_declared": true
+    },
+    {
+      "suite": "fx_rootfinding",
+      "n_cases": 4,
+      "max_rel_error": 2.6999536216952265e-07,
+      "declared_tolerance": 1e-06,
+      "under_3pct": true,
+      "under_declared": true
+    },
+    {
+      "suite": "pf_surfaces",
+      "n_cases": 14,
+      "max_rel_error": 0.0,
+      "declared_tolerance": 1e-12,
+      "under_3pct": true,
+      "under_declared": true
+    },
+    {
+      "suite": "fx_gate_band_pass",
+      "n_cases": 2,
+      "max_rel_error": 0.015625,
+      "declared_tolerance": 0.03,
+      "under_3pct": true,
+      "under_declared": true
+    },
+    {
+      "suite": "fx_gate_band_fail",
+      "n_cases": 0,
+      "max_rel_error": null,
+      "declared_tolerance": 0.03,
+      "under_3pct": null,
+      "under_declared": null
+    },
+    {
+      "suite": "fx_negative_control",
+      "n_cases": 0,
+      "max_rel_error": null,
+      "declared_tolerance": 1e-12,
+      "under_3pct": null,
+      "under_declared": null
+    },
+    {
+      "suite": "fx_budget_negative",
+      "n_cases": 0,
+      "max_rel_error": null,
+      "declared_tolerance": 1e-12,
+      "under_3pct": null,
+      "under_declared": null
+    },
+    {
+      "suite": "fx_timeout_negative",
+      "n_cases": 1,
+      "max_rel_error": 0.0,
+      "declared_tolerance": 1e-12,
+      "under_3pct": true,
+      "under_declared": true
+    }
+  ],
+  "figures": [
+    {
+      "path": "artifacts/benchmark_runner/campaign/20261110T2355Z/figures/campaign_kpi_vs_target.png",
+      "sha256": "503822d5edcf4c42a37cec024ba0c7e3a89c65819334ec54d2d7832f97f4e627",
+      "bytes": 81483
+    },
+    {
+      "path": "artifacts/benchmark_runner/campaign/20261110T2355Z/figures/regression_probes.png",
+      "sha256": "c4e0325504820adfac16503a27164e961cd97286fd489331ac5f79c4c6497ed6",
+      "bytes": 44835
+    },
+    {
+      "path": "artifacts/benchmark_runner/campaign/20261110T2355Z/figures/suite_error_vs_threshold.png",
+      "sha256": "98e3152cc95a58adf27a4b650ebecea821fc0ed70b5c1735255f0f3d0cb9524f",
+      "bytes": 202559
+    }
+  ],
+  "cases": [
+    {
+      "suite": "fx_gate_band_pass",
+      "case_id": "gb_tail_p0097",
+      "passed": true,
+      "rel_error": 0.009697737297875656,
+      "case_file": "artifacts/benchmark_runner/fx_gate_band_pass/20261110T234342Z-fx_gate_band_pass/cases/gb_tail_p0097.json",
+      "artifact_sha256": "5d492f348d174bc65fcb9e95c3e90cd1b8fdc8c3ea43ff845d801e2a95c439ff"
+    },
+    {
+      "suite": "fx_gate_band_pass",
+      "case_id": "gb_tail_p0156",
+      "passed": true,
+      "rel_error": 0.015625,
+      "case_file": "artifacts/benchmark_runner/fx_gate_band_pass/20261110T234342Z-fx_gate_band_pass/cases/gb_tail_p0156.json",
+      "artifact_sha256": "4aa4f7d7ca6b8b21679ed1e41e3b44a301c2929efde5cff97e554c8d7ac1d0c6"
+    },
+    {
+      "suite": "fx_integration",
+      "case_id": "fx_int_cos_n16",
+      "passed": true,
+      "rel_error": 1.358863899308993e-06,
+      "case_file": "artifacts/benchmark_runner/fx_integration/20261110T234336Z-fx_integration/cases/fx_int_cos_n16.json",
+      "artifact_sha256": "15a27c803eddd28190bf4033c72002832200015438e09df6160587790ca6323b"
+    },
+    {
+      "suite": "fx_integration",
+      "case_id": "fx_int_cubic_n64",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/fx_integration/20261110T234336Z-fx_integration/cases/fx_int_cubic_n64.json",
+      "artifact_sha256": "417e545ee4338f607d4e950a6fd4c14815e41d30116e5a3275c8e0fec4735f5b"
+    },
+    {
+      "suite": "fx_integration",
+      "case_id": "fx_int_exp_n64",
+      "passed": true,
+      "rel_error": 3.311274057961851e-10,
+      "case_file": "artifacts/benchmark_runner/fx_integration/20261110T234336Z-fx_integration/cases/fx_int_exp_n64.json",
+      "artifact_sha256": "90af5b64e7dc81b00098f9e962ab4230fcc10fa2b86e44937238d7958a34f112"
+    },
+    {
+      "suite": "fx_integration",
+      "case_id": "fx_int_sin_n128",
+      "passed": true,
+      "rel_error": 1.0477565328527809e-10,
+      "case_file": "artifacts/benchmark_runner/fx_integration/20261110T234336Z-fx_integration/cases/fx_int_sin_n128.json",
+      "artifact_sha256": "2f0e1d657132b14e6c2d5f56d0384a13db2b8d8a7e6a5fe3bb3b9b631078de9a"
+    },
+    {
+      "suite": "fx_integration",
+      "case_id": "fx_int_sin_n32",
+      "passed": true,
+      "rel_error": 2.6829107819174658e-08,
+      "case_file": "artifacts/benchmark_runner/fx_integration/20261110T234336Z-fx_integration/cases/fx_int_sin_n32.json",
+      "artifact_sha256": "de4d0b6555e609b5f4f68813f2aba4d662fc73fd7e4161861abd369c08bd77dc"
+    },
+    {
+      "suite": "fx_rootfinding",
+      "case_id": "fx_root_sqrt10_tol1e12",
+      "passed": true,
+      "rel_error": 4.0711624901615423e-13,
+      "case_file": "artifacts/benchmark_runner/fx_rootfinding/20261110T234340Z-fx_rootfinding/cases/fx_root_sqrt10_tol1e12.json",
+      "artifact_sha256": "9e1292d69c42eb3d9ca91043cf967dd9766148ec8f96ffdff8d2c25ba41fc9da"
+    },
+    {
+      "suite": "fx_rootfinding",
+      "case_id": "fx_root_sqrt2_tol1e12",
+      "passed": true,
+      "rel_error": 1.1174348028452426e-12,
+      "case_file": "artifacts/benchmark_runner/fx_rootfinding/20261110T234340Z-fx_rootfinding/cases/fx_root_sqrt2_tol1e12.json",
+      "artifact_sha256": "806914e311cb7b1e8ecad119668417877f7d122fe468762db23c4057d5ca4cf9"
+    },
+    {
+      "suite": "fx_rootfinding",
+      "case_id": "fx_root_sqrt2_tol1e6",
+      "passed": true,
+      "rel_error": 2.6999536216952265e-07,
+      "case_file": "artifacts/benchmark_runner/fx_rootfinding/20261110T234340Z-fx_rootfinding/cases/fx_root_sqrt2_tol1e6.json",
+      "artifact_sha256": "a5bf893f89b04a096f57e774b64ae3b7d7824aa9ef97e1a2effd455226934349"
+    },
+    {
+      "suite": "fx_rootfinding",
+      "case_id": "fx_root_sqrt3_tol1e9",
+      "passed": true,
+      "rel_error": 3.335460825940244e-10,
+      "case_file": "artifacts/benchmark_runner/fx_rootfinding/20261110T234340Z-fx_rootfinding/cases/fx_root_sqrt3_tol1e9.json",
+      "artifact_sha256": "54fd52c7b18fdc10c650c52d43d351eeeadfbfba82c20220f5a9121e3d18e905"
+    },
+    {
+      "suite": "fx_series",
+      "case_id": "fx_series_r025_n20",
+      "passed": true,
+      "rel_error": 9.09439190621697e-13,
+      "case_file": "artifacts/benchmark_runner/fx_series/20261110T234339Z-fx_series/cases/fx_series_r025_n20.json",
+      "artifact_sha256": "6ebda8a62b8e4faecf3c9d38d10487ab4a392074ad08a187a6b5a2b0ae60b98b"
+    },
+    {
+      "suite": "fx_series",
+      "case_id": "fx_series_r050_n10",
+      "passed": true,
+      "rel_error": 0.0009765625,
+      "case_file": "artifacts/benchmark_runner/fx_series/20261110T234339Z-fx_series/cases/fx_series_r050_n10.json",
+      "artifact_sha256": "73c7f34a8dc91ca84a261d5fe6964da5bb35d6b457d22b223763d0f071d65ddb"
+    },
+    {
+      "suite": "fx_series",
+      "case_id": "fx_series_r050_n20",
+      "passed": true,
+      "rel_error": 9.5367431640625e-07,
+      "case_file": "artifacts/benchmark_runner/fx_series/20261110T234339Z-fx_series/cases/fx_series_r050_n20.json",
+      "artifact_sha256": "98fda4985ced067a0ee939edd56366f2c077150e1c04b848ebea4f7449e33714"
+    },
+    {
+      "suite": "fx_series",
+      "case_id": "fx_series_r080_n40",
+      "passed": true,
+      "rel_error": 0.0001329227995786608,
+      "case_file": "artifacts/benchmark_runner/fx_series/20261110T234339Z-fx_series/cases/fx_series_r080_n40.json",
+      "artifact_sha256": "426778cd2e104dae6abb0b35c1b4d92f2aea3a9e8d2612acd8958e8ac443f71f"
+    },
+    {
+      "suite": "fx_timeout_negative",
+      "case_id": "fx_healthy_after_timeout",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/fx_timeout_negative/20261110T234347Z-fx_timeout_negative/cases/fx_healthy_after_timeout.json",
+      "artifact_sha256": "7b464417dbb2eea4003d6b4ab3a74a7aed10b765bb70855eee9ceee962c41ecc"
+    },
+    {
+      "suite": "fx_timeout_negative",
+      "case_id": "fx_stall_beyond_timeout",
+      "passed": false,
+      "rel_error": null,
+      "case_file": "artifacts/benchmark_runner/fx_timeout_negative/20261110T234347Z-fx_timeout_negative/cases/fx_stall_beyond_timeout.json",
+      "artifact_sha256": "68708daa64f61303aa3325452344ec1074e80bbbd6caa93cdf7622a318cf3aba"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_artifact_digest_order_invariance",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_artifact_digest_order_invariance.json",
+      "artifact_sha256": "ea8b2bfd6127db94ba87c29385b5bd585a03e1430bb4407187ae20225465cad8"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_artifact_digest_payload_sensitivity",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_artifact_digest_payload_sensitivity.json",
+      "artifact_sha256": "2305441a76b873dce3f3de89fd5bdf286f5ca9dae7d63197c13b0393d7688192"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_artifact_manifest_tamper_detected",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_artifact_manifest_tamper_detected.json",
+      "artifact_sha256": "d4366258688d8c48d9f6c5964d6164a88395b53c256a9eeaf301649afc30e33f"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_hour_epoch_zero",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_hour_epoch_zero.json",
+      "artifact_sha256": "7ebc68c59cfca887401d611fbd3e74aa2f92aaeea2635d08168e17da138ba428"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_hour_offset_west",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_hour_offset_west.json",
+      "artifact_sha256": "49af1dff489775dcccd3ccd4afb6a1fae06786d70626587c0b8fe213a1235208"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_hour_utc_min",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_hour_utc_min.json",
+      "artifact_sha256": "29fe2d11db82c9dda9bbcb29e71be9f168e92ed27c7289450f3ef76b6a1cce1d"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_pct_missing",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_pct_missing.json",
+      "artifact_sha256": "06d5a64aebd3dd4450618946d63aae03387220918cb078ee6a1349e5e9b872b2"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_pct_round",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_pct_round.json",
+      "artifact_sha256": "0ef2f949e69b6277b053a1b50a52c7fd0970dfb9c67aaa2ab6b1a4a152cee2fa"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_ratio_eighths",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_ratio_eighths.json",
+      "artifact_sha256": "de79e003d52cd9f61d77d821210c5bd1e13bdd93c9820be9a4b8e79c23e88398"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_ratio_third",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_ratio_third.json",
+      "artifact_sha256": "c98851d07483ab2d9a8cfa36c5022960ed9ec6a6248fd5ee582e009102e8efcb"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_kpi_ratio_zero_denominator",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_kpi_ratio_zero_denominator.json",
+      "artifact_sha256": "0cff5acd9a2d2cc410021b0d29275aa4d912bfcc92cac08afdb82d9eea55e452"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_regression_clean_within_tolerance",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_regression_clean_within_tolerance.json",
+      "artifact_sha256": "6cc57e309f032f9111eb7177da408eda0b576e9c4463ef155327df7dbc0499ca"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_regression_critical_far_above",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_regression_critical_far_above.json",
+      "artifact_sha256": "deede16f9088f72880de4a43cd899894be147544ca14d8044457175f92a5e761"
+    },
+    {
+      "suite": "pf_surfaces",
+      "case_id": "pf_regression_warn_above_tolerance",
+      "passed": true,
+      "rel_error": 0.0,
+      "case_file": "artifacts/benchmark_runner/pf_surfaces/20261110T234341Z-pf_surfaces/cases/pf_regression_warn_above_tolerance.json",
+      "artifact_sha256": "f24cd99be6abfdd4ea68c6202c1bc08a0c48f7daf8472096328666aa7a0c360d"
+    }
+  ]
+}
