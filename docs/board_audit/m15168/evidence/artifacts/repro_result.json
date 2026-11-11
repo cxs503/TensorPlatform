@@ -1,0 +1,747 @@
+{
+  "kpi": "KPI-GATE-100",
+  "mission_id": 15122,
+  "measured_at_utc": "2026-11-11T19:53:11Z",
+  "definition": {
+    "unit": "percent_of_output_lines",
+    "formula_strict": "100 × |{line: G1 ∧ G2 ∧ G3_prod}| / 5",
+    "formula_structural": "100 × |{line: G1 ∧ G2 ∧ (G3_prod ∨ G3_negcontrol)}| / 5",
+    "output_lines": [
+      "PR",
+      "报告",
+      "基准",
+      "知识",
+      "论文"
+    ],
+    "note": "G1 机器门存在；G2 判据驱动拒绝分支；G3 拒绝实证（生产判决/负控测试）；G4 实测拦截率"
+  },
+  "current": 60.0,
+  "current_structural": 80.0,
+  "target": 100.0,
+  "gap": 40.0,
+  "covered_strict": [
+    "PR",
+    "报告",
+    "基准"
+  ],
+  "covered_structural": [
+    "PR",
+    "报告",
+    "基准",
+    "知识"
+  ],
+  "no_gate_lines": [
+    "论文"
+  ],
+  "matrix": [
+    {
+      "line": "PR",
+      "G1_machine_gate": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_observed_prod": true,
+      "G3_neg_control_test": true,
+      "G4_enforcement_coverage": 0.854392,
+      "G4_numerator": 5369,
+      "G4_denominator": 6284,
+      "evidence": {
+        "ci_workflows": [
+          "branch-hygiene-gate.yml",
+          "capability-audit.yml",
+          "capability-drift.yml",
+          "ci.yml",
+          "criteria-gate.yml",
+          "cross-arch-gate-x86-arm.yml",
+          "evidence-grade.yml",
+          "gate-contract-crossarch-x86.yml",
+          "resident-community.yml",
+          "secret-scan.yml",
+          "threshold-registry-gate.yml",
+          "write-gate.yml"
+        ],
+        "state_guards": [
+          "backend/api/tensor_mission_lifecycle.py:98: raise HTTPException(409, f\"cannot suspend status={row['status']} (must be queued/claimed/running)\")",
+          "backend/api/tensor_mission_lifecycle.py:195: raise HTTPException(409, f\"cannot resume status={row['status']} (must be suspended)\")",
+          "backend/api/tensor_mission_lifecycle.py:347: raise HTTPException(409, f\"cannot write-off status={row['status']} (must be terminal)\")",
+          "backend/api/tensor_mission_lifecycle.py:1350: raise HTTPException(409, rej.decision)"
+        ],
+        "closed_unmerged_red": 13,
+        "pr_states": {
+          "merged": 5353,
+          "open": 915,
+          "closed": 16
+        },
+        "note": "关闭未合=RED/redev 未过门；门自身无独立判决字段，故只算间接实证"
+      },
+      "gaps": [
+        "PR 线无门自身判决字段（state 流水只有 open/merged/closed），拒绝归因依赖 note 文本"
+      ]
+    },
+    {
+      "line": "报告",
+      "G1_machine_gate": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_observed_prod": true,
+      "G3_neg_control_test": false,
+      "G4_enforcement_coverage": 0.0036,
+      "G4_numerator": 34,
+      "G4_denominator": 9445,
+      "evidence": {
+        "gate_impl": [
+          "backend/services/report_gate.py:296: issues.append(\"missing_physics_statement\")",
+          "backend/services/report_gate.py:301: issues.append(\"missing_method\")",
+          "backend/services/report_gate.py:310: issues.append(\"missing_validation\")"
+        ],
+        "qa_status": {
+          "pending": 9411,
+          "passed": 27,
+          "rejected": 7
+        },
+        "neg_test": {
+          "cmd": "cd backend && PYTHONPATH=. python3 -m pytest -q tests/test_report_gate.py -p no:cacheprovider",
+          "rc": 0,
+          "summary": "..........                                                               [100%]",
+          "failed": [],
+          "neg_control_assert_lines": [],
+          "neg_control_asserts": false
+        }
+      },
+      "gaps": [
+        "9411/9445 份报告 qa_status=pending，从未过门（实测拦截率 0.36%）"
+      ]
+    },
+    {
+      "line": "基准",
+      "G1_machine_gate": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_observed_prod": true,
+      "G3_neg_control_test": true,
+      "G4_enforcement_coverage": 1.0,
+      "G4_numerator": 12,
+      "G4_denominator": 12,
+      "evidence": {
+        "verdicts": {
+          "WITHHELD": 8,
+          "FAIL_OVER_15": 4
+        },
+        "settlement_summary": {
+          "rows": [
+            {
+              "case_id": "DTMB5415-01",
+              "ship_type": "DTMB-5415",
+              "speed_ms": 2.572,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0045,
+              "ref_ct_used": 0.0045,
+              "calc_ct": 0.004343,
+              "source_verdict": true,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": -3.4888888888888894,
+              "abs_err_pct": 3.4888888888888894,
+              "err_pct_typed": 3.48,
+              "sign_lost": true,
+              "typed_drift_pp": -6.968888888888889,
+              "typed_field_trusted": false,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "DTMB5415-02",
+              "ship_type": "DTMB-5415",
+              "speed_ms": 5.144,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0038,
+              "ref_ct_used": 0.0038,
+              "calc_ct": 0.004687,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 23.3421052631579,
+              "abs_err_pct": 23.3421052631579,
+              "err_pct_typed": 23.33,
+              "sign_lost": false,
+              "typed_drift_pp": 0.012105263157902613,
+              "typed_field_trusted": true,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "DTMB5415-03",
+              "ship_type": "DTMB-5415",
+              "speed_ms": 10.289,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0035,
+              "ref_ct_used": 0.0035,
+              "calc_ct": 0.005374,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 53.542857142857144,
+              "abs_err_pct": 53.542857142857144,
+              "err_pct_typed": 53.53,
+              "sign_lost": false,
+              "typed_drift_pp": 0.012857142857143344,
+              "typed_field_trusted": true,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "DTMB5415-04",
+              "ship_type": "DTMB-5415",
+              "speed_ms": 15.433,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0038,
+              "ref_ct_used": 0.0038,
+              "calc_ct": 0.00606,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 59.47368421052632,
+              "abs_err_pct": 59.47368421052632,
+              "err_pct_typed": 59.48,
+              "sign_lost": false,
+              "typed_drift_pp": -0.006315789473674727,
+              "typed_field_trusted": true,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "KVLCC2-01",
+              "ship_type": "KVLCC2",
+              "speed_ms": 7.202,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0028,
+              "ref_ct_used": 0.0028,
+              "calc_ct": 0.002886,
+              "source_verdict": true,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 3.0714285714285765,
+              "abs_err_pct": 3.0714285714285765,
+              "err_pct_typed": 3.06,
+              "sign_lost": false,
+              "typed_drift_pp": 0.01142857142857645,
+              "typed_field_trusted": true,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "KVLCC2-02",
+              "ship_type": "KVLCC2",
+              "speed_ms": 7.717,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.003,
+              "ref_ct_used": 0.003,
+              "calc_ct": 0.002913,
+              "source_verdict": true,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": -2.900000000000009,
+              "abs_err_pct": 2.900000000000009,
+              "err_pct_typed": 2.89,
+              "sign_lost": true,
+              "typed_drift_pp": -5.790000000000009,
+              "typed_field_trusted": false,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "KVLCC2-03",
+              "ship_type": "KVLCC2",
+              "speed_ms": 7.974,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0031,
+              "ref_ct_used": 0.0031,
+              "calc_ct": 0.002927,
+              "source_verdict": true,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": -5.580645161290322,
+              "abs_err_pct": 5.580645161290322,
+              "err_pct_typed": 5.58,
+              "sign_lost": true,
+              "typed_drift_pp": -11.160645161290322,
+              "typed_field_trusted": false,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "KVLCC2-04",
+              "ship_type": "KVLCC2",
+              "speed_ms": 8.231,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "WITHHELD",
+              "rt_status": "WITHHELD",
+              "ref_ct_canon": 0.0032,
+              "ref_ct_used": 0.0032,
+              "calc_ct": 0.002941,
+              "source_verdict": true,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": -8.093750000000004,
+              "abs_err_pct": 8.093750000000004,
+              "err_pct_typed": 8.1,
+              "sign_lost": true,
+              "typed_drift_pp": -16.19375,
+              "typed_field_trusted": false,
+              "admissible": false,
+              "verdict": "WITHHELD",
+              "reason": "正典 reference_status=WITHHELD：禁止出精度判决（policy）",
+              "policy_violation": true,
+              "status": "INADMISSIBLE"
+            },
+            {
+              "case_id": "SUBOFF-01",
+              "ship_type": "SUBOFF",
+              "speed_ms": 3.0,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "DERIVED",
+              "rt_status": "DERIVED",
+              "ref_ct_canon": 0.0038,
+              "ref_ct_used": 0.0038,
+              "calc_ct": 0.006418,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 68.89473684210526,
+              "abs_err_pct": 68.89473684210526,
+              "err_pct_typed": 68.89,
+              "sign_lost": false,
+              "typed_drift_pp": 0.004736842105259598,
+              "typed_field_trusted": true,
+              "admissible": true,
+              "verdict": "FAIL_OVER_15",
+              "reason": "正典 DERIVED：可判决",
+              "policy_violation": false,
+              "status": "SETTLED",
+              "r1_check": {
+                "rt_recomputed": 92.51517240000001,
+                "rt_canon": 92.52,
+                "rel_err_pct": -0.005217898832668072,
+                "ok": true
+              }
+            },
+            {
+              "case_id": "SUBOFF-02",
+              "ship_type": "SUBOFF",
+              "speed_ms": 4.0,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "DERIVED",
+              "rt_status": "DERIVED",
+              "ref_ct_canon": 0.004,
+              "ref_ct_used": 0.004,
+              "calc_ct": 0.006724,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 68.1,
+              "abs_err_pct": 68.1,
+              "err_pct_typed": 68.1,
+              "sign_lost": false,
+              "typed_drift_pp": 0.0,
+              "typed_field_trusted": true,
+              "admissible": true,
+              "verdict": "FAIL_OVER_15",
+              "reason": "正典 DERIVED：可判决",
+              "policy_violation": false,
+              "status": "SETTLED",
+              "r1_check": {
+                "rt_recomputed": 173.12780800000002,
+                "rt_canon": 173.13,
+                "rel_err_pct": -0.0012661006180208767,
+                "ok": true
+              }
+            },
+            {
+              "case_id": "SUBOFF-03",
+              "ship_type": "SUBOFF",
+              "speed_ms": 5.0,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "DERIVED",
+              "rt_status": "DERIVED",
+              "ref_ct_canon": 0.0042,
+              "ref_ct_used": 0.0042,
+              "calc_ct": 0.00703,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 67.38095238095238,
+              "abs_err_pct": 67.38095238095238,
+              "err_pct_typed": 67.38,
+              "sign_lost": false,
+              "typed_drift_pp": 0.0009523809523841464,
+              "typed_field_trusted": true,
+              "admissible": true,
+              "verdict": "FAIL_OVER_15",
+              "reason": "正典 DERIVED：可判决",
+              "policy_violation": false,
+              "status": "SETTLED",
+              "r1_check": {
+                "rt_recomputed": 284.03781,
+                "rt_canon": 284.04,
+                "rel_err_pct": -0.000771018166470017,
+                "ok": true
+              }
+            },
+            {
+              "case_id": "SUBOFF-04",
+              "ship_type": "SUBOFF",
+              "speed_ms": 6.0,
+              "method": "ITTC-57 + Holtrop",
+              "reference_status": "DERIVED",
+              "rt_status": "DERIVED",
+              "ref_ct_canon": 0.0044,
+              "ref_ct_used": 0.0044,
+              "calc_ct": 0.007336,
+              "source_verdict": false,
+              "ref_stale_pct": 0.0,
+              "ref_stale": false,
+              "err_pct": 66.72727272727272,
+              "abs_err_pct": 66.72727272727272,
+              "err_pct_typed": 66.72,
+              "sign_lost": false,
+              "typed_drift_pp": 0.007272727272720658,
+              "typed_field_trusted": true,
+              "admissible": true,
+              "verdict": "FAIL_OVER_15",
+              "reason": "正典 DERIVED：可判决",
+              "policy_violation": false,
+              "status": "SETTLED",
+              "r1_check": {
+                "rt_recomputed": 428.4913248000001,
+                "rt_canon": 428.49,
+                "rel_err_pct": 0.00030917874397936364,
+                "ok": true
+              }
+            }
+          ]
+        },
+        "neg_test": {
+          "cmd": "cd . && PYTHONPATH=. python3 -m pytest -q tests/test_benchmark_settlement.py -p no:cacheprovider",
+          "rc": 0,
+          "summary": "20 passed, 1 warning in 0.22s",
+          "failed": [],
+          "neg_control_assert_lines": [
+            "tests/test_benchmark_settlement.py:49: (5.0, \"PASS_5PCT\"), (5.0001, \"FAIL_5PCT\"), (15.0, \"FAIL_5PCT\"),",
+            "tests/test_benchmark_settlement.py:50: (15.0001, \"FAIL_OVER_15\"), (-68.9, \"FAIL_OVER_15\"),",
+            "tests/test_benchmark_settlement.py:62: assert row[\"admissible\"] is True and row[\"policy_violation\"] is False",
+            "tests/test_benchmark_settlement.py:72: assert row[\"verdict\"] == \"WITHHELD\""
+          ],
+          "neg_control_asserts": true
+        }
+      },
+      "gaps": []
+    },
+    {
+      "line": "知识",
+      "G1_machine_gate": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_observed_prod": false,
+      "G3_neg_control_test": true,
+      "G4_enforcement_coverage": 0.0,
+      "G4_numerator": 0,
+      "G4_denominator": 30,
+      "evidence": {
+        "kb_status": {
+          "active": 30
+        },
+        "rejected_log_rows": 0,
+        "gate_impl": [
+          "backend/services/knowledge_sediment/extractor.py:122: def to_reject(self) -> dict[str, Any]:",
+          "backend/services/knowledge_sediment/extractor.py:379: # ---- 质量门：契约不全 / 无证据 → 拒绝入库（落 rejected 日志）----"
+        ],
+        "wired_in_app": [],
+        "neg_test": {
+          "cmd": "cd backend && PYTHONPATH=. python3 -m pytest -q tests/test_knowledge_sediment.py -p no:cacheprovider",
+          "rc": 1,
+          "summary": "FAILED tests/test_knowledge_sediment.py::test_pipeline_reference_labels_file_is_loadable",
+          "failed": [
+            "FAILED tests/test_knowledge_sediment.py::test_pipeline_reference_labels_file_is_loadable"
+          ],
+          "neg_control_assert_lines": [
+            "backend/tests/test_knowledge_sediment.py:246: assert e.reason == \"no_evidence\"",
+            "backend/tests/test_knowledge_sediment.py:315: assert store.add(bad).status == \"rejected\"",
+            "backend/tests/test_knowledge_sediment.py:322: def test_store_rejects_no_evidence_and_logs(store: KnowledgeStore):",
+            "backend/tests/test_knowledge_sediment.py:323: assert store.add(entry_payload(\"16\", evidence=\"效果良好，符合预期\")).status == \"rejected\""
+          ],
+          "neg_control_asserts": true
+        }
+      },
+      "gaps": [
+        "knowledge_base 全 30 行 status=['active']，无 rejected 判决；质量门未接线到生产知识写入路径"
+      ]
+    },
+    {
+      "line": "论文",
+      "G1_machine_gate": false,
+      "G2_can_fail_struct": false,
+      "G3_reject_observed_prod": false,
+      "G3_neg_control_test": false,
+      "G4_enforcement_coverage": null,
+      "G4_numerator": 0,
+      "G4_denominator": 0,
+      "evidence": {
+        "gate_scan": [],
+        "note": "tensor_papers API 只读聚合 TensorPapers registry（subprocess/读文件），无验收判据"
+      },
+      "gaps": [
+        "平台内无机器门：论文线只有聚合视图，无 pass/fail 裁决"
+      ]
+    }
+  ],
+  "data_sources": [
+    {
+      "type": "postgres",
+      "dsn": "postgresql+psycopg://***@/tensorplatform?host=/var/run/postgresql",
+      "line": "报告",
+      "kind": "sql",
+      "sql": "SELECT coalesce(qa_status,'<null>') AS st, count(*) AS n FROM tensor_reports GROUP BY 1 ORDER BY n DESC",
+      "result": {
+        "pending": 9411,
+        "passed": 27,
+        "rejected": 7
+      }
+    },
+    {
+      "type": "postgres",
+      "dsn": "postgresql+psycopg://***@/tensorplatform?host=/var/run/postgresql",
+      "line": "知识",
+      "kind": "sql",
+      "sql": "SELECT coalesce(status,'<null>') AS st, count(*) AS n FROM knowledge_base GROUP BY 1",
+      "result": {
+        "active": 30
+      }
+    },
+    {
+      "type": "postgres",
+      "dsn": "postgresql+psycopg://***@/tensorplatform?host=/var/run/postgresql",
+      "line": "PR",
+      "kind": "sql",
+      "sql": "SELECT coalesce(detail->>'state','<none>') AS st, coalesce(detail->>'note','<none>') AS note, count(*) AS n FROM mission_lifecycle_log WHERE action='pr_gate' GROUP BY 1,2 ORDER BY n DESC",
+      "result": [
+        {
+          "state": "merged",
+          "note": "<none>",
+          "n": 5255
+        },
+        {
+          "state": "open",
+          "note": "tp_pusher opened PR",
+          "n": 740
+        },
+        {
+          "state": "open",
+          "note": "backfill 2026-11-05: PR open, merge pending",
+          "n": 175
+        },
+        {
+          "state": "merged",
+          "note": "governor reconcile: merged by cxs503",
+          "n": 46
+        },
+        {
+          "state": "merged",
+          "note": "resync 2026-11-09: PR 已合并回写补账",
+          "n": 29
+        },
+        {
+          "state": "merged",
+          "note": "merge_governor machine merge",
+          "n": 15
+        },
+        {
+          "state": "closed",
+          "note": "resync 2026-11-09: PR 关闭未合（ARB/RED redev 已排队或待排）",
+          "n": 13
+        },
+        {
+          "state": "merged",
+          "note": "reconcile: PR already merged",
+          "n": 4
+        },
+        {
+          "state": "merged",
+          "note": "manual-sweep reconcile: merged by cxs503",
+          "n": 3
+        },
+        {
+          "state": "closed",
+          "note": "manual-sweep reconcile: closed unmerged",
+          "n": 2
+        },
+        {
+          "state": "closed",
+          "note": "governor reconcile: closed unmerged",
+          "n": 1
+        },
+        {
+          "state": "merged",
+          "note": "auto-merge via merge_master: gates G1-G4+boundary PASS",
+          "n": 1
+        }
+      ]
+    },
+    {
+      "type": "postgres",
+      "dsn": "postgresql+psycopg://***@/tensorplatform?host=/var/run/postgresql",
+      "line": "基准",
+      "kind": "cmd",
+      "cmd": "python3 tools/benchmark_settlement.py --json-out artifacts/kpi_gate_100/benchmark_settlement.json",
+      "rc": 0,
+      "summary_keys": [
+        "canon",
+        "kpi",
+        "rows",
+        "settlement",
+        "summary",
+        "thresholds",
+        "tool"
+      ]
+    },
+    {
+      "type": "static",
+      "path": "backend/services/report_gate.py / tools/benchmark_settlement.py / backend/services/knowledge_sediment/{extractor,store}.py / backend/api/{tensor_reports,tensor_papers,tensor_mission_lifecycle}.py",
+      "cmd": "grep -n '<reject pattern>' <file>"
+    },
+    {
+      "type": "test",
+      "sources": {
+        "报告": {
+          "cmd": "cd backend && PYTHONPATH=. python3 -m pytest -q tests/test_report_gate.py -p no:cacheprovider",
+          "rc": 0,
+          "summary": "..........                                                               [100%]",
+          "failed": [],
+          "neg_control_assert_lines": [],
+          "neg_control_asserts": false
+        },
+        "基准": {
+          "cmd": "cd . && PYTHONPATH=. python3 -m pytest -q tests/test_benchmark_settlement.py -p no:cacheprovider",
+          "rc": 0,
+          "summary": "20 passed, 1 warning in 0.22s",
+          "failed": [],
+          "neg_control_assert_lines": [
+            "tests/test_benchmark_settlement.py:49: (5.0, \"PASS_5PCT\"), (5.0001, \"FAIL_5PCT\"), (15.0, \"FAIL_5PCT\"),",
+            "tests/test_benchmark_settlement.py:50: (15.0001, \"FAIL_OVER_15\"), (-68.9, \"FAIL_OVER_15\"),",
+            "tests/test_benchmark_settlement.py:62: assert row[\"admissible\"] is True and row[\"policy_violation\"] is False",
+            "tests/test_benchmark_settlement.py:72: assert row[\"verdict\"] == \"WITHHELD\""
+          ],
+          "neg_control_asserts": true
+        },
+        "知识": {
+          "cmd": "cd backend && PYTHONPATH=. python3 -m pytest -q tests/test_knowledge_sediment.py -p no:cacheprovider",
+          "rc": 1,
+          "summary": "FAILED tests/test_knowledge_sediment.py::test_pipeline_reference_labels_file_is_loadable",
+          "failed": [
+            "FAILED tests/test_knowledge_sediment.py::test_pipeline_reference_labels_file_is_loadable"
+          ],
+          "neg_control_assert_lines": [
+            "backend/tests/test_knowledge_sediment.py:246: assert e.reason == \"no_evidence\"",
+            "backend/tests/test_knowledge_sediment.py:315: assert store.add(bad).status == \"rejected\"",
+            "backend/tests/test_knowledge_sediment.py:322: def test_store_rejects_no_evidence_and_logs(store: KnowledgeStore):",
+            "backend/tests/test_knowledge_sediment.py:323: assert store.add(entry_payload(\"16\", evidence=\"效果良好，符合预期\")).status == \"rejected\""
+          ],
+          "neg_control_asserts": true
+        },
+        "PR": {
+          "cmd": "cd backend && PYTHONPATH=. python3 -m pytest -q tests/test_pr_gate.py -p no:cacheprovider",
+          "rc": 0,
+          "summary": ".....s                                                                   [100%]",
+          "failed": [],
+          "neg_control_assert_lines": [
+            "backend/tests/test_pr_gate.py:9: 3. **端点源码层**：pr-gate 三态转移 + 409 守卫 + mission_lifecycle_log 审计",
+            "backend/tests/test_pr_gate.py:78: (\"pr-gate(open) needs status=succeeded\", \"open 的 409 守卫\"),",
+            "backend/tests/test_pr_gate.py:79: (\"pr-gate(merged) cannot fire from\", \"merged 的 409 守卫\"),",
+            "backend/tests/test_pr_gate.py:80: (\"pr-gate(closed) cannot fire from\", \"closed 的 409 守卫\"),"
+          ],
+          "neg_control_asserts": true
+        }
+      }
+    }
+  ],
+  "top_gaps": [
+    {
+      "rank": 1,
+      "line": "论文",
+      "gap": "无机器门（API 仅聚合视图）",
+      "impact": "论文线 0/1 门，占严格口径 20 个百分点缺口"
+    },
+    {
+      "rank": 2,
+      "line": "知识",
+      "gap": "质量门未接线：knowledge_base 全量无 rejected 判决，rejected.jsonl 行数=0",
+      "impact": "G4 实测拦截率 0/30"
+    },
+    {
+      "rank": 3,
+      "line": "报告",
+      "gap": "门已可失败（7 拒 / 34 判）但仅 34/9445 报告过门",
+      "impact": "G4=0.36%，9411 份 pending 存量"
+    },
+    {
+      "rank": 4,
+      "line": "PR",
+      "gap": "门无自身判决字段，拒绝只能从 note 文本反推",
+      "impact": "间接实证 13 个 PR 关闭未合"
+    }
+  ],
+  "proposed_anchors": [
+    {
+      "anchor": "GATE-PAPER-01",
+      "goal": "论文线接入机器验收门（registry 条目须带 review verdict 与误差判定），验收=门对 1 份缺判据的论文草案必须判 fail（负控测试）"
+    },
+    {
+      "anchor": "GATE-KB-WIRE-01",
+      "goal": "knowledge_base 写入路径接 knowledge_sediment 质量门，验收=无 evidence 的知识件被拒并落 rejected 日志（生产日志行数>0）"
+    },
+    {
+      "anchor": "GATE-REPORT-BACKFILL-01",
+      "goal": "存量 pending 报告批量过 report_gate 并落 qa_status，验收=pending 从 9391 降至 ≤10% 且拒绝率与抽样复判一致"
+    },
+    {
+      "anchor": "GATE-PR-VERDICT-01",
+      "goal": "PR 门落独立判决字段（pass/blocked + 原因码）到 mission_lifecycle_log.detail，验收=能按 SQL 直接统计 PR 拒绝率，不再依赖 note 文本"
+    }
+  ],
+  "limitations": [
+    "G4 分母口径是「线上产出条数」，不含未落库产出（如未登记的论文草稿、未写库的知识件）",
+    "PR 线 G3 为间接证据（note 文本），非门自身判决字段；未把 GitHub Actions 历史取证（离线不可达）",
+    "knowledge_sediment 负控测试 1 项 FAILED（缺 artifacts/knowledge_sediment/reference_labels.json 工件），该失败已计入报告，未当作通过",
+    "本单只计量不改动：未接入/未回填项均原样保留，改进单见 proposed_anchors"
+  ],
+  "computation_note": "无重算：全部探针为毫秒级 SQL + 一次本地决算工具 + 4 次单元测试；集群节点无平台 DB unix socket，递交集群会切断数据溯源，故未走 cluster_queue（偏差已声明）"
+}
