@@ -1,0 +1,418 @@
+{
+ "mission": 15050,
+ "audit_mission": 15219,
+ "proposed_level": 2,
+ "ladder": {
+  "L1_math_unit": {
+   "ok": true,
+   "evidence": "pytest 24 passed"
+  },
+  "L2_independent_impl": {
+   "ok": true,
+   "evidence": "entry+run_artifacts+确定复现"
+  },
+  "L3_integration": {
+   "ok": false,
+   "evidence": "无 backend/api/ops/CI/战役门调用方；仅 scripts/post_h6_maturity_report.py 读产物 PNG 发报告 → 不达 L3"
+  },
+  "L4_benchmark": {
+   "ok": false,
+   "evidence": "注册基准 case 容差==100% got_strict=60.0 got_structural=80.0 status=['pending']"
+  }
+ },
+ "checks": [
+  {
+   "check": "A1_run_artifacts",
+   "pass": true,
+   "missing": [],
+   "files": [
+    {
+     "path": "artifacts/maturity_gate_h6/gate.json",
+     "exists": true,
+     "bytes": 20281,
+     "sha256": "4304a97a43a11eedc3d4c8e0d96642d7f508befae45763b8bce1f4eedc76be10"
+    },
+    {
+     "path": "artifacts/maturity_gate_h6/consistency.json",
+     "exists": true,
+     "bytes": 2002,
+     "sha256": "14f59865ce8522cffac00033a95636ac0010543459adeda4838615d77c602f9a"
+    },
+    {
+     "path": "artifacts/maturity_gate_h6/increment_ledger.json",
+     "exists": true,
+     "bytes": 11156,
+     "sha256": "acdca6facbd5d9de2b991ae6e875620130c6b1a2c279d44d93b5bb6fabcacd74"
+    },
+    {
+     "path": "artifacts/maturity_gate_h6/mutation_benchmark.json",
+     "exists": true,
+     "bytes": 3061,
+     "sha256": "6cf70aad1661e2dfd966abd74e844a742834df82482bbae8e4f44b30237b9413"
+    },
+    {
+     "path": "artifacts/maturity_gate_h6/fig1_maturity_profile.png",
+     "exists": true,
+     "bytes": 34424,
+     "sha256": "254fef0eb1f1949ed44c5ef1930919bca49276a18331a1f5fcf146b7a21a25cf"
+    },
+    {
+     "path": "artifacts/maturity_gate_h6/fig2_axes_health.png",
+     "exists": true,
+     "bytes": 32015,
+     "sha256": "1c03e0266675bede8a86afea999f0fcd64c524bb5083a08f3910c39d41a8d50b"
+    },
+    {
+     "path": "artifacts/maturity_gate_h6/fig3_increment_flow.png",
+     "exists": true,
+     "bytes": 48155,
+     "sha256": "9985255655452957206663065f30c2ee87db1c93adb30f15bb5d2a962882c10f"
+    },
+    {
+     "path": "runs/m15050/repro_cmd.sh",
+     "exists": true,
+     "bytes": 858,
+     "sha256": "d53e7201b138659c5f0b572fecfd5817b12c42d3386a1607b6ed7b21b3a1a1f9"
+    },
+    {
+     "path": "runs/m15050/benchmark.md",
+     "exists": true,
+     "bytes": 2680,
+     "sha256": "ebbffc066173805558504393a839987634dbd0a6828b2e91ba3a8f2cf4769150"
+    },
+    {
+     "path": "runs/m15050/run_metadata.json",
+     "exists": true,
+     "bytes": 1005,
+     "sha256": "c3b0fee8d7d98816f27f78784c3d0e375d8f59dd2cba5d99c6344e748c1fcdb7"
+    },
+    {
+     "path": "runs/m15050/gate_sha256.txt",
+     "exists": true,
+     "bytes": 65,
+     "sha256": "229b78c4fbf3e97cd687965be670ee97896f4612a65bc0d5013a3be76130a463"
+    }
+   ]
+  },
+  {
+   "check": "A2_repro_determinism",
+   "pass": true,
+   "cli_rc": 0,
+   "recomputed_sha256": "4304a97a43a11eedc3d4c8e0d96642d7f508befae45763b8bce1f4eedc76be10",
+   "artifact_sha256": "4304a97a43a11eedc3d4c8e0d96642d7f508befae45763b8bce1f4eedc76be10",
+   "baseline_sha256_txt": "4304a97a43a11eedc3d4c8e0d96642d7f508befae45763b8bce1f4eedc76be10",
+   "sha_match": true,
+   "repro_cmd_sh_rc": 0,
+   "repro_cmd_sh_tail": [
+    "gate.json sha256: 4304a97a43a11eedc3d4c8e0d96642d7f508befae45763b8bce1f4eedc76be10",
+    "基准 sha256:      4304a97a43a11eedc3d4c8e0d96642d7f508befae45763b8bce1f4eedc76be10",
+    "✅ 复现一致"
+   ],
+   "stderr_tail": ""
+  },
+  {
+   "check": "A3_maturity_recount",
+   "pass": true,
+   "recomputed_before": {
+    "histogram": {
+     "NOT_SUPPORTED": 2,
+     "STUB": 1,
+     "MOCK": 0,
+     "WITHHELD": 0,
+     "REAL": 18
+    },
+    "n": 21,
+    "mean_rank": 3.47619,
+    "maturity_score": 0.869048,
+    "max_rank": 4
+   },
+   "recomputed_after": {
+    "histogram": {
+     "NOT_SUPPORTED": 0,
+     "STUB": 0,
+     "MOCK": 1,
+     "WITHHELD": 19,
+     "REAL": 1
+    },
+    "n": 21,
+    "mean_rank": 3.0,
+    "maturity_score": 0.75,
+    "max_rank": 4
+   },
+   "gate_before": {
+    "histogram": {
+     "MOCK": 0,
+     "NOT_SUPPORTED": 2,
+     "REAL": 18,
+     "STUB": 1,
+     "WITHHELD": 0
+    },
+    "maturity_score": 0.869048,
+    "max_rank": 4,
+    "mean_rank": 3.47619,
+    "n": 21
+   },
+   "gate_after": {
+    "histogram": {
+     "MOCK": 1,
+     "NOT_SUPPORTED": 0,
+     "REAL": 1,
+     "STUB": 0,
+     "WITHHELD": 19
+    },
+    "maturity_score": 0.75,
+    "max_rank": 4,
+    "mean_rank": 3.0,
+    "n": 21
+   },
+   "diffs": []
+  },
+  {
+   "check": "A4_increment_recount",
+   "pass": true,
+   "recomputed_counts": {
+    "PROMOTE": 3,
+    "DEMOTE": 17,
+    "HOLD": 1,
+    "NEW": 0,
+    "DROPPED": 0
+   },
+   "gate_counts": {
+    "DEMOTE": 17,
+    "DROPPED": 0,
+    "HOLD": 1,
+    "NEW": 0,
+    "PROMOTE": 3
+   },
+   "entry_mismatches": [],
+   "chain_links_ok": true,
+   "chain_head_ok": true,
+   "n_entries": 21,
+   "n_capabilities": 21
+  },
+  {
+   "check": "A5_negative_controls",
+   "pass": true,
+   "clean_control_ok": true,
+   "positive_controls_detected": true,
+   "verify_blind_spots": [
+    "T1_score_tamper",
+    "T2_level_flip",
+    "T3_quote_tamper"
+   ],
+   "mutation_benchmark_reproduced": {
+    "rc": 0,
+    "recall": 1.0,
+    "false_positives": 0,
+    "claimed_recall": 1.0,
+    "claimed_false_positives": 0,
+    "match": true
+   },
+   "cases": [
+    {
+     "id": "T0_clean_control",
+     "mutation": "无（干净副本）",
+     "expect": "verified",
+     "rc": 0,
+     "detected_as_tamper": false,
+     "output_tail": "{\n  \"verified\": true,\n  \"problems\": [],\n  \"verdict\": \"PASS\"\n}\n"
+    },
+    {
+     "id": "P1_verdict_tamper",
+     "mutation": "gate.json verdict PASS→FAIL",
+     "expect": "detected",
+     "rc": 1,
+     "detected_as_tamper": true,
+     "output_tail": "{\n  \"verified\": false,\n  \"problems\": [\n    \"重算不符: verdict\"\n  ],\n  \"verdict\": \"FAIL\"\n}\n"
+    },
+    {
+     "id": "P2_criteria_tamper",
+     "mutation": "gate.json criteria[0].pass 取反",
+     "expect": "detected",
+     "rc": 1,
+     "detected_as_tamper": true,
+     "output_tail": "{\n  \"verified\": false,\n  \"problems\": [\n    \"重算不符: criteria\"\n  ],\n  \"verdict\": \"PASS\"\n}\n"
+    },
+    {
+     "id": "T1_score_tamper",
+     "mutation": "gate.json maturity.after.maturity_score 0.75→0.99",
+     "expect": "detected",
+     "rc": 0,
+     "detected_as_tamper": false,
+     "output_tail": "{\n  \"verified\": true,\n  \"problems\": [],\n  \"verdict\": \"PASS\"\n}\n"
+    },
+    {
+     "id": "T2_level_flip",
+     "mutation": "increment_ledger.json calc.resistance current_level DEMOTE→REAL",
+     "expect": "detected",
+     "rc": 0,
+     "detected_as_tamper": false,
+     "output_tail": "{\n  \"verified\": true,\n  \"problems\": [],\n  \"verdict\": \"PASS\"\n}\n"
+    },
+    {
+     "id": "T3_quote_tamper",
+     "mutation": "increment_ledger.json calc.resistance evidence_refs.line_sha256 末位翻转",
+     "expect": "detected",
+     "rc": 0,
+     "detected_as_tamper": false,
+     "output_tail": "{\n  \"verified\": true,\n  \"problems\": [],\n  \"verdict\": \"PASS\"\n}\n"
+    }
+   ]
+  },
+  {
+   "check": "A6_benchmark_judge",
+   "pass": false,
+   "registered_cases": [
+    {
+     "id": 12,
+     "anchor": "H6-MATURITY-GATE",
+     "case_name": "gate 覆盖率计量",
+     "metric": "门禁覆盖率=可失败门/产出线",
+     "tolerance": "=100%",
+     "ref_source": "KPI-GATE-100 计量口径（产出线×门禁矩阵可失败性）",
+     "status": "pending"
+    }
+   ],
+   "measured": {
+    "got_strict": 60.0,
+    "got_structural": 80.0,
+    "lines": [
+     "PR",
+     "报告",
+     "基准",
+     "知识",
+     "论文"
+    ],
+    "probes": {
+     "PR_dist": {
+      "open": 926,
+      "closed": 16,
+      "merged": 5396
+     },
+     "PR": {
+      "gate_file": "backend/api/tensor_mission_lifecycle.py",
+      "G1_gate_exists": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_prod": true,
+      "G3_neg_control_test": false,
+      "neg_test_files": [
+       "backend/tests/test_pr_gate.py"
+      ]
+     },
+     "报告_dist": {
+      "rejected": 7,
+      "pending": 9449,
+      "passed": 27
+     },
+     "报告": {
+      "gate_file": "backend/services/report_gate.py",
+      "G1_gate_exists": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_prod": true,
+      "G3_neg_control_test": true,
+      "neg_test_files": [
+       "backend/tests/test_report_gate.py"
+      ]
+     },
+     "基准_dist": {
+      "FAIL_OVER_15": 4,
+      "WITHHELD": 8
+     },
+     "基准": {
+      "gate_file": "tools/benchmark_settlement.py",
+      "G1_gate_exists": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_prod": true,
+      "G3_neg_control_test": false,
+      "neg_test_files": [
+       "tests/test_benchmark_settlement.py"
+      ]
+     },
+     "知识_dist": {
+      "active": 38
+     },
+     "知识": {
+      "gate_file": "backend/services/knowledge_sediment/store.py",
+      "G1_gate_exists": true,
+      "G2_can_fail_struct": true,
+      "G3_reject_prod": false,
+      "G3_neg_control_test": true,
+      "neg_test_files": [
+       "backend/tests/test_knowledge_sediment.py"
+      ]
+     },
+     "论文_dist": "无判据代码（grep reject/PASS 未命中）",
+     "论文": {
+      "gate_file": "backend/api/tensor_papers.py",
+      "G1_gate_exists": true,
+      "G2_can_fail_struct": false,
+      "G3_reject_prod": false,
+      "G3_neg_control_test": false,
+      "neg_test_files": []
+     }
+    }
+   },
+   "tolerance": "=100%",
+   "in_tolerance": false,
+   "mission_self_measurement": {
+    "gate_json_has_coverage_metric": true,
+    "mission_measured_output_lines": false
+   }
+  },
+  {
+   "check": "A7_report_sections",
+   "pass": true,
+   "path": "/root/tp-agent/work/m15050/docs/H6_MATURITY_GATE_G1.md",
+   "bytes": 10069,
+   "sections": {
+    "①案例介绍": true,
+    "②方法": true,
+    "③计算结果": true,
+    "④结果图": true,
+    "⑤对照/检出": true,
+    "⑥误差判定": true
+   },
+   "explicit_3pct_answer": true
+  },
+  {
+   "check": "A8_integration_callers",
+   "pass": false,
+   "all_refs": [
+    "scripts/post_h6_maturity_report.py:31",
+    "scripts/post_h6_maturity_report.py:32",
+    "scripts/post_h6_maturity_report.py:40"
+   ],
+   "decision_path_callers": [],
+   "cli_invocations": [],
+   "downstream_readers": [
+    "scripts/post_h6_maturity_report.py:31",
+    "scripts/post_h6_maturity_report.py:32",
+    "scripts/post_h6_maturity_report.py:40"
+   ],
+   "verdict": "无 backend/api/ops/CI/战役门调用方；仅 scripts/post_h6_maturity_report.py 读产物 PNG 发报告 → 不达 L3"
+  },
+  {
+   "check": "A9_tests",
+   "rc": 0,
+   "passed": 24,
+   "tail": [
+    "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html",
+    "24 passed, 1 warning in 0.26s"
+   ],
+   "pass": true
+  },
+  {
+   "check": "A10_claim_vs_artifact",
+   "doc_claims_null_means_fail": true,
+   "criteria_with_null_value": [],
+   "unavailable_sources": [
+    "live_probe_2026-11-11"
+   ],
+   "gate_verdict": "PASS",
+   "criteria_pass_rate": 1.0,
+   "pass": false,
+   "material_mismatch": true,
+   "note": "文档称源缺失→判据取 null→不通过，但工件里 8 条判据无一为 null、verdict=PASS：显式缺口未进入判据面"
+  }
+ ]
+}
