@@ -1,4 +1,4 @@
-# 验收阈值口径注册表与派生一致性门（P493-N05）
+# 验收阈值口径注册表与派生一致性门（P171W1-N06）
 
 **一句话**：把平台的每一条验收阈值从"当年恰好能过的那条线"改造成
 `(quantity, comparator, threshold(h,p,N,ε), source_ref)` 的**可追溯、可重推导**记录，
@@ -62,12 +62,12 @@
 }
 
 {
-  "criterion_id": "json/config/criterion_auditor.json#/alignment/duplicate_threshold",
-  "quantity": "config/criterion_auditor.json/alignment/duplicate_threshold",
+  "criterion_id": "json/config/campaign_optimizer.v1.json#/rootcause/repeat_fail_threshold",
+  "quantity": "config/campaign_optimizer.v1.json/rootcause/repeat_fail_threshold",
   "comparator": "<=",
-  "threshold": 0.8,
+  "threshold": 2.0,
   "source_type": "heuristic",
-  "source_ref": "config/criterion_auditor.json#sha256:25c80ed02ede47e83c6e708bdb87565baa0528ea470c77dcc50d45f5d0404c82#/alignment/duplicate_threshold",
+  "source_ref": "config/campaign_optimizer.v1.json#sha256:be469f420bd6107468272b000a58236aa25c01b0263ca087a23da7a434e06ad7#/rootcause/repeat_fail_threshold",
   "source_note": "配置值，源文件内无文献/规范/解析出处 → 保守判 heuristic（不可裁）",
   "depends_on": [],
   "derivation": null,
@@ -85,12 +85,12 @@
 
 | 判据 | 判定 | 数字 |
 |---|---|---|
-| C1 | PASS | 59 条入册（≥30）；source_type 缺失率 0.0；heuristic 49 条全部标不可裁 |
+| C1 | PASS | 59 条入册（≥30）；source_type 缺失率 0.0；heuristic 50 条全部标不可裁 |
 | C2 | PASS | 7/7 条解析判据实测指数最大偏差 0.028095 ≤ 0.3；覆盖轴 ['N', 'eps', 'h']；不可实测判据 0 条 |
 | C3 | PASS | 20/20 注入判红（检出率 1.0） |
 | C4 | PASS | 20 次格式变更误报 0（假阳性率 0.0） |
 | C5 | PASS | 7 条判据的 threshold(x)=C·x^p 在更细一档上预测/实测比值 ∈[0.5, 2.0]，全部同向；覆盖轴 ['N', 'eps', 'h'] |
-| C6 | PASS | 有来源阈值占比 1.0；可派生阈值占比 0.118644；可裁占比 0.169492；来源腐烂控制 OK→SHA_DRIFT |
+| C6 | PASS | 有来源阈值占比 1.0；可派生阈值占比 0.118644；可裁占比 0.152542；来源腐烂控制 OK→SHA_DRIFT |
 | C7 | PASS | 同义反复判据被判 empirical 且剔除；标注说谎被抓到 = True |
 
 ### 3.1 来源类别分布（C1）
@@ -99,11 +99,11 @@
 |---|---|
 | analytic | 7 |
 | literature | 0 |
-| standard | 3 |
+| standard | 2 |
 | empirical | 0 |
-| heuristic | 49 |
+| heuristic | 50 |
 
-`heuristic`=49 与 `empirical`=0 全部显式标 `decidable=false`
+`heuristic`=50 与 `empirical`=0 全部显式标 `decidable=false`
 （漏标 0 条）；`source_type` 缺失率 0.0。
 
 ### 3.2 派生一致性（C2）
@@ -205,7 +205,7 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
 
 1. **`source_type` 的保守性**：JSON 契约里的 `maximum`/`minimum` 判 `standard`（契约即出处），
    配置值与代码常量的出处无法自动认定时**一律判 `heuristic`**。方向上是安全的
-   （宁可低估可裁面），代价是 `decidable_ratio` 只有 0.169492——
+   （宁可低估可裁面），代价是 `decidable_ratio` 只有 0.152542——
    这是本次审计的**结论**而非缺陷：现网大部分阈值目前确实没有可追溯依据。
 2. **`depends_on` 为空 = 依赖量未登记**（不是"常数阈值"）。因此 `derivable_ratio`
    只有 0.118644。要把这个数抬上去，得逐条给出 C·h^p 的常数出处。
@@ -244,20 +244,20 @@ h0=1/64 后收敛到 0.99632（0.37%）：这是 **O(h) 前渐近修正项**的�
 
 | 产物 | bytes | sha256 |
 |---|---|---|
-| `data/criteria/threshold_registry.json` | 46044 | `789398714cb05adbc57159ca5c9f1c063c89ee2b4d0ddd14e6fb860d68c5dcbc` |
-| `data/criteria/threshold_registry.lock.json` | 29896 | `fb68fa9312e034eed96bb6af8e940b2eb2b5dd12800fe200c46a5ab98f5458d0` |
+| `data/criteria/threshold_registry.json` | 45778 | `66e7e9431bbc612dfc60f8e17c215a0984c101d1155aa3002cbca299ea3221ac` |
+| `data/criteria/threshold_registry.lock.json` | 29757 | `9db10ad672e1b9dfe64b8a10f1a7c0190b13445275182a7491ffcd9e0ce43201` |
 | `schemas/threshold_registry.schema.json` | 7028 | `12db4484afc8276667712886dc39e5ebd005891b54850d2823702d6cc09b9248` |
 | `tools/criteria/threshold_registry.py` | 46937 | `78354ffb6d5ff7dc4d3fb63c26d0080e0b2e0c8ea534b14acb6513b9f432f2d1` |
 | `tools/criteria/probes.py` | 5565 | `8ef2f60464d624bd4591d513b2116999220955778ca7a41577144d4f283a618e` |
 | `tools/criteria/probes_axes.py` | 8052 | `6cfd2dae4eab77d28c889a46a09b6b2f5a7ecb0f4a370b47f364cc361b89a51a` |
 | `tools/criteria/harvest.py` | 18744 | `66c3a52bc5f83566555c992add444eac5bb7252b0a889d67ff6a3ab3dc3bcaf5` |
-| `tools/criteria/gate_report.py` | 47247 | `9329a3e9e5ccce044b505ed2f65460b3bad7703029b19b1c199028e715015117` |
+| `tools/criteria/gate_report.py` | 47409 | `5e90a1e8da0fcdf59c8185ccb6cee88f0446cf58c71d25465b668d8c04ac63dc` |
 | `tests/test_threshold_registry.py` | 23140 | `a68473e23d70fa6c3a6f0e88b04d5a83cdd2ae9430f998ac7dc9e36e32cbb366` |
 | `tests/test_threshold_registry_axes.py` | 16692 | `803eb3f7ef62615bc73294f089860df83405607557c96b4e4437637303a3ba55` |
 | `artifacts/criteria/figures/c2_derivation_consistency.png` | 212928 | `c516fea4220709fe04c098fa6c52ac6ffc18754f2694d8a92e0ed588334d904a` |
 | `artifacts/criteria/figures/c5_rederivation_closure.png` | 91679 | `d6a4865a737710fc6c4c8b0fba1b7485ed0f1a6bb8c973d84c845ed867e3624b` |
 | `artifacts/criteria/figures/c2b_axis_coverage.png` | 51540 | `3c5696c347469b715d002237df4d4b56122c74e49f6e7fd768b8279a0c17fbb3` |
-| `artifacts/criteria/figures/controls_and_coverage.png` | 68937 | `921bbc08ca76e499ae0466e1809dc4410db10ed51de4b326cf32334239394472` |
+| `artifacts/criteria/figures/controls_and_coverage.png` | 68978 | `3953d061652a4ef2bc6207ae8f8877b677409e5616e390058746855a8930bb14` |
 
 ## 6. 复算
 

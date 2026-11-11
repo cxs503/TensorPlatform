@@ -149,7 +149,11 @@ def check_c2(registry: Dict[str, Any]) -> Dict[str, Any]:
 # C3 漂移检出（注入 20 次 ×10% 篡改）
 # --------------------------------------------------------------------------- #
 def check_c3(registry: Dict[str, Any], lock: Dict[str, Any], seed: int = 7810) -> Dict[str, Any]:
-    ids = sorted(e["criterion_id"] for e in registry["criteria"])
+    # 零阈值 ×1.1 仍为零（无变化），从注入池剔除
+    ids = sorted(
+        e["criterion_id"] for e in registry["criteria"]
+        if isinstance(e.get("threshold"), (int, float)) and e["threshold"] != 0
+    )
     rng = random.Random(seed)
     targets = sorted(rng.sample(ids, min(INJECTIONS, len(ids))))
     rows: List[Dict[str, Any]] = []
