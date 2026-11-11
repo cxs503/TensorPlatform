@@ -1,0 +1,133 @@
+{
+  "campaign": "pf_default",
+  "version": 1,
+  "description": "unattended batch: positive benchmark suites + negative controls (fail-closed) + regression drift probes + KPI reconciliation against a frozen external baseline. Zero domain terms: suites/targets/thresholds are data.",
+  "drift_threshold": 0.03,
+  "targets": {
+    "unattended_cases": 75
+  },
+  "reconciliation": {
+    "baseline": "artifacts/benchmark_runner/kpi_baseline.json"
+  },
+  "suites": [
+    {
+      "id": "fx_integration",
+      "config": "tools/benchmark_runner/configs/fx_integration.json",
+      "expect": "pass"
+    },
+    {
+      "id": "fx_series",
+      "config": "tools/benchmark_runner/configs/fx_series.json",
+      "expect": "pass"
+    },
+    {
+      "id": "fx_rootfinding",
+      "config": "tools/benchmark_runner/configs/fx_rootfinding.json",
+      "expect": "pass"
+    },
+    {
+      "id": "pf_surfaces",
+      "config": "tools/benchmark_runner/configs/pf_surfaces.json",
+      "expect": "pass"
+    },
+    {
+      "id": "fx_gate_band_pass",
+      "config": "tools/benchmark_runner/configs/fx_gate_band_pass.json",
+      "expect": "pass"
+    },
+    {
+      "id": "fx_gate_band_fail",
+      "config": "tools/benchmark_runner/configs/fx_gate_band_fail.json",
+      "expect": "fail",
+      "control": true
+    },
+    {
+      "id": "fx_negative_control",
+      "config": "tools/benchmark_runner/configs/fx_negative_control.json",
+      "expect": "fail",
+      "control": true,
+      "baseline": "none"
+    },
+    {
+      "id": "fx_budget_negative",
+      "config": "tools/benchmark_runner/configs/fx_budget_negative.json",
+      "expect": "fail",
+      "control": true,
+      "baseline": "none"
+    },
+    {
+      "id": "fx_timeout_negative",
+      "config": "tools/benchmark_runner/configs/fx_timeout_negative.json",
+      "expect": "fail",
+      "control": true,
+      "baseline": "none",
+      "count_in_kpi": false
+    }
+  ],
+  "drift_probes": [
+    {
+      "id": "p02",
+      "base": "fx_integration",
+      "overhead": 0.02,
+      "expect_status": "clean",
+      "track_metrics": [
+        "evals"
+      ]
+    },
+    {
+      "id": "p05",
+      "base": "fx_integration",
+      "overhead": 0.05,
+      "expect_status": "warn",
+      "track_metrics": [
+        "evals"
+      ]
+    },
+    {
+      "id": "p16",
+      "base": "fx_integration",
+      "overhead": 0.16,
+      "expect_status": "critical",
+      "track_metrics": [
+        "evals"
+      ]
+    }
+  ],
+  "criteria": [
+    {
+      "metric": "steps_ok_ratio",
+      "op": "==",
+      "value": 1.0
+    },
+    {
+      "metric": "negative_controls_held",
+      "op": "==",
+      "value": 4
+    },
+    {
+      "metric": "integrity_failures",
+      "op": "==",
+      "value": 0
+    },
+    {
+      "metric": "drift_specificity_ok",
+      "op": "==",
+      "value": 1
+    },
+    {
+      "metric": "drift_power_ok",
+      "op": "==",
+      "value": 1
+    },
+    {
+      "metric": "unattended_cases_delta",
+      "op": ">=",
+      "value": 10
+    },
+    {
+      "metric": "unattended_cases",
+      "op": ">=",
+      "value": 75
+    }
+  ]
+}
