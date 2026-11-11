@@ -10,6 +10,13 @@ Domain-neutral primitives shared by every multi-solver coupling on the platform:
 * :mod:`tools.coupling.provenance`   —— canonical digests and a hash-chained exchange ledger
 * :mod:`tools.coupling.precision`    —— closed-form moment projection, surface measure, vectors
 * :mod:`tools.coupling.exchange_gate`—— the C1..C9 acceptance gate for exchange and clocks
+* :mod:`tools.coupling.sensitivity`  —— system-sensitivity consistency gate:
+  frozen per-discipline partials composed through the coupling response vs a
+  re-solved derivative (a wrong interface Jacobian is caught, not averaged)
+* :mod:`tools.coupling.loop_contract` —— ``coupled-loop.v1`` contract validation
+  (fail-closed, coupling graph checked) and certificate/sensitivity verdicts
+* :mod:`tools.coupling.maturity_check` —— one aggregated verdict for the
+  coupled-loop maturity node, written as a JSON acceptance artefact
 * :mod:`tools.coupling.multiphysics` —— the five multi-physics coupling anchors
   (interface flux A1, global budget A2, iteration convergence A3, error
   propagation A4, decoupling negative control A5)
@@ -38,6 +45,31 @@ from .conservation_check import (
     relative_residual,
     transfer,
     validate_contract,
+)
+from .loop_contract import (
+    COUPLED_LOOP_SCHEMA_VERSION,
+    LoopContractError,
+    contract_gate as loop_contract_gate,
+    gate_certificate,
+    gate_sensitivity,
+    load_coupled_loop_contract,
+    validate_coupled_loop_contract,
+)
+from .maturity_check import run_maturity_audit
+from .sensitivity import (
+    CoupledSystem,
+    DeclaredPartials,
+    Discipline,
+    LinearTwoDisciplineSystem,
+    SensitivityError,
+    compose_sensitivity,
+    constant_partials,
+    frozen_partials,
+    linear_two_discipline_system,
+    nonlinear_two_discipline_system,
+    resolve_sensitivity,
+    scale_declared_partials,
+    sensitivity_consistency_gate,
 )
 from .mesh import BoxMesh, Field, MeshError, QuantityKind
 from .multiphysics import (
@@ -144,4 +176,25 @@ __all__ = [
     "area_overlap_matrix",
     "rigid_motion_patch_test",
     "DegenerateMeasureError",
+    "CoupledSystem",
+    "DeclaredPartials",
+    "Discipline",
+    "LinearTwoDisciplineSystem",
+    "SensitivityError",
+    "compose_sensitivity",
+    "constant_partials",
+    "frozen_partials",
+    "linear_two_discipline_system",
+    "nonlinear_two_discipline_system",
+    "resolve_sensitivity",
+    "scale_declared_partials",
+    "sensitivity_consistency_gate",
+    "COUPLED_LOOP_SCHEMA_VERSION",
+    "LoopContractError",
+    "loop_contract_gate",
+    "gate_certificate",
+    "gate_sensitivity",
+    "load_coupled_loop_contract",
+    "validate_coupled_loop_contract",
+    "run_maturity_audit",
 ]
