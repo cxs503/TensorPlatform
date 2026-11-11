@@ -1,0 +1,25 @@
+{
+  "schema_version": 1,
+  "repo_root": "../..",
+  "capabilities": [
+    {
+      "id": "platform.capability_drift.selfcheck",
+      "solver": "platform",
+      "cases": [
+        {
+          "id": "selfcheck",
+          "node": "tools/capability_drift/examples/selfcheck_case.py::test_demo_energy",
+          "metrics": ["demo_energy", "demo_peak"]
+        }
+      ],
+      "metrics": ["demo_energy", "demo_peak"],
+      "paths": ["tools/capability_drift/"],
+      "blame": [
+        {
+          "path": "tools/capability_drift/examples/selfcheck_case.py",
+          "pattern": "^RELAX = "
+        }
+      ]
+    }
+  ]
+}

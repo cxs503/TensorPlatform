@@ -1,0 +1,49 @@
+name: capability-drift
+
+# 能力回归检测（tools/capability_drift）：PR/merge 后按变更文件重跑受影响能力的验证案例，
+# 与基线数字对比，超 5% 阈值即失败（告警事件 + git blame 定位落到 artifacts/）。
+# 注册表零领域语义：这里跑的是仓库自带的合成 selfcheck 能力（config/capability_drift/demo），
+# 领域仓接入时改成自己的 capdrift/ 目录即可。
+
+on:
+  push:
+    branches: [main, master]
+  pull_request:
+  workflow_dispatch:
+
+jobs:
+  drift:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install pytest
+        run: python -m pip install --upgrade pip pytest
+      - name: Compute changed files
+        id: changed
+        run: |
+          BASE="${{ github.event.pull_request.base.sha || github.event.before || 'HEAD~1' }}"
+          if [ -z "$BASE" ] || ! git rev-parse --verify "$BASE" >/dev/null 2>&1; then BASE="HEAD~1"; fi
+          git diff --name-only "$BASE" "${{ github.sha }}" > changed.txt || true
+          echo "---- changed files ----"; cat changed.txt
+      - name: Capability drift monitor
+        run: |
+          python -m tools.capability_drift.ci \
+            --registry-dir config/capability_drift/demo \
+            --repo . \
+            --changed-files-file changed.txt \
+            --events artifacts/capability_drift/events.jsonl \
+            --history artifacts/capability_drift/history.jsonl \
+            --json artifacts/capability_drift/ci_run.json
+      - name: Unit tests
+        run: python -m pytest tools/capability_drift/tests -q
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: capability-drift-evidence
+          path: artifacts/capability_drift/
+          if-no-files-found: ignore
