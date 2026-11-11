@@ -1,0 +1,65 @@
+{
+  "schema": "c6-regression/1.0",
+  "batches": {
+    "batches": [
+      {
+        "command": "/usr/local/bin/python -m pytest tests/fidelity tests/test_multifidelity.py tests/test_synthetic_fixtures.py -q -p no:cacheprovider",
+        "returncode": 0,
+        "passed": 69,
+        "errors": 0,
+        "collected": 0,
+        "tail": [
+          "69 passed, 1 warning in 9.02s"
+        ]
+      },
+      {
+        "command": "/usr/local/bin/python -m pytest tests/evidence -q -p no:cacheprovider",
+        "returncode": 0,
+        "passed": 57,
+        "errors": 0,
+        "collected": 0,
+        "tail": [
+          "57 passed, 1 warning in 1.60s"
+        ]
+      },
+      {
+        "command": "/usr/local/bin/python -m pytest tests/test_write_gate.py tests/test_distill_run_case.py tests/test_multisolver_ckpt_rollback.py -q -p no:cacheprovider",
+        "returncode": 0,
+        "passed": 98,
+        "errors": 0,
+        "collected": 0,
+        "tail": [
+          "98 passed, 1 warning in 48.52s"
+        ]
+      }
+    ],
+    "total_passed": 224,
+    "all_green": true
+  },
+  "updated_at": "2026-11-11T05:46:36+00:00",
+  "collect": {
+    "collect_only_with_new_package": {
+      "command": "/usr/local/bin/python -m pytest tests --collect-only --continue-on-collection-errors -q -p no:cacheprovider",
+      "returncode": 1,
+      "passed": 0,
+      "errors": 44,
+      "collected": 12166,
+      "tail": [
+        "12166 tests collected, 44 errors in 33.69s"
+      ]
+    },
+    "collect_only_baseline": {
+      "command": "/usr/local/bin/python -m pytest tests --collect-only --continue-on-collection-errors --ignore=tests/fidelity -q -p no:cacheprovider",
+      "returncode": 1,
+      "passed": 0,
+      "errors": 44,
+      "collected": 12134,
+      "tail": [
+        "12134 tests collected, 44 errors in 35.43s"
+      ]
+    },
+    "new_tests": 32,
+    "error_delta": 0,
+    "note": "the pre-existing collection errors are host-level sys.path shadowing in the whole-tree run; the new package adds tests and no errors"
+  }
+}
