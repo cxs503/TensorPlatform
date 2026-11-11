@@ -17,12 +17,16 @@
           "limit": 0.0,
           "op": "le",
           "unit": "dimensionless",
+          "ref": 0.0,
+          "ref_source": "fundamental theorem: integrate(diff(f)) - f simplifies to 0",
           "note": "integrate(diff(f)) - f simplifies to 0"
         },
         {
           "metric": "fd_vs_symbolic_abs_err",
           "limit": 0.0001,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "central finite difference vs sympy's exact derivative at x0=1.7"
         }
       ],
       "notes": "exact-identity check: the fundamental theorem has to hold symbolically"
@@ -40,12 +44,24 @@
         {
           "metric": "quad_vs_pi_abs_err",
           "limit": 1e-10,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "closed form ∫0^1 4/(1+t²)dt = π"
         },
         {
           "metric": "simpson_vs_pi_abs_err",
           "limit": 1e-06,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "closed form ∫0^1 4/(1+t²)dt = π (independent Simpson rule)"
+        },
+        {
+          "metric": "quad_value",
+          "limit": 1e-10,
+          "op": "abs",
+          "target": 3.141592653589793,
+          "ref": 3.141592653589793,
+          "ref_source": "math.pi (closed form; benchmark ref-vs-got)"
         }
       ],
       "notes": "closed form ∫0^1 4/(1+t²)dt = π is the reference; two independent rules"
@@ -63,12 +79,16 @@
         {
           "metric": "best_objective",
           "limit": 0.001,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "analytic minimum of (x-0.3)²+(y+0.7)² is exactly 0 at (0.3,-0.7)"
         },
         {
           "metric": "distance_to_optimum",
           "limit": 0.05,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "analytic minimiser (0.3,-0.7)"
         }
       ],
       "notes": "derivative-free TPE on a quadratic with a known minimiser at (0.3,-0.7); budget calibrated by sweep: 200 trials gives 2.3e-4/3.4e-4 (2 seeds), 80 trials gives 5.0e-3/1.3e-2 -> the 1e-3 limit is a 200-trial claim (artifacts/external_tools/sensitivity.json)"
@@ -86,7 +106,9 @@
         {
           "metric": "grad_vs_analytic_max_abs_err",
           "limit": 1e-10,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "closed form d/dx Σx³ = 3x² (float64, 257 points)"
         }
       ],
       "notes": "reverse-mode gradient of Σx³ against the closed form 3x² in float64"
@@ -102,17 +124,33 @@
       "invariants": [
         {
           "metric": "arithmetic_answer",
-          "limit": 42.0,
+          "limit": 0.0,
           "op": "abs",
-          "target": 42.0
+          "target": 42.0,
+          "ref": 42.0,
+          "ref_source": "integer identity 6*7 = 42"
+        },
+        {
+          "metric": "series_sum",
+          "limit": 0.0,
+          "op": "abs",
+          "target": 333833500.0,
+          "ref": 333833500.0,
+          "ref_source": "Σi² for i=1..1000 = n(n+1)(2n+1)/6 = 333833500 (exact integer)"
         },
         {
           "metric": "server_version_len",
           "limit": 20.0,
           "op": "ge"
+        },
+        {
+          "metric": "public_table_count",
+          "limit": 1.0,
+          "op": "ge",
+          "ref_source": "information_schema.tables: a reachable DB with an empty catalog is not the platform DB"
         }
       ],
-      "notes": "DSN resolved from DATABASE_URL/TP_PG_*; driver path preferred, CLI path downgraded"
+      "notes": "DSN resolution order: spec → env (incl. local unix-socket/peer) → dotenv; driver path preferred, CLI path downgraded to MOCK"
     },
     {
       "tool_id": "version_control",
@@ -125,17 +163,33 @@
       "invariants": [
         {
           "metric": "head_sha_len",
-          "limit": 40.0,
+          "limit": 0.0,
           "op": "abs",
-          "target": 40.0
+          "target": 40.0,
+          "ref": 40.0,
+          "ref_source": "git object-id width for sha1 repositories"
         },
         {
           "metric": "commit_count",
           "limit": 1.0,
           "op": "ge"
+        },
+        {
+          "metric": "blob_id_reproduced",
+          "limit": 1.0,
+          "op": "ge",
+          "ref": 1.0,
+          "ref_source": "re-derived sha1('blob <n>' + worktree bytes) must equal git rev-parse HEAD:<path>"
+        },
+        {
+          "metric": "blob_catfile_roundtrip",
+          "limit": 1.0,
+          "op": "ge",
+          "ref": 1.0,
+          "ref_source": "git cat-file -p <oid> must return the exact worktree bytes (object store integrity)"
         }
       ],
-      "notes": "HEAD identity is re-derivable, so a wrong sha is detectable"
+      "notes": "HEAD identity is re-derivable, and so is a blob id from the bytes on disk: a git that runs but cannot reproduce an object id is not usable"
     },
     {
       "tool_id": "native_build_toolchain",
@@ -152,7 +206,17 @@
         {
           "metric": "h10_abs_err_vs_python",
           "limit": 1e-12,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "H_10 = Σ1/i (i=1..10) evaluated in CPython float64"
+        },
+        {
+          "metric": "h10_value",
+          "limit": 1e-15,
+          "op": "abs",
+          "target": 2.9289682539682538,
+          "ref": 2.9289682539682538,
+          "ref_source": "sum(1/i for i in 1..10) in CPython float64 (cross-language ref-vs-got)"
         }
       ],
       "notes": "compile→link→execute round-trip; the C result must match the Python float"
@@ -170,12 +234,23 @@
         {
           "metric": "roundtrip_max_abs_diff",
           "limit": 0.0,
-          "op": "le"
+          "op": "le",
+          "ref": 0.0,
+          "ref_source": "in-memory array is the reference: write→read must be bit-identical"
         },
         {
           "metric": "gzip_attr_preserved",
           "limit": 1.0,
-          "op": "ge"
+          "op": "ge",
+          "ref": 1.0,
+          "ref_source": "declared attribute string must survive a reopen"
+        },
+        {
+          "metric": "gzip_filter_active",
+          "limit": 1.0,
+          "op": "ge",
+          "ref": 1.0,
+          "ref_source": "dataset.compression == 'gzip' after reopen (the filter, not just the bytes)"
         }
       ],
       "notes": "lossless write→read of 1024 float64 with gzip + attribute survival"
@@ -199,9 +274,23 @@
           "metric": "png_bytes",
           "limit": 1000.0,
           "op": "ge"
+        },
+        {
+          "metric": "line_ordinate_abs_err",
+          "limit": 0.01,
+          "op": "le",
+          "unit": "data ordinate",
+          "ref": 0.0,
+          "ref_source": "axhline(y=0.25) on full-bleed axes: pixel row must decode back to y=0.25"
+        },
+        {
+          "metric": "ink_pixel_fraction",
+          "limit": 0.002,
+          "op": "ge",
+          "ref_source": "a rendered line covers more than 0.2% of the canvas"
         }
       ],
-      "notes": "headless Agg render; a file that is not a real PNG does not count"
+      "notes": "headless Agg render; the pixel row of a known ordinate is decoded back, so 'a file exists' is not the claim"
     },
     {
       "tool_id": "json_contract_validation",
@@ -216,12 +305,16 @@
         {
           "metric": "invalid_inputs_rejected",
           "limit": 3.0,
-          "op": "ge"
+          "op": "ge",
+          "ref": 3.0,
+          "ref_source": "3 invalid payloads are the reference count that must be rejected"
         },
         {
           "metric": "valid_roundtrip_ok",
           "limit": 1.0,
-          "op": "ge"
+          "op": "ge",
+          "ref": 1.0,
+          "ref_source": "valid payload round-trips through model_dump_json"
         }
       ],
       "notes": "a validator that accepts every payload is unusable: rejection is the assertion"
