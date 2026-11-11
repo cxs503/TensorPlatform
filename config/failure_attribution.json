@@ -1,0 +1,429 @@
+{
+  "schema_version": "1.0",
+  "description": "Failure-attribution taxonomy + rule table (platform-generic; zero domain semantics). Stage/kind vocabulary is injected here, the engine only applies ordered regex predicates to declared text fields.",
+  "targets": {
+    "success_rate_target": 0.9,
+    "accuracy_target": 0.8,
+    "coverage_target": 0.95,
+    "unknown_rate_max": 0.05,
+    "min_rule_precision": 0.8,
+    "min_rule_support": 20
+  },
+  "window_days": 7,
+  "declared_paths": [
+    "fail_stage",
+    "result.evidence.checks.fail_stage"
+  ],
+  "text_fields": {
+    "headline": [
+      "headline",
+      "result.headline"
+    ],
+    "stop_condition": [
+      "stop_condition",
+      "result.stop_condition"
+    ],
+    "declared_summary": [
+      "declared_summary",
+      "result.declared_summary"
+    ],
+    "gate_reason": [
+      "evidence.checks.reason",
+      "result.evidence.checks.reason"
+    ],
+    "traceback_tail": [
+      "traceback_tail",
+      "result.traceback_tail"
+    ],
+    "git_status": [
+      "git_status",
+      "result.git_status"
+    ]
+  },
+  "taxonomy": {
+    "agent_loop": [
+      "no_progress",
+      "forced_finish",
+      "compaction_stall"
+    ],
+    "budget": [
+      "budget_exhausted",
+      "wall_exhausted",
+      "token_exhausted"
+    ],
+    "llm_infra": [
+      "llm_error",
+      "llm_timeout",
+      "provider_unavailable"
+    ],
+    "worktree": [
+      "worktree_setup",
+      "disk_full",
+      "vcs_error",
+      "checkout_conflict"
+    ],
+    "network": [
+      "connection_error",
+      "rate_limited",
+      "remote_unreachable"
+    ],
+    "permission": [
+      "permission_denied",
+      "secret_missing"
+    ],
+    "delivery": [
+      "merge_conflict",
+      "gate_rejected",
+      "pr_rejected",
+      "report_missing"
+    ],
+    "verification": [
+      "test_failure",
+      "benchmark_miss",
+      "criteria_unmet"
+    ],
+    "unknown": [
+      "unclassified"
+    ]
+  },
+  "rules": [
+    {
+      "rule_id": "R-LLM-F01",
+      "stage": "llm_infra",
+      "kind": "llm_error",
+      "priority": 5,
+      "feature": "result.tool_calls",
+      "op": "eq",
+      "value": 0,
+      "reason": "zero tool calls recorded -> provider/model failure before any action"
+    },
+    {
+      "rule_id": "R-AGENT-01",
+      "stage": "agent_loop",
+      "kind": "no_progress",
+      "priority": 10,
+      "fields": [
+        "headline",
+        "gate_reason"
+      ],
+      "patterns": [
+        "no_progress",
+        "未调用\\s*finish",
+        "did not call finish"
+      ],
+      "reason": "agent stopped before emitting a finish payload"
+    },
+    {
+      "rule_id": "R-AGENT-02",
+      "stage": "agent_loop",
+      "kind": "forced_finish",
+      "priority": 11,
+      "fields": [
+        "headline",
+        "gate_reason",
+        "declared_summary"
+      ],
+      "patterns": [
+        "forced_finish",
+        "forced finish",
+        "强制收尾"
+      ],
+      "reason": "harness forced a terminal finish"
+    },
+    {
+      "rule_id": "R-BUDGET-01",
+      "stage": "budget",
+      "kind": "budget_exhausted",
+      "priority": 20,
+      "fields": [
+        "headline",
+        "gate_reason",
+        "declared_summary"
+      ],
+      "patterns": [
+        "budget_exhausted",
+        "预算耗尽",
+        "max_tool_calls",
+        "max_tokens",
+        "budget exhausted"
+      ],
+      "reason": "tool-call or token budget exhausted"
+    },
+    {
+      "rule_id": "R-BUDGET-02",
+      "stage": "budget",
+      "kind": "wall_exhausted",
+      "priority": 21,
+      "fields": [
+        "headline",
+        "gate_reason",
+        "declared_summary",
+        "traceback_tail"
+      ],
+      "patterns": [
+        "wall_exhausted",
+        "wall clock",
+        "wall-clock",
+        "max_wall_seconds",
+        "时间耗尽"
+      ],
+      "reason": "wall-clock budget exhausted"
+    },
+    {
+      "rule_id": "R-INFRA-01",
+      "stage": "llm_infra",
+      "kind": "llm_error",
+      "priority": 30,
+      "fields": [
+        "headline",
+        "gate_reason",
+        "traceback_tail"
+      ],
+      "patterns": [
+        "llm_error",
+        "LLM error",
+        "model error",
+        "模型服务",
+        "upstream 5\\d\\d",
+        "\\b502\\b",
+        "\\b503\\b"
+      ],
+      "reason": "model-provider error surfaced by the runner"
+    },
+    {
+      "rule_id": "R-INFRA-02",
+      "stage": "llm_infra",
+      "kind": "llm_timeout",
+      "priority": 31,
+      "fields": [
+        "headline",
+        "traceback_tail"
+      ],
+      "patterns": [
+        "LLM timeout",
+        "model timeout",
+        "read timeout"
+      ],
+      "reason": "model-provider call timed out"
+    },
+    {
+      "rule_id": "R-WT-01",
+      "stage": "worktree",
+      "kind": "disk_full",
+      "priority": 40,
+      "fields": [
+        "traceback_tail",
+        "git_status",
+        "gate_reason"
+      ],
+      "patterns": [
+        "No space left on device",
+        "ENOSPC",
+        "disk full",
+        "disk_full",
+        "quota exceeded"
+      ],
+      "reason": "worktree filesystem ran out of space"
+    },
+    {
+      "rule_id": "R-WT-02",
+      "stage": "worktree",
+      "kind": "vcs_error",
+      "priority": 41,
+      "fields": [
+        "traceback_tail",
+        "git_status"
+      ],
+      "patterns": [
+        "fatal: unable to",
+        "could not fetch",
+        "promisor remote",
+        "bad object",
+        "git clone",
+        "not a git repository",
+        "unable to access",
+        "Could not resolve host",
+        "remote end hung up"
+      ],
+      "reason": "git/promisor failure while preparing the worktree"
+    },
+    {
+      "rule_id": "R-WT-03",
+      "stage": "worktree",
+      "kind": "checkout_conflict",
+      "priority": 42,
+      "fields": [
+        "traceback_tail",
+        "git_status",
+        "headline"
+      ],
+      "patterns": [
+        "local changes would be overwritten",
+        "checkout conflict",
+        "index.lock"
+      ],
+      "reason": "worktree checkout/index conflict"
+    },
+    {
+      "rule_id": "R-NET-01",
+      "stage": "network",
+      "kind": "connection_error",
+      "priority": 50,
+      "fields": [
+        "traceback_tail",
+        "gate_reason",
+        "headline"
+      ],
+      "patterns": [
+        "Connection refused",
+        "Connection reset",
+        "Temporary failure in name resolution",
+        "Failed to connect",
+        "RPC failed",
+        "connection error",
+        "连接失败"
+      ],
+      "reason": "network/endpoint connectivity failure"
+    },
+    {
+      "rule_id": "R-NET-02",
+      "stage": "network",
+      "kind": "rate_limited",
+      "priority": 51,
+      "fields": [
+        "traceback_tail",
+        "gate_reason"
+      ],
+      "patterns": [
+        "rate.?limit",
+        "429 Too Many Requests",
+        "too many requests"
+      ],
+      "reason": "upstream rate limit hit"
+    },
+    {
+      "rule_id": "R-PERM-01",
+      "stage": "permission",
+      "kind": "permission_denied",
+      "priority": 60,
+      "fields": [
+        "traceback_tail",
+        "git_status"
+      ],
+      "patterns": [
+        "Permission denied",
+        "EACCES",
+        "EPERM",
+        "permission denied for table"
+      ],
+      "reason": "filesystem/DB permission denied"
+    },
+    {
+      "rule_id": "R-PERM-02",
+      "stage": "permission",
+      "kind": "secret_missing",
+      "priority": 61,
+      "fields": [
+        "traceback_tail",
+        "gate_reason"
+      ],
+      "patterns": [
+        "token missing",
+        "secret not found",
+        "Unauthorized",
+        "\\b401\\b"
+      ],
+      "reason": "credential/secret unavailable"
+    },
+    {
+      "rule_id": "R-DEL-01",
+      "stage": "delivery",
+      "kind": "merge_conflict",
+      "priority": 70,
+      "fields": [
+        "traceback_tail",
+        "git_status",
+        "headline"
+      ],
+      "patterns": [
+        "CONFLICT",
+        "merge conflict",
+        "Automatic merge failed"
+      ],
+      "reason": "branch merge conflict"
+    },
+    {
+      "rule_id": "R-DEL-02",
+      "stage": "delivery",
+      "kind": "gate_rejected",
+      "priority": 71,
+      "fields": [
+        "headline",
+        "gate_reason",
+        "declared_summary"
+      ],
+      "patterns": [
+        "gate_rejected",
+        "门禁",
+        "rejected by gate",
+        "gate rejected",
+        "被门禁"
+      ],
+      "reason": "acceptance/evidence gate rejected the delivery"
+    },
+    {
+      "rule_id": "R-DEL-03",
+      "stage": "delivery",
+      "kind": "report_missing",
+      "priority": 72,
+      "fields": [
+        "headline",
+        "declared_summary"
+      ],
+      "patterns": [
+        "report not published",
+        "报告未发",
+        "missing report",
+        "未发布报告"
+      ],
+      "reason": "mandatory progress report absent"
+    },
+    {
+      "rule_id": "R-VER-01",
+      "stage": "verification",
+      "kind": "test_failure",
+      "priority": 80,
+      "fields": [
+        "traceback_tail",
+        "declared_summary"
+      ],
+      "patterns": [
+        "AssertionError",
+        "FAILED tests/",
+        "pytest.*failed",
+        "\\d+ failed",
+        "test failure"
+      ],
+      "reason": "test suite failed"
+    },
+    {
+      "rule_id": "R-VER-02",
+      "stage": "verification",
+      "kind": "criteria_unmet",
+      "priority": 81,
+      "fields": [
+        "declared_summary",
+        "headline",
+        "gate_reason"
+      ],
+      "patterns": [
+        "criteria unmet",
+        "判据不",
+        "honest.fail",
+        "honest-FAIL",
+        "验收不通过"
+      ],
+      "reason": "acceptance criteria not met (honest fail)"
+    }
+  ]
+}
