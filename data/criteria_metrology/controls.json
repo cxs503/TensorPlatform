@@ -1,0 +1,140 @@
+{
+ "version": 1,
+ "purpose": "负控集：12 条退化判据（4x T1/T2/T3）+ 12 条良性判据。变量名为合成符号，与任何领域无关。",
+ "degenerate": [
+  {
+   "control_id": "T1-a-zero-ref",
+   "expected_class": "T1",
+   "why": "基准恰为 0，相对误差分母为 0（除零→无界），朴素判决必须不可判",
+   "criterion": {"criterion_id": "T1-a", "quantity": "residual_1", "y": 4.2e-09, "y_ref": 0.0, "tau": 0.03, "metric": "relative"}
+  },
+  {
+   "control_id": "T1-b-tiny-ref",
+   "expected_class": "T1",
+   "why": "基准 1e-14 相对被测量 2.5 的量级趋零（floor = 1e-6 x 2.5）",
+   "criterion": {"criterion_id": "T1-b", "quantity": "residual_2", "y": 2.5, "y_ref": 1e-14, "tau": 0.03, "metric": "relative"}
+  },
+  {
+   "control_id": "T1-c-zero-ref-negative",
+   "expected_class": "T1",
+   "why": "基准为 -0.0（IEEE 有符号零），同样不可作分母",
+   "criterion": {"criterion_id": "T1-c", "quantity": "offset_3", "y": -1.7e-05, "y_ref": 0.0, "tau": 0.05, "metric": "relative"}
+  },
+  {
+   "control_id": "T1-d-magnitude-collapse",
+   "expected_class": "T1",
+   "why": "被测量 1e6、基准 1e-3：基准相对量级低于 1e-6 的判据尺度",
+   "criterion": {"criterion_id": "T1-d", "quantity": "scale_pair_4", "y": 1000000.0, "y_ref": 1e-03, "tau": 0.10, "metric": "relative"}
+  },
+  {
+   "control_id": "T2-a-sign-opposite",
+   "expected_class": "T2",
+   "why": "被测量与基准异号，相对误差 >100% 且对符号漂移不连续",
+   "criterion": {"criterion_id": "T2-a", "quantity": "delta_5", "y": -0.42, "y_ref": 0.37, "tau": 0.05, "metric": "relative"}
+  },
+  {
+   "control_id": "T2-b-measurement-near-zero",
+   "expected_class": "T2",
+   "why": "被测量 2e-6 相对尺度 1 贴零，判决由零点噪声支配",
+   "criterion": {"criterion_id": "T2-b", "quantity": "delta_6", "y": 2e-06, "y_ref": 1.0, "tau": 0.03, "metric": "relative"}
+  },
+  {
+   "control_id": "T2-c-denominator-distortion",
+   "expected_class": "T2",
+   "why": "|y-y_ref|/|y_ref| = 25 倍，相对误差已退化为量级偏离",
+   "criterion": {"criterion_id": "T2-c", "quantity": "ratio_7", "y": 104.0, "y_ref": 4.0, "tau": 0.10, "metric": "relative"}
+  },
+  {
+   "control_id": "T2-d-sign-flip-near-zero-ref",
+   "expected_class": "T2",
+   "why": "基准 +1e-9、被测量 -1e-9：既跨零又变号",
+   "criterion": {"criterion_id": "T2-d", "quantity": "offset_8", "y": -1e-09, "y_ref": 1e-09, "tau": 0.03, "metric": "relative"}
+  },
+  {
+   "control_id": "T3-a-interval-reference",
+   "expected_class": "T3",
+   "why": "基准是区间 [0.4, 0.6]：没有单值基准就没有单值相对误差",
+   "criterion": {"criterion_id": "T3-a", "quantity": "band_9", "y": 0.175, "y_ref": null, "tau": 0.10, "metric": "relative", "reference_interval": {"lo": 0.4, "hi": 0.6}}
+  },
+  {
+   "control_id": "T3-b-interval-wide",
+   "expected_class": "T3",
+   "why": "基准区间跨度 3 个量级（[1e-3, 1e3]），任何单值相对误差都无意义",
+   "criterion": {"criterion_id": "T3-b", "quantity": "band_10", "y": 2.0, "y_ref": null, "tau": 0.15, "metric": "relative", "reference_interval": {"lo": 0.001, "hi": 1000.0}}
+  },
+  {
+   "control_id": "T3-c-parallel-metrics",
+   "expected_class": "T3",
+   "why": "同一判据同时登记 relative 与 absolute 两套口径且未写优先级",
+   "criterion": {"criterion_id": "T3-c", "quantity": "metric_pair_11", "y": 1.04, "y_ref": 1.0, "tau": 0.03, "metric": "relative", "source": {"alt_metrics": ["relative", "absolute"]}}
+  },
+  {
+   "control_id": "T3-d-parallel-references",
+   "expected_class": "T3",
+   "why": "两套并列基准（解析解/试验），未写采用哪一个",
+   "criterion": {"criterion_id": "T3-d", "quantity": "ref_pair_12", "y": 1.9, "y_ref": 2.0, "tau": 0.03, "metric": "relative", "source": {"alt_references": ["analytic", "experiment"]}}
+  }
+ ],
+ "benign": [
+  {
+   "control_id": "B-a-point-reference",
+   "why": "点基准、量级相当、同号",
+   "criterion": {"criterion_id": "B-a", "quantity": "value_1", "y": 3.8324, "y_ref": 3.8317, "tau": 0.01, "metric": "relative"}
+  },
+  {
+   "control_id": "B-b-point-reference-within",
+   "why": "误差 2% 在 5% 容差内",
+   "criterion": {"criterion_id": "B-b", "quantity": "value_2", "y": 1.02, "y_ref": 1.0, "tau": 0.05, "metric": "relative"}
+  },
+  {
+   "control_id": "B-c-point-reference-fail",
+   "why": "误差 9% 超 5% 容差，但判据本身完全可判",
+   "criterion": {"criterion_id": "B-c", "quantity": "value_3", "y": 1.09, "y_ref": 1.0, "tau": 0.05, "metric": "relative"}
+  },
+  {
+   "control_id": "B-d-negative-both-sides",
+   "why": "两侧同为负、量级相当，相对误差可判",
+   "criterion": {"criterion_id": "B-d", "quantity": "value_4", "y": -1.05, "y_ref": -1.0, "tau": 0.10, "metric": "relative"}
+  },
+  {
+   "control_id": "B-e-exact-equality",
+   "why": "被测量与基准精确相等（误差 0），判据可判",
+   "criterion": {"criterion_id": "B-e", "quantity": "count_5", "y": 4000.0, "y_ref": 4000.0, "tau": 0.03, "metric": "relative"}
+  },
+  {
+   "control_id": "B-f-large-magnitude",
+   "why": "1e6 量级、误差 0.4%",
+   "criterion": {"criterion_id": "B-f", "quantity": "value_6", "y": 1004000.0, "y_ref": 1000000.0, "tau": 0.01, "metric": "relative"}
+  },
+  {
+   "control_id": "B-g-small-magnitude",
+   "why": "0.04 量级、误差 2.5%，量级虽小但两侧同阶（非趋零）",
+   "criterion": {"criterion_id": "B-g", "quantity": "value_7", "y": 0.041, "y_ref": 0.04, "tau": 0.05, "metric": "relative"}
+  },
+  {
+   "control_id": "B-h-single-sided-bound",
+   "why": "单边界判据（y 不得超上界），相对误差口径本来就不适用",
+   "criterion": {"criterion_id": "B-h", "quantity": "value_8", "y": 7.5, "y_ref": null, "tau": 20.0, "comparator": "<=", "metric": "one_sided"}
+  },
+  {
+   "control_id": "B-i-single-sided-pass",
+   "why": "单边界判据（y 须不低于下界），满足",
+   "criterion": {"criterion_id": "B-i", "quantity": "value_9", "y": 99.4, "y_ref": null, "tau": 90.0, "comparator": ">=", "metric": "one_sided"}
+  },
+  {
+   "control_id": "B-j-moderate-error",
+   "why": "误差 12%、容差 15%，同号、量级相当",
+   "criterion": {"criterion_id": "B-j", "quantity": "value_10", "y": 1.12, "y_ref": 1.0, "tau": 0.15, "metric": "relative"}
+  },
+  {
+   "control_id": "B-k-two-decades-off",
+   "why": "误差 50%（未超 100%），判据仍可判为 FAIL",
+   "criterion": {"criterion_id": "B-k", "quantity": "value_11", "y": 1.5, "y_ref": 1.0, "tau": 0.10, "metric": "relative"}
+  },
+  {
+   "control_id": "B-l-small-but-nonzero-ref",
+   "why": "基准 1e-3 与被测量 1.2e-3 同阶（比值 1.2），非 T1",
+   "criterion": {"criterion_id": "B-l", "quantity": "value_12", "y": 0.0012, "y_ref": 0.001, "tau": 0.25, "metric": "relative"}
+  }
+ ]
+}

@@ -1,0 +1,1528 @@
+{
+ "version": 1,
+ "n_labels": 40,
+ "composition": {
+  "corpus_historical": 24,
+  "controls": 12,
+  "cases": 4
+ },
+ "rubric": [
+  "T3 结构优先：基准是区间，或同一判据登记了并列口径/并列基准且未写优先级",
+  "T1：|y_ref| 相对被测量量级趋零（含恰为 0），相对误差分母无意义",
+  "T2：y 与 y_ref 异号，或 y 贴零而 y_ref 非零，或朴素相对误差>100%（分母失真）",
+  "none：点基准、同号、量级相当，相对误差是良定义的数"
+ ],
+ "provenance": "人工逐条标注（读原始表格行 + 抽取后的四元组数值，按 rubric 判定）；语料行来自 data/criteria_metrology/corpus.json 的 faithful 层，行号可回溯原始 markdown",
+ "limitations": "单一标注者；controls/cases 的标签由构造意图给出（与分类器同源），故一致率须分层报告：历史行子集为独立标注证据",
+ "labels": [
+  {
+   "label_id": "L-hist-01",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "807a8a0b683e4f8e",
+    "y": 3.0,
+    "y_ref": 3.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/P250_N04_campaign_health_monitor.md",
+     "line": 138,
+     "table_header": [
+      "判据",
+      "基准（场景声明）",
+      "实测",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| A5 下游 runnable | 3 | 3 | 0 | 是（0%） |",
+     "derived_y": false,
+     "cells": {
+      "reference": "3",
+      "measured": "3",
+      "error": "0",
+      "verdict": "是（0%）"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 0.0,
+     "row_sha256": "85cc81d1fc50f6f8b158e3fda956553a496fb6f86a1984a1fe58c804de88f089",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "计数相等（3 vs 3），点基准良态"
+  },
+  {
+   "label_id": "L-hist-02",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "ea35a0a57b815a93",
+    "y": 10.0,
+    "y_ref": 10.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "C1 检出召回",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/m9668_capability_reconciler.md",
+     "line": 175,
+     "table_header": [
+      "关键量",
+      "基准",
+      "实测",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| C1 检出召回 | 注入 10 条 | 10 条 | 0% | **是** |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "C1 检出召回",
+      "reference": "注入 10 条",
+      "measured": "10 条",
+      "error": "0%",
+      "verdict": "**是**"
+     },
+     "numeric_confidence": {
+      "reference": 0.2857142857142857,
+      "measured": 0.5,
+      "error": 1.0
+     },
+     "reported_error": 0.0,
+     "row_sha256": "19f0307eac14ac9d7f24fb4a04245ad2ab7656bfde4addce6ed5b65b5e1261f0",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "计数相等（10 vs 10），点基准良态"
+  },
+  {
+   "label_id": "L-hist-03",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "c52578325f4e97ed",
+    "y": 4.0,
+    "y_ref": 4.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "负控响应",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/repro_audit/P167W2_N10_generator_contract.md",
+     "line": 241,
+     "table_header": [
+      "关键量",
+      "本节点实测",
+      "基准/门限",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| 负控响应 | 4/4 按期望 | 4/4 | 0 | **是** |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "负控响应",
+      "measured": "4/4 按期望",
+      "reference": "4/4",
+      "error": "0",
+      "verdict": "**是**"
+     },
+     "numeric_confidence": {
+      "reference": 0.6666666666666666,
+      "measured": 0.2857142857142857,
+      "error": 1.0
+     },
+     "reported_error": 0.0,
+     "row_sha256": "6c77470a2746d6796cc69050d152d3fbf434c0933423770e9501573aa0164311",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "计数相等（4 vs 4），点基准良态"
+  },
+  {
+   "label_id": "L-hist-04",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "5b10d4c11594238d",
+    "y": 10.0,
+    "y_ref": 0.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "I2/I3 单调性",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/research/validation_debt_ledger.md",
+     "line": 170,
+     "table_header": [
+      "关键量",
+      "基准",
+      "结果",
+      "相对误差",
+      "是否 <3%"
+     ],
+     "row": "| I2/I3 单调性 | dK/dJ<0 | 10 点 9 段 | 违反 **0/9** | ✅ 是（无数值误差，布尔判据） |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "I2/I3 单调性",
+      "reference": "dK/dJ<0",
+      "measured": "10 点 9 段",
+      "error": "违反 **0/9**",
+      "verdict": "✅ 是（无数值误差，布尔判据）"
+     },
+     "numeric_confidence": {
+      "reference": 0.14285714285714285,
+      "measured": 0.375,
+      "error": 0.2
+     },
+     "reported_error": 0.0,
+     "row_sha256": "c7e773e60d008d88f0a79efb1fd78eef8ab4cbaaa106465d7a6bd2f236763bdd",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "T1",
+   "rationale": "抽取后 y=10 而 y_ref=0（布尔判据被误抽成计数对），零基准使相对误差无定义"
+  },
+  {
+   "label_id": "L-hist-05",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "8895349b32f769f5",
+    "y": 0.00592,
+    "y_ref": 0.0044,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "FAIL",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification_m1604/REPORT.md",
+     "line": 167,
+     "table_header": [
+      "验证项",
+      "基准",
+      "平台结果",
+      "相对误差",
+      "是否<3%",
+      "是否<15%"
+     ],
+     "row": "| SUBOFF-04 Ct (Fn=0.92) | 0.0044 | 0.00592 | +34.6% | ✗ | ✗ |",
+     "derived_y": false,
+     "cells": {
+      "reference": "0.0044",
+      "measured": "0.00592",
+      "error": "+34.6%",
+      "verdict": "✗"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 0.34600000000000003,
+     "row_sha256": "253329dfa8833959da74933e288beabef4796615690b57f6e146edfc3baabf53",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.001576458223857463
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "0.00592 vs 0.0044，误差 34.6% 未超 100%，判据本身可判"
+  },
+  {
+   "label_id": "L-hist-06",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "80d46f871edb2c4d",
+    "y": 3.0,
+    "y_ref": 3.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/P250_N04_campaign_health_monitor.md",
+     "line": 133,
+     "table_header": [
+      "判据",
+      "基准（场景声明）",
+      "实测",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| A1 超时识别+终止 | 3 | 3 | 0 | 是（0%） |",
+     "derived_y": false,
+     "cells": {
+      "reference": "3",
+      "measured": "3",
+      "error": "0",
+      "verdict": "是（0%）"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 0.0,
+     "row_sha256": "200677974a254a3c49a7604cac7a4e964c28d9df9f97efe3e3cbb04cb8675a19",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "计数相等（3 vs 3）"
+  },
+  {
+   "label_id": "L-hist-07",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "3353e2bd5bcd316d",
+    "y": -0.3432,
+    "y_ref": -0.315,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "FAIL",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/audit/mmg_crosscheck_attribution.md",
+     "line": 140,
+     "table_header": [
+      "判据",
+      "基准",
+      "实测",
+      "是否 <3 %"
+     ],
+     "row": "| 同上 Y'_v | −0.315 | −0.3432（8.9 %） | ❌ 否（β=1° 差分的 O(β) 偏置，两侧同偏置） |",
+     "derived_y": false,
+     "cells": {
+      "reference": "−0.315",
+      "measured": "−0.3432（8.9 %）",
+      "verdict": "❌ 否（β=1° 差分的 O(β) 偏置，两侧同偏置）"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 0.7142857142857143,
+      "error": 0.0
+     },
+     "row_sha256": "f90309c15b31e62915995883065d096172d2b6375ed0640e30f3a6c6615c792d",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "两侧同为负（-0.3432 vs -0.315），同号、量级相当，误差 8.9%"
+  },
+  {
+   "label_id": "L-hist-08",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "eea97ca728a9d3d4",
+    "y": 2.26,
+    "y_ref": 2.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "**σ 带诚实度（E9，NEES vs dof）**",
+    "declared_verdict": "UNDECIDABLE",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification_debt/digital_twin_ekf_consistency/REPORT.md",
+     "line": 129,
+     "table_header": [
+      "关键量",
+      "基准",
+      "实测",
+      "是否 <3%"
+     ],
+     "row": "| **σ 带诚实度（E9，NEES vs dof）** | χ²_dof | 2.26 vs 2（+13.2 %） | ⚠️ 否（13 % 偏离），且严格 χ² 区间也被超 3 %；修复前为 +65000 % |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "**σ 带诚实度（E9，NEES vs dof）**",
+      "reference": "χ²_dof",
+      "measured": "2.26 vs 2（+13.2 %）",
+      "verdict": "⚠️ 否（13 % 偏离），且严格 χ² 区间也被超 3 %；修复前为 +65000 %"
+     },
+     "numeric_confidence": {
+      "reference": 0.0,
+      "measured": 0.5555555555555556,
+      "error": 0.0
+     },
+     "row_sha256": "8a835165e29122281f7e49f61dd13602cd977dd4be724e62ea9039ec6cc7a8a1",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "2.26 vs 2，误差 13%，可判"
+  },
+  {
+   "label_id": "L-hist-09",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "7a72599ed3305fb0",
+    "y": 0.0,
+    "y_ref": 5.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "N1/N2/N3 控制节能",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification_debt/polar_acceptance/REPORT.md",
+     "line": 138,
+     "table_header": [
+      "关键量",
+      "基准 / 判据",
+      "实测",
+      "是否 <3%"
+     ],
+     "row": "| N1/N2/N3 控制节能 | 必须 <5 % | 0.000 / 3.000 / 5.000 % | **是**（全部判红） |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "N1/N2/N3 控制节能",
+      "reference": "必须 <5 %",
+      "measured": "0.000 / 3.000 / 5.000 %",
+      "verdict": "**是**（全部判红）"
+     },
+     "numeric_confidence": {
+      "reference": 0.14285714285714285,
+      "measured": 0.6521739130434783,
+      "error": 0.0
+     },
+     "row_sha256": "1b3dbc986e80f7d1b4cbb5601e81d35f3610b4628209b6d3a26d1fb826b5224d",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "T2",
+   "rationale": "y=0.0 vs y_ref=5.0：被测量恰在零点（且该单元格塞了三个值），判决由零点支配"
+  },
+  {
+   "label_id": "L-hist-10",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "c2b39fc9439919fe",
+    "y": 9.167,
+    "y_ref": 5.167,
+    "tau": 0.05,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": null,
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification/michell_wigley_yardstick_2026-11-02.md",
+     "line": 86,
+     "table_header": [
+      "编号",
+      "判据",
+      "参考值",
+      "实测值",
+      "相对误差",
+      "容差",
+      "判决",
+      "证据"
+     ],
+     "row": "| STB-GM KG=3.0 | exact pontoon GM = KM - KG | 5.167 | 9.167 | 77.4% | 5% | **FAIL** | REAL(参考)/FAIL |",
+     "derived_y": false,
+     "cells": {
+      "reference": "5.167",
+      "measured": "9.167",
+      "error": "77.4%",
+      "tolerance": "5%"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 0.774,
+     "row_sha256": "29bc35756e44299dc675a172945ab6d710bfe26b8e5da0fcdf0e550b5e3c0cd8",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.00018553441663435045
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "9.167 vs 5.167，误差 77.4%<100%，可判"
+  },
+  {
+   "label_id": "L-hist-11",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "30b2f9342c75ce3b",
+    "y": 0.651,
+    "y_ref": 0.6505,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "KCS Cb",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/reports/m1876_stdmodels_lookup_audit.md",
+     "line": 151,
+     "table_header": [
+      "关键量",
+      "基准",
+      "结果",
+      "相对误差",
+      "是否 <3%"
+     ],
+     "row": "| KCS Cb | 0.6505（workshop） | 0.651 | **+0.077%** | ✅ 是 |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "KCS Cb",
+      "reference": "0.6505（workshop）",
+      "measured": "0.651",
+      "error": "**+0.077%**",
+      "verdict": "✅ 是"
+     },
+     "numeric_confidence": {
+      "reference": 0.375,
+      "measured": 1.0,
+      "error": 0.6363636363636364
+     },
+     "reported_error": 0.00077,
+     "row_sha256": "f0a152c74f58df14d7b23cad9b3979650c812a33e49e70d700a71c4e5c101519",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.001766872635323424
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "0.651 vs 0.6505，误差 0.077%"
+  },
+  {
+   "label_id": "L-hist-12",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "07cc3ed40975e63d",
+    "y": 3.167,
+    "y_ref": -0.8333,
+    "tau": 0.05,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": null,
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification/michell_wigley_yardstick_2026-11-02.md",
+     "line": 92,
+     "table_header": [
+      "编号",
+      "判据",
+      "参考值",
+      "实测值",
+      "相对误差",
+      "容差",
+      "判决",
+      "证据"
+     ],
+     "row": "| STB-GM KG=9.0 | exact pontoon GM = KM - KG | -0.8333 | 3.167 | 480% | 5% | **FAIL** | REAL(参考)/FAIL |",
+     "derived_y": false,
+     "cells": {
+      "reference": "-0.8333",
+      "measured": "3.167",
+      "error": "480%",
+      "tolerance": "5%"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 4.8,
+     "row_sha256": "0a5bc2f7e4ae73d5040163ff37dba852cd508cb545c74d0dc5f968f1953583e0",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.00011500460018409875
+    },
+    "notes": null
+   },
+   "human_label": "T2",
+   "rationale": "y=3.167 vs y_ref=-0.8333：异号，相对误差 480% 已失去误差含义"
+  },
+  {
+   "label_id": "L-hist-13",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "f4c5364283957e46",
+    "y": 0.003793,
+    "y_ref": 0.003529,
+    "tau": 0.05,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": null,
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification/michell_wigley_yardstick_2026-11-02.md",
+     "line": 71,
+     "table_header": [
+      "编号",
+      "判据",
+      "参考值",
+      "实测值",
+      "相对误差",
+      "容差",
+      "判决",
+      "证据"
+     ],
+     "row": "| RES-6 Froude invariance of Cw (full vs half scale) | Cw = Rw/(0.5 rho S U^2) must depend on Fn only (geometric similarity) | 0.003529 | 0.003793 | 7.5% | 5% | **FAIL** | REAL(参考)/FAIL |",
+     "derived_y": false,
+     "cells": {
+      "reference": "0.003529",
+      "measured": "0.003793",
+      "error": "7.5%",
+      "tolerance": "5%"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 0.075,
+     "row_sha256": "6bd4762dbdb913fc6cb41f408d456e6893706b88eaab7398603f23fc08b70cfc",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.002550297534712661
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "0.003793 vs 0.003529，误差 7.5%"
+  },
+  {
+   "label_id": "L-hist-14",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "e91727f8114b79ba",
+    "y": 1.0,
+    "y_ref": 1.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "NaN 检出率",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/reports/p216w3_n09_cross_arch_gate.md",
+     "line": 137,
+     "table_header": [
+      "关键量",
+      "实测",
+      "门限/基准",
+      "是否满足（含 <3% 问询）"
+     ],
+     "row": "| NaN 检出率 | 1.0000 | = 1.0 | 是 |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "NaN 检出率",
+      "measured": "1.0000",
+      "reference": "= 1.0",
+      "verdict": "是"
+     },
+     "numeric_confidence": {
+      "reference": 0.6,
+      "measured": 1.0,
+      "error": 0.0
+     },
+     "row_sha256": "c02f9840150820d033b8f1d99051c0327de20bcfb678a311ff3f1254ceb3c50e",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "1.0 vs 1.0"
+  },
+  {
+   "label_id": "L-hist-15",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "f334988af704d553",
+    "y": 2.85,
+    "y_ref": 1.5,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "D3 有效指数（真引擎）",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification/surrogate_nondegeneracy_audit_m1752.md",
+     "line": 93,
+     "table_header": [
+      "关键量",
+      "基准",
+      "结果",
+      "是否 <3%"
+     ],
+     "row": "| D3 有效指数（真引擎） | 物理允许带 [1.5, 8] | n_eff = 2.85，落带内 | **是**（带内，非误差量） |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "D3 有效指数（真引擎）",
+      "reference": "物理允许带 [1.5, 8]",
+      "measured": "n_eff = 2.85，落带内",
+      "verdict": "**是**（带内，非误差量）"
+     },
+     "numeric_confidence": {
+      "reference": 0.2857142857142857,
+      "measured": 0.25,
+      "error": 0.0
+     },
+     "row_sha256": "c2ad482eb13b0ad372b8a378a65bea1bc9379216cbb18c24923fee863887f869",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "2.85 vs 1.5，误差 90%<100%"
+  },
+  {
+   "label_id": "L-hist-16",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "f671120cdc4f67d0",
+    "y": 95.0,
+    "y_ref": 61.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "assert 条数（相对旧基线 61）",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/reports/m5012_ledger_domain_neutrality.md",
+     "line": 210,
+     "table_header": [
+      "关键量",
+      "目标（基准）",
+      "实测",
+      "偏差",
+      "是否 <3%"
+     ],
+     "row": "| assert 条数（相对旧基线 61） | ≥61 | 95 | +56%（不缩水，方向为正） | **是** |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "assert 条数（相对旧基线 61）",
+      "reference": "≥61",
+      "measured": "95",
+      "error": "+56%（不缩水，方向为正）",
+      "verdict": "**是**"
+     },
+     "numeric_confidence": {
+      "reference": 0.6666666666666666,
+      "measured": 1.0,
+      "error": 0.2857142857142857
+     },
+     "reported_error": 0.56,
+     "row_sha256": "bdf26697876a9bba90edf6233400aea7197d453673e54bff6e5bfcf3eb79ba2a",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0046838407494146994
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "95 vs 61，误差 56%"
+  },
+  {
+   "label_id": "L-hist-17",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "615b2d609211aa56",
+    "y": 2.901,
+    "y_ref": 2.875,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/audit/mmg_crosscheck_attribution.md",
+     "line": 144,
+     "table_header": [
+      "判据",
+      "基准",
+      "实测",
+      "是否 <3 %"
+     ],
+     "row": "| 注入 N'_v=−0.18 后战术 D/L vs W3-N08 | 2.875 | 2.901（0.9 %） | ✅ 是 |",
+     "derived_y": false,
+     "cells": {
+      "reference": "2.875",
+      "measured": "2.901（0.9 %）",
+      "verdict": "✅ 是"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 0.6666666666666666,
+      "error": 0.0
+     },
+     "row_sha256": "b45c523b64293405674b3308d1ca202739096b24cd382bb5dec881bdde4f794a",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "2.901 vs 2.875，误差 0.9%"
+  },
+  {
+   "label_id": "L-hist-18",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "3ea3e53b4bc0a641",
+    "y": 14.0,
+    "y_ref": 14.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "场景判定命中率",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/EVIDENCE_STATE_MACHINE_V2.md",
+     "line": 159,
+     "table_header": [
+      "量",
+      "基准",
+      "本实现",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| 场景判定命中率 | 场景预期状态（14 例） | 14/14 | 0 | 是（0%） |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "场景判定命中率",
+      "reference": "场景预期状态（14 例）",
+      "measured": "14/14",
+      "error": "0",
+      "verdict": "是（0%）"
+     },
+     "numeric_confidence": {
+      "reference": 0.16666666666666666,
+      "measured": 0.8,
+      "error": 1.0
+     },
+     "reported_error": 0.0,
+     "row_sha256": "c5bb4b8271b95d05676cc843913594389c0e69b21eb6c53ef41f0cafb8c35a26",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "14 vs 14"
+  },
+  {
+   "label_id": "L-hist-19",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "701465280539c975",
+    "y": 1.0,
+    "y_ref": 0.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "判据变异存活率",
+    "declared_verdict": "FAIL",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/verification_debt/polar_acceptance/REPORT.md",
+     "line": 136,
+     "table_header": [
+      "关键量",
+      "基准 / 判据",
+      "实测",
+      "是否 <3%"
+     ],
+     "row": "| 判据变异存活率 | 期望 0（应判红） | **1.00（8/8）** | **否** ← 本单核心发现 |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "判据变异存活率",
+      "reference": "期望 0（应判红）",
+      "measured": "**1.00（8/8）**",
+      "verdict": "**否** ← 本单核心发现"
+     },
+     "numeric_confidence": {
+      "reference": 0.1111111111111111,
+      "measured": 0.46153846153846156,
+      "error": 0.0
+     },
+     "row_sha256": "61974d6bfab3912426054b1fe3ea8116f8db1565afefb207c12b364d033fad52",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "T1",
+   "rationale": "y=1.00 vs y_ref=0.0：基准精确为零，相对误差除零"
+  },
+  {
+   "label_id": "L-hist-20",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "8861199ab69a14ed",
+    "y": 1.9907,
+    "y_ref": 2.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "N05-C1 实测衰减指数（声明 2.0）",
+    "declared_verdict": null,
+    "source": {
+     "kind": "markdown",
+     "path": "docs/P171W1-N08_criteria_governance_maturity.md",
+     "line": 132,
+     "table_header": [
+      "关键量",
+      "参考/基准",
+      "实测",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| N05-C1 实测衰减指数（声明 2.0） | p=2.0 | p=1.9907 | |Δ|=0.0093 (0.47%) | YES |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "N05-C1 实测衰减指数（声明 2.0）",
+      "reference": "p=2.0",
+      "measured": "p=1.9907",
+      "error": "",
+      "verdict": "Δ"
+     },
+     "numeric_confidence": {
+      "reference": 0.6,
+      "measured": 0.75,
+      "error": 0.0
+     },
+     "row_sha256": "9312822b9d44aca0b3bc89b62f8680f79479cb41beb0159a67e472e732b14555",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "1.9907 vs 2.0，误差 0.47%"
+  },
+  {
+   "label_id": "L-hist-21",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "7ef2c629b26fa76c",
+    "y": 2.0,
+    "y_ref": 2.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/P250_N04_campaign_health_monitor.md",
+     "line": 135,
+     "table_header": [
+      "判据",
+      "基准（场景声明）",
+      "实测",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| A3 泄漏预警 | 2 | 2 | 0 | 是（0%） |",
+     "derived_y": false,
+     "cells": {
+      "reference": "2",
+      "measured": "2",
+      "error": "0",
+      "verdict": "是（0%）"
+     },
+     "numeric_confidence": {
+      "reference": 1.0,
+      "measured": 1.0,
+      "error": 1.0
+     },
+     "reported_error": 0.0,
+     "row_sha256": "3fb24da1b58979bedb10283ba28f5cba3758ed19328839f24bba49e7ed2157f3",
+     "faithfulness": "faithful",
+     "consistency_deviation": 0.0
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "2 vs 2"
+  },
+  {
+   "label_id": "L-hist-22",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "0e5c9bc9149024eb",
+    "y": 1685.8,
+    "y_ref": 1800.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "Polarstern 总阻力（未标定）",
+    "declared_verdict": "FAIL",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/m1690/REPORT.md",
+     "line": 97,
+     "table_header": [
+      "关键量",
+      "基准",
+      "结果",
+      "是否 <3%"
+     ],
+     "row": "| Polarstern 总阻力（未标定） | 实船试验均值 1800 kN | 1685.8 kN，-6.34% | ❌ 否 |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "Polarstern 总阻力（未标定）",
+      "reference": "实船试验均值 1800 kN",
+      "measured": "1685.8 kN，-6.34%",
+      "verdict": "❌ 否"
+     },
+     "numeric_confidence": {
+      "reference": 0.2857142857142857,
+      "measured": 0.75,
+      "error": 0.0
+     },
+     "row_sha256": "af1d39f39a86fe85bfe60c36625420fac0b221d67382a0689b3a702a5ccfb744",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "1685.8 vs 1800，误差 6.3%"
+  },
+  {
+   "label_id": "L-hist-23",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "646f899a0dfbb739",
+    "y": 3.0,
+    "y_ref": 50.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": "未合并积压",
+    "declared_verdict": "FAIL",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/P223W2B-N08_delivery_hygiene_maturity.md",
+     "line": 93,
+     "table_header": [
+      "关键量",
+      "基准",
+      "实测",
+      "误差",
+      "是否 <3%"
+     ],
+     "row": "| 未合并积压 | <50（节点目标） | 见 §3(c) | 未达成 | **否（honest FAIL）** |",
+     "derived_y": false,
+     "cells": {
+      "quantity": "未合并积压",
+      "reference": "<50（节点目标）",
+      "measured": "见 §3(c)",
+      "error": "未达成",
+      "verdict": "**否（honest FAIL）**"
+     },
+     "numeric_confidence": {
+      "reference": 0.2222222222222222,
+      "measured": 0.14285714285714285,
+      "error": 0.0
+     },
+     "row_sha256": "ea1763d2394f3eb73bb0eab97e421d4fd7448e7102c8224c8ede4b29a1464354",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "none",
+   "rationale": "3 vs 50，误差 94%<100%，可判（目标口径被误抽为基准）"
+  },
+  {
+   "label_id": "L-hist-24",
+   "origin": "corpus",
+   "criterion": {
+    "criterion_id": "fd1dd26b0df9d74b",
+    "y": 2.548e-16,
+    "y_ref": 0.0,
+    "tau": 0.00025499999999999996,
+    "metric": "relative",
+    "unit": null,
+    "condition": null,
+    "scale": null,
+    "scale_source": null,
+    "reference_interval": null,
+    "comparator": "<=",
+    "quantity": null,
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "markdown",
+     "path": "docs/reports/m7212/report.md",
+     "line": 161,
+     "table_header": [
+      "判据",
+      "基准（解析真值）",
+      "实测",
+      "相对判据容差",
+      "是否 <3%"
+     ],
+     "row": "| (a) 单位往返 | 相对误差 = 0 | 2.548e-16 | 占判据容差 0.0255% | 是 |",
+     "derived_y": false,
+     "cells": {
+      "reference": "相对误差 = 0",
+      "measured": "2.548e-16",
+      "tolerance": "占判据容差 0.0255%",
+      "verdict": "是"
+     },
+     "numeric_confidence": {
+      "reference": 0.125,
+      "measured": 1.0,
+      "error": 0.0
+     },
+     "row_sha256": "3e9c40ecbfd3f6e27ad32b9722d6edeac3ce5f90a5e17611f6e4b3a140d97d85",
+     "faithfulness": "faithful",
+     "consistency_deviation": null
+    },
+    "notes": null
+   },
+   "human_label": "T1",
+   "rationale": "y=2.548e-16 vs y_ref=0.0：零基准，残差量没有相对误差"
+  },
+  {
+   "label_id": "L-ctl-T1-a-zero-ref",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T1-a",
+    "quantity": "residual_1",
+    "y": 4.2e-09,
+    "y_ref": 0.0,
+    "tau": 0.03,
+    "metric": "relative"
+   },
+   "human_label": "T1",
+   "rationale": "基准恰为 0，相对误差分母为 0（除零→无界），朴素判决必须不可判"
+  },
+  {
+   "label_id": "L-ctl-T1-b-tiny-ref",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T1-b",
+    "quantity": "residual_2",
+    "y": 2.5,
+    "y_ref": 1e-14,
+    "tau": 0.03,
+    "metric": "relative"
+   },
+   "human_label": "T1",
+   "rationale": "基准 1e-14 相对被测量 2.5 的量级趋零（floor = 1e-6 x 2.5）"
+  },
+  {
+   "label_id": "L-ctl-T1-c-zero-ref-negative",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T1-c",
+    "quantity": "offset_3",
+    "y": -1.7e-05,
+    "y_ref": 0.0,
+    "tau": 0.05,
+    "metric": "relative"
+   },
+   "human_label": "T1",
+   "rationale": "基准为 -0.0（IEEE 有符号零），同样不可作分母"
+  },
+  {
+   "label_id": "L-ctl-T1-d-magnitude-collapse",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T1-d",
+    "quantity": "scale_pair_4",
+    "y": 1000000.0,
+    "y_ref": 0.001,
+    "tau": 0.1,
+    "metric": "relative"
+   },
+   "human_label": "T1",
+   "rationale": "被测量 1e6、基准 1e-3：基准相对量级低于 1e-6 的判据尺度"
+  },
+  {
+   "label_id": "L-ctl-T2-a-sign-opposite",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T2-a",
+    "quantity": "delta_5",
+    "y": -0.42,
+    "y_ref": 0.37,
+    "tau": 0.05,
+    "metric": "relative"
+   },
+   "human_label": "T2",
+   "rationale": "被测量与基准异号，相对误差 >100% 且对符号漂移不连续"
+  },
+  {
+   "label_id": "L-ctl-T2-b-measurement-near-zero",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T2-b",
+    "quantity": "delta_6",
+    "y": 2e-06,
+    "y_ref": 1.0,
+    "tau": 0.03,
+    "metric": "relative"
+   },
+   "human_label": "T2",
+   "rationale": "被测量 2e-6 相对尺度 1 贴零，判决由零点噪声支配"
+  },
+  {
+   "label_id": "L-ctl-T2-c-denominator-distortion",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T2-c",
+    "quantity": "ratio_7",
+    "y": 104.0,
+    "y_ref": 4.0,
+    "tau": 0.1,
+    "metric": "relative"
+   },
+   "human_label": "T2",
+   "rationale": "|y-y_ref|/|y_ref| = 25 倍，相对误差已退化为量级偏离"
+  },
+  {
+   "label_id": "L-ctl-T2-d-sign-flip-near-zero-ref",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T2-d",
+    "quantity": "offset_8",
+    "y": -1e-09,
+    "y_ref": 1e-09,
+    "tau": 0.03,
+    "metric": "relative"
+   },
+   "human_label": "T2",
+   "rationale": "基准 +1e-9、被测量 -1e-9：既跨零又变号"
+  },
+  {
+   "label_id": "L-ctl-T3-a-interval-reference",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T3-a",
+    "quantity": "band_9",
+    "y": 0.175,
+    "y_ref": null,
+    "tau": 0.1,
+    "metric": "relative",
+    "reference_interval": {
+     "lo": 0.4,
+     "hi": 0.6
+    }
+   },
+   "human_label": "T3",
+   "rationale": "基准是区间 [0.4, 0.6]：没有单值基准就没有单值相对误差"
+  },
+  {
+   "label_id": "L-ctl-T3-b-interval-wide",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T3-b",
+    "quantity": "band_10",
+    "y": 2.0,
+    "y_ref": null,
+    "tau": 0.15,
+    "metric": "relative",
+    "reference_interval": {
+     "lo": 0.001,
+     "hi": 1000.0
+    }
+   },
+   "human_label": "T3",
+   "rationale": "基准区间跨度 3 个量级（[1e-3, 1e3]），任何单值相对误差都无意义"
+  },
+  {
+   "label_id": "L-ctl-T3-c-parallel-metrics",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T3-c",
+    "quantity": "metric_pair_11",
+    "y": 1.04,
+    "y_ref": 1.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "source": {
+     "alt_metrics": [
+      "relative",
+      "absolute"
+     ]
+    }
+   },
+   "human_label": "T3",
+   "rationale": "同一判据同时登记 relative 与 absolute 两套口径且未写优先级"
+  },
+  {
+   "label_id": "L-ctl-T3-d-parallel-references",
+   "origin": "control",
+   "criterion": {
+    "criterion_id": "T3-d",
+    "quantity": "ref_pair_12",
+    "y": 1.9,
+    "y_ref": 2.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "source": {
+     "alt_references": [
+      "analytic",
+      "experiment"
+     ]
+    }
+   },
+   "human_label": "T3",
+   "rationale": "两套并列基准（解析解/试验），未写采用哪一个"
+  },
+  {
+   "label_id": "L-case-m7241",
+   "origin": "case",
+   "criterion": {
+    "criterion_id": "m7241-b",
+    "quantity": "判据(b) 总阻尼 ζ_eq vs 试验",
+    "y": 0.0175,
+    "y_ref": null,
+    "tau": 0.1,
+    "metric": "relative",
+    "unit": "1",
+    "condition": "KVLCC2 模型尺度，ω=ω_n",
+    "reference_interval": {
+     "lo": 0.04,
+     "hi": 0.06
+    },
+    "declared_verdict": "UNDECIDABLE",
+    "source": {
+     "kind": "report",
+     "report_id": 8586,
+     "mission_id": 7241,
+     "section": "6. 误差判定",
+     "local_naive_relative": 0.5625,
+     "reported_deviation": 0.6
+    }
+   },
+   "human_label": "T3",
+   "rationale": "基准是试验区间 [0.04,0.06]，无单值基准 ⇒ 无单值相对误差"
+  },
+  {
+   "label_id": "L-case-m7243",
+   "origin": "case",
+   "criterion": {
+    "criterion_id": "m7243-c",
+    "quantity": "判据(c) 强制降速功率平衡残差",
+    "y": 7.4e-10,
+    "y_ref": 0.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": "1",
+    "condition": "功率平衡预算归一化（闭合残差的口径量级 = 1）",
+    "scale": 1.0,
+    "scale_source": "declared:closure_budget=1",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "report",
+     "report_id": 8590,
+     "mission_id": 7243,
+     "section": "5. 误差判定"
+    }
+   },
+   "human_label": "T1",
+   "rationale": "被测量是残差 7.4e-10、基准是闭合方程本身（=0），相对误差除零"
+  },
+  {
+   "label_id": "L-case-m7245",
+   "origin": "case",
+   "criterion": {
+    "criterion_id": "m7245-b",
+    "quantity": "判据(b) 停船距离（以船长 L 归一）",
+    "y": 7.5,
+    "y_ref": null,
+    "tau": 20.0,
+    "metric": "one_sided",
+    "unit": "L",
+    "condition": "紧急停船，IMO 上界 20L",
+    "comparator": "<=",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "mission",
+     "mission_id": 7245,
+     "field": "result.checks/headline"
+    }
+   },
+   "human_label": "none",
+   "rationale": "单边界判据（y≤上界），判据本身良态，只是口径不是相对误差"
+  },
+  {
+   "label_id": "L-case-m7248",
+   "origin": "case",
+   "criterion": {
+    "criterion_id": "m7248-a",
+    "quantity": "判据(a) 2-D 圆截面极点位置",
+    "y": 3.8324,
+    "y_ref": 3.8317,
+    "tau": 0.01,
+    "metric": "relative",
+    "unit": "1",
+    "condition": "320 面元，全频扫",
+    "declared_verdict": "PASS",
+    "source": {
+     "kind": "report",
+     "report_id": 8682,
+     "mission_id": 7248,
+     "section": "6. 误差判定"
+    }
+   },
+   "human_label": "none",
+   "rationale": "点基准 3.8317、同号、量级相当"
+  }
+ ]
+}

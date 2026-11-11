@@ -1,0 +1,103 @@
+{
+ "version": 1,
+ "purpose": "四个历史案例的判据再判定：全部数值逐字来自平台报告库（report_id 可复算），不做任何手抄换算。",
+ "provenance_note": "case 的 quote 字段是报告原文片段；y/y_ref/tau 由 quote 中的数字直接给出（零手抄）。差值为自适应判据族计算，见 artifacts/criteria_metrology/cases.json 的 recompute 段。",
+ "cases": [
+  {
+   "case_id": "m7241",
+   "mission_id": 7241,
+   "report_id": 8586,
+   "report_title": "Ikeda五成分横摇阻尼分解与预测验证——从WITHHELD到REAL",
+   "statement": "判据 (b) 总阻尼等效线性阻尼比 vs 试验：容差 <10%",
+   "quote": "| (b) 总阻尼 ζ_eq vs 试验 | <10% | KVLCC2 模型: 0.0175 vs 0.04-0.06 (偏差 ~60%) | ⚠️ 部分 |",
+   "declared_in_report": "⚠️ 部分（既非 PASS 也非 FAIL）",
+   "degeneracy_note": "基准是区间 [0.04, 0.06]（试验散布），报告自报偏差 ~60% 是相对区间下界算的；无单值基准 ⇒ 无单值相对误差（T3）",
+   "expected_adaptive_verdict": "FAIL",
+   "criterion": {
+    "criterion_id": "m7241-b",
+    "quantity": "判据(b) 总阻尼 ζ_eq vs 试验",
+    "y": 0.0175,
+    "y_ref": null,
+    "tau": 0.10,
+    "metric": "relative",
+    "unit": "1",
+    "condition": "KVLCC2 模型尺度，ω=ω_n",
+    "reference_interval": {"lo": 0.04, "hi": 0.06},
+    "declared_verdict": "UNDECIDABLE",
+    "source": {"kind": "report", "report_id": 8586, "mission_id": 7241, "section": "6. 误差判定", "local_naive_relative": 0.5625, "reported_deviation": 0.60}
+   }
+  },
+  {
+   "case_id": "m7243",
+   "mission_id": 7243,
+   "report_id": 8590,
+   "report_title": "P259W1-N04 波浪增阻与自愿降速验证：STAWAVE-2/STAWAVE-3 + 强制/自愿速度损失",
+   "statement": "判据 (c) 强制降速功率平衡闭合误差：容差 <3%（列头「是否 <3%」）",
+   "quote": "| 强制降速功率平衡 | 平衡方程本身 | 7.4e-10 | **是** |",
+   "declared_in_report": "是（PASS）",
+   "degeneracy_note": "被测量是残差 7.4e-10、基准是「平衡方程本身」=0 ⇒ 相对误差分母为零（T1）；只有声明量级（闭合预算=1）后才有可判口径",
+   "expected_adaptive_verdict": "PASS",
+   "criterion": {
+    "criterion_id": "m7243-c",
+    "quantity": "判据(c) 强制降速功率平衡残差",
+    "y": 7.4e-10,
+    "y_ref": 0.0,
+    "tau": 0.03,
+    "metric": "relative",
+    "unit": "1",
+    "condition": "功率平衡预算归一化（闭合残差的口径量级 = 1）",
+    "scale": 1.0,
+    "scale_source": "declared:closure_budget=1",
+    "declared_verdict": "PASS",
+    "source": {"kind": "report", "report_id": 8590, "mission_id": 7243, "section": "5. 误差判定"}
+   }
+  },
+  {
+   "case_id": "m7245",
+   "mission_id": 7245,
+   "report_id": null,
+   "report_title": "（无报告；数值取自 mission 记录的 checks/headline 字段）",
+   "statement": "判据 (b) 停船距离 vs IMO 紧急停船上界 20L：实际 1352 m = 7.5L",
+   "quote": "典型散货船（L=180m, Δ=45000t, V₀=14kn）停船距离1352m=7.5L满足IMO紧急停船要求（≤20L）。",
+   "declared_in_report": "满足（PASS）",
+   "degeneracy_note": "单边界判据（y ≤ 上界），相对误差口径不适用：把它塞进「<10% 相对误差」只会得到无意义的数（T3 的口径错配形态）",
+   "expected_adaptive_verdict": "PASS",
+   "criterion": {
+    "criterion_id": "m7245-b",
+    "quantity": "判据(b) 停船距离（以船长 L 归一）",
+    "y": 7.5,
+    "y_ref": null,
+    "tau": 20.0,
+    "metric": "one_sided",
+    "unit": "L",
+    "condition": "紧急停船，IMO 上界 20L",
+    "comparator": "<=",
+    "declared_verdict": "PASS",
+    "source": {"kind": "mission", "mission_id": 7245, "field": "result.checks/headline"}
+   }
+  },
+  {
+   "case_id": "m7248",
+   "mission_id": 7248,
+   "report_id": 8682,
+   "report_title": "不规则频率（伪共振）可预测、可定位、可无痛消除：四几何 320 面元 BEM 审计",
+   "statement": "判据 (a) 伪频位置预测与解析解误差 <1%",
+   "quote": "| 2-D 圆极点位置 | j_1,1 = 3.8317 | 0.0172% | 是 |",
+   "declared_in_report": "是（PASS）",
+   "degeneracy_note": "点基准、同号、量级相当 ⇒ 判据本身良态（对照组）",
+   "expected_adaptive_verdict": "PASS",
+   "criterion": {
+    "criterion_id": "m7248-a",
+    "quantity": "判据(a) 2-D 圆截面极点位置",
+    "y": 3.8324,
+    "y_ref": 3.8317,
+    "tau": 0.01,
+    "metric": "relative",
+    "unit": "1",
+    "condition": "320 面元，全频扫",
+    "declared_verdict": "PASS",
+    "source": {"kind": "report", "report_id": 8682, "mission_id": 7248, "section": "6. 误差判定"}
+   }
+  }
+ ]
+}

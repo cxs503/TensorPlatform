@@ -1,0 +1,132 @@
+{
+ "version": 1,
+ "purpose": "能力台账语义三元（capability/delivery/evidence）示例台账：本节点自身的能力 + 显式登记的 NOT_SUPPORTED / WITHHELD。所有 delivery.path 均指仓内真实文件，校验器逐条查存在性。",
+ "capabilities": [
+  {
+   "capability_id": "CM-PARSE-QUADRUPLE",
+   "statement": "把报告/文档的误差判定表解析为四元组 (y, y_ref, τ, 口径)，并对每行给抽取溯源与拒收原因",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-parse", "kind": "module", "path": "tools/criteria_metrology/parse.py"},
+    {"delivery_id": "d-harvest", "kind": "module", "path": "tools/criteria_metrology/harvest.py"},
+    {"delivery_id": "d-corpus", "kind": "artifact", "path": "data/criteria_metrology/corpus.json"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-parse-test", "kind": "test", "ref": "tests/test_criteria_metrology_parse.py"},
+    {"evidence_id": "e-corpus", "kind": "artifact-digest", "ref": "data/criteria_metrology/corpus.json", "note": "语料快照自带逐行 row_sha256 与 faithfulness 分级"}
+   ]
+  },
+  {
+   "capability_id": "CM-DEGENERACY-3CLASS",
+   "statement": "判据退化三分类（T1 基准趋零 / T2 跨零变号 / T3 多口径并列），判定带具体数值依据",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-degen", "kind": "module", "path": "tools/criteria_metrology/degeneracy.py"},
+    {"delivery_id": "d-controls", "kind": "artifact", "path": "data/criteria_metrology/controls.json"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-degen-test", "kind": "test", "ref": "tests/test_criteria_metrology_degeneracy.py"},
+    {"evidence_id": "e-controls", "kind": "artifact-digest", "ref": "data/criteria_metrology/controls.json", "note": "12 退化 + 12 良性负控"}
+   ]
+  },
+  {
+   "capability_id": "CM-ADAPTIVE-FAMILY",
+   "statement": "退化判据的自适应替代判据族（量级归一化/对数比带/带符号绝对量/区间包含/单边界），合并规则严格优先",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-adaptive", "kind": "module", "path": "tools/criteria_metrology/adaptive.py"},
+    {"delivery_id": "d-cases", "kind": "artifact", "path": "data/criteria_metrology/cases_m7241_m7248.json"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-adaptive-test", "kind": "test", "ref": "tests/test_criteria_metrology_adaptive.py"},
+    {"evidence_id": "e-cases-run", "kind": "artifact-digest", "ref": "artifacts/criteria_metrology/cases.json"}
+   ]
+  },
+  {
+   "capability_id": "CM-REPLAY-REJUDGE",
+   "statement": "历史判据批量回放重判：逐条给退化类、替代判据数值、可复算算式与结论翻转标记",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-rejudge", "kind": "module", "path": "tools/criteria_metrology/rejudge.py"},
+    {"delivery_id": "d-pipeline", "kind": "module", "path": "tools/criteria_metrology/pipeline.py"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-replay-test", "kind": "test", "ref": "tests/test_criteria_metrology_rejudge.py"},
+    {"evidence_id": "e-replay-artifact", "kind": "artifact-digest", "ref": "artifacts/criteria_metrology/replay.json"}
+   ]
+  },
+  {
+   "capability_id": "CM-RETRIEVAL-REPLAY",
+   "statement": "检索凭证可重放：命中集合指纹 + 当前语料重放，把新颖性主张判成 SUPPORTED/REFUTED/UNREPLAYABLE",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-retrieval", "kind": "module", "path": "tools/criteria_metrology/retrieval.py"},
+    {"delivery_id": "d-receipts", "kind": "artifact", "path": "data/criteria_metrology/retrieval_receipts.json"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-retrieval-test", "kind": "test", "ref": "tests/test_criteria_metrology_retrieval.py"},
+    {"evidence_id": "e-retrieval-artifact", "kind": "artifact-digest", "ref": "artifacts/criteria_metrology/retrieval.json"}
+   ]
+  },
+  {
+   "capability_id": "CM-NEGATIVE-SPACE",
+   "statement": "提案空间负空间图谱：按语义区域给出 声明词数/被搜过词数/命中词数/从未被搜过词数",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-negspace", "kind": "module", "path": "tools/criteria_metrology/retrieval.py"},
+    {"delivery_id": "d-regions", "kind": "artifact", "path": "data/criteria_metrology/retrieval_regions.json"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-negspace-test", "kind": "test", "ref": "tests/test_criteria_metrology_retrieval.py"},
+    {"evidence_id": "e-negspace-artifact", "kind": "artifact-digest", "ref": "artifacts/criteria_metrology/retrieval.json"}
+   ]
+  },
+  {
+   "capability_id": "CM-TRIAD-LEDGER",
+   "statement": "能力台账语义三元分层（capability/delivery/evidence）与三级硬约束校验，含 NOT_SUPPORTED 显式登记",
+   "grade": "REAL",
+   "deliveries": [
+    {"delivery_id": "d-triad", "kind": "module", "path": "tools/criteria_metrology/triad.py"},
+    {"delivery_id": "d-triad-data", "kind": "artifact", "path": "data/criteria_metrology/capability_triad.json"}
+   ],
+   "evidence": [
+    {"evidence_id": "e-triad-test", "kind": "test", "ref": "tests/test_criteria_metrology_triad.py"},
+    {"evidence_id": "e-triad-artifact", "kind": "artifact-digest", "ref": "artifacts/criteria_metrology/triad.json"}
+   ]
+  },
+  {
+   "capability_id": "CM-NOTSUPPORTED-1",
+   "statement": "判据自动改写（自动把报告里的退化判据改写成自适应判据并提交）",
+   "grade": "NOT_SUPPORTED",
+   "reason": "改写属报告作者责任：机器只能标注退化并给替代数值，自动改写会破坏 honest-FAIL 不可覆盖纪律",
+   "deliveries": [],
+   "evidence": []
+  },
+  {
+   "capability_id": "CM-NOTSUPPORTED-2",
+   "statement": "跨仓远端检索（对 GitHub 远端仓做新颖性检索并重放）",
+   "grade": "NOT_SUPPORTED",
+   "reason": "重放要求确定性语料指纹；远端态随时变化且本模块不持有远端快照，只能对本地检出/快照重放",
+   "deliveries": [],
+   "evidence": []
+  },
+  {
+   "capability_id": "CM-NOTSUPPORTED-3",
+   "statement": "区间基准的置信区间反演（由试验散布反推基准分布并给概率判决）",
+   "grade": "NOT_SUPPORTED",
+   "reason": "只做包含判定（y 是否落在 τ 放宽后的基准带内），不做分布假设；缺原始样本即无法反演",
+   "deliveries": [],
+   "evidence": []
+  },
+  {
+   "capability_id": "CM-WITHHELD-1",
+   "statement": "退化分类的人工双标注一致性（两名独立标注者的 Cohen's κ）",
+   "grade": "WITHHELD",
+   "reason": "当前只有单一标注者：κ 只能在'分类器 vs 单一标注'间计算，不构成标注者间信度",
+   "deliveries": [
+    {"delivery_id": "d-labels", "kind": "artifact", "path": "data/criteria_metrology/labels_40.json"}
+   ],
+   "evidence": []
+  }
+ ]
+}

@@ -1,0 +1,15 @@
+{
+ "captured_on": "2026-11-11",
+ "note": "节点池快照：mission 记录的 goal/repo/campaign 字段（采集自平台 API）。全量文本不入库（体积原因），只保留池指纹 pool_digest 与命中的 mission id + 文本指纹；复核时用同样的采样命令重取即可对指纹。",
+ "n_items": 1000,
+ "pool_digest": "e30a831ece8f72a2c9d0060ceb8983110b87466d3aa710d47b93e97afb48ab71",
+ "refetch": "GET {api_base}/tensor/missions?limit=100&offset=0..900（Bearer token）",
+ "entries": {
+  "node|P266W3-N10|mission_pool": [
+   "mission:13932"
+  ]
+ },
+ "hit_items": {
+  "13932": "f3baf584355f7f0d6f052319dcec91ebba77c11086bc3529f41dd3f61e71dbbe"
+ }
+}
