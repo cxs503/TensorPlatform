@@ -18,13 +18,16 @@ sys.path.insert(0, REPO_ROOT)
 
 from tools.whitespace_radar_core import Bm25Index, Thresholds, analyze, load_pool, pool_digest  # noqa: E402
 
-PAIRS = [
-    ("耐波响应谱矩的频率窗截断欠账量化裁决与回归护栏", "耐波 响应谱矩 频率窗 截断 回归护栏"),
-    ("结构域已合并修复的服务面独立复核闭式判据", "结构域 服务面 独立复核 闭式判据"),
-    ("规划师权限阶梯文档权限分级升权审批", "规划师权限阶梯 权限 升权 审批"),
-    ("四中心最小视图实现与验收报告能力台账评价流", "四中心 最小视图 能力台账 评价流"),
-    ("引导回路评价牵引派发的接线", "引导回路 评价牵引 派发 接线"),
-]
+#: Example topics are data, not code: keeping them out of this file is what lets
+#: the neutrality scan cover the whole radar toolchain (see
+#: ``data/whitespace_radar/domain_terms.json``).
+TOPIC_FILE = os.path.join(REPO_ROOT, "data/whitespace_radar/topic_examples.json")
+
+
+def load_pairs(path: str = TOPIC_FILE) -> list:
+    with open(path, "r", encoding="utf-8") as fh:
+        payload = json.load(fh)
+    return [(a, b) for a, b in payload["form_pairs"]]
 
 OUT = os.path.join(REPO_ROOT, "artifacts/whitespace_radar/topic_form_sensitivity.json")
 
@@ -35,7 +38,7 @@ def main() -> int:
     digest = pool_digest(docs)
     th = Thresholds()
     rows = []
-    for runon, spaced in PAIRS:
+    for runon, spaced in load_pairs():
         a = analyze(idx, runon, thresholds=th, pool_digest=digest, as_of="pool")
         b = analyze(idx, spaced, thresholds=th, pool_digest=digest, as_of="pool")
         rows.append(
