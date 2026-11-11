@@ -17,3 +17,5 @@
 [2026-11-09T19:37:35Z] [UPGRADE] None: None → WITHHELD | REJECTED: E2 unknown: anchor unresolvable (unknown anchor_type=None); E3 unknown: digest unverifiable (anchor unresolvable); E7 unknown: missing quote_match
 [2026-11-10T07:17:54Z] [UPGRADE] CAP-BATCH-UP: NOT_VERIFIED → WITHHELD | REJECTED: E3 CAP-BATCH-UP: digest mismatch (card sha=532eaabd9574, got sha=b4da14a77c2d); E7 CAP-BATCH-UP: quote_match='Test' no hit
 [2026-11-10T07:17:54Z] [UPGRADE] None: None → WITHHELD | REJECTED: E2 unknown: anchor unresolvable (unknown anchor_type=None); E3 unknown: digest unverifiable (anchor unresolvable); E7 unknown: missing quote_match
+[2026-11-11T06:00:49Z] [UPGRADE] CAP-BATCH-UP: NOT_VERIFIED → WITHHELD | REJECTED: E3 CAP-BATCH-UP: digest mismatch (card sha=532eaabd9574, got sha=b4da14a77c2d); E7 CAP-BATCH-UP: quote_match='Test' no hit
+[2026-11-11T06:00:49Z] [UPGRADE] None: None → WITHHELD | REJECTED: E2 unknown: anchor unresolvable (unknown anchor_type=None); E3 unknown: digest unverifiable (anchor unresolvable); E7 unknown: missing quote_match

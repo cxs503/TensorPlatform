@@ -1,0 +1,569 @@
+{
+  "schema": "multi-fidelity-error-chain/1.0",
+  "node": "p470w2-n10-multi-fidelity",
+  "provenance": {
+    "generated_at": "2026-11-11T05:48:23+00:00",
+    "git_commit": "1c137a0f068265481478b3c86c2320f2bf480a34",
+    "git_branch": "agent/m13880",
+    "git_status_porcelain": "",
+    "python": "3.11.6",
+    "numpy": "2.4.6",
+    "machine": "loongarch64",
+    "command": "python docs/p470w2_n10/run_fidelity_chain.py"
+  },
+  "setup": {
+    "quantity": "exp(0.8x) + 0.3 sin(4x); tiers = truncated expansions about x=0.5 of order 1/3/5 (generic analytic benchmark)",
+    "calibration_box": [
+      0.35,
+      0.65
+    ],
+    "n_calibration": 121,
+    "study_distances": [
+      0.1,
+      0.2,
+      0.4
+    ],
+    "report_level": 0.95,
+    "alarm_level": 0.99,
+    "guard_defaults": {
+      "lipschitz_margin": 1.0,
+      "guard_margin": 0.25
+    },
+    "chain": {
+      "ranks": [
+        0,
+        1,
+        2
+      ],
+      "tiers": {
+        "0": {
+          "name": "tier1",
+          "bias": 0.012695578027897787,
+          "q_report": 0.022240473614067217,
+          "q_guard": 0.02904108318863529,
+          "report_level": 0.95,
+          "alarm_level": 0.99,
+          "saturated": {
+            "report": false,
+            "guard": false
+          },
+          "lipschitz": 0.33811441711943474,
+          "n_calibration": 121,
+          "law": {
+            "C": 0.6585011781396366,
+            "p": 1.0,
+            "source": "study",
+            "study_max_distance": 0.4
+          },
+          "domain": {
+            "lo": [
+              0.35
+            ],
+            "hi": [
+              0.65
+            ]
+          },
+          "amplification": 0.3333333333333333
+        },
+        "1": {
+          "name": "tier3",
+          "bias": -0.00030451262076749215,
+          "q_report": 0.0009547661129969208,
+          "q_guard": 0.0012437807358989048,
+          "report_level": 0.95,
+          "alarm_level": 0.99,
+          "saturated": {
+            "report": false,
+            "guard": false
+          },
+          "lipschitz": 0.02432461485136981,
+          "n_calibration": 121,
+          "law": {
+            "C": 0.05706738230905761,
+            "p": 1.1283683699661358,
+            "source": "study",
+            "study_max_distance": 0.4
+          },
+          "domain": {
+            "lo": [
+              0.35
+            ],
+            "hi": [
+              0.65
+            ]
+          },
+          "amplification": 0.3333333333333333
+        },
+        "2": {
+          "name": "tier5",
+          "bias": 2.6385365164650335e-06,
+          "q_report": 1.1148861771702519e-05,
+          "q_guard": 1.5608903917750854e-05,
+          "report_level": 0.95,
+          "alarm_level": 0.99,
+          "saturated": {
+            "report": false,
+            "guard": false
+          },
+          "lipschitz": 0.0004217541371609449,
+          "n_calibration": 121,
+          "law": {
+            "C": 0.003997176891677137,
+            "p": 1.7283372476479517,
+            "source": "study",
+            "study_max_distance": 0.4
+          },
+          "domain": {
+            "lo": [
+              0.35
+            ],
+            "hi": [
+              0.65
+            ]
+          },
+          "amplification": 0.3333333333333333
+        }
+      }
+    }
+  },
+  "criteria": [
+    {
+      "criterion": "C1",
+      "statement": "propagated total bound >= realised error (conservatism guard)",
+      "n_points": 501,
+      "in_domain": {
+        "n": 401,
+        "violations": 0,
+        "violation_rate": 0.0,
+        "max_actual": 0.00927097045221803,
+        "max_bound": 0.01804300083901404,
+        "ratio_median": 5.748100252666468,
+        "ratio_p95": 48.11098365217895,
+        "ratio_max": 3079.333939505206
+      },
+      "in_and_out_of_domain": {
+        "n": 501,
+        "violations": 0,
+        "violation_rate": 0.0,
+        "max_actual": 0.021585675504849355,
+        "max_bound": 0.23825331612417708,
+        "ratio_median": 6.048343134739839,
+        "ratio_p95": 40.424276260952105,
+        "ratio_max": 3079.333939505206
+      },
+      "per_tier_bound": {
+        "0": {
+          "n": 501,
+          "violations": 0,
+          "violation_rate": 0.0,
+          "max_actual": 0.10338088799899015,
+          "max_bound": 0.6620661021707416,
+          "ratio_median": 4.788228500494058,
+          "ratio_p95": 319.5504961098679,
+          "ratio_max": 54434.95892598985
+        },
+        "1": {
+          "n": 501,
+          "violations": 0,
+          "violation_rate": 0.0,
+          "max_actual": 0.02791145640148951,
+          "max_bound": 0.05075915404106167,
+          "ratio_median": 8.315241920912742,
+          "ratio_p95": 54105.62719888932,
+          "ratio_max": 130314969.42780519
+        },
+        "2": {
+          "n": 501,
+          "violations": 0,
+          "violation_rate": 0.0,
+          "max_actual": 0.0016812988606940138,
+          "max_bound": 0.0019346921607280372,
+          "ratio_median": 16.028859485974984,
+          "ratio_p95": 362635.7985099448,
+          "ratio_max": 17163568.492063493
+        }
+      },
+      "margin_sensitivity_2d": [
+        {
+          "lipschitz_margin": 0.5,
+          "guard_margin": 0.0,
+          "violations": 2,
+          "n": 300,
+          "ratio_p95": 59.387
+        },
+        {
+          "lipschitz_margin": 1.0,
+          "guard_margin": 0.0,
+          "violations": 2,
+          "n": 300,
+          "ratio_p95": 59.387
+        },
+        {
+          "lipschitz_margin": 1.0,
+          "guard_margin": 0.25,
+          "violations": 0,
+          "n": 300,
+          "ratio_p95": 74.234
+        },
+        {
+          "lipschitz_margin": 2.0,
+          "guard_margin": 0.5,
+          "violations": 0,
+          "n": 300,
+          "ratio_p95": 89.081
+        }
+      ],
+      "pass": true
+    },
+    {
+      "criterion": "C2",
+      "statement": "95 % credible interval covers the reference on >= 90 % of points; a halved interval must fall below 80 %",
+      "n_points": 600,
+      "per_tier": {
+        "0": {
+          "coverage_at_95": 0.9467,
+          "mean_halfwidth": 0.02224,
+          "curve": [
+            {
+              "halfwidth_scale": 1.0,
+              "coverage": 0.9467,
+              "mean_halfwidth": 0.02224
+            },
+            {
+              "halfwidth_scale": 0.9,
+              "coverage": 0.9317,
+              "mean_halfwidth": 0.020016
+            },
+            {
+              "halfwidth_scale": 0.75,
+              "coverage": 0.8883,
+              "mean_halfwidth": 0.01668
+            },
+            {
+              "halfwidth_scale": 0.6,
+              "coverage": 0.8383,
+              "mean_halfwidth": 0.013344
+            },
+            {
+              "halfwidth_scale": 0.5,
+              "coverage": 0.6083,
+              "mean_halfwidth": 0.01112
+            },
+            {
+              "halfwidth_scale": 0.25,
+              "coverage": 0.2267,
+              "mean_halfwidth": 0.00556
+            }
+          ]
+        },
+        "1": {
+          "coverage_at_95": 0.9683,
+          "mean_halfwidth": 0.000955,
+          "curve": [
+            {
+              "halfwidth_scale": 1.0,
+              "coverage": 0.9683,
+              "mean_halfwidth": 0.000955
+            },
+            {
+              "halfwidth_scale": 0.9,
+              "coverage": 0.9367,
+              "mean_halfwidth": 0.000859
+            },
+            {
+              "halfwidth_scale": 0.75,
+              "coverage": 0.9033,
+              "mean_halfwidth": 0.000716
+            },
+            {
+              "halfwidth_scale": 0.6,
+              "coverage": 0.875,
+              "mean_halfwidth": 0.000573
+            },
+            {
+              "halfwidth_scale": 0.5,
+              "coverage": 0.8467,
+              "mean_halfwidth": 0.000477
+            },
+            {
+              "halfwidth_scale": 0.25,
+              "coverage": 0.3117,
+              "mean_halfwidth": 0.000239
+            }
+          ]
+        },
+        "2": {
+          "coverage_at_95": 0.9667,
+          "mean_halfwidth": 1.1e-05,
+          "curve": [
+            {
+              "halfwidth_scale": 1.0,
+              "coverage": 0.9667,
+              "mean_halfwidth": 1.1e-05
+            },
+            {
+              "halfwidth_scale": 0.9,
+              "coverage": 0.9433,
+              "mean_halfwidth": 1e-05
+            },
+            {
+              "halfwidth_scale": 0.75,
+              "coverage": 0.9183,
+              "mean_halfwidth": 8e-06
+            },
+            {
+              "halfwidth_scale": 0.6,
+              "coverage": 0.8883,
+              "mean_halfwidth": 7e-06
+            },
+            {
+              "halfwidth_scale": 0.5,
+              "coverage": 0.8767,
+              "mean_halfwidth": 6e-06
+            },
+            {
+              "halfwidth_scale": 0.25,
+              "coverage": 0.8133,
+              "mean_halfwidth": 3e-06
+            }
+          ]
+        }
+      },
+      "negative_control": {
+        "halfwidth_scale": 0.5,
+        "coverage": 0.6083
+      },
+      "pass": true
+    },
+    {
+      "criterion": "C3",
+      "statement": "a 20 % overshoot of the calibrated domain must trigger a switch; the in-domain false-alarm rate must stay <= 5 %",
+      "sweep": [
+        {
+          "label": "inside the box",
+          "min_overshoot": 0.0,
+          "trigger_rate": 0.0,
+          "domain_exceeded_rate": 0.0,
+          "target_rank_top_rate": 0.0
+        },
+        {
+          "label": "min overshoot 5% of the box width",
+          "min_overshoot": 0.05,
+          "trigger_rate": 1.0,
+          "domain_exceeded_rate": 1.0,
+          "target_rank_top_rate": 1.0
+        },
+        {
+          "label": "min overshoot 10% of the box width",
+          "min_overshoot": 0.1,
+          "trigger_rate": 1.0,
+          "domain_exceeded_rate": 1.0,
+          "target_rank_top_rate": 1.0
+        },
+        {
+          "label": "min overshoot 20% of the box width",
+          "min_overshoot": 0.2,
+          "trigger_rate": 1.0,
+          "domain_exceeded_rate": 1.0,
+          "target_rank_top_rate": 1.0
+        },
+        {
+          "label": "min overshoot 30% of the box width",
+          "min_overshoot": 0.3,
+          "trigger_rate": 1.0,
+          "domain_exceeded_rate": 1.0,
+          "target_rank_top_rate": 1.0
+        },
+        {
+          "label": "min overshoot 50% of the box width",
+          "min_overshoot": 0.5,
+          "trigger_rate": 1.0,
+          "domain_exceeded_rate": 1.0,
+          "target_rank_top_rate": 1.0
+        }
+      ],
+      "false_alarm": {
+        "n": 2000,
+        "rate": 0.0,
+        "reason_counts": {}
+      },
+      "tolerance_rule_opt_in": {
+        "rel_tol": 0.001,
+        "escalation_rate": 1.0
+      },
+      "pass": true
+    },
+    {
+      "criterion": "C4",
+      "statement": "eps(d) = C d^p with p >= 1 covers the realised error at three extrapolation distances",
+      "tiers": [
+        {
+          "rank": 0,
+          "p": 1.0,
+          "C": 0.658501,
+          "source": "study",
+          "study_distances": [
+            0.1,
+            0.2,
+            0.4
+          ],
+          "actual_error": [
+            0.04390008,
+            0.05652502,
+            0.08204319
+          ],
+          "law_bound": [
+            0.06585012,
+            0.13170024,
+            0.26340047
+          ],
+          "covered_at_each_distance": [
+            true,
+            true,
+            true
+          ],
+          "out_of_sample": {
+            "distance": 0.6000000000000001,
+            "actual_error": 0.10435322,
+            "law_bound": 0.39510071,
+            "covered": true
+          }
+        },
+        {
+          "rank": 1,
+          "p": 1.1284,
+          "C": 0.057067,
+          "source": "study",
+          "study_distances": [
+            0.1,
+            0.2,
+            0.4
+          ],
+          "actual_error": [
+            0.00283092,
+            0.00515085,
+            0.01352925
+          ],
+          "law_bound": [
+            0.00424639,
+            0.00928308,
+            0.02029388
+          ],
+          "covered_at_each_distance": [
+            true,
+            true,
+            true
+          ],
+          "out_of_sample": {
+            "distance": 0.6000000000000001,
+            "actual_error": 0.02888256,
+            "law_bound": 0.03206719,
+            "covered": true
+          }
+        },
+        {
+          "rank": 2,
+          "p": 1.7283,
+          "C": 0.003997,
+          "source": "study",
+          "study_distances": [
+            0.1,
+            0.2,
+            0.4
+          ],
+          "actual_error": [
+            4.981e-05,
+            0.00012415,
+            0.00054687
+          ],
+          "law_bound": [
+            7.472e-05,
+            0.00024757,
+            0.00082031
+          ],
+          "covered_at_each_distance": [
+            true,
+            true,
+            true
+          ],
+          "out_of_sample": {
+            "distance": 0.6000000000000001,
+            "actual_error": 0.00177345,
+            "law_bound": 0.00165319,
+            "covered": false
+          }
+        }
+      ],
+      "p_floor_enforced_on_decaying_errors": {
+        "p": 1.0,
+        "C": 6.0
+      },
+      "risk_term_zero_inside_domain": true,
+      "pass": true
+    },
+    {
+      "criterion": "C5",
+      "statement": "the mechanism carries no domain vocabulary (shared lexicon scan)",
+      "scanned_files": 4,
+      "terms": 37,
+      "hits": [],
+      "pass": true
+    },
+    {
+      "criterion": "C6",
+      "statement": "the new suite and the neighbouring existing suites stay green, and the whole-tree collection is not perturbed",
+      "command": "/usr/local/bin/python -m pytest tests/fidelity tests/test_multifidelity.py -q",
+      "returncode": 0,
+      "summary_lines": [
+        "    from _pytest.python import CallSpec2",
+        "-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html",
+        "52 passed, 1 warning in 7.87s"
+      ],
+      "regression_baseline": "regression_baseline.json",
+      "whole_tree_collection": {
+        "with_new_package": {
+          "collected": 12166,
+          "errors": 44
+        },
+        "baseline_without_new_package": {
+          "collected": 12134,
+          "errors": 44
+        },
+        "new_tests": 32,
+        "error_delta": 0,
+        "note": "the pre-existing collection errors are host-level sys.path shadowing in the whole-tree run; the new package adds tests and no errors"
+      },
+      "neighbouring_batches": {
+        "total_passed": 224,
+        "all_green": true,
+        "batches": [
+          {
+            "command": "tests/fidelity tests/test_multifidelity.py tests/test_synthetic_fixtures.py -q -p no:cacheprovider",
+            "passed": 69,
+            "returncode": 0
+          },
+          {
+            "command": "tests/evidence -q -p no:cacheprovider",
+            "passed": 57,
+            "returncode": 0
+          },
+          {
+            "command": "tests/test_write_gate.py tests/test_distill_run_case.py tests/test_multisolver_ckpt_rollback.py -q -p no:cacheprovider",
+            "passed": 98,
+            "returncode": 0
+          }
+        ]
+      },
+      "pass": true
+    }
+  ],
+  "all_pass": true,
+  "criteria_pass": {
+    "C1": true,
+    "C2": true,
+    "C3": true,
+    "C4": true,
+    "C5": true,
+    "C6": true
+  }
+}
