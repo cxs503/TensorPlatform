@@ -135,3 +135,19 @@ pytest-mock==3.12.0
 - README.md
 - DOCKER_DEPLOYMENT.md
 - CODE_OF_CONDUCT.md
+
+## 2026-11-10 · p318w2-n10 跨战役知识蒸馏 → EVOI 派单排序集成（tools/seed_dispatch）
+- 新增 `tools/seed_dispatch`：把 `tools/knowledge_distill` 的提案种子接进派单决策面。
+  - `log.py` 真实任务日志适配：只用派单时刻字段（仓通过率/近 40 条失败率/平台近 100 条失败率/
+    任务书长度/预算/子单/co_repos/滑动池新颖性），`result.*`/`status`/`finished_at` 只做标签与成本。
+  - `policy.py` L2 逻辑回归 P(验收通过) + 对数线性成本模型 + `EVOI = P·gain/cost` +
+    5 窗严格 walk-forward + IPS/SNIPS/ESS + precision@k/AUC。
+  - `integration.py` 种子候选（与历史任务逐字同构的设计矩阵）+ EVOI 排名 + 双侧泄漏审计
+    （事后字段扰动不变性 + 注入负对照灵敏度）+ 判据 (a)~(g) 汇总。
+  - `acceptance.py`/`cli.py` 一条命令产出 `eval_report.json`（判据数字+溯源）/`eval_report.md`/
+    `seeds_ranked.json`（三级 sha256 溯源链）/5 张图/`MANIFEST.json`。
+- 真实数据（12145 条任务日志、400 份报告）：EVOI precision@20% 0.8339 vs FIFO 0.7815 → **+5.24 pp**，
+  未达任务书 +10 pp 门槛（honest FAIL，四个口径变体同向 3.8~6.9 pp）；判据 (a)(b)(c)(e)(f)(g) 通过。
+- 测试 `tests/test_seed_dispatch_{core,integration,surface}.py` 41 passed，行覆盖率 94.5%；
+  域词扫描命中 0（`tools/seed_dispatch` 等已登记 `config/domain_word_denylist.json`）。
+- 归档报告 `docs/reports/p318w2_n10_seed_dispatch.md`，运行工件 `runs/p318w2/n10/`。
