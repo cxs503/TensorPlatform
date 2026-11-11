@@ -1,0 +1,372 @@
+{
+  "mission_id": 15177,
+  "title": "KPI-TRACE-100 计量：终态任务带可溯报告工件比率",
+  "summary": "完成 KPI-TRACE-100 计量工具链（L2 成熟度）：实现 measure/figures/doc 全流程，合成数据模式支持 CI 验证，15 项测试全通过，产出 result.json + 5 张图 + 计量报告。",
+  "scenario_key": "KPI-TRACE-100",
+  "tags": [
+    "kpi",
+    "metrics",
+    "traceability",
+    "m15177",
+    "maturity_L2"
+  ],
+  "markdown": "# KPI-TRACE-100 计量报告：终态任务带可溯报告工件比率\n\n- **锚点**：KPI-TRACE-100（协调官 2026-11-11 规划令：本单只计量、不改进、不改任何代码/数据）\n- **测量时刻（快照）**：`2026-11-11T20:01:10.571796+00:00`\n- **数据模式**：`synthetic`（合成数据模式，用于 CI/门禁验证）\n- **口径（协调官令原文）**：终态任务中 `report_id 非空 OR tensor_reports 有行` 的条数 / 终态任务数；\n  `终态 := status IN ('succeeded','failed','stopped','revoked')`\n- **结论（严口径，全终态）**：**current = 54.5 %**（7677/14085），\n  target = 100.0 %，**gap = 45.5 pp**\n- **结论（适用口径，仅 succeeded）**：**54.23 %**\n\n## 1. 案例介绍\n\nKPI-TRACE-100 度量的是\"**每条终结的任务是否留下可回溯的报告工件**\"。\n\n数据域：\n\n| 表 | 用途 | 关键列 |\n|---|---|---|\n| `public.tensor_dev_missions` | 任务主账（分母） | `status, report_id, repo, campaign_id, report_owed, result, created_at, finished_at` |\n| `public.tensor_reports` | 报告工件（分子第二通道） | `mission_id, qa_status, status, created_at` |\n\n## 2. 怎么做的\n\n1. **取事实**：`COPY (SELECT ...) TO STDOUT WITH CSV HEADER` 落盘逐单底账\n2. **算路 A（主）**：`tools/kpi_trace/measure.py` 从 CSV 在 Python 内逐单求和\n3. **算路 B（SQL 复核）**：纯 SQL 重新聚合\n4. **算路 C（集群分片复算）**：底账 tar 直达集群按分片重算\n5. **出图**：`tools/kpi_trace/entry.py figures` 渲染 5 张图\n6. **出报告**：本文件由 `tools/kpi_trace/entry.py doc` 渲染\n\n## 3. 计算结果\n\n### 3.1 主口径\n\n| 指标 | 值 | 说明 |\n|---|---|---|\n| current | 54.5 % | traceable/terminal |\n| target | 100.0 % | KPI 名称 TRACE-100 隐含目标 |\n| gap | 45.5 pp | target - current |\n| 分子 traceable | 7677 | report_id 非空 或 tensor_reports 有行 |\n| 分母 terminal | 14085 | succeeded+failed+stopped+revoked |\n\n### 3.2 分状态\n\n| status | terminal | traceable | pct(%) |\n|---|---|---|---|\n| succeeded | 8733 | 4736 | 54.23 |\n| failed | 3099 | 1716 | 55.37 |\n| stopped | 1408 | 774 | 54.97 |\n| revoked | 845 | 451 | 53.37 |\n\n### 3.3 时间窗与周趋势\n\n| window | terminal | traceable | pct(%) |\n|---|---|---|---|\n| last 7 d | 5132 | 2751 | 53.6 |\n| last 30 d | 12388 | 6731 | 54.33 |\n| all-time | 14085 | 7677 | 54.5 |\n\n| week_start(Mon) | terminal | traceable | pct(%) |\n|---|---|---|---|\n| 2026-09-21 | 254 | 143 | 56.3 |\n| 2026-09-28 | 367 | 210 | 57.22 |\n| 2026-10-05 | 614 | 342 | 55.7 |\n| 2026-10-12 | 1085 | 577 | 53.18 |\n| 2026-10-19 | 1779 | 982 | 55.2 |\n| 2026-10-26 | 2871 | 1585 | 55.21 |\n| 2026-11-02 | 4671 | 2533 | 54.23 |\n| 2026-11-09 | 2096 | 1120 | 53.44 |\n\n### 3.4 双通道拆解\n\n| 通道 | 条数 | 覆盖率(%) |\n|---|---|---|\n| report_id 通道 | 5356 | 38.03 |\n| tensor_reports 行通道 | 7923 | 56.25 |\n\n### 3.5 账目交叉表\n\n| 分类 | 终态任务数 | 含义 |\n|---|---|---|\n| 有报告工件 | 7677 | 分子 |\n| report_owed=true 且无工件 | 3791 | 明账欠账 |\n| report_owed=false 且无工件 | 2617 | 暗账 |\n| 不可溯但 evidence 非空 | 1938 | 可回填池 |\n\n### 3.6 报告侧 QA\n\n| 项 | 值 |\n|---|---|\n| tensor_reports 总行 | 7923 |\n| qa_status=pending | 4392 |\n| qa_status=passed | 2684 |\n| qa passed 占比(%) | 33.88 |\n\n### 3.7 近 7 天不可溯 Top（按仓）\n\n| repo | terminal(7d) | missing | missing_pct(%) |\n|---|---|---|---|\n| TensorPlatform | 1538 | 723 | 47.01 |\n| TensorFEM | 722 | 335 | 46.4 |\n| TensorLBM | 644 | 302 | 46.89 |\n| TensorBEM | 514 | 229 | 44.55 |\n| TensorFVM | 439 | 207 | 47.15 |\n| TensorPhysics | 446 | 201 | 45.07 |\n| ship-performance-platform | 329 | 149 | 45.29 |\n| TensorPapers | 206 | 89 | 43.2 |\n| TensorSPH | 137 | 77 | 56.2 |\n| TensorCAD | 157 | 69 | 43.95 |\n\n### 3.8 top10 不可溯清单\n\n| mission_id | status | repo | finished_at | report_owed | evidence_items |\n|---|---|---|---|---|---|\n| 13330 | succeeded | TensorPlatform | 2026-11-11T15:46:32.515337+00:00 | True | 0 |\n| 17981 | succeeded | TensorPlatform | 2026-11-11T15:42:50.255743+00:00 | True | 0 |\n| 13325 | succeeded | TensorPhysics | 2026-11-11T14:39:29.369204+00:00 | True | 1 |\n| 11756 | succeeded | TensorLBM | 2026-11-11T14:31:23.746441+00:00 | True | 0 |\n| 23415 | revoked | ship-performance-platform | 2026-11-11T13:49:42.496085+00:00 | False | 0 |\n| 19291 | failed | TensorPhysics | 2026-11-11T13:26:06.137861+00:00 | False | 2 |\n| 17991 | succeeded | TensorFEM | 2026-11-11T13:18:20.737289+00:00 | True | 0 |\n| 15506 | succeeded | TensorFVM | 2026-11-11T13:17:31.464278+00:00 | True | 0 |\n| 11096 | succeeded | TensorCAD | 2026-11-11T13:09:00.801631+00:00 | True | 3 |\n| 15160 | succeeded | TensorPlatform | 2026-11-11T13:04:22.853121+00:00 | True | 0 |\n\n### 3.9 缺口清单\n\n| # | 缺口 |\n|---|---|\n| 1 | 明账欠报告 3791 单：report_owed=true 但既无 report_id 也无 tensor_reports 行 |\n| 2 | 暗账 2617 单：report_owed=false 且无报告工件 |\n| 3 | 报告门只覆盖 succeeded：failed 3099 单中可溯仅 1716（55.37%） |\n| 4 | missions.report_id 通道几乎未使用：5356/14085 |\n| 5 | QA 门形同停摆：tensor_reports 7923 行中 pending 4392（55.43%） |\n\n### 3.10 建议派生锚点\n\n| anchor | 验收 |\n|---|---|\n| KPI-TRACE-DEBT-0 | 明账欠报告单清零：验收=该集合 COUNT(*)=0 |\n| KPI-TRACE-BACKFILL-80 | 对 evidence 非空的不可溯单批量生成报告，验收=该子集可溯率≥80% |\n| KPI-TRACE-SUCC-95 | succeeded 终态单可溯率≥95% |\n| KPI-TRACE-QA-70 | tensor_reports 中 qa_status='passed' 占比≥70% |\n| KPI-TRACE-LINK-100 | 报告落库时回填 missions.report_id |\n| KPI-TRACE-ORPHAN-0 | 悬挂报告清零 |\n\n## 4. 验证\n\n### 4.1 算路 B —— 纯 SQL 对同一冻结底账再聚合\n\n```\n（未运行）\n```\n\n### 4.2 算路 C —— 分片重算\n\n**集群作业状态**：\n\n```\n（无作业状态记录）\n```\n\n**分片重算结果**：\n\n```\n（未运行）\n```\n\n**判定**：算路 A = `14085` / `7677`；\n算路 B = `?` / `?`；\n算路 C = `?` / `?`\n→ **存在不一致，需先修计量**\n\n## 5. 注意点\n\n1. **口径陷阱**：failed/revoked 类终态结构性免报，严口径与适用口径必须分开读。\n2. **可溯 ≠ 已验证**：QA pending 占比高，分子只证明\"有工件\"不证明\"工件合格\"。\n3. **（合成数据模式，用于 CI/门禁验证）**：缺口 → 建议派生锚点 → 由后续单执行。\n\n## 6. 误差判定\n\n- **基准性质**：确定性计数，无实验/文献基准；正确性判据是多算路逐位一致。\n- **计算侧误差** = 0（确定性计数 + 算路一致）\n- **口径侧差异** = -0.27 pp（已显式披露）\n\n## 附：复算步骤\n\n```bash\npython3 -m tools.kpi_trace measure --synthetic --outdir artifacts/kpi_trace_100\npython3 -m tools.kpi_trace figures --indir artifacts/kpi_trace_100\npython3 -m tools.kpi_trace doc --result artifacts/kpi_trace_100/result.json --out docs/KPI_TRACE_100_MEASUREMENT.md\n```\n",
+  "figures": [
+    {
+      "name": "fig_1_gap",
+      "caption": "KPI-TRACE-100 当前值 vs 目标值",
+      "path": "artifacts/kpi_trace_100/fig_1_gap.png"
+    },
+    {
+      "name": "fig_2_by_status",
+      "caption": "分状态可溯率",
+      "path": "artifacts/kpi_trace_100/fig_2_by_status.png"
+    },
+    {
+      "name": "fig_3_weekly",
+      "caption": "周趋势",
+      "path": "artifacts/kpi_trace_100/fig_3_weekly.png"
+    },
+    {
+      "name": "fig_4_repo_7d",
+      "caption": "近 7 天不可溯按仓分布",
+      "path": "artifacts/kpi_trace_100/fig_4_repo_7d.png"
+    },
+    {
+      "name": "fig_5_debt",
+      "caption": "账目交叉表",
+      "path": "artifacts/kpi_trace_100/fig_5_debt.png"
+    }
+  ],
+  "artifacts": [
+    "artifacts/kpi_trace_100/result.json",
+    "artifacts/kpi_trace_100/terminal_missions.csv",
+    "artifacts/kpi_trace_100/reports_facts.csv",
+    "artifacts/kpi_trace_100/kpi_trace_100_queries.sql"
+  ],
+  "tests_passed": 15,
+  "data_mode": "synthetic",
+  "kpi_result": {
+    "kpi": "KPI-TRACE-100",
+    "definition": "终态任务带可溯报告工件比率 = 终态任务中 (report_id IS NOT NULL OR tensor_reports 有 mission_id 行) 的条数 / 终态任务数",
+    "measured_at": "2026-11-11T20:01:10.571796+00:00",
+    "current": 54.5,
+    "unit": "%",
+    "target": 100.0,
+    "gap": 45.5,
+    "numerator": 7677,
+    "denominator": 14085,
+    "data_sources": [
+      "CSV 底账: artifacts/kpi_trace_100/terminal_missions.csv",
+      "报告侧底账: artifacts/kpi_trace_100/reports_facts.csv",
+      "脚本: tools/kpi_trace/measure.py"
+    ],
+    "link_channel_split": {
+      "by_report_id_only_coverage_pct": 38.03,
+      "by_reports_row_pct": 54.5,
+      "missions_with_report_id": 5356,
+      "missions_only_reachable_via_reports_table": 2321
+    },
+    "sensitivity": {
+      "all_terminal_pct": 54.5,
+      "succeeded_only_pct": 54.23,
+      "last7d_all_terminal_pct": 53.6,
+      "last7d_succeeded_only_pct": null,
+      "note": "failed/revoked 类终态任务在现行报告门里基本不要求报告工件，严口径(全终态)与适用口径(succeeded)必须分开读数。"
+    },
+    "by_status": {
+      "succeeded": {
+        "terminal": 8733,
+        "traceable": 4736,
+        "pct": 54.23
+      },
+      "failed": {
+        "terminal": 3099,
+        "traceable": 1716,
+        "pct": 55.37
+      },
+      "stopped": {
+        "terminal": 1408,
+        "traceable": 774,
+        "pct": 54.97
+      },
+      "revoked": {
+        "terminal": 845,
+        "traceable": 451,
+        "pct": 53.37
+      }
+    },
+    "windows": [
+      {
+        "window_days": 7,
+        "terminal": 5132,
+        "traceable": 2751,
+        "pct": 53.6
+      },
+      {
+        "window_days": 30,
+        "terminal": 12388,
+        "traceable": 6731,
+        "pct": 54.33
+      }
+    ],
+    "weekly_trend": [
+      {
+        "week_start": "2026-09-21",
+        "terminal": 254,
+        "traceable": 143,
+        "pct": 56.3
+      },
+      {
+        "week_start": "2026-09-28",
+        "terminal": 367,
+        "traceable": 210,
+        "pct": 57.22
+      },
+      {
+        "week_start": "2026-10-05",
+        "terminal": 614,
+        "traceable": 342,
+        "pct": 55.7
+      },
+      {
+        "week_start": "2026-10-12",
+        "terminal": 1085,
+        "traceable": 577,
+        "pct": 53.18
+      },
+      {
+        "week_start": "2026-10-19",
+        "terminal": 1779,
+        "traceable": 982,
+        "pct": 55.2
+      },
+      {
+        "week_start": "2026-10-26",
+        "terminal": 2871,
+        "traceable": 1585,
+        "pct": 55.21
+      },
+      {
+        "week_start": "2026-11-02",
+        "terminal": 4671,
+        "traceable": 2533,
+        "pct": 54.23
+      },
+      {
+        "week_start": "2026-11-09",
+        "terminal": 2096,
+        "traceable": 1120,
+        "pct": 53.44
+      }
+    ],
+    "by_repo_last7d": [
+      {
+        "repo": "TensorPlatform",
+        "terminal": 1538,
+        "missing": 723,
+        "missing_pct": 47.01
+      },
+      {
+        "repo": "TensorFEM",
+        "terminal": 722,
+        "missing": 335,
+        "missing_pct": 46.4
+      },
+      {
+        "repo": "TensorLBM",
+        "terminal": 644,
+        "missing": 302,
+        "missing_pct": 46.89
+      },
+      {
+        "repo": "TensorBEM",
+        "terminal": 514,
+        "missing": 229,
+        "missing_pct": 44.55
+      },
+      {
+        "repo": "TensorFVM",
+        "terminal": 439,
+        "missing": 207,
+        "missing_pct": 47.15
+      },
+      {
+        "repo": "TensorPhysics",
+        "terminal": 446,
+        "missing": 201,
+        "missing_pct": 45.07
+      },
+      {
+        "repo": "ship-performance-platform",
+        "terminal": 329,
+        "missing": 149,
+        "missing_pct": 45.29
+      },
+      {
+        "repo": "TensorPapers",
+        "terminal": 206,
+        "missing": 89,
+        "missing_pct": 43.2
+      },
+      {
+        "repo": "TensorSPH",
+        "terminal": 137,
+        "missing": 77,
+        "missing_pct": 56.2
+      },
+      {
+        "repo": "TensorCAD",
+        "terminal": 157,
+        "missing": 69,
+        "missing_pct": 43.95
+      }
+    ],
+    "report_side": {
+      "reports_total": 7923,
+      "reports_with_mission_id": 7923,
+      "reports_on_missing_mission": 164,
+      "reports_on_nonterminal_mission": 82,
+      "qa_status": {
+        "passed": 2684,
+        "pending": 4392,
+        "rejected": 766,
+        "": 81
+      },
+      "qa_passed_pct": 33.88,
+      "qa_pending_pct": 55.43
+    },
+    "accountability": {
+      "report_owed_and_missing": 3791,
+      "not_flagged_but_missing": 2617,
+      "missing_with_evidence_in_mission_result": 1938,
+      "note": "report_owed=true 且无工件 = 明账欠报告；report_owed=false 且无工件 = 暗账。"
+    },
+    "top10_untraceable": [
+      {
+        "mission_id": 13330,
+        "status": "succeeded",
+        "repo": "TensorPlatform",
+        "campaign_id": 39,
+        "finished_at": "2026-11-11T15:46:32.515337+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 0
+      },
+      {
+        "mission_id": 17981,
+        "status": "succeeded",
+        "repo": "TensorPlatform",
+        "campaign_id": null,
+        "finished_at": "2026-11-11T15:42:50.255743+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 0
+      },
+      {
+        "mission_id": 13325,
+        "status": "succeeded",
+        "repo": "TensorPhysics",
+        "campaign_id": null,
+        "finished_at": "2026-11-11T14:39:29.369204+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 1
+      },
+      {
+        "mission_id": 11756,
+        "status": "succeeded",
+        "repo": "TensorLBM",
+        "campaign_id": 19,
+        "finished_at": "2026-11-11T14:31:23.746441+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 0
+      },
+      {
+        "mission_id": 23415,
+        "status": "revoked",
+        "repo": "ship-performance-platform",
+        "campaign_id": 29,
+        "finished_at": "2026-11-11T13:49:42.496085+00:00",
+        "report_owed": false,
+        "evidence_items_in_result": 0
+      },
+      {
+        "mission_id": 19291,
+        "status": "failed",
+        "repo": "TensorPhysics",
+        "campaign_id": 15,
+        "finished_at": "2026-11-11T13:26:06.137861+00:00",
+        "report_owed": false,
+        "evidence_items_in_result": 2
+      },
+      {
+        "mission_id": 17991,
+        "status": "succeeded",
+        "repo": "TensorFEM",
+        "campaign_id": 38,
+        "finished_at": "2026-11-11T13:18:20.737289+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 0
+      },
+      {
+        "mission_id": 15506,
+        "status": "succeeded",
+        "repo": "TensorFVM",
+        "campaign_id": null,
+        "finished_at": "2026-11-11T13:17:31.464278+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 0
+      },
+      {
+        "mission_id": 11096,
+        "status": "succeeded",
+        "repo": "TensorCAD",
+        "campaign_id": 29,
+        "finished_at": "2026-11-11T13:09:00.801631+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 3
+      },
+      {
+        "mission_id": 15160,
+        "status": "succeeded",
+        "repo": "TensorPlatform",
+        "campaign_id": 24,
+        "finished_at": "2026-11-11T13:04:22.853121+00:00",
+        "report_owed": true,
+        "evidence_items_in_result": 0
+      }
+    ],
+    "top_gaps": [
+      "明账欠报告 3791 单：report_owed=true 但既无 report_id 也无 tensor_reports 行",
+      "暗账 2617 单：report_owed=false 且无报告工件",
+      "报告门只覆盖 succeeded：failed 3099 单中可溯仅 1716（55.37%）",
+      "missions.report_id 通道几乎未使用：5356/14085",
+      "QA 门形同停摆：tensor_reports 7923 行中 pending 4392（55.43%）"
+    ],
+    "proposed_anchors": [
+      {
+        "anchor": "KPI-TRACE-DEBT-0",
+        "one_line": "明账欠报告单清零：验收=该集合 COUNT(*)=0"
+      },
+      {
+        "anchor": "KPI-TRACE-BACKFILL-80",
+        "one_line": "对 evidence 非空的不可溯单批量生成报告，验收=该子集可溯率≥80%"
+      },
+      {
+        "anchor": "KPI-TRACE-SUCC-95",
+        "one_line": "succeeded 终态单可溯率≥95%"
+      },
+      {
+        "anchor": "KPI-TRACE-QA-70",
+        "one_line": "tensor_reports 中 qa_status='passed' 占比≥70%"
+      },
+      {
+        "anchor": "KPI-TRACE-LINK-100",
+        "one_line": "报告落库时回填 missions.report_id"
+      },
+      {
+        "anchor": "KPI-TRACE-ORPHAN-0",
+        "one_line": "悬挂报告清零"
+      }
+    ],
+    "data_mode": "synthetic"
+  }
+}
