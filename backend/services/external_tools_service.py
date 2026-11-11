@@ -27,6 +27,7 @@ _ROOT = Path(__file__).resolve().parents[2]
 if str(_ROOT) not in sys.path:  # pragma: no cover - import-path fallback for deploy
     sys.path.insert(0, str(_ROOT))
 
+from tools.external_tools import benchmark as benchmark_mod  # noqa: E402
 from tools.external_tools import harness, report, spec as spec_mod  # noqa: E402
 
 DEFAULT_SPEC = _ROOT / "data" / "external_tools" / "classes.json"
@@ -161,3 +162,19 @@ def probe(tool_ids: Optional[Sequence[str]] = None, persist: bool = False,
         artifacts = report.write_artifacts(ledger, ledger_dir(), stem="external_tools")
     ledger["artifacts"] = artifacts
     return ledger
+
+def benchmark() -> Dict[str, Any]:
+    """ref-vs-got scoring table over the *persisted* ledger (no silent live run).
+
+    Fail-closed: without a ledger there is nothing to score, so the caller gets an
+    error instead of an empty table that could read as "all good".
+    """
+
+    suite = load_spec()
+    ledger = latest_ledger()
+    if ledger is None:
+        raise ExternalToolsError(
+            f"no ledger under {ledger_dir()}; run tools.external_tools.cli run first")
+    table = benchmark_mod.build(ledger, suite)
+    table["ledger_dir"] = str(ledger_dir())
+    return table
