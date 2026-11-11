@@ -1,0 +1,50 @@
+{
+  "benchmark": {
+    "benchmark_id": "tensorbem.cylinder-added-mass",
+    "version": "1.0.0"
+  },
+  "implementation": {
+    "project": "TensorBEM"
+  },
+  "workload": {
+    "workload_id": "cylinder-translating-added-mass-64",
+    "version": "1.0.0",
+    "command": [
+      "python3",
+      "-m",
+      "tensorbem.benchmarks.cylinder_added_mass",
+      "--panels",
+      "64"
+    ],
+    "cwd": ".",
+    "precision": "float64",
+    "configuration": {
+      "panels": 64,
+      "radius": 1.0,
+      "speed": 1.0,
+      "density": 1025.0
+    }
+  },
+  "execution": {
+    "timeout_seconds": 600,
+    "env": {
+      "PYTHONPATH": "src"
+    }
+  },
+  "evaluation": {
+    "extract": {
+      "format": "json_stdout"
+    },
+    "metrics": [
+      {
+        "name": "added_mass_per_unit_span",
+        "unit": "kg/m",
+        "better": "target",
+        "got_pointer": "added_mass_per_unit_span",
+        "ref_pointer": "exact_added_mass_per_unit_span",
+        "tolerance_rel": 0.01
+      }
+    ]
+  },
+  "notes": "域工件（注入用）：ref = 解析解 rho*pi*a^2；平台层不硬编码任何域词条/阈值。"
+}
