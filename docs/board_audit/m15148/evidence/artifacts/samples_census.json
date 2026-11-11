@@ -1,0 +1,139 @@
+{
+ "input": "artifacts/kpi_sweep_1000/stage/ship_samples.json",
+ "rows_total": 23176,
+ "rows_by_type": {
+  "geometry_validation": 11315,
+  "kb_resistance": 2692,
+  "kb_green_shipping": 2500,
+  "kb_seakeeping": 2293,
+  "kb_propulsion": 2225,
+  "kb_stability": 1303,
+  "kb_ice_navigation": 848
+ },
+ "distinct_case_identity_by_type": {
+  "geometry_validation": 1,
+  "kb_green_shipping": 2500,
+  "kb_ice_navigation": 848,
+  "kb_propulsion": 2225,
+  "kb_resistance": 2692,
+  "kb_seakeeping": 2293,
+  "kb_stability": 1303
+ },
+ "rows_with_result_by_type": {
+  "geometry_validation": 11315,
+  "kb_green_shipping": 2500,
+  "kb_ice_navigation": 848,
+  "kb_propulsion": 2225,
+  "kb_resistance": 2692,
+  "kb_seakeeping": 2293,
+  "kb_stability": 1303
+ },
+ "l1_identity_checks": {
+  "kb_green_shipping": {
+   "sampled_rows": 400,
+   "details": {
+    "attained_ratio=attained/required": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    }
+   },
+   "checker_errors": []
+  },
+  "kb_ice_navigation": {
+   "sampled_rows": 400,
+   "details": {
+    "R_ice=sum(components)": {
+     "n": 400,
+     "pass": 67,
+     "pass_rate": 0.1675
+    },
+    "rel_err_vs_reference": {
+     "n": 400,
+     "pass": 189,
+     "pass_rate": 0.4725
+    }
+   },
+   "checker_errors": []
+  },
+  "kb_propulsion": {
+   "sampled_rows": 400,
+   "details": {
+    "eta0=J*KT/(2pi*KQ)": {
+     "n": 400,
+     "pass": 355,
+     "pass_rate": 0.8875
+    },
+    "T=KT*rho*n^2*D^4": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    }
+   },
+   "checker_errors": []
+  },
+  "kb_resistance": {
+   "sampled_rows": 400,
+   "details": {
+    "Rt=Rf+Rw+Ra": {
+     "n": 400,
+     "pass": 272,
+     "pass_rate": 0.68
+    },
+    "Cf=ITTC57(Re)": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    },
+    "Re=VL/nu": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    },
+    "Rf=0.5rhoV2S(1+k)Cf": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    }
+   },
+   "checker_errors": []
+  },
+  "kb_seakeeping": {
+   "sampled_rows": 400,
+   "details": {
+    "significant_heave=4*sigma_heave": {
+     "n": 400,
+     "pass": 0,
+     "pass_rate": 0.0
+    },
+    "GM_T_m=GM_T": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    }
+   },
+   "checker_errors": []
+  },
+  "kb_stability": {
+   "sampled_rows": 400,
+   "details": {
+    "GM=KB+BM-KG": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    },
+    "BM=B^2/12T": {
+     "n": 400,
+     "pass": 400,
+     "pass_rate": 1.0
+    }
+   },
+   "checker_errors": []
+  }
+ },
+ "tiers": {
+  "T1b_kb_batch_cases": 11861,
+  "T2_geometry_validation_rows": 11315,
+  "note": "kb_* 行=无人值守程序化批量回填（m9475），带 case_id+params+result，可 L1 复算；geometry_validation 行仅 Cb 自洽性检查（无物理量），不计入工况 KPI"
+ }
+}
