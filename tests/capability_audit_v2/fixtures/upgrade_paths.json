@@ -1,0 +1,79 @@
+{
+ "schema_version": "1.0",
+ "purpose": "synthetic upgrade-path data (tests only)",
+ "paths": {
+  "cap.beta": {
+   "upgrade_class": "algorithm_replacement",
+   "blocking_summary": "synthetic: kernel collapses onto one parameter",
+   "algorithm_refs": [
+    {
+     "citation": "Synthetic Reference (2026), Example Regression For Tests",
+     "locator": "tests/capability_audit_v2/fixtures/impl_core.py",
+     "role": "replacement kernel already present"
+    }
+   ],
+   "steps": [
+    {
+     "action": "replace the flat kernel with the full kernel",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/fixtures/case_pass.py",
+     "acceptance": "numeric assertions above 1e-6 pass",
+     "artifact": "tests/capability_audit_v2/fixtures/impl_core.py"
+    },
+    {
+     "action": "rerun the invariant probe and require no contradictions",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/test_cascade_v2.py",
+     "acceptance": "probe contradictions empty",
+     "artifact": "tests/capability_audit_v2/fixtures/spec_exec.json"
+    },
+    {
+     "action": "bind a reference benchmark artifact and require error below the REAL tolerance",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/test_roadmap_v2.py",
+     "acceptance": "worst error at or below 3.0 percent",
+     "artifact": "tests/capability_audit_v2/fixtures/bench.json"
+    }
+   ],
+   "risks": [
+    "synthetic fixture only"
+   ],
+   "effort_days": 1
+  },
+  "cap.epsilon": {
+   "next_action": "bind implementation and test paths, then rerun the audit"
+  },
+  "cap.gamma": {
+   "upgrade_class": "parameterization",
+   "blocking_summary": "synthetic: shell bodies only",
+   "algorithm_refs": [
+    {
+     "citation": "Synthetic Reference (2026), Example Regression For Tests",
+     "locator": "tests/capability_audit_v2/fixtures/impl_core.py",
+     "role": "reference kernel"
+    }
+   ],
+   "steps": [
+    {
+     "action": "replace shell bodies with the reference kernel",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/fixtures/case_pass.py",
+     "acceptance": "numeric assertions pass",
+     "artifact": "tests/capability_audit_v2/fixtures/impl_core.py"
+    },
+    {
+     "action": "add numeric-assertion tests and bind them",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/test_cascade_v2.py",
+     "acceptance": "at least one numeric assertion counted",
+     "artifact": "tests/capability_audit_v2/fixtures/case_pass.py"
+    },
+    {
+     "action": "bind a benchmark artifact and rerun the audit",
+     "verification": "python3 -m pytest -q tests/capability_audit_v2/test_roadmap_v2.py",
+     "acceptance": "worst error at or below the REAL tolerance",
+     "artifact": "tests/capability_audit_v2/fixtures/bench.json"
+    }
+   ],
+   "risks": [
+    "synthetic fixture only"
+   ],
+   "effort_days": 1
+  }
+ }
+}
