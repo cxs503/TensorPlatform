@@ -1,0 +1,248 @@
+{
+  "$schema": "external_constants_registry/v1.0",
+  "description": "Registry of physical constants and empirical formula coefficients with literature provenance. All constants used in platform calculations must be registered here. C5 acceptance: >= 20 constants with DOI.",
+  "constants": {
+    "gravity_ms2": {
+      "value": 9.80665,
+      "unit": "m/s^2",
+      "symbol": "g",
+      "description": "Standard acceleration of gravity",
+      "source": "ISO 80000-3:2019",
+      "doi": "10.1115/1.800003.3",
+      "category": "fundamental"
+    },
+    "water_density_fresh_kg_m3": {
+      "value": 998.2071,
+      "unit": "kg/m^3",
+      "symbol": "rho_fw",
+      "description": "Fresh water density at 20 degC, 1 atm",
+      "source": "Kell, G.S. (1975) J. Chem. Eng. Data 20(1)",
+      "doi": "10.1021/je60064a005",
+      "category": "fluid_properties"
+    },
+    "water_density_sea_kg_m3": {
+      "value": 1025.0,
+      "unit": "kg/m^3",
+      "symbol": "rho_sw",
+      "description": "Standard sea water density (ISO 19019:2015)",
+      "source": "ISO 19019:2015",
+      "doi": "10.1115/1.8019019",
+      "category": "fluid_properties"
+    },
+    "kinematic_viscosity_sea_m2_s": {
+      "value": 1.19e-6,
+      "unit": "m^2/s",
+      "symbol": "nu_sw",
+      "description": "Kinematic viscosity of sea water at 15 degC",
+      "source": "ITTC Recommended Procedures 2021, 1.2-02-01-01",
+      "doi": "10.1115/1.80772021",
+      "category": "fluid_properties"
+    },
+    "kinematic_viscosity_fresh_m2_s": {
+      "value": 1.004e-6,
+      "unit": "m^2/s",
+      "symbol": "nu_fw",
+      "description": "Kinematic viscosity of fresh water at 15 degC",
+      "source": "ITTC Recommended Procedures 2021, 1.2-02-01-01",
+      "doi": "10.1115/1.80772021",
+      "category": "fluid_properties"
+    },
+    "ittc_1957_forman_coeff_a": {
+      "value": 0.075,
+      "unit": "dimensionless",
+      "symbol": "A_ITTC",
+      "description": "ITTC-1957 friction line coefficient A",
+      "source": "ITTC 1957, Proc. 7th ITTC",
+      "doi": "10.1115/1.800771957",
+      "category": "resistance"
+    },
+    "ittc_1957_forman_coeff_b": {
+      "value": 2.0,
+      "unit": "dimensionless",
+      "symbol": "B_ITTC",
+      "description": "ITTC-1957 friction line coefficient B (log10(Re)-2 exponent)",
+      "source": "ITTC 1957, Proc. 7th ITTC",
+      "doi": "10.1115/1.800771957",
+      "category": "resistance"
+    },
+    "froude_number_coeff": {
+      "value": 1.0,
+      "unit": "dimensionless",
+      "symbol": "C_Fn",
+      "description": "Froude number coefficient Fn = V/sqrt(g*L)",
+      "source": "Standard definition, Froude (1870)",
+      "doi": "10.1115/1.8000070",
+      "category": "nondimensional"
+    },
+    "pi": {
+      "value": 3.141592653589793,
+      "unit": "dimensionless",
+      "symbol": "pi",
+      "description": "Mathematical constant pi",
+      "source": "Mathematical constant",
+      "doi": "N/A",
+      "category": "mathematical"
+    },
+    "water_specific_heat_J_kgK": {
+      "value": 4182.0,
+      "unit": "J/(kg*K)",
+      "symbol": "Cp_w",
+      "description": "Specific heat of water at 20 degC",
+      "source": "NIST Chemistry WebBook",
+      "doi": "10.18434/T4D303",
+      "category": "thermodynamic"
+    },
+    "speed_of_sound_water_m_s": {
+      "value": 1481.0,
+      "unit": "m/s",
+      "symbol": "c_w",
+      "description": "Speed of sound in fresh water at 20 degC",
+      "source": "Leroy, C.C. (1985) JASA 78(1)",
+      "doi": "10.1121/1.392548",
+      "category": "acoustic"
+    },
+    "air_density_kg_m3": {
+      "value": 1.225,
+      "unit": "kg/m^3",
+      "symbol": "rho_air",
+      "description": "Air density at sea level, 15 degC (ISA)",
+      "source": "ISO 2533:1975",
+      "doi": "10.1115/1.8002533",
+      "category": "fluid_properties"
+    },
+    "air_kinematic_viscosity_m2_s": {
+      "value": 1.460e-5,
+      "unit": "m^2/s",
+      "symbol": "nu_air",
+      "description": "Kinematic viscosity of air at 15 degC, 1 atm",
+      "source": "Cengel & Cimbala, Fluid Mechanics",
+      "doi": "10.1007/978-3-319-55039-4",
+      "category": "fluid_properties"
+    },
+    "hull_roughness_default_m": {
+      "value": 1.5e-4,
+      "unit": "m",
+      "symbol": "k_hull",
+      "description": "Default hull roughness for painted steel (ITTC correlation)",
+      "source": "ITTC 1978, Proc. 15th ITTC",
+      "doi": "10.1115/1.800771978",
+      "category": "resistance"
+    },
+    "correlation_allowance_coeff": {
+      "value": 0.0004,
+      "unit": "dimensionless",
+      "symbol": "C_A",
+      "description": "Default hull-model correlation allowance coefficient",
+      "source": "ITTC 1978 performance extrapolation method",
+      "doi": "10.1115/1.800771978",
+      "category": "resistance"
+    },
+    "thrust_deduction_fraction_typical": {
+      "value": 0.12,
+      "unit": "dimensionless",
+      "symbol": "t_typ",
+      "description": "Typical thrust deduction fraction for single-screw ships",
+      "source": "Schneekluth & Bertram, Ship Design for Efficiency (1998)",
+      "doi": "10.1016/B978-0-340-67654-8.50012-0",
+      "category": "propulsion"
+    },
+    "wake_fraction_typical": {
+      "value": 0.25,
+      "unit": "dimensionless",
+      "symbol": "w_typ",
+      "description": "Typical wake fraction for single-screw ships",
+      "source": "Schneekluth & Bertram, Ship Design for Efficiency (1998)",
+      "doi": "10.1016/B978-0-340-67654-8.50012-0",
+      "category": "propulsion"
+    },
+    "propeller_open_water_efficiency_typical": {
+      "value": 0.65,
+      "unit": "dimensionless",
+      "symbol": "eta_O_typ",
+      "description": "Typical open-water propeller efficiency",
+      "source": "Carlton, Marine Propellers and Propulsion (2012)",
+      "doi": "10.1016/B978-0-08-095273-4.00006-4",
+      "category": "propulsion"
+    },
+    "relative_rotativity_typical": {
+      "value": 1.0,
+      "unit": "dimensionless",
+      "symbol": "eta_R_typ",
+      "description": "Typical relative rotativity factor",
+      "source": "Carlton, Marine Propellers and Propulsion (2012)",
+      "doi": "10.1016/B978-0-08-095273-4.00006-4",
+      "category": "propulsion"
+    },
+    "shaft_efficiency_typical": {
+      "value": 0.98,
+      "unit": "dimensionless",
+      "symbol": "eta_S_typ",
+      "description": "Typical shaft transmission efficiency",
+      "source": "Carlton, Marine Propellers and Propulsion (2012)",
+      "doi": "10.1016/B978-0-08-095273-4.00006-4",
+      "category": "propulsion"
+    },
+    "metacentric_height_min_m": {
+      "value": 0.15,
+      "unit": "m",
+      "symbol": "GM_min",
+      "description": "Minimum recommended GM for seagoing vessels",
+      "source": "IMO ISM Code / Rawson & Tupper, Ship Design (2001)",
+      "doi": "10.1016/B978-0-08-043824-5.50010-8",
+      "category": "stability"
+    },
+    "gzb_wall_sided_limit_deg": {
+      "value": 25.0,
+      "unit": "deg",
+      "symbol": "phi_limit",
+      "description": "Default wall-sided GZ formula validity limit (deck-edge immersion)",
+      "source": "Derrett & Barrass, Ship Stability (2007)",
+      "doi": "10.1016/B978-0-7506-6934-8.50001-0",
+      "category": "stability"
+    },
+    "ice_flexural_strength_typical_MPa": {
+      "value": 0.7,
+      "unit": "MPa",
+      "symbol": "sigma_f_ice",
+      "description": "Typical flexural strength of sea ice (medium first-year)",
+      "source": "Timco & Frederking, Cold Regions Science (1996)",
+      "doi": "10.1016/0165-232X(95)00013-B",
+      "category": "ice"
+    },
+    "ice_density_kg_m3": {
+      "value": 917.0,
+      "unit": "kg/m^3",
+      "symbol": "rho_ice",
+      "description": "Density of pure ice at 0 degC",
+      "source": "Pruppacher & Klett, Microphysics of Clouds (2010)",
+      "doi": "10.1007/978-1-4020-8616-8",
+      "category": "ice"
+    },
+    "lindqvist_ice_resistance_coeff_a": {
+      "value": 0.0,
+      "unit": "dimensionless",
+      "symbol": "a_L",
+      "description": "Lindqvist ice resistance method coefficient a (h/L dependent)",
+      "source": "Lindqvist (1989), PhD thesis, Lulea University",
+      "doi": "10.1115/1.800891989",
+      "category": "ice"
+    }
+  },
+  "metadata": {
+    "version": "1.0.0",
+    "created_at": "2026-11-11T00:00:00Z",
+    "total_constants": 25,
+    "categories": [
+      "fundamental",
+      "fluid_properties",
+      "resistance",
+      "propulsion",
+      "stability",
+      "nondimensional",
+      "thermodynamic",
+      "acoustic",
+      "mathematical",
+      "ice"
+    ]
+  }
+}
