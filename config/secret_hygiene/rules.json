@@ -1,0 +1,98 @@
+{
+  "schema": "secret_hygiene_rules/1.0",
+  "title": "秘密泄露扫描规则库（数据，不是代码）",
+  "description": "规则/熵闸/豁免全部外置：代码侧只实现匹配、豁免、脱敏与出口机制，不含任何具体凭证样例。生产环境按需扩展，新增规则不需要改代码。",
+  "entropy": {
+    "enabled": true,
+    "min_length": 32,
+    "min_entropy_bits_per_char": 4.0,
+    "require_mixed_case": true,
+    "require_digit": true,
+    "min_digit_ratio": 0.1
+  },
+  "allow_line_patterns": [
+    "(?i)data:image/",
+    "(?i)png_base64",
+    "(?i)placeholder",
+    "(?i)redacted",
+    "(?i)example\\.invalid",
+    "(?i)\\byour[_-]?[a-z]{2,20}\\b",
+    "\\$\\{",
+    "\\{\\{",
+    "<[A-Za-z_][A-Za-z0-9_]{0,29}>",
+    "(?i)abcdefghijklmnopqrstuvwxyz",
+    "(?i)(?:png|jpe?g|gif|svg|webp)_base64",
+    "(?i)^\\s*\"?data"
+  ],
+  "known_values": {
+    "enabled": true,
+    "registry": "config/secret_hygiene/known_values.json",
+    "min_token_length": 8
+  },
+  "output": {
+    "redact_keep_prefix": 0,
+    "max_violations_per_file": 200
+  },
+  "rules": [
+    {
+      "id": "private_key_block",
+      "pattern": "-----BEGIN (?:RSA |EC |DSA |OPENSSH |PGP )?PRIVATE KEY(?: BLOCK)?-----",
+      "allow": [
+        "-----BEGIN [A-Z ]*PUBLIC KEY-----"
+      ]
+    },
+    {
+      "id": "jwt",
+      "pattern": "\\beyJ[A-Za-z0-9_\\-]{8,}={0,2}\\.[A-Za-z0-9_\\-]{8,}={0,2}\\.[A-Za-z0-9_\\-]{4,}={0,2}",
+      "allow": []
+    },
+    {
+      "id": "db_url_credentials",
+      "pattern": "\\b(?:postgres(?:ql)?|mysql|mariadb|mongodb(?:\\+srv)?|redis|amqp|clickhouse|mssql)://[^\\s:/@'\"`]+:[^\\s/@'\"`]{3,}@",
+      "allow": []
+    },
+    {
+      "id": "bearer_token",
+      "pattern": "(?i)\\bbearer\\s+([A-Za-z0-9_\\-./+=]{16,})",
+      "allow": []
+    },
+    {
+      "id": "cloud_access_key_id",
+      "pattern": "\\b(?:AKIA|ASIA|AGPA|AIDA|AROA|ANPA|ANVA)[0-9A-Z]{16}\\b",
+      "allow": [
+        "(?i)example"
+      ]
+    },
+    {
+      "id": "prefixed_api_token",
+      "pattern": "\\b(?:gh[pousr]_[A-Za-z0-9]{20,}|xox[abposr]-[A-Za-z0-9\\-]{10,}|AIza[0-9A-Za-z_\\-]{30,}|sk_(?:live|test)_[A-Za-z0-9]{16,}|glpat-[A-Za-z0-9_\\-]{16,})\\b",
+      "allow": []
+    },
+    {
+      "id": "credential_assignment",
+      "pattern": "(?i)(?:api[_-]?key|apikey|secret[_-]?key|access[_-]?token|auth[_-]?token|client[_-]?secret|password|passwd|token)['\\\"]?\\s*[:=]\\s*['\\\"]?([A-Za-z0-9_\\-+/=]{16,})",
+      "allow": [
+        "(?i)\\b(?:os\\.environ|getenv|environ\\[|settings\\.|config\\.|self\\.)",
+        "(?i)x{6,}",
+        "\\*{3,}",
+        "(?i)\\bnone\\b",
+        "(?i)\\boptional\\[",
+        "(?i)\\bchangeme\\b",
+        "[A-Za-z_][A-Za-z0-9_]{7,}\\s*\\(",
+        "(?i)\\bhashed_"
+      ]
+    },
+    {
+      "id": "high_entropy_blob",
+      "pattern": "(?<![A-Za-z0-9+/=])[A-Za-z0-9+/=]{40,}(?![A-Za-z0-9+/=])",
+      "allow": [
+        "(?i)\\b(?:sha1|sha256|sha512|sha224|md5|digest|checksum|integrity|fingerprint|content_digest)\\b"
+      ],
+      "entropy": true
+    }
+  ],
+  "binary_field_patterns": [
+    "(?i)(?:png|jpe?g|gif|svg|webp|image|figure)_?base64$",
+    "(?i)^data$"
+  ]
+}

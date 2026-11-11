@@ -1,0 +1,302 @@
+{
+  "schema": "capability_evidence_map/1.0",
+  "title": "平台能力→测试→证据 自动映射表（能力台账证据采集管线配置）",
+  "description": "配置驱动、零领域语义：本文件只登记「哪条能力由哪些可执行测试/运行时探针取证、证据工件落到哪里、验收阈值多少」。代码侧不出现任何具体能力名或域词条。",
+  "acceptance_defaults": {
+    "min_tests": 1,
+    "min_pass_rate": 0.8,
+    "real_requires_zero_failures": true,
+    "max_reference_error_pct": 15.0
+  },
+  "artifact_root": "artifacts/capability_evidence",
+  "capabilities": {
+    "calc.resistance": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_holtrop_mennen_verification.py",
+        "tests/test_resistance_identity_audit_m1817.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/resistance*",
+        "backend/api/calculations.py"
+      ],
+      "acceptance": {
+        "min_tests": 2,
+        "min_pass_rate": 0.9
+      }
+    },
+    "calc.stability": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_stability_analytic_benchmark.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/stability*"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "propeller.open_water": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_propeller_open_water.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/propeller*"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "geometry.generate": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_geometry_audit.py",
+        "tests/test_geometry_validation_pipeline.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/geometry_validation/"
+      ],
+      "acceptance": {
+        "min_tests": 2,
+        "min_pass_rate": 0.9
+      }
+    },
+    "geometry.hydro_curves": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_hydrostatics_identity_audit.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/hull_geometry.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "geometry.verify_official": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [
+        "hull_geometry_identity"
+      ],
+      "code_globs": [
+        "backend/services/hull_geometry.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "geometry.list_models": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_stdmodels_lookup_verification.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/stdmodels*"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "shiphull.generate": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [
+        "hull_geometry_identity"
+      ],
+      "code_globs": [
+        "backend/services/hull_geometry.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "stdmodels.lookup": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_stdmodels_lookup_verification.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/services/stdmodels*"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "gov.stats": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_governance_bench_acceptance.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "backend/api/campaign_plans.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "knowledge.docs": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/test_knowledge_distill_extract.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "tools/knowledge_distill/"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "dev.gate_5415": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/capability_audit_gate/test_gate_report.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "tools/capability_audit_gate/"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "dev.git": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [
+        "git_plumbing"
+      ],
+      "code_globs": [
+        "tools/branch_ledger.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "dev.logs": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [],
+      "code_globs": [
+        "backend/api/logs.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "dev.nginx_audit": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [
+        "nginx_config_inventory"
+      ],
+      "code_globs": [
+        "frontend/nginx-default.conf"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "dev.probe": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [
+        "http_health_probe"
+      ],
+      "code_globs": [
+        "harness_gateway/"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "dev.restart": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [],
+      "code_globs": [
+        "start.sh",
+        "stop.sh"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "dev.services": {
+      "evidence_scope": "runtime_probe",
+      "test_modules": [],
+      "probes": [
+        "compose_service_inventory"
+      ],
+      "code_globs": [
+        "docker-compose.yml"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "ai.predict": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [
+        "tests/ail/test_ail_benchmark.py"
+      ],
+      "probes": [],
+      "code_globs": [
+        "tools/ail/"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 0.9
+      }
+    },
+    "methods.computation": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [],
+      "probes": [],
+      "code_globs": [],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    },
+    "misc.stubs": {
+      "evidence_scope": "in_repo_tests",
+      "test_modules": [],
+      "probes": [],
+      "code_globs": [
+        "backend/api/misc.py"
+      ],
+      "acceptance": {
+        "min_tests": 1,
+        "min_pass_rate": 1.0
+      }
+    }
+  }
+}
