@@ -153,6 +153,7 @@ DELTA_CATEGORIES = frozenset({
     "reusable_knowledge",    # 可复用知识或工具
     "falsified_hypothesis",  # 被否定的假设（负面结果）
     "no_substantive_delta",  # 无实质增量（reason 必填）
+    "bench_verified",        # 实证基准通过（TensorBench 平台复算数字，非自述）
 })
 
 

@@ -24,6 +24,7 @@ router = APIRouter(prefix="/tensor/capability", tags=["能力中心"])
 CATEGORIES = (
     "new_capability", "capability_extension", "defect_fix",
     "reusable_knowledge", "falsified_hypothesis", "no_substantive_delta",
+    "bench_verified",
 )
 
 
