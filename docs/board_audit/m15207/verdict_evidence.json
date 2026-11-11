@@ -1,0 +1,86 @@
+{
+  "impl_files": [
+    "docs/board_audit/m15207/refs/impl/measure.py",
+    "docs/board_audit/m15207/refs/impl/entry.py",
+    "docs/board_audit/m15207/refs/impl/synthetic.py",
+    "docs/board_audit/m15207/refs/impl/__init__.py",
+    "docs/board_audit/m15207/refs/impl/__main__.py"
+  ],
+  "impl_files_detail": {
+    "docs/board_audit/m15207/refs/impl/measure.py": "run_measure():274-345 双数据源（synthetic/database）；compute_kpi():180-250 分子/分母/分状态/窗口",
+    "docs/board_audit/m15207/refs/impl/entry.py": "CLI 入口 392-430（measure/figures/doc/run-all 四子命令）",
+    "docs/board_audit/m15207/refs/impl/synthetic.py": "合成底账生成器 23-25 行 _DEFAULT_TERMINAL=14085 / _DEFAULT_TRACEABLE=7677（钉桩源）"
+  },
+  "entry": "docs/board_audit/m15207/refs/impl/entry.py",
+  "run_artifacts": [
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/result.json",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/terminal_missions.csv",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/reports_facts.csv",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/kpi_trace_100_queries.sql",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/fig_1_gap.png",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/fig_2_by_status.png",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/fig_3_weekly.png",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/fig_4_repo_7d.png",
+    "docs/board_audit/m15207/refs/artifacts/kpi_trace_100/fig_5_debt.png"
+  ],
+  "tests": [
+    "tests/test_kpi_trace_tool.py（m15207 独立复跑：15 passed, 23.85s）",
+    "tests/test_kpi_trace_100_measure.py（同上）"
+  ],
+  "integration_callers": null,
+  "benchmark": null,
+  "repro_cmd": "python3 -m tools.kpi_trace measure --synthetic --outdir artifacts/kpi_trace_100 → 复跑 9/9 数字字段逐位一致（verify_output.json C2）；database 模式 python3 -m tools.kpi_trace measure --outdir <tmp> → data_mode=database, 7729/14160=54.58%",
+  "external_anchor": null,
+  "absent_reason": {
+    "integration_callers": "main 8c1db9f671335743ee08a25a3eabc37089647493 全仓 grep 'tools.kpi_trace' 仅命中自带测试 tests/test_kpi_trace_tool.py（3 行），无 backend/api/CLI/CI 调用方",
+    "benchmark": "tensor_benchmark_cases 全表 13 行锚点无 'KPI-TRACE-100'，故本锚无 ref/tolerance 判据行，L4 不可判",
+    "external_anchor": "无文献/实验/前值对照登记；真值退化为本审计自写 SQL 复算（见 real_measurement）"
+  },
+  "real_measurement": {
+    "source": "docs/board_audit/m15207/verify_m15177.py C3（SQL 独立书写，口径取自 kpi_registry trace_report_ratio.recompute_sql）",
+    "at": "2026-11-11T20:41:08.935125+00:00",
+    "numerator": 7729,
+    "denominator": 14160,
+    "pct": 54.58,
+    "by_status": {
+      "failed": {
+        "pct": 4.08,
+        "terminal": 3922,
+        "traceable": 160
+      },
+      "revoked": {
+        "pct": 22.83,
+        "terminal": 587,
+        "traceable": 134
+      },
+      "stopped": {
+        "pct": 46.71,
+        "terminal": 167,
+        "traceable": 78
+      },
+      "succeeded": {
+        "pct": 77.57,
+        "terminal": 9484,
+        "traceable": 7357
+      }
+    },
+    "report_id_channel_count": 8,
+    "tensor_reports_distinct_missions": 7749
+  },
+  "delivered_value": {
+    "current": 54.5,
+    "data_mode": "synthetic",
+    "provenance": "synthetic.py 默认参数直接等于历史观测 terminal=14085/traceable=7677 → header 数字 7677/14085=54.5% 为钉桩复述，非实测",
+    "deviation_vs_real_pp": 0.08
+  },
+  "material_defects": [
+    "交付 headline 54.5% 为合成底账复述（synthetic 参数钉死在 m15120 观测值），真库实测 54.58%（差 0.08 pp）",
+    "双通道指纹：交付称 missions_with_report_id=5356，真库 report_id 非空仅 8 条（0.06%）",
+    "抽样 60 行底账：id 在库命中 26，status 一致 7，created_at 一致 0 → 底账非库导出",
+    "artifacts/kpi_trace_100/kpi_trace_100_queries.sql 仅 114 字节占位（'Synthetic mode: no SQL executed'），报告 §4.1 算路 B 亦自记「未运行」",
+    "报告 §6 称「计算侧误差=0（算路一致）」与 §4 算路 B/C 均未运行互相矛盾（无多算路可对齐）",
+    "报告附录 repro_cmd 只给 --synthetic，任何人按它复算只复述合成数字，拿不到真值"
+  ],
+  "honest_disclosure": "报告头部与 §5.3 均标注 data_mode=synthetic，未隐瞒模式；缺陷在「把合成复述当锚点计量值交付」",
+  "rework_recommendation": "同一工具 database 模式已能跑出真值：以 python3 -m tools.kpi_trace measure --outdir artifacts/kpi_trace_100 重出报告（54.58%），并补 tensor_benchmark_cases 一行 recompute SQL 锚（ref=trace_report_ratio 口径）才可谈 L4"
+}
