@@ -4,6 +4,8 @@
 1. 存储层：登记/查询/状态更新/幂等
 2. 检索层：语义检索/gate 判决
 3. 配置层：阈值加载
+4. 账本加载：从 JSON 文件加载 ≥30 条真实条目
+5. 账本验证：每条有证据指针、failure_kind 合法、entry_id 唯一
 """
 from __future__ import annotations
 
@@ -289,3 +291,114 @@ class TestConfig:
         assert "superseded" in STATUSES
         assert "retracted" in STATUSES
         assert len(STATUSES) == 3
+
+
+class TestLedgerLoading:
+    """账本加载测试——验证 artifacts/negative_knowledge_ledger/negative_knowledge_ledger.json。"""
+
+    @pytest.fixture
+    def ledger_path(self):
+        return Path(__file__).resolve().parents[1] / "artifacts" / "negative_knowledge_ledger" / "negative_knowledge_ledger.json"
+
+    def test_ledger_exists(self, ledger_path):
+        """账本文件存在。"""
+        assert ledger_path.exists(), f"账本文件不存在: {ledger_path}"
+
+    def test_ledger_count_ge_30(self, ledger_path):
+        """账本条目数 ≥30。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        assert len(entries) >= 30, f"账本条目数 {len(entries)} < 30"
+
+    def test_all_entries_have_entry_id(self, ledger_path):
+        """每条有 entry_id。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        for e in entries:
+            assert e.get("entry_id"), f"条目缺少 entry_id: {e.get('title', '?')}"
+
+    def test_all_entries_have_evidence_pointer(self, ledger_path):
+        """每条有证据指针（source_artifacts 非空）。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        for e in entries:
+            artifacts = e.get("source_artifacts", "[]")
+            assert artifacts and artifacts != "[]", f"条目 {e['entry_id']} 缺少证据指针"
+
+    def test_all_entries_have_failure_reason(self, ledger_path):
+        """每条有 failure_reason。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        for e in entries:
+            assert e.get("failure_reason"), f"条目 {e['entry_id']} 缺少 failure_reason"
+
+    def test_all_entries_have_falsification_evidence(self, ledger_path):
+        """每条有 falsification_evidence。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        for e in entries:
+            assert e.get("falsification_evidence"), f"条目 {e['entry_id']} 缺少 falsification_evidence"
+
+    def test_all_entries_valid_failure_kind(self, ledger_path):
+        """每条 failure_kind 合法。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        for e in entries:
+            assert e.get("failure_kind") in FAILURE_KINDS, \
+                f"条目 {e['entry_id']} 非法 failure_kind: {e.get('failure_kind')}"
+
+    def test_all_entries_valid_status(self, ledger_path):
+        """每条 status 合法。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        for e in entries:
+            assert e.get("status") in STATUSES, \
+                f"条目 {e['entry_id']} 非法 status: {e.get('status')}"
+
+    def test_entry_ids_unique(self, ledger_path):
+        """entry_id 唯一。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+        ids = [e["entry_id"] for e in entries]
+        assert len(ids) == len(set(ids)), "entry_id 不唯一"
+
+    def test_ledger_loadable_to_store(self, ledger_path, store):
+        """账本可加载到 store。"""
+        with open(ledger_path) as f:
+            entries = json.load(f)
+
+        loaded = 0
+        for e in entries:
+            try:
+                entry, created = store.register(
+                    title=e["title"],
+                    hypothesis=e["hypothesis"],
+                    failure_kind=e["failure_kind"],
+                    falsification_evidence=e.get("falsification_evidence"),
+                    failure_reason=e.get("failure_reason"),
+                    mission_id=e.get("mission_id"),
+                    node_id=e.get("node_id"),
+                    keywords=json.loads(e.get("keywords", "[]")),
+                    source_artifacts=json.loads(e.get("source_artifacts", "[]")),
+                    confidence=e.get("confidence", 0.8),
+                    registered_by=e.get("registered_by", "test"),
+                )
+                if created:
+                    loaded += 1
+            except Exception as exc:
+                pytest.fail(f"加载条目 {e.get('entry_id')} 失败: {exc}")
+
+        assert loaded >= 30, f"仅加载 {loaded} 条，期望 ≥30"
+
+    def test_ledger_summary_exists(self):
+        """账本摘要文件存在。"""
+        summary_path = Path(__file__).resolve().parents[1] / "artifacts" / "negative_knowledge_ledger" / "ledger_summary.json"
+        assert summary_path.exists(), f"账本摘要文件不存在: {summary_path}"
+
+    def test_ledger_summary_valid(self):
+        """账本摘要有效。"""
+        summary_path = Path(__file__).resolve().parents[1] / "artifacts" / "negative_knowledge_ledger" / "ledger_summary.json"
+        with open(summary_path) as f:
+            summary = json.load(f)
+        assert summary["total_entries"] >= 30
+        assert summary["with_evidence_pointers"] >= 30
