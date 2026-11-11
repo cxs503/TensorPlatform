@@ -4,6 +4,7 @@
 > 模块：`tools/abm/six_dim_power.py` · 探针：`runs/m8719/defect_probe.py`（同一探针跑红/绿）
 
 > 图：`artifacts/m8719/fig_t_quantile.png` · 原始测量：`artifacts/m8719/{baseline,fixed,summary}.json`
+> 证据链复原（探针 `runs/m8719/defect_probe.py` + 红/绿复算 + 文档闸门）：`docs/P143W2-N06b_evidence_restore.md`
 
 ## 0. 一句话
 
