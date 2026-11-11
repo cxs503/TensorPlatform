@@ -1,0 +1,177 @@
+{
+  "schema": "tp.integration.attestation/v1",
+  "node": {
+    "ext_id": "p457w2-n04-aeration-decalibration",
+    "repo": "TensorSPH",
+    "mission_id": 13329,
+    "branch": "agent/m13329",
+    "base_commit": null,
+    "head_commit": null
+  },
+  "source": {
+    "kind": "acceptance_json",
+    "ref": "data/campaigns/p457w2/raw/n04_acceptance.json",
+    "sha256": "08f8fa65200f577ef34b36ad317b85c967a3b1759d32266d0b1b17e089f0a68c",
+    "retrieved_at": "2026-11-11T07:05:05.445604+00:00"
+  },
+  "criteria": [
+    {
+      "id": "C1_wood_pointwise",
+      "measured": 7.105426751813295e-15,
+      "op": "<=",
+      "threshold": 1e-06,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "Wood 闭式逐点 vs 60 位 mpmath",
+      "path": "criteria.C1.max_relative_deviation_vs_60digit_mpmath",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C1b_alpha_star",
+      "measured": 8.833247577832992e-09,
+      "op": "<=",
+      "threshold": 1e-06,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "最小声速空隙率的闭式 vs 三分搜索",
+      "path": "criteria.C1.alpha_star_abs_difference",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C1c_cmin",
+      "measured": 1.492133511462833e-16,
+      "op": "<=",
+      "threshold": 1e-06,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "最小声速闭式 vs 数值",
+      "path": "criteria.C1.c_min_relative_difference",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C2_limits",
+      "measured": 1.8352630480454854e-16,
+      "op": "<=",
+      "threshold": 0.001,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "alpha->0 / alpha->1 两极限残差",
+      "path": "criteria.C2.worst_residual",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C3_moment_closure",
+      "measured": 6.821009132993035e-11,
+      "op": "<=",
+      "threshold": 0.01,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "PBM 矩闭合 vs RK4 直接积分",
+      "path": "criteria.C3.closed_form_vs_rk4_max_residual",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C4_alpha_consistency",
+      "measured": 2.1691681600754675e-16,
+      "op": "<=",
+      "threshold": 0.05,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "连续/离散路径空隙率一致性",
+      "path": "criteria.C4.worst_deviation",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C5_band_p95_low",
+      "measured": 0.10914349099400145,
+      "op": ">=",
+      "threshold": 0.06,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "设计包线 p95 减载率须落在 m9319 [6%,12%] 带内（下界）",
+      "path": "criteria.C5.design_envelope.g_load_p95",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C5_band_p95_high",
+      "measured": 0.10914349099400145,
+      "op": "<=",
+      "threshold": 0.12,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "同上（上界）",
+      "path": "criteria.C5.design_envelope.g_load_p95",
+      "role": "capability_gate"
+    },
+    {
+      "id": "C5_band_member_count",
+      "measured": 1.0,
+      "op": ">=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "6 个算例中落在带内的个数（工程结论，不压实现等级）",
+      "path": "criteria.C5.design_envelope.in_band_count",
+      "role": "case_verdict"
+    },
+    {
+      "id": "C5_out_of_domain_cases",
+      "measured": 3.0,
+      "op": "<=",
+      "threshold": 0.0,
+      "verdict": "FAIL",
+      "unit": "-",
+      "note": "声学域外算例数（工结论：应为 0 才算律可全域使用） [derived count of criteria.C5.design_envelope.cases_out_of_domain]",
+      "path": "criteria.C5.design_envelope.cases_out_of_domain",
+      "role": "case_verdict"
+    },
+    {
+      "id": "C6_case_alpha",
+      "measured": 157.0,
+      "op": ">=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "alpha 场一致性采样点",
+      "path": "criteria.C6.n_samples",
+      "role": "capability_gate"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "aeration.mixture_acoustics",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "C1_wood_pointwise",
+        "C1b_alpha_star",
+        "C1c_cmin",
+        "C2_limits"
+      ],
+      "summary": "Wood/van Wijngaarden 混合声速与阻抗（含最小声速点）"
+    },
+    {
+      "id": "aeration.pbm_moments",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "C3_moment_closure",
+        "C4_alpha_consistency"
+      ],
+      "summary": "PBM 矩闭合（混凝+等分破碎）"
+    },
+    {
+      "id": "aeration.impact_pressure_law",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "C5_band_p95_low",
+        "C5_band_p95_high",
+        "C6_case_alpha"
+      ],
+      "summary": "alpha 分辩的砰击压力减载律 G_peak/G_load（替代常数 k_b=0.65）"
+    }
+  ],
+  "interface_contract": {
+    "kind": "declared",
+    "ref": "data/campaigns/p457w2/interfaces.json"
+  },
+  "notes": ""
+}

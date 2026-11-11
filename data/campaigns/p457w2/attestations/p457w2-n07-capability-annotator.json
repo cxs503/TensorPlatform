@@ -1,0 +1,81 @@
+{
+  "schema": "tp.integration.attestation/v1",
+  "node": {
+    "ext_id": "p457w2-n07-capability-annotator",
+    "repo": "TensorPlatform",
+    "mission_id": 13991,
+    "branch": "agent/m13991",
+    "base_commit": null,
+    "head_commit": null
+  },
+  "source": {
+    "kind": "acceptance_json",
+    "ref": "data/campaigns/p457w2/raw/n07_scan_report.json",
+    "sha256": "e3043abd988d5a2572dff58d59487f7cb304ebec583741c80bbe491a37163d74",
+    "retrieved_at": "2026-11-11T07:05:05.451135+00:00"
+  },
+  "criteria": [
+    {
+      "id": "capability_count",
+      "measured": 21.0,
+      "op": ">=",
+      "threshold": 21.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "",
+      "path": "capability_count",
+      "role": "capability_gate"
+    },
+    {
+      "id": "levels_complete",
+      "measured": 3.0,
+      "op": ">=",
+      "threshold": 3.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "登记且有高等级证据的条目数（21-18=3 REAL） [derived subtract of ['capability_count', 'summary.withheld_count']]",
+      "path": "capability_count & summary.withheld_count",
+      "role": "capability_gate"
+    },
+    {
+      "id": "scan_time",
+      "measured": 0.11,
+      "op": "<=",
+      "threshold": 60.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "CI 扫描时限",
+      "path": "total_scan_time_sec",
+      "role": "capability_gate"
+    },
+    {
+      "id": "accuracy_metric",
+      "verdict": "WITHHELD",
+      "role": "case_verdict",
+      "note": "path gap_ledger.scan_accuracy absent from acceptance artifact"
+    },
+    {
+      "id": "gap_false_negative",
+      "verdict": "WITHHELD",
+      "role": "case_verdict",
+      "note": "path gap_ledger.false_negative_rate absent from acceptance artifact"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "platform.capability_annotator_scan",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "capability_count",
+        "levels_complete",
+        "scan_time"
+      ],
+      "summary": "21 能力证据等级静态扫描 + 缺口台账（扫描口径 REAL，准确率未验）"
+    }
+  ],
+  "interface_contract": {
+    "kind": "declared",
+    "ref": "data/campaigns/p457w2/interfaces.json"
+  },
+  "notes": ""
+}

@@ -18,7 +18,7 @@ from datetime import datetime, timezone
 from typing import Any
 
 from .model import Attestation, PairResult, rank
-from .provenance import sha256_obj
+from .provenance import sha256_obj, now_utc
 
 REPORT_SCHEMA = "tp.integration.seed_report/v1"
 
@@ -169,7 +169,10 @@ def evaluate_integration_criteria(nodes_block: list[dict[str, Any]],
                                   pairs: list[PairResult],
                                   ledger: dict[str, Any],
                                   alignments: list[dict[str, Any]],
-                                  pytest_summary: dict[str, Any] | None) -> dict[str, Any]:
+                                  pytest_summary: dict[str, Any] | None,
+                                  coupling: dict[str, Any] | None = None,
+                                  archive: dict[str, Any] | None = None,
+                                  ) -> dict[str, Any]:
     """I1..I5 机器自检：每项都给数字，不满足即 False（honest FAIL 不粉饰）。"""
     n_nodes = len(nodes_block)
     registered = sum(1 for nb in nodes_block if nb["capabilities"])
@@ -180,7 +183,7 @@ def evaluate_integration_criteria(nodes_block: list[dict[str, Any]],
     contracts_ok = [a for a in contracts if a.get("contract_present")]
     pytest_ok = bool(pytest_summary and pytest_summary.get("failed", 1) == 0
                      and pytest_summary.get("passed", 0) >= 5)
-    return {
+    crit: dict[str, Any] = {
         "I1_capability_registration": {
             "value": {"nodes": n_nodes, "registered": registered,
                       "levels_complete": levels_declared},
@@ -212,6 +215,47 @@ def evaluate_integration_criteria(nodes_block: list[dict[str, Any]],
             "criterion": "pytest ≥5 全绿",
         },
     }
+    # I6..I8 只在战役提供了耦合/归档声明时才评估（对不含这些声明的战役保持向后兼容）
+    if coupling is not None:
+        iface = (coupling.get("interfaces") or {}).get("summary") or {}
+        cons = (coupling.get("assumptions") or {}).get("summary") or {}
+        crit["I6_interface_contracts"] = {
+            "value": {"interfaces": iface.get("total"),
+                      "documented": iface.get("documented"),
+                      "validated": iface.get("validated"),
+                      "mismatch": iface.get("mismatch"),
+                      "unattested": iface.get("unattested"),
+                      "undocumented": iface.get("undocumented"),
+                      "mismatch_ids": iface.get("mismatch_ids")},
+            "passed": bool(iface.get("total")) and iface.get("documented") == iface.get("total")
+            and iface.get("mismatch", 1) == 0,
+            "criterion": "全部跨节点接口契约有文档且单位/区间/节点声明机械核验通过（无 CONTRACT_MISMATCH）",
+        }
+        crit["I7_assumption_consistency"] = {
+            "value": {"keys": cons.get("keys"), "agreed": cons.get("agreed"),
+                      "contradicted": cons.get("contradicted"),
+                      "implied_mismatch": cons.get("implied_mismatch"),
+                      "undetermined": cons.get("undetermined"),
+                      "violations": cons.get("violations"),
+                      "mitigated": cons.get("mitigated"),
+                      "unmitigated": cons.get("unmitigated"),
+                      "clean": cons.get("clean")},
+            "passed": bool(cons.get("keys")) and cons.get("unmitigated", 1) == 0,
+            "criterion": "跨节点共享假设全部机械检查：冲突必须显式降级/引用仲裁（零未处置冲突），"
+                         "声明不全记 UNDETERMINED 不算一致",
+        }
+    if archive is not None:
+        verified = archive.get("verification") or {}
+        crit["I8_archive_snapshot"] = {
+            "value": {"n_files": archive.get("n_files"), "n_bytes": archive.get("n_bytes"),
+                      "content_sha256": archive.get("content_sha256"),
+                      "verified": verified.get("ok"), "checked": verified.get("checked"),
+                      "missing": verified.get("missing"), "changed": verified.get("changed")},
+            "passed": bool(archive.get("n_files")) and bool(archive.get("content_sha256"))
+            and verified.get("ok") is True,
+            "criterion": "全部工件快照逐文件 sha256 + 清单内容 sha256，可独立复算通过",
+        }
+    return crit
 
 
 def build_report(campaign: str,
@@ -223,6 +267,8 @@ def build_report(campaign: str,
                  alignments: list[dict[str, Any]],
                  pytest_summary: dict[str, Any] | None = None,
                  generated_at: str | None = None,
+                 coupling: dict[str, Any] | None = None,
+                 archive: dict[str, Any] | None = None,
                  extra: dict[str, Any] | None = None) -> dict[str, Any]:
     by_ext = {a.node_ext_id: a for a in attestations}
     nodes_block = [_node_block(n, by_ext.get(n["ext_id"]),
@@ -231,12 +277,13 @@ def build_report(campaign: str,
                               ledger["entries"])
                    for n in nodes]
     gaps = build_gaps(nodes_block, pairs, alignments)
-    crit = evaluate_integration_criteria(nodes_block, pairs, ledger, alignments, pytest_summary)
+    crit = evaluate_integration_criteria(nodes_block, pairs, ledger, alignments, pytest_summary,
+                                        coupling=coupling, archive=archive)
     crit["I3_seed_report"]["value"]["gaps"] = len(gaps)
     doc: dict[str, Any] = {
         "schema": REPORT_SCHEMA,
         "campaign": campaign,
-        "generated_at": generated_at or datetime.now(timezone.utc).isoformat(),
+        "generated_at": generated_at or now_utc(),
         "base_commit": base_commit,
         "nodes": nodes_block,
         "pairs": [p.as_dict() for p in pairs],
@@ -253,10 +300,107 @@ def build_report(campaign: str,
         "gaps": gaps,
         "next_wave_seeds": next_wave_seeds(gaps, pairs),
         "integration_criteria": crit,
+        "coupling": coupling or {},
+        "archive": archive or {},
         "extra": extra or {},
     }
     doc["content_sha256"] = sha256_obj({k: v for k, v in doc.items() if k != "generated_at"})
     return doc
+
+
+def render_coupling_sections(doc: dict[str, Any], labels: list[str] | None = None,
+                            heading: str = "##") -> list[str]:
+    """接口契约 / 假设一致性 / 工件快照三节（无数据则整节省略）。
+
+    ``labels`` 控制小节编号（缺省 7/8/9），按实际存在的节顺序消费，因此上层标题
+    编号不会因为缺节而错位。
+    """
+    labels = list(labels or ["7", "8", "9"])
+    L: list[str] = []
+    A = L.append
+    coup = doc.get("coupling") or {}
+    k = 0
+    if coup.get("interfaces"):
+        iface = coup["interfaces"]
+        A(f"{heading} {labels[k]} 跨节点数据交换接口契约")
+        k += 1
+        A("")
+        sm = iface["summary"]
+        A(f"- 接口 {sm['total']} 条 · 已文档化 {sm['documented']} · 契约核验通过 "
+          f"{sm['validated']} · 契约不符 {sm['mismatch']} · 证据不足 {sm['unattested']} · "
+          f"无文档 {sm['undocumented']}")
+        A("")
+        A("| 接口 | 生产方 → 消费方 | 载荷(单位) | 生产方认证区间 | 消费方需求区间 | 状态 |")
+        A("|---|---|---|---|---|---|")
+        for r in iface["interfaces"]:
+            pl, q = r["payload"], r["requirement"]
+            A(f"| `{r['id']}` | `{r['producer']}` → `{r['consumer']}` | "
+              f"{pl['id']} ({pl['unit']}) | [{pl['coverage']['min']:g}, "
+              f"{pl['coverage']['max']:g}] | [{q['min']:g}, {q['max']:g}] ({q['unit']}) | "
+              f"**{r['status']}** |")
+        A("")
+        for r in iface["interfaces"]:
+            if r.get("note"):
+                A(f"- `{r['id']}` 契约备注：{r['note']}")
+        for r in iface["interfaces"]:
+            bad = [c for c in r["checks"] if c["verdict"] != "PASS"]
+            if bad:
+                A(f"- `{r['id']}` 未通过：" + "; ".join(
+                    f"{c['check']}={c['verdict']}" for c in bad))
+        for r in iface["interfaces"]:
+            cov = next((c for c in r["checks"] if c["check"] == "range_coverage"), None)
+            if cov and cov["detail"].get("guarded"):
+                A(f"- `{r['id']}` 区间缺口 "
+                  f"{max(cov['detail']['shortfall_low'], cov['detail']['shortfall_high']):.6g} "
+                  f"由 `domain_status` 护栏承接（clamp_with_status，禁止沉默外推）")
+        A("")
+    if coup.get("assumptions"):
+        cons = coup["assumptions"]
+        A(f"{heading} {labels[k]} 跨节点共享假设一致性")
+        k += 1
+        A("")
+        sm = cons["summary"]
+        A(f"- 假设键 {sm['keys']} · 一致 {sm['agreed']} · 跨节点冲突 {sm['contradicted']} · "
+          f"律自洽冲突 {sm['implied_mismatch']} · 声明不全 {sm['undetermined']} · "
+          f"未处置冲突 {sm['unmitigated']} · 口径洁净 `{sm['clean']}`")
+        A("")
+        A("| 假设键 | 类型 | 状态 | 关键数字 | 处置 |")
+        A("|---|---|---|---|---|")
+        for r in cons["keys"]:
+            d = r["detail"]
+            if r["kind"] == "law":
+                bits = (f"implied_max_abs_dev={d.get('implied_max_abs_dev'):.6g}; "
+                        f"shared_max_rel_dev={d.get('max_rel_dev_shared'):.6g}; tol={d.get('tol')}")
+            elif r["kind"] == "value":
+                bits = f"max_rel_dev={d.get('max_rel_dev'):.6g}; tol={d.get('rel_tol')}"
+            elif r["kind"] == "edition":
+                bits = f"editions={d.get('editions')}"
+            else:
+                bits = d.get("reason", "")
+            mit = r.get("mitigation") or {}
+            A(f"| `{r['key']}` | {r['kind']} | **{r['status']}** | {bits} | "
+              f"{'—' if not mit else ('已处置: ' if mit.get('accepted') else '未处置: ') + str(mit.get('reason'))} |")
+        A("")
+        for v in cons["violations"]:
+            A(f"- 冲突 `{v['key']}`（{v['status']}）：节点 {', '.join(v['nodes'])}；"
+              f"处置 = {v['mitigation_reason']}")
+        for r in cons["keys"]:
+            for imp in (r["detail"].get("implied") or []):
+                A(f"- 律自洽 `{r['key']}` / {imp['node']}：由 `{imp['expr']}` 推得 "
+                  f"{imp['expected']:.6f}，声明 {imp['declared']:.6f}，"
+                  f"差 {imp['abs_dev']:.6f}（容差 {imp['tol']}）→ {imp['verdict']}")
+        A("")
+    if doc.get("archive"):
+        arc = doc["archive"]
+        ver = arc.get("verification") or {}
+        A(f"{heading} {labels[k]} 工件快照与可复现性")
+        A("")
+        A(f"- 快照 {arc.get('n_files')} 个文件 / {arc.get('n_bytes')} 字节；"
+          f"清单内容 sha256 `{arc.get('content_sha256')}`；独立复算 "
+          f"{'通过' if ver.get('ok') else '未通过'}（checked={ver.get('checked')}, "
+          f"missing={ver.get('missing')}, changed={ver.get('changed')}）")
+        A("")
+    return L
 
 
 def render_markdown(doc: dict[str, Any]) -> str:
@@ -270,7 +414,7 @@ def render_markdown(doc: dict[str, Any]) -> str:
     A(f"- 生成时间 (UTC): {doc['generated_at']}")
     A(f"- 基线 commit: `{doc['base_commit']}`")
     A(f"- 内容 sha256: `{doc['content_sha256']}`")
-    A(f"- I1–I5 自检: **{npass}/{len(crit)} 满足**")
+    A(f"- 机器自检 I1–I{len(crit)}: **{npass}/{len(crit)} 满足**")
     A("")
     A("## 1 节点验收状态")
     A("")
@@ -343,7 +487,10 @@ def render_markdown(doc: dict[str, Any]) -> str:
         A(f"| `{s['seed_id']}` | {s['kind']} | {s['rationale'][:100]} | "
           f"{s['acceptance_hint'][:100]} |")
     A("")
-    A("## 7 I1–I5 机器自检")
+    L.extend(render_coupling_sections(doc))
+    nseq = 7 + sum(1 for k in ("interfaces", "assumptions")
+                   if (doc.get("coupling") or {}).get(k)) + (1 if doc.get("archive") else 0)
+    A(f"## {nseq} 机器自检 I1–I{len(crit)}")
     A("")
     A("| 判据 | 是否满足 | 数字 | 说明 |")
     A("|---|---|---|---|")

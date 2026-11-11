@@ -1,0 +1,235 @@
+{
+  "schema": "tp.integration.attestation/v1",
+  "node": {
+    "ext_id": "p457w2-n02-damage-stability",
+    "repo": "ship-performance-platform",
+    "mission_id": 13986,
+    "branch": "agent/m13986",
+    "base_commit": null,
+    "head_commit": null
+  },
+  "source": {
+    "kind": "acceptance_json",
+    "ref": "data/campaigns/p457w2/raw/n02_criteria.json",
+    "sha256": "187979f9e850cd14916c7a1a2457418d1c2bf800ac2ba248320af1e3b388ea9c",
+    "retrieved_at": "2026-11-11T07:05:05.442961+00:00"
+  },
+  "criteria": [
+    {
+      "id": "a_volume_rel_error",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 1e-09,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "棱柱舱容积 vs 闭式 V=mu*L*B*H",
+      "path": "acceptance.a_volume_rel_error",
+      "role": "capability_gate"
+    },
+    {
+      "id": "a_inertia_rel_error",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 1e-09,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "自由液面惯性矩 i=mu*L*B^3/12",
+      "path": "acceptance.a_inertia_rel_error",
+      "role": "capability_gate"
+    },
+    {
+      "id": "b_orifice_max_rel_error",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 0.01,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "",
+      "path": "acceptance.b_orifice_max_rel_error",
+      "role": "capability_gate"
+    },
+    {
+      "id": "c_constant_head_rel_error",
+      "measured": 0.0009496134891428369,
+      "op": "<=",
+      "threshold": 0.02,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "",
+      "path": "acceptance.c_constant_head_rel_error",
+      "role": "capability_gate"
+    },
+    {
+      "id": "c_falling_head_rel_error",
+      "measured": 0.00010437005217841046,
+      "op": "<=",
+      "threshold": 0.02,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "",
+      "path": "acceptance.c_falling_head_rel_error",
+      "role": "capability_gate"
+    },
+    {
+      "id": "d_gz_max_rel_error_pct",
+      "measured": 1.4986803695132658e-12,
+      "op": "<=",
+      "threshold": 3.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "剩余 GZ 数值积分 vs 闭式，%",
+      "path": "acceptance.d_gz_max_rel_error_pct",
+      "role": "capability_gate"
+    },
+    {
+      "id": "e_gm_eff_abs_error_m",
+      "measured": 0.0,
+      "op": "<=",
+      "threshold": 1e-09,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "",
+      "path": "acceptance.e_gm_eff_abs_error_m",
+      "role": "capability_gate"
+    },
+    {
+      "id": "g_max_level_change_pct",
+      "measured": 0.027773139892095827,
+      "op": "<=",
+      "threshold": 1.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "时间步收敛（液位变化 %）",
+      "path": "acceptance.g_max_level_change_pct",
+      "role": "capability_gate"
+    },
+    {
+      "id": "g_mass_balance_error_m3",
+      "measured": 3.183231456205249e-12,
+      "op": "<=",
+      "threshold": 1e-09,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "",
+      "path": "acceptance.g_mass_balance_error_m3",
+      "role": "capability_gate"
+    },
+    {
+      "id": "h_negative_gm_eff_m",
+      "measured": -0.6177601974174328,
+      "op": "<=",
+      "threshold": 0.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "负例：进水致 GM_eff<0 必须被检出",
+      "path": "acceptance.h_negative_gm_eff_m",
+      "role": "capability_gate"
+    },
+    {
+      "id": "h_negative_capsize_time_s",
+      "measured": 0.5,
+      "op": ">=",
+      "threshold": 0.1,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "负例：失稳时刻必须有限且可检出",
+      "path": "acceptance.h_negative_capsize_time_s",
+      "role": "capability_gate"
+    },
+    {
+      "id": "diff_f_A_minus_R",
+      "measured": 0.2474296532722049,
+      "op": ">=",
+      "threshold": 0.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "SOLAS 通过算例：A - R >= 0 [derived subtract of ['acceptance.f_A', 'acceptance.f_R']]",
+      "path": "acceptance.f_A & acceptance.f_R",
+      "role": "capability_gate"
+    },
+    {
+      "id": "diff_f_fail_A_minus_R",
+      "measured": -0.45706349206349206,
+      "op": "<=",
+      "threshold": 0.0,
+      "verdict": "PASS",
+      "unit": "-",
+      "note": "负例算例：A - R <= 0（闸门不得误判为通过） [derived subtract of ['acceptance.f_fail_case_A', 'acceptance.f_fail_case_R']]",
+      "path": "acceptance.f_fail_case_A & acceptance.f_fail_case_R",
+      "role": "case_verdict"
+    }
+  ],
+  "capabilities": [
+    {
+      "id": "damage_stability.compartment_geometry",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "a_volume_rel_error",
+        "a_inertia_rel_error"
+      ],
+      "summary": "棱柱舱 V/i/形心闭式与渗透率"
+    },
+    {
+      "id": "damage_stability.hydrostatics_gm_eff",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "e_gm_eff_abs_error_m"
+      ],
+      "summary": "破舱后 added-weight 静水力与 GM_eff"
+    },
+    {
+      "id": "damage_stability.orifice_flow",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "b_orifice_max_rel_error"
+      ],
+      "summary": "Torricelli 出流（部分浸没两带叠加）"
+    },
+    {
+      "id": "damage_stability.progressive_flooding",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "c_constant_head_rel_error",
+        "c_falling_head_rel_error",
+        "g_max_level_change_pct"
+      ],
+      "summary": "渐进进水时域（定水头/降水头闭式互证 + 步长收敛）"
+    },
+    {
+      "id": "damage_stability.residual_gz",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "d_gz_max_rel_error_pct"
+      ],
+      "summary": "剩余 GZ 曲线（截面数值积分 vs 闭式）含自由液面修正"
+    },
+    {
+      "id": "damage_stability.solas_index_A_R",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "diff_f_A_minus_R",
+        "diff_f_fail_A_minus_R"
+      ],
+      "summary": "SOLAS 分舱指数 A=sum(p_i s_i) 对 R 的闸门（含失败算例负例）"
+    },
+    {
+      "id": "damage_stability.mass_conservation",
+      "claim_level": "REAL",
+      "blocking_criteria": [
+        "g_mass_balance_error_m3"
+      ],
+      "summary": "进水过程体积账本守恒"
+    },
+    {
+      "id": "damage_stability.solas_p_i",
+      "claim_level": "WITHHELD",
+      "blocking_criteria": [],
+      "summary": "p_i 因子：节点自评 WITHHELD（证据不足），本门不抬高"
+    }
+  ],
+  "interface_contract": {
+    "kind": "declared",
+    "ref": "data/campaigns/p457w2/interfaces.json"
+  },
+  "notes": ""
+}

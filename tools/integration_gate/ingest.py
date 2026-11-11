@@ -117,14 +117,80 @@ def attest_from_acceptance(artifact_path: Path, ingest: dict[str, Any],
             "role": spec.get("role", "capability_gate"),
         })
     for spec in ingest.get("numeric") or []:
+        if spec.get("combine"):
+            if spec["combine"] == "count":
+                try:
+                    raw = _dig(doc, spec["paths"][0])
+                except KeyError:
+                    criteria.append({"id": spec["id"], "verdict": "WITHHELD",
+                                     "role": spec.get("role", "capability_gate"),
+                                     "note": f"count spec: field {spec['paths'][0]} absent"})
+                    continue
+                if not isinstance(raw, list):
+                    criteria.append({"id": spec["id"], "verdict": "WITHHELD",
+                                     "role": spec.get("role", "capability_gate"),
+                                     "note": f"count spec: {spec['paths'][0]} is not a list"})
+                    continue
+                measured = float(len(raw))
+                op, thr = spec["op"], float(spec["threshold"])
+                criteria.append({
+                    "id": spec["id"], "measured": measured, "op": op, "threshold": thr,
+                    "verdict": compute_verdict(measured, op, thr),
+                    "unit": spec.get("unit", "-"),
+                    "note": spec.get("note", "") + f" [derived count of {spec['paths'][0]}]",
+                    "path": spec["paths"][0], "role": spec.get("role", "capability_gate")})
+                continue
+            # 派生判据：两个字段的差（如 A - R）。缺任一字段 → WITHHELD，不兜底。
+            vals = []
+            missing = None
+            for path in spec["paths"]:
+                try:
+                    v = _dig(doc, path)
+                except KeyError:
+                    missing = path
+                    break
+                if not isinstance(v, (int, float)) or isinstance(v, bool):
+                    missing = path
+                    break
+                vals.append(float(v))
+            if missing is not None:
+                criteria.append({"id": spec["id"], "verdict": "WITHHELD",
+                                 "role": spec.get("role", "capability_gate"),
+                                 "note": f"derived spec: field {missing} absent or non-numeric"})
+                continue
+            op_kind = spec["combine"]
+            if op_kind == "subtract":
+                measured = vals[0] - vals[1]
+            elif op_kind == "count":
+                raw = _dig(doc, spec["paths"][0])
+                if not isinstance(raw, list):
+                    criteria.append({"id": spec["id"], "verdict": "WITHHELD",
+                                     "role": spec.get("role", "capability_gate"),
+                                     "note": f"count spec: {spec['paths'][0]} is not a list"})
+                    continue
+                measured = float(len(raw))
+            else:  # pragma: no cover - guarded by data review
+                raise ValueError(f"unknown combine {op_kind!r}")
+            op, thr = spec["op"], float(spec["threshold"])
+            criteria.append({
+                "id": spec["id"], "measured": measured, "op": op, "threshold": thr,
+                "verdict": compute_verdict(measured, op, thr),
+                "unit": spec.get("unit", "-"),
+                "note": spec.get("note", "") + f" [derived {op_kind} of {spec['paths']}]",
+                "path": " & ".join(spec["paths"]),
+                "role": spec.get("role", "capability_gate"),
+            })
+            continue
         try:
             measured = _dig(doc, spec["path"])
         except KeyError:
             criteria.append({"id": spec["id"], "verdict": "WITHHELD",
+                             "role": spec.get("role", "capability_gate"),
                              "note": f"path {spec['path']} absent from acceptance artifact"})
             continue
         if not isinstance(measured, (int, float)):
             criteria.append({"id": spec["id"], "verdict": "WITHHELD",
+                             "role": spec.get("role", "capability_gate"),
                              "note": f"path {spec['path']} not numeric"})
             continue
         op, thr = spec["op"], float(spec["threshold"])

@@ -97,6 +97,7 @@ class Attestation:
     source_sha256: str
     criteria: list[Criterion] = field(default_factory=list)
     capabilities: list[dict[str, Any]] = field(default_factory=list)
+    interface_contract: dict[str, Any] | None = None
     notes: str = ""
 
     # ── 判据统计 ──────────────────────────────────────────────
@@ -155,6 +156,7 @@ class Attestation:
                        "sha256": self.source_sha256},
             "criteria": [c.as_dict() for c in self.criteria],
             "capabilities": list(self.capabilities),
+            "interface_contract": self.interface_contract,
             "counts": self.counts(),
             "pass_rate": self.pass_rate(),
             "verdict": self.verdict(),

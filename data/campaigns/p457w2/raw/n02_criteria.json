@@ -1,0 +1,106 @@
+{
+  "mission": 13986,
+  "node": "p457w2-n02-damage-stability",
+  "repo": "ship-performance-platform",
+  "module": "backend/modules/damage_stability_flooding",
+  "api_prefix": "/api/v1/damage-stability-flooding",
+  "tests": {
+    "path": "backend/tests/test_damage_stability_flooding.py",
+    "n_tests": 41,
+    "n_negative": 6
+  },
+  "figures": [
+    "artifacts/damage_stability_flooding/fig1_compartment_geometry.png",
+    "artifacts/damage_stability_flooding/fig2_orifice_flow.png",
+    "artifacts/damage_stability_flooding/fig3_progressive_flooding.png",
+    "artifacts/damage_stability_flooding/fig4_residual_gz.png",
+    "artifacts/damage_stability_flooding/fig5_solas_index.png"
+  ],
+  "scenario": {
+    "barge": {
+      "length": 100.0,
+      "breadth": 20.0,
+      "depth": 14.0,
+      "draft0": 6.0,
+      "kg0": 7.0
+    },
+    "compartments": [
+      [
+        "C1",
+        15.0,
+        10.0,
+        8.0,
+        0.95
+      ],
+      [
+        "C2",
+        15.0,
+        10.0,
+        8.0,
+        0.95
+      ]
+    ],
+    "openings": [
+      [
+        "sea_damage",
+        "C1",
+        null,
+        2.0,
+        0.0,
+        1.5,
+        0.65
+      ],
+      [
+        "internal",
+        "C2",
+        "C1",
+        1.5,
+        0.0,
+        1.0,
+        0.62
+      ]
+    ],
+    "sea_level_m": 6.0
+  },
+  "acceptance": {
+    "a_volume_rel_error": 0.0,
+    "a_inertia_rel_error": 0.0,
+    "a_pass": true,
+    "b_orifice_max_rel_error": 0.0,
+    "b_pass": true,
+    "c_constant_head_rel_error": 0.0009496134891428369,
+    "c_falling_head_rel_error": 0.00010437005217841046,
+    "c_pass": true,
+    "d_gz_max_rel_error_pct": 1.4986803695132658e-12,
+    "d_pass": true,
+    "e_gm_eff_abs_error_m": 0.0,
+    "e_pass": true,
+    "f_A": 0.739493145335697,
+    "f_R": 0.4920634920634921,
+    "f_pass_case_verdict": "PASS",
+    "f_fail_case_A": 0.035,
+    "f_fail_case_R": 0.4920634920634921,
+    "f_fail_case_verdict": "FAIL",
+    "f_sum_p_guard": "sum(p_i) = 1.400000 > 1: mutually exclusive damage groups cannot carry more than unit probability (this would fabricate A > 1)",
+    "f_pass": true,
+    "g_max_level_change_pct": 0.027773139892095827,
+    "g_pass": true,
+    "g_mass_balance_error_m3": 3.183231456205249e-12,
+    "h_negative_capsize_time_s": 0.5,
+    "h_negative_stable": false,
+    "h_negative_gm_eff_m": -0.6177601974174328,
+    "h_pass": true
+  },
+  "evidence_grades": {
+    "geometry": "REAL",
+    "hydrostatics": "REAL",
+    "orifice": "REAL",
+    "flooding": "REAL",
+    "residual_gz": "REAL",
+    "solas_R": "REAL",
+    "solas_s": "REAL",
+    "solas_p": "WITHHELD",
+    "s_mom": "NOT_SUPPORTED"
+  },
+  "all_pass": true
+}

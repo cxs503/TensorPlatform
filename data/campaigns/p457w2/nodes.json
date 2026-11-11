@@ -1,0 +1,437 @@
+{
+  "schema": "tp.integration.nodes/v1",
+  "campaign": "p457w2",
+  "nodes": [
+    {
+      "ext_id": "p457w2-n01-structural-fatigue",
+      "label": "Spectra fatigue: S-N curve + narrow/wide band + Miner",
+      "repo": "ship-performance-platform",
+      "mission_id": 13988,
+      "branch": "agent/m13988",
+      "note": "本门运行时该节点工作树内只有未提交的 backend/physics/spectral_fatigue.py 与半成品 verification_summary.json ⇒ 无可复算验收自证，登记为 unattested；其 S-N 参数由 extract_assumptions.py 机器抽取参与跨节点一致性检查。",
+      "worktree": "work/m13988"
+    },
+    {
+      "ext_id": "p457w2-n02-damage-stability",
+      "label": "Damage stability + progressive flooding + SOLAS A/R gate",
+      "repo": "ship-performance-platform",
+      "mission_id": 13986,
+      "branch": "agent/m13986",
+      "ingest": {
+        "kind": "acceptance_json",
+        "ref": "data/campaigns/p457w2/raw/n02_criteria.json",
+        "path": "data/campaigns/p457w2/raw/n02_criteria.json",
+        "numeric": [
+          {
+            "id": "a_volume_rel_error",
+            "path": "acceptance.a_volume_rel_error",
+            "op": "<=",
+            "threshold": 1e-09,
+            "note": "棱柱舱容积 vs 闭式 V=mu*L*B*H"
+          },
+          {
+            "id": "a_inertia_rel_error",
+            "path": "acceptance.a_inertia_rel_error",
+            "op": "<=",
+            "threshold": 1e-09,
+            "note": "自由液面惯性矩 i=mu*L*B^3/12"
+          },
+          {
+            "id": "b_orifice_max_rel_error",
+            "path": "acceptance.b_orifice_max_rel_error",
+            "op": "<=",
+            "threshold": 0.01
+          },
+          {
+            "id": "c_constant_head_rel_error",
+            "path": "acceptance.c_constant_head_rel_error",
+            "op": "<=",
+            "threshold": 0.02
+          },
+          {
+            "id": "c_falling_head_rel_error",
+            "path": "acceptance.c_falling_head_rel_error",
+            "op": "<=",
+            "threshold": 0.02
+          },
+          {
+            "id": "d_gz_max_rel_error_pct",
+            "path": "acceptance.d_gz_max_rel_error_pct",
+            "op": "<=",
+            "threshold": 3.0,
+            "note": "剩余 GZ 数值积分 vs 闭式，%"
+          },
+          {
+            "id": "e_gm_eff_abs_error_m",
+            "path": "acceptance.e_gm_eff_abs_error_m",
+            "op": "<=",
+            "threshold": 1e-09
+          },
+          {
+            "id": "g_max_level_change_pct",
+            "path": "acceptance.g_max_level_change_pct",
+            "op": "<=",
+            "threshold": 1.0,
+            "note": "时间步收敛（液位变化 %）"
+          },
+          {
+            "id": "g_mass_balance_error_m3",
+            "path": "acceptance.g_mass_balance_error_m3",
+            "op": "<=",
+            "threshold": 1e-09
+          },
+          {
+            "id": "h_negative_gm_eff_m",
+            "path": "acceptance.h_negative_gm_eff_m",
+            "op": "<=",
+            "threshold": 0.0,
+            "note": "负例：进水致 GM_eff<0 必须被检出"
+          },
+          {
+            "id": "h_negative_capsize_time_s",
+            "path": "acceptance.h_negative_capsize_time_s",
+            "op": ">=",
+            "threshold": 0.1,
+            "note": "负例：失稳时刻必须有限且可检出"
+          },
+          {
+            "id": "diff_f_A_minus_R",
+            "paths": [
+              "acceptance.f_A",
+              "acceptance.f_R"
+            ],
+            "combine": "subtract",
+            "op": ">=",
+            "threshold": 0.0,
+            "note": "SOLAS 通过算例：A - R >= 0"
+          },
+          {
+            "id": "diff_f_fail_A_minus_R",
+            "paths": [
+              "acceptance.f_fail_case_A",
+              "acceptance.f_fail_case_R"
+            ],
+            "combine": "subtract",
+            "op": "<=",
+            "threshold": 0.0,
+            "role": "case_verdict",
+            "note": "负例算例：A - R <= 0（闸门不得误判为通过）"
+          }
+        ],
+        "capabilities": [
+          {
+            "id": "damage_stability.compartment_geometry",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "a_volume_rel_error",
+              "a_inertia_rel_error"
+            ],
+            "summary": "棱柱舱 V/i/形心闭式与渗透率"
+          },
+          {
+            "id": "damage_stability.hydrostatics_gm_eff",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "e_gm_eff_abs_error_m"
+            ],
+            "summary": "破舱后 added-weight 静水力与 GM_eff"
+          },
+          {
+            "id": "damage_stability.orifice_flow",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "b_orifice_max_rel_error"
+            ],
+            "summary": "Torricelli 出流（部分浸没两带叠加）"
+          },
+          {
+            "id": "damage_stability.progressive_flooding",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "c_constant_head_rel_error",
+              "c_falling_head_rel_error",
+              "g_max_level_change_pct"
+            ],
+            "summary": "渐进进水时域（定水头/降水头闭式互证 + 步长收敛）"
+          },
+          {
+            "id": "damage_stability.residual_gz",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "d_gz_max_rel_error_pct"
+            ],
+            "summary": "剩余 GZ 曲线（截面数值积分 vs 闭式）含自由液面修正"
+          },
+          {
+            "id": "damage_stability.solas_index_A_R",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "diff_f_A_minus_R",
+              "diff_f_fail_A_minus_R"
+            ],
+            "summary": "SOLAS 分舱指数 A=sum(p_i s_i) 对 R 的闸门（含失败算例负例）"
+          },
+          {
+            "id": "damage_stability.mass_conservation",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "g_mass_balance_error_m3"
+            ],
+            "summary": "进水过程体积账本守恒"
+          },
+          {
+            "id": "damage_stability.solas_p_i",
+            "claim_level": "WITHHELD",
+            "blocking_criteria": [],
+            "summary": "p_i 因子：节点自评 WITHHELD（证据不足），本门不抬高"
+          }
+        ],
+        "interface_contract": {
+          "kind": "declared",
+          "ref": "data/campaigns/p457w2/interfaces.json"
+        }
+      },
+      "worktree": "work/m13986"
+    },
+    {
+      "ext_id": "p457w2-n03-ice-ridge-3d",
+      "label": "Ice ridge 3D contact / interlocking mechanics",
+      "repo": "TensorDEM",
+      "mission_id": 13987,
+      "branch": "agent/m13987",
+      "note": "工作树内 artifacts/ice_ridge_3d 只有图，无验收数值工件 ⇒ unattested。",
+      "worktree": "work/m13987"
+    },
+    {
+      "ext_id": "p457w2-n04-aeration-decalibration",
+      "label": "Aeration buffer decalibration: Wood/van Wijngaarden + PBM -> alpha-resolved impact law",
+      "repo": "TensorSPH",
+      "mission_id": 13329,
+      "branch": "agent/m13329",
+      "ingest": {
+        "kind": "acceptance_json",
+        "ref": "data/campaigns/p457w2/raw/n04_acceptance.json",
+        "path": "data/campaigns/p457w2/raw/n04_acceptance.json",
+        "numeric": [
+          {
+            "id": "C1_wood_pointwise",
+            "path": "criteria.C1.max_relative_deviation_vs_60digit_mpmath",
+            "op": "<=",
+            "threshold": 1e-06,
+            "note": "Wood 闭式逐点 vs 60 位 mpmath"
+          },
+          {
+            "id": "C1b_alpha_star",
+            "path": "criteria.C1.alpha_star_abs_difference",
+            "op": "<=",
+            "threshold": 1e-06,
+            "note": "最小声速空隙率的闭式 vs 三分搜索"
+          },
+          {
+            "id": "C1c_cmin",
+            "path": "criteria.C1.c_min_relative_difference",
+            "op": "<=",
+            "threshold": 1e-06,
+            "note": "最小声速闭式 vs 数值"
+          },
+          {
+            "id": "C2_limits",
+            "path": "criteria.C2.worst_residual",
+            "op": "<=",
+            "threshold": 0.001,
+            "note": "alpha->0 / alpha->1 两极限残差"
+          },
+          {
+            "id": "C3_moment_closure",
+            "path": "criteria.C3.closed_form_vs_rk4_max_residual",
+            "op": "<=",
+            "threshold": 0.01,
+            "note": "PBM 矩闭合 vs RK4 直接积分"
+          },
+          {
+            "id": "C4_alpha_consistency",
+            "path": "criteria.C4.worst_deviation",
+            "op": "<=",
+            "threshold": 0.05,
+            "note": "连续/离散路径空隙率一致性"
+          },
+          {
+            "id": "C5_band_p95_low",
+            "path": "criteria.C5.design_envelope.g_load_p95",
+            "op": ">=",
+            "threshold": 0.06,
+            "note": "设计包线 p95 减载率须落在 m9319 [6%,12%] 带内（下界）"
+          },
+          {
+            "id": "C5_band_p95_high",
+            "path": "criteria.C5.design_envelope.g_load_p95",
+            "op": "<=",
+            "threshold": 0.12,
+            "note": "同上（上界）"
+          },
+          {
+            "id": "C5_band_member_count",
+            "path": "criteria.C5.design_envelope.in_band_count",
+            "op": ">=",
+            "threshold": 1.0,
+            "role": "case_verdict",
+            "note": "6 个算例中落在带内的个数（工程结论，不压实现等级）"
+          },
+          {
+            "id": "C5_out_of_domain_cases",
+            "paths": [
+              "criteria.C5.design_envelope.cases_out_of_domain"
+            ],
+            "combine": "count",
+            "op": "<=",
+            "threshold": 0.0,
+            "role": "case_verdict",
+            "note": "声学域外算例数（工结论：应为 0 才算律可全域使用）"
+          },
+          {
+            "id": "C6_case_alpha",
+            "path": "criteria.C6.n_samples",
+            "op": ">=",
+            "threshold": 1.0,
+            "note": "alpha 场一致性采样点"
+          }
+        ],
+        "capabilities": [
+          {
+            "id": "aeration.mixture_acoustics",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "C1_wood_pointwise",
+              "C1b_alpha_star",
+              "C1c_cmin",
+              "C2_limits"
+            ],
+            "summary": "Wood/van Wijngaarden 混合声速与阻抗（含最小声速点）"
+          },
+          {
+            "id": "aeration.pbm_moments",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "C3_moment_closure",
+              "C4_alpha_consistency"
+            ],
+            "summary": "PBM 矩闭合（混凝+等分破碎）"
+          },
+          {
+            "id": "aeration.impact_pressure_law",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "C5_band_p95_low",
+              "C5_band_p95_high",
+              "C6_case_alpha"
+            ],
+            "summary": "alpha 分辩的砰击压力减载律 G_peak/G_load（替代常数 k_b=0.65）"
+          }
+        ],
+        "interface_contract": {
+          "kind": "declared",
+          "ref": "data/campaigns/p457w2/interfaces.json"
+        }
+      },
+      "worktree": "work/m13329"
+    },
+    {
+      "ext_id": "p457w2-n05-pipe-seabed",
+      "label": "Pipe-seabed contact + fatigue (hogbend + TDZ) DNV life band",
+      "repo": "ship-performance-platform",
+      "mission_id": 13989,
+      "branch": "agent/m13989",
+      "note": "工作树内只有未提交的 backend/physics/pipe_laying/，无验收数值工件 ⇒ unattested；S-N 参数由 extract_assumptions.py 机器抽取。",
+      "worktree": "work/m13989"
+    },
+    {
+      "ext_id": "p457w2-n06-twin-screw-shaft-failure",
+      "label": "Twin-screw single shaft failure asymmetric thrust manoeuvring",
+      "repo": "ship-performance-platform",
+      "mission_id": 13990,
+      "branch": "agent/m13990",
+      "note": "工作树内只有未提交实现与 .scratch，无验收数值工件 ⇒ unattested。",
+      "worktree": "work/m13990"
+    },
+    {
+      "ext_id": "p457w2-n07-capability-annotator",
+      "label": "Platform capability annotator maturation (21-capability evidence scan)",
+      "repo": "TensorPlatform",
+      "mission_id": 13991,
+      "branch": "agent/m13991",
+      "ingest": {
+        "kind": "acceptance_json",
+        "ref": "data/campaigns/p457w2/raw/n07_scan_report.json",
+        "path": "data/campaigns/p457w2/raw/n07_scan_report.json",
+        "numeric": [
+          {
+            "id": "capability_count",
+            "path": "capability_count",
+            "op": ">=",
+            "threshold": 21.0
+          },
+          {
+            "id": "levels_complete",
+            "paths": [
+              "capability_count",
+              "summary.withheld_count"
+            ],
+            "combine": "subtract",
+            "op": ">=",
+            "threshold": 3.0,
+            "note": "登记且有高等级证据的条目数（21-18=3 REAL）"
+          },
+          {
+            "id": "scan_time",
+            "path": "total_scan_time_sec",
+            "op": "<=",
+            "threshold": 60.0,
+            "note": "CI 扫描时限"
+          },
+          {
+            "id": "accuracy_metric",
+            "path": "gap_ledger.scan_accuracy",
+            "op": ">=",
+            "threshold": 0.95,
+            "role": "case_verdict",
+            "note": "扫描准确率：工件内无该字段 ⇒ WITHHELD（不自称通过）"
+          },
+          {
+            "id": "gap_false_negative",
+            "path": "gap_ledger.false_negative_rate",
+            "op": "<=",
+            "threshold": 0.05,
+            "role": "case_verdict",
+            "note": "同上：工件内无该字段"
+          }
+        ],
+        "capabilities": [
+          {
+            "id": "platform.capability_annotator_scan",
+            "claim_level": "REAL",
+            "blocking_criteria": [
+              "capability_count",
+              "levels_complete",
+              "scan_time"
+            ],
+            "summary": "21 能力证据等级静态扫描 + 缺口台账（扫描口径 REAL，准确率未验）"
+          }
+        ],
+        "interface_contract": {
+          "kind": "declared",
+          "ref": "data/campaigns/p457w2/interfaces.json"
+        }
+      },
+      "worktree": "work/m13991"
+    },
+    {
+      "ext_id": "p457w2-n08-cross-solver-clock-sync",
+      "label": "Cross-solver clock synchronisation + distillation maturation",
+      "repo": "TensorPlatform",
+      "mission_id": 13992,
+      "branch": "agent/m13992",
+      "note": "工作树内只有未提交 src/multifidelity/，无验收数值工件 ⇒ unattested。",
+      "worktree": "work/m13992"
+    }
+  ]
+}
