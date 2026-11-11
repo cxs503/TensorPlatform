@@ -26,6 +26,7 @@ from api.tensor_capability import router as tensor_capability_router      # pref
 from api.campaign_plans import router as campaign_plans_router             # prefix="/tensor/campaigns"
 from api.campaign_routing import router as campaign_routing_router         # prefix="/tensor/campaigns" (conditional DAG)
 from api.campaign_self_heal import router as campaign_self_heal_router   # prefix="/tensor/campaigns" (DAG self-healing + elastic scheduling)
+from api.tensor_self_heal import router as tensor_self_heal_router        # prefix="/tensor/self-heal" (stalled mission detection + bounded recovery)
 from api.tensor_centers import router as tensor_centers_router             # prefix="/tensor/centers" (PR-10 四中心最小视图)
 from api.tensor_repro import router as tensor_repro_router                 # prefix="/tensor/repro"
 from api.execution_lineage import router as execution_lineage_router       # prefix="/lineage"
@@ -56,6 +57,7 @@ router.include_router(tensor_capability_router)
 router.include_router(campaign_plans_router)
 router.include_router(campaign_routing_router)
 router.include_router(campaign_self_heal_router)
+router.include_router(tensor_self_heal_router)
 router.include_router(tensor_centers_router)
 router.include_router(kpi_router)
 router.include_router(failure_postmortems_router)
