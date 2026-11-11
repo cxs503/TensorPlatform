@@ -19,6 +19,7 @@ from api.tensor_llm import router as tensor_llm_router                     # pre
 from api.tensor_missions import router as tensor_missions_router           # prefix="/tensor/missions"
 from api.tensor_mission_lifecycle import router as tensor_mission_lifecycle_router  # prefix="/tensor/missions" (lifecycle)
 from api.tensor_reports import router as tensor_reports_router             # prefix="/tensor/reports"
+from api.report_visibility import router as report_visibility_router       # prefix="/tensor/reports" (写读可见性/丢单自愈)
 from api.tensor_papers import router as tensor_papers_router             # prefix="/tensor/papers"
 from api.knowledge_hub import router as knowledge_hub_router           # prefix="/tensor/knowledge" (知识专栏)
 from api.tensor_capability import router as tensor_capability_router      # prefix="/tensor/capability" (PR-10 能力中心聚合面)
@@ -48,6 +49,7 @@ router.include_router(tensor_llm_router)
 router.include_router(tensor_mission_lifecycle_router)
 router.include_router(tensor_missions_router)
 router.include_router(tensor_reports_router)
+router.include_router(report_visibility_router)
 router.include_router(tensor_papers_router)
 router.include_router(knowledge_hub_router)
 router.include_router(tensor_capability_router)

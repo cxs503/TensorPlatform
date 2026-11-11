@@ -1,0 +1,123 @@
+{
+  "node": "p285w2b-n01",
+  "mission_id": 12439,
+  "repo": "TensorPlatform",
+  "generated_by": "docs/p285w2b-n01/generate_artifacts.py",
+  "end_to_end": {
+    "posts": 24,
+    "injected_losses": 10,
+    "readback_ok_rate": 1.0,
+    "markdown_identity_rate": 1.0,
+    "scan_checked": 24,
+    "scan_detected": 10,
+    "detection_rate": 1.0,
+    "false_positive_count": 0,
+    "false_positive_rate": 0.0,
+    "scan_grace60_missing_count": 0,
+    "heal_attempted": 10,
+    "heal_healed": 10,
+    "heal_success_rate": 1.0,
+    "heal_restored_markdown_identity_rate": 1.0,
+    "post_heal_rescan_missing": 0,
+    "report_rows_after_heal": 24,
+    "ledger_chain_ok": true,
+    "ledger_events": 68,
+    "alerts": [
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED",
+      "LOST_WRITE_HEALED"
+    ]
+  },
+  "heal_transient": {
+    "trials": 200,
+    "fail_probability": 0.3,
+    "max_attempts": 3,
+    "verified_recovery_rate": 0.99,
+    "theoretical_rate": 0.973,
+    "mean_attempts": 1.435,
+    "seed": 20261110
+  },
+  "heal_vs_attempts": [
+    {
+      "max_attempts": 1,
+      "verified_recovery_rate": 0.68,
+      "theoretical_rate": 0.7,
+      "mean_attempts": 1.0
+    },
+    {
+      "max_attempts": 2,
+      "verified_recovery_rate": 0.91,
+      "theoretical_rate": 0.91,
+      "mean_attempts": 1.32
+    },
+    {
+      "max_attempts": 3,
+      "verified_recovery_rate": 0.99,
+      "theoretical_rate": 0.973,
+      "mean_attempts": 1.435
+    },
+    {
+      "max_attempts": 4,
+      "verified_recovery_rate": 0.995,
+      "theoretical_rate": 0.9919,
+      "mean_attempts": 1.44
+    }
+  ],
+  "grace_experiment": [
+    {
+      "grace_s": 0.0,
+      "false_positive_rate": 0.47
+    },
+    {
+      "grace_s": 1.0,
+      "false_positive_rate": 0.45
+    },
+    {
+      "grace_s": 5.0,
+      "false_positive_rate": 0.3975
+    },
+    {
+      "grace_s": 15.0,
+      "false_positive_rate": 0.2475
+    },
+    {
+      "grace_s": 30.0,
+      "false_positive_rate": 0.115
+    },
+    {
+      "grace_s": 60.0,
+      "false_positive_rate": 0.0
+    }
+  ],
+  "domain_scan": {
+    "files_scanned": 7,
+    "denylist_words": 37,
+    "hits": 0,
+    "ok": true
+  },
+  "pytest": {
+    "command": "python -m pytest tests/test_report_visibility.py tests/test_report_visibility_api.py tests/test_report_gate.py tests/test_report_gate_validation.py tests/test_auth_guard_figures_regression.py",
+    "exit_code": 0,
+    "passed": 117,
+    "failed": 0,
+    "skipped": 1,
+    "summary": "117 passed / 0 failed / 1 skipped"
+  },
+  "criteria": {
+    "readback_markdown_identity_100pct": true,
+    "injected_10_detection_100pct": true,
+    "no_false_positives": true,
+    "heal_success_ge_95pct": true,
+    "heal_transient_ge_95pct": true,
+    "zero_domain_semantics": true,
+    "pytest_green": true
+  },
+  "all_criteria_met": true
+}
