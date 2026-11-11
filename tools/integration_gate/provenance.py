@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+import os
+
 import hashlib
 import json
 import subprocess
@@ -143,3 +145,16 @@ def worktree_head(path: str | Path) -> dict[str, Any]:
     if rc == 0 and b:
         out["branch"] = b
     return out
+
+
+def now_utc() -> str:
+    """时间戳来源：``SOURCE_DATE_EPOCH`` 优先（可复现构建惯例），否则 wall clock。
+
+    门产物里凡带 ``generated_at`` 的字段一律走这里：设置该环境变量后，同一输入
+    连跑两次逐字节相同（工件快照才能稳定校验「未变」）。
+    """
+    from datetime import datetime, timezone
+    epoch = os.environ.get("SOURCE_DATE_EPOCH", "").strip()
+    if epoch.isdigit():
+        return datetime.fromtimestamp(int(epoch), timezone.utc).isoformat()
+    return datetime.now(timezone.utc).isoformat()

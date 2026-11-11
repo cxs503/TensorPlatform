@@ -127,6 +127,98 @@ def fig_ledger(report: dict[str, Any], path: Path) -> str:
     return out.name
 
 
+def fig_dependency_map(report: dict[str, Any], path: Path) -> str | None:
+    """跨节点依赖图：节点按层排布，接口边按校验状态着色（VALIDATED/UNATTESTED/MISMATCH）。"""
+    coup = (report.get("coupling") or {}).get("interfaces")
+    if not coup:
+        return None
+    edges = coup["interfaces"]
+    nodes = [n["node_ext_id"] for n in report["nodes"]]
+    ids = list(dict.fromkeys([e["producer"] for e in edges] + [e["consumer"] for e in edges]))
+    order = {eid: i for i, eid in enumerate(ids)}
+    producerish = {e["producer"] for e in edges}
+    consumerish = {e["consumer"] for e in edges} - producerish
+    xs = {eid: (0.0 if eid in producerish and eid not in consumerish else 1.0)
+          for eid in ids}
+    ys = {}
+    for eid in ids:
+        same = [j for j, o in enumerate(ids) if xs[o] == xs[eid]]
+        ys[eid] = (len(same) - 1) / 2.0 - same.index(order[eid])
+    colours = {"VALIDATED": "#2a9d8f", "UNATTESTED": "#e9c46a",
+               "CONTRACT_MISMATCH": "#e76f51", "UNDOCUMENTED": "#9b2226"}
+    fig, ax = plt.subplots(figsize=(10.5, max(4.6, 0.62 * len(ids) + 2.2)))
+    for e in edges:
+        c = colours.get(e["status"], "#888888")
+        ax.annotate("", xy=(xs[e["consumer"]], ys[e["consumer"]]),
+                    xytext=(xs[e["producer"]], ys[e["producer"]]),
+                    arrowprops=dict(arrowstyle="->", color=c, lw=2.0,
+                                    linestyle="-" if e["status"] == "VALIDATED" else "--"))
+        ax.text((xs[e["producer"]] + xs[e["consumer"]]) / 2.0,
+                (ys[e["producer"]] + ys[e["consumer"]]) / 2.0 + 0.12,
+                f"{e['id']}\n{e['payload']['id']} [{e['payload']['unit']}]",
+                fontsize=7, ha="center", va="bottom", color=c)
+    for eid in ids:
+        ax.scatter([xs[eid]], [ys[eid]], s=2200, c="#264653", zorder=3)
+        short = eid.replace("p457w2-", "")
+        ax.text(xs[eid], ys[eid], short, fontsize=7, color="white", ha="center",
+                va="center", zorder=4)
+    handles = [plt.Line2D([], [], color=c, lw=2, label=k) for k, c in colours.items()]
+    ax.legend(handles=handles, fontsize=8, loc="lower center", ncol=4, frameon=False)
+    ax.set_xlim(-0.35, 1.35)
+    ax.set_ylim(min(ys.values()) - 0.9, max(ys.values()) + 0.9)
+    ax.axis("off")
+    ax.set_title(f"cross-node dependency map · interface status · {report['campaign']}",
+                 fontsize=10)
+    fig.tight_layout()
+    path.mkdir(parents=True, exist_ok=True)
+    out = path / "fig4_dependency_map.png"
+    fig.savefig(out, dpi=160)
+    plt.close(fig)
+    return out.name
+
+
+def fig_ledger_delta(report: dict[str, Any], delta: dict[str, Any] | None,
+                     path: Path) -> str | None:
+    """台账增量：基础台账 → 本战役条目的等级变化（新条目/提升/降级）。"""
+    if not delta:
+        return None
+    levels = list(LEVEL_RANK)
+    new_by = delta.get("new_by_level") or {}
+    up = delta.get("upgraded") or []
+    down = delta.get("downgraded") or []
+    new_real = delta.get("n_new_real") or 0
+    fig, (ax, ax2) = plt.subplots(1, 2, figsize=(11.2, 4.2),
+                                  gridspec_kw={"width_ratios": [1.15, 1.0]})
+    x = range(len(levels))
+    ax.bar(list(x), [new_by.get(lv, 0) for lv in levels], color="#457b9d")
+    ax.set_xticks(list(x))
+    ax.set_xticklabels(levels, fontsize=8)
+    ax.set_ylabel("new campaign entries")
+    ax.set_title(f"new entries by level (new REAL = {new_real})", fontsize=9)
+    for i, lv in enumerate(levels):
+        ax.text(i, new_by.get(lv, 0) + 0.05, str(new_by.get(lv, 0)), ha="center", fontsize=8)
+    labels = ["new REAL", "upgraded", "downgraded",
+              "unchanged", "new entries"]
+    vals = [new_real, len(up), len(down), delta.get("unchanged", 0),
+            delta.get("new_entries", 0)]
+    cols = ["#2a9d8f", "#8ecae6", "#e76f51", "#adb5bd", "#457b9d"]
+    ax2.bar(range(len(labels)), vals, color=cols)
+    ax2.set_xticks(range(len(labels)))
+    ax2.set_xticklabels(labels, rotation=20, ha="right", fontsize=8)
+    ax2.set_ylabel("entries")
+    ax2.set_title(f"ledger delta vs base ({delta.get('base_entries', 0)} base entries)",
+                  fontsize=9)
+    for i, v in enumerate(vals):
+        ax2.text(i, v + 0.05, str(v), ha="center", fontsize=8)
+    fig.suptitle(f"capability ledger delta · {report['campaign']}", fontsize=10)
+    fig.tight_layout()
+    path.mkdir(parents=True, exist_ok=True)
+    out = path / "fig5_ledger_delta.png"
+    fig.savefig(out, dpi=160)
+    plt.close(fig)
+    return out.name
+
+
 def render_all(report: dict[str, Any], traces: dict[str, Trace], out_dir: Path) -> list[str]:
     out_dir = Path(out_dir)
     written: list[str] = []
@@ -135,4 +227,8 @@ def render_all(report: dict[str, Any], traces: dict[str, Trace], out_dir: Path) 
         written.append(name)
     written.append(fig_pair_checks(report, out_dir))
     written.append(fig_ledger(report, out_dir))
+    for fn in (fig_dependency_map(report, out_dir),
+               fig_ledger_delta(report, report.get("extra", {}).get("ledger_delta"), out_dir)):
+        if fn:
+            written.append(fn)
     return written

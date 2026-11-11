@@ -1,0 +1,74 @@
+{
+  "title": "p457w2 战役集成交叉核对门（n09）· 跨域耦合验证 + 终报 + 能力台账增量",
+  "case": [
+    "战役 p457w2（plan 9388，9 节点）把 8 个交付面放进同一窗口：3 个船体工程面（n01 谱疲劳 S-N/窄宽带/Miner、n02 破舱稳性与渐进进水 + SOLAS 分舱指数、n05 管土接触全流程含 hogbend 与 TDZ 疲劳寿命带）、3 个物理/接触面（n03 冰脊 3D 接触互锁、n04 曝气缓冲去标定链、n06 双桨单轴失效非对称推力操纵）、2 个平台成熟面（n07 21 能力证据标注器、n08 跨求解器时钟同步与蒸馏）。n09 不再造物理模型，而是回答一个集成问题：**这 8 个面的输出能不能互相对接、共享假设有没有互相打脸、能力台账能不能据实更新**。",
+    "因此本门的三把尺子是：①接口契约（数据交换的量、单位、认证区间、字段）；②假设一致性（同一标准/同一常数/同一条经验律在不同节点里是不是同一套数）；③证据定级（节点自证只作输入，判据结论按数字重算，自述 FAIL/无证据一律不得抬高）。三条尺子都是**机器可复算**的：契约与假设在 data/ 里声明，闸代码零领域语义，域词条由 data/campaigns/*/domain_vocab.json 注入并有 pytest 反查。",
+    "上游节点运行时状态（本门如实记录，不粉饰）：n02/n04/n07 有机器可读验收工件（分别提交在 agent/m13986、agent/m13329 分支与 agent/m13991 工作树中）；n01/n05 只有未提交实现（无验收数值工件），但其 S-N 参数可由 extract_assumptions.py 从源码机器抽取；n03/n06/n08 本门运行时无可核验收工件 ⇒ 其能力条目必须登记为 unattested（WITHHELD），不允许「漏登记」当「没能力」。",
+    "互裁面选择原则：每一对必须让**同一个量被两种口径表达**，否则互裁没有信息量。①混合声速：生产方实现 × 独立 Wood 闭式（不共享任何代码/常量，故通过即证明无偏）；②同一 DNV-RP-C203 D 曲线：结构疲劳侧 × 管土疲劳侧（两侧都自称同一条曲线）；③GM_eff：同一节点的手工装配式 × added-weight 累积式两条代码路径。"
+  ],
+  "method": [
+    "**门骨架（平台机制，零领域语义）**：复用 p158w2 建立的 tools/integration_gate（sampler/compare/baseline/ledger/report/docgen），本波新增三个模块：`coupling.py`（接口契约 + 假设一致性，含受限 AST 求值的「律自洽」检查）、`archive.py`（逐文件 sha256 快照 + 独立复算）、`ledger.py` 的 `compute_delta`/`platform_ledger_delta`（战役台账增量与平台 21 能力观测差，含 R2 honest-FAIL 抬高保护）。报告的 I1–I8 机器自检全部由数字判定。",
+    "**接口契约五步核验**：①契约文档存在（doc_ref 指向的文件必须真的存在）；②生产方/消费方都在战役节点表里；③两侧单位归一致（无量纲别名归一）；④消费方需求区间是否被生产方**认证**区间覆盖——不覆盖时只有 `fallback=clamp_with_status` 且载荷字段含 `domain_status` 才算「有护栏的通过」，否则记 CONTRACT_MISMATCH；⑤两侧是否有可核证据（验收工件或本门成功执行过的轨迹）。任一步不满足都不会判 VALIDATED。",
+    "**假设一致性三类检查**：`edition`（版本串逐字一致，>1 个取值即冲突）、`value`（同一量的相对偏差 vs 声明容差）、`law`（同一条双段幂律的多参数声明：除了共享参数逐项比，还要过**律自洽**——由 (log a1, m1, m2, 拐点) 依连续性条件 log a2 = log a1 + (m2 − m1)·log10(拐点) 推出的尾段参数必须与声明值一致，容差 0.01 decades）。冲突必须带 `mitigation`；只有被引用的互裁对真的判 DISAGREE/DEGENERATE（或受影响节点均无可核自证）时，冲突才算「已处置」，否则计入未处置数并使 I7 不通过。",
+    "**零手抄证据链**：所有进入判据的数字来自 (a) 节点验收工件快照（raw/*.json，sha256 记入 attestation 的 source）、(b) extract_assumptions.py 从被测源码机器抽取的参数（含源文件 sha256）、(c) 本门自己跑出的五条轨迹（runner 记录被测模块 sha256、Python 版本与 stdout sha256）。判据结论由 `compute_verdict` 按 op/threshold 重算，**声明结论与数字矛盾时以数字为准**（reconcile）。",
+    "**可复现性**：`archive_spec.json` 声明快照路径 → 逐文件 sha256 + 清单内容 sha256，并在同一次运行内独立复算（missing/changed 必须为空）。综述文档不入快照（它由 seed_report 生成并内嵌 seed_report 的 sha，纳入会形成自指哈希环），这一点在 archive_spec 的 note 里明写。"
+  ],
+  "repro": [
+    "# 1) 机器抽取跨节点共享假设（只读兄弟 worktree 源码，记录 sha256）",
+    "TP_SIBLING_ROOT=/root/tp-agent/work python3 data/campaigns/p457w2/extract_assumptions.py",
+    "# 2) 从节点验收工件机器摄取自证（判据结论按数字重算）",
+    "python3 -c \"from pathlib import Path; from tools.integration_gate.ingest import ingest_campaign; ingest_campaign(Path('data/campaigns/p457w2'))\"",
+    "# 3) 跑整门：轨迹 → 互裁 → 耦合闸 → 台账增量 → 播种报告 → 图 → 工件快照",
+    "python3 -m tools.integration_gate.cli --campaign p457w2 --data data/campaigns/p457w2 \\",
+    "  --out artifacts/campaigns/p457w2 --repo-root . --main main --self-repo TensorPlatform \\",
+    "  --base-ledger artifacts/capability_ledger/capability_ledger.json \\",
+    "  --interfaces data/campaigns/p457w2/interfaces.json \\",
+    "  --assumptions data/campaigns/p457w2/assumptions.json \\",
+    "  --archive-spec data/campaigns/p457w2/archive_spec.json \\",
+    "  --platform-observed data/campaigns/p457w2/platform_observed_levels.json \\",
+    "  --pytest-summary artifacts/campaigns/p457w2/pytest_summary.json --figures --strict",
+    "# 4) 生成本报告（数字全部从 seed_report.json 注入）",
+    "python3 -m tools.integration_gate.docgen --report artifacts/campaigns/p457w2/seed_report.json \\",
+    "  --prose data/campaigns/p457w2/doc_prose.json --out docs/P457W2-N09_INTEGRATION_GATE.md \\",
+    "  --figures artifacts/campaigns/p457w2/figures",
+    "# 5) 测试（含 1 个「矛盾假设必须被检出」的负例控制）",
+    "python3 -m pytest tests/test_campaign_coupling_gate.py tests/test_integration_gate.py -q"
+  ],
+  "figures": [
+    {
+      "file": "fig4_dependency_map.png",
+      "caption": "图 1 跨节点依赖图：生产者→消费者，边按接口校验状态着色（VALIDATED / UNATTESTED / CONTRACT_MISMATCH），边上标注载荷与单位。冰脊（n03）、破舱进水（n08 消费端）、单轴失效（n06）因当班无可核验收工件而呈 UNATTESTED。"
+    },
+    {
+      "file": "fig5_ledger_delta.png",
+      "caption": "图 2 能力台账增量：左=本战役新条目按证据等级分布（新 REAL 计数），右=新 REAL/提升/降级/持平/新条目相对平台基础台账的计数。"
+    },
+    {
+      "file": "fig2_pair_checks.png",
+      "caption": "图 3 互裁对逐检查结论热图（AGREE/DISAGREE/DEGENERATE/WITHHELD），用于一眼看出哪一对把争议落成了数字。"
+    },
+    {
+      "file": "fig1_trace_agreement.png",
+      "caption": "图 4 轨迹层一致性：混合声速（实现 × 独立 Wood 闭式，10 个孔隙率点）与寿命律（两侧 log10 N，9 个应力幅点）的点对点比对。"
+    },
+    {
+      "file": "fig3_ledger_levels.png",
+      "caption": "图 5 逐节点能力等级栈 + 判据通过率（右轴）。"
+    }
+  ],
+  "caveats": [
+    "**本门最重要的发现是它检出的矛盾，不是它通过的条目**：结构疲劳侧（n01）与管土疲劳侧（n05）都声明使用「同一条 DNV-RP-C203 D 曲线」，但尾段参数与两段交接拐点不同——n01 声明 log a2=15.817、拐点 53.4 MPa；n05 声明 log a2=15.350、拐点 34.0 MPa。按双段幂律连续性条件，由各自 (log a1, m1, m2, 拐点) 推出的尾段参数应为 15.619（n01）与 15.227（n05），与声明值分别相差 0.198 与 0.123 decades（约 1.6×/1.3× 寿命）。互裁对在 9 个应力幅点上判 DISAGREE（log10 N 最大相对偏差 5.75%，拐点相差 36.3%）。处置：该冲突以假设键 `fatigue.sn_curve.D` 的 IMPLIED_MISMATCH 落地，两个节点当班均无验收自证（unattested ⇒ WITHHELD），因此冲突不会抬高任何声明；缺口已交回头部节点按标准表格复核并加回归测试。",
+    "**接口覆盖率不足是真实缺口，不是报告瑕疵**：5 条接口全部有文档、契约形状 5/5 机械核验通过（无 CONTRACT_MISMATCH），但只有 2 条两侧都有可核证据；另 3 条因生产方或消费方当班无可核验收工件而判 UNATTESTED。其中 IF-1（曝气减载律 → 砰击/疲劳链）还暴露一个实质问题：生产方认证域只到 alpha=0.05（van Wijngaarden 近似域），而它自己的 6 个算例里 alpha_patch 最大到 0.435、有 3 个算例落在声学域外——域外调用是常态，闸因此只允许 `clamp_with_status` 护栏下的调用，禁止沉默外推。",
+    "**证据等级的读法**：本门 11 条新 REAL 中，7 条来自 n02（判据数字全部以任务书门限重算，并用同一模块的两条独立代码路径在 5 个液位复算了 GM_eff，偏差 0）、3 条来自 n04（Wood 闭式与 60 位 mpmath 对拍、两极限残差、PBM 矩闭合；混合声速另由本门独立闭式实现逐点复算，10 点最大相对偏差见 §3.1）、1 条来自 n07（21 能力扫描口径）。所有条目 status=PROVISIONAL：它们位于未合并分支/工作树，不能从 main 复现，这是 R3 规则的结果，不是降级。",
+    "**n04 的设计包线结论**：其自证 C5 的「G 载荷减载率落在 m9319 [6%,12%] 带内」按 p95 读法成立（0.109），但 6 个算例中只有 1 个落在带内（均值 4.7%），且 3 个算例落入声学域外。本门把「域外算例数」与「带内算例数」登记为 case_verdict（工程结论），不压实现等级；也就是说：实现是真实算法，但把它直接当全域设计律用是**未验证**的。",
+    "**局限**：①本门只核接口形状（单位/区间/字段/文档/证据可得性）与假设一致性，不核物理正确性；物理正确性由互裁对与节点自身的解析锚承担。②兄弟工作树的 git 事实（领先/漂移）在运行时读取，事后若他人继续提交则数值会变，故基线事实以报告记录为准。③n03/n06/n08 当班未交付验收工件，本门无法把它们的物理结论纳入裁决，只能如实登记缺口。④平台 21 能力观测（n07 扫描）只做静态代码/测试信号判定，其准确率与漏报率在工件内无字段，故登记为 case_verdict WITHHELD，不当作已验指标。",
+    "**对上一轮尝试的修正**（本节点为第 2 次尝试）：上一轮的主要失败模式是「直接转述自证 + 无机器核验」，本轮改为三处硬约束：①所有判据由 op/threshold 重算，声明与数字冲突时数字优先；②假设一致性用双段幂律的连续性条件做律自洽检查（可脱离任何标准表格独立复算）；③台账增量与平台观测差都走 R2（基础台账里存在抗辩证据的条目不得被静态扫描抬高）——本轮实测 21 条平台能力里 15 条 downgrade_candidate、3 条 upgrade_candidate、3 条 corroborated、0 条 blocked_upgrade（本轮数据没有触发该分支，该分支由单元测试 `test_platform_delta_blocks_upgrade_over_contradicted_evidence` 守住）。",
+    "**基础台账自身的一处内部矛盾（本轮顺带查出）**：平台 `artifacts/capability_ledger/capability_ledger.json` 里 `propeller.open_water`、`calc.resistance`、`calc.stability` 三条的等级为 REAL，但其 evidence 列表里含 stance=contradicts 的审计记录（对该条目而言是 honest MOCK 裁决）。本门按 R2 只会阻止「被抬高」，不会替基础台账降级；因此把这三条标 `ledger_internal_conflict` 记入 §3.10，交平台能力台账负责人按 evidence 复裁。这是台账的口径问题，不是 n07 扫描器的缺陷。"
+  ],
+  "error_notes": [
+    "逐项回答「是否 <3%」：`ADJ-1` 混合声速两侧 10 点最大相对偏差 1.56e-16（<<3%），成立——但两侧都是 Wood 闭式，只能证明实现无偏，不证明模型适用；`ADJ-3` GM_eff 两路径最大绝对偏差 0 m、几何闭式 vs 舱容积分量相对偏差 0（<3% 成立）。`ADJ-2` 寿命律 9 点 log10 N 相对偏差最大 5.75%（对应寿命因子约 2.9×）→ **否**；两条独立标量也否：尾段 log a2 相差 2.95%、两段交接拐点相差 36.3%。这不是「数值精度不足」，而是**同一标准下两侧参数不一致**，按 DISAGREE 处理并在 §3.7 立案，不粉饰。",
+    "混合声速的 3% 判据本身不构成强验收：两侧都用 Wood 闭式（参考侧是本门独立重写、不共享常量文件），一致只说明生产方实现无偏、不含拟合；Wood 模型对真实曝气砰击的适用性需要实测或 CFD 对照，本门不做，也不声称做过。",
+    "台账 11 条 REAL 的置信度分层：n02 的 7 条最强（判据重算 + 两条代码路径独立复算）；n04 的 3 条次之（有 60 位 mpmath 对拍与独立闭式复算，但设计包线只有 p95 读法成立）；n07 的 1 条最弱（只验扫描口径，未验准确率）。三档在 §3.2 的备注列与 §3.10 中如实分开。",
+    "读表提示：§6 的「是否 <3%」列用的是**物理精度**尺子（残差/偏差 vs 3%），而每个检查自己的判据容差写在「参考/容差」列（例如参数同一性容差是 1e-6）。因此 ADJ-2 的 2.95% 在 3% 尺子下显示「是」，但它相对 1e-6 的**同一性**要求已经判 DISAGREE——两列回答的是不同问题，不能混读。"
+  ]
+}

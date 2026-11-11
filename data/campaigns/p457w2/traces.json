@@ -1,0 +1,46 @@
+{
+  "schema": "tp.integration.traces/v1",
+  "campaign": "p457w2",
+  "traces": [
+    {
+      "id": "mixture_c_n04",
+      "kind": "script",
+      "path": "data/campaigns/p457w2/runners/mixture_c_producer.py",
+      "grid": {"param": "alpha", "values": [0.0, 0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.45]},
+      "meta": {"side": "producer", "node": "p457w2-n04-aeration-decalibration"},
+      "timeout_s": 120
+    },
+    {
+      "id": "mixture_c_wood_ref",
+      "kind": "script",
+      "path": "data/campaigns/p457w2/runners/mixture_c_wood_reference.py",
+      "grid": {"param": "alpha", "values": [0.0, 0.001, 0.005, 0.01, 0.02, 0.05, 0.1, 0.2, 0.3, 0.45]},
+      "meta": {"side": "reference", "impl": "independent Wood closed form"},
+      "timeout_s": 60
+    },
+    {
+      "id": "sn_n05",
+      "kind": "script",
+      "path": "data/campaigns/p457w2/runners/sn_curve_producer.py",
+      "grid": {"param": "stress_range_MPa", "values": [15.0, 20.0, 34.0, 40.0, 53.4, 60.0, 80.0, 100.0, 150.0]},
+      "meta": {"side": "producer", "node": "p457w2-n05-pipe-seabed"},
+      "timeout_s": 120
+    },
+    {
+      "id": "sn_n01",
+      "kind": "script",
+      "path": "data/campaigns/p457w2/runners/sn_curve_consumer.py",
+      "grid": {"param": "stress_range_MPa", "values": [15.0, 20.0, 34.0, 40.0, 53.4, 60.0, 80.0, 100.0, 150.0]},
+      "meta": {"side": "consumer", "node": "p457w2-n01-structural-fatigue"},
+      "timeout_s": 120
+    },
+    {
+      "id": "gm_eff_n02",
+      "kind": "script",
+      "path": "data/campaigns/p457w2/runners/gm_eff_two_paths.py",
+      "grid": {"param": "level_m", "values": [0.0, 2.0, 4.0, 6.0, 8.0]},
+      "meta": {"side": "node_internal_two_paths", "node": "p457w2-n02-damage-stability"},
+      "timeout_s": 120
+    }
+  ]
+}

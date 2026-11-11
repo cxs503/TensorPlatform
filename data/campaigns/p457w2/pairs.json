@@ -1,0 +1,118 @@
+{
+  "schema": "tp.integration.pairs/v1",
+  "campaign": "p457w2",
+  "pairs": [
+    {
+      "id": "ADJ-1-aeration-mixture-wood",
+      "title": "混合声速口径：生产方实现 × 独立 Wood 闭式（含两极限）",
+      "kind": "cross_implementation",
+      "counterpart_status": "INDEPENDENT_REFERENCE：data/campaigns/p457w2/runners/mixture_c_wood_reference.py（不 import 生产方任何代码/常量）",
+      "note": "生产方 = p457w2-n04 分支 tensorsph.aeration.mixture_acoustics（模块 sha256 随轨迹 provenance 记录）；参考侧 = Wood(1955) 闭式独立重写。若两侧一致，说明实现无偏；若不一致，生产方自证的 1e-6 判据不可跨实现复现。",
+      "capabilities": [
+        "aeration.mixture_acoustics"
+      ],
+      "checks": [
+        {
+          "check": "trace_agreement",
+          "a": "mixture_c_n04",
+          "b": "mixture_c_wood_ref",
+          "tol": 1e-09,
+          "severity": "blocking",
+          "note": "10 个孔隙率点逐点相对偏差"
+        },
+        {
+          "check": "endpoint_agreement",
+          "a": "mixture_c_n04",
+          "b": "mixture_c_wood_ref",
+          "end": "min",
+          "tol": 1e-09,
+          "severity": "blocking",
+          "note": "alpha->0 极限必须回到纯水声速"
+        },
+        {
+          "check": "degenerate",
+          "driver_metric": "mixture_c_n04.alpha_star",
+          "response_metric": "mixture_c_n04.c_min",
+          "severity": "blocking",
+          "note": "最小声速点必须非零响应，否则该侧是占位实现"
+        }
+      ]
+    },
+    {
+      "id": "ADJ-2-sn-curve-n01-vs-n05",
+      "title": "同一 DNV-RP-C203 D 曲线：结构疲劳侧 × 管土疲劳侧 寿命律互裁",
+      "kind": "convention",
+      "counterpart_status": "BOTH_BRANCH_ONLY：两侧实现分别位于 agent/m13988、agent/m13989 工作树（未提交/未合并）",
+      "note": "两侧都自称 DNV-RP-C203 Table 2-1「D curve in air」，但尾段参数与拐点不同。互裁比对 log10 N(Δσ)，并把两侧声明的 S-N 标量并排比。结论按数字给出，不按自述。 注：两侧节点本门运行时均无验收数值工件（unattested），本对不降级任何已登记 REAL 声明；冲突以假设键 fatigue.sn_curve.D 的 IMPLIED_MISMATCH/CONTRADICTED 落地，写入缺口台账交回头部节点复核。",
+      "capabilities": [],
+      "checks": [
+        {
+          "check": "trace_agreement",
+          "a": "sn_n01",
+          "b": "sn_n05",
+          "tol": 0.001,
+          "severity": "blocking",
+          "note": "9 个应力幅点 log10 N 相对偏差（>0.1% 即判不一致）"
+        },
+        {
+          "check": "metric_agreement",
+          "a_metric": "sn_n01.log_a2",
+          "b_metric": "sn_n05.log_a2",
+          "tol": 1e-06,
+          "severity": "blocking",
+          "note": "尾段 log10(A) 直接比对"
+        },
+        {
+          "check": "metric_agreement",
+          "a_metric": "sn_n01.knee",
+          "b_metric": "sn_n05.knee",
+          "tol": 1e-06,
+          "severity": "blocking",
+          "note": "两段交接拐点应力幅直接比对"
+        }
+      ]
+    },
+    {
+      "id": "ADJ-3-damage-stability-two-paths",
+      "title": "GM_eff 口径：手工装配式 × added-weight 累积式（同节点两条实现路径）",
+      "kind": "cross_implementation",
+      "counterpart_status": "SAME_NODE_TWO_PATHS：backend/modules/damage_stability_flooding/hydrostatics.py",
+      "note": "节点自证声称 GM_eff 互证误差 1e-9；本门用同一模块的两条独立代码路径在 5 个进水液位重算，避免只信它挑的那一个点。",
+      "capabilities": [
+        "damage_stability.hydrostatics_gm_eff"
+      ],
+      "checks": [
+        {
+          "check": "trace_agreement",
+          "a": "gm_eff_n02",
+          "b": "gm_eff_n02",
+          "tol": 1e-12,
+          "severity": "advisory",
+          "note": "自比（恒等）——仅用于把轨迹状态与量级写进报告"
+        },
+        {
+          "check": "metric_below",
+          "metric": "gm_eff_n02.gm_eff_abs_dev_max_m",
+          "threshold": 1e-09,
+          "severity": "blocking",
+          "note": "两路径最大偏差（m）"
+        },
+        {
+          "check": "metric_below",
+          "metric": "gm_eff_n02.volume_rel_dev",
+          "threshold": 1e-09,
+          "severity": "blocking",
+          "note": "几何闭式 vs 舱容积分量的相对偏差"
+        },
+        {
+          "check": "metric_below",
+          "metric": "gm_eff_n02.gm_eff_abs_dev_max_m",
+          "threshold": 1e-09,
+          "severity": "blocking",
+          "counterpart": "attested e_gm_eff_abs_error_m = 0",
+          "note": "与自证值同量级即视为可复现"
+        }
+      ]
+    }
+  ]
+}

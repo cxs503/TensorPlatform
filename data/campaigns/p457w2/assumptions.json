@@ -1,0 +1,138 @@
+{
+  "schema": "tp.integration.assumptions/v1",
+  "campaign": "p457w2",
+  "extracted_utc": null,
+  "notes": [],
+  "keys": [
+    {
+      "key": "fatigue.sn_curve.D",
+      "kind": "law",
+      "standard": "DNV-RP-C203 Table 2-1 (D curve)",
+      "description": "同一 D 曲线的双段幂律参数与拐点；连续性由拐点几何约束",
+      "tol": 1e-06,
+      "declarations": [
+        {
+          "node": "p457w2-n01-structural-fatigue",
+          "condition": "D curve, transverse stiffener detail",
+          "params": {
+            "m1": 3.0,
+            "m2": 5.0,
+            "log_a1": 12.164,
+            "log_a2": 15.817,
+            "knee": 53.4
+          },
+          "source": {
+            "ref": "/root/tp-agent/work/m13988/backend/physics/spectral_fatigue.py",
+            "sha256": "eecf40973ca26d9c838ac1b64851b36a14b53355d35ae230b54f2573f6bc92e6"
+          }
+        },
+        {
+          "node": "p457w2-n05-pipe-seabed",
+          "condition": "D curve in air (mean stress corrected), Table 2-1",
+          "params": {
+            "m1": 3.0,
+            "m2": 5.0,
+            "log_a1": 12.164,
+            "log_a2": 15.35,
+            "knee": 34.0
+          },
+          "source": {
+            "ref": "/root/tp-agent/work/m13989/backend/physics/pipe_laying/fatigue.py",
+            "sha256": "21848db42af860e13cc992248adc52af8bea56cd1aece5c0716fdc378567bf4f"
+          }
+        }
+      ],
+      "implied": [
+        {
+          "node": "p457w2-n01-structural-fatigue",
+          "expr": "log_a1 + (m2 - m1) * log10(knee)",
+          "target": "log_a2",
+          "tol": 0.01,
+          "expected_log_a2": 15.619082514057112,
+          "declared_log_a2": 15.817,
+          "continuity_gap_decades": -0.19791748594288805
+        },
+        {
+          "node": "p457w2-n05-pipe-seabed",
+          "expr": "log_a1 + (m2 - m1) * log10(knee)",
+          "target": "log_a2",
+          "tol": 0.01,
+          "expected_log_a2": 15.22695783408451,
+          "declared_log_a2": 15.35,
+          "continuity_gap_decades": -0.12304216591548922
+        }
+      ],
+      "mitigation": {
+        "kind": "pair_downgrade",
+        "pair": "ADJ-2-sn-curve-n01-vs-n05",
+        "note": "两侧寿命律不一致 ⇒ 引用对已判 DISAGREE，疲劳寿命类能力按对降级"
+      }
+    },
+    {
+      "key": "fatigue.sn_curve.D.condition",
+      "kind": "edition",
+      "standard": "DNV-RP-C203 Table 2-1",
+      "description": "同一曲线类别/腐蚀条件的同名前提（不同条件之间不可比）",
+      "declarations": [
+        {
+          "node": "p457w2-n01-structural-fatigue",
+          "value": "in air",
+          "source": {
+            "ref": "/root/tp-agent/work/m13988/backend/physics/spectral_fatigue.py",
+            "sha256": "eecf40973ca26d9c838ac1b64851b36a14b53355d35ae230b54f2573f6bc92e6"
+          }
+        },
+        {
+          "node": "p457w2-n05-pipe-seabed",
+          "value": "in air",
+          "source": {
+            "ref": "/root/tp-agent/work/m13989/backend/physics/pipe_laying/fatigue.py",
+            "sha256": "21848db42af860e13cc992248adc52af8bea56cd1aece5c0716fdc378567bf4f"
+          }
+        }
+      ]
+    },
+    {
+      "key": "constant.gravity",
+      "kind": "value",
+      "standard": "SI convention",
+      "description": "重力加速度常数：细则差异 ≤0.1% 视为同一约定",
+      "unit": "m/s^2",
+      "rel_tol": 0.001,
+      "declarations": [
+        {
+          "node": "p457w2-n01-structural-fatigue",
+          "value": 9.80665,
+          "source": {
+            "ref": "/root/tp-agent/work/m13988/backend/physics/spectral_fatigue.py",
+            "sha256": "eecf40973ca26d9c838ac1b64851b36a14b53355d35ae230b54f2573f6bc92e6"
+          }
+        },
+        {
+          "node": "p457w2-n02-damage-stability",
+          "value": 9.81,
+          "source": {
+            "ref": "/root/tp-agent/work/m13986/backend/modules/damage_stability_flooding/geometry.py",
+            "sha256": "fe5a0ce914a8b82ab0221ae8e5603f3eb9aada83a0e7ab5b9a3cae1317084aa3"
+          }
+        }
+      ]
+    },
+    {
+      "key": "solas.edition",
+      "kind": "edition",
+      "standard": "SOLAS Ch. II-1 Part B-1",
+      "description": "破舱稳性分舱指数所用 SOLAS 版本（单节点声明 ⇒ 无法跨节点互证）",
+      "declarations": [
+        {
+          "node": "p457w2-n02-damage-stability",
+          "value": "SOLAS 2009 (MSC.216(82))",
+          "source": {
+            "ref": "/root/tp-agent/work/m13986/backend/modules/damage_stability_flooding/solas.py",
+            "sha256": "a24523627299729052a1b9b9a6c9b028c998b94794acc125c0ff1a8485f5e939"
+          }
+        }
+      ]
+    }
+  ]
+}
