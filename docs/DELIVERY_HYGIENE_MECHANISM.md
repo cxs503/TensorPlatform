@@ -112,3 +112,20 @@ C 类永不进归档列表（`test_plan_never_archives_undelivered`）；重复�
 4. **空提交不计内容**（记在 `evidence.empty_commits`）：比 `git cherry` 更严于内容守恒、更宽于计数。
 5. **归档是本地操作**：`refs/attic/` 不 push，因此远端不会出现归档 ref；远端删除仍需人工/平台推送。
 6. **CI 覆盖有限**：见 §6 边界声明，宿主侧 cron 才是主战场。
+
+## 9. 成熟度自证层（P223W2B-N08，2026-11-11）
+
+本机制"是否成熟"不再靠散文：`tools/delivery_hygiene/maturity.py` 把五条机器判据做成一次可重算审计，
+结论绑定账本指纹 `content_sha256`，产物落 `artifacts/delivery_hygiene/maturity/`：
+
+| 判据 | 机制 | 实测（TensorPlatform / ship-performance-platform） |
+|---|---|---|
+| (a) 覆盖率 + 指纹可重算 | `measure_coverage` / `content_sha256` | 1.000 / 1.000，sha256 一致 |
+| (b) 抽样 30 条独立复核 | `sample_audit`（`git cherry` 引擎 + 合成 patch-id 兜 squash） | 30/30 / 30/30 |
+| (c) 积压收敛 + C 零丢失 | `measure_backlog` + `probe_undelivered_content` | 1888→1629 / 1654→1606；C 探针 100 条命中 0 ⇒ honest FAIL |
+| (d) 门禁负控（注入 3 条必红） | `gate_negative_control`（临时合成仓库） | 检出 3/3，V1+V2 双红 |
+| (e) 账本 vs `for-each-ref` | `measure_ref_diff`（lost/rewritten 判红，快照后新增只记录） | lost=0，rewritten=0 |
+
+关键结论：**门的口径必须是"内容"不是"计数"**——A/D 归档动不了 `unmerged`，C 归档就是丢数据，
+所以积压只能靠交付收敛；门在真实数据上已 FAIL（冻结 24h 内两仓积压分别 +375/+231），棘轮拒绝放水。
+详见 `docs/P223W2B-N08_delivery_hygiene_maturity.md`。

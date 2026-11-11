@@ -28,7 +28,7 @@ from typing import Any, Dict, List, Optional, Sequence
 
 from . import CLASS_A, CLASS_B, CLASS_C, CLASS_D, CLASSES, CLASS_LABELS
 from . import classify as classify_mod
-from . import dispose, gate as gate_mod, gitio, ledger as ledger_mod
+from . import dispose, gate as gate_mod, gitio, ledger as ledger_mod, maturity as maturity_mod
 
 
 # ── 共用 ───────────────────────────────────────────────────────────────────────
@@ -95,6 +95,7 @@ def cmd_scan(args: argparse.Namespace) -> int:
     plan = dispose.plan_dispositions(led, date_tag=date_tag, archive_b=not args.no_archive_b)
     led["dispositions"] = plan
     led["disposition_counts"] = dispose.summarize_plan(plan)
+    led["content_sha256"] = maturity_mod.content_sha256(led)
 
     out = args.out
     args.ledger_out = args.ledger_out or os.path.join(out, "ledger.json")
