@@ -1,0 +1,96 @@
+{
+  "schema_version": "redundancy-audit-config/1.0",
+  "purpose": "跨战役重复劳动冗余聚类审计的全部可调参数（相似度口径 / 近似最近邻预算 / 阈值与敏感性网格 / 会计与治理策略 / 标注集判据）。零领域语义纪律：本文件是唯一参数来源，代码内不得出现域词或散落阈值。",
+  "similarity": {
+    "shingle_size": 4,
+    "containment_weight": 0.7,
+    "min_length_ratio": 0.5,
+    "min_chars": 40,
+    "weight_rationale": "字符 4-gram 在中文任务书正文上的集合规模约 2000-8000，4 比 3 更能压制「通用四字套话」的偶然重合；containment 权重 <1.0，因为本节审计对象是「同题不同任务书」的整篇重复，包含度只应作为补充信号（短文本被长文本覆盖）。"
+  },
+  "ann": {
+    "min_shared_shingles": 4,
+    "posting_cap": 600,
+    "max_candidates_per_node": 400,
+    "note": "倒排 + 长度过滤的近似最近邻：只对 df<=posting_cap 的 shingle 建倒排（高频 shingle 无语料判别力），候选按共享 shingle 数降序截断到 max_candidates_per_node。候选召回率由 tests 与报告中的 ann_recall 指标给出（对暴力全对枚举的对账）。"
+  },
+  "thresholds": {
+    "strong": 0.85,
+    "weak": 0.7,
+    "sensitivity": [
+      0.7,
+      0.8,
+      0.85,
+      0.9
+    ],
+    "sweep_grid": [
+      0.5,
+      0.55,
+      0.6,
+      0.65,
+      0.7,
+      0.75,
+      0.8,
+      0.85,
+      0.9,
+      0.95
+    ],
+    "tie_break": "F1 最大者；F1 并列取更小的阈值（更保守地抓冗余），仍并列取更小的网格值"
+  },
+  "ledger": {
+    "status_evidence_priority": [
+      "verified",
+      "in-flight",
+      "in_progress",
+      "queued",
+      "blocked",
+      "not_started"
+    ],
+    "archive_statuses": [
+      "blocked",
+      "not_started",
+      "pending"
+    ],
+    "cost_fields": [
+      "wall_seconds_actual",
+      "wall_seconds_budget",
+      "tokens_budget",
+      "tool_calls_budget"
+    ],
+    "note": "成本字段全部来自节点→mission 的资源证据：wall_seconds_actual = (actual_end|finished_at) - (actual_start|created_at)；wall_seconds_budget/tokens_budget/tool_calls_budget 来自 mission.budget。campaign_nodes 表本身无 budget_actual 列（审计发现 F1），plan 级 budget_actual 实测恒零（审计发现 F2），故不用作主账。"
+  },
+  "policy": {
+    "keeper_rule": "证据优先级最高（status_evidence_priority 序）→ created_at 最早 → node_id 最小",
+    "non_keeper_rule": "status ∈ archive_statuses 且 wall_seconds_actual == 0 → archive（零成本重复件，直接撤单）；否则 merge（已花成本，证据并入 keeper，禁止重跑）"
+  },
+  "labels": {
+    "pairs": 100,
+    "true_group_count": 4,
+    "hard_negative_ratio": 0.4,
+    "hard_negative_spec": "同计划（同战役 DAG 分工）、不同 ext_id、不同标题（name_key 不同）且词面相似度 >= labels.hard_negative_floor 的对 → label=0（设计上应属不同工作），并按 score 降序取前 hard_negative_ratio×100 对。附带度量名/交付物互斥证据。",
+    "hard_negative_floor": 0.3,
+    "random_negative_ratio": 0.2,
+    "f1_min_accept": 0.85,
+    "f1_min_viable": 0.7,
+    "hard_negative_fp_max": 0.1,
+    "true_group_recall_min": 1.0,
+    "prereg_note": "预登记发生在阈值选择之前：先落盘 labels_100.json（含每对 label + 证据 + rationale）与其 sha256，再在标注集上做阈值扫描。",
+    "paraphrase_note": "同题改写对（词面 0.50-0.70 的真重复）单列为 paraphrase_stress，不进入 F1 分母：词面法在该带的能力边界由该项诚实量化披露。"
+  },
+  "paths": {
+    "snapshot": "artifacts/redundancy_audit/snapshot.json",
+    "labels": "artifacts/redundancy_audit/labels_100.json",
+    "prereg": "artifacts/redundancy_audit/prereg.json",
+    "report": "artifacts/redundancy_report.json",
+    "figure_dir": "artifacts/redundancy_audit",
+    "markdown": "docs/p393w2_n02_redundancy_audit.md"
+  },
+  "audit": {
+    "idempotency_repeats": 10,
+    "domain_leak_paths": [
+      "tools/redundancy_audit",
+      "tests/test_redundancy_audit.py",
+      "config/redundancy_audit.json"
+    ]
+  }
+}
