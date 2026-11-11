@@ -1081,6 +1081,14 @@ def complete_mission(
                                         trigger_kind="threshold_hook")
     except Exception as _exc:  # pragma: no cover - 部署面兜底
         logging.getLogger(__name__).warning("eval timeliness hook skipped: %s", _exc)
+    # tb-eval-loop ①：完结即触发 TensorBench 评价（挂 FEAT-TENSORBENCH 锚或声明级别≥4）。
+    # 递交的是集群队列作业（node 留空由调度器指派）；失败只告警，绝不改任务终态。
+    try:
+        from tools.tensorbench_eval import store as tb_store
+        tb_store.ensure_schema(db)
+        tb_store.on_mission_terminal(db, mission_id, status=body.status)
+    except Exception as _exc:  # pragma: no cover - 部署面兜底
+        logging.getLogger(__name__).warning("tensorbench eval trigger skipped: %s", _exc)
     return {"id": mission_id, "status": body.status, "approval_id": None,
             "report_owed": report_owed}
 

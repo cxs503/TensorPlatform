@@ -489,6 +489,11 @@ from api import public  # noqa: E402
 from api import maturity_gate as _maturity_gate  # noqa: E402
 
 app.include_router(_maturity_gate.router, prefix="/api/v1")
+
+# tb-eval-loop ①②③：TensorBench 评价回路（递交/取证/实证行/L4 裁定）
+from api import tensor_bench as _tensor_bench  # noqa: E402
+
+app.include_router(_tensor_bench.router, prefix="/api/v1")
 app.include_router(public.router, prefix="/api/v1")
 
 # SPEC §6.5 审查预算账本（测量先行）：四类审查记账 + 周聚合查询
