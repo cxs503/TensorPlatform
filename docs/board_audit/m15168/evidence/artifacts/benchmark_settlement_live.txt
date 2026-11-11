@@ -1,0 +1,44 @@
+# 对标决算复算（benchmark settlement audit）
+
+- 计算侧工件：`artifacts/benchmark_validation.json`（M398）
+- 正典参考：`backend/data/benchmark_reference.json` v3.0
+- 正典 policy：仅 reference_status=DERIVED 的行可参与 15% 精度判决；WITHHELD 行如实标注、不出判决
+
+## 汇总（全部机器复算）
+
+| 指标 | 值 |
+| --- | --- |
+| 决算行数 | 12 |
+| 可判决（reference_status=DERIVED） | 4 |
+| 不可判决（WITHHELD） | 8 |
+| 可判决且已决算 | 4 |
+| 达标 ≤3% | 0 |
+| 达标 ≤5%（指南 KPI#10） | 0 |
+| 合格 ≤15%（KPI#9 严格口径） | 0 |
+| within5_rate | 0.0 |
+| policy 越权判决 | 8 |
+| 引用值已过期（vs 正典） | 0 |
+| 手写误差字段不可信 | 4/12 |
+| 手写误差丢符号（方向丢失） | 4 |
+| 源工件 pass 判决数 | 5 |
+| 源判决与复算冲突（可判决行） | 0 |
+| 最大绝对误差 % | 68.89473684210526 |
+| 正典 R1 自检失败 | 0/4 |
+
+## 逐例决算
+
+| case | ref_status | calc_ct | ref_ct(正典) | err% (复算) | 手写 err% | verdict | 备注 |
+| --- | --- | --- | --- | --- | --- | --- | --- |
+| DTMB5415-01 | WITHHELD | 0.0043 | 0.0045 | -3.4889 | 3.4800 | WITHHELD | policy 越权判决 |
+| DTMB5415-02 | WITHHELD | 0.0047 | 0.0038 | 23.3421 | 23.3300 | WITHHELD | policy 越权判决 |
+| DTMB5415-03 | WITHHELD | 0.0054 | 0.0035 | 53.5429 | 53.5300 | WITHHELD | policy 越权判决 |
+| DTMB5415-04 | WITHHELD | 0.0061 | 0.0038 | 59.4737 | 59.4800 | WITHHELD | policy 越权判决 |
+| KVLCC2-01 | WITHHELD | 0.0029 | 0.0028 | 3.0714 | 3.0600 | WITHHELD | policy 越权判决 |
+| KVLCC2-02 | WITHHELD | 0.0029 | 0.0030 | -2.9000 | 2.8900 | WITHHELD | policy 越权判决 |
+| KVLCC2-03 | WITHHELD | 0.0029 | 0.0031 | -5.5806 | 5.5800 | WITHHELD | policy 越权判决 |
+| KVLCC2-04 | WITHHELD | 0.0029 | 0.0032 | -8.0938 | 8.1000 | WITHHELD | policy 越权判决 |
+| SUBOFF-01 | DERIVED | 0.0064 | 0.0038 | 68.8947 | 68.8900 | FAIL_OVER_15 | 正典 DERIVED：可判决 |
+| SUBOFF-02 | DERIVED | 0.0067 | 0.0040 | 68.1000 | 68.1000 | FAIL_OVER_15 | 正典 DERIVED：可判决 |
+| SUBOFF-03 | DERIVED | 0.0070 | 0.0042 | 67.3810 | 67.3800 | FAIL_OVER_15 | 正典 DERIVED：可判决 |
+| SUBOFF-04 | DERIVED | 0.0073 | 0.0044 | 66.7273 | 66.7200 | FAIL_OVER_15 | 正典 DERIVED：可判决 |
+
