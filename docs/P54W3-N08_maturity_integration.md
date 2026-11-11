@@ -1,8 +1,8 @@
 # 战役成熟化整合与交付（p54w3-maturity-integration）
 
 - `gate_schema_version`: `1.0`
-- `input_digest`: `230ad0108ee619324b51805ff140c14d061bda831afbe811f6462d2abc864938`（规格 + 全部被读证据文档 sha256 的 sha256）
-- 战役裁定：**WITHHELD**；节点 7 个，已交付证据 1 个，绿线 0.8，自述/复算冲突 0 处
+- `input_digest`: `a87788fa72843adcb942fba2bafc856b0012d3ce5d6cba08b65a8a86ad0b502e`（规格 + 全部被读证据文档 sha256 的 sha256）
+- 战役裁定：**WITHHELD**；节点 7 个，已交付证据 0 个，绿线 0.8，自述/复算冲突 0 处
 
 ## ① 案例介绍
 
@@ -21,7 +21,7 @@
 | 节点 | 仓库 | mission | 判据数 | 通过 | 存疑(WITHHELD) | 通过率 | 证据成熟度 |
 |---|---|---|---|---|---|---|---|
 | `p54w3-n01-my-ice-resistance` | TensorDEM | 8410 | 5 | 0 | 5 | 0 | WITHHELD |
-| `p54w3-n02-brash-ice-evolution` | TensorDEM | 8411 | 6 | 5 | 1 | 0.833333 | PARTIAL |
+| `p54w3-n02-brash-ice-evolution` | TensorDEM | 8411 | 6 | 0 | 6 | 0 | WITHHELD |
 | `p54w3-n03-energy-ledger-convergence` | TensorDEM | 8412 | 6 | 0 | 6 | 0 | WITHHELD |
 | `p54w3-n04-ice-load-pod` | ship-performance-platform | 8413 | 6 | 0 | 6 | 0 | WITHHELD |
 | `p54w3-n05-plate-limit-analysis` | ship-performance-platform | 8414 | 6 | 0 | 6 | 0 | WITHHELD |
@@ -46,12 +46,12 @@
 | 量 | 值 |
 |---|---|
 | campaign.nodes_total | 7 |
-| campaign.nodes_delivered | 1 |
-| campaign.nodes_absent | ['p54w3-n01-my-ice-resistance', 'p54w3-n03-energy-ledger-convergence', 'p54w3-n04-ice-load-pod', 'p54w3-n05-plate-limit-analysis', 'p54w3-n06-ridge-pipeline-dem', 'p54w3-n07-energy-optimal-route'] |
-| campaign.nodes_green | ['p54w3-n02-brash-ice-evolution'] |
+| campaign.nodes_delivered | 0 |
+| campaign.nodes_absent | ['p54w3-n01-my-ice-resistance', 'p54w3-n02-brash-ice-evolution', 'p54w3-n03-energy-ledger-convergence', 'p54w3-n04-ice-load-pod', 'p54w3-n05-plate-limit-analysis', 'p54w3-n06-ridge-pipeline-dem', 'p54w3-n07-energy-optimal-route'] |
+| campaign.nodes_green | [] |
 | campaign.nodes_red | [] |
-| campaign.min_pass_ratio | 0.833333 |
-| campaign.mean_pass_ratio | 0.833333 |
+| campaign.min_pass_ratio | — |
+| campaign.mean_pass_ratio | — |
 | campaign.criteria_pass_threshold | 0.8 |
 | campaign.criterion_a_all_nodes_ge_threshold | false |
 | campaign.claim_mismatch_total | 0 |
@@ -66,12 +66,12 @@
 
 | 判据 | 结论 | 依据 |
 |---|---|---|
-| a upstream criteria >= threshold | NOT-PASS | delivered 1/7, green 1/7, min pass_ratio 0.8333333333333334, absent ['p54w3-n01-my-ice-resistance', 'p54w3-n03-energy-ledger-convergence', 'p54w3-n04-ice-load-pod', 'p54w3-n05-plate-limit-analysis', 'p54w3-n06-ridge-pipeline-dem', 'p54w3-n07-energy-optimal-route'] |
+| a upstream criteria >= threshold | NOT-PASS | delivered 0/7, green 0/7, min pass_ratio None, absent ['p54w3-n01-my-ice-resistance', 'p54w3-n02-brash-ice-evolution', 'p54w3-n03-energy-ledger-convergence', 'p54w3-n04-ice-load-pod', 'p54w3-n05-plate-limit-analysis', 'p54w3-n06-ridge-pipeline-dem', 'p54w3-n07-energy-optimal-route'] |
 | b cross-repo integration pytest green | PASS | rc=0 passed=29 failed=0 errors=0 |
-| c ledger one-to-one with nodes | PASS | entries 7 vs nodes 7, levels {'WITHHELD': 6, 'PARTIAL': 1} |
+| c ledger one-to-one with nodes | PASS | entries 7 vs nodes 7, levels {'WITHHELD': 7} |
 | d API contract doc complete | PASS | completeness 1.0000, missing [] |
 | e report six elements | PASS | all present |
-| f zero domain semantics | PASS | scanned 11 files, hits 0 |
+| f zero domain semantics | PASS | scanned 12 files, hits 0 |
 
 存疑（WITHHELD）明细——**不知道**的项逐条列名，绝不计入通过：
 
@@ -82,7 +82,12 @@
 | `p54w3-n01-my-ice-resistance` | c | 纯FY冰工况退化到已有模型误差 < 5% | evidence_doc_missing |
 | `p54w3-n01-my-ice-resistance` | d | pytest全链通过含反向测试 | evidence_doc_missing |
 | `p54w3-n01-my-ice-resistance` | e | 能量守恒闭合 < 5% | evidence_doc_missing |
-| `p54w3-n02-brash-ice-evolution` | f | pytest全链通过含无烧结退化测试 | pointer_missing |
+| `p54w3-n02-brash-ice-evolution` | a | 烧结颈生长 vs Frenkel理论指数拟合误差 < 10% | evidence_doc_missing |
+| `p54w3-n02-brash-ice-evolution` | b | 孔隙率下降 vs 再冻结理论拟合误差 < 15% | evidence_doc_missing |
+| `p54w3-n02-brash-ice-evolution` | c | 碎冰场宏观强度增长 vs 文献实验数据 < 25% | evidence_doc_missing |
+| `p54w3-n02-brash-ice-evolution` | d | 阻力衰减曲线单调递增且α∈[0.05,0.2] | evidence_doc_missing |
+| `p54w3-n02-brash-ice-evolution` | e | 能量守恒闭合 < 10% | evidence_doc_missing |
+| `p54w3-n02-brash-ice-evolution` | f | pytest全链通过含无烧结退化测试 | evidence_doc_missing |
 | `p54w3-n03-energy-ledger-convergence` | a | 通量口径残差 < 1e-9 (SI归一化/E0) | evidence_doc_missing |
 | `p54w3-n03-energy-ledger-convergence` | b | 显式口径斜率 /slope-1/ < 0.2 且梯形口径 /slope-2/ < 0.2 | evidence_doc_missing |
 | `p54w3-n03-energy-ledger-convergence` | c | 恢复系数实测 vs 目标 < 1e-3 | evidence_doc_missing |
@@ -124,12 +129,12 @@
 | p54w3-n01-my-ice-resistance | d | pytest全链通过含反向测试 | pytest.returncode | eq 0 | — | WITHHELD |
 | p54w3-n01-my-ice-resistance | d | pytest全链通过含反向测试 | pytest.failed | le 0 | — | WITHHELD |
 | p54w3-n01-my-ice-resistance | e | 能量守恒闭合 < 5% | criteria.e.values.closure | le 0.05 | — | WITHHELD |
-| p54w3-n02-brash-ice-evolution | a | 烧结颈生长 vs Frenkel理论指数拟合误差 < 10% | criteria.a_sintering_frenkel.exponent_rel_error | le 0.1 | 0 | PASS |
-| p54w3-n02-brash-ice-evolution | b | 孔隙率下降 vs 再冻结理论拟合误差 < 15% | criteria.b_refreezing_exponential.max_rel_error | le 0.15 | 0.0936365 | PASS |
-| p54w3-n02-brash-ice-evolution | c | 碎冰场宏观强度增长 vs 文献实验数据 < 25% | criteria.c_strength_literature.rel_error | le 0.25 | 0 | PASS |
-| p54w3-n02-brash-ice-evolution | d | 阻力衰减曲线单调递增且α∈[0.05,0.2] | criteria.d_resistance_growth.alpha | between [0.05, 0.2] | 0.116023 | PASS |
-| p54w3-n02-brash-ice-evolution | d | 阻力衰减曲线单调递增且α∈[0.05,0.2] | criteria.d_resistance_growth.monotone | eq true | true | PASS |
-| p54w3-n02-brash-ice-evolution | e | 能量守恒闭合 < 10% | criteria.e_energy_closure.closure | le 0.1 | 5.410e-09 | PASS |
+| p54w3-n02-brash-ice-evolution | a | 烧结颈生长 vs Frenkel理论指数拟合误差 < 10% | criteria.a_sintering_frenkel.exponent_rel_error | le 0.1 | — | WITHHELD |
+| p54w3-n02-brash-ice-evolution | b | 孔隙率下降 vs 再冻结理论拟合误差 < 15% | criteria.b_refreezing_exponential.max_rel_error | le 0.15 | — | WITHHELD |
+| p54w3-n02-brash-ice-evolution | c | 碎冰场宏观强度增长 vs 文献实验数据 < 25% | criteria.c_strength_literature.rel_error | le 0.25 | — | WITHHELD |
+| p54w3-n02-brash-ice-evolution | d | 阻力衰减曲线单调递增且α∈[0.05,0.2] | criteria.d_resistance_growth.alpha | between [0.05, 0.2] | — | WITHHELD |
+| p54w3-n02-brash-ice-evolution | d | 阻力衰减曲线单调递增且α∈[0.05,0.2] | criteria.d_resistance_growth.monotone | eq true | — | WITHHELD |
+| p54w3-n02-brash-ice-evolution | e | 能量守恒闭合 < 10% | criteria.e_energy_closure.closure | le 0.1 | — | WITHHELD |
 | p54w3-n02-brash-ice-evolution | f | pytest全链通过含无烧结退化测试 | pytest.returncode | eq 0 | — | WITHHELD |
 | p54w3-n03-energy-ledger-convergence | a | 通量口径残差 < 1e-9 (SI归一化/E0) | criteria.a.values.residual | le 1.000e-09 | — | WITHHELD |
 | p54w3-n03-energy-ledger-convergence | b | 显式口径斜率 /slope-1/ < 0.2 且梯形口径 /slope-2/ < 0.2 | criteria.b.values.slope_explicit_minus1_abs | le 0.2 | — | WITHHELD |
@@ -180,7 +185,7 @@
 
 ## ⑤ 注意点
 
-- 上游多数节点仍在飞：6 个节点零可复算证据 → 战役裁定停在 WITHHELD，本报告不把『在飞』写成『通过』。
+- 上游多数节点仍在飞：7 个节点零可复算证据 → 战役裁定停在 WITHHELD，本报告不把『在飞』写成『通过』。
 - 证据协议是**新契约**：既有上游交付（如 study.json）字段命名各异，只有显式映射进规格的节点能被取值复算；未映射的字段一律 WITHHELD，不做模糊猜测。
 - 判据通过率分母是**声明判据数**：上游若少声明一条判据，分母同步变小，这是刻意的（少声明即少交付），故报告中逐条列出判据总数供审阅。
 - 跨仓集成 pytest 只覆盖平台侧判定链（合成域夹具 + 真实战役工件）；不代跑上游仓库测试——上游测试执行属于其 own mission 的验收，平台不越权。
@@ -199,12 +204,12 @@
 | `p54w3-n01-my-ice-resistance::d` | — | 0 | — | WITHHELD |
 | `p54w3-n01-my-ice-resistance::d` | — | 0 | — | WITHHELD |
 | `p54w3-n01-my-ice-resistance::e` | — | 0.05 | — | WITHHELD |
-| `p54w3-n02-brash-ice-evolution::a` | 0 | 0.1 | 0 | PASS |
-| `p54w3-n02-brash-ice-evolution::b` | 0.0936365 | 0.15 | 0.624243 | PASS |
-| `p54w3-n02-brash-ice-evolution::c` | 0 | 0.25 | 0 | PASS |
-| `p54w3-n02-brash-ice-evolution::d` | 0.116023 | [0.05, 0.2] | — | PASS |
-| `p54w3-n02-brash-ice-evolution::d` | true | true | — | PASS |
-| `p54w3-n02-brash-ice-evolution::e` | 5.410e-09 | 0.1 | 5.410e-08 | PASS |
+| `p54w3-n02-brash-ice-evolution::a` | — | 0.1 | — | WITHHELD |
+| `p54w3-n02-brash-ice-evolution::b` | — | 0.15 | — | WITHHELD |
+| `p54w3-n02-brash-ice-evolution::c` | — | 0.25 | — | WITHHELD |
+| `p54w3-n02-brash-ice-evolution::d` | — | [0.05, 0.2] | — | WITHHELD |
+| `p54w3-n02-brash-ice-evolution::d` | — | true | — | WITHHELD |
+| `p54w3-n02-brash-ice-evolution::e` | — | 0.1 | — | WITHHELD |
 | `p54w3-n02-brash-ice-evolution::f` | — | 0 | — | WITHHELD |
 | `p54w3-n03-energy-ledger-convergence::a` | — | 1.000e-09 | — | WITHHELD |
 | `p54w3-n03-energy-ledger-convergence::b` | — | 0.2 | — | WITHHELD |
@@ -250,4 +255,4 @@
 
 ---
 
-审计链：`data/maturity_gate/p54w3_campaign.spec.json` → 证据文档 sha256 → `gate.json`（input_digest `230ad0108ee61932…`）→ `p54w3_maturity_ledger.json` → `p54w3_maturity_report_check.json`。每个数字都可用同一命令复算，逐字节一致。
+审计链：`data/maturity_gate/p54w3_campaign.spec.json` → 证据文档 sha256 → `gate.json`（input_digest `a87788fa72843adc…`）→ `p54w3_maturity_ledger.json` → `p54w3_maturity_report_check.json`。每个数字都可用同一命令复算，逐字节一致。
