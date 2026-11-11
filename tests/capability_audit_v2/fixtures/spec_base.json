@@ -1,0 +1,47 @@
+{
+ "schema_version": "1.0",
+ "title": "synthetic capability registry (tests only, domain-free)",
+ "capabilities": [
+  {
+   "id": "cap.alpha",
+   "bindings": {
+    "code": ["tests/capability_audit_v2/fixtures/impl_core.py"],
+    "tests": ["tests/capability_audit_v2/fixtures/case_pass.py"]
+   },
+   "benchmark": {
+    "kind": "json_values",
+    "path": "tests/capability_audit_v2/fixtures/bench.json",
+    "check_class": "analytic",
+    "unit": "pct",
+    "values": ["cases[*].err_pct"],
+    "tolerance_pct": 3.0,
+    "aggregate": "worst"
+   }
+  },
+  {
+   "id": "cap.beta",
+   "bindings": {
+    "code": ["tests/capability_audit_v2/fixtures/impl_core.py"],
+    "tests": ["tests/capability_audit_v2/fixtures/case_pass.py"]
+   }
+  },
+  {
+   "id": "cap.gamma",
+   "bindings": {
+    "code": ["tests/capability_audit_v2/fixtures/impl_stub.py"],
+    "tests": []
+   }
+  },
+  {
+   "id": "cap.delta",
+   "bindings": {
+    "code": ["tests/capability_audit_v2/fixtures/absent_module.py"],
+    "tests": []
+   }
+  },
+  {
+   "id": "cap.epsilon",
+   "bindings": {}
+  }
+ ]
+}
