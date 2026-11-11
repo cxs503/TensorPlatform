@@ -1,7 +1,7 @@
 # 开放数字底座 - Docker & Python 管理脚本
 # Makefile for Docker and Python operations
 
-.PHONY: help build up down restart logs ps clean backup restore test coverage lint type-check format criteria-gate
+.PHONY: help build up down restart logs ps clean backup restore test coverage lint type-check format criteria-gate secret-scan secret-scan-acceptance
 
 # 默认目标
 .DEFAULT_GOAL := help
@@ -12,6 +12,16 @@ criteria-gate:
 	@python -m tools.criteria.threshold_registry validate --registry data/criteria/threshold_registry.json --out artifacts/criteria/validate.json > /dev/null
 	@python -m tools.criteria.threshold_registry drift --registry data/criteria/threshold_registry.json --lock data/criteria/threshold_registry.lock.json --out artifacts/criteria/drift.json > /dev/null
 	@python -m tools.criteria.gate_report
+
+# 秘密泄露三出口门（pre-commit / report gate / artifact writer）：
+# 单测 + 注入标定 + 三出口自注入 + 扫描器自扫（红则非零退出）
+secret-scan:
+	@python -m pytest tests/secret_scan -q
+	@python -m tools.secret_scan.cli ci
+
+# 全量验收 C1–C9（含历史回扫，耗时数十秒到数分钟）
+secret-scan-acceptance:
+	@python -m tools.secret_scan.acceptance --history-limit 150 --out artifacts/secret_scan/acceptance.json
 
 # 重新入册（改完源文件/新增阈值后）：harvest → lock → gate
 criteria-harvest:
