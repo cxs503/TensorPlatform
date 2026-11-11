@@ -1,0 +1,426 @@
+{
+  "schema": "evidence_collection.spec.v1",
+  "title": "平台能力台账证据自动化采集规格（能力→面/探针/参考工件/测试 的显式映射）",
+  "description": "本文件是采集管线的唯一数据源：端点、请求体、判据、阈值、参考工件全部在此声明；tools/evidence_collection 代码零领域语义。",
+  "thresholds": {
+    "real_tolerance_pct": 3.0,
+    "accept_tolerance_pct": 15.0
+  },
+  "acceptance": {
+    "min_covered": 15,
+    "min_agreement": 0.9,
+    "min_labeled": 10,
+    "min_tests": 12,
+    "denylist": "config/domain_word_denylist.json",
+    "zero_domain_scan": [
+      "tools/evidence_collection/*.py",
+      "tests/evidence_collection/*.py"
+    ],
+    "ci_workflow": ".github/workflows/capability-audit.yml",
+    "ci_markers": [
+      "tools.evidence_collection.cli",
+      "evidence_collection/acceptance_checks.json"
+    ],
+    "test_dir": "tests/evidence_collection"
+  },
+  "sources": {
+    "ledger": "artifacts/capability_ledger/capability_ledger.json",
+    "out_dir": "artifacts/evidence_collection",
+    "calibration": "config/evidence_collection/calibration.json",
+    "runtime": {
+      "base_url": "http://127.0.0.1:8002",
+      "openapi_path": "/openapi.json",
+      "note": "在线服务地址由部署注入；CI 内不可达时按 NOT_EXECUTED 降级，快照工件仍可复核。"
+    }
+  },
+  "capabilities": {
+    "calc.resistance": {
+      "surface": ["/api/v1/calculations/resistance"],
+      "reference": {
+        "path": "artifacts/benchmark_validation.json",
+        "value_path": "results.*.error_pct",
+        "recompute": {
+          "computed_path": "results.*.calc_ct",
+          "reference_path": "results.*.ref_ct",
+          "declared_error_path": "results.*.error_pct",
+          "declaration_tolerance_pct": 0.01
+        },
+        "aggregate": "worst",
+        "tolerance_pct": 3.0,
+        "metric": "总阻力系数 Ct vs 实验值，最差相对误差 %"
+      },
+      "tests": ["backend/tests/test_resistance_benchmark_validation.py"],
+      "probes": [
+        {
+          "id": "consistent-input",
+          "method": "POST",
+          "path": "/api/v1/calculations/resistance",
+          "body": {"length": 100.0, "beam": 15.0, "draft": 5.0, "displacement": 4500.0,
+                   "speed": 15.0, "cb": 0.6},
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "rt-positive", "kind": "field_range", "path": "rt", "min": 1e-6, "max": 1e6,
+             "class": "contract"},
+            {"id": "effective-power-identity", "kind": "identity", "lhs": "pe",
+             "rhs": "rt*speed_ms", "mode": "abs_rel", "tolerance": 1e-3, "class": "invariant"},
+            {"id": "ct-definition-identity", "kind": "identity", "lhs": "ct",
+             "rhs": "rt/(0.5*1.025*speed_ms*speed_ms*wetted_surface)", "mode": "abs_rel",
+             "tolerance": 0.01, "class": "invariant"},
+            {"id": "reported-consistency-zero", "kind": "field_range",
+             "path": "displacement_consistency_pct", "min": -0.5, "max": 0.5, "class": "invariant"}
+          ]
+        },
+        {
+          "id": "inconsistent-geometry-rejected",
+          "method": "POST",
+          "path": "/api/v1/calculations/resistance",
+          "body": {"length": 100.0, "beam": 15.0, "draft": 5.0, "displacement": 6000.0,
+                   "speed": 15.0, "cb": 0.6},
+          "criteria": [
+            {"id": "geometry-gate-rejects", "kind": "status", "expect": [422], "class": "invariant"}
+          ]
+        }
+      ]
+    },
+    "calc.stability": {
+      "surface": ["/api/v1/calculations/stability"],
+      "reference": {
+        "path": "artifacts/m1564/results/comparison.json",
+        "value_path": "cases.*.max_abs_rel_err_pct_inside.canon",
+        "aggregate": "worst",
+        "tolerance_pct": 3.0,
+        "metric": "GZ 曲线对闭合解析解的最大相对误差 %（包络内）"
+      },
+      "tests": ["backend/tests/test_stability_reference.py"],
+      "probes": [
+        {
+          "id": "consistent-input",
+          "method": "POST",
+          "path": "/api/v1/calculations/stability",
+          "body": {"length": 100.0, "beam": 15.0, "draft": 5.0, "displacement": 4612.5,
+                   "cb": 0.6, "kg": 7.0},
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "km-identity", "kind": "identity", "lhs": "km", "rhs": "kb+bm",
+             "mode": "abs_rel", "tolerance": 1e-3, "class": "invariant"},
+            {"id": "gz-positive-area", "kind": "field_range", "path": "area_0_30", "min": 1e-6,
+             "max": 1e3, "class": "contract"}
+          ]
+        },
+        {
+          "id": "inconsistent-displacement-rejected",
+          "method": "POST",
+          "path": "/api/v1/calculations/stability",
+          "body": {"length": 100.0, "beam": 15.0, "draft": 5.0, "displacement": 6000.0,
+                   "cb": 0.6, "kg": 7.0},
+          "criteria": [
+            {"id": "displacement-gate-rejects", "kind": "status", "expect": [422],
+             "class": "invariant"}
+          ]
+        }
+      ]
+    },
+    "propeller.open_water": {
+      "surface": ["/api/v1/propeller-open-water/open_water"],
+      "tests": ["backend/tests/test_propeller_open_water.py",
+                "backend/tests/test_propulsion_open_water_verification.py"],
+      "probes": [
+        {
+          "id": "single-point-identities",
+          "method": "POST",
+          "path": "/api/v1/propeller-open-water/open_water",
+          "body": {"J": 0.5, "P_D": 1.0, "Z": 5, "Ae_Ao": 0.55},
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "eta0-identity", "kind": "identity", "lhs": "eta0",
+             "rhs": "J*KT/(2*pi*KQ)", "mode": "abs_rel", "tolerance": 0.01, "class": "invariant"},
+            {"id": "eta0-below-ideal-limit", "kind": "identity", "lhs": "eta0",
+             "rhs": "2/(1+sqrt(1+8*KT/(pi*J*J)))", "mode": "lte", "tolerance": 1e-3,
+             "class": "invariant"},
+            {"id": "eta0-in-range", "kind": "field_range", "path": "eta0", "min": 0.0, "max": 1.0,
+             "class": "contract"}
+          ]
+        },
+        {
+          "id": "advance-ratio-sweep",
+          "method": "POST",
+          "path": "/api/v1/propeller-open-water/open_water",
+          "body": {"J": 0.2, "P_D": 1.0, "Z": 5, "Ae_Ao": 0.55},
+          "sweep": {"field": "J", "values": [0.2, 0.4, 0.6, 0.8]},
+          "criteria": [
+            {"id": "kt-decreasing-in-J", "kind": "monotonic", "path": "KT",
+             "direction": "decreasing", "class": "invariant"},
+            {"id": "kt-not-constant", "kind": "non_constant", "path": "KT",
+             "min_rel_spread": 1e-2, "class": "invariant"},
+            {"id": "kq-not-constant", "kind": "non_constant", "path": "KQ",
+             "min_rel_spread": 1e-2, "class": "invariant"}
+          ]
+        }
+      ]
+    },
+    "geometry.generate": {
+      "surface": ["/api/v1/geometry/generate"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/geometry/generate",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404, 405, 422], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "geometry.hydro_curves": {
+      "surface": ["/api/v1/geometry/hydro-curves"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/geometry/hydro-curves",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404, 422], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "geometry.list_models": {
+      "surface": ["/api/v1/geometry/models"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/geometry/models",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404, 422], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "geometry.verify_official": {
+      "surface": ["/api/v1/geometry/verify"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/geometry/verify",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404, 422], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "shiphull.generate": {
+      "surface": ["/api/v1/model-test/generate"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/model-test/generate/resistance",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 405, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "stdmodels.lookup": {
+      "surface": ["/api/v1/standard-models/ships", "/api/v1/standard-models/propellers"],
+      "probes": [
+        {
+          "id": "ships-catalog",
+          "method": "GET",
+          "path": "/api/v1/standard-models/ships",
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "catalog-nonempty", "kind": "list_min_len", "path": "", "min_len": 3,
+             "class": "contract"},
+            {"id": "first-entry-has-name", "kind": "field_present", "path": "0.name",
+             "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "gov.stats": {
+      "surface": ["/stats", "/api/v1/data-governance/statistics"],
+      "probes": [
+        {
+          "id": "platform-stats",
+          "method": "GET",
+          "path": "/stats",
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "version-present", "kind": "field_present", "path": "version",
+             "class": "contract"}
+          ]
+        },
+        {
+          "id": "governance-statistics",
+          "method": "GET",
+          "path": "/api/v1/data-governance/statistics",
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "knowledge.docs": {
+      "surface": ["/api/v1/knowledge/docs"],
+      "probes": [
+        {
+          "id": "docs-catalog",
+          "method": "GET",
+          "path": "/api/v1/knowledge/docs",
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "docs-nonempty", "kind": "list_min_len", "path": "", "min_len": 5,
+             "class": "contract"},
+            {"id": "first-doc-has-title", "kind": "field_present", "path": "0.title",
+             "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.gate_5415": {
+      "surface": ["/api/v1/dev/gate/5415"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/gate/5415",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.git": {
+      "surface": ["/api/v1/dev/git"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/git",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.logs": {
+      "surface": ["/api/v1/dev/logs"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/logs",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.nginx_audit": {
+      "surface": ["/api/v1/dev/nginx-audit"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/nginx-audit",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.probe": {
+      "surface": ["/api/v1/dev/probe"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/probe",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.restart": {
+      "surface": ["/api/v1/dev/restart"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/restart",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404, 405], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "dev.services": {
+      "surface": ["/api/v1/dev/services"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/dev/services",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "ai.predict": {
+      "surface": ["/api/v1/ai-models/predict/resistance"],
+      "probes": [
+        {
+          "id": "speed-sweep",
+          "method": "POST",
+          "path": "/api/v1/ai-models/predict/resistance",
+          "body": {"length": 100.0, "beam": 15.0, "draft": 5.0, "displacement": 4612.5,
+                   "speed": 10.0, "cb": 0.6},
+          "sweep": {"field": "speed", "values": [10.0, 15.0, 20.0]},
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "prediction-increasing-in-speed", "kind": "monotonic", "path": "predicted_rt",
+             "direction": "increasing", "class": "invariant"},
+            {"id": "prediction-not-constant", "kind": "non_constant", "path": "predicted_rt",
+             "min_rel_spread": 1e-2, "class": "invariant"},
+            {"id": "pe-identity", "kind": "identity", "lhs": "predicted_pe",
+             "rhs": "predicted_rt*speed*0.5144444", "mode": "abs_rel", "tolerance": 0.02,
+             "class": "invariant"}
+          ]
+        }
+      ]
+    },
+    "methods.computation": {
+      "surface": ["/api/v1/resistance/methods", "/api/v1/calculations/methods"],
+      "probes": [
+        {
+          "id": "method-catalog",
+          "method": "GET",
+          "path": "/api/v1/resistance/methods",
+          "criteria": [
+            {"id": "status-200", "kind": "status", "expect": [200], "class": "contract"},
+            {"id": "methods-nonempty", "kind": "list_min_len", "path": "methods", "min_len": 3,
+             "class": "contract"}
+          ]
+        }
+      ]
+    },
+    "misc.stubs": {
+      "surface": ["/api/v1/misc"],
+      "probes": [
+        {
+          "id": "surface-probe",
+          "method": "GET",
+          "path": "/api/v1/misc",
+          "criteria": [
+            {"id": "reachable", "kind": "status", "expect": [200, 404], "class": "contract"}
+          ]
+        }
+      ]
+    }
+  }
+}

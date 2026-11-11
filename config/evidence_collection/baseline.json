@@ -1,0 +1,38 @@
+{
+  "schema": "evidence_collection.baseline.v1",
+  "frozen_at": "2026-11-11T00:13:02+00:00",
+  "ruleset": "ec-grade-v1",
+  "spec_sha256": "df2c4b737b5021d44a013cd2cfb19e4ea764f9f756ff5a29326f67275c080e2f",
+  "levels": {
+    "calc.resistance": "MOCK",
+    "calc.stability": "REAL",
+    "propeller.open_water": "WITHHELD",
+    "geometry.generate": "WITHHELD",
+    "geometry.hydro_curves": "WITHHELD",
+    "geometry.list_models": "WITHHELD",
+    "geometry.verify_official": "WITHHELD",
+    "shiphull.generate": "WITHHELD",
+    "stdmodels.lookup": "WITHHELD",
+    "gov.stats": "WITHHELD",
+    "knowledge.docs": "WITHHELD",
+    "dev.gate_5415": "WITHHELD",
+    "dev.git": "WITHHELD",
+    "dev.logs": "WITHHELD",
+    "dev.nginx_audit": "WITHHELD",
+    "dev.probe": "WITHHELD",
+    "dev.restart": "WITHHELD",
+    "dev.services": "WITHHELD",
+    "ai.predict": "WITHHELD",
+    "methods.computation": "WITHHELD",
+    "misc.stubs": "WITHHELD"
+  },
+  "legacy_real": [
+    "calc.stability"
+  ],
+  "legacy_evidence": [
+    "propeller.open_water",
+    "calc.stability",
+    "calc.resistance"
+  ],
+  "note": "冻结基线：回归门只拦『无正面反证的降级』。legacy_real 是独立人审已确认为 REAL 的能力，回归门要求它们保持 REAL。"
+}
