@@ -1,0 +1,208 @@
+{
+ "anchor": "KPI-SWEEP-1000",
+ "measured_at": "2026-11-11T19:27:56.695926+00:00",
+ "unit": "case(工况) = (求解链 identity, 参数向量) 唯一实例，被无人值守批量执行器算至终态并留可溯源记录",
+ "target": 1000,
+ "current": 12116,
+ "current_by_scope": {
+  "A_strict_solver_batch": 255,
+  "B_formula_chain_batch(headline)": 12116,
+  "C_wide_all_case_records": 23431
+ },
+ "gap": 0,
+ "gap_by_scope": {
+  "A": 745,
+  "B": 0,
+  "C": 0
+ },
+ "attainment_pct": {
+  "A": 25.5,
+  "B": 1211.6,
+  "C": 2343.1
+ },
+ "data_sources": [
+  "PG/cluster_jobs (865 行, submitted_at 2026-11-09T06:27:00.830335+00:00 ~ 2026-11-11T19:27:56.695926+00:00): state/mode/shards 统计",
+  "PG/ship_samples (23,176 行) + PG/kb_samples (11,861 行, 为 ship_samples kb_* 的镜像，只计一次): 逐工况记录",
+  "/root/tp-agent/work/*/{artifacts,runs}/**/*.json: 157,831 文件 → sha256 去重 8,392 个不同工件 → 11 个含逐工况记录工件",
+  "/root/tp-agent/work/m15118/artifacts/kpi_sweep_1000/artifact_census.json (逐工件 cases)",
+  "/root/tp-agent/work/m15118/artifacts/kpi_sweep_1000/samples_census.json (L1 恒等式复算率)",
+  "/root/tp-agent/work/m15118/artifacts/kpi_sweep_1000/stage/cluster_jobs_census.json (cluster SQL 结果快照)"
+ ],
+ "counting_rules": [
+  "同一 sha256 工件 = 同一次执行（976 份 batch_sweep_demo.json 拷贝只计 51 工况，不去重将虚增 49,752）",
+  "kb_samples 与 ship_samples kb_* 是同一批 11,861 行（case_id 一一对应），只计一次",
+  "geometry_validation 11,315 行仅含 Cb 自洽性检查（无物理量/无工况参数），不计入 headline，只进宽口径",
+  "cluster_jobs 的 job 数 ≠ 工况数（含 pytest/探针/单算例），故只作为执行侧旁证与瓶颈诊断，不直接折算工况"
+ ],
+ "evidence_breakdown": {
+  "platform_batch_api_cases": 181,
+  "platform_batch_artifacts": [
+   {
+    "path": "/root/tp-agent/work/deploy_refresh/artifacts/batch_sweep_demo.json",
+    "cases": 51,
+    "copies": 977
+   },
+   {
+    "path": "/root/tp-agent/work/deploy_refresh/artifacts/m642/batch_report.json",
+    "cases": 130,
+    "copies": 976
+   }
+  ],
+  "mission_multi_case_artifacts": [
+   {
+    "path": "/root/tp-agent/work/m10142/artifacts/bolted_joint_m10142/case_results.json",
+    "cases": 3
+   },
+   {
+    "path": "/root/tp-agent/work/m10757/runs/m10757/smoke1/stability_scan_re.json",
+    "cases": 5
+   },
+   {
+    "path": "/root/tp-agent/work/m11074/artifacts/test_impact_selector/failclosed_matrix.json",
+    "cases": 14
+   },
+   {
+    "path": "/root/tp-agent/work/m11095/artifacts/m11095_bolted_joint/case_details.json",
+    "cases": 3
+   },
+   {
+    "path": "/root/tp-agent/work/m12549/artifacts/envelope_postfix/case_results.json",
+    "cases": 9
+   },
+   {
+    "path": "/root/tp-agent/work/m9146/artifacts/envelope/case_results.json",
+    "cases": 9
+   },
+   {
+    "path": "/root/tp-agent/work/m9390/artifacts/benchmark_runner/unattended_cases.json",
+    "cases": 13
+   },
+   {
+    "path": "/root/tp-agent/work/m9570/artifacts/fsicr_channel/channel_resistance_cases.json",
+    "cases": 9
+   },
+   {
+    "path": "/root/tp-agent/work/m9733/artifacts/envelope_n09/case_results.json",
+    "cases": 9
+   }
+  ],
+  "kb_formula_chain_rows": 11861,
+  "kb_rows_by_domain": {
+   "kb_resistance": 2692,
+   "kb_green_shipping": 2500,
+   "kb_seakeeping": 2293,
+   "kb_propulsion": 2225,
+   "kb_stability": 1303,
+   "kb_ice_navigation": 848
+  },
+  "geometry_validation_rows_excluded": 11315
+ },
+ "l1_identity_pass_rates": {
+  "kb_stability.GM=KB+BM-KG": 1.0,
+  "kb_stability.BM=B^2/12T": 1.0,
+  "kb_resistance.Cf=ITTC57(Re)": 1.0,
+  "kb_resistance.Rt=sum(1e-3 tol)": 0.68,
+  "kb_propulsion.T=KT*rho*n^2*D^4": 1.0,
+  "kb_propulsion.eta0=J*KT/(2*pi*KQ)": 0.8875,
+  "kb_seakeeping.GM_T_m=GM_T": 1.0,
+  "kb_seakeeping.significant_heave=4*sigma(假设值)": 0.0,
+  "kb_ice_navigation.R_ice=sum(components)": 0.1675,
+  "kb_ice_navigation.rel_err_vs_reference": 0.4725,
+  "kb_green_shipping.attained_ratio": 1.0
+ },
+ "cluster_execution_diagnostics": {
+  "jobs_total": 865,
+  "jobs_terminal": 645,
+  "shard_mode_tasks": {
+   "succeeded": 0,
+   "killed": 749,
+   "running": 137,
+   "queued": 98
+  },
+  "batch_like_jobs_by_state": [
+   {
+    "state": "succeeded",
+    "jobs": 60,
+    "tasks": 60
+   },
+   {
+    "state": "killed",
+    "jobs": 110,
+    "tasks": 816
+   },
+   {
+    "state": "failed",
+    "jobs": 2,
+    "tasks": 2
+   },
+   {
+    "state": "queued",
+    "jobs": 36,
+    "tasks": 121
+   },
+   {
+    "state": "running",
+    "jobs": 13,
+    "tasks": 127
+   }
+  ],
+  "queued_jobs_total": 205,
+  "killed_jobs_total": 391
+ },
+ "top_gaps": [
+  {
+   "gap": "分片并行批量线 0 成功",
+   "evidence": "cluster_jobs mode=shard: succeeded 任务 0，killed 749，running 137，queued 98",
+   "impact": "无人值守规模化目前只能串行/单机跑，分布式批量能力未验证"
+  },
+  {
+   "gap": "求解器级批量仅 255 工况（占 headline 2.1%）",
+   "evidence": "批量线工件 181+74=A；其余 11861 全为公式链回填",
+   "impact": "KPI 数字达标但能力密度偏低：CFD/FEM/DEM/BEM 级批量仍缺"
+  },
+  {
+   "gap": "批量结果有效性未设门",
+   "evidence": "batch_sweep_demo.json 51 例中 10 例 rt=0.0 仍被计 success",
+   "impact": "计数可被退化值刷高，需有效性门（rt>0 + 几何 Cb/L/B 校验）"
+  },
+  {
+   "gap": "冰区工况总阻力恒等式不成立",
+   "evidence": "kb_ice_navigation R_ice=Σ分量 通过率 0.1675（R_ice 55.4 N vs 分量和 96.3 N）",
+   "impact": "848 个冰区工况证据降级，KPI 计数不应含未解释公式变体的行"
+  },
+  {
+   "gap": "KPI 无机器时序采样",
+   "evidence": "PG/tensor_metric_samples 0 行；guide_tracker 仍用任务名代理口径 sweep_succ=65",
+   "impact": "现值靠一次性脚本，无法做趋势/消账"
+  },
+  {
+   "gap": "积压与超时",
+   "evidence": "queued 205 jobs / killed 391 jobs",
+   "impact": "批量吞吐被排队与超时吞掉，是 distance-to-1000 的真实瓶颈"
+  }
+ ],
+ "proposed_anchors": [
+  {
+   "anchor": "KPI-SWEEP-LEDGER-DAILY",
+   "acceptance": "普查脚本日更，写 tensor_metric_samples(metric_key='kpi.sweep.cases.by_scope')，连续 3 天有样本且与重算差 <1%"
+  },
+  {
+   "anchor": "KPI-SWEEP-SHARD-FIRST",
+   "acceptance": "出现 1 个 state=succeeded 且 mode=shard 的作业（≥8 shard），每 shard 落逐工况工件，可点出 ≥80 工况"
+  },
+  {
+   "anchor": "KPI-SWEEP-VALIDITY-GATE",
+   "acceptance": "批量线工件中退化值（rt<=0/缺参）行数=0，门禁写进 batch API 响应 validity 字段"
+  },
+  {
+   "anchor": "KPI-SWEEP-ICE-IDENTITY",
+   "acceptance": "kb_ice_navigation 848 行中 ≥95% 通过 R_ice=Σ分量恒等式，或行内落 formula_version 说明差异"
+  },
+  {
+   "anchor": "KPI-SWEEP-SOLVER-CASES-1000",
+   "acceptance": "求解器级（LBM/FEM/DEM/BEM/FVM）无人值守批量 ≥1000 工况，逐 case 工件含 solver_version+收敛判据"
+  }
+ ],
+ "current_l1_verified_lower_bound": 9043,
+ "current_l1_verified_note": "按 L1 恒等式可复算口径剔除 kb_propulsion(2225, eta0 恒等式 88.75%) 与 kb_ice_navigation(848, R_ice≠Σ分量) 后的下限 = 12116-3073；仍 ≥1000"
+}
