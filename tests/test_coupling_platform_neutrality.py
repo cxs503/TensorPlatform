@@ -35,7 +35,15 @@ ALLOWED_TOP_LEVEL = {
     "ast", "pytest", "tools",
 }
 # CLI/reporting helpers may additionally use a CLI parser and the plotting stack
-TOOLING_MODULES = {"acceptance.py", "figures.py", "report.py", "multiphysics_figures.py"}
+TOOLING_MODULES = {
+    "acceptance.py",
+    "figures.py",
+    "report.py",
+    "multiphysics_figures.py",
+    "maturity_check.py",
+    "maturity_figures.py",
+    "maturity_report.py",
+}
 ALLOWED_TOOLING_EXTRA = {"argparse", "matplotlib", "base64"}
 
 

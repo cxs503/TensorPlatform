@@ -1,0 +1,74 @@
+{
+  "schema_version": "coupled-loop.v1",
+  "loop_id": "loop.two_block.aitken.v1",
+  "description": "Same two-block coupling swept with Aitken dynamic relaxation: the certificate must additionally save at least 40 % of the iterations of the unrelaxed sweep while reaching the same fixed point.",
+  "disciplines": [
+    {
+      "name": "blockA",
+      "state_size": 1,
+      "declares_partials": false
+    },
+    {
+      "name": "blockB",
+      "state_size": 1,
+      "declares_partials": true
+    }
+  ],
+  "coupling_vars": [
+    {
+      "name": "b_to_a",
+      "producer": "blockB",
+      "consumer": "blockA"
+    },
+    {
+      "name": "a_to_b",
+      "producer": "blockA",
+      "consumer": "blockB"
+    }
+  ],
+  "scheme": "jacobi",
+  "relaxation": "aitken",
+  "tolerance": 1e-10,
+  "max_iter": 500,
+  "rho_max": 1.0,
+  "patience": 2,
+  "convergence_gate": {
+    "rho_deviation": 0.05,
+    "min_iteration_reduction": 0.4,
+    "max_iterations_to_flag_divergence": 10
+  },
+  "sensitivity": {
+    "parameter": "load_scale",
+    "rtol": 0.02,
+    "step": 1e-06,
+    "require_declared_partials": true
+  },
+  "conservation_laws": [
+    "interface.flux.quadratic.v1"
+  ],
+  "negative_controls": [
+    {
+      "name": "divergent_loop",
+      "kind": "divergent_loop",
+      "must_fail": true
+    },
+    {
+      "name": "corrupted_partials",
+      "kind": "corrupted_partials",
+      "must_fail": true,
+      "state_scale": 1.5
+    },
+    {
+      "name": "corrupted_param_partial",
+      "kind": "corrupted_partials",
+      "must_fail": true,
+      "param_scale": 1.25
+    }
+  ],
+  "provenance": {
+    "owner": "TensorPlatform",
+    "source_node": "p350w2_n09",
+    "created": "2026-11-11",
+    "notes": "Platform-level example: discipline and variable names are opaque labels; no domain vocabulary."
+  }
+}

@@ -1,0 +1,203 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://tensorplatform.local/contracts/coupled_loop.schema.json",
+  "title": "Coupled Loop Contract v1",
+  "description": "Machine-checkable contract for a multi-discipline fixed-point coupling: which disciplines take part, which variables they exchange, how the loop is swept and relaxed, the convergence gate its certificate must satisfy, and the tolerance of the sensitivity-consistency gate. The platform code that consumes this file knows no physics: discipline names, variable names and parameter names are opaque labels supplied here.",
+  "type": "object",
+  "additionalProperties": false,
+  "required": [
+    "schema_version",
+    "loop_id",
+    "disciplines",
+    "coupling_vars",
+    "scheme",
+    "tolerance",
+    "max_iter",
+    "rho_max",
+    "convergence_gate"
+  ],
+  "properties": {
+    "schema_version": {
+      "const": "coupled-loop.v1"
+    },
+    "loop_id": {
+      "type": "string",
+      "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$",
+      "description": "Stable identifier of this coupled loop."
+    },
+    "description": {
+      "type": "string",
+      "maxLength": 512
+    },
+    "disciplines": {
+      "type": "array",
+      "minItems": 2,
+      "maxItems": 16,
+      "description": "Blocks of the coupled state, in sweep order.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "state_size"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "state_size": {
+            "type": "integer",
+            "minimum": 1,
+            "maximum": 1000000
+          },
+          "declares_partials": {
+            "type": "boolean",
+            "default": false,
+            "description": "True when the discipline ships its own interface Jacobian, which the sensitivity gate then checks against the re-solved derivative."
+          }
+        }
+      }
+    },
+    "coupling_vars": {
+      "type": "array",
+      "minItems": 1,
+      "description": "Exchanged variables. Every var names one producer discipline and one consumer discipline, so the coupling graph is explicit and checkable.",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "producer", "consumer"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "pattern": "^[A-Za-z0-9][A-Za-z0-9._-]{0,63}$"
+          },
+          "producer": {
+            "type": "string",
+            "minLength": 1
+          },
+          "consumer": {
+            "type": "string",
+            "minLength": 1
+          }
+        }
+      }
+    },
+    "scheme": {
+      "enum": ["jacobi", "gauss_seidel"]
+    },
+    "relaxation": {
+      "enum": ["none", "aitken"],
+      "default": "none"
+    },
+    "tolerance": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 1
+    },
+    "max_iter": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 1000000
+    },
+    "rho_max": {
+      "type": "number",
+      "exclusiveMinimum": 0,
+      "maximum": 2,
+      "description": "Divergence threshold of the measured contraction estimate."
+    },
+    "patience": {
+      "type": "integer",
+      "minimum": 1,
+      "maximum": 50,
+      "default": 2
+    },
+    "convergence_gate": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["rho_deviation"],
+      "properties": {
+        "rho_deviation": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "description": "Allowed relative deviation between the measured contraction rate and an independently known spectral radius, when one is supplied."
+        },
+        "min_iteration_reduction": {
+          "type": "number",
+          "minimum": 0,
+          "exclusiveMaximum": 1,
+          "description": "Required fractional saving in iterations from the declared relaxation against the unrelaxed loop."
+        },
+        "max_iterations_to_flag_divergence": {
+          "type": "integer",
+          "minimum": 1,
+          "maximum": 1000
+        }
+      }
+    },
+    "sensitivity": {
+      "type": "object",
+      "additionalProperties": false,
+      "required": ["parameter", "rtol"],
+      "properties": {
+        "parameter": {
+          "type": "string",
+          "minLength": 1,
+          "description": "Opaque name of the parameter the system derivative is taken with respect to."
+        },
+        "rtol": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1,
+          "description": "Tolerance on |composed - resolved| / max(|composed|, |resolved|)."
+        },
+        "step": {
+          "type": "number",
+          "exclusiveMinimum": 0,
+          "maximum": 1
+        },
+        "require_declared_partials": {
+          "type": "boolean",
+          "default": false
+        }
+      }
+    },
+    "conservation_laws": {
+      "type": "array",
+      "description": "Conservation-law contract ids (contracts/conservation_law.schema.json) that this loop must satisfy.",
+      "items": {
+        "type": "string",
+        "pattern": "^[a-z0-9][a-z0-9._-]{2,63}$"
+      }
+    },
+    "negative_controls": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": ["name", "kind", "must_fail"],
+        "properties": {
+          "name": {
+            "type": "string",
+            "minLength": 1,
+            "maxLength": 64
+          },
+          "kind": {
+            "enum": ["divergent_loop", "corrupted_partials", "stalled_loop"]
+          },
+          "must_fail": {
+            "const": true
+          },
+          "state_scale": {
+            "type": "number"
+          },
+          "param_scale": {
+            "type": "number"
+          }
+        }
+      }
+    },
+    "provenance": {
+      "type": "object",
+      "additionalProperties": true
+    }
+  }
+}
