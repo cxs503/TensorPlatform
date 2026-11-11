@@ -1,0 +1,907 @@
+{
+  "schema_version": "evidence_probe_registry.v1",
+  "title": "能力证据等级探针注册表（REAL→MOCK 静默降级红灯化）",
+  "description": "每个能力条目把一条真实实现调用链（target）与一组通用契约探针（anchor/scale_law/monotonic/nontriviality/determinism/bounded）绑定。全部输入、期望值、容差都是数据；机制层（tools/evidence_regression）零领域语义。anchor 的 label 标注取值来源：analytic identity=从闭式关系独立推出；formula pin=按公开公式实现的口径钉；published pin=公开几何/字典数据；golden pin=冻结基线观测量（只能检出形状类退化，不能检出同量级物理漂移）。",
+  "levels_source": {
+    "path": "artifacts/capability_ledger/capability_ledger_resolved.json",
+    "field": "claimed_level",
+    "note": "等级来源台账：门判定只读该字段，不猜。"
+  },
+  "entries": [
+    {
+      "capability_id": "calc.resistance",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "阻力能力绑定的核：无量纲数解析恒等式 + 总阻力随速度单调 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "api.domain.ship_resistance:resistance_breakdown",
+            "kwargs": {
+              "length": 100.0,
+              "beam": 20.0,
+              "draft": 8.0,
+              "cb": 0.7,
+              "speed": 5.0
+            }
+          }
+        ],
+        "field": "reynolds"
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "field": "reynolds",
+          "label": "analytic identity Re = V*L/nu",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "speed": 5.0
+              },
+              "expect": 498007968.12749004,
+              "tol_rel": 1e-09
+            }
+          ]
+        },
+        {
+          "kind": "monotonic",
+          "field": "rt_n",
+          "label": "total resistance grows with speed",
+          "base": {
+            "length": 100.0,
+            "beam": 20.0,
+            "draft": 8.0,
+            "cb": 0.7
+          },
+          "axis": "speed",
+          "values": [
+            3.0,
+            5.0,
+            7.0,
+            9.0
+          ],
+          "direction": "increasing",
+          "tol_rel": 1e-09
+        },
+        {
+          "kind": "nontriviality",
+          "field": "rt_n",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "speed": 3.0
+              }
+            },
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "speed": 9.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.05
+        },
+        {
+          "kind": "determinism",
+          "field": "reynolds",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "speed": 5.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "calc.stability",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "稳性能力绑定的核：正浮 GZ=0 解析恒等 + 小角区单调 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "services.stability_reference:exact_gz_box",
+            "kwargs": {
+              "beam_m": 20.0,
+              "draft_m": 8.0,
+              "kg_m": 6.0,
+              "phi_rad": 0.2
+            }
+          }
+        ],
+        "field": "gz_m"
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "field": "gz_m",
+          "label": "analytic identity GZ(upright) = 0",
+          "cases": [
+            {
+              "kwargs": {
+                "beam_m": 20.0,
+                "draft_m": 8.0,
+                "kg_m": 6.0,
+                "phi_rad": 0.0
+              },
+              "expect": 0.0,
+              "atol": 1e-12,
+              "tol_rel": 1e-12
+            }
+          ]
+        },
+        {
+          "kind": "anchor",
+          "field": "gz_m",
+          "label": "golden pin (nonzero restoring arm at 0.2 rad; the zero-angle anchor alone cannot see a uniform drift)",
+          "cases": [
+            {
+              "kwargs": {
+                "beam_m": 20.0,
+                "draft_m": 8.0,
+                "kg_m": 6.0,
+                "phi_rad": 0.2
+              },
+              "expect": 0.4474577015014778,
+              "tol_rel": 1e-06
+            }
+          ]
+        },
+        {
+          "kind": "monotonic",
+          "field": "gz_m",
+          "label": "restoring arm grows over the small-angle range",
+          "base": {
+            "beam_m": 20.0,
+            "draft_m": 8.0,
+            "kg_m": 6.0
+          },
+          "axis": "phi_rad",
+          "values": [
+            0.05,
+            0.1,
+            0.15,
+            0.2
+          ],
+          "direction": "increasing",
+          "tol_rel": 1e-09
+        },
+        {
+          "kind": "nontriviality",
+          "field": "gz_m",
+          "cases": [
+            {
+              "kwargs": {
+                "beam_m": 20.0,
+                "draft_m": 8.0,
+                "kg_m": 6.0,
+                "phi_rad": 0.05
+              }
+            },
+            {
+              "kwargs": {
+                "beam_m": 20.0,
+                "draft_m": 8.0,
+                "kg_m": 6.0,
+                "phi_rad": 0.3
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "field": "gz_m",
+          "cases": [
+            {
+              "kwargs": {
+                "beam_m": 20.0,
+                "draft_m": 8.0,
+                "kg_m": 6.0,
+                "phi_rad": 0.2
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "propeller.open_water",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "敞水能力绑定的推力载荷系数核：2T/(rho*V^2*pi*D^2/4) 解析恒等 + 对进速的 -2 次齐次性 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "services.propulsion:thrust_coefficient",
+            "kwargs": {
+              "thrust_n": 100000.0,
+              "diameter_m": 5.0,
+              "speed_ms": 2.0,
+              "rho": 1025.0
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "label": "analytic identity Ct = 2T/(rho*V^2*pi*D^2/4) (loading coefficient on the disk)",
+          "cases": [
+            {
+              "kwargs": {
+                "thrust_n": 100000.0,
+                "diameter_m": 5.0,
+                "speed_ms": 2.0,
+                "rho": 1025.0
+              },
+              "expect": 2.4843698433856836,
+              "tol_rel": 1e-09
+            }
+          ]
+        },
+        {
+          "kind": "scale_law",
+          "label": "homogeneous of degree -2 in advance speed",
+          "base": {
+            "thrust_n": 100000.0,
+            "diameter_m": 5.0,
+            "speed_ms": 2.0,
+            "rho": 1025.0
+          },
+          "axis": "speed_ms",
+          "factor": 2.0,
+          "exponent": -2.0,
+          "tol_rel": 1e-09
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "thrust_n": 100000.0,
+                "diameter_m": 5.0,
+                "speed_ms": 2.0,
+                "rho": 1025.0
+              }
+            },
+            {
+              "kwargs": {
+                "thrust_n": 100000.0,
+                "diameter_m": 5.0,
+                "speed_ms": 4.0,
+                "rho": 1025.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "thrust_n": 100000.0,
+                "diameter_m": 5.0,
+                "speed_ms": 2.0,
+                "rho": 1025.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "geometry.hydro_curves",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "静水力能力：壁侧驳船吃水体积解析恒等 L*B*T + 长度线性齐次 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "services.ship_hydrostatics:barge_offsets",
+            "kwargs": {
+              "length": 100.0,
+              "beam": 20.0,
+              "draft": 8.0
+            }
+          },
+          {
+            "ref": "services.ship_hydrostatics:compute_hydrostatics",
+            "kwargs": {}
+          }
+        ],
+        "field": "volume_m3"
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "field": "volume_m3",
+          "label": "analytic identity V = L*B*T (wall-sided barge)",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0
+              },
+              "expect": 16000.0,
+              "tol_rel": 1e-09
+            }
+          ]
+        },
+        {
+          "kind": "scale_law",
+          "field": "volume_m3",
+          "label": "homogeneous of degree 1 in length",
+          "base": {
+            "length": 100.0,
+            "beam": 20.0,
+            "draft": 8.0
+          },
+          "axis": "length",
+          "factor": 2.0,
+          "exponent": 1.0,
+          "tol_rel": 1e-06
+        },
+        {
+          "kind": "nontriviality",
+          "field": "volume_m3",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0
+              }
+            },
+            {
+              "kwargs": {
+                "length": 50.0,
+                "beam": 10.0,
+                "draft": 4.0
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "field": "volume_m3",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "geometry.generate",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "几何生成能力绑定的湿表面积口径：公式钉 + 随长度单调 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "api.domain.hull_geometry:holtrop_wetted_surface",
+            "kwargs": {
+              "length": 100.0,
+              "beam": 20.0,
+              "draft": 8.0,
+              "cb": 0.7,
+              "cm": 0.98,
+              "cwp": 0.8
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "label": "formula pin (Holtrop & Mennen 1982 wetted-surface expression)",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "cm": 0.98,
+                "cwp": 0.8
+              },
+              "expect": 2741.5972121593354,
+              "tol_rel": 1e-06
+            }
+          ]
+        },
+        {
+          "kind": "monotonic",
+          "label": "wetted surface grows with length",
+          "base": {
+            "beam": 20.0,
+            "draft": 8.0,
+            "cb": 0.7,
+            "cm": 0.98,
+            "cwp": 0.8
+          },
+          "axis": "length",
+          "values": [
+            100.0,
+            150.0,
+            200.0
+          ],
+          "direction": "increasing",
+          "tol_rel": 1e-09
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "cm": 0.98,
+                "cwp": 0.8
+              }
+            },
+            {
+              "kwargs": {
+                "length": 200.0,
+                "beam": 40.0,
+                "draft": 16.0,
+                "cb": 0.7,
+                "cm": 0.98,
+                "cwp": 0.8
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 100.0,
+                "beam": 20.0,
+                "draft": 8.0,
+                "cb": 0.7,
+                "cm": 0.98,
+                "cwp": 0.8
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "geometry.verify_official",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "几何校验能力：官方几何 Cb 复算钉 + 校验裁定为真 + 跨船型变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "api.domain.hull_geometry:validate_hull_geometry",
+            "kwargs": {
+              "hull": "KVLCC2"
+            }
+          }
+        ],
+        "field": "derived.cb_from_volume"
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "field": "derived.cb_from_volume",
+          "label": "published pin (declared Cb reproduced from volume/LBT)",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              },
+              "expect": 0.8098008537798409,
+              "tol_rel": 1e-05
+            }
+          ]
+        },
+        {
+          "kind": "anchor",
+          "field": "ok",
+          "label": "validation verdict for a published hull is True",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              },
+              "expect": true
+            }
+          ]
+        },
+        {
+          "kind": "nontriviality",
+          "field": "derived.cb_from_volume",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              }
+            },
+            {
+              "kwargs": {
+                "hull": "DTMB-5415"
+              }
+            }
+          ],
+          "min_rel_spread": 0.3
+        },
+        {
+          "kind": "determinism",
+          "field": "derived.cb_from_volume",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "methods.computation",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "数值方法能力：Simpson 权重对二次多项式的解析精确性 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "services.ship_hydrostatics:simpson_integrate",
+            "kwargs": {
+              "y": [
+                0.0,
+                1.0,
+                4.0
+              ],
+              "x": [
+                0.0,
+                0.5,
+                1.0
+              ]
+            }
+          }
+        ],
+        "field": "0"
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "field": "0",
+          "label": "analytic identity int_0^1 x^2 dx = 1/3 (Simpson exact for quadratics)",
+          "cases": [
+            {
+              "kwargs": {
+                "y": [
+                  0.0,
+                  1.0,
+                  4.0
+                ],
+                "x": [
+                  0.0,
+                  0.5,
+                  1.0
+                ]
+              },
+              "expect": 1.3333333333333333,
+              "tol_rel": 1e-12
+            }
+          ]
+        },
+        {
+          "kind": "nontriviality",
+          "field": "0",
+          "cases": [
+            {
+              "kwargs": {
+                "y": [
+                  0.0,
+                  1.0,
+                  4.0
+                ],
+                "x": [
+                  0.0,
+                  0.5,
+                  1.0
+                ]
+              }
+            },
+            {
+              "kwargs": {
+                "y": [
+                  0.0,
+                  2.0,
+                  8.0
+                ],
+                "x": [
+                  0.0,
+                  0.5,
+                  1.0
+                ]
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "field": "0",
+          "cases": [
+            {
+              "kwargs": {
+                "y": [
+                  0.0,
+                  1.0,
+                  4.0
+                ],
+                "x": [
+                  0.0,
+                  0.5,
+                  1.0
+                ]
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "shiphull.generate",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "船型生成能力绑定的轴对程有效方形系数：冻结基线钉 + 表面积变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "api.domain.hull_geometry:axisymmetric_cb_effective",
+            "kwargs": {
+              "length": 4.356,
+              "diameter": 0.508,
+              "s_ref": 5.6
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "label": "golden pin (frozen baseline observable)",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 4.356,
+                "diameter": 0.508,
+                "s_ref": 5.6
+              },
+              "expect": 0.8055389988960958,
+              "tol_rel": 1e-06
+            }
+          ]
+        },
+        {
+          "kind": "bounded",
+          "label": "effective prismatic block coefficient stays physical",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 4.356,
+                "diameter": 0.508,
+                "s_ref": 5.6
+              }
+            },
+            {
+              "kwargs": {
+                "length": 4.356,
+                "diameter": 0.508,
+                "s_ref": 3.2
+              }
+            }
+          ],
+          "lo": 0.05,
+          "hi": 1.0
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 4.356,
+                "diameter": 0.508,
+                "s_ref": 5.6
+              }
+            },
+            {
+              "kwargs": {
+                "length": 4.356,
+                "diameter": 0.508,
+                "s_ref": 2.8
+              }
+            }
+          ],
+          "min_rel_spread": 0.05
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "length": 4.356,
+                "diameter": 0.508,
+                "s_ref": 5.6
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "stdmodels.lookup",
+      "sys_path": [
+        "backend"
+      ],
+      "note": "标准模型查询能力：公开主要尺度钉 + 跨船型变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "api.domain.hull_geometry:resolve_geometry",
+            "kwargs": {
+              "hull": "KVLCC2"
+            }
+          }
+        ],
+        "field": "beam"
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "field": "beam",
+          "label": "published pin (principal dimension from the published geometry table)",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              },
+              "expect": 58.0,
+              "tol_rel": 1e-12
+            }
+          ]
+        },
+        {
+          "kind": "nontriviality",
+          "field": "beam",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              }
+            },
+            {
+              "kwargs": {
+                "hull": "DTMB-5415"
+              }
+            }
+          ],
+          "min_rel_spread": 0.5
+        },
+        {
+          "kind": "determinism",
+          "field": "beam",
+          "cases": [
+            {
+              "kwargs": {
+                "hull": "KVLCC2"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "capability_id": "gov.stats",
+      "note": "治理统计能力绑定的等级偏序基元：序数钉 + 变化敏感 + 确定性",
+      "target": {
+        "steps": [
+          {
+            "ref": "tools.capability_audit_gate.taxonomy:rank",
+            "kwargs": {
+              "level": "REAL"
+            }
+          }
+        ],
+        "field": null
+      },
+      "probes": [
+        {
+          "kind": "anchor",
+          "label": "analytic identity (ordinal position of the five-level scale)",
+          "cases": [
+            {
+              "kwargs": {
+                "level": "REAL"
+              },
+              "expect": 4,
+              "tol_rel": 1e-09
+            },
+            {
+              "kwargs": {
+                "level": "MOCK"
+              },
+              "expect": 2,
+              "tol_rel": 1e-09
+            }
+          ]
+        },
+        {
+          "kind": "nontriviality",
+          "cases": [
+            {
+              "kwargs": {
+                "level": "REAL"
+              }
+            },
+            {
+              "kwargs": {
+                "level": "MOCK"
+              }
+            }
+          ],
+          "min_rel_spread": 0.3
+        },
+        {
+          "kind": "determinism",
+          "cases": [
+            {
+              "kwargs": {
+                "level": "REAL"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ]
+}
