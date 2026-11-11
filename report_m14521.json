@@ -1,0 +1,8 @@
+{
+  "title": "【负知识账本建设·m14521】negative_knowledge_ledger 真实入账 35 条",
+  "summary": "从 agent_memory/quality/runs 等证据源提取 35 条 FAIL/证伪案例，结构化落表 negative_knowledge_ledger（场景/根因/防再犯规则/证据指针），配套消费端机制说明+加载器+验证脚本+15 条测试全绿。判据：SELECT count(*) ≥ 30 ✅（实测 35），每条有证据指针 ✅（100%）。",
+  "scenario_key": "negative-knowledge-ledger-refill",
+  "mission_id": 14521,
+  "tags": ["negative-knowledge", "ledger", "quality", "failure-analysis", "knowledge-distillation"],
+  "markdown": "# 负知识账本建设 · m14521\n\n## 1. 案例介绍\nowner 2026-11-11 质量审计令配套：QA pending 8699 篇的负知识沉淀通道。前作 m14355 无声失败，本单接力 refill。\n\n**判据**：`SELECT count(*) FROM negative_knowledge_ledger ≥ 30` 且每条有证据指针。\n\n## 2. 方法\n从 agent_memory（m7297/m9049/m9356/m200/m311）、quality（delivery_semantics/criteria_lint/scorer_robustness）、runs（m591 verdict）、validation_report 等证据源提取 TRAPS/FAIL 案例，按 NegativeKnowledgeEntry schema 结构化。\n\n## 3. 结果\n- **总条目数**：35（≥30 ✅）\n- **有证据指针**：35/35（100% ✅）\n- **失败类型分布**：hypothesis_falsified 25 / method_failed 6 / regression 2 / blocked 2\n- **测试**：15/15 passed\n- **加载**：35/35 成功入库\n\n## 4. 图\n纯文档/后端任务，无数值计算结果图。\n\n## 5. 注意点\n- SQL 方言差异（PostgreSQL vs SQLite）需加载器适配\n- 检索 shingle 匹配对短查询敏感\n- 消费端 prompt 注入的 render_prompt_block() 待实现\n\n## 6. 误差判定\n本任务为数据登记，无数值计算误差。关键量：条目数 35 ≥ 30 ✅，证据指针 100% ✅，测试 100% ✅。\n\n## 7. 交付物\n- `artifacts/negative_knowledge_ledger/negative_knowledge_ledger.json`\n- `backend/migrations/120_negative_knowledge_ledger.sql`\n- `scripts/load_negative_knowledge_ledger.py`\n- `scripts/verify_negative_knowledge_ledger.py`\n- `tests/test_negative_knowledge.py`\n- `docs/negative_knowledge_consumption.md`\n- `config/negative_knowledge.json`"
+}
