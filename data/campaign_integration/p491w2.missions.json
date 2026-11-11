@@ -1,0 +1,301 @@
+{
+  "api_base": "http://127.0.0.1:8010/api/v1",
+  "fetched_at": "2026-11-11T06:11:23+00:00",
+  "nodes": [
+    {
+      "actual_end": null,
+      "block_reason": null,
+      "campaign_node_id": 901726,
+      "consecutive_fails": 1,
+      "metadata": {
+        "acceptance_criteria": [
+          "事故重放通过",
+          "合成负控3/3",
+          "0误报",
+          "≥30能力分类",
+          "单仓≤120s",
+          "成熟化接口对齐"
+        ],
+        "goal": "【物理目标】建立平台能力台账证据驱动自动升账与验证面活性巡检机制，实现WITHHELD/MOCK→REAL的机器可执行闭环，并检测验证面因符号迁移/导入漂移导致的静默失效。【实现路径】(1)能力升账引擎：解析feature_ledger中capability的evidence字段，当pytest通过率≥90%且基准误差<15%时自动将status从WITHHELD/MOCK升级为REAL，带rollback guard；(2)验证面活性巡检：pytest --collect-only解析collect error/import error，AST静态检查被测模块from-import目标是否可解析，输出alive/dead/unmapped三态；(3)台账交叉器：将活性检测结果与feature_ledger/tensor_capability_deltas交叉，dead且台账REAL时fail-closed并降级建议；(4)用git历史commit做天然正反例（修复前ImportError→dead，修复后→alive）。【机器可算验收判据】(a)事故重放：修复前commit⇒dead且exit≠0，修复后⇒alive且exit=0；(b)合成负控：3种符号迁移检出率3/3；(c)卫生：健康仓0误报；(d)≥30个已登记能力三态分类；(e)单仓巡检≤120s；(f)成熟化单：升账引擎与既有FEAT-LEDGER-GATE接口对齐，输出降级建议JSON。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13928,
+      "node_key": "p491w2-n01-ledger-liveness-maturity",
+      "repo": "TensorPlatform",
+      "status": "in-flight",
+      "title": "N01: 成熟化能力台账自动升账与验证面活性巡检"
+    },
+    {
+      "actual_end": "2026-11-11T05:11:34.691628+00:00",
+      "block_reason": "infra x5 (agent_lost)",
+      "campaign_node_id": 901727,
+      "consecutive_fails": 0,
+      "metadata": {
+        "acceptance_criteria": [
+          "轴对称源项误差<3%",
+          "轴上奇异性振荡<1%",
+          "Taylor-Aris误差<5%",
+          "守恒误差<1e-10",
+          "pytest≥15全绿"
+        ],
+        "goal": "【物理目标】在TensorLBM中实现柱坐标轴对称被动标量输运核，覆盖几何源项、轴上奇异性极限处理、并与圆管Taylor-Aris弥散解析解互裁。【实现路径】(1)柱坐标LBM离散：D2Q9/D3Q19在(r,z)平面的轴对称形式，添加几何源项S=ν(∂φ/∂r)/r；(2)轴上奇异性处理：r→0时源项极限用L'Hôpital法则，∂φ/∂r|r=0=0（对称性），实现正则化；(3)圆管Taylor-Aris互裁：Poiseuille流中被动标量纵向弥散系数D_eff=D(1+Pe²/48)，与解析解比对；(4)边界条件：轴对称轴r=0对称BC，管壁无滑移+标量固定值/通量BC。【机器可算验收判据】(a)轴对称源项：均匀流中∂φ/∂t+u∂φ/∂z=ν∇²φ+ν(∂φ/∂r)/r，稳态解误差<3%；(b)轴上奇异性：r→0时源项→0，数值振荡<1%；(c)Taylor-Aris：Pe=10/50/100时D_eff与解析解误差<5%；(d)守恒律：标量总量守恒误差<1e-10；(e)pytest≥15全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13246,
+      "node_key": "p491w2-n02-axisymmetric-scalar",
+      "repo": "TensorLBM",
+      "status": "blocked",
+      "title": "N02: TensorLBM轴对称被动标量输运核"
+    },
+    {
+      "actual_end": "2026-11-11T05:11:34.927017+00:00",
+      "block_reason": "infra x5 (agent_lost)",
+      "campaign_node_id": 901728,
+      "consecutive_fails": 0,
+      "metadata": {
+        "acceptance_criteria": [
+          "再冻结误差<5%",
+          "阻力单调递增",
+          "τ_s与k反比",
+          "编队阻力<独立和",
+          "负控通过",
+          "端到端报告",
+          "pytest≥18全绿"
+        ],
+        "goal": "【物理目标】建立冰航道复航记忆效应与时间依赖阻力演化模型，输出通道再冻结动力学曲线、后续船舶阻力时变曲线、编队航行最优时间窗口。【实现路径】(1)破冰船通道几何参数化：宽度W、深度D、碎冰覆盖率α、碎冰尺寸分布FSD；(2)再冻结动力学：dδ/dt=k·(T_freeze-T_air)·exp(-h/δ)，δ为冰厚，k为热传导系数，h为对流换热系数；(3)通道阻力时变曲线：R(t)=R_open_water+(R_ice-R_open_water)·(1-exp(-t/τ))，τ为再冻结时间常数；(4)碎冰再冻结：α(t)=α_0·exp(-t/τ_s)+α_eq·(1-exp(-t/τ_s))；(5)编队航行最优时间窗口优化：minΣR_i(t_i) s.t. t_{i+1}-t_i≥Δt_min；(6)端点POST /ice_navigation/channel_memory。【机器可算验收判据】(a)再冻结动力学：T_air=T_freeze时dδ/dt=0，T_air<T_freeze时dδ/dt>0，误差<5%；(b)阻力时变：t→0时R→R_open_water，t→∞时R→R_ice，单调递增；(c)碎冰再冻结：α(t)从α_0→α_eq，τ_s与k成反比；(d)最优时间窗口：编队总阻力<各船独立阻力之和；(e)负控：T_air>T_freeze时dδ/dt<0；(f)端到端报告；(g)pytest≥18全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13248,
+      "node_key": "p491w2-n03-channel-memory",
+      "repo": "TensorDEM",
+      "status": "blocked",
+      "title": "N03: 冰航道复航记忆效应与时间依赖阻力演化"
+    },
+    {
+      "actual_end": "2026-11-11T05:11:34.751020+00:00",
+      "block_reason": "infra x5 (agent_lost)",
+      "campaign_node_id": 901729,
+      "consecutive_fails": 0,
+      "metadata": {
+        "acceptance_criteria": [
+          "Wiener界0违反",
+          "退化回归≤1%",
+          "CMY单调增",
+          "PSD扫描归因",
+          "Bi≤1%",
+          "稳健性通过",
+          "δ_crit自洽"
+        ],
+        "goal": "【物理目标】将堆积床有效导热k_eff从单分散-光滑-Hertz-纯导热推广到k_eff(φ,σ_d/d,P,T)：接触热导用Cooper-Mikic-Yovanovich粗糙面模型，粒径服从对数正态PSD，显式划出等温球近似的Bi失效边界。【实现路径】(1)在P74-N11接触网络+SOR/直接双求解器上叠加：对数正态PSD抽样、配位数模型c_n(φ,PSD)、CMY接触热导h_c∝(P/H)^0.985/(σ_rms/R)^0.8实现与Hertz极限分支；(2)粒子内部1D球对称导热（Bi>0.1时开关）检验等温球假设；(3)δ_crit随T与PSD宽度的表（slab/cyl/sph三几何）；(4)产物artifacts JSON+4图。【机器可算验收判据】(a)Maxwell-Eucken/Wiener上下界0违反；(b)退化回归：PSD→0且CMY光滑极限时k_eff与P74-N11偏差≤1%；(c)CMY vs Hertz的k_eff差随σ_rms/R单调增；(d)PSD宽度扫描：σ_d/d=0.1/0.3/0.5⇒k_eff单调或给出非单调物理归因；(e)Bi扫描：Bi<0.1时内部导热开关差≤1%；(f)种子CV≤2%、N×2网格差≤1%、SOR vs直接解≤1e-10；(g)δ_crit(T,P)表与P74-N11自洽。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13249,
+      "node_key": "p491w2-n04-bed-conductivity-gen2",
+      "repo": "TensorDEM",
+      "status": "blocked",
+      "title": "N04: TensorDEM堆积床有效导热第二代"
+    },
+    {
+      "actual_end": "2026-11-11T05:11:34.810411+00:00",
+      "block_reason": "infra x5 (agent_lost)",
+      "campaign_node_id": 901730,
+      "consecutive_fails": 0,
+      "metadata": {
+        "acceptance_criteria": [
+          "冰载荷误差<5%",
+          "波浪RAO误差<3%",
+          "联合极值误差<5%",
+          "极限强度误差<10%",
+          "FORM误差<5%",
+          "γ_ice>γ_wave",
+          "IACS修正1.1-1.5",
+          "pytest≥18全绿"
+        ],
+        "goal": "【物理目标】建立冰+波浪联合载荷下船体梁极限强度的耦合效应评估能力，输出联合载荷极值分布、极限强度折减系数、目标可靠度，并与IACS UR S11互裁。【实现路径】(1)冰载荷时程M_ice(t)：DEM冰-船接触力时程→船体梁弯矩（沿船长积分）；(2)波浪弯矩时程M_wave(t)：线性/二阶波浪理论→波浪弯矩RAO→不规则波时程（JONSWAP谱）；(3)联合载荷极值分布：M_total=M_ice+M_wave，考虑载荷相关性ρ，用Copula函数建模联合分布；(4)船体梁极限强度σ_u(M_total)：ISUM理想结构单元法，考虑冰载荷局部作用与波浪弯矩全局作用的耦合效应；(5)目标可靠度β_target：FORM一次二阶矩法，极限状态函数g=σ_u-M_total/W，β=Φ⁻¹(P_f)；(6)分项系数校准：γ_ice,γ_wave使β≥β_target；(7)IACS UR S11互裁。【机器可算验收判据】(a)冰载荷时程：简谐冰力幅值误差<5%；(b)波浪弯矩RAO与线性理论误差<3%；(c)联合极值：ρ=0时M_total极值=M_ice极值+M_wave极值，误差<5%；(d)极限强度：纯波浪弯矩下σ_u与IACS CSR基准误差<10%；(e)可靠度：FORM β与Monte Carlo(10⁶次)误差<5%；(f)分项系数：γ_ice>γ_wave；(g)IACS互裁：冰区修正系数1.1-1.5；(h)pytest≥18全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13250,
+      "node_key": "p491w2-n05-ice-wave-ultimate",
+      "repo": "TensorPhysics",
+      "status": "blocked",
+      "title": "N05: 冰+波浪联合载荷下船体梁极限强度"
+    },
+    {
+      "actual_end": "2026-11-11T06:05:09.293205+00:00",
+      "block_reason": null,
+      "campaign_node_id": 901731,
+      "consecutive_fails": 0,
+      "metadata": {
+        "acceptance_criteria": [
+          "捕集误差<10%",
+          "ω_crit误差<5%",
+          "几何误差<2%",
+          "K_T退化<2%",
+          "P_loss>0",
+          "负控通过",
+          "端到端报告",
+          "pytest≥18全绿"
+        ],
+        "goal": "【物理目标】建立螺旋桨叶片积冰几何变形与水动力性能退化耦合预报能力，输出积冰厚度分布、推力/扭矩退化曲线、净功率损失。【实现路径】(1)frazil冰捕集效率：η_capture=f(St,Re,T_water)，Stokes数St=ρ_ice·d²·U/(18μ·D)；(2)叶片表面积冰厚度分布δ(r,θ)：沿叶片展向r和周向θ的积冰厚度；(3)离心力-粘附力平衡：F_centrifugal=m_ice·ω²r，F_adhesion=τ_adhesion·A_contact；(4)叶片剖面几何修改：积冰导致leading edge radius增加Δr_LE，camber改变Δf；(5)推力/扭矩退化：修正升力面理论，K_T(iced)=K_T(clean)·(1-α_T·δ_avg/D)，K_Q(iced)=K_Q(clean)·(1+α_Q·δ_avg/D)；(6)净功率损失闭环：P_loss=(T_clean·V-T_iced·V)+(Q_iced·ω-Q_clean·ω)；(7)端点POST /propulsion/propeller_ice_accretion。【机器可算验收判据】(a)捕集效率：St→0时η→0，St→∞时η→1，与Langmuir误差<10%；(b)离心力-粘附力：临界转速ω_crit数值解与解析解误差<5%；(c)几何修改：Δr_LE=δ，误差<2%；(d)推力/扭矩：δ_avg/D=0.01时K_T退化<2%，K_Q增加<3%；(e)净功率损失：P_loss>0且P_loss∝δ_avg；(f)负控：无积冰时退化→0；(g)端到端报告；(h)pytest≥18全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13926,
+      "node_key": "p491w2-n06-propeller-ice",
+      "repo": "ship-performance-platform",
+      "status": "done",
+      "title": "N06: 螺旋桨叶片积冰几何变形与水动力性能退化"
+    },
+    {
+      "actual_end": null,
+      "block_reason": null,
+      "campaign_node_id": 901732,
+      "consecutive_fails": 1,
+      "metadata": {
+        "acceptance_criteria": [
+          "接缝跳变≤1e-3",
+          "正车退化≤1e-6",
+          "J_inner时程输出",
+          "跨零误差量化",
+          "能量残差≤10%",
+          "既有测试全绿"
+        ],
+        "goal": "【物理目标】判定稳态回转（δ=20°/35°、Fn=0.1–0.25）时内侧桨有效进速J_inner是否跨零，并给出四象限K_T/K_Q(J)在该工况的连续性与它对回转轨迹、横倾角的反馈量。【实现路径】(1)在P74-N03耦合回转模型里把桨负荷从正车多项式换成四象限表（正车象限接P74-N01的B系列多项式以保证≤1e-6一致；J<0象限用四象限近似族）；(2)J由局部伴流w(U,β)与船速矢量合成，逐时步记录J_inner(t)与J_outer(t)；(3)在J=0处做C0/C1连续性检查与切点检测；(4)双跑（正车-only vs 四象限）输出回转直径、横倾角、桨功率时程的差值表。【机器可算验收判据】(a)象限接缝：J=0±处K_T/K_Q相对跳变≤1e-3，J=0⁺静推力与B系列J=0值偏差≤3%；(b)正车退化：直航β=0工况下与P74-N01敞水结果逐点一致≤1e-6；(c)J_inner(t)时程给出并如实判定是否跨零；(d)若跨零：正车-only近似造成的回转直径误差与横倾角误差必须给数，fail-closed门|J|<J_gate⇒必须用四象限表；(e)能量账本：桨功率输入+阻力耗散+回转动能变化残差≤10%；(f)既有操纵/推进测试全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13927,
+      "node_key": "p491w2-n07-propeller-quadrant",
+      "repo": "ship-performance-platform",
+      "status": "in-flight",
+      "title": "N07: 回转内侧桨负进速与四象限连续性"
+    },
+    {
+      "actual_end": null,
+      "block_reason": null,
+      "campaign_node_id": 901733,
+      "consecutive_fails": 1,
+      "metadata": {
+        "acceptance_criteria": [
+          "knee连续性误差<1e-10",
+          "支路归属连续",
+          "规范误差<1%",
+          "BS-D残差<0.01",
+          "pytest≥15全绿"
+        ],
+        "goal": "【物理目标】将S-N常数表从硬编码转录改为派生式导出表，确保knee点连续性，并基于修复后的常数表重算P74-N04已交付的谱疲劳结论，量化Δ寿命。【实现路径】(1)解析IACS CSR/规范S-N曲线公式，从m/log a1/knee点参数派生log a2，确保knee点处斜率连续；(2)实现支路归属负控：给定循环次数N，自动判定使用高周/低周支路，边界处连续；(3)用修复后的常数表重算P74-N04的谱疲劳案例（Dirlik+Miner），输出Δ寿命表；(4)端点POST /structural/fatigue/sn_table_rebuild。【机器可算验收判据】(a)knee连续性：knee点处两支线应力幅值相等，相对误差<1e-10；(b)支路归属：N=knee时两支线给出相同寿命，误差<1e-10；(c)退化回归：修复后常数表与规范原文（非转录值）比对，所有类别误差<1%；(d)Δ寿命重算：输出P74-N04各案例的寿命变化百分比，BS-D类残差从+0.210降至<0.01；(e)pytest≥15全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13925,
+      "node_key": "p491w2-n08-sn-knee-continuity",
+      "repo": "ship-performance-platform",
+      "status": "in-flight",
+      "title": "N08: S-N常数表knee连续性重建与谱疲劳重算"
+    },
+    {
+      "actual_end": "2026-11-11T05:11:34.868094+00:00",
+      "block_reason": "infra x5 (agent_lost)",
+      "campaign_node_id": 901734,
+      "consecutive_fails": 0,
+      "metadata": {
+        "acceptance_criteria": [
+          "长波极限|κ-1|≤2%",
+          "RAO差量化",
+          "域边界单调",
+          "κ_long排序一致",
+          "域外fail-closed",
+          "既有测试全绿"
+        ],
+        "goal": "【物理目标】为准静水应力RAO建立可替代域判据：预注册λ/L–Fn包络，计算与完整耐波RAO的寿命比κ曲面，实现域外fail-closed。【实现路径】(1)预注册λ/L–Fn包络：λ/L≥20且Fn→0时准静水假定成立，定义可用域边界；(2)寿命比κ曲面：在(Hs,Tz)网格上分别用准静水RAO和完整耐波RAO计算谱疲劳寿命，κ=σ_quasi/σ_full，输出κ(λ/L,Fn)曲面；(3)域外fail-closed：当|κ-1|>5%时标记不可用，调用时raise异常；(4)长波极限归位门：λ/L≥20且Fn→0时κ→1（|κ-1|≤2%）；(5)多海况加权：用解析PM谱给出长期κ_long。【机器可算验收判据】(a)长波极限：λ/L≥20且Fn→0时|κ-1|≤2%；(b)λ/L≈0.5处两口径弯矩RAO幅值/相位差量化，归因到辐射/绕射与动力放大；(c)域边界：所有|κ-1|>5%格点标不可用，等值线在(λ/L,Fn)上单调；(d)κ_long与短期κ排序一致；(e)域外调用必须raise/fail-closed；(f)既有谱疲劳14+17项测试全绿。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13254,
+      "node_key": "p491w2-n09-quasi-hydrostatic-domain",
+      "repo": "ship-performance-platform",
+      "status": "blocked",
+      "title": "N09: 准静水应力RAO可替代域判据"
+    },
+    {
+      "actual_end": null,
+      "block_reason": null,
+      "campaign_node_id": 901735,
+      "consecutive_fails": 1,
+      "metadata": {
+        "acceptance_criteria": [
+          "产物齐备率≥9/9",
+          "接口契约0违反",
+          "验收门逐项通过",
+          "战役报告六要素齐",
+          "≥5能力登记",
+          "成熟化输出"
+        ],
+        "goal": "【物理目标】作为本战役成熟化集成节点，汇总N01-N09全部节点的产物与验收结果，执行战役级集成测试与验收门裁决，输出战役总结报告。【实现路径】(1)产物收集：从各节点artifact目录收集JSON报告、测试覆盖率、基准误差数据；(2)集成测试：跨节点接口契约验证（如N05的冰载荷时程接口与N03的通道阻力接口一致性检查）；(3)验收门裁决：逐节点检查acceptance_criteria通过情况，生成通过/失败/待修清单；(4)战役报告：按论文级六要素格式输出战役总结，含能力台账更新建议；(5)成熟化输出：将本战役新增能力登记到feature_ledger，状态标记为REAL（附evidence路径）。【机器可算验收判据】(a)产物齐备率：≥9/9节点产出artifact；(b)集成测试：跨节点接口契约0违反；(c)验收门：各节点acceptance_criteria逐项通过或honest-FAIL记录；(d)战役报告：六要素齐备，发布到tensor_reports；(e)能力台账：≥5条新能力登记，evidence路径可溯源；(f)成熟化单：输出feature_ledger INSERT语句与rollback脚本。",
+        "layer": null,
+        "risk": null
+      },
+      "mission_id": 13929,
+      "node_key": "p491w2-n10-integration-maturity",
+      "repo": "TensorPlatform",
+      "status": "in-flight",
+      "title": "N10: 成熟化多域前沿成果集成与战役级验收门"
+    }
+  ],
+  "plan": {
+    "description": "聚合提案者10342(5条)与10343(6条)的全新前沿提案，经语义去重后播种10节点战役。覆盖平台治理、冰区航行、推进、结构、多物理场耦合域。",
+    "metadata": {
+      "parent_plan": 491,
+      "seed_report": {
+        "arbiters": [
+          12296
+        ],
+        "nodes": 10,
+        "sources": [
+          10342,
+          10343
+        ],
+        "wave": 1
+      }
+    },
+    "name": "p491w2_aggregated_seeding",
+    "plan_id": 9380,
+    "plan_version": "v1",
+    "status": "active"
+  },
+  "reports": {
+    "13246": [],
+    "13248": [],
+    "13249": [],
+    "13250": [],
+    "13254": [],
+    "13925": [
+      {
+        "claimed_missions": [
+          13845
+        ],
+        "id": 13381,
+        "mission_link_mismatch": true,
+        "title": "多保真度模型选择引擎：误差预算 + 计算成本自动推荐（阻力预报案例）"
+      }
+    ],
+    "13926": [
+      {
+        "claimed_missions": [],
+        "id": 13389,
+        "mission_link_mismatch": false,
+        "title": "N06: 螺旋桨叶片积冰几何变形与水动力性能退化耦合预报 (m13926-attempt2)"
+      }
+    ],
+    "13927": [],
+    "13928": [],
+    "13929": []
+  },
+  "schema": "campaign-snapshot/1.0",
+  "spec_id": "campaign-p491w2_aggregated_seeding"
+}

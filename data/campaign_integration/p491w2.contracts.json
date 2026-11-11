@@ -1,0 +1,58 @@
+{
+  "schema": "campaign-contracts/1.0",
+  "notes": "战役 p491w2 的跨节点接口契约（由集成节点 N10 声明）。契约本身不产生任何物理结论：只有生产者与消费者两侧都在规范交付位声明了同名接口，才进入单位/轴/样本一致性检查；任一侧缺证据即 WITHHELD（反空真）。量名与单位取自各节点的验收语义，接口名是本战役的集成约定。",
+  "contracts": [
+    {
+      "id": "C1-ice-load-to-channel-resistance",
+      "kind": "interface",
+      "producer": "p491w2-n05-ice-wave-ultimate",
+      "consumer": "p491w2-n03-channel-memory",
+      "interface": "ice-load-timeseries",
+      "note": "冰载荷时程（N05）供水道复航阻力时程（N03）积分使用：两侧的时间轴单位与样本必须一致，载荷量单位必须相同。",
+      "required_fields": ["axis", "quantities"],
+      "axis": {"field": "t", "unit": "s", "monotonic": "increasing"},
+      "quantities": [
+        {"name": "ice_load", "unit": "N", "tolerance_rel": 1e-06}
+      ]
+    },
+    {
+      "id": "C2-quadrant-kt-to-accretion",
+      "kind": "interface",
+      "producer": "p491w2-n07-propeller-quadrant",
+      "consumer": "p491w2-n06-propeller-ice",
+      "interface": "propeller-kt-vs-j",
+      "note": "四象限 K_T(J)（N07，含负进速段）与积冰退化模型（N06）的基准曲线必须一致，否则退化量会被基准误差冒充。",
+      "required_fields": ["axis", "quantities"],
+      "axis": {"field": "J", "unit": "-", "monotonic": "increasing"},
+      "quantities": [
+        {"name": "K_T", "unit": "-", "tolerance_rel": 1e-06}
+      ]
+    },
+    {
+      "id": "C3-sn-branch-to-ultimate",
+      "kind": "interface",
+      "producer": "p491w2-n08-sn-knee-continuity",
+      "consumer": "p491w2-n05-ice-wave-ultimate",
+      "interface": "sn-curve-branches",
+      "note": "重建后的 S-N 常数表（N08）供联合载荷极限强度疲劳校核（N05）取值：支路应力单位与循环轴定义必须一致。",
+      "required_fields": ["axis", "quantities"],
+      "axis": {"field": "n_cycles", "unit": "-", "monotonic": "increasing"},
+      "quantities": [
+        {"name": "stress_range", "unit": "MPa", "tolerance_rel": 1e-06}
+      ]
+    },
+    {
+      "id": "C4-ledger-verdict-to-registration",
+      "kind": "interface",
+      "producer": "p491w2-n01-ledger-liveness-maturity",
+      "consumer": "p491w2-n10-integration-maturity",
+      "interface": "capability-evidence-verdict",
+      "note": "N01 的证据驱动升账判定（WITHHELD/MOCK→REAL 与降级建议）与 N10 的台账成熟化单必须同口径：同一 slug 的证据等级秩一致，否则台账会出现两个真相。",
+      "required_fields": ["quantities"],
+      "axis": {"field": "rank_order", "unit": "-", "monotonic": "increasing"},
+      "quantities": [
+        {"name": "evidence_level_rank", "unit": "-", "tolerance_rel": 0.0}
+      ]
+    }
+  ]
+}
