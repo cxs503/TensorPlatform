@@ -1,0 +1,354 @@
+{
+  "_comment": "判据语法词表（机制层，非物理域）：kind 由主语关键词判定；synonyms 供改写识别与测试生成使用。改词表不改代码。",
+  "schema_version": "criteria-drift-lexicon/1.0",
+  "kinds": [
+    {
+      "kind": "error_threshold",
+      "keywords": [
+        "误差",
+        "偏差",
+        "相对误差",
+        "绝对误差",
+        "残差",
+        "error",
+        "err",
+        "deviation",
+        "residual",
+        "difference",
+        "max_diff",
+        "rms error"
+      ]
+    },
+    {
+      "kind": "convergence_order",
+      "keywords": [
+        "收敛阶",
+        "阶次",
+        "收敛率",
+        "order of convergence",
+        "convergence order",
+        "order",
+        "observed order",
+        "p-order",
+        "收敛速度",
+        "观测阶",
+        "收敛阶次"
+      ]
+    },
+    {
+      "kind": "conservation",
+      "keywords": [
+        "守恒",
+        "守恒量",
+        "不变量",
+        "质量守恒",
+        "动量守恒",
+        "能量守恒",
+        "conservation",
+        "conserved",
+        "invariant",
+        "mass balance",
+        "momentum balance"
+      ]
+    },
+    {
+      "kind": "statistical_pvalue",
+      "keywords": [
+        "p值",
+        "p 值",
+        "p-value",
+        "pvalue",
+        "p value",
+        "显著性",
+        "significance",
+        "t检验",
+        "t-test",
+        "ks检验",
+        "ks test",
+        "wilson"
+      ]
+    },
+    {
+      "kind": "coverage",
+      "keywords": [
+        "覆盖率",
+        "覆盖",
+        "占比",
+        "比例",
+        "coverage",
+        "covered",
+        "fraction of cases",
+        "覆盖比"
+      ]
+    },
+    {
+      "kind": "count",
+      "keywords": [
+        "pytest",
+        "用例",
+        "测试数",
+        "项数",
+        "条数",
+        "例数",
+        "test count",
+        "tests",
+        "cases",
+        "assertions",
+        "数量"
+      ]
+    }
+  ],
+  "synonyms": [
+    [
+      "误差",
+      "error",
+      "偏差",
+      "deviation",
+      "残差",
+      "residual",
+      "difference"
+    ],
+    [
+      "覆盖率",
+      "coverage",
+      "覆盖比",
+      "覆盖比例"
+    ],
+    [
+      "收敛阶",
+      "order",
+      "order of convergence",
+      "convergence order",
+      "收敛阶次"
+    ],
+    [
+      "守恒量",
+      "invariant",
+      "conserved quantity",
+      "守恒量偏差"
+    ],
+    [
+      "p值",
+      "p-value",
+      "p value",
+      "significance",
+      "显著性"
+    ],
+    [
+      "用例",
+      "tests",
+      "test count",
+      "用例数",
+      "测试数",
+      "cases"
+    ]
+  ],
+  "op_phrases": {
+    "<=": [
+      "≤",
+      "≦",
+      "⩽",
+      "<=",
+      "=<",
+      "不超过",
+      "不大于",
+      "至多",
+      "最多",
+      "at most",
+      "no more than",
+      "not more than",
+      "within",
+      "not exceed"
+    ],
+    ">=": [
+      "≥",
+      "≧",
+      "⩾",
+      ">=",
+      "=>",
+      "不低于",
+      "不小于",
+      "至少",
+      "不少于",
+      "at least",
+      "no less than",
+      "not less than"
+    ],
+    "<": [
+      "<",
+      "低于",
+      "小于",
+      "少于",
+      "less than",
+      "below",
+      "under"
+    ],
+    ">": [
+      ">",
+      "高于",
+      "大于",
+      "多于",
+      "greater than",
+      "above",
+      "over",
+      "more than"
+    ],
+    "==": [
+      "=",
+      "==",
+      "等于",
+      "equals",
+      "equal to"
+    ]
+  },
+  "unit_scale": {
+    "%": 0.01,
+    "percent": 0.01,
+    "％": 0.01,
+    "‰": 0.001,
+    "per mille": 0.001
+  },
+  "stop_tokens": [
+    "的",
+    "与",
+    "和",
+    "及",
+    "为",
+    "在",
+    "时",
+    "且",
+    "对",
+    "所有",
+    "全部",
+    "要求",
+    "报告",
+    "结果",
+    "值",
+    "the",
+    "and",
+    "for",
+    "with",
+    "all",
+    "of",
+    "to",
+    "is",
+    "be",
+    "shall",
+    "must"
+  ],
+  "metric_aliases": {
+    "_comment": "通用度量名中英别名：同一组内的词折叠为同一 token，用于跨语言改写匹配。仅收通用科学计算词（误差/覆盖/收敛/守恒…），不收任何领域词条。",
+    "groups": [
+      [
+        "误差",
+        "error"
+      ],
+      [
+        "偏差",
+        "deviation"
+      ],
+      [
+        "残差",
+        "residual"
+      ],
+      [
+        "差值",
+        "difference"
+      ],
+      [
+        "积分",
+        "quadrature"
+      ],
+      [
+        "插值",
+        "interpolation"
+      ],
+      [
+        "外推",
+        "extrapolation"
+      ],
+      [
+        "重构",
+        "reconstruction"
+      ],
+      [
+        "覆盖率",
+        "coverage",
+        "覆盖"
+      ],
+      [
+        "收敛阶",
+        "order",
+        "convergence",
+        "阶次",
+        "观测阶"
+      ],
+      [
+        "守恒",
+        "conservation",
+        "invariant",
+        "不变量"
+      ],
+      [
+        "质量",
+        "mass"
+      ],
+      [
+        "动量",
+        "momentum"
+      ],
+      [
+        "能量",
+        "energy"
+      ],
+      [
+        "显著性",
+        "significance"
+      ],
+      [
+        "检验",
+        "test"
+      ],
+      [
+        "样本",
+        "sample"
+      ],
+      [
+        "谱半径",
+        "spectral"
+      ],
+      [
+        "近奇异",
+        "singular"
+      ],
+      [
+        "形状",
+        "shape"
+      ],
+      [
+        "断言",
+        "assertion"
+      ],
+      [
+        "用例",
+        "test count",
+        "测试",
+        "tests"
+      ],
+      [
+        "p值",
+        "p-value",
+        "pvalue",
+        "p 值"
+      ],
+      [
+        "用例数",
+        "test count",
+        "测试数",
+        "tests",
+        "断言数",
+        "assertion"
+      ]
+    ]
+  }
+}
