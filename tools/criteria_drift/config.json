@@ -1,0 +1,20 @@
+{
+  "_comment": "判定策略参数（外置，可审计可回滚）。relax_threshold=0.10 对应任务书『阈值放宽 >10% 判显著漂移』；operator_downgrade_significant=true 对应『算子降级亦显著』；waiver 必须 reason+approved_by 齐备才免记漂移。",
+  "schema_version": "criteria-drift-policy/1.0",
+  "relax_threshold": 0.1,
+  "tolerance_widen_threshold": 0.1,
+  "operator_downgrade_significant": true,
+  "direction_change_significant": true,
+  "kind_change_significant": true,
+  "undeclared_drop_significant": true,
+  "match": {
+    "accept_subject_similarity": 0.2,
+    "accept_equal_value_with_same_kind": true,
+    "subject_weight": 0.6,
+    "kind_weight": 0.3,
+    "value_weight": 0.1,
+    "family_fallback_max_rel_distance": 0.5
+  },
+  "block_severity": "any_significant",
+  "block_reason_prefix": "criteria_drift"
+}
