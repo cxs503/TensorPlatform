@@ -1,0 +1,523 @@
+[
+  {
+    "capability_id": "fx.all_green",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 12,
+      "passed": 12,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 3,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "REAL",
+    "rationale": "映射测试全绿且数量过下限"
+  },
+  {
+    "capability_id": "fx.half_fail",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 10,
+      "passed": 5,
+      "failed": 5,
+      "errored": 0,
+      "pass_rate": 0.5,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 3,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "MOCK",
+    "rationale": "通过率远低于阈值：实现过不了自身验收"
+  },
+  {
+    "capability_id": "fx.mostly_green_one_fail",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 20,
+      "passed": 19,
+      "failed": 1,
+      "errored": 0,
+      "pass_rate": 0.95,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 3,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "通过率达标但有失败用例：证据不干净"
+  },
+  {
+    "capability_id": "fx.stub_dominant",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {
+        "svc/x.py": 4
+      },
+      "mock_files": {}
+    },
+    "expected_level": "STUB",
+    "rationale": "空壳标记覆盖过半文件"
+  },
+  {
+    "capability_id": "fx.mock_dominant",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {
+        "svc/y.py": 2
+      }
+    },
+    "expected_level": "MOCK",
+    "rationale": "造假标记覆盖过半文件"
+  },
+  {
+    "capability_id": "fx.unmapped_absent",
+    "mapped": false,
+    "implementation_present": false,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 0,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "NOT_SUPPORTED",
+    "rationale": "无映射、无实现、无证据"
+  },
+  {
+    "capability_id": "fx.probe_analytic",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [
+      {
+        "probe": "p_analytic",
+        "criterion_kind": "analytic_identity",
+        "available": true,
+        "ok": true,
+        "criteria": {
+          "rel_err_max": 1e-06
+        },
+        "measured": {
+          "rel_err": 1e-12
+        }
+      }
+    ],
+    "markers": {
+      "files_scanned": 1,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "REAL",
+    "rationale": "解析/独立解对比探针取证"
+  },
+  {
+    "capability_id": "fx.probe_behavioral_only",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [
+      {
+        "probe": "p_behavior",
+        "criterion_kind": "behavioral",
+        "available": true,
+        "ok": true,
+        "criteria": {
+          "structure": true
+        },
+        "measured": {
+          "items": 7
+        }
+      }
+    ],
+    "markers": {
+      "files_scanned": 1,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "只有行为证据、无对标误差"
+  },
+  {
+    "capability_id": "fx.probe_unavailable",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [
+      {
+        "probe": "p_http",
+        "criterion_kind": "behavioral",
+        "available": false,
+        "ok": false,
+        "criteria": {},
+        "measured": {}
+      }
+    ],
+    "markers": {
+      "files_scanned": 1,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "环境未起不得判成能力缺失"
+  },
+  {
+    "capability_id": "fx.probe_criteria_fail",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [
+      {
+        "probe": "p_analytic",
+        "criterion_kind": "analytic_identity",
+        "available": true,
+        "ok": false,
+        "criteria": {
+          "rel_err_max": 1e-06
+        },
+        "measured": {
+          "rel_err": 0.3
+        }
+      }
+    ],
+    "markers": {
+      "files_scanned": 1,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "MOCK",
+    "rationale": "探针实测越限"
+  },
+  {
+    "capability_id": "fx.impl_no_evidence",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 3,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "有实现但无执行证据"
+  },
+  {
+    "capability_id": "fx.too_few_tests",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 1,
+      "passed": 1,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "测试数低于声明下限"
+  },
+  {
+    "capability_id": "fx.collect_errors",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 22,
+      "passed": 20,
+      "failed": 0,
+      "errored": 2,
+      "pass_rate": 0.909,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "收集期错误（缺工件/环境）不算造假但污染证据"
+  },
+  {
+    "capability_id": "fx.below_threshold",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 12,
+      "passed": 9,
+      "failed": 3,
+      "errored": 0,
+      "pass_rate": 0.75,
+      "min_tests": 2,
+      "min_pass_rate": 0.8
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "MOCK",
+    "rationale": "通过率低于阈值"
+  },
+  {
+    "capability_id": "fx.ceiling_caps_real",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 15,
+      "passed": 15,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "ceiling": "MOCK",
+    "expected_level": "MOCK",
+    "rationale": "人工最新裁决为 MOCK，自动 REAL 不得越权"
+  },
+  {
+    "capability_id": "fx.ceiling_no_upgrade",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 0,
+      "passed": 0,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 0.0
+    },
+    "probes": [
+      {
+        "probe": "p_behavior",
+        "criterion_kind": "behavioral",
+        "available": true,
+        "ok": true,
+        "criteria": {},
+        "measured": {}
+      }
+    ],
+    "markers": {
+      "files_scanned": 1,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "ceiling": "REAL",
+    "expected_level": "WITHHELD",
+    "rationale": "上限只降不升"
+  },
+  {
+    "capability_id": "fx.ceiling_withheld",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 15,
+      "passed": 15,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "ceiling": "WITHHELD",
+    "expected_level": "WITHHELD",
+    "rationale": "人工判 WITHHELD（待复核）时自动不得升 REAL"
+  },
+  {
+    "capability_id": "fx.minor_stub_marker",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 10,
+      "passed": 10,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 4,
+      "stub_files": {
+        "svc/z.py": 1
+      },
+      "mock_files": {}
+    },
+    "expected_level": "REAL",
+    "rationale": "单点空壳标记未过半，不否决整条能力"
+  },
+  {
+    "capability_id": "fx.half_mock_marker",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 10,
+      "passed": 10,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {
+        "svc/w.py": 3
+      }
+    },
+    "expected_level": "MOCK",
+    "rationale": "造假标记过半直接判 MOCK（优先于测试全绿）"
+  },
+  {
+    "capability_id": "fx.probe_plus_tests",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 8,
+      "passed": 8,
+      "failed": 0,
+      "errored": 0,
+      "pass_rate": 1.0,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [
+      {
+        "probe": "p_analytic",
+        "criterion_kind": "analytic_identity",
+        "available": true,
+        "ok": true,
+        "criteria": {},
+        "measured": {}
+      }
+    ],
+    "markers": {
+      "files_scanned": 2,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "REAL",
+    "rationale": "测试全绿 + 解析探针双路证据"
+  },
+  {
+    "capability_id": "fx.error_dominant",
+    "mapped": true,
+    "implementation_present": true,
+    "tests": {
+      "decisive": 30,
+      "passed": 12,
+      "failed": 1,
+      "errored": 17,
+      "pass_rate": 0.4,
+      "min_tests": 2,
+      "min_pass_rate": 0.9
+    },
+    "probes": [],
+    "markers": {
+      "files_scanned": 3,
+      "stub_files": {},
+      "mock_files": {}
+    },
+    "expected_level": "WITHHELD",
+    "rationale": "收集期错误占主导（缺工件/环境）不得判 MOCK"
+  }
+]
