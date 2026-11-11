@@ -1,0 +1,690 @@
+{
+  "axes": {
+    "cross_source": {
+      "agreement": 4,
+      "available": true,
+      "counts": {
+        "OK": 4,
+        "OVERCLAIM": 2,
+        "REVERIFY": 0,
+        "UNVERIFIED": 15
+      },
+      "coverage": 1.0,
+      "only_claimed": [],
+      "only_reconciled": [],
+      "recomputed_mismatch": [],
+      "total": 21,
+      "unexplained": []
+    },
+    "evidence_support": {
+      "available": true,
+      "no_evidence_not_withheld": 0,
+      "orphan": 0,
+      "supported": 3
+    },
+    "markdown_recount": {
+      "available": true,
+      "metrics": [
+        {
+          "axis": "counts",
+          "delta": 0,
+          "got": 21,
+          "metric": "capabilities",
+          "ok": true,
+          "ref": 21
+        },
+        {
+          "axis": "counts",
+          "delta": 0,
+          "got": 3,
+          "metric": "with_evidence",
+          "ok": true,
+          "ref": 3
+        },
+        {
+          "axis": "counts",
+          "delta": 0,
+          "got": 18,
+          "metric": "without_evidence",
+          "ok": true,
+          "ref": 18
+        },
+        {
+          "axis": "divergence",
+          "delta": 0,
+          "got": 4,
+          "metric": "OK",
+          "ok": true,
+          "ref": 4
+        },
+        {
+          "axis": "divergence",
+          "delta": 0,
+          "got": 2,
+          "metric": "OVERCLAIM",
+          "ok": true,
+          "ref": 2
+        },
+        {
+          "axis": "divergence",
+          "delta": 0,
+          "got": 0,
+          "metric": "REVERIFY",
+          "ok": true,
+          "ref": 0
+        },
+        {
+          "axis": "divergence",
+          "delta": 0,
+          "got": 15,
+          "metric": "UNVERIFIED",
+          "ok": true,
+          "ref": 15
+        }
+      ],
+      "parsed": [
+        "counts_head",
+        "counts_divergence",
+        "counts_misc"
+      ],
+      "row_count": 21,
+      "row_findings": []
+    },
+    "quote_binding": {
+      "available": true,
+      "drift": 0,
+      "match_rate": 1.0,
+      "matched": 10,
+      "source_unresolved": 0,
+      "total": 10
+    }
+  },
+  "criteria": [
+    {
+      "comparator": "ge",
+      "criterion_id": "C1",
+      "detail": {
+        "only_claimed": [],
+        "only_reconciled": []
+      },
+      "pass": true,
+      "statement": "基线↔当前能力集合全覆盖（无孤儿能力）",
+      "threshold": 1.0,
+      "value": 1.0
+    },
+    {
+      "comparator": "true",
+      "criterion_id": "C2",
+      "detail": {
+        "observed_levels": [
+          "MOCK",
+          "NOT_SUPPORTED",
+          "REAL",
+          "STUB",
+          "WITHHELD"
+        ]
+      },
+      "pass": true,
+      "statement": "五级阶梯严格单调且全部观测等级落在阶梯内",
+      "threshold": true,
+      "value": true
+    },
+    {
+      "comparator": "le",
+      "criterion_id": "C3",
+      "detail": {
+        "counts": {
+          "OK": 4,
+          "OVERCLAIM": 2,
+          "REVERIFY": 0,
+          "UNVERIFIED": 15
+        }
+      },
+      "pass": true,
+      "statement": "分歧全部可归类（无未解释分歧）",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "comparator": "le",
+      "criterion_id": "C4",
+      "detail": {
+        "examples": []
+      },
+      "pass": true,
+      "statement": "分歧标签可复算（规则 vs 台账存储标签一致）",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "comparator": "le",
+      "criterion_id": "C5",
+      "detail": {
+        "match_rate": 1.0,
+        "matched": 10,
+        "total": 10
+      },
+      "pass": true,
+      "statement": "证据引文逐字可查（记录 sha256 == 从原始来源重算）",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "comparator": "le",
+      "criterion_id": "C6",
+      "detail": {},
+      "pass": true,
+      "statement": "证据来源可解析（无悬空引文）",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "comparator": "le",
+      "criterion_id": "C7",
+      "detail": {
+        "metrics": [
+          {
+            "axis": "counts",
+            "delta": 0,
+            "got": 21,
+            "metric": "capabilities",
+            "ok": true,
+            "ref": 21
+          },
+          {
+            "axis": "counts",
+            "delta": 0,
+            "got": 3,
+            "metric": "with_evidence",
+            "ok": true,
+            "ref": 3
+          },
+          {
+            "axis": "counts",
+            "delta": 0,
+            "got": 18,
+            "metric": "without_evidence",
+            "ok": true,
+            "ref": 18
+          },
+          {
+            "axis": "divergence",
+            "delta": 0,
+            "got": 4,
+            "metric": "OK",
+            "ok": true,
+            "ref": 4
+          },
+          {
+            "axis": "divergence",
+            "delta": 0,
+            "got": 2,
+            "metric": "OVERCLAIM",
+            "ok": true,
+            "ref": 2
+          },
+          {
+            "axis": "divergence",
+            "delta": 0,
+            "got": 0,
+            "metric": "REVERIFY",
+            "ok": true,
+            "ref": 0
+          },
+          {
+            "axis": "divergence",
+            "delta": 0,
+            "got": 15,
+            "metric": "UNVERIFIED",
+            "ok": true,
+            "ref": 15
+          }
+        ],
+        "row_findings": []
+      },
+      "pass": true,
+      "statement": "人读对账表数字 == 台账重算数字",
+      "threshold": 0,
+      "value": 0
+    },
+    {
+      "comparator": "le",
+      "criterion_id": "C8",
+      "detail": {
+        "findings": [],
+        "no_evidence_not_withheld": 0
+      },
+      "pass": true,
+      "statement": "等级与证据同向（非 WITHHELD 必有同向证据）",
+      "threshold": 0,
+      "value": 0
+    }
+  ],
+  "criteria_pass_rate": 1.0,
+  "findings": {
+    "divergence_mismatch": [],
+    "evidence_support": [],
+    "markdown_rows": [],
+    "quote_binding": []
+  },
+  "gate_id": "H6-MATURITY-GATE",
+  "increment_ledger_reset": null,
+  "increments": {
+    "available": true,
+    "baseline": {
+      "as_of": "2026-11-01T07:44:00Z",
+      "available": true,
+      "capability_count": 21,
+      "note": "",
+      "path": "/root/tp-agent/work/m15032/tests/fixtures/capability_ledger/capabilities_snapshot.json",
+      "sha256": "f09ae98785e6b17a67e8b230a469f1b42b3399affb9a8c255cc4bf1c0edead14",
+      "source_id": "self_claimed_2026-11-01"
+    },
+    "chain_head": "ed1f29ed7febd3adff5d060d475f601276c807aba0545b8a9a71fe64004cdc30",
+    "chain_len": 21,
+    "counts": {
+      "DEMOTE": 17,
+      "DROPPED": 0,
+      "HOLD": 1,
+      "NEW": 0,
+      "PROMOTE": 3
+    },
+    "current": {
+      "as_of": "2026-11-01T17:37:17+08:00",
+      "available": true,
+      "capability_count": 21,
+      "note": "",
+      "path": "/root/tp-agent/work/m15032/artifacts/capability_ledger/capability_ledger_resolved.json",
+      "sha256": "7adb9835d8489f4a53b592add9112fd0e94054797a712b65756beb795532e946",
+      "source_id": "evidence_ledger_resolved"
+    },
+    "entries": [
+      {
+        "baseline_level": "NOT_SUPPORTED",
+        "capability_id": "ai.predict",
+        "current_level": "WITHHELD",
+        "direction": "PROMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "GENESIS",
+        "rank_delta": 3,
+        "seq": 0,
+        "sha256": "fbc4011b342b4a607c493e897b8a0e47e9ffc80a2cf24ff97fd8596bf59a7c78"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "calc.resistance",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 4,
+        "evidence_refs": [
+          {
+            "asserted_level": "MOCK",
+            "line_sha256": "1f5facc1357d5322",
+            "report_id": "1131"
+          },
+          {
+            "asserted_level": "WITHHELD",
+            "line_sha256": "3e3e62f04181330f",
+            "report_id": "1140"
+          },
+          {
+            "asserted_level": "WITHHELD",
+            "line_sha256": "7f71e36ba9fb78c3",
+            "report_id": "1144"
+          },
+          {
+            "asserted_level": "WITHHELD",
+            "line_sha256": "4614c0d1cf3e5311",
+            "report_id": "doc:docs/verification/inline_resistance_audit_2026-11-01.md"
+          }
+        ],
+        "prev_sha256": "fbc4011b342b4a607c493e897b8a0e47e9ffc80a2cf24ff97fd8596bf59a7c78",
+        "rank_delta": -1,
+        "seq": 1,
+        "sha256": "f8bcf1d42fe1b36a146c80c57bed647ad5217f77ace17f324c539c4c7768a9ad"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "calc.stability",
+        "current_level": "REAL",
+        "direction": "HOLD",
+        "evidence_count": 3,
+        "evidence_refs": [
+          {
+            "asserted_level": "MOCK",
+            "line_sha256": "a1f0fd0b474e8261",
+            "report_id": "1136"
+          },
+          {
+            "asserted_level": "MOCK",
+            "line_sha256": "1f5facc1357d5322",
+            "report_id": "1131"
+          },
+          {
+            "asserted_level": "REAL",
+            "line_sha256": "1e8f05848c597bdf",
+            "report_id": "doc:docs/reports/m1564_stability_adjudication.md"
+          }
+        ],
+        "prev_sha256": "f8bcf1d42fe1b36a146c80c57bed647ad5217f77ace17f324c539c4c7768a9ad",
+        "rank_delta": 0,
+        "seq": 2,
+        "sha256": "7501a052d4a2b8581ea47a785f0b6879170bd34a928a993e86fc541a75c32131"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.gate_5415",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "7501a052d4a2b8581ea47a785f0b6879170bd34a928a993e86fc541a75c32131",
+        "rank_delta": -1,
+        "seq": 3,
+        "sha256": "f89effd74882fb520146e625d65aea66f2982b41752db642ed50dc5385094589"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.git",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "f89effd74882fb520146e625d65aea66f2982b41752db642ed50dc5385094589",
+        "rank_delta": -1,
+        "seq": 4,
+        "sha256": "016ea49c47e33e233efb2578b10605de201765e7dae19303a055f6602bdff24d"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.logs",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "016ea49c47e33e233efb2578b10605de201765e7dae19303a055f6602bdff24d",
+        "rank_delta": -1,
+        "seq": 5,
+        "sha256": "0dd3f840745f947c163d56013fc0f6007a561930dcc1287695e28c5daa02b195"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.nginx_audit",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "0dd3f840745f947c163d56013fc0f6007a561930dcc1287695e28c5daa02b195",
+        "rank_delta": -1,
+        "seq": 6,
+        "sha256": "5c84c1d4e85a4ea64396e27f04b8820032fde5888ad997112fb53411d65e7509"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.probe",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "5c84c1d4e85a4ea64396e27f04b8820032fde5888ad997112fb53411d65e7509",
+        "rank_delta": -1,
+        "seq": 7,
+        "sha256": "622140d255dc5355a6eb520f9fdbef4d4f47f111b072add02fa3fc2fd8e2837a"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.restart",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "622140d255dc5355a6eb520f9fdbef4d4f47f111b072add02fa3fc2fd8e2837a",
+        "rank_delta": -1,
+        "seq": 8,
+        "sha256": "c89f6f88daf8ab457472aa7c3f130b47cedd7a1a5d8eafe4ebb19a5cec950372"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "dev.services",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "c89f6f88daf8ab457472aa7c3f130b47cedd7a1a5d8eafe4ebb19a5cec950372",
+        "rank_delta": -1,
+        "seq": 9,
+        "sha256": "afdbaa13bc3c0ec30a2ece69f2a9e99045300926ab9323925e87e98ccd9bce89"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "geometry.generate",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "afdbaa13bc3c0ec30a2ece69f2a9e99045300926ab9323925e87e98ccd9bce89",
+        "rank_delta": -1,
+        "seq": 10,
+        "sha256": "069690b98213ae4bba224d9fc59c4b48d3944adfd47f0ce0d41d3e5dc717b28c"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "geometry.hydro_curves",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "069690b98213ae4bba224d9fc59c4b48d3944adfd47f0ce0d41d3e5dc717b28c",
+        "rank_delta": -1,
+        "seq": 11,
+        "sha256": "0abc037ef00776372dc7865346baf0831895f82d6a519a6bc4655545d58651a7"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "geometry.list_models",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "0abc037ef00776372dc7865346baf0831895f82d6a519a6bc4655545d58651a7",
+        "rank_delta": -1,
+        "seq": 12,
+        "sha256": "4c0ff1a667e03bac86b8a5cac0002b832507659e19b3be94e70c9c7aead046db"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "geometry.verify_official",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "4c0ff1a667e03bac86b8a5cac0002b832507659e19b3be94e70c9c7aead046db",
+        "rank_delta": -1,
+        "seq": 13,
+        "sha256": "fb28a0ae23679b265095374e171a5c2b8fd3997e6b868139a1d08f42a9e3e249"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "gov.stats",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "fb28a0ae23679b265095374e171a5c2b8fd3997e6b868139a1d08f42a9e3e249",
+        "rank_delta": -1,
+        "seq": 14,
+        "sha256": "16272adcd93c7ad11a2aed715c9c31da39c7da2b7027731e59c90d3bb936b975"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "knowledge.docs",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "16272adcd93c7ad11a2aed715c9c31da39c7da2b7027731e59c90d3bb936b975",
+        "rank_delta": -1,
+        "seq": 15,
+        "sha256": "f6b88e4a2a8f06321eb306ad5cfafd6bfb6902ef53f3fac04390787762c9d7d1"
+      },
+      {
+        "baseline_level": "NOT_SUPPORTED",
+        "capability_id": "methods.computation",
+        "current_level": "WITHHELD",
+        "direction": "PROMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "f6b88e4a2a8f06321eb306ad5cfafd6bfb6902ef53f3fac04390787762c9d7d1",
+        "rank_delta": 3,
+        "seq": 16,
+        "sha256": "6974d3369cda927f271344cf5ac20e9363beed54adbae53bfc6ca2fcca06597f"
+      },
+      {
+        "baseline_level": "STUB",
+        "capability_id": "misc.stubs",
+        "current_level": "WITHHELD",
+        "direction": "PROMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "6974d3369cda927f271344cf5ac20e9363beed54adbae53bfc6ca2fcca06597f",
+        "rank_delta": 2,
+        "seq": 17,
+        "sha256": "68e8c090b9a47694b5bb3b7b18cdb7a97c9650ebabce1af9cec262e6d66a6493"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "propeller.open_water",
+        "current_level": "MOCK",
+        "direction": "DEMOTE",
+        "evidence_count": 3,
+        "evidence_refs": [
+          {
+            "asserted_level": "MOCK",
+            "line_sha256": "67174ada428d000b",
+            "report_id": "1128"
+          },
+          {
+            "asserted_level": "MOCK",
+            "line_sha256": "b4bae67817136997",
+            "report_id": "1133"
+          },
+          {
+            "asserted_level": "MOCK",
+            "line_sha256": "5585b52e4eb3008c",
+            "report_id": "doc:docs/verification/PROPULSION_OPENWATER_M1584.md"
+          }
+        ],
+        "prev_sha256": "68e8c090b9a47694b5bb3b7b18cdb7a97c9650ebabce1af9cec262e6d66a6493",
+        "rank_delta": -2,
+        "seq": 18,
+        "sha256": "c5e2461bb0796287112ae4173aad92b48a2335dcfbf9070fe30e7d2df6fd9969"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "shiphull.generate",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "c5e2461bb0796287112ae4173aad92b48a2335dcfbf9070fe30e7d2df6fd9969",
+        "rank_delta": -1,
+        "seq": 19,
+        "sha256": "13dadbc766ce3a824530f6c60f7b38f7ede417562974d04d69bae97501854af1"
+      },
+      {
+        "baseline_level": "REAL",
+        "capability_id": "stdmodels.lookup",
+        "current_level": "WITHHELD",
+        "direction": "DEMOTE",
+        "evidence_count": 0,
+        "evidence_refs": [],
+        "prev_sha256": "13dadbc766ce3a824530f6c60f7b38f7ede417562974d04d69bae97501854af1",
+        "rank_delta": -1,
+        "seq": 20,
+        "sha256": "ed1f29ed7febd3adff5d060d475f601276c807aba0545b8a9a71fe64004cdc30"
+      }
+    ]
+  },
+  "inputs": {
+    "corpus_sha256": "bcdd3bedc4975b0413aa254c14f3bb7905ba2f17d5f38d57631c7390f985fde6",
+    "markdown_metrics_parsed": [
+      "counts_head",
+      "counts_divergence",
+      "counts_misc"
+    ],
+    "markdown_sha256": "5ceb393ddcf0065eb6b1025a7b0428b2754b8b9169c764ff22d1153954d41a51",
+    "spec": "h6-maturity-gate-v1"
+  },
+  "maturity": {
+    "after": {
+      "histogram": {
+        "MOCK": 1,
+        "NOT_SUPPORTED": 0,
+        "REAL": 1,
+        "STUB": 0,
+        "WITHHELD": 19
+      },
+      "maturity_score": 0.75,
+      "max_rank": 4,
+      "mean_rank": 3.0,
+      "n": 21
+    },
+    "before": {
+      "histogram": {
+        "MOCK": 0,
+        "NOT_SUPPORTED": 2,
+        "REAL": 18,
+        "STUB": 1,
+        "WITHHELD": 0
+      },
+      "maturity_score": 0.869048,
+      "max_rank": 4,
+      "mean_rank": 3.47619,
+      "n": 21
+    },
+    "score_delta": -0.119048
+  },
+  "schema_version": "1.0",
+  "sources": [
+    {
+      "as_of": null,
+      "available": false,
+      "capability_count": 0,
+      "note": "工件缺失: /root/tp-agent/work/m15032/artifacts/maturity_gate_h6/sources/live_probe_2026-11-11.json",
+      "path": "/root/tp-agent/work/m15032/artifacts/maturity_gate_h6/sources/live_probe_2026-11-11.json",
+      "sha256": null,
+      "source_id": "live_probe_2026-11-11"
+    },
+    {
+      "as_of": "2026-11-01T07:44:00Z",
+      "available": true,
+      "capability_count": 21,
+      "note": "",
+      "path": "/root/tp-agent/work/m15032/tests/fixtures/capability_ledger/capabilities_snapshot.json",
+      "sha256": "f09ae98785e6b17a67e8b230a469f1b42b3399affb9a8c255cc4bf1c0edead14",
+      "source_id": "self_claimed_2026-11-01"
+    },
+    {
+      "as_of": "2026-11-01T17:37:17+08:00",
+      "available": true,
+      "capability_count": 21,
+      "note": "",
+      "path": "/root/tp-agent/work/m15032/artifacts/capability_ledger/capability_ledger_resolved.json",
+      "sha256": "7adb9835d8489f4a53b592add9112fd0e94054797a712b65756beb795532e946",
+      "source_id": "evidence_ledger_resolved"
+    }
+  ],
+  "thresholds": {
+    "coverage_min": 1.0,
+    "ladder_sound": true,
+    "markdown_delta_max": 0,
+    "orphan_evidence_max": 0,
+    "quote_drift_max": 0,
+    "quote_source_unresolved_max": 0,
+    "recompute_mismatch_max": 0,
+    "unexplained_divergence_max": 0
+  },
+  "thresholds_sha256": "96a4208e1fc3cad52596eacf30eef45f991e231c2d5465ac282c21e8e49e6b0c",
+  "verdict": "PASS"
+}

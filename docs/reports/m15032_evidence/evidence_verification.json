@@ -1,0 +1,125 @@
+{
+ "mission": 14961,
+ "repo": "TensorPlatform",
+ "scope": "m14961 H6-MATURITY-GATE",
+ "verdict_level": 2,
+ "checked_at_utc": "2026-11-11T15:40:00Z",
+ "checks": [
+  {
+   "item": "run_artifact:gate.json",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/gate.json",
+   "note": "20418 bytes"
+  },
+  {
+   "item": "run_artifact:consistency.json",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/consistency.json",
+   "note": "2002 bytes"
+  },
+  {
+   "item": "run_artifact:increment_ledger.json",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/increment_ledger.json",
+   "note": "11156 bytes"
+  },
+  {
+   "item": "run_artifact:mutation_benchmark.json",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/mutation_benchmark.json",
+   "note": "3061 bytes"
+  },
+  {
+   "item": "run_artifact:fig1_maturity_profile.png",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/fig1_maturity_profile.png",
+   "note": "34424 bytes"
+  },
+  {
+   "item": "run_artifact:fig2_axes_health.png",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/fig2_axes_health.png",
+   "note": "32015 bytes"
+  },
+  {
+   "item": "run_artifact:fig3_increment_flow.png",
+   "category": "run_artifacts",
+   "ok": true,
+   "pointer": "/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/fig3_increment_flow.png",
+   "note": "48155 bytes"
+  },
+  {
+   "item": "benchmark:mutation_injected_vs_detected",
+   "category": "benchmark",
+   "ok": true,
+   "pointer": "artifacts/maturity_gate_h6/mutation_benchmark.json:injected/detected/recall",
+   "note": "ref=5/5 recall=1.0 got=5/5 recall=1.0 fp=0"
+  },
+  {
+   "item": "benchmark:target_axis_hit",
+   "category": "benchmark",
+   "ok": false,
+   "pointer": "artifacts/maturity_gate_h6/mutation_benchmark.json:target_axis_hit",
+   "note": "逐轴命中 3/5（M1/M3 未由目标轴命中，axis_perfect 实为「全部检出」而非「逐轴命中」）"
+  },
+  {
+   "item": "benchmark:cross_worktree_recompute",
+   "category": "benchmark",
+   "ok": true,
+   "pointer": "runs/m15032_audit/repro_artifacts/gate.json vs /root/tp-agent/work/m14961/artifacts/maturity_gate_h6/gate.json",
+   "note": "逐字段一致: {'inputs': True, 'criteria': True, 'thresholds': True, 'thresholds_sha256': True, 'axes': True, 'maturity': True, 'verdict': True, 'increments.chain_head': True, 'increments.counts': True}"
+  },
+  {
+   "item": "repro_cmd:cli_run",
+   "category": "repro_cmd",
+   "ok": true,
+   "pointer": "python3 -m tools.maturity_gate_h6.cli run --work-root <root> --spec data/maturity_gate_h6/h6.spec.json --out artifacts/maturity_gate_h6",
+   "note": "verdict=PASS criteria_pass_rate=1.0"
+  },
+  {
+   "item": "repro_cmd:cli_verify",
+   "category": "repro_cmd",
+   "ok": true,
+   "pointer": "python3 -m tools.maturity_gate_h6.cli verify --out artifacts/maturity_gate_h6",
+   "note": "verified=true, problems=[]"
+  },
+  {
+   "item": "tests:pytest_24",
+   "category": "tests",
+   "ok": true,
+   "pointer": "python3 -m pytest tools/maturity_gate_h6/tests -q",
+   "note": "24 passed in 0.29s（本单独立复跑）"
+  },
+  {
+   "item": "negcontrol:verify_antitamper",
+   "category": "benchmark",
+   "ok": false,
+   "pointer": "runs/m15032_audit/tamper_negative_control.json",
+   "note": "注入 9 例，verify 仅检出 3 例（recall=0.333333）：axes/maturity/increments 条目（含 sha256/prev_sha256）全部漏检"
+  },
+  {
+   "item": "integration_callers",
+   "category": "integration_callers",
+   "ok": false,
+   "pointer": "grep -rn 'maturity_gate_h6' --include=*.py（仅 scripts/post_h6_maturity_report.py:40 读取产物图）",
+   "note": "无 API/backend/CI/战役门调用方：该门是独立 CLI 工具，未接入平台运行面 → 不达 L3"
+  },
+  {
+   "item": "external_anchor",
+   "category": "external_anchor",
+   "ok": false,
+   "pointer": "data/maturity_gate_h6/h6.spec.json:anchors（均为仓内定义文件：adjudication_engine.py / capability_ledger.py / maturity_gate/spec.py）",
+   "note": "无文献/解析解/独立基准对标；变异基准的注入缺陷由本仓作者自造 → 不达 L4"
+  }
+ ],
+ "counts": {
+  "total": 16,
+  "ok": 12
+ }
+}
