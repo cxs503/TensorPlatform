@@ -1,0 +1,190 @@
+{
+  "probe": "m8719_six_dim_power_accuracy",
+  "module_path": "/root/tp-agent/work/m14574/tools/abm/six_dim_power.py",
+  "module_sha256": "07323db56bdd313f3d4198089614542042349b1b1b7de9834eeda6daa2c29b55",
+  "probe_json_sha256": "e05ca116f81bf4a70c3dbed300d85089a4e6bf3aaafcdb84b248c70606a15ab4",
+  "all_pass": true,
+  "verdicts": {
+    "D1_t_ppf_fixed_within_1e-6": true,
+    "D1_baseline_defect_reproduced_gt0.5pct": true,
+    "D1_reference_cross_checked_scipy": true,
+    "D1down_mde_fixed_within_1e-6": true,
+    "D1down_mde_baseline_defect_reproduced": true,
+    "D1down_min_n_boundary_flip_14_to_15": true,
+    "D1down_min_n_round_trip_power": true,
+    "D2_holm_matches_textbook": true,
+    "D2_holm_baseline_defect_reproduced": true,
+    "D1down_ci_coverage_within_1pp": true
+  },
+  "t_quantile": {
+    "n_points": 156,
+    "max_fixed_rel_err": 9.350633977300961e-11,
+    "max_baseline_rel_err": 0.8823003382627138,
+    "max_fixed_rel_err_p975_df_ge_2": 7.54392395818414e-11,
+    "max_baseline_rel_err_p975_df_ge_2": 0.2688000177340532,
+    "rows_p975": {
+      "2": {
+        "ref": 4.302652729749462,
+        "baseline": 3.146099599689334,
+        "fixed": 4.302652729749463,
+        "baseline_rel_err": 0.2688000177340532,
+        "fixed_rel_err": 2.0642577393222315e-16
+      },
+      "3": {
+        "ref": 3.1824463052837038,
+        "baseline": 2.7507210613062405,
+        "fixed": 3.182446305283705,
+        "baseline_rel_err": 0.13565829634287466,
+        "fixed_rel_err": 4.1863004171924933e-16
+      },
+      "5": {
+        "ref": 2.570581835636323,
+        "baseline": 2.434418230599766,
+        "fixed": 2.5705818356363066,
+        "baseline_rel_err": 0.052969955341978486,
+        "fixed_rel_err": 6.3920551124507984e-15
+      },
+      "8": {
+        "ref": 2.3060041352041667,
+        "baseline": 2.256497888327374,
+        "fixed": 2.3060041352041556,
+        "baseline_rel_err": 0.02146841201237035,
+        "fixed_rel_err": 4.814488437709852e-15
+      },
+      "10": {
+        "ref": 2.2281388519862646,
+        "baseline": 2.1971911075699095,
+        "fixed": 2.2281388519862606,
+        "baseline_rel_err": 0.013889504412513085,
+        "fixed_rel_err": 1.793785376116767e-15
+      },
+      "15": {
+        "ref": 2.131449545559777,
+        "baseline": 2.118115399893291,
+        "fixed": 2.131449545398982,
+        "baseline_rel_err": 0.006255904904839786,
+        "fixed_rel_err": 7.54392395818414e-11
+      },
+      "20": {
+        "ref": 2.0859634472658466,
+        "baseline": 2.078577546054982,
+        "fixed": 2.085963447132119,
+        "baseline_rel_err": 0.0035407625289627133,
+        "fixed_rel_err": 6.410835998061795e-11
+      },
+      "30": {
+        "ref": 2.0422724563012897,
+        "baseline": 2.0390396922166723,
+        "fixed": 2.04227245630121,
+        "baseline_rel_err": 0.0015829249788112305,
+        "fixed_rel_err": 3.914074124947145e-14
+      },
+      "50": {
+        "ref": 2.0085591121007833,
+        "baseline": 2.0074094091460246,
+        "fixed": 2.0085591121007496,
+        "baseline_rel_err": 0.0005724018515721944,
+        "fixed_rel_err": 1.680347854602312e-14
+      },
+      "100": {
+        "ref": 1.9839715185237743,
+        "baseline": 1.983686696843039,
+        "fixed": 1.9839715185235234,
+        "baseline_rel_err": 0.00014356137579389752,
+        "fixed_rel_err": 1.264687528135393e-13
+      },
+      "1000": {
+        "ref": 1.9623390808239405,
+        "baseline": 1.962336255770352,
+        "fixed": 1.962339080826388,
+        "baseline_rel_err": 1.4396357979118482e-06,
+        "fixed_rel_err": 1.2472858049898954e-12
+      },
+      "5000": {
+        "ref": 1.9604385516949547,
+        "baseline": 1.9604384387861133,
+        "fixed": 1.9604385517070684,
+        "baseline_rel_err": 5.7593665095993306e-08,
+        "fixed_rel_err": 6.179047749908752e-12
+      }
+    },
+    "reference": {
+      "method": "df in {1,2} 解析闭式 + 自适应 Simpson + Newton（不复用被审 _betai）",
+      "scipy_available": true,
+      "max_ref_vs_scipy_rel_err": 4.74412789595586e-11
+    }
+  },
+  "downstream": {
+    "alpha": 0.05,
+    "analytic_mde_n9": {
+      "ref": 1.049208456259027,
+      "fixed": 1.0492084562590234,
+      "baseline": 1.0327063739667628,
+      "fixed_rel_err": 3.3860894444825296e-15,
+      "baseline_rel_err": 0.01572812551578418
+    },
+    "min_n_for_effect_d0.8": {
+      "ref": 15,
+      "fixed": 15,
+      "baseline": 14,
+      "flipped": true
+    },
+    "round_trip_power_at_n": {
+      "n": 15,
+      "power": 0.8298569982643298,
+      "meets_target": true
+    }
+  },
+  "holm": {
+    "trials": 2000,
+    "uniform": {
+      "fixed_inconsistent_rate": 0.0,
+      "baseline_inconsistent_rate": 0.674,
+      "fixed_max_abs_diff": 0.0,
+      "baseline_max_abs_diff": 0.9497830682276693
+    },
+    "wide": {
+      "fixed_inconsistent_rate": 0.0,
+      "baseline_inconsistent_rate": 0.7355,
+      "fixed_max_abs_diff": 0.0,
+      "baseline_max_abs_diff": 0.9499558633494267
+    },
+    "hand_case": {
+      "p": [
+        0.001,
+        0.04,
+        0.05
+      ],
+      "textbook": [
+        0.003,
+        0.08,
+        0.08
+      ],
+      "fixed": [
+        0.003,
+        0.08,
+        0.08
+      ],
+      "baseline": [
+        0.003,
+        1.0,
+        1.0
+      ]
+    }
+  },
+  "coverage": {
+    "9": {
+      "fixed": 0.947,
+      "baseline": 0.94225,
+      "fixed_gap_pp": -0.30000000000000027,
+      "baseline_gap_pp": -0.7749999999999924
+    },
+    "15": {
+      "fixed": 0.9535,
+      "baseline": 0.95275,
+      "fixed_gap_pp": 0.35000000000000586,
+      "baseline_gap_pp": 0.275000000000003
+    }
+  },
+  "coverage_reps": 4000
+}
