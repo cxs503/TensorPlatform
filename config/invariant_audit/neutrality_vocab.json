@@ -1,0 +1,47 @@
+{
+  "schema_version": "invariant-audit/1.0",
+  "purpose": "Injected vocabulary for the zero-domain-semantics gate of the invariant audit. The mechanism may only know about callables, parameters, tolerances and residuals; vessel/waterway/operating-point tokens must never appear in it.",
+  "scope": {
+    "paths": [
+      "tools/invariant_audit/__init__.py",
+      "tools/invariant_audit/__main__.py",
+      "tools/invariant_audit/dimensions.py",
+      "tools/invariant_audit/model.py",
+      "tools/invariant_audit/checks.py",
+      "tools/invariant_audit/engine.py",
+      "tools/invariant_audit/bundle.py",
+      "tools/invariant_audit/cli.py"
+    ],
+    "extensions": [".py"],
+    "import_must_not_reach": [
+      "tools.invariant_audit.anchors"
+    ]
+  },
+  "forbidden_in_mechanism_code": [
+    "hull",
+    "vessel",
+    "ship",
+    "waterway",
+    "propeller",
+    "rudder",
+    "iceberg",
+    "ice class",
+    "sea state",
+    "draft",
+    "KCS",
+    "KVLCC2",
+    "KRISO",
+    "JBC",
+    "DTMB",
+    "Series 60",
+    "Wigley",
+    "Suez",
+    "Panama Canal",
+    "Yangtze",
+    "Rotterdam",
+    "Singapore Strait",
+    "Beaufort",
+    "resistance coefficient"
+  ],
+  "quantity_names_note": "quantity names are injected per target by configuration, never enumerated in mechanism code"
+}
