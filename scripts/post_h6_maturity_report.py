@@ -52,7 +52,7 @@ def main() -> int:
             f"{gate['increments']['counts']}；变异基准召回 {bench['recall']}、假阳性 "
             f"{bench['false_positives']}；24 项 pytest 全绿。"),
         "scenario_key": "h6-maturity-gate",
-        "mission_id": 14961,
+        "mission_id": 15050,
         "tags": ["platform", "maturity-gate", "capability-ledger", "cross-consistency",
                  "evidence", "h6"],
         "markdown": md,

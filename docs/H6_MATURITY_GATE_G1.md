@@ -8,9 +8,9 @@
 
 | 源 | 角色 | 路径 | as_of | 能力数 | sha256(前16) |
 |---|---|---|---|---|---|
-| live_probe_2026-11-11 | **不可用** | `/root/tp-agent/work/m14961/artifacts/maturity_gate_h6/sources/live_probe_2026-11-11.json` | - | 0 | - |
-| self_claimed_2026-11-01 | 可用 | `/root/tp-agent/work/m14961/tests/fixtures/capability_ledger/capabilities_snapshot.json` | 2026-11-01T07:44:00Z | 21 | f09ae98785e6b17a |
-| evidence_ledger_resolved | 可用 | `/root/tp-agent/work/m14961/artifacts/capability_ledger/capability_ledger_resolved.json` | 2026-11-01T17:37:17+08:00 | 21 | 7adb9835d8489f4a |
+| live_probe_2026-11-11 | **不可用** | `/root/tp-agent/work/m15050/artifacts/maturity_gate_h6/sources/live_probe_2026-11-11.json` | - | 0 | - |
+| self_claimed_2026-11-01 | 可用 | `/root/tp-agent/work/m15050/tests/fixtures/capability_ledger/capabilities_snapshot.json` | 2026-11-01T07:44:00Z | 21 | f09ae98785e6b17a |
+| evidence_ledger_resolved | 可用 | `/root/tp-agent/work/m15050/artifacts/capability_ledger/capability_ledger_resolved.json` | 2026-11-01T17:37:17+08:00 | 21 | 7adb9835d8489f4a |
 
 五级成熟度阶梯（本门唯一权威定义，秩严格单调）：
 
@@ -181,12 +181,12 @@
 3. **分歧率高不是缺陷**：`OVERCLAIM` 大量出现说明自述系统性虚高，这正是台账存在的理由；判据 C3/C4 只要求「分歧可归类、可复算」，不要求「分歧为零」。
 4. **引文绑定依赖原始语料**：语料是快照；报告正文若在上游变更，本门会报 drift，此时应重新 curation 而不是放宽阈值。
 5. **增量链不是防篡改链**：单条事件含 `prev_sha256` 可发现中间被改，但尾部截断需外部锚；本门把 `chain_head` 写进判定体，`--verify` 会重算比对。
-6. **源 `live_probe_2026-11-11` 不可用（显式缺口，非绿灯）**：harness 侧能力清单探针失败: FileNotFoundError /root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json（注册表未随工作树同步；:8001 亦未暴露能力清单端点） —— 相关判据取 `null`（不通过），并在 `gate.json.sources` 留痕，绝不静默当作通过。
+6. **源 `live_probe_2026-11-11` 不可用（显式缺口，非绿灯）**：工件缺失: /root/tp-agent/work/m15050/artifacts/maturity_gate_h6/sources/live_probe_2026-11-11.json —— 相关判据取 `null`（不通过），并在 `gate.json.sources` 留痕，绝不静默当作通过。
 
 ## ⑧ 复现
 
 ```bash
-python3 -m tools.maturity_gate_h6.cli run --work-root /root/tp-agent/work/m14961 --spec data/maturity_gate_h6/h6.spec.json --out artifacts/maturity_gate_h6 && python3 -m tools.maturity_gate_h6.cli verify
+python3 -m tools.maturity_gate_h6 run --work-root /root/tp-agent/work/m15050 --spec data/maturity_gate_h6/h6.spec.json --out artifacts/maturity_gate_h6 && python3 -m tools.maturity_gate_h6 verify
 ```
 
 ## ⑨ 外部锚点

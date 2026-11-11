@@ -10,8 +10,8 @@
 
 用法::
 
-    python3 -m tools.maturity_gate_h6.cli run
-    python3 -m tools.maturity_gate_h6.cli verify
+    python3 -m tools.maturity_gate_h6 run
+    python3 -m tools.maturity_gate_h6 verify
 """
 
 from __future__ import annotations
@@ -234,10 +234,10 @@ def cmd_run(args: argparse.Namespace) -> int:
     if mutation:
         _dump(out / "mutation_benchmark.json", mutation)
 
-    repro = (f"python3 -m tools.maturity_gate_h6.cli run --work-root {root} "
+    repro = (f"python3 -m tools.maturity_gate_h6 run --work-root {root} "
              f"--spec {spec_path.relative_to(root) if spec_path.is_relative_to(root) else spec_path} "
              f"--out {out.relative_to(root) if out.is_relative_to(root) else out} "
-             f"&& python3 -m tools.maturity_gate_h6.cli verify")
+             f"&& python3 -m tools.maturity_gate_h6 verify")
     figs = [report_mod.fig_maturity_profile(gate, out / "fig1_maturity_profile.png"),
             report_mod.fig_axes_health(gate, out / "fig2_axes_health.png"),
             report_mod.fig_increment_flow(gate, out / "fig3_increment_flow.png")]
