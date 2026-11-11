@@ -505,6 +505,18 @@ except Exception as _exc:  # pragma: no cover - 部署面兜底
     logging.getLogger(__name__).warning("proposal_gate router 接线跳过: %s", _exc)
 
 
+# ── 平台治理成熟化集成验证面（N01 度量 × N02 三契约源 × N03 场交换，p465w1-N07）──
+# 四端点：/governance/maturity/{contracts,audit,e2e-run,report}。注意与
+# api/governance_maturity.py（m8339 的报表门/证据链/台账/自愈库，无 router）并存、不改写它。
+# import 失败只告警，不阻断 app 启动（同 soul_runtime 部署安全模式）。
+try:
+    from api import governance_maturity_integration as _governance_integration  # noqa: E402
+
+    app.include_router(_governance_integration.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("governance_maturity_integration router 接线跳过: %s", _exc)
+
+
 # ── 多保真级联打分器（IN59-N10，m6604）──
 # Low→Medium→High fidelity cascade with physics-consistency gates and
 # budget-adaptive sampling.  Addresses wall_exhausted failure mode
