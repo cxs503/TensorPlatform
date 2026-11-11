@@ -651,6 +651,7 @@ def claim_mission(
             UPDATE tensor_dev_missions
             SET status = 'claimed', claim_token = :tok, claimed_by = :agent,
                 claimed_user_id = :uid,
+                model = COALESCE(model, :claim_model),
                 heartbeat_at = now()
             WHERE id = (
                 SELECT id FROM tensor_dev_missions
