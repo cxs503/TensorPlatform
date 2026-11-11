@@ -1,0 +1,36 @@
+{
+  "schema_version": "1.0",
+  "spec_id": "h6-maturity-gate-v1",
+  "gate_id": "H6-MATURITY-GATE",
+  "title": "能力增量账本 + 五级成熟度 + 交叉一致性（G1/H6 验收门）",
+  "notes": "零领域语义：源路径/锚点全部由本文件注入，代码内无域词条。baseline=能力自述等级快照，current=证据对账台账。",
+  "sources": [
+    {
+      "source_id": "self_claimed_2026-11-01",
+      "role": "baseline",
+      "kind": "flat_snapshot",
+      "path": "tests/fixtures/capability_ledger/capabilities_snapshot.json"
+    },
+    {
+      "source_id": "evidence_ledger_resolved",
+      "role": "current",
+      "kind": "ledger",
+      "path": "artifacts/capability_ledger/capability_ledger_resolved.json"
+    },
+    {
+      "source_id": "live_probe_2026-11-11",
+      "role": "extra",
+      "kind": "flat_snapshot",
+      "path": "artifacts/maturity_gate_h6/sources/live_probe_2026-11-11.json"
+    }
+  ],
+  "markdown_table": "artifacts/capability_ledger/capability_ledger_table.md",
+  "corpus": "tests/fixtures/capability_ledger/reports_corpus.json",
+  "anchors": [
+    {"name": "五级证据分级口径（REAL/MOCK/STUB/WITHHELD/NOT_SUPPORTED，误差 3%/15% 容差）", "ref": "tools/capability_ledger_maturity/adjudication_engine.py"},
+    {"name": "证据台账裁决规则 C1..C10（含 C10 文档正文 sha256 与语料一致）", "ref": "tools/audit/capability_ledger.py"},
+    {"name": "战役成熟化整合门（判据/契约/报告引擎复用基线）", "ref": "tools/maturity_gate/spec.py"},
+    {"name": "证据协议（节点把可复算数字写入 artifacts，criteria.<id>.pass 供互裁）", "ref": "docs/contracts/maturity-integration-v1.md"},
+    {"name": "能力台账自动化证据链成熟化（裁定规则 R0..R6 与阈值口径）", "ref": "tools/capability_ledger_maturity/README.md"}
+  ]
+}
