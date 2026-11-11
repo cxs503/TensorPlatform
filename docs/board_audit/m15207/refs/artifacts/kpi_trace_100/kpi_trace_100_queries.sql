@@ -1,0 +1,4 @@
+-- Synthetic mode: no SQL executed
+-- Seed: 42
+-- Generated terminal missions: 14085
+-- Generated traceable: 7677

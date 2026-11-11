@@ -1,0 +1,239 @@
+{
+  "C1_artifacts": {
+    "all_png_real": true,
+    "missing": [],
+    "png_signature_ok": {
+      "artifacts/kpi_trace_100/fig_1_gap.png": true,
+      "artifacts/kpi_trace_100/fig_2_by_status.png": true,
+      "artifacts/kpi_trace_100/fig_3_weekly.png": true,
+      "artifacts/kpi_trace_100/fig_4_repo_7d.png": true,
+      "artifacts/kpi_trace_100/fig_5_debt.png": true
+    },
+    "present": [
+      {
+        "bytes": 8045,
+        "path": "artifacts/kpi_trace_100/result.json",
+        "sha256": "20915f72c0408c9c"
+      },
+      {
+        "bytes": 1395465,
+        "path": "artifacts/kpi_trace_100/terminal_missions.csv",
+        "sha256": "ff3f5c31e314bff7"
+      },
+      {
+        "bytes": 582142,
+        "path": "artifacts/kpi_trace_100/reports_facts.csv",
+        "sha256": "ace8be0b91615ff9"
+      },
+      {
+        "bytes": 114,
+        "path": "artifacts/kpi_trace_100/kpi_trace_100_queries.sql",
+        "sha256": "1402a5b5928aeafb"
+      },
+      {
+        "bytes": 31327,
+        "path": "artifacts/kpi_trace_100/fig_1_gap.png",
+        "sha256": "a9fc77fa5fae631e"
+      },
+      {
+        "bytes": 29991,
+        "path": "artifacts/kpi_trace_100/fig_2_by_status.png",
+        "sha256": "95a2d47725b68a16"
+      },
+      {
+        "bytes": 36460,
+        "path": "artifacts/kpi_trace_100/fig_3_weekly.png",
+        "sha256": "01f3ae5875f54dbf"
+      },
+      {
+        "bytes": 65477,
+        "path": "artifacts/kpi_trace_100/fig_4_repo_7d.png",
+        "sha256": "5f81b845057d8f37"
+      },
+      {
+        "bytes": 29937,
+        "path": "artifacts/kpi_trace_100/fig_5_debt.png",
+        "sha256": "453e444fc13414f1"
+      }
+    ]
+  },
+  "C2_reproducibility": {
+    "all_numeric_fields_identical": true,
+    "cmd": "python3 -m tools.kpi_trace measure --synthetic --outdir <tmp>",
+    "data_mode_reported": "synthetic",
+    "detail": {},
+    "fields": {
+      "by_status": true,
+      "current": true,
+      "data_mode": true,
+      "denominator": true,
+      "gap": true,
+      "link_channel_split": true,
+      "numerator": true,
+      "target": true,
+      "windows": true
+    },
+    "ran": true
+  },
+  "C3_real_value": {
+    "at": "2026-11-11T20:41:08.935125+00:00",
+    "by_status": {
+      "failed": {
+        "pct": 4.08,
+        "terminal": 3922,
+        "traceable": 160
+      },
+      "revoked": {
+        "pct": 22.83,
+        "terminal": 587,
+        "traceable": 134
+      },
+      "stopped": {
+        "pct": 46.71,
+        "terminal": 167,
+        "traceable": 78
+      },
+      "succeeded": {
+        "pct": 77.57,
+        "terminal": 9484,
+        "traceable": 7357
+      }
+    },
+    "denominator": 14160,
+    "missions_total": 14211,
+    "numerator": 7729,
+    "pct": 54.58,
+    "report_id_channel_count": 8,
+    "succeeded_total": 9484,
+    "tensor_reports_distinct_missions": 7749,
+    "tensor_reports_rows_with_mission": 9395
+  },
+  "C4_synthetic_fingerprint": {
+    "abs_pp_deviation": 0.08,
+    "committed_got_pct": 54.5,
+    "committed_report_id_channel": 5356,
+    "committed_succeeded_terminal": 8733,
+    "csv_id_max": 24084,
+    "csv_id_min": 10000,
+    "csv_reports_facts_rows": 7923,
+    "csv_rows": 14085,
+    "csv_time_span": [
+      "2026-09-08 21:08:52.626121+00",
+      "2026-11-11 08:58:38.122416+00"
+    ],
+    "mismatch_examples": [
+      {
+        "csv": "2026-11-09 16:33:29.671302+00",
+        "db": "MISSING",
+        "id": 17281
+      },
+      {
+        "csv": "succeeded 2026-11-03 21:34:52.735869+00",
+        "db": "revoked 2026-11-11 05:05:32",
+        "id": 14388
+      },
+      {
+        "csv": "2026-11-05 17:30:33.208544+00",
+        "db": "MISSING",
+        "id": 15659
+      }
+    ],
+    "real_pct": 54.58,
+    "real_report_id_channel": 8,
+    "real_succeeded_total": 9484,
+    "real_terminal": 14160,
+    "row_count_delta": -75,
+    "sample_created_at_match": 0,
+    "sample_ids_in_db": 26,
+    "sample_n": 60,
+    "sample_status_match": 7
+  },
+  "C5_benchmark_judge": {
+    "all_anchors": [
+      "CAP-LEDGER-EVIDENCE",
+      "GAP-DEM-CLUMP",
+      "GAP-DEM-FRICTION",
+      "GAP-FEM-3D-COHESIVE",
+      "GAP-FEM-ELASTOPLASTIC",
+      "GAP-FEM-WINKLER",
+      "GAP-FVM-TWOPHASE",
+      "GAP-LBM-MCMP-POISEUILLE",
+      "GAP-LBM-SPHERE",
+      "H1-BROKEN-ICE-DEM",
+      "H2-FRAZIL-RHEOLOGY",
+      "H3-ICE-PLATE-FEM",
+      "H6-MATURITY-GATE"
+    ],
+    "anchor_rows": [],
+    "registered": false,
+    "table_total_rows": 13
+  },
+  "C6_tests": {
+    "claimed": 15,
+    "cmd": "pytest tests/test_kpi_trace_tool.py tests/test_kpi_trace_100_measure.py -q",
+    "returncode": 0,
+    "summary": "15 passed, 1 warning in 23.85s"
+  },
+  "C7_report": {
+    "data_mode": "synthetic",
+    "figures_declared": 5,
+    "figures_on_disk": {
+      "artifacts/kpi_trace_100/fig_1_gap.png": true,
+      "artifacts/kpi_trace_100/fig_2_by_status.png": true,
+      "artifacts/kpi_trace_100/fig_3_weekly.png": true,
+      "artifacts/kpi_trace_100/fig_4_repo_7d.png": true,
+      "artifacts/kpi_trace_100/fig_5_debt.png": true
+    },
+    "honest_disclosure_synthetic": true,
+    "report_row": [
+      [
+        "14281",
+        "15177",
+        "published",
+        "pending"
+      ]
+    ],
+    "repro_cmd_in_doc": true,
+    "six_sections_all": true,
+    "six_sections_present": {
+      "1": true,
+      "2": true,
+      "3": true,
+      "4": true,
+      "5": true,
+      "6": true
+    }
+  },
+  "C8_integration": {
+    "artifacts_committed_on_main": false,
+    "callers_excluding_own_package": [
+      "docs/KPI_TRACE_100_MEASUREMENT.md",
+      "docs/m15149_audit_report.md",
+      "scripts/kpi_trace_100_doc.py",
+      "scripts/kpi_trace_100_figures.py",
+      "scripts/kpi_trace_100_measure.py",
+      "tensor_reports/m15177_report.json",
+      "tests/test_kpi_trace_100_measure.py",
+      "tests/test_kpi_trace_tool.py"
+    ],
+    "checked": true,
+    "main_head": "8c1db9f671335743ee08a25a3eabc37089647493",
+    "package_on_main": true
+  },
+  "anchor": "KPI-TRACE-100",
+  "audit_mission": 15207,
+  "audited_mission": 15177,
+  "reported_at": "2026-11-11T20:41:08.935206+00:00",
+  "verdict_hint": {
+    "gate_expectation": "reopened/withheld：能力=L2 可确认，但 anchor 计量值须以 database 模式重跑（同一工具已可跑出 54.59%）",
+    "level": 2,
+    "material_defects": [
+      "交付 headline current=54.5% 来自合成底账（synthetic.py 默认参数 _DEFAULT_TERMINAL=14085 / _DEFAULT_TRACEABLE=7677 直接等于报告数字 → 循环论证）",
+      "真库实测 = 54.58%（7729/14160），与交付值差 0.08 pp",
+      "双通道指纹：交付称 missions_with_report_id=5356，真库 report_id 非空仅 8 条",
+      "抽样 60 条 CSV 行，id 在库存在 26，但 status 一致仅 7、created_at 一致仅 0（底账非库导出）",
+      "报告附录 repro_cmd 只给 --synthetic，任何人按它复算只会复现合成数字，不会得到真值"
+    ],
+    "why": "L2：真实现（tools/kpi_trace 5 模块）+ 工程入口（CLI measure/figures/doc/run-all）+ 可运行工件（result.json/2 CSV/5 PNG，sha256 可核）+ 自带 15 项测试全通过 + PR #1236 已并 main；不达 L3：main 上无任何调用方（集成面为零）；不达 L4：tensor_benchmark_cases 无 KPI-TRACE-100 参考值行，且交付数值 data_mode=synthetic（合成底账，参数钉死在历史观测 terminal=14085/traceable=7677），非实测。"
+  }
+}
