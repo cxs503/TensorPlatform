@@ -1,0 +1,70 @@
+{
+  "suite": "fx_gate_band_fail",
+  "version": 1,
+  "description": "predeclared 3% tolerance, observed ~5% / 3.125% error -> gate must FAIL (negative control)",
+  "drift_threshold": 0.03,
+  "timeout_s": 30.0,
+  "cases": [
+    {
+      "id": "gb_tail_p0471",
+      "title": "designed tail error ~5% over 3% threshold (negative control)",
+      "workload": "tools.benchmark_runner.synthetic:series_partial_sum",
+      "inputs": {
+        "ratio": 0.9,
+        "terms": 29
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.synthetic:series_reference",
+        "inputs": {
+          "ratio": 0.9
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 0.03
+        }
+      ]
+    },
+    {
+      "id": "gb_tail_p0313",
+      "title": "designed tail error 3.125% just over threshold (no boundary slop)",
+      "workload": "tools.benchmark_runner.synthetic:series_partial_sum",
+      "inputs": {
+        "ratio": 0.5,
+        "terms": 5
+      },
+      "reference": {
+        "workload": "tools.benchmark_runner.synthetic:series_reference",
+        "inputs": {
+          "ratio": 0.5
+        }
+      },
+      "criteria": [
+        {
+          "metric": "rel_error",
+          "op": "<=",
+          "value": 0.03
+        }
+      ]
+    }
+  ],
+  "suite_criteria": [
+    {
+      "metric": "n_cases",
+      "op": ">=",
+      "value": 1
+    },
+    {
+      "metric": "pass_ratio",
+      "op": ">=",
+      "value": 1.0
+    },
+    {
+      "metric": "max_rel_error",
+      "op": "<=",
+      "value": 0.03
+    }
+  ]
+}
