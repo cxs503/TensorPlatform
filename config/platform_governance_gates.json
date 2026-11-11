@@ -1,0 +1,34 @@
+{
+  "schema": "platform-governance-gates/1.0",
+  "thresholds": {
+    "promote": 0.8,
+    "demote": 0.5
+  },
+  "requirements": [
+    "independent_verification",
+    "benchmark_artifact",
+    "sha256_verified",
+    "cross_consistent",
+    "provenance_complete",
+    "evidence_depth"
+  ],
+  "scan_roots": [
+    "reports",
+    "artifacts",
+    "benchmarks",
+    "verified"
+  ],
+  "defect_codes": [
+    "EMPTY_BODY",
+    "MISSING_FINGERPRINT",
+    "DECLARED_BODY_MISMATCH",
+    "DECLARED_METADATA_MISMATCH",
+    "ID_MISMATCH",
+    "DUPLICATE_BODY",
+    "DUPLICATE_REPORT_ID"
+  ],
+  "drift": {
+    "alert_threshold": 0.3,
+    "auto_converge": true
+  }
+}
