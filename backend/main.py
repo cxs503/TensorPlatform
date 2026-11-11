@@ -750,6 +750,19 @@ except Exception:  # pragma: no cover
     logger.warning("capability-audit API not mounted", exc_info=True)
 
 
+# ── 跨仓能力依赖图谱 + 级联失效预警（p285w2b-n03）───────────────────────────
+# 只读台账/配置/工件：节点=能力台账条目，边=依赖关系，属性=证据等级/置信度；
+# 等级变化 → 级联重算 → 预警。零领域语义：能力 id 与依赖边全经配置注入。
+# 挂载失败不得拖垮主应用。
+try:  # pragma: no cover - 环境相关
+    from api.capability_graph import router as _capability_graph_router
+
+    app.include_router(_capability_graph_router, prefix="/api/v1")
+    logger.info("capability-graph API mounted at /api/v1/capability-graph")
+except Exception:  # pragma: no cover
+    logger.warning("capability-graph API not mounted", exc_info=True)
+
+
 # ── 能力台账自动升账（p262w1-N07）──────────────────────────────────────────
 # 证据链完整 → 升 REAL；回归/证据断裂 → 降 MOCK/WITHHELD；每次操作落 append-only
 # sha256 链审计日志。规格由 config/capability_chain_spec.json 注入（零领域语义），
