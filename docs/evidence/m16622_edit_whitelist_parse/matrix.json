@@ -1,0 +1,515 @@
+{
+  "mission": 16622,
+  "before_ref": "f40e2cb1a",
+  "before_blob_sha256": "476a285dd1ecfd407654707e5d5c187a7c5f63fb88b0d78bdcfd74bfbf493c98",
+  "after_file": "harness_gateway/mirror/tp_worker.py",
+  "after_sha256": "84dba6af8c8f464ae21d242bf85157a407ba9645435e49707e9a1b72dcc261cb",
+  "before": {
+    "summary": {
+      "positive": {
+        "total": 7,
+        "pass": 5
+      },
+      "negative": {
+        "total": 6,
+        "pass": 5
+      },
+      "dormant": {
+        "total": 6,
+        "pass": 4
+      }
+    },
+    "rows": [
+      {
+        "group": "positive",
+        "case": "cjk_full_stop",
+        "goal": "EDIT_WHITELIST: docs/, artifacts/。",
+        "prefs": [
+          "docs",
+          "artifacts/。"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": false,
+        "expect": true,
+        "pass": false
+      },
+      {
+        "group": "positive",
+        "case": "ascii_period",
+        "goal": "EDIT_WHITELIST: docs/, artifacts/.",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "fullstop_then_newline",
+        "goal": "EDIT_WHITELIST: docs/, artifacts/。\\n后续正文",
+        "prefs": [
+          "docs",
+          "artifacts/。"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": false,
+        "expect": true,
+        "pass": false
+      },
+      {
+        "group": "positive",
+        "case": "fullwidth_comma",
+        "goal": "EDIT_WHITELIST: docs/，artifacts/",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "no_slash_single",
+        "goal": "EDIT_WHITELIST: docs",
+        "prefs": [
+          "docs"
+        ],
+        "expect_prefs": [
+          "docs"
+        ],
+        "write_artifacts_x_json": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "dot_slash_prefix",
+        "goal": "EDIT_WHITELIST: ./docs/",
+        "prefs": [
+          "docs"
+        ],
+        "expect_prefs": [
+          "docs"
+        ],
+        "write_artifacts_x_json": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "semicolon_tail",
+        "goal": "EDIT_WHITELIST: docs/; artifacts/；",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "outside_dir",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "backend/x.py",
+        "why": "白名单外的普通目录",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "dotdot_escape",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "docs/../backend/x.py",
+        "why": "normpath 后逃出白名单",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "absolute_path",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "/etc/passwd",
+        "why": "绝对路径（越界）",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "absolute_inside_name",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "/docs/x.md",
+        "why": "绝对路径即便同名也拒",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": true,
+        "expect": false,
+        "pass": false
+      },
+      {
+        "group": "negative",
+        "case": "parent_escape",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "../x.py",
+        "why": "上一级目录",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "prefix_sibling",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "docs_evil/x.py",
+        "why": "同前缀兄弟目录不得误放",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "no_declaration",
+        "goal": "普通任务目标，没有白名单声明。",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "empty_goal",
+        "goal": "",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "none_goal",
+        "goal": null,
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "only_punct",
+        "goal": "EDIT_WHITELIST: 。",
+        "prefs": [
+          "。"
+        ],
+        "expect": null,
+        "pass": false
+      },
+      {
+        "group": "dormant",
+        "case": "only_puncts",
+        "goal": "EDIT_WHITELIST: ，、；。",
+        "prefs": [
+          "。"
+        ],
+        "expect": null,
+        "pass": false
+      },
+      {
+        "group": "dormant",
+        "case": "only_whitespace",
+        "goal": "EDIT_WHITELIST:     ",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      }
+    ]
+  },
+  "after": {
+    "summary": {
+      "positive": {
+        "total": 7,
+        "pass": 7
+      },
+      "negative": {
+        "total": 6,
+        "pass": 6
+      },
+      "dormant": {
+        "total": 6,
+        "pass": 6
+      }
+    },
+    "rows": [
+      {
+        "group": "positive",
+        "case": "cjk_full_stop",
+        "goal": "EDIT_WHITELIST: docs/, artifacts/。",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "ascii_period",
+        "goal": "EDIT_WHITELIST: docs/, artifacts/.",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "fullstop_then_newline",
+        "goal": "EDIT_WHITELIST: docs/, artifacts/。\\n后续正文",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "fullwidth_comma",
+        "goal": "EDIT_WHITELIST: docs/，artifacts/",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "no_slash_single",
+        "goal": "EDIT_WHITELIST: docs",
+        "prefs": [
+          "docs"
+        ],
+        "expect_prefs": [
+          "docs"
+        ],
+        "write_artifacts_x_json": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "dot_slash_prefix",
+        "goal": "EDIT_WHITELIST: ./docs/",
+        "prefs": [
+          "docs"
+        ],
+        "expect_prefs": [
+          "docs"
+        ],
+        "write_artifacts_x_json": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "positive",
+        "case": "semicolon_tail",
+        "goal": "EDIT_WHITELIST: docs/; artifacts/；",
+        "prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "expect_prefs": [
+          "docs",
+          "artifacts"
+        ],
+        "write_artifacts_x_json": true,
+        "expect": true,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "outside_dir",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "backend/x.py",
+        "why": "白名单外的普通目录",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "dotdot_escape",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "docs/../backend/x.py",
+        "why": "normpath 后逃出白名单",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "absolute_path",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "/etc/passwd",
+        "why": "绝对路径（越界）",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "absolute_inside_name",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "/docs/x.md",
+        "why": "绝对路径即便同名也拒",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "parent_escape",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "../x.py",
+        "why": "上一级目录",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "negative",
+        "case": "prefix_sibling",
+        "goal": "EDIT_WHITELIST: docs/",
+        "path": "docs_evil/x.py",
+        "why": "同前缀兄弟目录不得误放",
+        "prefs": [
+          "docs"
+        ],
+        "allowed": false,
+        "expect": false,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "no_declaration",
+        "goal": "普通任务目标，没有白名单声明。",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "empty_goal",
+        "goal": "",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "none_goal",
+        "goal": null,
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "only_punct",
+        "goal": "EDIT_WHITELIST: 。",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "only_puncts",
+        "goal": "EDIT_WHITELIST: ，、；。",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      },
+      {
+        "group": "dormant",
+        "case": "only_whitespace",
+        "goal": "EDIT_WHITELIST:     ",
+        "prefs": null,
+        "expect": null,
+        "pass": true
+      }
+    ]
+  }
+}
