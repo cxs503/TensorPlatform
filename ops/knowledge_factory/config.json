@@ -1,0 +1,128 @@
+{
+  "version": "1.0",
+  "contract": {
+    "version": "1.0",
+    "external_spec": "KBM-RCI-F1-SPEC",
+    "delivery_repo": "TensorKnowledge",
+    "contract_dir": "ops/knowledge_factory/contracts",
+    "note": "工序 01/02 用 owner YAML 骨架编码（contracts.template.json）；KBM-RCI-F1-SPEC 契约文件到位后放入同目录 03.json/04.json 即生效，无需改代码。"
+  },
+  "task_types": {
+    "01": {
+      "id": "01-asset-registration",
+      "skill": "kf-asset-registration",
+      "outputs": [
+        "asset_manifest.json"
+      ]
+    },
+    "02": {
+      "id": "02-classification-parse",
+      "skill": "kf-classification-parse",
+      "outputs": [
+        "classification.json"
+      ]
+    },
+    "03": {
+      "id": "03-knowledge-extraction",
+      "skill": "kf-knowledge-extraction",
+      "outputs": [
+        "claims.json",
+        "evidence.json",
+        "provenance.json",
+        "extraction_summary.json"
+      ]
+    },
+    "04": {
+      "id": "04-independent-review",
+      "skill": "kf-independent-review",
+      "outputs": [
+        "review_report.json"
+      ]
+    },
+    "05": {
+      "id": "05-synthesis-research",
+      "skill": "kf-synthesis",
+      "outputs": [
+        "synthesis.json"
+      ]
+    }
+  },
+  "lanes": {
+    "C": {
+      "label": "标准产线",
+      "skill": true,
+      "independent_review": true,
+      "stages": [
+        "01",
+        "02"
+      ],
+      "ingest_review_status": "passed",
+      "stage_note": "契约工序 03（知识抽取）等 KBM-RCI-F1-SPEC；到位后在 stages 里插入 '03' 即可，代码不改"
+    },
+    "B": {
+      "label": "免审核免 Skill",
+      "skill": false,
+      "independent_review": false,
+      "stages": [
+        "01",
+        "02"
+      ],
+      "ingest_review_status": "skipped"
+    },
+    "A": {
+      "label": "单强 Agent 整批",
+      "skill": false,
+      "independent_review": false,
+      "stages": [
+        "01"
+      ],
+      "single_agent": true,
+      "ingest_review_status": "skipped",
+      "stage_note": "A 臂=单强 Agent 整批，由 KBM-RCI-F1-ABC 实验单自派；平台只建包+导出分片+验收"
+    }
+  },
+  "dispatch": {
+    "idle_floor": 8,
+    "cap_divisor": 4,
+    "cap_max": 12,
+    "max_in_flight_per_stage": 40,
+    "mission_budget": {
+      "compute_hours": 2,
+      "wall_hours": 2
+    },
+    "priority_order": [
+      "01",
+      "03",
+      "04",
+      "02"
+    ]
+  },
+  "rework": {
+    "max_attempts": 2
+  },
+  "gates": {
+    "min_quote_chars": 12
+  },
+  "result_channel": {
+    "report_title_prefix": "KF-RESULT",
+    "tag_prefix": "kf-wp:",
+    "howto": "把 result JSON 作为报告 markdown 中**唯一一个** ```json 代码块原样提交；标题写成 `KF-RESULT <package_id>`；tags 里加 `kf-wp:<package_id>`。不要改 JSON 结构与字段名。"
+  },
+  "pilot": {
+    "batch_size": 200,
+    "stratified_manifest": "/root/tp-agent/work/m15462/artifacts/rci/pilot200/sample.json",
+    "strata_key": "repo|content_type|tier",
+    "fallback_strata": [
+      "scenario_key",
+      "length_bucket"
+    ],
+    "reconcile_min_chars": 200,
+    "fill_with_prestratified": true,
+    "lane_split": {
+      "C": 0.8,
+      "B": 0.15,
+      "A": 0.05
+    },
+    "lane_split_note": "按发现序确定性分泳道（i%100 落在 C/B/A 区间），只改 status=pending 的包，在飞/已派的不动"
+  }
+}
