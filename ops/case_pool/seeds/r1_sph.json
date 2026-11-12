@@ -1,0 +1,114 @@
+[
+ {
+  "case_code": "SPH-KLEEFSMAN-DAMBREAK-OBST",
+  "repo": "TensorSPH",
+  "name": "带障碍物溃坝冲击（Kleefsman 系列）",
+  "ref_source": "Kleefsman et al. 2005 J. Comput. Phys. 206:363 溃坝障碍物实验系列 DOI:10.1016/j.jcp.2004.12.007",
+  "tol_policy": "<10% | 指标: 障碍物前水位时程峰值与到达时刻 vs Kleefsman2005 实验",
+  "dedup_key": "dam-break-obstacle",
+  "anchor_probe": [
+   "KLEEFSMAN",
+   "障碍物溃坝"
+  ],
+  "citation": "Kleefsman, K. M. T., Fekken, G., Veldman, A. E. P., Iwanowski, B., & Buchner, B. (2005). A volume-of-fluid based simulation method for wave impact problems. J. Comput. Phys. 206(1), 363-393.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/j.jcp.2004.12.007",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "SPH-CONDUCTION-1D",
+  "repo": "TensorSPH",
+  "name": "一维瞬态热传导 SPH 导热算子",
+  "ref_source": "Carslaw & Jaeger 1959 Conduction of Heat in Solids §2；Cleary & Monaghan 1999 JCP 148:227 DOI(次级):10.1006/jcph.1998.6118",
+  "tol_policy": "<3% | 指标: 温度剖面 T(x,t) vs erfc 解析 (两半无限板接触, t*=0.5)",
+  "dedup_key": "sph-1d-heat-conduction",
+  "anchor_probe": [
+   "CONDUCTION",
+   "热传导"
+  ],
+  "citation": "Carslaw, H. S., & Jaeger, J. C. (1959). Conduction of Heat in Solids, 2nd ed., Oxford Univ. Press, Section 2; Cleary, P. W., & Monaghan, J. J. (1999). Conduction modelling using smoothed particle hydrodynamics. J. Comput. Phys. 148(1), 227-264.",
+  "ref_verdict": "doi_verified_secondary",
+  "ref_doi": "10.1006/jcph.1998.6118",
+  "ref_verify_note": "初级=Carslaw & Jaeger 1959 专著；次级 Cleary & Monaghan 1999 SPH 导热 DOI 命中"
+ },
+ {
+  "case_code": "SPH-RAYLEIGH-TAYLOR-MP",
+  "repo": "TensorSPH",
+  "name": "多相 Rayleigh-Taylor 线性增长率",
+  "ref_source": "Taylor 1950 Proc. R. Soc. A 201:192 线性增长率 sigma=sqrt(A*g*k) DOI:10.1098/rspa.1950.0052",
+  "tol_policy": "<10% | 指标: 早期界面扰动指数增长率 vs sqrt(A*g*k) (A=0.5, 振幅<0.1 lambda)",
+  "dedup_key": "rayleigh-taylor-growth-rate",
+  "anchor_probe": [
+   "RT 增长率",
+   "RAYLEIGH-TAYLOR-MP"
+  ],
+  "citation": "Taylor, G. I. (1950). The instability of liquid surfaces when accelerated in a direction perpendicular to their planes. I. Proc. R. Soc. A 201(1065), 192-196.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1098/rspa.1950.0052",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "SPH-SOD-SHOCK-COMPRESSIBLE",
+  "repo": "TensorSPH",
+  "name": "可压 SPH 激波管 Sod 问题",
+  "ref_source": "Sod 1978 J. Comput. Phys. 27:1 精确解；SPH 格式 Inutsuka 2002 JCP 179:238 DOI:10.1016/0021-9991(78)90023-2",
+  "tol_policy": "<5% | 指标: 密度/压力平台值与激波位置 vs Sod 精确解 (t=0.2)",
+  "dedup_key": "sph-sod-shock-tube",
+  "anchor_probe": [
+   "SOD-SPH",
+   "可压 SPH"
+  ],
+  "citation": "Sod, G. A. (1978). A survey of several finite difference methods for systems of nonlinear hyperbolic conservation laws. J. Comput. Phys. 27(1), 1-31; Inutsuka, S. (2002). Reformulation of SPH with Riemann solver. J. Comput. Phys. 179(1), 238-267.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/0021-9991(78)90023-2",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "SPH-WEDGE-ENTRY-2D",
+  "repo": "TensorSPH",
+  "name": "二维楔形体入水砰击压力",
+  "ref_source": "Zhao & Faltinsen 1993 J. Fluid Mech. 246:593 入水砰击研究 DOI:10.1017/s002211209300028x",
+  "tol_policy": "<15% | 指标: 楔形体表面峰值砰击压力系数 vs Zhao&Faltinsen1993 (30 度 deadrise, 恒速入水)",
+  "dedup_key": "wedge-water-entry",
+  "anchor_probe": [
+   "WEDGE",
+   "入水"
+  ],
+  "citation": "Zhao, R., & Faltinsen, O. (1993). Water entry of two-dimensional bodies. J. Fluid Mech. 246, 593-612.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1017/s002211209300028x",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "SPH-FSI-ELASTIC-GATE",
+  "repo": "TensorSPH",
+  "name": "溃坝冲击弹性闸门流固耦合",
+  "ref_source": "Antoci, Gallati & Sibilla 2007 Computers & Structures 85:879 弹性闸门实验 DOI:10.1016/j.compstruc.2007.01.002",
+  "tol_policy": "<10% | 指标: 闸门顶点水平位移时程峰值与相位 vs Antoci2007 实验 (E=1e6 Pa)",
+  "dedup_key": "dam-break-elastic-gate-fsi",
+  "anchor_probe": [
+   "FSI",
+   "弹性闸门"
+  ],
+  "citation": "Antoci, C., Gallati, M., & Sibilla, S. (2007). Numerical simulation of fluid-structure interaction by SPH. Computers & Structures 85(11-14), 879-890.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/j.compstruc.2007.01.002",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "SPH-STOKES-2ND-PROBLEM",
+  "repo": "TensorSPH",
+  "name": "振荡平板 Stokes 第二问题",
+  "ref_source": "Landau & Lifshitz Fluid Mechanics §24 解析；Macia et al. 2011 Prog. Theor. Phys. 125:1091 DOI(次级):10.1143/ptp.125.1091",
+  "tol_policy": "<5% | 指标: 速度振幅随壁距衰减 exp(-y/delta) vs 解析 (Stokes 层内 >=5 层粒子)",
+  "dedup_key": "stokes-second-problem",
+  "anchor_probe": [
+   "STOKES-2ND",
+   "振荡平板"
+  ],
+  "citation": "Landau, L. D., & Lifshitz, E. M. (1987). Fluid Mechanics, 2nd ed., Pergamon, Section 24; Macia, F., Antuono, M., Gonzalez, L. M., & Colagrossi, A. (2011). Theoretical analysis of the no-slip boundary condition enforcement in SPH methods. Prog. Theor. Phys. 125(6), 1091-1121.",
+  "ref_verdict": "doi_verified_secondary",
+  "ref_doi": "10.1143/ptp.125.1091",
+  "ref_verify_note": "初级=Landau & Lifshitz 专著；次级 Macia et al. 2011 无滑移 SPH 验证 DOI 命中"
+ }
+]
