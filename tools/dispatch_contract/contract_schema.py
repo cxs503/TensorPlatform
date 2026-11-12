@@ -9,7 +9,13 @@
       "contract_version": "dispatch-contract/v1",
       "input_contract":  [requirement, ...],
       "output_contract": [requirement, ...],
-      "version": "1.0.0"           # 可选，契约自身版本
+      "version": "1.0.0",          # 可选，契约自身版本
+      "context_package": {         # 可选，干货包声明（context-package/v1）
+        "task_class": "dev",       # 可选：强制任务类（不填=按目标文本判定）
+        "slots": ["ko_index", "negative_knowledge"],
+        "budget_tokens": 1200,
+        "modes": ["report"]
+      }
     }
 
 requirement::
@@ -190,6 +196,14 @@ def validate_contract(contract: Any, cfg: Mapping[str, Any] | None = None) -> tu
             for i, req in enumerate(reqs):
                 for e in validate_requirement(req, cfg):
                     errs.append(f"{side}[{i}]:{e}")
+        # 干货包声明（context-package/v1，可选字段；校验器自带 fail-open，永不抛）
+        if "context_package" in contract:
+            try:
+                from tools.context_package.package_schema import validate_decl
+                for e in validate_decl(contract.get("context_package")):
+                    errs.append(f"context_package:{e}")
+            except Exception:  # noqa: BLE001 —— 声明校验缺失不得拖死派单链路
+                pass
         return (len(errs) == 0), errs
     except Exception as exc:  # noqa: BLE001 —— 校验器不得拖死派单链路
         return False, [f"CONTRACT_VALIDATE_ERROR:{type(exc).__name__}"]

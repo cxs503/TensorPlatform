@@ -1,0 +1,257 @@
+{
+  "schema_version": "context-package/v1",
+  "package_version": "1.0",
+  "purpose": "任务干货包协议：按任务类声明必带信息槽（来源/组装规则/token 预算/密度判据）。本文件只放结构与数值，不含任何领域词条；域数据一律经 API/DB/工件注入。",
+  "defaults": {
+    "total_budget_tokens": 1400,
+    "per_entry_max_tokens": 110,
+    "per_slot_max_items": 4,
+    "pool_limit": 400,
+    "dedupe_jaccard": 0.6,
+    "min_relevance": 0.05,
+    "density_gate": "require_decision",
+    "as_of_lookback_hours": 24,
+    "budget_auto": {
+      "max_ratio_to_goal": 0.4,
+      "floor_tokens": 300,
+      "note": "包体随任务规模缩放：预算=min(类预算, max(floor, ratio×目标token))，防小单被包体淹没"
+    }
+  },
+  "token_estimator": {
+    "cjk_per_token": 1.0,
+    "ascii_chars_per_token": 3.6,
+    "per_entry_overhead": 8,
+    "note": "确定性代理估计（无第三方 tokenizer 依赖）；两臂同口径，仅用于相对比较。"
+  },
+  "decisions": {
+    "reuse": "复用哪条既有能力/工件，不重造轮子",
+    "avoid": "规避哪个已登记失败模式，本单该怎么绕开",
+    "gate": "本单按哪一档验收口径判（证据等级/门状态）",
+    "tolerance": "误差或阈值取哪个数、出处是哪条判据",
+    "anchor": "拿什么当对标基准/参考值",
+    "scope": "改动范围与不可碰的边界"
+  },
+  "slots": {
+    "ko_index": {
+      "source": "knowledge_base",
+      "share": 0.3,
+      "required": true,
+      "decisions": [
+        "reuse",
+        "avoid"
+      ],
+      "label": "复用（KO 索引）",
+      "ktype_decision": {
+        "capability": "reuse",
+        "pattern": "reuse",
+        "trap": "avoid",
+        "lesson": "avoid",
+        "fact": "reuse"
+      }
+    },
+    "negative_knowledge": {
+      "source": "negative_knowledge_ledger",
+      "share": 0.25,
+      "required": true,
+      "decisions": [
+        "avoid"
+      ],
+      "label": "规避（负面知识）"
+    },
+    "domain_verdict": {
+      "source": "tensor_maturity_verdicts",
+      "share": 0.18,
+      "required": false,
+      "decisions": [
+        "gate",
+        "scope"
+      ],
+      "label": "判档（同域 verdict）"
+    },
+    "tolerance_criteria": {
+      "source": "threshold_registry",
+      "share": 0.15,
+      "required": true,
+      "decisions": [
+        "tolerance",
+        "gate"
+      ],
+      "label": "容差（判据注册表）"
+    },
+    "anchor_status": {
+      "source": "tensor_benchmark_cases",
+      "share": 0.12,
+      "required": false,
+      "decisions": [
+        "anchor",
+        "tolerance"
+      ],
+      "label": "对标（锚状态）"
+    }
+  },
+  "task_classes": {
+    "factory_step_01": {
+      "label": "工厂工序01（输入/来源组织）",
+      "detect": [
+        "工序01",
+        "工序1",
+        "factory-step-01",
+        "工序一"
+      ],
+      "slots": [
+        "ko_index",
+        "negative_knowledge",
+        "tolerance_criteria"
+      ],
+      "budget_tokens": 1100
+    },
+    "factory_step_02": {
+      "label": "工厂工序02（方法/执行）",
+      "detect": [
+        "工序02",
+        "工序2",
+        "factory-step-02",
+        "工序二"
+      ],
+      "slots": [
+        "ko_index",
+        "negative_knowledge",
+        "tolerance_criteria",
+        "domain_verdict"
+      ],
+      "budget_tokens": 1200
+    },
+    "factory_step_03": {
+      "label": "工厂工序03（证据/计量）",
+      "detect": [
+        "工序03",
+        "工序3",
+        "factory-step-03",
+        "工序三"
+      ],
+      "slots": [
+        "tolerance_criteria",
+        "negative_knowledge",
+        "anchor_status"
+      ],
+      "budget_tokens": 1300
+    },
+    "factory_step_04": {
+      "label": "工厂工序04（复核/判档）",
+      "detect": [
+        "工序04",
+        "工序4",
+        "factory-step-04",
+        "工序四"
+      ],
+      "slots": [
+        "domain_verdict",
+        "tolerance_criteria",
+        "negative_knowledge"
+      ],
+      "budget_tokens": 1300
+    },
+    "factory_step_05": {
+      "label": "工厂工序05（交付/终检）",
+      "detect": [
+        "工序05",
+        "工序5",
+        "factory-step-05",
+        "工序五"
+      ],
+      "slots": [
+        "negative_knowledge",
+        "domain_verdict",
+        "ko_index"
+      ],
+      "budget_tokens": 1200
+    },
+    "factory_step": {
+      "label": "工厂工序（未标步号）",
+      "detect": [
+        "工序",
+        "factory-step"
+      ],
+      "slots": [
+        "ko_index",
+        "negative_knowledge",
+        "tolerance_criteria"
+      ],
+      "budget_tokens": 1150
+    },
+    "case_run": {
+      "label": "算例单（跑一个可对标算例）",
+      "detect": [
+        "算例",
+        "案例",
+        "benchmark",
+        "对标算例"
+      ],
+      "slots": [
+        "anchor_status",
+        "tolerance_criteria",
+        "negative_knowledge",
+        "ko_index"
+      ],
+      "budget_tokens": 1500
+    },
+    "dev": {
+      "label": "开发单（改代码/加能力）",
+      "detect": [
+        "开发",
+        "实现",
+        "修复",
+        "新增",
+        "feat-",
+        "defect",
+        "重构"
+      ],
+      "slots": [
+        "ko_index",
+        "negative_knowledge",
+        "domain_verdict",
+        "tolerance_criteria"
+      ],
+      "budget_tokens": 1400
+    },
+    "audit": {
+      "label": "审计单（查证已有交付）",
+      "detect": [
+        "审计",
+        "交差",
+        "复核",
+        "核查",
+        "盘点",
+        "体检"
+      ],
+      "slots": [
+        "domain_verdict",
+        "negative_knowledge",
+        "ko_index",
+        "anchor_status"
+      ],
+      "budget_tokens": 1300
+    },
+    "generic": {
+      "label": "通用（未能分类）",
+      "detect": [],
+      "slots": [
+        "ko_index",
+        "negative_knowledge"
+      ],
+      "budget_tokens": 900
+    }
+  },
+  "density_rule": "每条注入项必须带 decision 键（取自 decisions 词表）并回答『它改变本任务的哪个决策』；答不出→丢入 dropped 并计原因，禁注入。",
+  "ledger": {
+    "jsonl_dir": "runs/context_injections",
+    "bus_table": "knowledge_injections",
+    "db_sink_env": "TENSOR_CONTEXT_DB_SINK"
+  },
+  "mode_env": "CONTEXT_PACKAGE_MODE",
+  "modes": [
+    "off",
+    "report",
+    "enforce"
+  ]
+}
