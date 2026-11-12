@@ -23,6 +23,8 @@ REGISTRY = {
     "dispatcher":("campaign_dispatcher.py",       "/usr/bin/python3 /srv/tensor/agent/campaign_dispatcher.py", True, "战役 DAG 派发+v5 自主提案波"),
     "pusher":    ("tp_pusher.py",                 "/usr/bin/python3 /srv/tensor/agent/tp_pusher.py", True,  "成熟成果→GitHub CI→PR"),
     "report_watch": ("report_watch.py",           "/usr/bin/python3 /srv/tensor/agent/report_watch.py", True, "报告断更补账（owner 常设）"),
+    "qa_factory": ("qa_factory/daemon.py", "/usr/bin/python3 /srv/tensor/agent/work/m15877/tools/qa_factory/daemon.py", True,
+                   "QA 产线：机器三查分档 + 一致性门授权清账（flock/心跳可观测）"),
     "report_qa": ("report_qa.py",                 "/usr/bin/python3 /srv/tensor/agent/report_qa.py", True, "报告论文级质检"),
     "guide":     ("guide_tracker.py",             "/usr/bin/python3 /srv/tensor/agent/guide_tracker.py", True, "指南对标 KPI 看板（owner 常设）"),
     "wave":      ("wave_cycle.py",                "/usr/bin/python3 /srv/tensor/agent/wave_cycle.py", True, "波次循环+议事会（owner 10-30 放行，护栏内置）"),
