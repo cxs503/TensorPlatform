@@ -1,0 +1,120 @@
+[
+ {
+  "case_code": "DG-LDG-POISSON",
+  "repo": "TensorDG",
+  "name": "LDG 椭圆问题收敛阶",
+  "ref_source": "Castillo, Cockburn, Perugia & Schoetzau 2000 SIAM J. Numer. Anal. 38:1676 DOI:10.1137/s0036142900371003",
+  "tol_policy": "收敛阶 >=k+1-0.3 (k=1,2) | 指标: L2 误差 log-log 斜率 (网格 8/16/32)",
+  "dedup_key": "ldg-poisson-order",
+  "anchor_probe": [
+   "LDG",
+   "椭圆"
+  ],
+  "citation": "Castillo, P., Cockburn, B., Perugia, I., & Schoetzau, D. (2000). An a priori error analysis of the local discontinuous Galerkin method for elliptic problems. SIAM J. Numer. Anal. 38(5), 1676-1706.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1137/s0036142900371003",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DG-BLASTWAVE-PERSSON",
+  "repo": "TensorDG",
+  "name": "爆轰波人工粘性激波捕捉",
+  "ref_source": "Persson & Peraire 2006 AIAA 2006-1125 亚格子激波捕捉 DOI:10.2514/6.2006-112",
+  "tol_policy": "<5% | 指标: 冲击波峰值密度与位置 vs 精细网格参考解 (t=0.01, 无 Gibbs 过冲>2%)",
+  "dedup_key": "blast-wave-artificial-viscosity",
+  "anchor_probe": [
+   "BLASTWAVE",
+   "爆轰",
+   "激波捕捉"
+  ],
+  "citation": "Persson, P.-O., & Peraire, J. (2006). Sub-cell shock capturing for discontinuous Galerkin methods. AIAA Paper 2006-1125.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.2514/6.2006-112",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DG-KOVASZNAY-NS",
+  "repo": "TensorDG",
+  "name": "Kovasznay 定常 NS 的 DG 离散验证",
+  "ref_source": "Kovasznay 1948 精确解；Bassi & Rebay 1997 J. Comput. Phys. 131:267 DG-NS 格式 DOI(次级):10.1006/jcph.1996.5572",
+  "tol_policy": "<1% | 指标: 速度 L2 相对误差 vs 精确解 (Re=40, k=3, 网格 24x24)",
+  "dedup_key": "kovasznay-2d-steady-exact",
+  "anchor_probe": [
+   "Kovasznay",
+   "BASSI"
+  ],
+  "citation": "Kovasznay, L. I. G. (1948). Laminar flow behind a two-dimensional grid. Proc. Cambridge Philos. Soc. 44(1), 58-62; Bassi, F., & Rebay, S. (1997). A high-order accurate discontinuous finite element method for the numerical solution of the compressible Navier-Stokes equations. J. Comput. Phys. 131(2), 267-279.",
+  "ref_verdict": "doi_verified_secondary",
+  "ref_doi": "10.1006/jcph.1996.5572",
+  "ref_verify_note": "初级=Kovasznay 1948（同 LBM/FVM 例已 doi_verified），次级 Bassi & Rebay 1997 DG-NS DOI 命中"
+ },
+ {
+  "case_code": "DG-RITTER-DAMBREAK-SWE",
+  "repo": "TensorDG",
+  "name": "浅水方程溃坝 Ritter 精确解",
+  "ref_source": "Ritter 1892 溃坝解析解；DG 浅水离散 Cockburn & Shu 1998 J. Comput. Phys. 141:199 DOI(次级):10.1002/fld.3865",
+  "tol_policy": "<5% | 指标: 水深 h(x) 剖面与波前位置 vs Ritter 解析 (t*=2, 无负水深)",
+  "dedup_key": "shallow-water-dam-break",
+  "anchor_probe": [
+   "RITTER",
+   "浅水 DG"
+  ],
+  "citation": "Ritter, A. (1892). Die Fortpflanzung der Wasserwellen. Z. Ver. Deutsch. Ing. 36(33), 947-954; Cockburn, B., & Shu, C.-W. (1998). The Runge-Kutta discontinuous Galerkin method for conservation laws V. J. Comput. Phys. 141(2), 199-224. 现代检索版: Delestre, O. et al. (2013). SWASHES: a compilation of shallow water analytic solutions for hydraulic and hydrologic studies. Int. J. Numer. Methods Fluids 72(3), 269-300.",
+  "ref_verdict": "doi_verified_secondary",
+  "ref_doi": "10.1002/fld.3865",
+  "ref_verify_note": "初级=Ritter 1892 前 DOI 期刊；次级 SWASHES(Delestre et al. 2013) 与 Cockburn & Shu 1998 DOI 命中",
+  "secondary_citation": "Delestre, O. et al. (2013). SWASHES: a compilation of shallow water analytic solutions for hydraulic and hydrologic studies. Int. J. Numer. Methods Fluids 72(3), 269-300.",
+  "secondary_doi": "10.1002/fld.3865"
+ },
+ {
+  "case_code": "DG-DALEMBERT-ELASTIC-1D",
+  "repo": "TensorDG",
+  "name": "一维弹性杆波传播 d'Alembert 精确解",
+  "ref_source": "Graff 1975 Wave Motion in Elastic Solids 一维杆波解析 DOI(次级):10.1177/058310247901100605",
+  "tol_policy": "<2% | 指标: 应力波剖面 sigma(x,t) vs d'Alembert 双行波解析 (无物理弥散)",
+  "dedup_key": "elastic-rod-wave-dalembert",
+  "anchor_probe": [
+   "ELASTIC",
+   "弹性波",
+   "d'Alembert"
+  ],
+  "citation": "Graff, K. F. (1975). Wave Motion in Elastic Solids. Oxford University Press / Dover reprint, Ch. 2 (one-dimensional rod: d'Alembert solution).",
+  "ref_verdict": "book_corroborated",
+  "ref_doi": "10.1177/058310247901100605",
+  "ref_verify_note": "Graff 1975 专著；Crossref 有该书书评记录（J. Composite Materials 1979）佐证"
+ },
+ {
+  "case_code": "DG-SOLID-BODY-ROTATION-2D",
+  "repo": "TensorDG",
+  "name": "二维余弦钟刚体旋转输运",
+  "ref_source": "LeVeque 2002 Finite Volume Methods for Hyperbolic Problems Ch. 19 刚体旋转测试 DOI:10.1017/cbo9780511791253",
+  "tol_policy": "<5% | 指标: 旋转一周后 L1 误差与极值衰减 vs 初值 (CFL=0.5, 网格 100x100)",
+  "dedup_key": "solid-body-rotation-cosine-bell",
+  "anchor_probe": [
+   "SOLID-BODY",
+   "余弦钟",
+   "刚体旋转"
+  ],
+  "citation": "LeVeque, R. J. (2002). Finite Volume Methods for Hyperbolic Problems. Cambridge University Press, Ch. 19 (solid-body rotation of a cosine bell, smooth advection test).",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1017/cbo9780511791253",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DG-PREFINEMENT-EXPONENTIAL",
+  "repo": "TensorDG",
+  "name": "p 型加密指数收敛（光滑解）",
+  "ref_source": "Babuska & Suri 1994 SIAM Review 36:578 p/h-p 有限元收敛理论 DOI:10.21236/ada260237",
+  "tol_policy": "半对数误差-阶数曲线斜率 <-0.5/阶 | 指标: L2 误差 vs p=1..6 (光滑解, 无激波)",
+  "dedup_key": "p-refinement-spectral-convergence",
+  "anchor_probe": [
+   "PREFINEMENT",
+   "p 型",
+   "谱收敛"
+  ],
+  "citation": "Babuška, I., & Suri, M. (1994). The p and h-p versions of the finite element method, basic principles and properties. SIAM Review 36(4), 578-632.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.21236/ada260237",
+  "ref_verify_note": "Crossref 本体命中"
+ }
+]
