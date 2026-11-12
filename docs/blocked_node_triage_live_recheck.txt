@@ -1,0 +1,45 @@
+# blocked_node_triage 独立复核（同窗口：工具 dry-run 与其后的独立 SQL 复核并排）
+# 复核 SQL 脚本：docs/blocked_node_triage_recheck.sql（纯 SQL CASE 前缀判定，不经工具 Python 分类器）
+# 时间窗开始 2026-11-12T17:14:38Z
+### 1) 工具 dry-run（只读）
+blocked_node_triage  mode=dry-run  store=psql(peer:postgres)
+generated_at=2026-11-12T17:14:39+00:00
+blocked_total=1014  classified=1014  coverage_ok=True
+by_class: INFRA_RETRYABLE=380  SUBSTANTIVE_FAIL=606  STOPPED=16  HOLLOW=4  MANUAL_GATE=8
+by_decision: requeue=50  stay_blocked=956  never=8
+requeue_batch=50/50  max_revivals=3  deferred=330
+read_only_ok=True  blocked 1014 -> 1014
+# 工具退出码 0
+# 时间窗中点 2026-11-12T17:14:39Z
+### 2) 独立 SQL 复核
+Pager usage is off.
+T1_blocked_count|1014
+T2_class_HOLLOW|4
+T2_class_INFRA_RETRYABLE|380
+T2_class_MANUAL_GATE|8
+T2_class_STOPPED|16
+T2_class_SUBSTANTIVE_FAIL|606
+T2_class_sum|1014
+T3_fingerprint_md5|359a4d5af309b1ddb33d89ff59993a0b
+T4_revivals_gt0|0
+T5_block_events_total|0
+T6_outflow_30d|0
+T7_blocked_created_7d|1013
+T8_blocked_updated_7d|1013
+T9_now_utc|2026-11-12 17:14:39.874289
+T10_blocked_after|1014
+### 3) JSON 侧派生指标（程序化计算，零手抄）
+PY_fingerprint_md5        |359a4d5af309b1ddb33d89ff59993a0b
+PY_by_class_sum           |1014
+PY_blocked_total          |1014
+PY_classified_total       |1014
+PY_coverage_ok            |True
+PY_by_decision            |{"never": 8, "requeue": 50, "stay_blocked": 956}
+PY_selected_count         |50
+PY_deferred_by_batch      |330
+PY_generated_at           |2026-11-12T17:14:39+00:00
+### 4) 夹具测试 + CLI 契约
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+34 passed, 1 warning in 0.36s
+help_rc=0
+# 时间窗结束 2026-11-12T17:14:41Z
