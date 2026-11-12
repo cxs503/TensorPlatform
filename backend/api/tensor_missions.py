@@ -882,6 +882,65 @@ def _mvd_heartbeat_checkpoint(row: Any, progress: dict[str, Any]) -> dict[str, A
     return out
 
 
+# ── 最小记忆回路（FEAT-AGENT-HARNESS 第2轮）：真实流量上的四环接线 ──────────
+# ①写入/③命中/④下游影响 = 完结钩子；②注入 = 开工钩子。
+# 纪律：与 eval_triggers / tensorbench 终态钩子同款——**完全旁路**，失败只告警，
+# 绝不改变状态机、返回体语义或事务结果（判据：钩子抛错时接口行为与未接线完全一致）。
+# 开关 CONTEXT_MEMORY_LOOP=0 一键关断（对照组用），默认开。
+def _memory_loop_enabled() -> bool:
+    return os.environ.get("CONTEXT_MEMORY_LOOP", "1").strip().lower() not in ("0", "false", "off")
+
+
+def _deliverable_text(db: Session, mission_id: int, summary: dict[str, Any],
+                      report_id: int | None) -> str:
+    """环③归因文本 = 完结摘要 + 已发布报告正文（机械判命中的输入，程序取用零手抄）。"""
+    parts = [json.dumps(summary or {}, ensure_ascii=False)]
+    if report_id:
+        try:
+            r = db.execute(
+                text("SELECT title, summary, markdown FROM tensor_reports WHERE id = :rid"),
+                {"rid": report_id},
+            ).fetchone()
+            if r is not None:
+                parts.extend(str(x or "") for x in r)
+        except Exception as _exc:  # pragma: no cover - 报告表缺列/缺表时降级
+            logging.getLogger(__name__).warning("memory loop report text skipped: %s", _exc)
+    return "\n".join(parts)
+
+
+def _memory_loop_start(mission_id: int, goal: str, repo: str, consumer: str) -> dict:
+    """②注入钩子：出包 + 落账 + 记录本次注入条目（返回块供 runner 拼首条消息）。"""
+    if not _memory_loop_enabled():
+        return {"degraded": "LOOP_OFF"}
+    try:
+        from tools.context_package.loop import on_mission_start
+        return on_mission_start(mission_id, goal, repo, consumer=consumer)
+    except Exception as _exc:  # pragma: no cover - 部署面兜底
+        logging.getLogger(__name__).warning("memory loop inject skipped: %s", _exc)
+        return {"degraded": f"HOOK_ERROR:{type(_exc).__name__}"}
+
+
+def _memory_loop_complete(db: Session, mission_id: int, status: str, goal: str, repo: str,
+                          summary: dict[str, Any], report_id: int | None,
+                          branch: str | None) -> dict:
+    """①写入（失败单蒸馏教训）/ ③命中 + ④下游影响（成功单归因）钩子。"""
+    if not _memory_loop_enabled():
+        return {"degraded": "LOOP_OFF"}
+    try:
+        from tools.context_package.loop import on_mission_complete
+        text = _deliverable_text(db, mission_id, summary, report_id) if status == "succeeded" else ""
+        return on_mission_complete(
+            mission_id, status=status, goal=goal, repo=repo, deliverable_text=text,
+            used_in_step=(summary or {}).get("used_in_step")
+            or f"mission#{mission_id} 完结交付（report_id={report_id}, branch={branch or '-'}）",
+            citation_ref=f"tensor_dev_missions#{mission_id}"
+            + (f"/tensor_reports#{report_id}" if report_id else ""),
+        )
+    except Exception as _exc:  # pragma: no cover - 部署面兜底
+        logging.getLogger(__name__).warning("memory loop complete hook skipped: %s", _exc)
+        return {"degraded": f"HOOK_ERROR:{type(_exc).__name__}"}
+
+
 class StartRequest(BaseModel):
     claim_token: str = Field(min_length=8)
 
@@ -907,7 +966,13 @@ def start_mission(
     if row["session_id"]:
         append_event(db, row["session_id"], "note", {"subtype": "mission_started"})
     db.commit()
-    return {"id": mission_id, "status": "running"}
+    # ②注入环（fail-open）：干货包在开工时落账并随响应回传；runner 支持则拼入首条消息。
+    loop_info = _memory_loop_start(mission_id, row.get("goal") or "", row.get("repo") or "",
+                                   str(row.get("claimed_by") or ""))
+    resp = {"id": mission_id, "status": "running", "memory_loop": loop_info}
+    if loop_info.get("block"):
+        resp["context_block"] = loop_info.pop("block")
+    return resp
 
 
 class HeartbeatRequest(BaseModel):
@@ -1124,7 +1189,12 @@ def complete_mission(
                 "approval_id": approval_id, "kind": "dev_acceptance", "evidence": evidence,
             })
         db.commit()
-        return {"id": mission_id, "status": "awaiting_acceptance", "approval_id": approval_id}
+        # 记忆回路终态钩子（提请验收=交付已成形：仍需归因，别等审批才记账）
+        loop_res = _memory_loop_complete(db, mission_id, body.status, mission.get("goal") or "",
+                                         mission.get("repo") or "", body.summary or {},
+                                         body.report_id, body.branch)
+        return {"id": mission_id, "status": "awaiting_acceptance",
+                "approval_id": approval_id, "memory_loop": loop_res}
 
     # Report gate: 成功无报告 或 失败无分支/证据 → 欠报告
     report_owed = ((body.status == "succeeded" and body.report_id is None)
@@ -1186,8 +1256,12 @@ def complete_mission(
         tb_store.on_mission_terminal(db, mission_id, status=body.status)
     except Exception as _exc:  # pragma: no cover - 部署面兜底
         logging.getLogger(__name__).warning("tensorbench eval trigger skipped: %s", _exc)
+    # 记忆回路终态钩子（①写入 / ③命中 / ④下游影响）：完全旁路，失败只告警。
+    loop_res = _memory_loop_complete(db, mission_id, body.status, mission.get("goal") or "",
+                                     mission.get("repo") or "", body.summary or {},
+                                     body.report_id, body.branch)
     return {"id": mission_id, "status": body.status, "approval_id": None,
-            "report_owed": report_owed}
+            "report_owed": report_owed, "memory_loop": loop_res}
 
 
 class StopRequest(BaseModel):
