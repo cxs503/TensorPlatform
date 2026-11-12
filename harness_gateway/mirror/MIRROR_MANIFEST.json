@@ -25,11 +25,17 @@
       "relpath": "tp_worker.py",
       "canary": "symbol_probe",
       "source_sha256": "0d5676247809ac192a488c295fedd8f888bb7dd05e93f84713eeec792f78cd0a",
-      "mirror_sha256": "0d5676247809ac192a488c295fedd8f888bb7dd05e93f84713eeec792f78cd0a",
+      "mirror_sha256": "84dba6af8c8f464ae21d242bf85157a407ba9645435e49707e9a1b72dcc261cb",
       "source_bytes": 54037,
-      "mirror_bytes": 54037,
+      "mirror_bytes": 55533,
       "redactions": [],
-      "staged_patch": false
+      "staged_patch": false,
+      "divergence": {
+        "kind": "pending_deploy",
+        "mission": "m16622",
+        "note": "EDIT_WHITELIST 前缀标点清洗修复已入镜像；src_root 侧 /root/tp-agent/tp_worker.py 仍为旧逻辑，须由部署动作同步（本单不做部署，不碰线上 harness 进程）。",
+        "since": "2026-11-12T17:09:37Z"
+      }
     },
     {
       "name": "chronicle_clock",
@@ -126,5 +132,6 @@
     }
   ],
   "unit_count": 8,
-  "redaction_total": 3
+  "redaction_total": 3,
+  "updated_at": "2026-11-12T17:09:37Z"
 }
