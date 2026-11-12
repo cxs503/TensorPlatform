@@ -91,39 +91,54 @@ def record(pkg: Mapping[str, Any], rendered: str = "", mode: str = "report",
 
 
 def _sink_db(entry: Mapping[str, Any], manifest_text: str) -> dict:
-    """写总线表 ``knowledge_injections``；任何异常静默降级。"""
+    """写总线表 ``knowledge_injections``：KB 条目（kb_id）与负面知识（kb_id=NULL，kb_key=条目 id）
+    **同一张表**落账（不另开通道）；新插入的 KB 条目顺手 ``injected_count += 1``（引用即 +1）。
+    幂等：``injection_id`` 为主键，重放入参 ON CONFLICT DO NOTHING（计数器只随新行 +1）。
+    任何异常静默降级。"""
     try:
         from .sources import PgReader
         reader = PgReader()
         conn = reader._connect()
-        n = 0
+        n = wrote = 0
         with conn.cursor() as cur:
             for it in entry.get("items") or []:
                 iid = str(it.get("id") or "")
-                if not iid.startswith("kb:"):
-                    continue          # 总线表语义：KB 条目注入（m15722）
-                try:
-                    kb_id = int(iid.split(":", 1)[1])
-                except Exception:
+                if not iid:
                     continue
+                kb_id = None
+                if iid.startswith("kb:"):
+                    try:
+                        kb_id = int(iid.split(":", 1)[1])
+                    except Exception:
+                        continue
                 cur.execute(
                     """INSERT INTO knowledge_injections
                        (injection_id, mission_id, kb_id, kb_key, kb_domain, consumer, source,
                         package_sha256, match_score, match_terms, injected_at, citation_count)
                        VALUES (%(iid)s, %(mid)s, %(kb)s, %(key)s, %(dom)s, %(cons)s, %(src)s,
-                               %(sha)s, %(score)s, %(terms)s, %(ts)s, 0)""",
-                    {"iid": f"ctxpkg:{entry.get('package_id')}:{kb_id}",
-                     "mid": entry.get("mission_id"), "kb": kb_id, "key": "",
+                               %(sha)s, %(score)s, %(terms)s, %(ts)s, 0)
+                       ON CONFLICT (injection_id) DO NOTHING""",
+                    {"iid": f"ctxpkg:{entry.get('package_id')}:{iid}",
+                     "mid": entry.get("mission_id"), "kb": kb_id, "key": iid,
                      "dom": entry.get("repo"), "cons": entry.get("consumer") or "context_package",
-                     "src": "context_package/v1", "sha": entry.get("package_sha256"),
+                     "src": "context_package/loop", "sha": entry.get("package_sha256"),
                      "score": float(it.get("relevance") or 0.0),
                      "terms": (manifest_text or "")[:400], "ts": entry.get("ts")})
                 n += 1
+                if cur.rowcount and kb_id is not None:
+                    cur.execute("""UPDATE knowledge_base
+                                   SET injected_count = COALESCE(injected_count,0)+1,
+                                       last_hit_at = %(ts)s WHERE id = %(id)s""",
+                                {"ts": entry.get("ts"), "id": kb_id})
+                    wrote += 1
         conn.commit()
         reader.close()
-        return {"inserted": n}
+        return {"inserted": n, "kb_touched": wrote}
     except Exception as exc:  # noqa: BLE001
         return {"error": f"{type(exc).__name__}: {exc}"[:160]}
+
+
+sink_db = _sink_db      # 公开别名：loop / 后端钩子显式调用（不靠环境变量）
 
 
 def attribute(entry: Mapping[str, Any], artifact_text: str, ledger_dir: Path | str | None = None,
