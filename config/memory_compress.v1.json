@@ -1,0 +1,20 @@
+{
+  "schema_version": "memory-compress/v1",
+  "interval_days": 7,
+  "min_interval_hours": 12,
+  "thresholds": {
+    "seat_memory_tokens": 1200,
+    "kb_stale_ratio": 0.35,
+    "global_view_tokens": 2400
+  },
+  "state_path": "runs/memory_compress/cadence_state.json",
+  "layers": {
+    "global": {"doc": "索引密度：标题+一句要点+指针；判据 heading_retention=1.0, numeric_retention>=0.6"},
+    "seat": {"keep": ["capability_evidence", "recurrent_failure_mode", "tasktype_competence"],
+             "drop": ["one_off_process_detail"],
+             "recover": "tensor_reports?mission_id=<id>（episodes 可恢复，lessons 才进记忆）"},
+    "kb": {"hot_days": 30, "stale_days": 90, "archive_days": 180,
+           "weights": {"hot": 1.0, "warm": 0.6, "stale": 0.3, "archive": 0.0},
+           "apply_requires": "--apply + snapshot + forgetting_log"}
+  }
+}
