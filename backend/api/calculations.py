@@ -43,6 +43,7 @@ from services.ship_hydrostatics import (
     HullOffsets,
     compute_hydrostatics,
     wigley_offsets,
+    barge_offsets,
 )
 
 router = APIRouter(prefix="/calculations", tags=["船舶总体性能计算"])
@@ -241,6 +242,63 @@ class HydrostaticsResponse(BaseModel):
     computation_time_ms: float
 
 
+
+
+
+class HydroCurvesRequest(BaseModel):
+    """Hydrostatic curves request — scan hydrostatics over a draft range.
+
+    For a box barge (Cb=1) the endpoint uses the exact ``barge_offsets``
+    generator; for other hull types the caller must supply an offset table.
+    """
+    hull: str = Field(
+        default="box",
+        description='Hull type: "box" (rectangular barge) or "table" (offset table)',
+    )
+    length: float = Field(gt=0, description="Length between perpendiculars (m)")
+    beam: float = Field(gt=0, description="Beam (m)")
+    depth: float = Field(gt=0, description="Moulded depth (m)")
+    draft_min: float = Field(gt=0, description="Minimum draft for scan (m)")
+    draft_max: float = Field(gt=0, description="Maximum draft for scan (m)")
+    draft_step: float = Field(gt=0, description="Draft step size (m)")
+    n_stations: int = Field(default=41, ge=3, le=2001, description="Station count for box hull")
+    n_waterlines: int = Field(default=21, ge=3, le=2001, description="Waterline count for box hull")
+    stations: Optional[List[float]] = Field(default=None, description="Station x from AP (m), hull=table")
+    waterlines: Optional[List[float]] = Field(default=None, description="Waterline z from keel (m), hull=table")
+    half_breadths: Optional[List[List[float]]] = Field(
+        default=None, description="half_breadths[station][waterline] (m), hull=table"
+    )
+    kg: Optional[float] = Field(default=None, gt=0, description="VCG above keel (m); enables GM")
+    rho: float = Field(default=1025.0, gt=0, description="Water density (kg/m³)")
+
+
+class HydroCurvesPoint(BaseModel):
+    """Single point on the hydrostatic curves."""
+    draft_m: float
+    volume_m3: float
+    displacement_t: float
+    cb: float
+    waterplane_area_m2: float
+    kb_m: float
+    bm_t_m: float
+    bm_l_m: float
+    km_t_m: float
+    gm_m: Optional[float]
+    wetted_surface_m2: float
+
+
+class HydroCurvesResponse(BaseModel):
+    """Hydrostatic curves — displacement, KB, BM, etc. vs draft."""
+    hull: str
+    length: float
+    beam: float
+    depth: float
+    draft_min: float
+    draft_max: float
+    draft_step: float
+    n_points: int
+    curves: List[HydroCurvesPoint]
+    computation_time_ms: float
 
 
 # ---------------------------------------------------------------------------
@@ -733,6 +791,102 @@ async def calc_hydrostatics(req: HydrostaticsRequest):
         "computation_time_ms": round(elapsed_ms, 3),
     }
     return HydrostaticsResponse(**payload)
+
+
+
+# ---------------------------------------------------------------------------
+# Hydrostatic curves (geometry.hydro_curves)
+# ---------------------------------------------------------------------------
+
+@router.post("/hydro_curves", response_model=HydroCurvesResponse)
+@timed_calc("hydro_curves")
+async def calc_hydro_curves(req: HydroCurvesRequest):
+    """Compute hydrostatic curves by scanning drafts.
+
+    For a box barge (``hull="box"``) the endpoint generates offset tables at
+    each draft via ``barge_offsets`` and integrates hydrostatics.  The results
+    are compared against the closed-form textbook formulas:
+
+    * displacement  ``∇ = L·B·T``
+    * KB            ``T/2``
+    * BM_T          ``B²/(12·T)``
+
+    This endpoint is the implementation backing the ``geometry.hydro_curves``
+    capability in the platform's capability ledger.
+    """
+    t0 = time.perf_counter()
+
+    if req.draft_max <= req.draft_min:
+        raise HTTPException(status_code=400, detail="draft_max must be > draft_min")
+    if req.draft_step <= 0:
+        raise HTTPException(status_code=400, detail="draft_step must be positive")
+    if req.draft_max > req.depth:
+        raise HTTPException(status_code=400, detail="draft_max must not exceed moulded depth")
+
+    hull = (req.hull or "box").lower()
+    drafts = []
+    d = req.draft_min
+    while d <= req.draft_max + 1e-9:
+        drafts.append(round(d, 6))
+        d += req.draft_step
+
+    curves: List[HydroCurvesPoint] = []
+    for draft in drafts:
+        if hull == "box":
+            offsets = barge_offsets(
+                length=req.length,
+                beam=req.beam,
+                draft=draft,
+                n_stations=req.n_stations,
+                n_waterlines=req.n_waterlines,
+            )
+        elif hull == "table":
+            if not req.stations or not req.waterlines or not req.half_breadths:
+                raise HTTPException(
+                    status_code=400,
+                    detail="hull='table' requires stations, waterlines and half_breadths",
+                )
+            offsets = HullOffsets(
+                length=req.length,
+                stations=req.stations,
+                waterlines=req.waterlines,
+                half_breadths=req.half_breadths,
+            )
+        else:
+            raise HTTPException(status_code=400, detail=f"unknown hull type '{req.hull}'")
+
+        try:
+            result = compute_hydrostatics(offsets, kg=req.kg, rho=req.rho)
+        except GeometryError as exc:
+            raise HTTPException(status_code=400, detail=str(exc))
+
+        curves.append(HydroCurvesPoint(
+            draft_m=draft,
+            volume_m3=round(result.volume_m3, 6),
+            displacement_t=round(result.displacement_t, 6),
+            cb=round(result.cb, 6),
+            waterplane_area_m2=round(result.waterplane_area_m2, 6),
+            kb_m=round(result.kb_m, 6),
+            bm_t_m=round(result.bm_t_m, 6),
+            bm_l_m=round(result.bm_l_m, 6),
+            km_t_m=round(result.km_t_m, 6),
+            gm_m=None if result.gm_m is None else round(result.gm_m, 6),
+            wetted_surface_m2=round(result.wetted_surface_m2, 6),
+        ))
+
+    elapsed_ms = (time.perf_counter() - t0) * 1000
+    return HydroCurvesResponse(
+        hull=hull,
+        length=req.length,
+        beam=req.beam,
+        depth=req.depth,
+        draft_min=req.draft_min,
+        draft_max=req.draft_max,
+        draft_step=req.draft_step,
+        n_points=len(curves),
+        curves=curves,
+        computation_time_ms=round(elapsed_ms, 3),
+    )
 
 
 # ---------------------------------------------------------------------------
