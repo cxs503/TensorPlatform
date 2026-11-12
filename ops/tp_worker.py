@@ -399,9 +399,31 @@ def call_llm(messages, tools):
         return json.loads(resp.read().decode())
 
 
-def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pathlib.Path) -> dict:
+def _context_block(mission: dict, start_resp: dict | None = None) -> str:
+    """取本单干货包注入块（FEAT-AGENT-HARNESS 记忆回路②注入环）。
+
+    优先用开工响应里的 ``context_block``（后端 loop 钩子出包）；后端未接线/旧版本时
+    退回 handoff 文件（``CONTEXT_LOOP_HANDOFF`` 或 ``runs/context_injections/handoff/m<id>.md``）。
+    任何异常返回空串——注入失败绝不能挡住开工（fail-open）。
+    """
+    try:
+        blk = ((start_resp or {}).get("context_block") or "").strip()
+        if blk:
+            return blk
+        p = pathlib.Path(os.environ.get("CONTEXT_LOOP_HANDOFF", "")
+                         or "/root/tensor-ecosystem/TensorPlatform/runs/context_injections/handoff")
+        f = p / f"m{mission['id']}.md"
+        return f.read_text(encoding="utf-8").strip() if f.exists() else ""
+    except Exception:
+        return ""
+
+
+def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pathlib.Path,
+                context_block: str = "") -> dict:
+    _ctx = (context_block or "").strip()
+    _ctx = (_ctx + "\n\n") if _ctx else ""
     messages = [{"role": "system", "content": SYSTEM},
-                {"role": "user", "content": f"任务目标:\n{mission['goal']}\n\n仓库: {mission.get('repo')}\n"
+                {"role": "user", "content": f"{_ctx}任务目标:\n{mission['goal']}\n\n仓库: {mission.get('repo')}\n"
                                             f"工作目录: {root}\n分支: agent/m{mission['id']}\n\n"
                                             f"★纪律：读文件不要超过 8 次就要开始动手；"
                                             f"完成后必须调用 finish 工具；没有产物就不算完成。\n\n"
@@ -597,11 +619,15 @@ def main() -> None:
             log("dry-run: 不做动作")
             return
 
-        api(f"/tensor/missions/{mission['id']}/start", {"claim_token": ct}, token)
+        _s_start, _d_start = api(f"/tensor/missions/{mission['id']}/start",
+                                 {"claim_token": ct}, token)
+        _ctx_block = _context_block(mission, _d_start if _s_start == 200 else None)
+        if _ctx_block:
+            log(f"干货包注入: {len(_ctx_block)} 字符（记忆回路②环）")
         try:
             root = prepare_worktree(mission)
             log(f"工作树 {root}")
-            result = run_mission(token, mission, sid, ct, root)
+            result = run_mission(token, mission, sid, ct, root, context_block=_ctx_block)
         except SystemExit:
             raise
         except Exception as e:
