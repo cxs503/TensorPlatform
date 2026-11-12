@@ -361,6 +361,28 @@ def tool_cluster(action, repo=None, cmd=None, ref="main", node="auto",
         return "TIMEOUT: 集群作业超 %ss（长作业建议 shard 后台跑 + ps 轮询）" % (timeout + 120)
 
 
+# m16622 修：白名单前缀的尾部标点/空白清洗字符集。
+# 真实任务单几乎都写成「EDIT_WHITELIST: docs/, artifacts/。」——中文句号、全角逗号、
+# 顿号等会让最后一个前缀变成 `artifacts/。`（normpath 后仍合法但永不匹配），
+# 于是**最后一个白名单路径静默失效**（门禁自伤：静默收紧，非安全漏洞）。
+# 只做「尾部」标点清洗 + 句子终止符截断；不引入任何通配/越界放宽。
+_WL_TAIL_PUNCT = "。．.，,；;：:、！!？?…\"'“”‘’（）()[]【】〔〕<>《》「」/\\ \t\u3000"
+_WL_SENTENCE_STOP = "。．！？…\u3000"   # 出现在 token 中部=句子断了，其后是人类叙述
+
+
+def _clean_wl_prefix(raw):
+    """把一个白名单 token 清洗成仓库相对前缀（不改匹配语义）。"""
+    p = str(raw or "").strip()
+    for ch in _WL_SENTENCE_STOP:          # 「artifacts/。因此…」→「artifacts/」
+        if ch in p:
+            p = p.split(ch, 1)[0]
+    p = p.strip().strip("\u3000").strip()
+    p = p.rstrip(_WL_TAIL_PUNCT)          # 「artifacts/。」→「artifacts/」
+    p = p.strip().lstrip("./").strip()    # 沿用旧行为：去前导 ./ 与 /
+    p = p.rstrip("/")
+    return p
+
+
 def _parse_edit_whitelist(goal):
     """编辑白名单机器门（借 ARIS edit-whitelist 2026-10-31）：goal 显式声明
     「EDIT_WHITELIST: 前缀1, 前缀2」时，write_file 只放行命中前缀的路径。
@@ -370,15 +392,20 @@ def _parse_edit_whitelist(goal):
         return None
     prefs = []
     for p in re.split(r"[,，、;；]", m.group(1)):
-        p = p.strip().lstrip("./").strip()
+        p = _clean_wl_prefix(p)
         if p:
             prefs.append(os.path.normpath(p))
     return prefs or None
 
 
 def _wl_ok(path, prefs):
-    p = os.path.normpath(str(path).strip().lstrip("./"))
-    return any(p == q or p.startswith(q.rstrip("/") + "/") for q in prefs)
+    raw = str(path or "").strip()
+    if not raw or os.path.isabs(raw):      # 绝对路径一律不放行（越界面收紧，不放宽）
+        return False
+    p = os.path.normpath(_clean_wl_prefix(raw))
+    if p == ".." or p.startswith(".." + os.sep) or os.path.isabs(p):
+        return False
+    return any(p == q or p.startswith(q.rstrip("/") + "/") for q in (prefs or []))
 
 
 TOOLS = [
