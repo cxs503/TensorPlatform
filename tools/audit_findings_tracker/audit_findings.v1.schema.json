@@ -1,0 +1,125 @@
+{
+  "schema": "audit-findings/1.0",
+  "title": "Cross-audit findings taxonomy (platform, domain-free)",
+  "description": "分类法工件：类别闭词表 + 别名 + 容器键 + 分类字段。tools/audit_findings_tracker 只读本文件，代码零领域语义。",
+  "categories": [
+    "fake_pass",
+    "hand_copy",
+    "label_mismatch",
+    "undefined_criteria",
+    "other"
+  ],
+  "category_aliases": {
+    "fake_pass": [
+      "fake_pass",
+      "fake pass",
+      "false pass",
+      "false_pass",
+      "fake green",
+      "假通过",
+      "假绿",
+      "伪通过",
+      "虚假通过"
+    ],
+    "hand_copy": [
+      "hand_copy",
+      "hand copy",
+      "handcopy",
+      "manual copy",
+      "manual_copy",
+      "transcribed",
+      "transcription",
+      "手抄",
+      "手工抄录",
+      "抄录"
+    ],
+    "label_mismatch": [
+      "label_mismatch",
+      "label mismatch",
+      "mismatched label",
+      "mislabel",
+      "mislabeled",
+      "tag_mismatch",
+      "tag mismatch",
+      "evidence label mismatch",
+      "标签错位",
+      "标签不符",
+      "标签错配",
+      "标签不一致"
+    ],
+    "undefined_criteria": [
+      "undefined_criteria",
+      "undefined criteria",
+      "undefined criterion",
+      "missing criteria",
+      "criteria missing",
+      "criteria undefined",
+      "no criteria",
+      "判据缺失",
+      "判据未定义",
+      "判据不明"
+    ],
+    "other": [
+      "other",
+      "misc",
+      "miscellaneous",
+      "unclassified",
+      "其他",
+      "其它"
+    ]
+  },
+  "finding_list_keys": [
+    "findings",
+    "audit_findings",
+    "issues",
+    "defects",
+    "violations",
+    "problems",
+    "items",
+    "entries",
+    "records",
+    "results"
+  ],
+  "classification_fields": [
+    "category",
+    "kind",
+    "type",
+    "code",
+    "class",
+    "label",
+    "labels",
+    "tags",
+    "tag",
+    "status",
+    "verdict"
+  ],
+  "text_fields": [
+    "title",
+    "summary",
+    "description",
+    "detail",
+    "details",
+    "message",
+    "msg",
+    "note",
+    "notes",
+    "text",
+    "claim",
+    "assertion",
+    "rule",
+    "reason"
+  ],
+  "id_fields": ["id", "finding_id", "uid", "key"],
+  "severity_fields": ["severity", "level", "priority", "risk"],
+  "subject_fields": ["subject", "target", "node", "mission", "item", "path", "artifact", "where", "location", "scope"],
+  "count_container_keys": [
+    "counts",
+    "category_counts",
+    "totals",
+    "by_category",
+    "summary_counts"
+  ],
+  "required_categories": [],
+  "withheld_category": "WITHHELD",
+  "max_message_chars": 1000
+}
