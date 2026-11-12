@@ -1,0 +1,114 @@
+{
+  "_comment": "owner YAML 骨架的工作包契约模板（平台侧编码）。{{PLACEHOLDER}} 由 ops/knowledge_factory/contract.py 填充。KBM-RCI-F1-SPEC 产出的契约到位后，把同构文件放 contracts/03.json 并把 status 改成 active 即启用该工序，无需改代码。",
+  "01": {
+    "status": "active",
+    "objective": {"register_assets": true, "classify_report_type": false},
+    "constraints": {
+      "every_claim_must_have_source_locator": true,
+      "do_not_invent_missing_information": true,
+      "preserve_uncertainty": true,
+      "no_forced_claim_generation": true,
+      "do_not_mark_claims_as_verified": true
+    },
+    "output": {"asset_manifest.json": true},
+    "acceptance": {
+      "valid_json": true,
+      "schema_pass": true,
+      "source_locator_resolvable": true,
+      "source_hash_matches": true,
+      "no_duplicate_ids": true,
+      "all_claims_have_evidence_or_explicit_unresolved_status": true
+    },
+    "review": {"required": false, "independent_reviewer": false, "reviewer_role": "evidence-auditor"},
+    "delivery": {"repo": "TensorKnowledge", "status": "draft"},
+    "task_note": "登记源资产：确认 report_id 与其 markdown 的字节哈希，列出可解析的附件/工件，不做抽取。claims 允许为空数组。"
+  },
+  "02": {
+    "status": "active",
+    "objective": {"classify_report_type": true, "register_assets": false},
+    "constraints": {
+      "every_claim_must_have_source_locator": true,
+      "do_not_invent_missing_information": true,
+      "preserve_uncertainty": true,
+      "no_forced_claim_generation": true,
+      "do_not_mark_claims_as_verified": true
+    },
+    "output": {"classification.json": true},
+    "acceptance": {
+      "valid_json": true,
+      "schema_pass": true,
+      "source_locator_resolvable": true,
+      "source_hash_matches": true,
+      "no_duplicate_ids": true,
+      "all_claims_have_evidence_or_explicit_unresolved_status": true
+    },
+    "review": {"required": false, "independent_reviewer": false, "reviewer_role": "document-analyst"},
+    "delivery": {"repo": "TensorKnowledge", "status": "draft"},
+    "task_note": "给报告打类型/主题标签，给出判定依据的原文片段定位；不做抽取。"
+  },
+  "03": {
+    "status": "pending_spec",
+    "blocked_by": "KBM-RCI-F1-SPEC",
+    "objective": {
+      "identify_research_question": true,
+      "extract_methods_and_claims": true,
+      "extract_evidence": true,
+      "identify_assumptions": true,
+      "identify_limitations": true
+    },
+    "constraints": {
+      "every_claim_must_have_source_locator": true,
+      "do_not_invent_missing_information": true,
+      "preserve_uncertainty": true,
+      "no_forced_claim_generation": true,
+      "do_not_mark_claims_as_verified": true
+    },
+    "output": {
+      "claims.json": true,
+      "evidence.json": true,
+      "provenance.json": true,
+      "extraction_summary.json": true
+    },
+    "acceptance": {
+      "valid_json": true,
+      "schema_pass": true,
+      "source_locator_resolvable": true,
+      "source_hash_matches": true,
+      "no_duplicate_ids": true,
+      "all_claims_have_evidence_or_explicit_unresolved_status": true
+    },
+    "review": {"required": true, "independent_reviewer": true, "reviewer_role": "scientific-extractor", "sample_rate": 1.0},
+    "delivery": {"repo": "TensorKnowledge", "status": "draft"},
+    "task_note": "契约待 KBM-RCI-F1-SPEC 回；本文件是 owner YAML 骨架的占位编码，status=pending_spec 时调度器拒派 03。"
+  },
+  "04": {
+    "status": "platform_skeleton",
+    "objective": {"judge_semantic_fidelity": true},
+    "constraints": {
+      "review_prompt_not_copied_from_producer": true,
+      "reviewer_context_excludes_producer_explanation": true,
+      "do_not_mark_claims_as_verified": true
+    },
+    "output": {"review_report.json": true},
+    "acceptance": {
+      "valid_json": true,
+      "schema_pass": true,
+      "reviewer_independent": true,
+      "upstream_packages_completed": true
+    },
+    "review": {"required": false, "independent_reviewer": false, "reviewer_role": "red-team-reviewer"},
+    "delivery": {"repo": "TensorKnowledge", "status": "in-review"},
+    "task_note": "独立审核：上下文=报告原文+上游 KO，不得看生产者的解释。判 pass/fail/needs-fix。"
+  },
+  "05": {
+    "status": "pending_spec",
+    "blocked_by": "KBM-RCI-F1-SPEC",
+    "objective": {"cross_report_synthesis": true, "contradiction_detection": true, "gap_identification": true},
+    "constraints": {"do_not_invent_missing_information": true, "do_not_mark_claims_as_verified": true},
+    "output": {"synthesis.json": true},
+    "acceptance": {"valid_json": true, "schema_pass": true},
+    "review": {"required": true, "independent_reviewer": true, "reviewer_role": "knowledge-integrator"},
+    "delivery": {"repo": "TensorKnowledge", "status": "draft"},
+    "task_note": "跨报告综合研究；契约待 SPEC。"
+  }
+}
