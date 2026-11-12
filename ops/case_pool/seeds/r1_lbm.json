@@ -1,0 +1,115 @@
+[
+ {
+  "case_code": "LBM-KOVASZNAY-EXACT",
+  "repo": "TensorLBM",
+  "name": "二维定常 Kovasznay 精确解流场",
+  "ref_source": "Kovasznay 1948 Proc. Camb. Phil. Soc. 44:58 二维定常 NS 精确解 DOI:10.1017/s0305004100023999",
+  "tol_policy": "<3% | 指标: 速度场 L2 相对误差 vs 精确解 (Re=40, N>=128 后判定)",
+  "dedup_key": "kovasznay-2d-steady-exact",
+  "anchor_probe": [
+   "Kovasznay",
+   "kova"
+  ],
+  "citation": "Kovasznay, L. I. G. (1948). Laminar flow behind a two-dimensional grid. Proc. Cambridge Philos. Soc. 44(1), 58-62.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1017/s0305004100023999",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "LBM-CAVITY-3D-RE100",
+  "repo": "TensorLBM",
+  "name": "三维顶盖方腔 Re=100",
+  "ref_source": "Ku, Hirsh & Taylor 1987 J. Comput. Phys. 70:439 三维谱解基准 DOI:10.1016/0021-9991(87)90190-2",
+  "tol_policy": "<5% | 指标: 中截面中心线 u/v 极值与位置 vs Ku1987 表 (33^3 网格)",
+  "dedup_key": "cavity-3d-lid-driven",
+  "anchor_probe": [
+   "CAVITY-3D",
+   "三维方腔"
+  ],
+  "citation": "Ku, H. C., Hirsh, R. S., & Taylor, T. D. (1987). A pseudospectral method for solution of the three-dimensional incompressible Navier-Stokes equations. J. Comput. Phys. 70(2), 439-462.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/0021-9991(87)90190-2",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "LBM-CUBIC-ARRAY-DRAG",
+  "repo": "TensorLBM",
+  "name": "立方阵列球体周期排列 Darcy 阻力",
+  "ref_source": "Hasimoto 1959 J. Fluid Mech. 5:317 周期基本解 / Sangani & Acrivos 1982 Int. J. Multiphase Flow 8:343 DOI:10.1017/s0022112059000222",
+  "tol_policy": "<5% | 指标: 无量纲阻力 K=F/(6*pi*mu*a*U) vs Hasimoto/Sangani 表 (phi=0.125 与 0.5 两点)",
+  "dedup_key": "sphere-array-periodic-drag",
+  "anchor_probe": [
+   "SPHERE",
+   "球面力",
+   "阵列"
+  ],
+  "citation": "Hasimoto, H. (1959). On the periodic fundamental solutions of the Stokes equations and their application to viscous flow past a cubic array of spheres. J. Fluid Mech. 5(2), 317-328.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1017/s0022112059000222",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "LBM-SQUARE-CYL-NORBERG",
+  "repo": "TensorLBM",
+  "name": "方柱绕流涡脱 Strouhal 数与阻力",
+  "ref_source": "Norberg 1993 J. Wind Eng. Ind. Aerodyn. 49:187 方柱涡脱实验基准 DOI:10.1016/0167-6105(93)90014-f",
+  "tol_policy": "<8% St / <10% Cd | 指标: St=fD/U 与 Cd 均值 vs Norberg1993 (Re=200, 阻塞比 1/20)",
+  "dedup_key": "square-cylinder-wake",
+  "anchor_probe": [
+   "方柱",
+   "SQUARE-CYL"
+  ],
+  "citation": "Norberg, C. (1993). Flow around rectangular cylinders: pressure forces and wake frequencies. J. Wind Eng. Ind. Aerodyn. 49(1-3), 187-196.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/0167-6105(93)90014-f",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "LBM-RB-ONSET-RA1708",
+  "repo": "TensorLBM",
+  "name": "Rayleigh-Benard 对流起始临界 Ra_c",
+  "ref_source": "Chandrasekhar 1961 Hydrodynamic and Hydromagnetic Stability §II 线性理论 Ra_c=1707.76 (刚-刚) DOI(次级):10.1016/0368-3281(63)90025-1",
+  "tol_policy": "<2% | 指标: 临界 Rayleigh 数判定值 vs 1707.76 (Ra 二分扫描+静止态线性稳定性判据)",
+  "dedup_key": "rayleigh-benard-onset",
+  "anchor_probe": [
+   "ONSET",
+   "临界 Ra"
+  ],
+  "citation": "Chandrasekhar, S. (1961). Hydrodynamic and Hydromagnetic Stability. Oxford University Press, Ch. II (Rayleigh-Benard, rigid-rigid Ra_c=1707.76).",
+  "ref_verdict": "book_corroborated",
+  "ref_doi": "10.1016/0368-3281(63)90025-1",
+  "ref_verify_note": "Chandrasekhar 1961 专著；Crossref 有 1963 书评记录佐证"
+ },
+ {
+  "case_code": "LBM-STOKES-FIRST-PROBLEM",
+  "repo": "TensorLBM",
+  "name": "斯托克斯第一问题（平板突然启动）",
+  "ref_source": "Stokes 1851 / Schlichting 1979 Boundary-Layer Theory §5 erfc 解析解 DOI(次级):10.1002/zamm.19800600419",
+  "tol_policy": "<2% | 指标: 无量纲速度剖面 u/U=erfc(eta) 逐点相对误差 vs 解析 (eta=0..2, t*=1.0)",
+  "dedup_key": "stokes-first-problem",
+  "anchor_probe": [
+   "STOKES-FIRST",
+   "突然启动"
+  ],
+  "citation": "Schlichting, H. (1979). Boundary-Layer Theory, 7th ed., McGraw-Hill, Section 5 (u/U = erfc(y/(2 sqrt(nu t)))).",
+  "ref_verdict": "book_corroborated",
+  "ref_doi": "10.1002/zamm.19800600419",
+  "ref_verify_note": "Schlichting 1979 专著；Crossref 有 ZAMM 1980 书评记录佐证"
+ },
+ {
+  "case_code": "LBM-WOMERSLEY-PULSATILE",
+  "repo": "TensorLBM",
+  "name": "脉动槽道流 Womersley 解析对比",
+  "ref_source": "Womersley 1955 J. Physiol. 127:553 脉动流解析解 DOI:10.1113/jphysiol.1955.sp005276",
+  "tol_policy": "<5% | 指标: 中心线速度振幅比与相位滞后 vs Womersley 解析 (alpha=5, 整周期相位平均)",
+  "dedup_key": "womersley-pulsatile-channel",
+  "anchor_probe": [
+   "WOMERSLEY",
+   "脉动流"
+  ],
+  "citation": "Womersley, J. R. (1955). Method for the calculation of velocity, rate of flow and viscous drag in arteries when the pressure gradient is known. J. Physiol. 127(3), 553-563.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1113/jphysiol.1955.sp005276",
+  "ref_verify_note": "Crossref 本体命中"
+ }
+]

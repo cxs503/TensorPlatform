@@ -1,0 +1,117 @@
+[
+ {
+  "case_code": "DEM-MINDLIN-TANGENTIAL",
+  "repo": "TensorDEM",
+  "name": "切向 Mindlin 微滑移-完全滑移过渡",
+  "ref_source": "Mindlin & Deresiewicz 1953 J. Appl. Mech. 20:327 弹性球体切向接触 DOI:10.1115/1.4010702",
+  "tol_policy": "<5% | 指标: 切向力-切向位移曲线 (微滑移段与宏观滑移段) vs Mindlin 解析",
+  "dedup_key": "mindlin-tangential-contact",
+  "anchor_probe": [
+   "MINDLIN",
+   "切向"
+  ],
+  "citation": "Mindlin, R. D., & Deresiewicz, H. (1953). Elastic spheres in contact under varying oblique forces. J. Appl. Mech. 20, 327-344.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1115/1.4010702",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DEM-HERTZ-RESTITUTION-VELOCITY",
+  "repo": "TensorDEM",
+  "name": "恢复系数随撞击速度主曲线",
+  "ref_source": "Kruggel-Emden et al. 2008 Powder Technology 171:157 法向力模型评述 DOI:10.1016/j.powtec.2006.10.004",
+  "tol_policy": "<5% | 指标: e(v_imp) 曲线 (0.1-5 m/s) vs 阻尼模型解析式/文献表",
+  "dedup_key": "restitution-vs-impact-velocity",
+  "anchor_probe": [
+   "Kruggel-Emden",
+   "撞击速度",
+   "impact velocity"
+  ],
+  "citation": "Kruggel-Emden, H., Simsek, E., Rickelt, S., Wirtz, S., & Scherer, V. (2008). Review and extension of normal force models for the Discrete Element Method. Powder Technology 171(3), 157-173.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/j.powtec.2006.10.004",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DEM-BRAZIL-NUT-SEGREGATION",
+  "repo": "TensorDEM",
+  "name": "振动分选巴西坚果效应",
+  "ref_source": "Moebius, Lauderdale, Nagel & Jaeger 2001 Nature 414:270 尺寸分离实验 DOI:10.1038/35104697",
+  "tol_policy": "定性+<20% | 指标: 大颗粒上升时间与分层指数 vs Moebius2001 实验趋势",
+  "dedup_key": "brazil-nut-segregation",
+  "anchor_probe": [
+   "BRAZIL-NUT",
+   "分选"
+  ],
+  "citation": "Moebius, M. E., Lauderdale, B. E., Nagel, S. R., & Jaeger, H. M. (2001). Size separation of granular particles. Nature 414, 270.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1038/35104697",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DEM-PLANE-SHEAR-MUIDI",
+  "repo": "TensorDEM",
+  "name": "平面剪切 mu(I) 流变律标定",
+  "ref_source": "da Cruz et al. 2005 Phys. Rev. E 72:021309；GDR MiDi 2004 Eur. Phys. J. E 14:341 DOI:10.1103/physreve.72.021309",
+  "tol_policy": "<10% | 指标: 有效摩擦系数 mu 与体积分数 phi vs 惯性数 I 曲线 (I=1e-3..0.3)",
+  "dedup_key": "plane-shear-mu-of-I",
+  "anchor_probe": [
+   "MUIDI",
+   "mu(I)",
+   "剪切流变"
+  ],
+  "citation": "da Cruz, F., Emam, S., Prochnow, M., Roux, J.-N., & Chevoir, F. (2005). Rheophysics of dense granular materials: discrete simulation of plane shear flows. Phys. Rev. E 72, 021309; GDR MiDi (2004). On dense granular flows. Eur. Phys. J. E 14, 341-365.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1103/physreve.72.021309",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DEM-SHEAR-CAMPBELL-ELASTIC-LIMIT",
+  "repo": "TensorDEM",
+  "name": "高剪切率弹限区剪切应力标度",
+  "ref_source": "Campbell 2002 J. Fluid Mech. 465:261 弹限颗粒剪切流 DOI:10.1017/s002211200200109x",
+  "tol_policy": "<15% | 指标: 无量纲剪切应力随 Bagnold 数标度指数与系数 vs Campbell2002 模拟",
+  "dedup_key": "campbell-elastic-limit-shear",
+  "anchor_probe": [
+   "CAMPBELL",
+   "弹限"
+  ],
+  "citation": "Campbell, C. S. (2002). Granular shear flows at the elastic limit. J. Fluid Mech. 465, 261-291.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1017/s002211200200109x",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "DEM-ROLLING-SINGLE-PARTICLE",
+  "repo": "TensorDEM",
+  "name": "单颗粒斜面纯滚动加速度",
+  "ref_source": "经典刚体动力学 a=g sin(theta)/(1+I/mR^2)；滚动阻力模型 Ai et al. 2011 Powder Technol. 206:269 DOI(次级):10.1016/j.powtec.2010.09.030",
+  "tol_policy": "<2% | 指标: 球心平动加速度与转动角加速度 vs 解析 (theta=15deg, 无滑移)",
+  "dedup_key": "single-particle-rolling-incline",
+  "anchor_probe": [
+   "ROLLING",
+   "滚动"
+  ],
+  "citation": "Meriam, J. L., & Kraige, L. G. (2008). Engineering Mechanics: Dynamics, 6th ed., Wiley, Ch. 6 (rolling rigid body: a = g sin(theta)/(1+I/mR^2)); Ai, J., Chen, J.-F., Rotter, J. M., & Ooi, J. Y. (2011). Assessment of rolling resistance models in discrete element simulations. Powder Technology 206(3), 269-282.",
+  "ref_verdict": "doi_verified_secondary",
+  "ref_doi": "10.1016/j.powtec.2010.09.030",
+  "ref_verify_note": "初级=Meriam & Kraige 刚体动力学教科书；次级 Ai et al. 2011 滚动阻力模型 DOI 命中"
+ },
+ {
+  "case_code": "DEM-RCP-PACKING-FRACTION",
+  "repo": "TensorDEM",
+  "name": "随机密堆体积分数（RCP）",
+  "ref_source": "Scott 1960 Nature 188:908；Bernal & Mason 1960 Nature 188:910 随机密堆实验 DOI(次级):10.1038/188910a0",
+  "tol_policy": "体积分数 0.62-0.66 区间 | 指标: 落下堆积体稳态孔隙率 (10000 球, 无摩擦/低摩擦两档)",
+  "dedup_key": "random-close-packing-fraction",
+  "anchor_probe": [
+   "RCP",
+   "密堆",
+   "孔隙率"
+  ],
+  "citation": "Scott, G. D. (1960). Packing of spheres. Nature 188, 908-909; Bernal, J. D., & Mason, J. (1960). Coordination of randomly packed spheres. Nature 188, 910-911.",
+  "ref_verdict": "doi_verified_secondary",
+  "ref_doi": "10.1038/188910a0",
+  "ref_verify_note": "初级=Scott 1960 Nature（Crossref 记为 Bernal & Mason 条目），同页系列 DOI 命中"
+ }
+]
