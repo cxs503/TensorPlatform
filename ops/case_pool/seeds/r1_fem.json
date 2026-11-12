@@ -1,0 +1,115 @@
+[
+ {
+  "case_code": "FEM-SCORDELIS-LO-ROOF",
+  "repo": "TensorFEM",
+  "name": "Scordelis-Lo 圆柱屋盖壳弯曲",
+  "ref_source": "Scordelis & Lo 1964 ACI Journal 61:539 圆柱壳经典基准 DOI:10.14359/7796",
+  "tol_policy": "<5% | 指标: 自由边中点法向挠度 vs 参考值 0.3024 (自重载荷, 网格 16x16)",
+  "dedup_key": "scordelis-lo-roof",
+  "anchor_probe": [
+   "SCORDELIS",
+   "屋盖"
+  ],
+  "citation": "Scordelis, A. C., & Lo, K. S. (1964). Computer analysis of cylindrical shells. Journal of the American Concrete Institute 61(5), 539-561.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.14359/7796",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "FEM-PINCHED-CYLINDER",
+  "repo": "TensorFEM",
+  "name": "夹持圆柱壳 pinched cylinder",
+  "ref_source": "MacNeal & Harder 1985 Finite Elem. Anal. Des. 1:3 壳体标准难题集 DOI:10.1016/0168-874x(85)90003-4",
+  "tol_policy": "<5% | 指标: 加载点径向挠度 vs 薄壳理论 1.8248e-5 (单位载荷, 网格 16x16)",
+  "dedup_key": "pinched-cylinder-shell",
+  "anchor_probe": [
+   "PINCHED",
+   "夹持圆柱"
+  ],
+  "citation": "MacNeal, R. H., & Harder, R. L. (1985). A proposed standard set of problems to test finite element accuracy. Finite Elements in Analysis and Design 1(1), 3-20.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1016/0168-874x(85)90003-4",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "FEM-MORLEY-SKEW-PLATE",
+  "repo": "TensorFEM",
+  "name": "Morley 30 度斜板弯曲",
+  "ref_source": "Morley 1963 Skew Plates and Structures (Pergamon) 斜板级数解",
+  "tol_policy": "<5% | 指标: 斜板中心无量纲挠度 w*D/(q*a^4) vs Morley 参考解 (30 度斜角, 简支)",
+  "dedup_key": "morley-skew-plate",
+  "anchor_probe": [
+   "MORLEY",
+   "斜板"
+  ],
+  "citation": "Morley, L. S. D. (1963). Skew Plates and Structures. Pergamon Press (series solution for uniformly loaded skew plates).",
+  "ref_verdict": "classic_monograph_no_doi",
+  "ref_doi": null,
+  "ref_verify_note": "Morley 1963 Pergamon 专著，Crossref 无本体记录；属允许的教科书类出处，填结果行须注明版次+章节"
+ },
+ {
+  "case_code": "FEM-CLAMPED-PLATE-UNIFORM",
+  "repo": "TensorFEM",
+  "name": "四边固支方板均布载荷中心挠度",
+  "ref_source": "Timoshenko & Woinowsky-Krieger 1959 Theory of Plates and Shells §30 表",
+  "tol_policy": "<3% | 指标: w_max*D/(q*a^4) vs 0.00126 (Kirchhoff 薄板, a/t=100)",
+  "dedup_key": "clamped-square-plate",
+  "anchor_probe": [
+   "CLAMPED-PLATE",
+   "固支板"
+  ],
+  "citation": "Timoshenko, S., & Woinowsky-Krieger, S. (1959). Theory of Plates and Shells, 2nd ed., McGraw-Hill, Section 30 (clamped square plate w_max = 0.00126 q a^4 / D).",
+  "ref_verdict": "classic_monograph_no_doi",
+  "ref_doi": null,
+  "ref_verify_note": "Timoshenko & Woinowsky-Krieger 1959 McGraw-Hill 专著，Crossref 无本体记录；同上"
+ },
+ {
+  "case_code": "FEM-CANTILEVER-MODES",
+  "repo": "TensorFEM",
+  "name": "悬臂梁前三阶固有频率",
+  "ref_source": "Blevins 1979 Formulas for Natural Frequency and Mode Shape 表 8-1 DOI:10.1115/1.3153712",
+  "tol_policy": "<3% | 指标: f1..f3 绝对频率与 f2/f1,f3/f1 vs 梁理论 f_n=(beta_n L)^2/(2*pi*L^2)*sqrt(EI/(rho A))",
+  "dedup_key": "cantilever-eigenfrequency",
+  "anchor_probe": [
+   "CANTILEVER-MODES",
+   "固有频率"
+  ],
+  "citation": "Blevins, R. D. (1979). Formulas for Natural Frequency and Mode Shape. Van Nostrand Reinhold, Table 8-1 (beta_1 L=1.8751, 4.6941, 7.8548).",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1115/1.3153712",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "FEM-HERTZ-CONTACT",
+  "repo": "TensorFEM",
+  "name": "Hertz 球-平面接触半径与压入深",
+  "ref_source": "Hertz 1882 J. reine angew. Math. 92:156；Johnson 1985 Contact Mechanics §4.2 DOI:10.1017/cbo9781139171731",
+  "tol_policy": "<3% | 指标: 接触半径 a 与压入深 delta vs Hertz 解析 (P 由载荷给定, 弹性半空间)",
+  "dedup_key": "hertz-sphere-plane-contact",
+  "anchor_probe": [
+   "HERTZ",
+   "接触"
+  ],
+  "citation": "Johnson, K. L. (1985). Contact Mechanics. Cambridge University Press, Section 4.2 (a=(3PR/4E*)^(1/3), delta=a^2/R).",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1017/cbo9781139171731",
+  "ref_verify_note": "Crossref 本体命中"
+ },
+ {
+  "case_code": "FEM-JINTEGRAL-EDGE-CRACK",
+  "repo": "TensorFEM",
+  "name": "单边裂纹板 J 积分与应力强度因子",
+  "ref_source": "Rice 1968 J. Appl. Mech. 35:379；Tada, Paris & Irwin 2000 应力强度因子手册 DOI:10.1115/1.3601206",
+  "tol_policy": "<5% | 指标: 归一化 K_I/(sigma*sqrt(pi*a)) vs 手册有限宽修正 (a/W=0.3, 平面应变)",
+  "dedup_key": "j-integral-edge-crack",
+  "anchor_probe": [
+   "JINTEGRAL",
+   "J 积分",
+   "裂纹"
+  ],
+  "citation": "Rice, J. R. (1968). A path independent integral and the approximate analysis of strain concentration by notches and cracks. J. Appl. Mech. 35(2), 379-386; Tada, H., Paris, P. C., & Irwin, G. R. (2000). The Stress Analysis of Cracks Handbook, 3rd ed.",
+  "ref_verdict": "doi_verified",
+  "ref_doi": "10.1115/1.3601206",
+  "ref_verify_note": "Crossref 本体命中"
+ }
+]
