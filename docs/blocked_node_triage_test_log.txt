@@ -1,0 +1,11 @@
+# A1 pytest + A6 CLI 契约（2026-11-12T17:15:02Z）
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+34 passed, 1 warning in 0.38s
+usage: blocked_node_triage.py [-h] [--dry-run | --apply]
+                              [--max-revivals MAX_REVIVALS]
+                              [--max-batch MAX_BATCH] [--db DB] [--host HOST]
+按 block_reason 前缀对 campaign_nodes 的 blocked 节点做五类分诊；默认 --dry-run 只读，--apply
+  --dry-run             只读分诊：只发 SELECT，绝不写库（默认） (default: True)
+  --apply               执行写库：仅 INFRA_RETRYABLE 且未超复活预算的节点置回 pending 并写
+  --max-revivals MAX_REVIVALS
+  --max-batch MAX_BATCH
