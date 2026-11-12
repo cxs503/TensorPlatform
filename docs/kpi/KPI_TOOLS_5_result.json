@@ -1,0 +1,1102 @@
+{
+  "kpi_id": "KPI-TOOLS-5",
+  "suite_id": "external-tools/KPI-TOOLS-5",
+  "measured_at": "2026-11-12T19:32:12+00:00",
+  "current": 10,
+  "unit": "tool_classes",
+  "target": 5,
+  "gap": 0,
+  "surplus": 5,
+  "headline": "10 类外部工具以 REAL 证据接入平台并可用（目标 5，缺口 0，超额 5）",
+  "verdict": "PASS",
+  "lenses": {
+    "A_primary": {
+      "lens": "A_external_tools_real_and_usable",
+      "unit": "tool_classes",
+      "current": 10,
+      "current_categories": 10,
+      "target": 5,
+      "gap": 0,
+      "surplus": 5,
+      "verdict": "PASS",
+      "coverage_ok": true,
+      "status_counts": {
+        "FAIL": 0,
+        "MOCK": 0,
+        "REAL": 10,
+        "WITHHELD": 0
+      },
+      "categories": {
+        "autodiff": [
+          "automatic_differentiation"
+        ],
+        "compiler": [
+          "native_build_toolchain"
+        ],
+        "database": [
+          "relational_store"
+        ],
+        "numerical_integration": [
+          "numerical_quadrature"
+        ],
+        "optimization": [
+          "blackbox_optimization"
+        ],
+        "schema_validation": [
+          "json_contract_validation"
+        ],
+        "scientific_io": [
+          "hdf5_store"
+        ],
+        "symbolic_math": [
+          "symbolic_cas"
+        ],
+        "vcs": [
+          "version_control"
+        ],
+        "visualization": [
+          "plotting_engine"
+        ]
+      },
+      "invariants": {
+        "n": 27,
+        "n_ok": 27,
+        "all_ok": true,
+        "recheck_rows": [
+          {
+            "tool_id": "symbolic_cas",
+            "metric": "antiderivative_identity_residual",
+            "op": "le",
+            "observed": 0.0,
+            "limit": 0.0,
+            "ok": true
+          },
+          {
+            "tool_id": "symbolic_cas",
+            "metric": "fd_vs_symbolic_abs_err",
+            "op": "le",
+            "observed": 1.119678572081284e-09,
+            "limit": 0.0001,
+            "ok": true
+          },
+          {
+            "tool_id": "numerical_quadrature",
+            "metric": "quad_vs_pi_abs_err",
+            "op": "le",
+            "observed": 4.440892098500626e-16,
+            "limit": 1e-10,
+            "ok": true
+          },
+          {
+            "tool_id": "numerical_quadrature",
+            "metric": "simpson_vs_pi_abs_err",
+            "op": "le",
+            "observed": 2.664535259100376e-15,
+            "limit": 1e-06,
+            "ok": true
+          },
+          {
+            "tool_id": "numerical_quadrature",
+            "metric": "quad_value",
+            "op": "abs",
+            "observed": 3.141592653589794,
+            "limit": 1e-10,
+            "ok": true
+          },
+          {
+            "tool_id": "blackbox_optimization",
+            "metric": "best_objective",
+            "op": "le",
+            "observed": 0.000233682730937977,
+            "limit": 0.001,
+            "ok": true
+          },
+          {
+            "tool_id": "blackbox_optimization",
+            "metric": "distance_to_optimum",
+            "op": "le",
+            "observed": 0.01528668475955389,
+            "limit": 0.05,
+            "ok": true
+          },
+          {
+            "tool_id": "automatic_differentiation",
+            "metric": "grad_vs_analytic_max_abs_err",
+            "op": "le",
+            "observed": 0.0,
+            "limit": 1e-10,
+            "ok": true
+          },
+          {
+            "tool_id": "relational_store",
+            "metric": "arithmetic_answer",
+            "op": "abs",
+            "observed": 42.0,
+            "limit": 0.0,
+            "ok": true
+          },
+          {
+            "tool_id": "relational_store",
+            "metric": "series_sum",
+            "op": "abs",
+            "observed": 333833500.0,
+            "limit": 0.0,
+            "ok": true
+          },
+          {
+            "tool_id": "relational_store",
+            "metric": "server_version_len",
+            "op": "ge",
+            "observed": 119.0,
+            "limit": 20.0,
+            "ok": true
+          },
+          {
+            "tool_id": "relational_store",
+            "metric": "public_table_count",
+            "op": "ge",
+            "observed": 202.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "version_control",
+            "metric": "head_sha_len",
+            "op": "abs",
+            "observed": 40.0,
+            "limit": 0.0,
+            "ok": true
+          },
+          {
+            "tool_id": "version_control",
+            "metric": "commit_count",
+            "op": "ge",
+            "observed": 2211.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "version_control",
+            "metric": "blob_id_reproduced",
+            "op": "ge",
+            "observed": 1.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "version_control",
+            "metric": "blob_catfile_roundtrip",
+            "op": "ge",
+            "observed": 1.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "native_build_toolchain",
+            "metric": "h10_abs_err_vs_python",
+            "op": "le",
+            "observed": 0.0,
+            "limit": 1e-12,
+            "ok": true
+          },
+          {
+            "tool_id": "native_build_toolchain",
+            "metric": "h10_value",
+            "op": "abs",
+            "observed": 2.928968253968254,
+            "limit": 1e-15,
+            "ok": true
+          },
+          {
+            "tool_id": "hdf5_store",
+            "metric": "roundtrip_max_abs_diff",
+            "op": "le",
+            "observed": 0.0,
+            "limit": 0.0,
+            "ok": true
+          },
+          {
+            "tool_id": "hdf5_store",
+            "metric": "gzip_attr_preserved",
+            "op": "ge",
+            "observed": 1.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "hdf5_store",
+            "metric": "gzip_filter_active",
+            "op": "ge",
+            "observed": 1.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "plotting_engine",
+            "metric": "png_magic_ok",
+            "op": "ge",
+            "observed": 1.0,
+            "limit": 1.0,
+            "ok": true
+          },
+          {
+            "tool_id": "plotting_engine",
+            "metric": "png_bytes",
+            "op": "ge",
+            "observed": 1176.0,
+            "limit": 1000.0,
+            "ok": true
+          },
+          {
+            "tool_id": "plotting_engine",
+            "metric": "line_ordinate_abs_err",
+            "op": "le",
+            "observed": 0.001666666666666705,
+            "limit": 0.01,
+            "ok": true
+          },
+          {
+            "tool_id": "plotting_engine",
+            "metric": "ink_pixel_fraction",
+            "op": "ge",
+            "observed": 0.003333333333333334,
+            "limit": 0.002,
+            "ok": true
+          },
+          {
+            "tool_id": "json_contract_validation",
+            "metric": "invalid_inputs_rejected",
+            "op": "ge",
+            "observed": 3.0,
+            "limit": 3.0,
+            "ok": true
+          },
+          {
+            "tool_id": "json_contract_validation",
+            "metric": "valid_roundtrip_ok",
+            "op": "ge",
+            "observed": 1.0,
+            "limit": 1.0,
+            "ok": true
+          }
+        ]
+      },
+      "benchmark": {
+        "n_cases": 27,
+        "n_passed": 27,
+        "n_scored_rel": 11,
+        "n_within_3pct": 11,
+        "n_within_15pct": 11,
+        "n_unscored": 6,
+        "max_rel_err": 2.8271597168564594e-16,
+        "rows": 27
+      },
+      "platform_api_path": {
+        "ok": true,
+        "endpoints": [
+          {
+            "method": "GET",
+            "path": "/api/v1/external-tools/classes",
+            "status_code": 200,
+            "summary": {
+              "target_classes": 5
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/external-tools/coverage",
+            "status_code": 200,
+            "summary": {
+              "real_classes": 10,
+              "target_classes": 5,
+              "ok": true,
+              "verdict": "PASS"
+            }
+          },
+          {
+            "method": "GET",
+            "path": "/api/v1/external-tools/benchmark",
+            "status_code": 200,
+            "summary": {}
+          },
+          {
+            "method": "POST",
+            "path": "/api/v1/external-tools/probe",
+            "status_code": 200,
+            "summary": {
+              "target_classes": 5,
+              "verdict": "FAIL",
+              "partial": true
+            }
+          }
+        ]
+      },
+      "self_checks": {
+        "real_classes_have_metrics": true,
+        "real_classes_without_metrics": [],
+        "value_digest_recomputed": "2744b8da1fdd5b4f0dbf96733e798bd9553ce21802109b867eaa294faf518da7",
+        "value_digest_in_ledger": "2744b8da1fdd5b4f0dbf96733e798bd9553ce21802109b867eaa294faf518da7",
+        "value_digest_match": true,
+        "ledger_spec_sha256_matches_file": true
+      }
+    },
+    "A2_deployed_http": {
+      "lens": "A2_deployed_http_face",
+      "base_url": "http://127.0.0.1:8010/api/v1",
+      "endpoints": [
+        {
+          "path": "/external-tools/classes",
+          "status_code": 200,
+          "last_status_counts": {
+            "UNOBSERVED": 10
+          },
+          "ledger_present": false
+        },
+        {
+          "path": "/external-tools/coverage",
+          "status_code": 503,
+          "summary": {
+            "real_classes": null,
+            "target_classes": null,
+            "ok": null,
+            "verdict": null
+          },
+          "detail": "no ledger under /root/tensor-ecosystem/TensorPlatform/artifacts/external_tools; run tools.external_tools.cli run first"
+        },
+        {
+          "path": "/external-tools/benchmark",
+          "status_code": 503,
+          "summary": {
+            "n_cases": null,
+            "n_passed": null
+          },
+          "detail": "no ledger under /root/tensor-ecosystem/TensorPlatform/artifacts/external_tools; run tools.external_tools.cli run first"
+        }
+      ],
+      "status": "OBSERVED",
+      "kpi_readable_via_http": false,
+      "observed_real_classes_via_http": null,
+      "note": "KPI 要在部署态可读，部署目录必须存在 artifacts/external_tools/latest.json；否则 coverage/benchmark 503、classes 全 UNOBSERVED"
+    },
+    "B_control": {
+      "lens": "B_registry_tool_categories_scan",
+      "unit": "count",
+      "registry_label": "工具接入类别数",
+      "current_raw": 177,
+      "current_guarded": 106,
+      "target": 5,
+      "gap_guarded": 0,
+      "scan_rule": {
+        "scan_paths": [
+          "tools/"
+        ],
+        "required_fields": [
+          "__init__.py"
+        ],
+        "min_files_per_category": 3,
+        "dedup_key": "directory_name"
+      },
+      "anti_gaming_guards": [
+        "每个 .py 文件必须有 >10 行非空代码（防 M3 空文件凑数）",
+        "目录必须有 README 或测试文件（防 M1 空壳目录）"
+      ],
+      "guard_rejected": {
+        "artifact_indexer": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "audit": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "audit_findings_tracker": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "benchmark_audit": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "benchmark_gen": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "blind_calibration": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "boundary": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "capability_audit": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "capability_discovery": {
+          "thin_files": [
+            "conftest.py",
+            "test_synthetic_dynamic.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "capability_graph": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "capability_maturity": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "capability_semantics": {
+          "thin_files": [
+            "__main__.py",
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "chronicle": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "coupling_conservation": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": false
+        },
+        "criteria": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "criteria_drift": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "data_assimilation": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "delivery_semantics_drift": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "dispatch_contract": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "diversity": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "drift_classifier": {
+          "thin_files": [],
+          "has_readme": false,
+          "has_test": false
+        },
+        "dt_seakeeping_audit": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "evaluation_ops": {
+          "thin_files": [],
+          "has_readme": false,
+          "has_test": false
+        },
+        "evidence": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "evidence_debt_compiler": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "evidence_governance": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "evidence_pipeline": {
+          "thin_files": [
+            "conftest.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "external_tools": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "failure_minimizer": {
+          "thin_files": [
+            "__init__.py",
+            "__main__.py",
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "guidance": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": false
+        },
+        "industrial_replay": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "integration": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "invariant_audit": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "judgeability": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "kpi_trace": {
+          "thin_files": [
+            "__init__.py",
+            "__main__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "longrun": {
+          "thin_files": [
+            "jobrunner.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "maturity_gate_h6": {
+          "thin_files": [
+            "__init__.py",
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "maturity_inference": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "metrics": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "metrics_verify": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "mock_detector": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "multifidelity_maturity": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": false
+        },
+        "negfind": {
+          "thin_files": [],
+          "has_readme": false,
+          "has_test": false
+        },
+        "node_acceptance": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "obs": {
+          "thin_files": [
+            "conftest.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "pce_verify": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": false
+        },
+        "pre_dispatch_prior": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "precedent_library": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "progress_meter": {
+          "thin_files": [],
+          "has_readme": false,
+          "has_test": false
+        },
+        "pulse": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "qa_factory": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "reconciliation": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "replay_gate": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "repro": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "repro_exec_gate": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "resistance_svc": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "task_loss_risk": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "test_impact_selector": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "uq_bench": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": false
+        },
+        "validate": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": false
+        },
+        "verif": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py",
+            "__init__.py",
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "verification": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "verification_debt": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "verification_harness": {
+          "thin_files": [
+            "__main__.py",
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "verifier": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "verify": {
+          "thin_files": [
+            "__init__.py",
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "vv": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        },
+        "whitespace_radar_core": {
+          "thin_files": [],
+          "has_readme": false,
+          "has_test": false
+        },
+        "worker_portrait": {
+          "thin_files": [
+            "__main__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "worker_truth": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": true,
+          "has_test": true
+        },
+        "xsolver_interop": {
+          "thin_files": [
+            "__init__.py"
+          ],
+          "has_readme": false,
+          "has_test": true
+        }
+      },
+      "note": "该口径量的是平台内部 tools/ 模块目录规模，不含任何「外部工具是否可用」的证据；用于暴露口径错配，不作为 KPI-TOOLS-5 的达标证据"
+    }
+  },
+  "reproducibility": {
+    "cmd": "/usr/bin/python3 -m tools.external_tools.cli --out-dir /root/tp-agent/work/m16760/runs/KPI-TOOLS-5/20261112T192527Z verify",
+    "exit_code": 0,
+    "verdict_lines": [
+      "VERIFY OK digest=796a47bd3a898b3b value_digest=2744b8da1fdd5b4f real=10/5"
+    ],
+    "reproducible": true
+  },
+  "negative_controls": [
+    {
+      "control": "impossible_invariant_limit",
+      "tool_id": "symbolic_cas",
+      "expected": "FAIL",
+      "observed_status": "FAIL",
+      "as_expected": true,
+      "detail": "invariant violated: ['fd_vs_symbolic_abs_err']",
+      "spec_used": "/tmp/kpi_tools5_controls/spec_impossible_invariant_limit.json"
+    },
+    {
+      "control": "absent_probe_module",
+      "tool_id": "hdf5_store",
+      "expected": "WITHHELD",
+      "observed_status": "WITHHELD",
+      "as_expected": true,
+      "detail": "probe unavailable: ModuleNotFoundError: No module named 'no_such_module_xyz'",
+      "spec_used": "/tmp/kpi_tools5_controls/spec_absent_probe_module.json"
+    }
+  ],
+  "data_sources": [
+    {
+      "kind": "spec",
+      "path": "data/external_tools/classes.json",
+      "sha256": "3eebbef6c723c3c469cdf07392474a7c8f6fa15f1fafab8f1111b270bee80706",
+      "role": "工具类规格：探针/不变式/参考值（阈值的唯一来源）"
+    },
+    {
+      "kind": "ledger",
+      "path": "runs/KPI-TOOLS-5/20261112T192527Z/ledger_20261112T192536.json",
+      "sha256": "36aeed4b1811c9aa8de854ee8970aa9d151c24740764b92352b1c8b220957fb2",
+      "role": "判决台账：逐类探针+真实调用+不变式+证据等级"
+    },
+    {
+      "kind": "benchmark",
+      "path": "runs/KPI-TOOLS-5/20261112T192527Z/benchmark.json",
+      "sha256": "69e4bada24d500bbc57eea87443fe848619d2a09353986fa269895816af76667",
+      "role": "ref-vs-got 误差表（27 条不变式）"
+    },
+    {
+      "kind": "integration",
+      "path": "runs/KPI-TOOLS-5/20261112T192527Z/integration.json",
+      "sha256": "90c24a43e6386415fa4d1d2be08045cddf8e6d30345f09c1f8c6f2ebfdac9a4d",
+      "role": "平台 API 调用路径（4 个端点 200）"
+    },
+    {
+      "kind": "env",
+      "path": "runs/KPI-TOOLS-5/20261112T192527Z/env.json",
+      "sha256": "c33ae1d49d75100c2cc5aa65674508ad4ead8cc1ea56e036268f5729e638edb3",
+      "role": "解释器/架构/各工具版本"
+    },
+    {
+      "kind": "registry",
+      "path": "tools/metrics/kpi_registry.json",
+      "sha256": "ff4360bb31db2650e87e7a7645902ecaea026c72f71a3c7778cd181ba1c5ee3e",
+      "role": "KPI 注册表（lens B 口径来源 + 目标值 5）"
+    },
+    {
+      "kind": "code",
+      "path": "tools/external_tools/{harness,benchmark,adapters}.py",
+      "role": "裁决与误差计算实现（只读引用）"
+    }
+  ],
+  "reproduce": {
+    "run": "python3 scripts/run_kpi_tools_5.py --out-dir runs/KPI-TOOLS-5   # 产出 ledger_20261112T192536.json",
+    "measure": "python3 scripts/kpi_tools_5_measure.py --run-dir runs/KPI-TOOLS-5/20261112T192527Z",
+    "git_head": "ec45c428f99d0873b94a6b3de34f527b2fd851f7",
+    "env": {
+      "generated_at": "2026-11-12T19:25:36+00:00",
+      "python": "3.11.6",
+      "executable": "/usr/bin/python3",
+      "platform": "Linux-6.6.52-1.7.lns23.loongarch64-loongarch64-with-glibc2.38",
+      "machine": "loongarch64",
+      "packages": {
+        "exe:gcc": "gcc (GCC) 12.3.0 20230508 (Anolis OS 12.3.0-9)",
+        "exe:git": "git version 2.41.0",
+        "h5py": "3.15.1",
+        "matplotlib": "3.10.8",
+        "optuna": "5.0.0",
+        "pydantic": "2.13.3",
+        "scipy": "1.16.0",
+        "sympy": "1.14.0",
+        "torch": "2.7.1"
+      },
+      "git_head": "ec45c428f99d0873b94a6b3de34f527b2fd851f7",
+      "cwd": "/root/tp-agent/work/m16760",
+      "env_flags": {
+        "TP_PG_DB_set": true,
+        "TENSOR_EXTERNAL_TOOLS_SPEC": ""
+      }
+    }
+  },
+  "self_checks": {
+    "invariants_all_ok": true,
+    "ledger_value_digest_match": true,
+    "spec_sha256_match": true,
+    "real_classes_have_metrics": true,
+    "platform_api_path_ok": true,
+    "fail_closed_controls_as_expected": true,
+    "fingerprints_reproducible": true,
+    "coverage_matches_status_counts": true
+  },
+  "self_checks_ok": true,
+  "top_gaps": [
+    {
+      "gap": "部署态 HTTP 面读不到 KPI（coverage/benchmark 503）",
+      "detail": "对运行中的平台实测：GET /external-tools/classes=200 但 10 类全 UNOBSERVED；GET /external-tools/coverage 与 /benchmark 均 503（'no ledger under /root/tensor-ecosystem/TensorPlatform/artifacts/external_tools; run tools.external_tools.cli run first'）。原因=部署目录没有 artifacts/external_tools/latest.json，且平台没有任何机制定期生成它；本工作树跑出的台账在 runs/ 下，不进入部署读路径",
+      "severity": "高（KPI 在平台上不可读 → 『接入并可用』只对代码路径成立，对部署实例不成立）"
+    },
+    {
+      "gap": "注册表 tool_categories 的口径错配",
+      "detail": "tools/metrics/kpi_registry.json 的 recompute_scan 量的是平台内部 tools/ 目录规模（本次 guarded=106 个目录），不含「外部工具是否可用」的任何证据；用它给 KPI-TOOLS-5 记账等于用内部模块数量冒充外部工具接入度",
+      "severity": "口径级（不影响本次现值，影响记账可信度）"
+    },
+    {
+      "gap": "API 子集探针把 partial 判成 FAIL",
+      "detail": "POST /api/v1/external-tools/probe（tool_ids=[version_control]）返回 verdict={'target_classes': 5, 'verdict': 'FAIL', 'partial': True}，因为 coverage 以 5 类为目标而子集只有 1 类；调用方若只看 verdict 会把可用读成失败（响应里另有 partial=true 但非首字段）",
+      "severity": "可用性/可读性缺陷（非数值错误）"
+    },
+    {
+      "gap": "不变式强度不均：相对误差只覆盖 11/27 条",
+      "detail": "benchmark n_scored_rel=11 / n_cases=27，其余为整数恒等或纯结构判据（如 sha 长度=40），对「工具结果对不对」的判别力弱于数值类",
+      "severity": "判据强度（低）"
+    },
+    {
+      "gap": "类目覆盖偏科：缺队列/调度、消息/HTTP、文档生成三类外部工具",
+      "detail": "现 10 类集中在数学/优化/IO/绘图/数据库/VCS/编译器；平台实际依赖的作业调度（集群队列）、HTTP 客户端/消息面、PDF/文档生成没有独立工具类",
+      "severity": "覆盖缺口（派生锚点候选）"
+    }
+  ],
+  "proposed_anchors": [
+    {
+      "anchor": "KPI-TOOLS-DEPLOY-MATERIALIZE",
+      "claim": "部署态必须可读：启动/定时任务把最新台账落到 TENSOR_EXTERNAL_TOOLS_DIR/latest.json，且 coverage 带 age_seconds 新鲜度门（超期→证据降级，不返回旧值当真）",
+      "why": "否则 KPI 只在跑过 cli 的工作树里成立，部署实例上 coverage/benchmark 恒 503"
+    },
+    {
+      "anchor": "KPI-TOOLS-REG-ALIGN",
+      "claim": "tool_categories 的 recompute_scan 改为从 data/external_tools 台账复算 REAL 类数（fail-closed：无台账→null 而非 0）",
+      "why": "消除口径错配；让 KPI 值只能由真实调用证据产生"
+    },
+    {
+      "anchor": "KPI-TOOLS-PROBE-PARTIAL",
+      "claim": "子集探针返回 verdict∈{PASS,FAIL,PARTIAL} 且 partial 时不得报 FAIL",
+      "why": "避免 API 消费方误读可用性"
+    },
+    {
+      "anchor": "KPI-TOOLS-REL-SCORE",
+      "claim": "≥5 类工具的判据必须含一条相对误差型不变式（rel_err 可评），rel 覆盖 ≥50%",
+      "why": "把「跑通」升级成「跑对」"
+    },
+    {
+      "anchor": "KPI-TOOLS-COVER+3",
+      "claim": "新增 scheduler/messaging/document 三类外部工具接入（每类带独立基准不变式）",
+      "why": "覆盖平台真实依赖面，目标 13 类"
+    }
+  ],
+  "figures": [
+    {
+      "name": "fig1_invariants_vs_tolerance.png",
+      "path": "/root/tp-agent/work/m16760/docs/kpi/figures/fig1_invariants_vs_tolerance.png",
+      "caption": "图1 每类外部工具数值不变式：观测值与容差之比（log10），全部 ≤0"
+    },
+    {
+      "name": "fig2_two_lenses_vs_target.png",
+      "path": "/root/tp-agent/work/m16760/docs/kpi/figures/fig2_two_lenses_vs_target.png",
+      "caption": "图2 主口径 10 类 REAL/可用 vs 注册表扫描口径 vs 目标线 5"
+    },
+    {
+      "name": "fig3_relative_error_bands.png",
+      "path": "/root/tp-agent/work/m16760/docs/kpi/figures/fig3_relative_error_bands.png",
+      "caption": "图3 27 条不变式按相对误差分档：11 条 <3%，其余为绝对值口径/整数恒等"
+    }
+  ],
+  "notes": [
+    "本单只计量：未改任何平台代码/数据；两份台账均为本工作树实跑产出",
+    "KPI 消账门 = 测量值达标（≠ 本单 succeeded）；现值如实，好看难看都照写"
+  ]
+}
