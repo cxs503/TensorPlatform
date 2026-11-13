@@ -610,6 +610,142 @@ def mvd_checkpoint_stats(user: dict = Depends(require_auth)):
     }
 
 
+# ── 锚点查重门（M-R17-01）：调度前**只读**预检 ─────────────────────────────
+# 背景：窗口 200 单里 28 个独立重复锚点组白烧席位（artifacts/r17/）。
+# 本端点只回答「这个锚点此刻再派一单是否撞车」，**不写库、不改状态、不阻断
+# 任何派单路径**（本轮 advisory only，告警面）。判定内核是纯函数
+# tools/mission_governance/anchor_dedup_gate.py；锚点一律取自 mission 数据
+# （goal 里的 【锚点=X】 标签或 anchor 字段），本文件不含任何域名/算例名词。
+_ANCHOR_GATE_CACHE: Any = None
+
+
+def _anchor_gate_module() -> Any:
+    """惰性加载查重内核：不用 ``import tools.*``（服务进程 sys.path 里未必有
+    仓库根，与 api/capability_semantics.py 同款按路径加载）。"""
+    global _ANCHOR_GATE_CACHE
+    if _ANCHOR_GATE_CACHE is None:
+        import importlib.util
+        from pathlib import Path as _Path
+
+        path = (_Path(__file__).resolve().parents[2]
+                / "tools" / "mission_governance" / "anchor_dedup_gate.py")
+        spec = importlib.util.spec_from_file_location("anchor_dedup_gate", path)
+        mod = importlib.util.module_from_spec(spec)  # type: ignore[arg-type]
+        spec.loader.exec_module(mod)  # type: ignore[union-attr]
+        _ANCHOR_GATE_CACHE = mod
+    return _ANCHOR_GATE_CACHE
+
+
+def anchor_precheck_query(db: Session, org_id: int, anchor: str, *, hours: int,
+                          now: datetime | None = None,
+                          candidate: dict[str, Any] | None = None) -> dict[str, Any]:
+    """取同锚点候选单并过查重门。只读：仅 SELECT，无任何写库/状态变更。
+
+    候选池两次 SELECT（简单可移植，不依赖 PG/SQLite 的时间算术方言差异）：
+
+    1. **在飞**：``status NOT IN 终态集``，不限时间——卡住的在飞单应被回收而
+       不是被再派一份；
+    2. **近期终态**：``status IN 终态集`` 且 ``finished_at/created_at >= cutoff``，
+       由 SQL 粗筛、gate 再用 ``window_hours`` 精裁。
+
+    粗预筛（锚点在 goal 文本里）必须**宽松**：``LOWER(goal) LIKE LOWER(...)``
+    解决大小写（goal 里的锚点一般是大写，调用方常传小写），第二条 pattern 把
+    ``-`` 换成单字符通配 ``_`` 以覆盖各种破折号变体（— – ‑ …）。真正的可比性
+    由 gate 的归一化后逐条比对决定；粗筛只负责别把候选行漏掉（漏一行=假放行）。
+    已知边界：goal 里写成全角字母数字的锚点 SQL 粗筛抓不到——归一化在 Python
+    侧生效，但行本身进不了候选池，故调用方应传规范形态（见 docs §5 局限）。
+    """
+    gate_mod = _anchor_gate_module()
+    now = now or datetime.now(timezone.utc)
+    hours = max(1, min(int(hours or 24), int(gate_mod.MAX_WINDOW_HOURS)))
+    cutoff = now - timedelta(hours=hours)
+
+    # 派生单（返修/交差审计/重开/管到底，或有父单）先于冲突计数判定：
+    # exempt 时无需查候选池，也就不会把「父单在飞」误报成冲突。
+    if candidate is not None and gate_mod.is_derived(candidate):
+        return gate_mod.gate(anchor, (), (), now=now, window_hours=hours,
+                             candidate=candidate)
+
+    # LIKE 元字符转义：锚点里出现 % _ \ 时不能当通配符
+    escaped = (anchor.replace("\\", "\\\\")
+                     .replace("%", "\\%")
+                     .replace("_", "\\_"))
+    pattern = f"%{escaped}%"
+    # 破折号变体：'-' → 单字符通配 '_'，覆盖 — – ‑ 等写法
+    skeleton = f"%{escaped.replace('-', '_')}%"
+    terminal_list = ", ".join(f"'{s}'" for s in TERMINAL)
+    cols = "id, status, goal, parent_mission_id, created_at, finished_at"
+    params = {"org": org_id, "pat": pattern, "skel": skeleton, "cutoff": cutoff}
+
+    in_flight = db.execute(
+        text(f"""
+            SELECT {cols}
+            FROM tensor_dev_missions
+            WHERE organization_id = :org
+              AND (LOWER(goal) LIKE LOWER(:pat) ESCAPE '\\'
+                   OR LOWER(goal) LIKE LOWER(:skel) ESCAPE '\\')
+              AND status NOT IN ({terminal_list})
+            ORDER BY id DESC
+            LIMIT 2000
+        """),
+        params,
+    ).mappings().all()
+
+    recent_terminal = db.execute(
+        text(f"""
+            SELECT {cols}
+            FROM tensor_dev_missions
+            WHERE organization_id = :org
+              AND (LOWER(goal) LIKE LOWER(:pat) ESCAPE '\\'
+                   OR LOWER(goal) LIKE LOWER(:skel) ESCAPE '\\')
+              AND status IN ({terminal_list})
+              AND (finished_at >= :cutoff OR created_at >= :cutoff)
+            ORDER BY id DESC
+            LIMIT 2000
+        """),
+        params,
+    ).mappings().all()
+
+    return gate_mod.gate(
+        anchor,
+        in_flight=[dict(r) for r in in_flight],
+        recent_terminal=[dict(r) for r in recent_terminal],
+        now=now,
+        window_hours=hours,
+        candidate=candidate,
+    )
+
+
+@router.get("/anchor-precheck", dependencies=[Depends(require_auth)])
+def anchor_precheck(
+    anchor: str,
+    window_hours: int = 24,
+    parent_mission_id: int | None = None,
+    candidate_goal: str | None = None,
+    db: Session = Depends(get_db),
+    user: dict = Depends(require_auth),
+):
+    """锚点查重预检（只读）：{decision: allow|exempt|reject, conflicts, reason}。
+
+    - ``decision=reject`` 表示同锚点已在飞 / 窗口内已交付——**只是告警**，
+      派单路径不因此被阻断（本轮 advisory only）；
+    - ``decision=exempt`` 表示待派单本身是派生单（返修/交差审计/重开/管到底，
+      或有父单），天然与父单同锚点，豁免查重；
+    - 传 ``parent_mission_id`` / ``candidate_goal`` 可让派生判定生效。
+
+    不写库、不改状态、不派单；返回体带 ``readonly: true`` 与 ``as_of``。
+    """
+    org_id = resolved_org(None, user, db)
+    candidate = None
+    if parent_mission_id is not None or candidate_goal:
+        candidate = {"parent_mission_id": parent_mission_id, "goal": candidate_goal}
+    result = dict(anchor_precheck_query(db, org_id, anchor, hours=window_hours,
+                                        candidate=candidate))
+    result["organization_id"] = org_id
+    result["readonly"] = True
+    return result
+
+
 @router.get("/{mission_id}", dependencies=[Depends(require_auth)])
 def get_mission(
     mission_id: int,
