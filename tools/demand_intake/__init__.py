@@ -38,8 +38,9 @@
 - :mod:`tools.demand_intake.store`      DDL + SQL builder + 幂等 apply（可注入 schema 做真库红队）
 - :mod:`tools.demand_intake.transport`  psql 传输（只读硬闸 + statement_timeout）
 - :mod:`tools.demand_intake.chronicle`  chronicle_snapshots 留痕
+- :mod:`tools.demand_intake.soak`       七日浸泡审计：覆盖率与帽拒率周报 + 自动调帽（20→40/日）
 - :mod:`tools.demand_intake.cli`        入口：``ingest-missions`` / ``gate`` / ``ingest-reports`` /
-  ``redteam`` / ``measure`` / ``status`` / ``audit``
+  ``redteam`` / ``measure`` / ``status`` / ``audit`` / ``soak``
 
 平台中性纪律
 ------------
@@ -50,4 +51,4 @@
 
 from __future__ import annotations
 
-__version__ = "1.1.0"
+__version__ = "1.2.0"
