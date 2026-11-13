@@ -115,6 +115,17 @@ def catalog() -> Dict[str, Any]:
     }
 
 
+def _reject_partial(ledger: Mapping[str, Any], what: str) -> None:
+    """A subset probe is not a KPI measurement: refuse to answer from it."""
+
+    if ledger.get("partial"):
+        selected = ledger.get("selected_tool_ids") or []
+        raise ExternalToolsError(
+            f"{what}: ledger under {ledger_dir()} is a PARTIAL run "
+            f"(selected={selected}, target={ledger.get('target_classes')}); "
+            "a subset probe cannot answer the KPI -- run the full suite")
+
+
 def coverage() -> Dict[str, Any]:
     """KPI answer, from the persisted ledger only (no silent live probing)."""
 
@@ -123,6 +134,7 @@ def coverage() -> Dict[str, Any]:
     if ledger is None:
         raise ExternalToolsError(
             f"no ledger under {ledger_dir()}; run tools.external_tools.cli run first")
+    _reject_partial(ledger, "coverage")
     cov = dict(ledger.get("coverage") or {})
     meas = dict(ledger.get("measured") or {})
     age = _age_seconds(ledger.get("generated_at"))
@@ -155,8 +167,11 @@ def probe(tool_ids: Optional[Sequence[str]] = None, persist: bool = False,
            "out_dir": str(ledger_dir()),
            "dotenv": os.environ.get("EXTERNAL_TOOLS_DOTENV", "")}
     ledger = harness.run_suite(suite, only=only, ctx=ctx)
-    ledger["verdict"] = harness.verdict(ledger)
+    # `partial` is part of the ledger already (harness.run_suite); set the derived
+    # flags *before* the verdict so a subset run reads PARTIAL, never FAIL.
     ledger["partial"] = bool(only)
+    ledger["kpi_evaluated"] = not ledger["partial"]
+    ledger["verdict"] = harness.verdict(ledger)
     artifacts: Dict[str, str] = {}
     if persist and not only:
         artifacts = report.write_artifacts(ledger, ledger_dir(), stem="external_tools")
@@ -175,6 +190,7 @@ def benchmark() -> Dict[str, Any]:
     if ledger is None:
         raise ExternalToolsError(
             f"no ledger under {ledger_dir()}; run tools.external_tools.cli run first")
+    _reject_partial(ledger, "benchmark")
     table = benchmark_mod.build(ledger, suite)
     table["ledger_dir"] = str(ledger_dir())
     return table
