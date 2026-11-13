@@ -869,6 +869,28 @@ def main() -> None:
             time.sleep(20)
             continue
         if not d.get("claimed"):
+            # 队列空 → 任务榜直领兜底（FEAT-BOARD-CLAIM）。
+            # 主路径仍是「谁空谁领」，但队列见底时不必等 dispatcher 造单：服务端从
+            # feature_ledger 的开放锚挑一个（跳过活租约/在飞单覆盖的）→ 锚级租约 →
+            # 组装 goal → 落 mission，本席随即按 mission_id 领走。
+            # 开关 TP_BOARD_FALLBACK=0 可关断（对照组/排障用），TP_BOARD_DOMAIN 可钉域。
+            if CFG.get("TP_BOARD_FALLBACK", "1").strip() not in ("0", "false", "off"):
+                _bbody = {"worker_role": ROLE, "model": MODEL, "holder": f"worker:{AGENT_ID}"}
+                if CFG.get("TP_BOARD_DOMAIN"):
+                    _bbody["domain"] = CFG["TP_BOARD_DOMAIN"]
+                sb, bd = api("/tensor/board/claim", _bbody, token)
+                if sb == 200 and bd.get("claimed"):
+                    log(f"board 造单锚 {bd.get('anchor', {}).get('slug')} → mission#{bd['mission_id']}")
+                    s2, d2 = api("/tensor/missions/claim",
+                                 {"agent_id": AGENT_ID, "runner": "native", "model": MODEL,
+                                  "mission_id": bd["mission_id"], "claim_null_model": True}, token)
+                    if s2 == 200 and d2.get("claimed"):
+                        d = d2
+                    else:
+                        log(f"board 造单未能领取 {s2} {str(d2)[:120]}")
+                elif sb != 200:
+                    log(f"board/claim 失败 {sb} {str(bd)[:120]}")
+        if not d.get("claimed"):
             log("队列空，等待")
             if time.time() - _last_beat[0] > 45:
                 resident_beat(token, sid, "idle")

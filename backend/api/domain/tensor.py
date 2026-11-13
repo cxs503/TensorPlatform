@@ -36,6 +36,7 @@ from api.tensor_reconcile import router as tensor_reconcile_router         # pre
 from api.negative_knowledge import router as negative_knowledge_router     # prefix="/tensor/negative-knowledge" (P155W1-N03 否定性知识台账)
 from api.knowledge_sediment import router as knowledge_sediment_router     # prefix="/knowledge" (p351w1-N03 四契约沉淀检索)
 from api.tensor_failure_signatures import router as tensor_failure_signatures_router  # prefix="/tensor/failure-signatures" (p393w2-n01)
+from api.tensor_board import router as tensor_board_router                 # prefix="/tensor/board" (FEAT-BOARD-CLAIM 直领)
 
 router.include_router(tensor_scenarios_router)
 router.include_router(tensor_executions_router)
@@ -78,6 +79,9 @@ router.include_router(knowledge_sediment_router)
 
 # ── p393w2-n01: Failure Signature Miner (失败签名挖掘器) ──
 router.include_router(tensor_failure_signatures_router)
+
+# ── FEAT-BOARD-CLAIM: 任务榜直领（造单搬进服务端；dispatcher 降级为兜底/推式供给）──
+router.include_router(tensor_board_router)
 
 # ── PR#732: Proposal Gate — 提案→战役播种供给链机器门 ──
 from api.proposal_gate import router as proposal_gate_router          # prefix="/proposals"
