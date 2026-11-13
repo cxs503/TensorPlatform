@@ -1,0 +1,46 @@
+{
+  "all_ok": true,
+  "concurrent_same_slug": {
+    "threads": 4,
+    "minted": 1,
+    "duplicate": 3,
+    "mission_rows": 1
+  },
+  "cap_exceeded": {
+    "cap": 10,
+    "minted": 10,
+    "cap_exceeded": 1
+  },
+  "strike_downgrade": {
+    "baseline_cap": 10,
+    "cap_after_strikes": 1,
+    "fresh_agent_first": "minted",
+    "fresh_agent_second": "cap_exceeded",
+    "credit_levels": {
+      "rt-strike-a": 2,
+      "rt-strike-b": 2
+    }
+  },
+  "audit_daily_cap": {
+    "sampled": 19,
+    "uncovered": 18,
+    "second_run_sampled": 0
+  },
+  "audit_fail_revokes": {
+    "scenario": "audit_fail_revokes",
+    "ok": true,
+    "ledger_status": "dropped",
+    "mission_status": "revoked",
+    "chronicle_phases": [
+      "mint",
+      "audit_fail"
+    ],
+    "strikes": 1,
+    "audit_summary": {
+      "sampled": 1,
+      "passed": 0,
+      "failed": 1,
+      "uncovered": 0
+    }
+  }
+}
