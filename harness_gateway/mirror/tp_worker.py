@@ -31,7 +31,7 @@ import urllib.request
 import uuid
 
 ENV = pathlib.Path("/root/tp-agent/agent.env")
-HARNESS_VER = "20261103.2"   # LLM 退避重试 7 次 + 任务终局进程组收割（36 单泄漏 64 核实证）
+HARNESS_VER = "20261113.1"   # FP15 在飞作业进展信号：集群作业等待期不再误判 no_progress   # LLM 退避重试 7 次 + 任务终局进程组收割（36 单泄漏 64 核实证）
 
 
 def load_env(p: pathlib.Path) -> dict:
@@ -271,6 +271,44 @@ def tool_write_file(root, path, content):
 
 _MISSION_PGIDS: set = set()  # 本任务经 shell 工具派生的进程组（任务终局统一收割）
 
+# ── 在飞集群作业跟踪（FP15 进展信号） ─────────────────────────────
+_IN_FLIGHT_JOBS: set = set()  # 本任务递交的集群作业 ID 集合（submit/run/shard → fetch/kill 移除）
+
+#: 集群作业号正则：cj 后跟数字（如 cj123）
+_JOB_ID_RE = re.compile(r"\b(cj\d+)\b")
+
+
+def _extract_job_ids(text: str) -> list:
+    """从集群工具返回文本中提取作业号（cjN 格式）。"""
+    return _JOB_ID_RE.findall(text or "")
+
+
+def _track_cluster_job(action: str, result_text: str) -> None:
+    """根据集群工具动作与返回结果更新在飞作业集合。
+
+    - submit/run/shard：从返回文本提取 cjN 加入集合
+    - fetch/kill：从参数或返回文本提取 cjN 从集合移除
+    """
+    global _IN_FLIGHT_JOBS
+    jids = _extract_job_ids(result_text)
+    if action in ("submit", "run", "shard"):
+        for jid in jids:
+            _IN_FLIGHT_JOBS.add(jid)
+    elif action in ("fetch", "kill"):
+        for jid in jids:
+            _IN_FLIGHT_JOBS.discard(jid)
+
+
+def _has_in_flight_jobs() -> bool:
+    """返回是否有在飞集群作业（进展信号：等待期不算停滞）。"""
+    return bool(_IN_FLIGHT_JOBS)
+
+
+def _in_flight_jobs_snapshot() -> list:
+    """返回在飞作业 ID 列表（用于心跳/取证）。"""
+    return sorted(_IN_FLIGHT_JOBS)
+
+
 
 def _reap_mission_processes() -> None:
     """任务终局收割（2026-11-03 owner 批）：agent 后台起的计算进程不再泄漏。
@@ -356,6 +394,8 @@ def tool_cluster(action, repo=None, cmd=None, ref="main", node="auto",
     try:
         out = subprocess.run(argv, capture_output=True, text=True,
                              timeout=timeout + 120).stdout
+        # FP15：跟踪在飞作业
+        _track_cluster_job(action, out)
         return out[-8000:]
     except subprocess.TimeoutExpired:
         return "TIMEOUT: 集群作业超 %ss（长作业建议 shard 后台跑 + ps 轮询）" % (timeout + 120)
@@ -716,6 +756,16 @@ def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pat
         messages.append(msg)
         tcs = msg.get("tool_calls") or []
         if not tcs:
+            # FP15 修复：在飞集群作业 = 进展信号。
+            # 模型空转但仍有作业在跑 → 不算无进展，催办查作业状态。
+            if _has_in_flight_jobs():
+                job_list = ", ".join(_in_flight_jobs_snapshot())
+                log(f"模型未调用工具，但有在飞作业 [{job_list}] -> 催办查状态（不算 no_progress）")
+                messages.append({"role": "user", "content":
+                                 f"你有在飞集群作业：{job_list}。请用 run_cluster ps 或 run_cluster fetch "
+                                 f"检查作业状态，不要干等。"})
+                nudges = 0  # 重置催办计数，给模型机会查作业
+                continue
             # 模型空转：明确催办（最多 2 次），而不是默默算它完成
             if final is None and nudges < 2:
                 nudges += 1
@@ -794,7 +844,8 @@ def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pat
             if time.time() - hb_at > 15:
                 api(f"/tensor/missions/{mission['id']}/heartbeat",
                     {"claim_token": claim_token, "head": f"{name} @ call {calls}",
-                     "tool_calls": calls, "elapsed_seconds": int(time.time() - t0)}, token)
+                     "tool_calls": calls, "elapsed_seconds": int(time.time() - t0),
+                     "in_flight_jobs": _in_flight_jobs_snapshot()}, token)
                 hb_at = time.time()
         if final:
             break
@@ -855,7 +906,8 @@ def run_mission(token: str, mission: dict, sid: str, claim_token: str, root: pat
             "fail_stage": fail_stage, "compactions": compactions,
             "finished": final is not None,
             "tool_calls": calls, "elapsed": int(time.time() - t0),
-            "git_status": diff, "model": MODEL}
+            "git_status": diff, "model": MODEL,
+            "in_flight_jobs": _in_flight_jobs_snapshot()}
 
 
 def main() -> None:
