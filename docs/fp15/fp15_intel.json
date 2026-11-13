@@ -1,0 +1,172 @@
+{
+  "schema": "fp15.intel.v1",
+  "generated_at": "2026-11-13T05:20:27+00:00",
+  "window": {
+    "since": "2026-11-12T05:20:27+00:00",
+    "until": "2026-11-13T05:20:27+00:00",
+    "hours": 24.0,
+    "definition": "tensor_dev_missions.finished_at in [since, until]"
+  },
+  "terminal_statuses": [
+    "succeeded",
+    "failed",
+    "stopped",
+    "revoked",
+    "orphan"
+  ],
+  "terminal_total": 1286,
+  "budget_used_nonempty": 0,
+  "budget_used_has_tool_calls": 0,
+  "verdict_distribution": [
+    {
+      "verdict": null,
+      "n": 907
+    },
+    {
+      "verdict": "budget_exhausted+forced_finish",
+      "n": 192
+    },
+    {
+      "verdict": "no_progress",
+      "n": 82
+    },
+    {
+      "verdict": "budget_exhausted",
+      "n": 37
+    },
+    {
+      "verdict": "llm_error",
+      "n": 32
+    },
+    {
+      "verdict": "no_progress+forced_finish",
+      "n": 29
+    },
+    {
+      "verdict": "agent_lost",
+      "n": 6
+    },
+    {
+      "verdict": "wall_exhausted+forced_finish",
+      "n": 1
+    }
+  ],
+  "cap_distribution": [
+    {
+      "cap": "60",
+      "n": 832,
+      "succ": 696,
+      "usage_known": 829,
+      "near_cap": 639,
+      "at_cap": 338,
+      "p50_tool_calls_succ": "59.0",
+      "rate": 83.65,
+      "near_cap_rate": 77.08,
+      "at_cap_rate": 40.77
+    },
+    {
+      "cap": "80",
+      "n": 423,
+      "succ": 379,
+      "usage_known": 419,
+      "near_cap": 203,
+      "at_cap": 71,
+      "p50_tool_calls_succ": "75.0",
+      "rate": 89.6,
+      "near_cap_rate": 48.45,
+      "at_cap_rate": 16.95
+    },
+    {
+      "cap": "100",
+      "n": 22,
+      "succ": 20,
+      "usage_known": 22,
+      "near_cap": 7,
+      "at_cap": 2,
+      "p50_tool_calls_succ": "92.5",
+      "rate": 90.91,
+      "near_cap_rate": 31.82,
+      "at_cap_rate": 9.09
+    },
+    {
+      "cap": "400",
+      "n": 9,
+      "succ": 9,
+      "usage_known": 9,
+      "near_cap": 0,
+      "at_cap": 0,
+      "p50_tool_calls_succ": "40.0",
+      "rate": 100.0,
+      "near_cap_rate": 0.0,
+      "at_cap_rate": 0.0
+    }
+  ],
+  "usage_fact_availability": {
+    "from_budget_used": 0,
+    "from_result_tool_calls": 1279,
+    "from_heartbeat_progress": 0,
+    "from_detail": 0
+  },
+  "backfill_classification": [
+    {
+      "klass": "backfillable",
+      "n": 1279
+    },
+    {
+      "klass": "not_backfillable",
+      "n": 7
+    }
+  ],
+  "backfill": {
+    "backfillable": 1279,
+    "not_backfillable": 7,
+    "applied": false,
+    "note": "只统计不写库：历史行 budget_used 的变更属不可逆证据面改动，由 owner 决定是否 apply；本脚本只给出可回填/不可回填的实数。"
+  },
+  "not_backfillable_sample": [
+    {
+      "id": 16211,
+      "status": "stopped",
+      "cap": "80"
+    },
+    {
+      "id": 16068,
+      "status": "failed",
+      "cap": "80"
+    },
+    {
+      "id": 16066,
+      "status": "failed",
+      "cap": "80"
+    },
+    {
+      "id": 16063,
+      "status": "failed",
+      "cap": "80"
+    },
+    {
+      "id": 16045,
+      "status": "failed",
+      "cap": "60"
+    },
+    {
+      "id": 16034,
+      "status": "failed",
+      "cap": "60"
+    },
+    {
+      "id": 16033,
+      "status": "failed",
+      "cap": "60"
+    }
+  ],
+  "queries": {
+    "window_totals": "SELECT count(*) AS terminal_total, count(*) FILTER (WHERE budget_used IS NOT NULL AND budget_used <> '{}'::jsonb) AS budget_used_nonempty, count(*) FILTER (WHERE budget_used ? 'tool_calls') AS budget_used_has_tool_calls FROM tensor_dev_missions WHERE status = ANY(:terminal) AND finished_at >= :since AND finished_at <= :until",
+    "verdict_distribution": "SELECT COALESCE( NULLIF(fail_stage, ''), NULLIF(result->>'fail_stage', ''), NULLIF(result->'evidence'->'checks'->>'fail_stage', ''), NULLIF(result->>'stop_condition', '') ) AS verdict, count(*) AS n FROM tensor_dev_missions WHERE status = ANY(:terminal) AND finished_at >= :since AND finished_at <= :until GROUP BY 1 ORDER BY 2 DESC",
+    "cap_distribution": "SELECT COALESCE(budget->>'max_tool_calls', 'unset') AS cap, count(*) AS n, count(*) FILTER (WHERE status = 'succeeded') AS succ, count(*) FILTER (WHERE COALESCE( CASE WHEN budget_used ? 'tool_calls' AND (budget_used->>'tool_calls') ~ '^[0-9]+$' THEN (budget_used->>'tool_calls')::bigint END, CASE WHEN (result->>'tool_calls') ~ '^[0-9]+$' THEN (result->>'tool_calls')::bigint END, CASE WHEN (result->'progress'->>'tool_calls') ~ '^[0-9]+$' THEN (result->'progress'->>'tool_calls')::bigint END, CASE WHEN (result->>'detail') ~ 'tool_calls=[0-9]+' THEN substring(result->>'detail' from 'tool_calls=([0-9]+)')::bigint END ) IS NOT NULL) AS usage_known, count(*) FILTER ( WHERE COALESCE(budget->>'max_tool_calls', '') ~ '^[0-9]+$' AND COALESCE( CASE WHEN budget_used ? 'tool_calls' AND (budget_used->>'tool_calls') ~ '^[0-9]+$' THEN (budget_used->>'tool_calls')::bigint END, CASE WHEN (result->>'tool_calls') ~ '^[0-9]+$' THEN (result->>'tool_calls')::bigint END, CASE WHEN (result->'progress'->>'tool_calls') ~ '^[0-9]+$' THEN (result->'progress'->>'tool_calls')::bigint END, CASE WHEN (result->>'detail') ~ 'tool_calls=[0-9]+' THEN substring(result->>'detail' from 'tool_calls=([0-9]+)')::bigint END ) >= COALESCE(budget->>'max_tool_calls','')::bigint - 5 ) AS near_cap, count(*) FILTER ( WHERE COALESCE(budget->>'max_tool_calls', '') ~ '^[0-9]+$' AND COALESCE( CASE WHEN budget_used ? 'tool_calls' AND (budget_used->>'tool_calls') ~ '^[0-9]+$' THEN (budget_used->>'tool_calls')::bigint END, CASE WHEN (result->>'tool_calls') ~ '^[0-9]+$' THEN (result->>'tool_calls')::bigint END, CASE WHEN (result->'progress'->>'tool_calls') ~ '^[0-9]+$' THEN (result->'progress'->>'tool_calls')::bigint END, CASE WHEN (result->>'detail') ~ 'tool_calls=[0-9]+' THEN substring(result->>'detail' from 'tool_calls=([0-9]+)')::bigint END ) >= COALESCE(budget->>'max_tool_calls','')::bigint ) AS at_cap, round(percentile_cont(0.5) WITHIN GROUP ( ORDER BY COALESCE( CASE WHEN budget_used ? 'tool_calls' AND (budget_used->>'tool_calls') ~ '^[0-9]+$' THEN (budget_used->>'tool_calls')::bigint END, CASE WHEN (result->>'tool_calls') ~ '^[0-9]+$' THEN (result->>'tool_calls')::bigint END, CASE WHEN (result->'progress'->>'tool_calls') ~ '^[0-9]+$' THEN (result->'progress'->>'tool_calls')::bigint END, CASE WHEN (result->>'detail') ~ 'tool_calls=[0-9]+' THEN substring(result->>'detail' from 'tool_calls=([0-9]+)')::bigint END ) ) FILTER (WHERE status = 'succeeded')::numeric, 1) AS p50_tool_calls_succ FROM tensor_dev_missions WHERE status = ANY(:terminal) AND finished_at >= :since AND finished_at <= :until GROUP BY 1 ORDER BY 2 DESC",
+    "usage_fact_availability": "SELECT count(*) FILTER (WHERE budget_used ? 'tool_calls') AS from_budget_used, count(*) FILTER (WHERE (result->>'tool_calls') ~ '^[0-9]+$') AS from_result_tool_calls, count(*) FILTER (WHERE (result->'progress'->>'tool_calls') ~ '^[0-9]+$') AS from_heartbeat_progress, count(*) FILTER (WHERE (result->>'detail') ~ 'tool_calls=[0-9]+') AS from_detail FROM tensor_dev_missions WHERE status = ANY(:terminal) AND finished_at >= :since AND finished_at <= :until",
+    "backfill_classification": "SELECT CASE WHEN COALESCE( CASE WHEN budget_used ? 'tool_calls' AND (budget_used->>'tool_calls') ~ '^[0-9]+$' THEN (budget_used->>'tool_calls')::bigint END, CASE WHEN (result->>'tool_calls') ~ '^[0-9]+$' THEN (result->>'tool_calls')::bigint END, CASE WHEN (result->'progress'->>'tool_calls') ~ '^[0-9]+$' THEN (result->'progress'->>'tool_calls')::bigint END, CASE WHEN (result->>'detail') ~ 'tool_calls=[0-9]+' THEN substring(result->>'detail' from 'tool_calls=([0-9]+)')::bigint END ) IS NOT NULL THEN 'backfillable' ELSE 'not_backfillable' END AS klass, count(*) AS n FROM tensor_dev_missions WHERE status = ANY(:terminal) AND finished_at >= :since AND finished_at <= :until GROUP BY 1 ORDER BY 2 DESC",
+    "not_backfillable_sample": "SELECT id, status, COALESCE(budget->>'max_tool_calls','unset') AS cap FROM tensor_dev_missions WHERE status = ANY(:terminal) AND finished_at >= :since AND finished_at <= :until AND COALESCE( CASE WHEN budget_used ? 'tool_calls' AND (budget_used->>'tool_calls') ~ '^[0-9]+$' THEN (budget_used->>'tool_calls')::bigint END, CASE WHEN (result->>'tool_calls') ~ '^[0-9]+$' THEN (result->>'tool_calls')::bigint END, CASE WHEN (result->'progress'->>'tool_calls') ~ '^[0-9]+$' THEN (result->'progress'->>'tool_calls')::bigint END, CASE WHEN (result->>'detail') ~ 'tool_calls=[0-9]+' THEN substring(result->>'detail' from 'tool_calls=([0-9]+)')::bigint END ) IS NULL ORDER BY id DESC LIMIT 20"
+  },
+  "dsn_kind": "postgresql+psycopg"
+}
