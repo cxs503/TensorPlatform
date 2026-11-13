@@ -40,6 +40,9 @@ REGISTRY = {
     "paper_line": ("paper_line.py", "/usr/bin/python3 /root/tp-agent/paper_line.py", True, "顶刊论文生产线守护（owner 2026-11-01 批：挖矿调度+停链看门狗+帽）"),
     "planner": ("planner_line.py", "/usr/bin/python3 /root/tp-agent/planner_line.py", True, "常驻任务规划师线（owner 2026-11-01 可以冗余：与提案波/议事会三重冗余，6h 班）"),
     "fleet_governor": ("fleet_governor.py", "/usr/bin/python3 /root/tp-agent/fleet_governor.py", True, "席位治理：淘汰不干活+补员+冗余（owner 2026-11-01 批）"),
+    # 主线锚长设供给（FEAT-ANCHOR-FEEDER）：case_feeder 泛化版，锚源 repro_pool/oss→XVAL/算例池/开放锚兜底
+    "anchor_feeder": ("anchor_feeder.py", "/usr/bin/python3 /root/tp-agent/anchor_feeder.py", True,
+                      "主线锚长设供给：REPRO-(repro_pool)+XVAL-(oss)+CASE-+开放锚兜底，闲位门 idle≥8，六仓轮转，覆盖账回流"),
 }
 
 
