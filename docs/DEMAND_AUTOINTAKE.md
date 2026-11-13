@@ -67,7 +67,31 @@ python3 -m tools.demand_intake.cli redteam --out artifacts/demand_intake/redteam
 - 入榜率口径本链 `intake_rate=1.0`（detected 7 全部落库），`claimable_rate=0.286`（2/7，
   其余按设计拦下）
 
-## 5. 未做/局限（honest）
+## 5. 七日浸泡审计（FEAT-DEMAND-INTAKE-SOAK）
+
+### 5.1 机制
+需求入榜 v2 的事后审计（audit.py）有日帽 `AUDIT_DAILY_CAP=20`。但单看「今天审了几条」
+无法回答系统性问题：过去 7 天覆盖够不够？帽拒率（agent 铸造被审计门打回的比例）
+是否健康？`soak.py` 补上**七日滚动窗口**的度量与自动调帽机制。
+
+### 5.2 验收判据（机检）
+| 指标 | 阈值 | 不达标动作 |
+|---|---|---|
+| 连续 7 日日审计覆盖率 = 已审/待审 | >= 60% | 审计帽 20 → 40/日 |
+| agent 铸造帽拒率 = fail/sampled | < 20% | 审计帽 20 → 40/日 |
+
+### 5.3 用法
+```
+python3 -m tools.demand_intake.cli soak              # 只读报告
+python3 -m tools.demand_intake.cli soak --days 7     # 指定窗口
+python3 -m tools.demand_intake.cli soak --apply-cap  # 自动写回 cap
+```
+
+### 5.4 产出
+- `artifacts/demand_intake/soak_weekly_report.json`：七日浸泡审计报告
+- `demand_mint_quota` 表：当日审计帽（agent='soak-audit'）
+
+## 6. 未做/局限（honest）
 1. **本单未对生产库执行写操作**：首刷 462 个候选锚需要 coordinator 采认后才 `ingest-missions`
    +`gate --apply`（一次跑完会把 462 条 `pending_review` 灌进账本，属榜单污染风险，留给周批）。
    机制与红队已在同构 schema 上端到端验证。

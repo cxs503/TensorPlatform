@@ -11,6 +11,7 @@
 ``ingest-reports``  ``tensor_reports.markdown`` 的「局限/待办」节 → ``demand_backlog``
 ``measure``         入榜率口径（detected / landed / open / dropped 原因码分布）
 ``redteam``         在**临时 schema** 里跑全链路红队（断链 + 垃圾锚拦截），跑完 DROP
+``soak``            七日浸泡审计：覆盖率与帽拒率周报（见 :mod:`tools.demand_intake.soak`）
 ``status``          一行摘要
 
 纪律
@@ -43,6 +44,7 @@ if __package__ in (None, ""):  # python3 tools/demand_intake/cli.py 直跑兼容
 from tools.demand_intake import audit as A         # noqa: E402
 from tools.demand_intake import gate as G           # noqa: E402
 from tools.demand_intake import store as S         # noqa: E402
+from tools.demand_intake import soak as SO         # noqa: E402
 from tools.demand_intake.parser import (           # noqa: E402
     backlog_items_from_report, parse_mission_row,
 )
@@ -280,6 +282,20 @@ def cmd_redteam(args: argparse.Namespace) -> Dict[str, Any]:
     return out
 
 
+
+def cmd_soak(args: argparse.Namespace) -> Dict[str, Any]:
+    """七日浸泡审计：覆盖率与帽拒率周报。"""
+    t = _transport(args)
+    S.ensure_audit_schema(t, args.schema or "")
+    report = SO.run_soak_audit(t, days=args.days,
+                               apply_cap_flag=args.apply_cap,
+                               schema=args.schema or "")
+    out = SO.report_to_dict(report)
+    if not args.schema:  # 生产环境才写 chronicle
+        S.chronicle(t, "soak_weekly", out)
+    return out
+
+
 def build_parser() -> argparse.ArgumentParser:
     ap = argparse.ArgumentParser(description="需求自动接驳（demand_intake）")
     ap.add_argument("--db", default="", help="库名（缺省 TP_PG_DB 或 tensorplatform）")
@@ -305,6 +321,11 @@ def build_parser() -> argparse.ArgumentParser:
     r.add_argument("--mission-id", type=int, default=0)
     r.add_argument("--limit", type=int, default=100)
     r.add_argument("--dry-run", action="store_true")
+    s = sub.add_parser("soak")
+    s.add_argument("--days", type=int, default=SO.SOAK_WINDOW_DAYS,
+                   help="浸泡窗口天数（默认 7）")
+    s.add_argument("--apply-cap", action="store_true",
+                   help="自动把推荐审计帽写回 demand_mint_quota")
     sub.add_parser("measure")
     sub.add_parser("status")
     rt = sub.add_parser("redteam")
@@ -315,7 +336,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 HANDLERS = {
     "init": cmd_init, "ingest-missions": cmd_ingest_missions, "gate": cmd_gate,
-    "audit": cmd_audit,
+    "audit": cmd_audit, "soak": cmd_soak,
     "ingest-reports": cmd_ingest_reports, "measure": cmd_measure,
     "status": cmd_status, "redteam": cmd_redteam,
 }
