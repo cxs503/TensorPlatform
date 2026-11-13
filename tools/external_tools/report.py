@@ -24,9 +24,19 @@ def _fmt(x: Any) -> str:
     return str(x)
 
 
+#: Statuses a partial (subset) run may carry without being a defect.
+SAFE_STATUSES = ("REAL",)
+
+
 def write_artifacts(ledger: Mapping[str, Any], out_dir: str | Path,
                     stem: str = "external_tools") -> Dict[str, str]:
-    """Persist ``<stem>.json``, ``<stem>_latest.json`` and the markdown report."""
+    """Persist ``<stem>.json``, ``latest.json`` and the markdown report.
+
+    ``latest.json`` is the slot the HTTP KPI reads (``GET /external-tools/coverage``),
+    so a *partial* (subset) ledger must never take it: a subset run cannot answer
+    "≥ N classes are REAL" and would poison the KPI with a fake shortfall. Partial
+    runs still get their stamped ledger + markdown (forensics), just no promotion.
+    """
 
     d = Path(out_dir)
     d.mkdir(parents=True, exist_ok=True)
@@ -36,9 +46,12 @@ def write_artifacts(ledger: Mapping[str, Any], out_dir: str | Path,
     md_path = Path(str(run_path).replace(".json", ".md"))
     blob = json.dumps(ledger, ensure_ascii=False, indent=2, sort_keys=True) + "\n"
     run_path.write_text(blob, encoding="utf-8")
-    latest_path.write_text(blob, encoding="utf-8")
     md_path.write_text(render_markdown(ledger), encoding="utf-8")
-    return {"run": str(run_path), "latest": str(latest_path), "markdown": str(md_path)}
+    written = {"run": str(run_path), "markdown": str(md_path)}
+    if not ledger.get("partial"):
+        latest_path.write_text(blob, encoding="utf-8")
+        written["latest"] = str(latest_path)
+    return written
 
 
 def render_markdown(ledger: Mapping[str, Any]) -> str:
