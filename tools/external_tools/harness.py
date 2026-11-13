@@ -40,6 +40,13 @@ STATUS_MOCK = "MOCK"
 STATUS_WITHHELD = "WITHHELD"
 STATUS_FAIL = "FAIL"
 
+# Gate vocabulary for ``verdict()``. ``PARTIAL`` is *not* a soft PASS: the KPI was
+# never evaluated (a subset was requested), so a consumer must not read it as
+# either "met" or "unmet".
+VERDICT_PASS = "PASS"
+VERDICT_FAIL = "FAIL"
+VERDICT_PARTIAL = "PARTIAL"
+
 
 def _canonical(payload: Any) -> str:
     return json.dumps(payload, ensure_ascii=False, sort_keys=True,
@@ -203,6 +210,10 @@ def run_suite(suite: Suite, only: Optional[Sequence[str]] = None,
         "coverage": {"ok": coverage_ok, "real_classes": len(real),
                      "target_classes": suite.target_classes,
                      "shortfall": max(0, suite.target_classes - len(real))},
+        # A subset run can never be read as a KPI measurement: ``partial`` is part
+        # of the ledger (not of the caller), so ``verdict()`` cannot miss it.
+        "partial": bool(only),
+        "selected_tool_ids": [r.tool_id for r in records],
         "rollup_level": weakest(levels) if levels else STATUS_WITHHELD,
         "classes": [r.to_dict() for r in records],
         "environment": {"python": sys.version.split()[0],
@@ -216,12 +227,24 @@ def run_suite(suite: Suite, only: Optional[Sequence[str]] = None,
 
 
 def verdict(ledger: Mapping[str, Any]) -> str:
-    """One word for the gate: PASS only when the coverage target is met."""
+    """One word for the gate: PASS / FAIL / PARTIAL.
+
+    ``PASS``      -- the coverage target is met and no required class failed;
+    ``FAIL``      -- a required class failed, or a *full* run missed the target;
+    ``PARTIAL``   -- a *subset* run (``partial``) in which every class that was
+    actually selected came back REAL: the target was never put to the test, so
+    calling it FAIL would assert a shortfall that no evidence supports, and
+    calling it PASS would launder a subset into a KPI. Consumers that only
+    understand PASS/FAIL still treat PARTIAL as "not met" (fail-closed).
+    """
 
     cov = ledger.get("coverage") or {}
-    if not cov.get("ok"):
-        return "FAIL"
-    if any(c["status"] == STATUS_FAIL for c in ledger.get("classes", [])
-           if c.get("required")):
-        return "FAIL"
-    return "PASS"
+    required = [c for c in ledger.get("classes", []) if c.get("required")]
+    if any(c["status"] == STATUS_FAIL for c in required):
+        return VERDICT_FAIL
+    if cov.get("ok"):
+        return VERDICT_PASS
+    if ledger.get("partial") and required and all(
+            c["status"] == STATUS_REAL for c in required):
+        return VERDICT_PARTIAL
+    return VERDICT_FAIL

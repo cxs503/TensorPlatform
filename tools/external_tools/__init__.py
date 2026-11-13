@@ -28,7 +28,14 @@ come from the spec file (data), so the mechanism stays domain-neutral.
 
 from __future__ import annotations
 
-from .harness import run_class, run_suite, verdict  # noqa: F401
+from .harness import (  # noqa: F401
+    VERDICT_FAIL,
+    VERDICT_PARTIAL,
+    VERDICT_PASS,
+    run_class,
+    run_suite,
+    verdict,
+)
 from .report import render_markdown, write_artifacts  # noqa: F401
 from .spec import (  # noqa: F401
     EVIDENCE_LEVELS,
@@ -43,6 +50,9 @@ from .spec import (  # noqa: F401
 
 __all__ = [
     "EVIDENCE_LEVELS",
+    "VERDICT_FAIL",
+    "VERDICT_PARTIAL",
+    "VERDICT_PASS",
     "Invariant",
     "SPEC_VERSION",
     "SpecError",
