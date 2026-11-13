@@ -295,6 +295,8 @@ REPO_WHITELIST = (
     "TensorKnowledge",
     # owner 2026-11-11 令：TensorBench/TensorData 入生态派发（第三犯治本：白名单进 main 防部署同步抹除）
     "TensorBench", "TensorData",
+    # owner 2026-11-13 令：冰区航行示范项目 TensorIce 独立仓入生态派发
+    "TensorIce",
 )
 
 # ── 仓可解析性门（fail-fast）：worker 侧 tp_worker.prepare_worktree 的同款解析，
