@@ -1,0 +1,19 @@
+[Unit]
+Description=TensorPlatform 计算递交门 · 本机 hog guard（owner 2026-11-13 计算调度令）
+Documentation=file:///root/tp-agent/cluster/compute_gate/README.md
+After=network.target postgresql.service
+
+[Service]
+Type=simple
+WorkingDirectory=/root/tp-agent/cluster
+ExecStart=/usr/bin/python3 -m compute_gate.cli guard --loop
+Restart=always
+RestartSec=30
+# 不随会话死亡：本门须在 owner/agent 全部离场后仍自持运行
+KillMode=process
+TimeoutStopSec=20
+StandardOutput=append:/root/tp-agent/cluster/compute_gate/guard.out
+StandardError=append:/root/tp-agent/cluster/compute_gate/guard.out
+
+[Install]
+WantedBy=multi-user.target
