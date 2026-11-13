@@ -6,6 +6,8 @@
 ``ingest-missions`` succeeded 单增量扫描 → 候选锚 → ``demand_intake_log`` + ``feature_ledger``
                     (status=pending_review, source=agent-proposed)。``--dry-run`` 只读。
 ``gate``            pending_review → open/dropped（三判据，见 :mod:`tools.demand_intake.gate`）
+``audit``           事后抽样审计：可领锚按日帽重审，不过则 dropped + 未终态单 revoked
+                    （见 :mod:`tools.demand_intake.audit`）。不带 ``--apply`` 即 dry-run。
 ``ingest-reports``  ``tensor_reports.markdown`` 的「局限/待办」节 → ``demand_backlog``
 ``measure``         入榜率口径（detected / landed / open / dropped 原因码分布）
 ``redteam``         在**临时 schema** 里跑全链路红队（断链 + 垃圾锚拦截），跑完 DROP
@@ -21,6 +23,7 @@
 
     python3 -m tools.demand_intake.cli ingest-missions --limit 200
     python3 -m tools.demand_intake.cli gate --apply
+    python3 -m tools.demand_intake.cli audit --cap 20 --apply
     python3 -m tools.demand_intake.cli ingest-reports --since-id 9000 --limit 200
     python3 -m tools.demand_intake.cli measure
     python3 -m tools.demand_intake.cli redteam --out artifacts/demand_intake/redteam.json
@@ -37,6 +40,7 @@ from typing import Any, Dict, List, Optional
 if __package__ in (None, ""):  # python3 tools/demand_intake/cli.py 直跑兼容
     sys.path.insert(0, str(Path(__file__).resolve().parents[2]))
 
+from tools.demand_intake import audit as A         # noqa: E402
 from tools.demand_intake import gate as G           # noqa: E402
 from tools.demand_intake import store as S         # noqa: E402
 from tools.demand_intake.parser import (           # noqa: E402
@@ -92,6 +96,15 @@ def cmd_gate(args: argparse.Namespace) -> Dict[str, Any]:
     if args.apply:
         S.chronicle(t, "gate", {k: v for k, v in res.items() if k != "decisions"})
     return res
+
+
+def cmd_audit(args: argparse.Namespace) -> Dict[str, Any]:
+    """事后抽样审计（缺省 dry-run；``--apply`` 才回写 dropped/revoked）。"""
+    t = _transport(args)
+    S.ensure_audit_schema(t, args.schema or "")
+    return A.run_audit(t, daily_cap=args.cap,
+                       limit=(args.limit or None), dry_run=not args.apply,
+                       schema=args.schema or "")
 
 
 def cmd_ingest_reports(args: argparse.Namespace) -> Dict[str, Any]:
@@ -282,6 +295,11 @@ def build_parser() -> argparse.ArgumentParser:
     m.add_argument("--dry-run", action="store_true")
     g = sub.add_parser("gate")
     g.add_argument("--apply", action="store_true", help="不带此参数为 dry-run（只读）")
+    a = sub.add_parser("audit")
+    a.add_argument("--apply", action="store_true", help="不带此参数为 dry-run（只读）")
+    a.add_argument("--cap", type=int, default=S.AUDIT_DAILY_CAP,
+                   help="日帽（今日已审数会先扣掉）")
+    a.add_argument("--limit", type=int, default=0, help="本次最多审几条（0=吃满预算）")
     r = sub.add_parser("ingest-reports")
     r.add_argument("--since-id", type=int, default=0)
     r.add_argument("--mission-id", type=int, default=0)
@@ -297,6 +315,7 @@ def build_parser() -> argparse.ArgumentParser:
 
 HANDLERS = {
     "init": cmd_init, "ingest-missions": cmd_ingest_missions, "gate": cmd_gate,
+    "audit": cmd_audit,
     "ingest-reports": cmd_ingest_reports, "measure": cmd_measure,
     "status": cmd_status, "redteam": cmd_redteam,
 }
