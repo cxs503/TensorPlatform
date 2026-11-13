@@ -29,6 +29,7 @@ from sqlalchemy.orm import Session
 
 from api.deps import require_auth
 from services import mission_gradient as mg
+from services.budget_accounting import record_budget_used
 from database.config import get_db
 
 router = APIRouter(prefix="/tensor/mission-gradient", tags=["任务梯度"])
@@ -275,6 +276,8 @@ def post_negative_result(body: HonestFailBody, db: Session = Depends(get_db)):
          "retro": entry["retrospective"], "ev": entry["evidence_ref"],
          "tags": entry["reuse_tags"]},
     ).scalar()
+    # FP15-BUDGET-ACCOUNTING：honest_fail 也是终态，先落预算记账再翻状态
+    record_budget_used(db, body.mission_id)
     db.execute(
         text("""
             UPDATE tensor_dev_missions

@@ -28,6 +28,7 @@ from sqlalchemy.orm import Session
 from api.deps import require_auth, require_role
 from api.domain.tensor_common import resolved_org, append_event
 from database.config import get_db
+from services.budget_accounting import record_budget_used
 
 router = APIRouter(prefix="/tensor/repro", tags=["科研运行台·复现"])
 
@@ -113,6 +114,21 @@ def list_verdicts(
     }
 
 
+def _revoke_mission(db: Session, mission_id: int) -> None:
+    """把单打进 ``revoked`` 终态，并先落预算记账（撤销单必须可复核花了多少）。
+
+    记账放在 UPDATE 之前：``record_budget_used`` 从 result/created_at 推导，
+    与 status 无关；放在之后也成立，但先记可以保证即使 UPDATE 被
+    ``status != 'revoked'`` 条件短路（已经是 revoked 的重放）账也不会丢。
+    """
+    record_budget_used(db, mission_id)
+    db.execute(
+        text("UPDATE tensor_dev_missions SET status = 'revoked', finished_at = now() "
+             "WHERE id = :mid AND status != 'revoked'"),
+        {"mid": mission_id},
+    )
+
+
 @router.post("/verdicts", dependencies=[Depends(require_role("ADMIN", "MANAGER"))])
 def create_verdict(
     body: VerdictCreate,
@@ -181,18 +197,12 @@ def create_verdict(
             """),
             {"org": org_id, "model": author_model, "reason": f"cheat:mission_{body.mission_id}", "mid": body.mission_id},
         )
-        # Revoke mother mission
-        db.execute(
-            text("UPDATE tensor_dev_missions SET status = 'revoked', finished_at = now() WHERE id = :mid AND status != 'revoked'"),
-            {"mid": body.mission_id},
-        )
+        # Revoke mother mission（FP15-BUDGET-ACCOUNTING：撤销也是终态，先记账再翻状态）
+        _revoke_mission(db, body.mission_id)
 
     elif body.verdict == "fail":
         # Revoke mother mission (disciplinary fail, distinct from honest fail)
-        db.execute(
-            text("UPDATE tensor_dev_missions SET status = 'revoked', finished_at = now() WHERE id = :mid AND status != 'revoked'"),
-            {"mid": body.mission_id},
-        )
+        _revoke_mission(db, body.mission_id)
 
     db.commit()
     return {
