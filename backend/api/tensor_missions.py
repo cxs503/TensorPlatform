@@ -28,6 +28,12 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from api.deps import require_auth, require_role
+from services.budget_accounting import (
+    as_mapping,
+    budget_used_for_row,
+    dumps as _budget_dumps,
+    record_budget_used,
+)
 from services.factory_profile import get_factory_profile, validate_projects, validate_base_ref, require_factory_agent
 from api.domain.tensor_common import append_event, resolved_org
 from database.config import get_db
@@ -90,6 +96,9 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "claimed_by": r["claimed_by"],
         "session_id": r["session_id"],
         "result": r["result"] or {},
+        # FP15-BUDGET-ACCOUNTING: 预算记账必须 API 可见，否则终局裁决不可复核
+        "budget_used": r.get("budget_used") or {},
+        "fail_stage": r.get("fail_stage"),
         "created_by": r["created_by"],
         "created_at": _iso(r["created_at"]) if r.get("created_at") else None,
         "heartbeat_at": _iso(r["heartbeat_at"]) if r.get("heartbeat_at") else None,
@@ -104,7 +113,8 @@ def _load_mission(db: Session, mission_id: int, user: dict | None = None, *, loc
             SELECT id, organization_id, goal, repo, base_ref, co_repos,
                    parent_mission_id, budget, runner, origin,
                    model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
-                   created_by, created_at, heartbeat_at, finished_at
+                   budget_used, fail_stage, created_by, created_at, heartbeat_at,
+                   finished_at
             FROM tensor_dev_missions WHERE id = :mid
         """ + (" FOR UPDATE" if lock else "")),
         {"mid": mission_id},
@@ -497,8 +507,8 @@ def list_missions(
         text(f"""
             SELECT id, goal, repo, base_ref, co_repos, parent_mission_id, budget,
                    runner, origin, model, agent_session_id, worker_role, campaign_id, campaign_phase, status,
-                   claimed_by, session_id, result, created_by, created_at,
-                   heartbeat_at, finished_at, task_key
+                   claimed_by, session_id, result, budget_used, fail_stage,
+                   created_by, created_at, heartbeat_at, finished_at, task_key
             FROM tensor_dev_missions WHERE {filters}
             ORDER BY id DESC LIMIT :limit OFFSET :offset
         """),
@@ -716,6 +726,11 @@ def claim_mission(
              "patch": _dumps({"stop_condition": "agent_lost"})},
     ).mappings().all()
     for dead in reaped:
+        # FP15-BUDGET-ACCOUNTING：被收割的 in-flight 单也必须有账
+        try:
+            record_budget_used(db, int(dead["id"]))
+        except Exception as _exc:  # pragma: no cover - 记账不阻断 claim
+            logging.getLogger(__name__).warning("reap budget accounting skipped: %s", _exc)
         if dead["session_id"]:
             db.execute(
                 text("UPDATE tensor_agent_sessions SET status='failed', closed_at=now() WHERE id=:sid"),
@@ -806,7 +821,8 @@ def _authorize_agent(db: Session, mission_id: int, claim_token: str, user: dict)
     row = db.execute(
         text("""
             SELECT id, status, claim_token, claimed_by, claimed_user_id,
-                   organization_id, session_id, runner, budget, created_at
+                   organization_id, session_id, runner, budget, created_at,
+                   result, budget_used, fail_stage
             FROM tensor_dev_missions WHERE id = :mid FOR UPDATE
         """),
         {"mid": mission_id},
@@ -1023,6 +1039,11 @@ class CompleteRequest(BaseModel):
     # Lifecycle: fail_stage is mandatory for failed missions (095)
     fail_stage: str | None = Field(default=None, max_length=60,
         description="Stage where failure occurred: tool_loop/build/test/acceptance/agent_lost")
+    # FP15-BUDGET-ACCOUNTING: 可选自报用量。缺省时服务端从 result/heartbeat
+    # 事实回算（见 services/budget_accounting.py 的出处优先级）。
+    usage: dict[str, Any] | None = Field(
+        default=None,
+        description="Agent-declared usage {tool_calls, tokens, wall_seconds}; persisted to budget_used")
 
 
 _SHA_RE = re.compile(r"^[0-9a-f]{40,64}$")
@@ -1102,6 +1123,19 @@ def complete_mission(
         raise HTTPException(status_code=409, detail="mission must be running before completion")
     if body.status == "succeeded" and not body.acceptance:
         raise HTTPException(status_code=422, detail="successful work must request acceptance")
+    # FP15-BUDGET-ACCOUNTING：终态/待验收都落预算记账。result 先与本次 summary
+    # 合并再推导，保证落库后 ``budget_used.tool_calls == result.tool_calls``
+    # 可被外部 SQL 对拍（验收判据）。记账 fail-open：任何异常只告警，不拦终态。
+    try:
+        _budget_result = {**dict(as_mapping(row.get("result"))), **(body.summary or {})}
+        budget_used = budget_used_for_row(
+            {"result": _budget_result, "created_at": row.get("created_at")},
+            declared=body.usage,
+        )
+    except Exception as _exc:  # pragma: no cover - 记账绝不阻断终态
+        logging.getLogger(__name__).warning("budget accounting degraded: %s", _exc)
+        budget_used = {"tool_calls": 0, "tokens": 0, "wall_seconds": 0,
+                       "source": "unavailable", "degraded": f"{type(_exc).__name__}"}
     if body.acceptance and body.status != "succeeded":
         raise HTTPException(status_code=422, detail="failed work cannot request successful acceptance")
     gate=body.summary.get('quality_gate')
@@ -1179,12 +1213,14 @@ def complete_mission(
                 UPDATE tensor_dev_missions
                 SET status = 'awaiting_acceptance', claim_token = NULL,
                     result = result || CAST(:summary AS jsonb),
-                    report_id = :report_id
+                    report_id = :report_id,
+                    budget_used = CAST(:bu AS jsonb)
                 WHERE id = :mid
             """),
             {"mid": mission_id,
              "summary": _dumps({**body.summary, "evidence": evidence}),
-             "report_id": body.report_id},
+             "report_id": body.report_id,
+             "bu": _budget_dumps(budget_used)},
         )
         if row["session_id"]:
             append_event(db, row["session_id"], "approval_requested", {
@@ -1209,6 +1245,7 @@ def complete_mission(
                 report_id = :report_id,
                 fail_stage = COALESCE(:fs, fail_stage),
                 report_owed = CASE WHEN :ro THEN TRUE ELSE report_owed END,
+                budget_used = CAST(:bu AS jsonb),
                 worktree_recyclable = TRUE
             WHERE id = :mid
         """),
@@ -1216,7 +1253,8 @@ def complete_mission(
          "summary": _dumps({**body.summary, "evidence": evidence}),
          "ro": report_owed,
          "report_id": body.report_id,
-         "fs": body.fail_stage},
+         "fs": body.fail_stage,
+         "bu": _budget_dumps(budget_used)},
     )
     if row["session_id"]:
         append_event(db, row["session_id"], "decision", {
@@ -1281,6 +1319,8 @@ def stop_mission(
     row = _load_mission(db, mission_id, user, lock=True)
     if row["status"] in TERMINAL:
         raise HTTPException(status_code=409, detail=f"mission already {row['status']}")
+    # FP15-BUDGET-ACCOUNTING：owner 停止也是终态，同样落预算记账
+    record_budget_used(db, mission_id, row=row)
     db.execute(
         text("""
             UPDATE tensor_dev_missions

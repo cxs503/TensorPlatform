@@ -31,6 +31,12 @@ from sqlalchemy import text
 from sqlalchemy.orm import Session
 
 from api.deps import require_auth, require_role
+from services.budget_accounting import (
+    budget_used_for_row,
+    dumps as _budget_dumps,
+    record_budget_used,
+    usage_is_recorded,
+)
 from api.domain.mission_state_machine import (
     REOPENED,
     ReopenRejected,
@@ -97,10 +103,14 @@ def suspend_mission(
     if row["status"] not in ("queued", "claimed", "running"):
         raise HTTPException(409, f"cannot suspend status={row['status']} (must be queued/claimed/running)")
 
-    # Snapshot current budget usage
+    # Snapshot current budget usage（FP15：老单没记账时先按同一套推导补一条，
+    # 否则 freeze 记的是恒 0，resume 后预算续算彻底失真）
     budget_used = row["budget_used"] or {}
     if isinstance(budget_used, str):
         budget_used = json.loads(budget_used)
+    if not usage_is_recorded(budget_used):
+        budget_used = budget_used_for_row(
+            {"result": row.get("result"), "created_at": row.get("created_at")})
     budget_limit = row["budget"] or {}
     if isinstance(budget_limit, str):
         budget_limit = json.loads(budget_limit)
@@ -206,6 +216,14 @@ def resume_mission(
     budget_used["wall_seconds_used"] = frozen.get("wall_seconds_used", budget_used.get("wall_seconds_used", 0))
     budget_used["tool_calls_used"] = frozen.get("tool_calls_used", budget_used.get("tool_calls_used", 0))
     budget_used["tokens_used"] = frozen.get("tokens_used", budget_used.get("tokens_used", 0))
+    # 契约键与历史键同步（FP15：budget_used 的四键口径不许在续算里掉队）
+    for _canon, _legacy in (("tool_calls", "tool_calls_used"),
+                            ("tokens", "tokens_used"),
+                            ("wall_seconds", "wall_seconds_used")):
+        budget_used[_canon] = budget_used[_legacy]
+    budget_used.setdefault("source", "resumed_from_frozen")
+    budget_used["sources"] = {k: "resumed_from_frozen"
+                              for k in ("tool_calls", "tokens", "wall_seconds")}
 
     suspend_duration_s = None
     if row["suspended_at"]:
@@ -331,7 +349,7 @@ def write_off_mission(
     row = db.execute(
         text("""
             SELECT id, organization_id, status, claim_token, session_id,
-                   budget, budget_used, fail_stage, report_owed, result
+                   budget, budget_used, fail_stage, report_owed, result, created_at
             FROM tensor_dev_missions WHERE id = :mid
             FOR UPDATE
         """),
@@ -373,6 +391,12 @@ def write_off_mission(
     budget_used = row["budget_used"] or {}
     if isinstance(budget_used, str):
         budget_used = json.loads(budget_used)
+    # FP15-BUDGET-ACCOUNTING：绕行路径/老单没落账时用同一套推导补一条
+    # （source 逐字段标注出处，绝不把回算值伪装成 agent 自报），
+    # credit_ledger 因此拿到真实 tool_calls_used 而不是恒 0。
+    if not usage_is_recorded(budget_used):
+        budget_used = budget_used_for_row(
+            {"result": row["result"], "created_at": row["created_at"]})
     budget_limit = row["budget"] or {}
     if isinstance(budget_limit, str):
         budget_limit = json.loads(budget_limit)
@@ -385,10 +409,12 @@ def write_off_mission(
                 worktree_recyclable = TRUE,
                 write_off_at = now(),
                 report_owed = :ro,
-                fail_stage = COALESCE(:fs, fail_stage)
+                fail_stage = COALESCE(:fs, fail_stage),
+                budget_used = CAST(:bu AS jsonb)
             WHERE id = :mid
         """),
-        {"mid": mission_id, "ro": report_owed, "fs": fail_stage},
+        {"mid": mission_id, "ro": report_owed, "fs": fail_stage,
+         "bu": _budget_dumps(budget_used)},
     )
     # Credit ledger entry
     db.execute(
@@ -937,6 +963,7 @@ def process_orphan_queue(
     ).mappings().all()
 
     for o in orphaned:
+        record_budget_used(db, int(o["id"]))
         db.execute(
             text("""
                 INSERT INTO mission_lifecycle_log (mission_id, action, actor_user_id, detail)
@@ -964,6 +991,7 @@ def process_orphan_queue(
     ).mappings().all()
 
     for r in reclaimed:
+        record_budget_used(db, int(r["id"]))
         db.execute(
             text("""
                 INSERT INTO mission_lifecycle_log (mission_id, action, actor_user_id, detail)
