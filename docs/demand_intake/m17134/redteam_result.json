@@ -1,0 +1,80 @@
+{
+  "schema": "m17134_evidence",
+  "all_ok": true,
+  "results": [
+    {
+      "scenario": "concurrent_same_slug",
+      "ok": true,
+      "threads": 4,
+      "minted": 1,
+      "ledger_rows": 1,
+      "missions_created": 1,
+      "mission_rows": 1,
+      "duplicates": 3,
+      "detail": [
+        "duplicate",
+        "minted",
+        "duplicate",
+        "duplicate"
+      ]
+    },
+    {
+      "scenario": "cap_exceeded",
+      "ok": true,
+      "cap": 10,
+      "minted": 10,
+      "cap_exceeded": 1,
+      "ledger_rows": 10,
+      "missions_created": 10,
+      "quota": {
+        "minted": 10,
+        "cap": 10
+      }
+    },
+    {
+      "scenario": "strike_downgrade",
+      "ok": true,
+      "baseline_cap": 10,
+      "first_status": "minted",
+      "cap_after_strikes": 1,
+      "already_used_today": "cap_exceeded",
+      "fresh_agent_first": "minted",
+      "fresh_agent_second": "cap_exceeded",
+      "credit_levels": {
+        "rt-strike-a": 2,
+        "rt-strike-b": 2
+      },
+      "rationale": {
+        "rt-strike-a": "strikes=3 mint_cap=1 policy=demand-intake-v2",
+        "rt-strike-b": "strikes=3 mint_cap=1 policy=demand-intake-v2"
+      }
+    },
+    {
+      "scenario": "audit_fail_revokes",
+      "ok": true,
+      "ledger_status": "dropped",
+      "mission_status": "revoked",
+      "chronicle_phases": [
+        "mint",
+        "audit_fail"
+      ],
+      "strikes": 1,
+      "audit_summary": {
+        "sampled": 1,
+        "passed": 0,
+        "failed": 1,
+        "uncovered": 0
+      }
+    },
+    {
+      "scenario": "audit_daily_cap",
+      "ok": true,
+      "used_prior": 1,
+      "sampled": 19,
+      "expected_budget": 19,
+      "uncovered": 18,
+      "second_run_sampled": 0,
+      "second_run_budget": 0
+    }
+  ]
+}
