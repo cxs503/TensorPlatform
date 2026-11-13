@@ -3,7 +3,9 @@
 
 Exit codes are part of the contract so a gate can call this directly:
 ``0`` = coverage target met (verdict PASS), ``1`` = target not met (honest FAIL),
-``2`` = the spec itself is broken (nothing was measured).
+``2`` = the spec itself is broken (nothing was measured),
+``3`` = verdict PARTIAL: a ``--only`` subset was measured and every selected class
+came back REAL, so the KPI target was never put to the test (not a PASS).
 """
 
 from __future__ import annotations
@@ -28,9 +30,10 @@ DEFAULT_OUT = REPO_ROOT / "artifacts" / "external_tools"
 def _print_summary(ledger: Mapping[str, Any]) -> None:
     m = ledger["measured"]
     cov = ledger["coverage"]
+    scope = " (subset：KPI 未评估)" if ledger.get("partial") else ""
     print(f"suite={ledger['suite_id']} target={cov['target_classes']} "
           f"real={m['real_classes']} shortfall={cov['shortfall']} "
-          f"verdict={ledger.get('verdict')}")
+          f"verdict={ledger.get('verdict')}{scope}")
     for rec in ledger["classes"]:
         print(f"  {rec['status']:9s} {rec['tool_id']:26s} "
               f"{(rec.get('detail') or '')[:110]}")
@@ -58,7 +61,11 @@ def cmd_run(args: argparse.Namespace) -> int:
     _print_summary(ledger)
     for key, path in paths.items():
         print(f"{key}: {path}")
-    return 0 if ledger["verdict"] == "PASS" else 1
+    if ledger["verdict"] == harness.VERDICT_PASS:
+        return 0
+    if ledger["verdict"] == harness.VERDICT_PARTIAL:
+        return 3
+    return 1
 
 
 def cmd_verify(args: argparse.Namespace) -> int:
@@ -91,7 +98,7 @@ def cmd_verify(args: argparse.Namespace) -> int:
         return 1
     print(f"VERIFY OK digest={after['digest'][:16]} value_digest={after['value_digest'][:16]} "
           f"real={after['measured']['real_classes']}/{after['coverage']['target_classes']}")
-    return 0 if after["verdict"] == "PASS" else 1
+    return 0 if after["verdict"] == harness.VERDICT_PASS else 1
 
 
 def build_parser() -> argparse.ArgumentParser:
