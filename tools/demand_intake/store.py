@@ -37,6 +37,15 @@ LEDGER_GROUP = "demand-intake"
 LEDGER_SOURCE = "agent-proposed"
 STATUS_PENDING = "pending_review"
 
+#: 事后抽样审计（audit）日帽：审计是抽样不是全量，帽的存在让「未覆盖」这个数字可以
+#: 被诚实报出来（见 :func:`tools.demand_intake.audit.run_audit` 的 ``uncovered``）。
+AUDIT_DAILY_CAP = 20
+#: 事后审计的验收字符下限（事前门是 4，见 gate.MIN_ACCEPTANCE_CHARS）：先上车后查票，
+#: 票价必须更贵，否则审计帽（20/日）撑不起覆盖。
+AUDIT_MIN_ACCEPTANCE_CHARS = 8
+#: 单子的终态：审计回撤**只动未终态单**（``revoked`` 自身也在终态里，避免重复改）
+TERMINAL_MISSION_STATUSES = ("succeeded", "failed", "stopped", "revoked", "orphan")
+
 
 class StoreError(RuntimeError):
     pass
@@ -194,6 +203,32 @@ def ensure_schema(t: Transport, schema: str = "") -> None:
         t.execute(stmt + ";")
 
 
+def audit_ddl(schema: str = "") -> List[str]:
+    """事后审计所需的加列/加索引（**只加不删**，幂等）。
+
+    与 ``backend/migrations/124_demand_intake_audit.sql`` 一一对应：迁移文件是生产路径，
+    本函数是测试/红队与 ``cli audit`` 的自愈路径，两边同形状才不会「测试绿、生产缺列」。
+    """
+    t_log = q("demand_intake_log", schema)
+    return [
+        f"ALTER TABLE {t_log} ADD COLUMN IF NOT EXISTS mission_id bigint",
+        f"ALTER TABLE {t_log} ADD COLUMN IF NOT EXISTS "
+        f"audit_verdict text NOT NULL DEFAULT ''",
+        f"ALTER TABLE {t_log} ADD COLUMN IF NOT EXISTS "
+        f"audit_reason text NOT NULL DEFAULT ''",
+        f"ALTER TABLE {t_log} ADD COLUMN IF NOT EXISTS audited_at timestamptz",
+        f"CREATE INDEX IF NOT EXISTS demand_intake_log_audit_idx "
+        f"ON {t_log} (audited_at) WHERE audit_verdict <> ''",
+    ]
+
+
+def ensure_audit_schema(t: Transport, schema: str = "") -> None:
+    """建审计列/索引（幂等）。生产由迁移文件提供，这里供自愈与测试用。"""
+    ensure_schema(t, schema)
+    for stmt in audit_ddl(schema):
+        t.execute(stmt + ";")
+
+
 # ── 读：来源与既有锚 ────────────────────────────────────────────────────────
 def fetch_missions(t: Transport, *, since_id: int = 0, mission_id: Optional[int] = None,
                    limit: int = 500, schema: str = "") -> List[Dict[str, Any]]:
@@ -212,6 +247,43 @@ def fetch_missions(t: Transport, *, since_id: int = 0, mission_id: Optional[int]
 def fetch_existing_anchors(t: Transport, schema: str = "") -> List[Dict[str, Any]]:
     tbl = q("feature_ledger", schema)
     return t.query(f"SELECT slug, title, status FROM {tbl} ORDER BY slug")
+
+
+# ── 读：事后审计面（可领锚 → 抽样待审） ─────────────────────────────────────
+def fetch_audit_candidates(t: Transport, limit: int, schema: str = "",
+                           slugs: Optional[Sequence[str]] = None) -> List[Dict[str, Any]]:
+    """待审锚：日志与账本**同为 open** 且从未审计（``audit_verdict = ''``）。
+
+    为什么要求 ``f.status = 'open'``：审计对象是**已进可领面**的建议（v1 的 pending_review
+    还没上架就被别的路径处理，不属于本模块的事）；``audit_verdict = ''`` 让重跑幂等——
+    审过的行不会再被抽中，帽的记账与审计动作一一对应。
+    """
+    t_log, t_led = q("demand_intake_log", schema), q("feature_ledger", schema)
+    where = ["l.status = 'open'", "l.audit_verdict = ''", "f.status = 'open'"]
+    if slugs:
+        vals = ",".join(sql_literal(s) for s in slugs)
+        where.append(f"l.slug IN ({vals})")
+    return t.query(
+        f"SELECT l.id AS log_id, l.slug, l.title, l.acceptance, l.cand_key, "
+        f"       l.mission_id, f.id AS ledger_id, f.status AS ledger_status "
+        f"  FROM {t_log} l JOIN {t_led} f ON f.slug = l.slug "
+        f" WHERE {' AND '.join(where)} ORDER BY l.id LIMIT {int(limit)}")
+
+
+def count_audits_today(t: Transport, schema: str = "") -> int:
+    """今日已用审计额（按 ``audited_at`` 的自然日计，跨日自动归零）。"""
+    t_log = q("demand_intake_log", schema)
+    rows = t.query(f"SELECT count(*) AS n FROM {t_log} "
+                   f"WHERE audited_at IS NOT NULL AND audited_at::date = current_date")
+    return int(rows[0]["n"]) if rows else 0
+
+
+def fetch_slug_mission_ids(t: Transport, slug: str, schema: str = "") -> List[int]:
+    """该 slug 在账本上关联的单子 id（审计回撤时要一并撤）。"""
+    t_led = q("feature_ledger", schema)
+    rows = t.query(f"SELECT mission_id FROM {t_led} "
+                   f"WHERE slug = {sql_literal(slug)} AND mission_id IS NOT NULL")
+    return [int(r["mission_id"]) for r in rows]
 
 
 # ── 写：入榜 ────────────────────────────────────────────────────────────────

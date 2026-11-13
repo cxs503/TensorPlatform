@@ -61,7 +61,7 @@ def test_title_similarity_is_token_based():
 # ── 2. parser ───────────────────────────────────────────────────────────────
 def test_parser_structured_field_wins_and_merges():
     result = {
-        "headline": "合成任务完成；建议新锚：%s — 合成锚甲：验收判据偏差 <3%" % GOOD,
+        "headline": f"合成任务完成；建议新锚：{GOOD} — 合成锚甲：验收判据偏差 <3%",
         "proposed_anchors": [{"slug": GOOD, "title": "合成锚甲",
                               "acceptance": "偏差 <3%", "domain": "platform"}],
     }
