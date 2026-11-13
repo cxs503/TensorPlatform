@@ -58,12 +58,18 @@ class Decision:
         return self.verdict == PASS
 
 
-def acceptance_problem(acceptance: Any) -> str:
-    """量化验收判据；返回空串=合格。"""
+def acceptance_problem(acceptance: Any,
+                       min_chars: int = MIN_ACCEPTANCE_CHARS) -> str:
+    """量化验收判据；返回空串=合格。
+
+    ``min_chars`` 由调用方指定：事前门（:func:`evaluate` 缺省 4）与事后审计
+    （:mod:`tools.demand_intake.audit` 传 8）**共用同一套判据代码**——只调门槛不复制
+    判据，避免两条规则漂移（「抽得到却判不过」/「门松审计紧」这类历史病）。
+    """
     text = "" if acceptance is None else str(acceptance).strip()
     if not text:
         return "acceptance_empty"
-    if len(text) < MIN_ACCEPTANCE_CHARS:
+    if len(text) < int(min_chars):
         return f"acceptance_too_short({len(text)})"
     if not QUANT_NUM_RE.search(text):
         return "acceptance_no_number"
@@ -72,8 +78,12 @@ def acceptance_problem(acceptance: Any) -> str:
     return ""
 
 
-def evaluate(candidate: Dict[str, Any], existing: Sequence[Dict[str, Any]]) -> Decision:
-    """单条候选裁决。``existing`` = 既有锚 ``[{slug,title,status}]``（含本次待审行）。"""
+def evaluate(candidate: Dict[str, Any], existing: Sequence[Dict[str, Any]],
+             *, min_acceptance_chars: int = MIN_ACCEPTANCE_CHARS) -> Decision:
+    """单条候选裁决。``existing`` = 既有锚 ``[{slug,title,status}]``（含本次待审行）。
+
+    ``min_acceptance_chars`` 透传给 :func:`acceptance_problem`（事后审计用 8）。
+    """
     slug = str(candidate.get("slug") or "")
     title = str(candidate.get("title") or "")
     acceptance = candidate.get("acceptance") or ""
@@ -83,7 +93,8 @@ def evaluate(candidate: Dict[str, Any], existing: Sequence[Dict[str, Any]]) -> D
     if problem:
         reasons.append(problem)
 
-    acc_problem = acceptance_problem(acceptance)
+    acc_problem = acceptance_problem(acceptance,
+                                     min_chars=min_acceptance_chars)
     if acc_problem:
         reasons.append(acc_problem)
 

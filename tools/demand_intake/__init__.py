@@ -20,6 +20,11 @@
                                                   │              ▼
                                                   │            gate（三判据）
                                                   │              ├─ 过 → status=open（进 feeder/board-claim 供给面）
+                                                  │              │        │
+                                                  │              │        ▼
+                                                  │              │   audit（事后抽样，帽 20/日，min_chars=8）
+                                                  │              │        ├─ pass → 保持 open（留痕）
+                                                  │              │        └─ fail → dropped + 未终态单 revoked
                                                   │              └─ 不过 → status=dropped（留痕 + 原因码）
                                                   └─► demand_backlog（报告待办候选，供 coordinator 周批采认）
 
@@ -29,11 +34,12 @@
 - :mod:`tools.demand_intake.parser`     finish result → 候选锚（结构化 JSON 字段 + 文本宽松扫描）
 - :mod:`tools.demand_intake.reports`    tensor_reports 正文 → 局限/待办候选
 - :mod:`tools.demand_intake.gate`       三判据审计门（纯函数，出原因码）
+- :mod:`tools.demand_intake.audit`      事后抽样审计（日帽 / 回撤未终态单 / 留痕；判据复用 gate）
 - :mod:`tools.demand_intake.store`      DDL + SQL builder + 幂等 apply（可注入 schema 做真库红队）
 - :mod:`tools.demand_intake.transport`  psql 传输（只读硬闸 + statement_timeout）
 - :mod:`tools.demand_intake.chronicle`  chronicle_snapshots 留痕
 - :mod:`tools.demand_intake.cli`        入口：``ingest-missions`` / ``gate`` / ``ingest-reports`` /
-  ``redteam`` / ``measure`` / ``status``
+  ``redteam`` / ``measure`` / ``status`` / ``audit``
 
 平台中性纪律
 ------------
@@ -44,4 +50,4 @@
 
 from __future__ import annotations
 
-__version__ = "1.0.0"
+__version__ = "1.1.0"
