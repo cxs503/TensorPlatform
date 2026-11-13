@@ -1,0 +1,64 @@
+{
+  "version": "v1",
+  "created": "2026-11-13",
+  "authority": "owner 2026-11-13 计算调度令：agent 递交计算需求，跑在哪里是调度系统的事",
+  "priority_classes": {
+    "rework": {
+      "rank": 3,
+      "local_cpu_seconds_per_hour": 900,
+      "heavy_threshold_cpu_seconds": 120,
+      "queue_weight": 1.0,
+      "note": "返修单（复判/补证/门修复）——最高优先，可占用较多本机预算"
+    },
+    "mainline": {
+      "rank": 2,
+      "local_cpu_seconds_per_hour": 600,
+      "heavy_threshold_cpu_seconds": 60,
+      "queue_weight": 0.8,
+      "note": "主线开发/验证单"
+    },
+    "self_driven": {
+      "rank": 1,
+      "local_cpu_seconds_per_hour": 300,
+      "heavy_threshold_cpu_seconds": 60,
+      "queue_weight": 0.6,
+      "note": "自驱探索/扫描单——本机预算最低，重计算一律出机"
+    }
+  },
+  "local": {
+    "control_node": "99",
+    "light_cpu_seconds_ceiling": 60,
+    "max_heavy_concurrency": 1,
+    "load_cap": 0.75,
+    "local_share_target": 0.2
+  },
+  "cluster": {
+    "nodes": [
+      {
+        "id": "n315",
+        "host": "10.71.14.59",
+        "cores": 128,
+        "weight": 1.0,
+        "max_jobs": 12,
+        "load_cap": 0.85
+      },
+      {
+        "id": "n330",
+        "host": "10.71.14.74",
+        "cores": 128,
+        "weight": 1.2,
+        "max_jobs": 12,
+        "load_cap": 0.85
+      }
+    ],
+    "on_unavailable": "queue",
+    "shard_node_share": 2,
+    "stale_after_factor": 1.5,
+    "stale_note": "DB 里 state=running 且 age > timeout×factor 的行视为孤儿：不计入并发帽，但记 stale_running_rows 违例（否则 4 条僵尸行封死准入）"
+  },
+  "metering": {
+    "ledger_source": "tensorplatform.compute_ledger",
+    "cluster_history_source": "tensorplatform.cluster_jobs",
+    "cpu_seconds_round": 1
+  }
+}
