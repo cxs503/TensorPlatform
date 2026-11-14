@@ -12,13 +12,11 @@ except ModuleNotFoundError:  # 可选重依赖，缺失时整目录显式 skip
     pgserver = None
 import pytest
 
-try:
-    import pgserver
-except ModuleNotFoundError:  # 环境缺依赖 -> 显式 WITHHELD 跳过整个目录，而非 collection ERROR
-    pytest.skip(
-        "WITHHELD: pgserver 未安装，真实 PostgreSQL 工厂夹具整目录跳过",
-        allow_module_level=True,
-    )
+# 注意：缺失 pgserver 时**不能**在 conftest 层调用 pytest.skip(allow_module_level=True)。
+# conftest 的导入发生在 initial-conftest 阶段，此时 pytest 还没有 Items，抛 Skipped 会
+# 变成 "Skipped during conftest import" 硬错误（pytest 9：退出码 1、整目录 ERROR），
+# 而不是「整目录跳过」。正确的 WITHHELD 路径是下面的 pytest_collection_modifyitems：
+# 收集完成后再给每个 item 打 skip 标记，门禁看到的是 skipped（退出码 0）。
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "backend"))
