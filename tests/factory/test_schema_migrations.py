@@ -114,3 +114,9 @@ def test_mission_acceptance_freeze_trigger_is_declared():
     assert "OLD.acceptance_criteria_frozen_at IS NOT NULL" in migration
     assert "cannot be retroactively marked as predeclared" in migration
     assert "NEW.acceptance_criteria_sha256 IS DISTINCT FROM OLD.acceptance_criteria_sha256" in migration
+
+
+def test_withheld_gate_repair_corrects_plpgsql_raise_contract():
+    repair = (MIGRATIONS_DIR / "113_z_withheld_gates_repair.sql").read_text()
+    assert "withheld audit rows are append-only (% refused on gate_id=%)" in repair
+    assert "%% refused on gate_id=%" not in repair
