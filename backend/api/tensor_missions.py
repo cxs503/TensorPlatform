@@ -255,7 +255,12 @@ def create_mission(
         existing = db.execute(text("SELECT id,session_id,status,budget,goal,repo,worker_role,agent_session_id,model,base_ref,acceptance_criteria_sha256 FROM tensor_dev_missions WHERE organization_id=:org AND task_key=:key"),
                               {"org": org_id, "key": body.task_key}).mappings().first()
         if existing:
-            if (existing["goal"], existing["repo"], existing["worker_role"], str(existing["agent_session_id"]), existing["model"], existing["base_ref"], existing["acceptance_criteria_sha256"]) != (body.goal.strip(), body.repo.strip(), body.worker_role, str(body.agent_session_id), body.model, body.base_ref, criteria_digest):
+            existing_criteria_digest = existing["acceptance_criteria_sha256"]
+            if existing_criteria_digest is None and not frozen_criteria:
+                # Pre-migration idempotent missions have the default empty list
+                # but no digest; preserve their legacy row without rewriting it.
+                existing_criteria_digest = criteria_digest
+            if (existing["goal"], existing["repo"], existing["worker_role"], str(existing["agent_session_id"]), existing["model"], existing["base_ref"], existing_criteria_digest) != (body.goal.strip(), body.repo.strip(), body.worker_role, str(body.agent_session_id), body.model, body.base_ref, criteria_digest):
                 raise HTTPException(409, "task_key already identifies a different task")
             return {"id": existing["id"], "session_id": existing["session_id"],
                     "status": existing["status"], "budget": existing["budget"], "idempotent": True}
@@ -966,7 +971,7 @@ def claim_mission(
                       model, session_id, organization_id, worker_role, task_key, agent_session_id,
                       campaign_id, campaign_phase, acceptance_criteria,
                       acceptance_criteria_sha256, acceptance_criteria_frozen_at,
-                      acceptance_criteria_freeze_source
+                      acceptance_criteria_freeze_source, acceptance_criteria_version
         """),
         {"tok": token, "agent": body.agent_id, "uid": user["id"], "org": org_id, "runner": body.runner,
          "claim_model": body.model, "claim_mission_id": body.mission_id, "worker_role": body.worker_role, "agent_session_id": str(body.agent_session_id) if body.agent_session_id else None},
@@ -1001,7 +1006,7 @@ def claim_mission(
             "acceptance_criteria": row["acceptance_criteria"] or [],
             "acceptance_criteria_sha256": row["acceptance_criteria_sha256"],
             "acceptance_criteria_frozen_at": _iso(row["acceptance_criteria_frozen_at"]),
-            "acceptance_criteria_version": 1,
+            "acceptance_criteria_version": row["acceptance_criteria_version"] or 1,
             "acceptance_criteria_freeze_source": row["acceptance_criteria_freeze_source"],
             "acceptance_criteria_status": (
                 "declared" if row["acceptance_criteria"]
