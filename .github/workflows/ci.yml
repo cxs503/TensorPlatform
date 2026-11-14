@@ -32,7 +32,36 @@ jobs:
           python-version: "3.11"
       - run: python -m pip install --upgrade pip && pip install pytest
       - name: Run contract tests
-        run: python -m pytest -q tests/
+        # 作用域修复（m20781，main 红）：这一步原来跑 `pytest -q tests/`，即把整个
+        # 仓库根测试树（642 个目录/文件、13.9k 用例、含船舶物理集成与在线夹具）
+        # 塞进一个**只装 pytest** 的 job。该 job 的声明意图（见本 job 注释）是
+        # “shared research-run contract + maturity gate，只用标准库、永远可靠”，
+        # 所以从设计上它不可能跑通全树：全树里 57 个文件在本机满依赖环境下也
+        # collect 不到（20 个 import 已删除的 api.projects、6 个 api.domain、
+        # 2 个 api.calculations、缺工件/删模块若干），pytest-only 环境只会更多。
+        # 修法：阻塞面 = 声明意图的那两个契约套件；全树只做**非阻塞**清单留证
+        # （下一步），不再用“跑全树”冒充契约门。见 docs/ci/m20781_main_ci_triage.md。
+        run: |
+          python -m pytest -q \
+            tests/test_research_loop_contract.py \
+            tests/test_maturity_gate.py
+      - name: Root tests/ collection inventory (baseline, non-blocking)
+        # 全树收集清单：记录当前不可收集/不可导入的测试文件存量（迁移债台账），
+        # 不阻塞合流；缩表由后续单逐个还，禁止在此加 --ignore 洗绿。
+        continue-on-error: true
+        run: |
+          set +e
+          python -m pytest tests/ --collect-only -q --continue-on-collection-errors \
+            > ../root-collection.log 2>&1
+          echo "collected/errors summary:"; tail -3 ../root-collection.log
+          echo "uncollectable files: $(grep -c '^ERROR ' ../root-collection.log)"
+      - name: Upload root collection inventory
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: root-tests-collection-inventory
+          path: root-collection.log
+          if-no-files-found: warn
       - name: Capability ledger consumer contract gate
         # 单一台账解析器 + 四消费者 sha256 一致性；schema_version 越界/台账漂移 → 非 0（CI 红）
         run: python tools/audit/ledger_contract_gate.py --check

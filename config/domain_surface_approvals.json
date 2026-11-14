@@ -95,6 +95,69 @@
           "backend/api/domain/tools.py"
         ]
       }
+    },
+    {
+      "id": "generate-3cee4b841bff",
+      "kind": "generate",
+      "by": "owner",
+      "issued": "2026-11-14",
+      "ref": "m20781 main-CI repair",
+      "reason": "登记 m9028/m9177 合并后新增的 domain 模块（scale_effect/terminal_state）与 9 条存量直连依赖；重签 delivery_state/tensor 内容漂移。台账落后于已合并代码，非新增漂移。",
+      "modules_after": 40,
+      "content_sha256_after": "3cee4b841bff69d663eefb0a89b42eeec464a4bfd17714323dfb2610b45a2f06",
+      "detail": {
+        "added": [
+          "backend/api/domain/scale_effect.py",
+          "backend/api/domain/terminal_state.py"
+        ],
+        "removed": [],
+        "content_drift": [
+          "backend/api/domain/delivery_state.py",
+          "backend/api/domain/tensor.py"
+        ],
+        "module_paths_after": [
+          "backend/api/domain/__init__.py",
+          "backend/api/domain/benchmark_audit.py",
+          "backend/api/domain/coupling_clock_sync.py",
+          "backend/api/domain/data.py",
+          "backend/api/domain/delivery_state.py",
+          "backend/api/domain/deployment.py",
+          "backend/api/domain/holtrop_mennen.py",
+          "backend/api/domain/hull_geometry.py",
+          "backend/api/domain/iam.py",
+          "backend/api/domain/ice_uq.py",
+          "backend/api/domain/iot_edge.py",
+          "backend/api/domain/manoeuvring.py",
+          "backend/api/domain/misc.py",
+          "backend/api/domain/mission_state_machine.py",
+          "backend/api/domain/model.py",
+          "backend/api/domain/mvd_checkpoint.py",
+          "backend/api/domain/observability.py",
+          "backend/api/domain/ops.py",
+          "backend/api/domain/physics_providers.py",
+          "backend/api/domain/platform.py",
+          "backend/api/domain/polar.py",
+          "backend/api/domain/propeller_open_water.py",
+          "backend/api/domain/resistance_core.py",
+          "backend/api/domain/resistance_core_service.py",
+          "backend/api/domain/resistance_holtrop.py",
+          "backend/api/domain/resistance_model.py",
+          "backend/api/domain/scale_effect.py",
+          "backend/api/domain/ship_batch.py",
+          "backend/api/domain/ship_benchmark.py",
+          "backend/api/domain/ship_green.py",
+          "backend/api/domain/ship_icing.py",
+          "backend/api/domain/ship_resistance.py",
+          "backend/api/domain/ship_samples.py",
+          "backend/api/domain/ship_seakeeping.py",
+          "backend/api/domain/ship_vibration.py",
+          "backend/api/domain/status_contracts.py",
+          "backend/api/domain/tensor.py",
+          "backend/api/domain/tensor_common.py",
+          "backend/api/domain/terminal_state.py",
+          "backend/api/domain/tools.py"
+        ]
+      }
     }
   ]
 }

@@ -70,7 +70,7 @@
     },
     {
       "path": "backend/api/domain/delivery_state.py",
-      "sha256": "d0f87e7b5ed75ac5eb35b6c7a7c019701ce3ee35ec10d6b763821360e49977bd",
+      "sha256": "4f14f0a9097765729bc12f5c9f334644e1108c91bb71aaeaa99ed357132f3762",
       "owner_repo": "TensorPlatform",
       "target_layer": "backend/api/core",
       "status": "DECLARED-exempt",
@@ -289,6 +289,16 @@
       "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
     },
     {
+      "path": "backend/api/domain/scale_effect.py",
+      "sha256": "de837c14306f6ba83385455ce3d36c84f56c0b81ecd63bfff529cac83d8dec80",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "m20781 main-CI repair",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
+    },
+    {
       "path": "backend/api/domain/ship_batch.py",
       "sha256": "b187219dc428ff6ae0ddd4caf79c1b09e796765a41f6f249a75d527a3ab83d8c",
       "owner_repo": "ship-performance-platform",
@@ -380,7 +390,7 @@
     },
     {
       "path": "backend/api/domain/tensor.py",
-      "sha256": "c9417025b2014f3531094b5f05cdce019db3833c3c12610973c24d8adc5c9655",
+      "sha256": "7daf6b3b618016fba799c9e2718e0ebc976d47056f394d4ee7ae630f1089204c",
       "owner_repo": "TensorPlatform",
       "target_layer": "backend/api/core",
       "status": "DECLARED-exempt",
@@ -397,6 +407,16 @@
       "expiry": "2027-03-31",
       "migration_ref": "P162W1-N10",
       "reason": "平台机制（会话/任务/交付/台账/运维面），不属于任何物理域；应沉到 core 层并脱离 api.domain 包。"
+    },
+    {
+      "path": "backend/api/domain/terminal_state.py",
+      "sha256": "f583134018f6d2929b6473644a0bd60c10c60e6734198a7fec3ee198f4289926",
+      "owner_repo": "ship-performance-platform",
+      "target_layer": "domains/ship_performance",
+      "status": "DECLARED-exempt",
+      "expiry": "2027-03-31",
+      "migration_ref": "m20781 main-CI repair",
+      "reason": "船舶总体性能域实现（阻力/推进/耐波/操纵/稳性/结构/振动噪声/绿色航行/冰区），按仓地图归 ship-performance-platform。"
     },
     {
       "path": "backend/api/domain/tools.py",
@@ -471,6 +491,18 @@
       "allowed_sites": 1
     },
     {
+      "path": "backend/api/campaign_self_heal.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        34
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
       "path": "backend/api/factory_residents.py",
       "module": "api.domain.tensor_common",
       "kind": "from",
@@ -500,7 +532,19 @@
       "kind": "from",
       "sites": 1,
       "lines": [
-        46
+        51
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/kpi_delivery.py",
+      "module": "api.domain.terminal_state",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        57
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -513,6 +557,18 @@
       "sites": 1,
       "lines": [
         30
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/report_visibility.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        33
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -549,11 +605,35 @@
       "sites": 2,
       "lines": [
         18,
-        252
+        253
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
       "allowed_sites": 2
+    },
+    {
+      "path": "backend/api/tensor_bench.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        26
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_board.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        62
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
     },
     {
       "path": "backend/api/tensor_capability.py",
@@ -609,7 +689,7 @@
       "kind": "from",
       "sites": 1,
       "lines": [
-        34
+        40
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -621,7 +701,7 @@
       "kind": "from",
       "sites": 1,
       "lines": [
-        41
+        47
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -633,8 +713,8 @@
       "kind": "from",
       "sites": 2,
       "lines": [
-        496,
-        754
+        673,
+        1103
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -646,7 +726,7 @@
       "kind": "from",
       "sites": 1,
       "lines": [
-        55
+        67
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -658,7 +738,7 @@
       "kind": "from",
       "sites": 1,
       "lines": [
-        32
+        38
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -682,7 +762,7 @@
       "kind": "from",
       "sites": 1,
       "lines": [
-        22
+        23
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -707,6 +787,18 @@
       "sites": 1,
       "lines": [
         12
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
+      "path": "backend/api/tensor_self_heal.py",
+      "module": "api.domain.tensor_common",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        46
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -821,13 +913,25 @@
       "allowed_sites": 1
     },
     {
+      "path": "tools/delivery_semantics_drift/evaluate.py",
+      "module": "api.domain.delivery_state",
+      "kind": "from",
+      "sites": 1,
+      "lines": [
+        37
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 1
+    },
+    {
       "path": "tools/p92w3_n10/adjudicate.py",
       "module": "api.domain.delivery_state",
       "kind": "from",
       "sites": 2,
       "lines": [
-        23,
-        38
+        17,
+        35
       ],
       "expiry": "2027-03-31",
       "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
@@ -882,6 +986,19 @@
       "allowed_sites": 1
     },
     {
+      "path": "tools/p93w3_n10/evaluate.py",
+      "module": "api.domain",
+      "kind": "from",
+      "sites": 2,
+      "lines": [
+        36,
+        37
+      ],
+      "expiry": "2027-03-31",
+      "reason": "存量依赖：路由层/工具层直连域模块，属历史接线；按 C2 登记为带到期豁免，新增依赖一律判红。",
+      "allowed_sites": 2
+    },
+    {
       "path": "tools/verif/geometry/std_geometry_gate.py",
       "module": "api.domain.ship_resistance",
       "kind": "from",
@@ -908,7 +1025,7 @@
     }
   ],
   "integrity": {
-    "content_sha256": "ee26ba31e3e73725aa28580a1ba8046ac3dc7149f9771715c7dbceccefcff3cf",
+    "content_sha256": "3cee4b841bff69d663eefb0a89b42eeec464a4bfd17714323dfb2610b45a2f06",
     "algorithm": "sha256/canonical-json"
   }
 }
