@@ -108,4 +108,5 @@ def test_mission_acceptance_freeze_trigger_is_declared():
     migration = (MIGRATIONS_DIR / "111_mission_acceptance_criteria_freeze.sql").read_text()
     assert "CREATE TRIGGER trg_protect_frozen_mission_acceptance_criteria" in migration
     assert "OLD.acceptance_criteria_frozen_at IS NOT NULL" in migration
+    assert "cannot be retroactively marked as predeclared" in migration
     assert "NEW.acceptance_criteria_sha256 IS DISTINCT FROM OLD.acceptance_criteria_sha256" in migration
