@@ -17,7 +17,7 @@ A mission's acceptance criteria are part of its original work contract, not agen
 A criterion may be either:
 
 - **Quantitative:** `metric` (non-empty string), `target` (non-empty string or finite number), and `tolerance` (non-empty string or finite number).
-- **Qualitative:** a non-empty `statement`. The single-mission API accepts an object with `statement`; batch and campaign workstream APIs also accept a plain string and canonicalize it to a statement requiring code and test evidence.
+- **Qualitative:** a non-empty `statement`. The single-mission API accepts an object with `statement`; batch submissions also accept a plain string and canonicalize it to a statement requiring code and test evidence. Campaign workstreams convert their existing string criteria into statement objects, setting code/test requirements from the declared `execution_mode`.
 
 Every criterion receives a stable `criterion_id` (`C001`, `C002`, ... when omitted). Optional evaluator metadata includes `required`, `requires_code`, `requires_test`, `evidence_refs`, and `test_ids`; these fields are validated and preserved.
 
