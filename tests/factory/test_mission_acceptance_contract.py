@@ -32,7 +32,8 @@ def test_canonical_ids_and_digest_are_deterministic():
 
 @pytest.mark.parametrize("bad", [
     "not-an-array",
-    ["not-an-object"],
+    [None],
+    ["   "],
     [{"metric": "", "target": 1, "tolerance": 0}],
     [{"metric": "m", "target": None, "tolerance": 0}],
     [{"metric": "m", "target": 1, "tolerance": ""}],
