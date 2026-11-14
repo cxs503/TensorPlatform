@@ -19,13 +19,11 @@ PRODUCTION_ONLY: dict[str, str] = {}
 
 # SQLite-only schemas are self-created by their owning service and must never
 # be sent to the shared PostgreSQL migration runner or PostgreSQL test bootstrap.
-SQLITE_ONLY: dict[str, str] = {
-    "099_capability_evidence_sql.sql": (
-        "SQLite-only capability evidence store; capability_sql_tracer owns its "
-        "database path and initializes the schema itself."
-    ),
-}
 REPLACED_MIGRATIONS: dict[str, str] = {
+    "099_capability_evidence_sql.sql": (
+        "SQLite AUTOINCREMENT/datetime syntax; superseded by the PostgreSQL "
+        "099_z_capability_evidence_postgres.sql migration."
+    ),
     "113_withheld_gates.sql": (
         "Invalid PL/pgSQL RAISE placeholder count; superseded by the idempotent "
         "113_z_withheld_gates_repair.sql forward migration."
@@ -43,7 +41,6 @@ def factory_migration_files() -> list[Path]:
     return [path for path in files
             if int(path.name.split("_", 1)[0]) > BASE_PREFIX
             and path.name not in PRODUCTION_ONLY
-            and path.name not in SQLITE_ONLY
             and path.name not in REPLACED_MIGRATIONS]
 
 
