@@ -4,7 +4,11 @@ from __future__ import annotations
 import sys
 from pathlib import Path
 
+import json
+import hashlib
+
 import pytest
+from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
 from sqlalchemy import text
 
@@ -98,3 +102,25 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
                 {"criteria": '[{"metric":"relative_error","target":"<0.30","tolerance":"0.001","criterion_id":"relative-error"}]',
                  "mid": mission_id},
             )
+
+
+def test_legacy_mission_cannot_be_promoted_to_predeclared(factory):
+    with factory["engine"].begin() as db:
+        mission_id = db.execute(text("""
+            INSERT INTO tensor_dev_missions (organization_id, goal, repo, acceptance_criteria_freeze_source)
+            VALUES (1, 'legacy task', 'TensorPlatform', 'legacy_unfrozen') RETURNING id
+        """)).scalar_one()
+    criteria = '[{"criterion_id":"C001","statement":"retroactive"}]'
+    digest = hashlib.sha256(json.dumps(
+        json.loads(criteria), sort_keys=True, ensure_ascii=False, separators=(",", ":")
+    ).encode("utf-8")).hexdigest()
+    with pytest.raises(DBAPIError):
+        with factory["engine"].begin() as db:
+            db.execute(text("""
+                UPDATE tensor_dev_missions
+                SET acceptance_criteria=CAST(:criteria AS jsonb),
+                    acceptance_criteria_sha256=:digest,
+                    acceptance_criteria_frozen_at=now(),
+                    acceptance_criteria_freeze_source='mission_created'
+                WHERE id=:mid
+            """), {"criteria": criteria, "digest": digest, "mid": mission_id})
