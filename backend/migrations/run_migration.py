@@ -16,8 +16,8 @@ logger = logging.getLogger(__name__)
 MIGRATIONS_DIR = Path(__file__).resolve().parent
 MIGRATION_GLOB = "[0-9][0-9][0-9]_*.sql"
 
-# SQLite-only capability evidence storage is initialized by its owning service.
-# It is not a PostgreSQL migration despite living in the numbered SQL directory.
+# Invalid historical SQL files are skipped and replaced by idempotent
+# forward migrations with new version identifiers.
 
 
 def _migration_files() -> list[Path]:
