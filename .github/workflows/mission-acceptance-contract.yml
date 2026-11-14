@@ -7,6 +7,7 @@ on:
       - "backend/api/tensor_missions.py"
       - "backend/migrations/111_mission_acceptance_criteria_freeze.sql"
       - "tests/unit/test_mission_acceptance_contract.py"
+      - "tests/unit/test_mission_acceptance_migration_postgres.py"
       - ".github/workflows/mission-acceptance-contract.yml"
   workflow_dispatch:
 
@@ -28,3 +29,32 @@ jobs:
         env:
           PYTHONPATH: backend
         run: python -m pytest --confcutdir=tests/unit tests/unit/test_mission_acceptance_contract.py -q
+
+  acceptance-migration-postgres:
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_DB: tensor_test
+          POSTGRES_USER: postgres
+          POSTGRES_PASSWORD: postgres
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U postgres -d tensor_test"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install PostgreSQL test dependencies
+        run: python -m pip install --upgrade pip pytest psycopg2-binary
+      - name: Test migration trigger against real PostgreSQL
+        env:
+          DATABASE_URL: postgresql://postgres:postgres@localhost:5432/tensor_test
+        run: python -m pytest --confcutdir=tests/unit tests/unit/test_mission_acceptance_migration_postgres.py -q
