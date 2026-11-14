@@ -1,0 +1,40 @@
+name: Mission Acceptance Contract
+
+on:
+  pull_request:
+    paths:
+      - "backend/api/tensor_missions.py"
+      - "backend/api/factory_strategy.py"
+      - "backend/services/mission_acceptance.py"
+      - "backend/services/factory_bootstrap.py"
+      - "backend/migrations/**"
+      - "src/api/routes/batch_missions.py"
+      - "tests/factory/test_mission_acceptance_*.py"
+      - "tests/factory/test_schema_migrations.py"
+      - "tests/test_batch_api.py"
+      - ".github/workflows/mission-acceptance-contract.yml"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  mission-acceptance-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+          cache: pip
+          cache-dependency-path: requirements-factory-dev.txt
+      - name: Install factory test dependencies
+        run: python -m pip install -r requirements-factory-dev.txt
+      - name: Run frozen acceptance contract tests
+        run: |
+          python -m pytest -q --no-header \
+            tests/factory/test_mission_acceptance_contract.py \
+            tests/factory/test_mission_acceptance_lifecycle.py \
+            tests/factory/test_schema_migrations.py \
+            tests/test_batch_api.py
