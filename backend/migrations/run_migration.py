@@ -69,10 +69,19 @@ def run_pending_migrations(*, baseline: bool = False) -> list[str]:
             ).fetchall()
         }
 
+        replaced_migrations = {
+            "113_withheld_gates.sql": (
+                "invalid PL/pgSQL RAISE placeholder count; replaced by "
+                "113_z_withheld_gates_repair.sql"
+            ),
+        }
         for path in files:
             version = path.name
             if version in SQLITE_ONLY_MIGRATIONS:
                 logger.info("Skipping SQLite-only migration %s", version)
+                continue
+            if version in replaced_migrations:
+                logger.warning("Skipping superseded migration %s: %s", version, replaced_migrations[version])
                 continue
             checksum = _checksum(path)
             recorded_checksum = existing.get(version)
