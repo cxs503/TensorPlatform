@@ -79,3 +79,16 @@ def test_non_finite_criterion_values_are_rejected():
         acceptance_criteria_sha256([{
             "metric": "error", "target": float("nan"), "tolerance": 0.01,
         }])
+
+
+def test_qualitative_criteria_strings_are_canonicalized_for_campaign_tasks():
+    criteria = canonicalize_acceptance_criteria([
+        "Deliver a reproducible implementation with a regression test."
+    ])
+    assert criteria == [{
+        "statement": "Deliver a reproducible implementation with a regression test.",
+        "requires_code": True,
+        "requires_test": True,
+        "criterion_id": "C001",
+    }]
+    assert len(acceptance_criteria_sha256(criteria)) == 64
