@@ -22,6 +22,7 @@ from services.factory_bootstrap import (
     BASE_PREFIX,
     MIGRATIONS_DIR,
     PRODUCTION_ONLY,
+    SQLITE_ONLY,
     factory_migration_files,
 )
 
@@ -63,10 +64,14 @@ def test_every_migration_after_the_console_base_is_applied():
              if int(path.name.split("_", 1)[0]) > BASE_PREFIX]
     skipped = [name for name in later if name not in applied]
 
-    assert set(skipped) <= set(PRODUCTION_ONLY), f"unlisted skip: {skipped}"
-    assert all(PRODUCTION_ONLY[name].strip() for name in skipped), \
+    allowed_skips = set(PRODUCTION_ONLY) | set(SQLITE_ONLY)
+    assert set(skipped) <= allowed_skips, f"unlisted skip: {skipped}"
+    assert all(PRODUCTION_ONLY[name].strip() for name in skipped if name in PRODUCTION_ONLY), \
         "PRODUCTION_ONLY entries must carry a reason"
-    assert applied == sorted(later), "factory migrations must run in filename order"
+    assert all(SQLITE_ONLY[name].strip() for name in skipped if name in SQLITE_ONLY), \
+        "SQLITE_ONLY entries must carry a reason"
+    expected = sorted(name for name in later if name not in allowed_skips)
+    assert applied == expected, "factory migrations must run in filename order"
 
 
 def test_mission_columns_added_by_migrations_exist(factory):
