@@ -106,6 +106,7 @@ except ModuleNotFoundError:  # pragma: no cover - standalone import
 MISSION_TABLE = "tensor_dev_missions"
 BATCH_TABLE = "tensor_mission_batches"
 MIGRATION_FILE = "docs/proposals/104_tensor_mission_batches.sql"
+CRITERIA_MIGRATION_FILE = "backend/migrations/111_mission_acceptance_criteria_freeze.sql"
 REGISTRY_ENV = "BATCH_MISSION_REGISTRY"
 DEFAULT_REGISTRY = "artifacts/batch_missions/registry.sqlite3"
 
@@ -202,6 +203,9 @@ def capabilities(db: Session) -> dict[str, Any]:
         "batch_id_column": has_batch_column,
         "batch_table": has_batch_table,
         "acceptance_criteria_contract": criteria_columns <= columns,
+        "acceptance_criteria_migration_required": (
+            None if criteria_columns <= columns else CRITERIA_MIGRATION_FILE
+        ),
         "mode": MODE_ATOMIC if atomic else MODE_DEGRADED,
         "evidence": EVIDENCE[MODE_ATOMIC if atomic else MODE_DEGRADED],
         "schema_migration_required": None if atomic else MIGRATION_FILE,
