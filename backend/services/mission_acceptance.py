@@ -1,0 +1,74 @@
+"""Canonical, immutable acceptance-criteria snapshots for TensorPlatform missions."""
+from __future__ import annotations
+
+import hashlib
+import json
+from typing import Any, Mapping
+
+
+class AcceptanceCriteriaError(ValueError):
+    """Acceptance criteria are malformed or their frozen fingerprint drifted."""
+
+
+def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
+    """Validate criteria and assign deterministic IDs without changing their meaning.
+
+    Empty criteria remain legal for legacy/simple engineering work, but their
+    absence is explicit and downstream evaluation must remain inconclusive.
+    When present, every criterion must be machine-checkable.
+    """
+    if value is None:
+        return []
+    if not isinstance(value, list):
+        raise AcceptanceCriteriaError("acceptance_criteria must be an array")
+    normalized: list[dict[str, Any]] = []
+    seen: set[str] = set()
+    for index, raw in enumerate(value, start=1):
+        if not isinstance(raw, Mapping):
+            raise AcceptanceCriteriaError(f"criterion {index} must be an object")
+        item = dict(raw)
+        metric = item.get("metric")
+        target = item.get("target")
+        tolerance = item.get("tolerance")
+        if not isinstance(metric, str) or not metric.strip():
+            raise AcceptanceCriteriaError(f"criterion {index} requires a non-empty metric")
+        if target is None or isinstance(target, bool) or not isinstance(target, (str, int, float)):
+            raise AcceptanceCriteriaError(f"criterion {index} target must be a string or number")
+        if isinstance(target, str) and not target.strip():
+            raise AcceptanceCriteriaError(f"criterion {index} target must not be blank")
+        if tolerance is None or isinstance(tolerance, bool) or not isinstance(tolerance, (str, int, float)):
+            raise AcceptanceCriteriaError(f"criterion {index} tolerance must be a string or number")
+        if isinstance(tolerance, str) and not tolerance.strip():
+            raise AcceptanceCriteriaError(f"criterion {index} tolerance must not be blank")
+        criterion_id = item.get("criterion_id") or item.get("id") or f"C{index:03d}"
+        if not isinstance(criterion_id, str) or not criterion_id.strip():
+            raise AcceptanceCriteriaError(f"criterion {index} has an invalid criterion_id")
+        criterion_id = criterion_id.strip()
+        if criterion_id in seen:
+            raise AcceptanceCriteriaError(f"duplicate criterion_id: {criterion_id}")
+        seen.add(criterion_id)
+        item["criterion_id"] = criterion_id
+        item.pop("id", None)
+        item["metric"] = metric.strip()
+        normalized.append(item)
+    return normalized
+
+
+def acceptance_criteria_sha256(criteria: Any) -> str:
+    """Return a stable digest of a canonical criteria list."""
+    canonical = canonicalize_acceptance_criteria(criteria)
+    payload = json.dumps(
+        canonical, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+        allow_nan=False,
+    ).encode("utf-8")
+    return hashlib.sha256(payload).hexdigest()
+
+
+def verify_frozen_acceptance_criteria(criteria: Any, expected_sha256: str | None) -> bool:
+    """Verify the stored snapshot against its immutable fingerprint."""
+    if not isinstance(expected_sha256, str) or len(expected_sha256) != 64:
+        return False
+    try:
+        return acceptance_criteria_sha256(criteria) == expected_sha256.lower()
+    except (AcceptanceCriteriaError, TypeError, ValueError):
+        return False
