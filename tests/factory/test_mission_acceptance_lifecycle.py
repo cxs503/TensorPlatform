@@ -1,16 +1,14 @@
 """End-to-end API contract tests for immutable mission acceptance criteria."""
 from __future__ import annotations
 
+import hashlib
+import json
 import sys
 from pathlib import Path
-
-import json
-import hashlib
 
 import pytest
 from sqlalchemy import text
 from sqlalchemy.exc import DBAPIError
-from sqlalchemy import text
 
 ROOT = Path(__file__).resolve().parents[2]
 BACKEND = ROOT / "backend"
