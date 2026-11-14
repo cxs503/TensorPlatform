@@ -133,3 +133,12 @@ def test_capability_registry_postgres_replacement_satisfies_audit_dependency():
     assert "CREATE OR REPLACE VIEW v_capability_trace" in replacement
     names = [path.name for path in factory_migration_files()]
     assert names.index("099_z_capability_evidence_postgres.sql") < names.index("115_audit_readonly_views.sql")
+
+
+def test_demand_intake_base_precedes_audit_extension():
+    base = (MIGRATIONS_DIR / "123_z_demand_intake_base.sql").read_text()
+    assert "CREATE TABLE IF NOT EXISTS demand_intake_log" in base
+    assert "CREATE TABLE IF NOT EXISTS demand_backlog" in base
+    names = [path.name for path in factory_migration_files()]
+    assert names.index("123_agent_health_meter.sql") < names.index("123_z_demand_intake_base.sql")
+    assert names.index("123_z_demand_intake_base.sql") < names.index("124_demand_intake_audit.sql")
