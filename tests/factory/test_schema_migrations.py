@@ -87,3 +87,20 @@ def test_campaign_plan_columns_added_by_migrations_exist(factory):
 def test_factory_tables_exist(factory):
     for table in FACTORY_TABLES:
         assert _columns(factory["engine"], table), f"{table} was not created"
+
+
+def test_mission_acceptance_snapshot_columns_are_migrated(factory):
+    expected = {
+        "acceptance_criteria", "acceptance_criteria_sha256",
+        "acceptance_criteria_frozen_at", "acceptance_criteria_version",
+        "acceptance_criteria_freeze_source",
+    }
+    missing = sorted(expected - _columns(factory["engine"], "tensor_dev_missions"))
+    assert not missing, f"mission acceptance snapshot columns missing: {missing}"
+
+
+def test_mission_acceptance_freeze_trigger_is_declared():
+    migration = (MIGRATIONS_DIR / "111_mission_acceptance_criteria_freeze.sql").read_text()
+    assert "CREATE TRIGGER trg_protect_frozen_mission_acceptance_criteria" in migration
+    assert "OLD.acceptance_criteria_frozen_at IS NOT NULL" in migration
+    assert "NEW.acceptance_criteria_sha256 IS DISTINCT FROM OLD.acceptance_criteria_sha256" in migration
