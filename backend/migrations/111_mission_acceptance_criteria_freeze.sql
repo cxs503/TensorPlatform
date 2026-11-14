@@ -21,6 +21,14 @@ RETURNS trigger
 LANGUAGE plpgsql
 AS $$
 BEGIN
+    IF OLD.acceptance_criteria_frozen_at IS NULL
+       AND NEW.acceptance_criteria_frozen_at IS NOT NULL
+       AND NEW.acceptance_criteria_freeze_source = 'mission_created'
+       AND OLD.acceptance_criteria_freeze_source <> 'mission_created' THEN
+        RAISE EXCEPTION 'mission % cannot be retroactively marked as predeclared', OLD.id
+            USING ERRCODE = 'check_violation';
+    END IF;
+
     IF OLD.acceptance_criteria_frozen_at IS NOT NULL AND (
         NEW.acceptance_criteria IS DISTINCT FROM OLD.acceptance_criteria
         OR NEW.acceptance_criteria_sha256 IS DISTINCT FROM OLD.acceptance_criteria_sha256
