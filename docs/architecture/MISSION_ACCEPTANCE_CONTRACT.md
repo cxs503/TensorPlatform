@@ -14,12 +14,12 @@ A mission's acceptance criteria are part of its original work contract, not agen
 
 ## Criterion schema
 
-Every criterion must be a JSON object with:
+A criterion may be either:
 
-- `metric`: non-empty string identifying what is measured
-- `target`: non-empty string or finite number describing the target
-- `tolerance`: non-empty string or finite number describing allowed deviation
-- `criterion_id`: optional stable identifier; generated as `C001`, `C002`, ... when omitted
+- **Quantitative:** `metric` (non-empty string), `target` (non-empty string or finite number), and `tolerance` (non-empty string or finite number).
+- **Qualitative:** a non-empty `statement`. A plain string is accepted and canonicalized to a statement requiring code and test evidence; campaign workstreams use this form.
+
+Every criterion receives a stable `criterion_id` (`C001`, `C002`, ... when omitted). Optional evaluator metadata includes `required`, `requires_code`, `requires_test`, `evidence_refs`, and `test_ids`; these fields are validated and preserved.
 
 The full object is preserved, with canonical IDs, so domain-specific metadata can travel with the contract. An empty list remains legal for backward-compatible/simple engineering tasks, but is explicitly reported as `not_declared`; it is not an evaluable success condition.
 
@@ -37,6 +37,8 @@ A SHA-256 match proves snapshot integrity, not that a criterion is scientificall
 
 - `POST /tensor/missions` accepts and persists `acceptance_criteria`
 - `POST /tensor/missions/dispatch` accepts criteria for child missions
+- Batch mission submissions persist criteria when migration 111 is available; if a caller supplies criteria to a pre-111 schema, the batch API rejects the request rather than silently dropping them
+- Campaign workstream dispatch converts its existing qualitative criterion strings into frozen structured statements
 - `POST /tensor/missions/claim` returns criteria and digest to the worker
 - `POST /tensor/missions/{id}/start` verifies/freezes the snapshot and returns it
 - `GET /tensor/missions/{id}` and list responses expose snapshot/provenance
