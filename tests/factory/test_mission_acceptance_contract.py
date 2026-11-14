@@ -69,7 +69,8 @@ def test_digest_is_independent_of_object_key_order():
 def test_mission_api_persists_and_carries_frozen_criteria_end_to_end():
     api = (ROOT / "backend" / "api" / "tensor_missions.py").read_text(encoding="utf-8")
     assert "CAST(:criteria AS jsonb), :criteria_sha256, now(), 'mission_created'" in api
-    assert '"acceptance_criteria": row["acceptance_criteria"] or []' in api
+    assert 'criteria = row["acceptance_criteria"] or []' in api
+    assert '"acceptance_criteria": criteria' in api
     assert "verify_frozen_acceptance_criteria(criteria, digest)" in api
     assert '"acceptance_criteria": criteria' in api
     assert '"acceptance_criteria_integrity": criteria_integrity' in api
