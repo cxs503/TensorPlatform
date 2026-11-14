@@ -116,7 +116,12 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "acceptance_criteria_version": r.get("acceptance_criteria_version") or 1,
         "acceptance_criteria_freeze_source": r.get("acceptance_criteria_freeze_source") or "legacy_unfrozen",
         "acceptance_criteria_status": (
-            "declared" if r.get("acceptance_criteria") else "not_declared"
+            "declared" if r.get("acceptance_criteria")
+            and r.get("acceptance_criteria_freeze_source") == "mission_created"
+            else "legacy_frozen_at_start" if r.get("acceptance_criteria")
+            and r.get("acceptance_criteria_freeze_source") == "legacy_start"
+            else "not_declared" if not r.get("acceptance_criteria")
+            else "legacy_unfrozen"
         ),
     }
 
@@ -1206,7 +1211,8 @@ def start_mission(
             "acceptance_criteria_sha256": digest,
             "acceptance_criteria_count": len(criteria),
             "acceptance_criteria_freeze_source": (
-                row.get("acceptance_criteria_freeze_source") or "legacy_start"
+                row.get("acceptance_criteria_freeze_source")
+                if row.get("acceptance_criteria_frozen_at") is not None else "legacy_start"
             ),
         })
     db.commit()
