@@ -25,26 +25,53 @@ def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
     normalized: list[dict[str, Any]] = []
     seen: set[str] = set()
     for index, raw in enumerate(value, start=1):
-        if not isinstance(raw, Mapping):
-            raise AcceptanceCriteriaError(f"criterion {index} must be an object")
-        item = dict(raw)
+        if isinstance(raw, str):
+            item = {
+                "statement": raw,
+                "requires_code": True,
+                "requires_test": True,
+            }
+        elif isinstance(raw, Mapping):
+            item = dict(raw)
+        else:
+            raise AcceptanceCriteriaError(f"criterion {index} must be an object or non-empty string")
+
         metric = item.get("metric")
         target = item.get("target")
         tolerance = item.get("tolerance")
-        if not isinstance(metric, str) or not metric.strip():
-            raise AcceptanceCriteriaError(f"criterion {index} requires a non-empty metric")
-        if target is None or isinstance(target, bool) or not isinstance(target, (str, int, float)):
-            raise AcceptanceCriteriaError(f"criterion {index} target must be a string or finite number")
-        if isinstance(target, float) and not math.isfinite(target):
-            raise AcceptanceCriteriaError(f"criterion {index} target must be finite")
-        if isinstance(target, str) and not target.strip():
-            raise AcceptanceCriteriaError(f"criterion {index} target must not be blank")
-        if tolerance is None or isinstance(tolerance, bool) or not isinstance(tolerance, (str, int, float)):
-            raise AcceptanceCriteriaError(f"criterion {index} tolerance must be a string or finite number")
-        if isinstance(tolerance, float) and not math.isfinite(tolerance):
-            raise AcceptanceCriteriaError(f"criterion {index} tolerance must be finite")
-        if isinstance(tolerance, str) and not tolerance.strip():
-            raise AcceptanceCriteriaError(f"criterion {index} tolerance must not be blank")
+        statement = item.get("statement")
+        if metric is not None:
+            if not isinstance(metric, str) or not metric.strip():
+                raise AcceptanceCriteriaError(f"criterion {index} metric must be a non-empty string")
+            if target is None or isinstance(target, bool) or not isinstance(target, (str, int, float)):
+                raise AcceptanceCriteriaError(f"criterion {index} target must be a string or finite number")
+            if isinstance(target, float) and not math.isfinite(target):
+                raise AcceptanceCriteriaError(f"criterion {index} target must be finite")
+            if isinstance(target, str) and not target.strip():
+                raise AcceptanceCriteriaError(f"criterion {index} target must not be blank")
+            if tolerance is None or isinstance(tolerance, bool) or not isinstance(tolerance, (str, int, float)):
+                raise AcceptanceCriteriaError(f"criterion {index} tolerance must be a string or finite number")
+            if isinstance(tolerance, float) and not math.isfinite(tolerance):
+                raise AcceptanceCriteriaError(f"criterion {index} tolerance must be finite")
+            if isinstance(tolerance, str) and not tolerance.strip():
+                raise AcceptanceCriteriaError(f"criterion {index} tolerance must not be blank")
+            item["metric"] = metric.strip()
+        elif not isinstance(statement, str) or not statement.strip():
+            raise AcceptanceCriteriaError(
+                f"criterion {index} requires metric/target/tolerance or a non-empty statement"
+            )
+        else:
+            item["statement"] = statement.strip()
+
+        for flag in ("required", "requires_code", "requires_test"):
+            if flag in item and not isinstance(item[flag], bool):
+                raise AcceptanceCriteriaError(f"criterion {index} {flag} must be boolean")
+        for refs_field in ("evidence_refs", "test_ids"):
+            if refs_field in item and (
+                not isinstance(item[refs_field], list)
+                or any(not isinstance(ref, str) or not ref.strip() for ref in item[refs_field])
+            ):
+                raise AcceptanceCriteriaError(f"criterion {index} {refs_field} must be an array of non-empty strings")
         criterion_id = item.get("criterion_id", item.get("id"))
         if criterion_id is None:
             criterion_id = f"C{index:03d}"
