@@ -337,13 +337,19 @@ def _insert_mission(
     if present_criteria_columns == criteria_columns:
         criteria = canonicalize_acceptance_criteria(item.acceptance_criteria)
         criteria_digest = acceptance_criteria_sha256(criteria)
-        columns.extend(sorted(criteria_columns))
+        columns.extend([
+            "acceptance_criteria",
+            "acceptance_criteria_freeze_source",
+            "acceptance_criteria_frozen_at",
+            "acceptance_criteria_sha256",
+            "acceptance_criteria_version",
+        ])
         values.extend([
             _json_expr(dialect, ":acceptance_criteria"),
-            ":acceptance_criteria_sha256",
-            ":acceptance_criteria_frozen_at",
-            ":acceptance_criteria_version",
             "'mission_created'",
+            ":acceptance_criteria_frozen_at",
+            ":acceptance_criteria_sha256",
+            ":acceptance_criteria_version",
         ])
     elif item.acceptance_criteria:
         raise HTTPException(
