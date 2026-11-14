@@ -1,0 +1,54 @@
+{
+  "mission_id": 19682,
+  "title": "KPI-SEAT-HEALTH 计量：席位健康度现值首测定基线",
+  "summary": "完成 KPI-SEAT-HEALTH 计量（kpi_meter 周期复测）：从真实数据库计算席位健康度现值，产出 result JSON + 3 张图 + 计量报告。当前值 5.15%，目标 80%，缺口 74.85 pp，消账门 FAIL。",
+  "scenario_key": "KPI-SEAT-HEALTH",
+  "tags": ["kpi", "seat_health", "metering", "m19682", "baseline"],
+  "markdown": "# KPI-SEAT-HEALTH 计量报告：席位健康度现值首测定基线\n\n- **锚点**：KPI-SEAT-HEALTH（协调官规划令：本单只计量、不改进、不改任何代码/数据）\n- **测量时刻**：`2026-11-14T01:40:20+00:00`\n- **数据模式**：`real`（真实数据库）\n- **口径**：健康席位比例 = health_score ≥ 80 的席位 / 总席位数\n- **结论**：**current = 5.15 %**（5/97），target = 80.0 %，**gap = 74.85 pp**，**消账门 FAIL**\n\n## 1. 案例介绍\n\nKPI-SEAT-HEALTH 度量的是\"**席位（agent 工作身份）的健康度**\"。\n\n健康分数学定义（FEAT-AGENT-HARNESS）：\n- S = 成功率 (w=0.50)\n- C = 可控率 (w=0.20)\n- A = 失败可归因率 (w=0.10)\n- M = 记忆活力 (w=0.20)\n- raw = 100 × Σ(w_i·c_i) / Σ(w_i | c_i ≠ None)\n- score = raw × Π penalty_k（RECUR_FAIL=0.65 / LOW_SUCCESS=0.60 / MEMORY_STARVED=0.75）\n\n数据域：\n\n| 表 | 用途 | 关键列 |\n|---|---|---|\n| `v_agent_health_seat_latest` | 席位健康快照视图 | `seat_key, health_score, markers, missions_total, missions_succeeded` |\n| `tensor_dev_missions` | 任务主账 | `status, created_at, finished_at` |\n| `tensor_reports` | 报告工件 | `status, qa_status` |\n| `tensorbench_results` | 基准测试 | `passed` |\n| `knowledge_base` | 知识库 | - |\n| `ship_samples` | 样本 | `passed` |\n| `integrity_events` | 完整性事件 | `resolved` |\n\n## 2. 怎么做的\n\n1. **取事实**：通过 psql 直接查询 PostgreSQL 数据库\n2. **算路**：`tools/kpi_seat_health/measure.py` 从数据库聚合计算\n3. **出图**：`tools/kpi_seat_health/generate_figures.py` 渲染 3 张图\n4. **出报告**：本文件\n\n## 3. 计算结果\n\n### 3.1 核心 KPI\n\n| 指标 | 值 | 说明 |\n|---|---|---|\n| current | 5.15 % | health_score≥80 的席位/总席位 |\n| target | 80.0 % | 消账门 |\n| gap | 74.85 pp | target - current |\n| gate_pass | FAIL | 5.15% < 80% |\n| 健康席位(≥80) | 5 | 仅 5 席达标 |\n| 病席位 | 80 | 80/97 带标记 |\n\n### 3.2 健康分分布\n\n| 分档 | 席位数 | 平均分 |\n|---|---|---|\n| critical(<40) | 36 | 24.33 |\n| poor(40-59) | 51 | 48.54 |\n| warning(60-79) | 5 | 68.28 |\n| healthy(≥80) | 5 | 80.24 |\n\n### 3.3 病标记分布\n\n| 标记 | 席位数 | 占比 |\n|---|---|---|\n| RECUR_FAIL | 73 | 91.2% |\n| LOW_SUCCESS | 10 | 12.5% |\n| MEMORY_STARVED | 19 | 23.8% |\n\n### 3.4 舰队指标\n\n| 指标 | 值 |\n|---|---|\n| 总席位 | 97 |\n| 7d 任务总数 | 11975 |\n| 7d 成功数 | 7727 |\n| 舰队成功率 | 64.53% |\n| 平均健康分 | 43.18 |\n| 中位健康分 | 46.46 |\n\n### 3.5 其他 KPI 维度\n\n| KPI | 当前值 | 目标 | 达标 |\n|---|---|---|---|\n| 任务总数 | 18118 | 1000 | ✅ |\n| 任务成功率 | 69.58% | 90% | ❌ |\n| 报告总数 | 12223 | 800 | ✅ |\n| 报告发布率 | 99.93% | - | - |\n| QA 通过率 | 21.96% | - | - |\n| 样本总数 | 23176 | 2000 | ✅ |\n| 样本通过率 | 100% | - | ✅ |\n| 基准通过数 | 4 | 5 | ❌ |\n| 知识库样本 | 13114 | 100 | ✅ |\n| 未解决完整性事件 | 0 | 5 | ✅ |\n\n### 3.6 缺口清单\n\n| # | 缺口 |\n|---|---|\n| 1 | 席位健康率仅 5.15%（目标 80%），80/97 席位带病标记 |\n| 2 | RECUR_FAIL 标记席位 73 个（占病席位 91.2%） |\n| 3 | 平均健康分 43.18，中位数 46.46 |\n| 4 | 舰队成功率 64.53%（7d 窗口） |\n| 5 | 基准测试仅 4 项通过（目标 ≥5） |\n| 6 | 知识库样本 13114（目标 ≥100）✅ |\n\n### 3.7 建议派生锚点\n\n| anchor | 验收 |\n|---|---|\n| KPI-SEAT-RECUR-0 | RECUR_FAIL 席位清零：验收=该标记 COUNT(*)=0 |\n| KPI-SEAT-HEALTH-80 | 健康席位比例≥80%：验收=health_score≥80 的席位/总席位≥0.8 |\n| KPI-SEAT-MEMORY-50 | 记忆活力提升：验收=memory_hits>0 的席位占比≥50% |\n| KPI-SEAT-SUCCESS-70 | 舰队成功率≥70%：验收=7d 窗口成功率≥70% |\n| KPI-BENCHMARK-10 | 基准测试通过数≥10：验收=passed_benchmarks≥10 |\n\n## 4. 验证\n\n### 4.1 SQL 原文（可复算）\n\n```sql\n-- 席位健康汇总\nSELECT COUNT(*) as total_seats,\n       COUNT(*) FILTER (WHERE cardinality(markers) > 0) as unhealthy_seats,\n       COUNT(*) FILTER (WHERE 'RECUR_FAIL' = ANY(markers)) as recur_fail_seats,\n       ROUND(AVG(health_score)::numeric, 2) as avg_health_score,\n       ROUND(PERCENTILE_CONT(0.5) WITHIN GROUP (ORDER BY health_score)::numeric, 2) as median_health_score\nFROM v_agent_health_seat_latest WHERE seat_kind = 'worker';\n\n-- 健康席位(≥80)计数\nSELECT COUNT(*) FROM v_agent_health_seat_latest\nWHERE seat_kind = 'worker' AND health_score >= 80;\n```\n\n### 4.2 复算步骤\n\n```bash\npython3 tools/kpi_seat_health/measure.py\npython3 tools/kpi_seat_health/generate_figures.py\n```\n\n## 5. 注意点\n\n1. **健康分定义**：四分量加权 + 缺失重归一化 + 标记乘性罚分，详见 `tools/agent/agent_health_meter.py`。\n2. **RECUR_FAIL 主导**：91.2% 病席位带 RECUR_FAIL 标记，说明同阶段反复拦路是主要病根。\n3. **MEMORY_STARVED**：19 席记忆命中为 0，说明记忆层未被有效利用。\n4. **真实数据**：所有数字从 PostgreSQL 程序化读取，零手抄。\n\n## 6. 误差判定\n\n- **基准性质**：确定性计数，无实验/文献基准；正确性判据是 SQL 可复算。\n- **计算侧误差** = 0（确定性计数 + SQL 直接聚合）\n- **口径侧差异** = 无（单一口径：health_score ≥ 80）\n",
+  "figures": [
+    {"name": "fig1_health_distribution", "caption": "健康分分布：critical(<40) / poor(40-59) / warning(60-79) / healthy(≥80)", "path": "artifacts/kpi_seat_health/fig1_health_distribution.png"},
+    {"name": "fig2_current_vs_target", "caption": "当前值 vs 目标值对比（消账门 80%）", "path": "artifacts/kpi_seat_health/fig2_current_vs_target.png"},
+    {"name": "fig3_marker_breakdown", "caption": "病标记分布：RECUR_FAIL / LOW_SUCCESS / MEMORY_STARVED", "path": "artifacts/kpi_seat_health/fig3_marker_breakdown.png"}
+  ],
+  "artifacts": [
+    "artifacts/kpi_seat_health/result.json",
+    "artifacts/kpi_seat_health/figures.json"
+  ],
+  "data_mode": "real",
+  "kpi_result": {
+    "kpi": "KPI-SEAT-HEALTH",
+    "definition": "席位健康度现值 = 健康席位比例（health_score ≥ 80 的席位 / 总席位数）",
+    "measured_at": "2026-11-14T01:40:20.012846+00:00",
+    "current": 5.15,
+    "unit": "%",
+    "target": 80.0,
+    "gap": 74.85,
+    "gate_pass": false,
+    "gate_target": 80.0,
+    "data_sources": [
+      "SQL: v_agent_health_seat_latest (席位健康快照视图)",
+      "SQL: tensor_dev_missions (任务主账)",
+      "SQL: tensor_reports (报告工件)",
+      "SQL: tensorbench_results (基准测试)",
+      "SQL: knowledge_base / knowledge_rules / knowledge_injections (知识库)",
+      "SQL: ship_samples (样本)",
+      "SQL: integrity_events (完整性事件)",
+      "SQL: tensor_quality_patrol (质量巡逻)"
+    ],
+    "top_gaps": [
+      "席位健康率仅 5.15%（目标 80%），80/97 席位带病标记",
+      "RECUR_FAIL 标记席位 73 个（占病席位 91.2%）",
+      "平均健康分 43.18，中位数 46.46",
+      "舰队成功率 64.53%（7d 窗口）",
+      "基准测试仅 4 项通过（目标 ≥5）",
+      "知识库样本 13114（目标 ≥100）"
+    ],
+    "proposed_anchors": [
+      {"anchor": "KPI-SEAT-RECUR-0", "one_line": "RECUR_FAIL 席位清零：验收=该标记 COUNT(*)=0"},
+      {"anchor": "KPI-SEAT-HEALTH-80", "one_line": "健康席位比例≥80%：验收=health_score≥80 的席位/总席位≥0.8"},
+      {"anchor": "KPI-SEAT-MEMORY-50", "one_line": "记忆活力提升：验收=memory_hits>0 的席位占比≥50%"},
+      {"anchor": "KPI-SEAT-SUCCESS-70", "one_line": "舰队成功率≥70%：验收=7d 窗口成功率≥70%"},
+      {"anchor": "KPI-BENCHMARK-10", "one_line": "基准测试通过数≥10：验收=passed_benchmarks≥10"}
+    ]
+  }
+}
