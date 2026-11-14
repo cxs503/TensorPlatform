@@ -25,6 +25,12 @@ SQLITE_ONLY: dict[str, str] = {
         "database path and initializes the schema itself."
     ),
 }
+REPLACED_MIGRATIONS: dict[str, str] = {
+    "113_withheld_gates.sql": (
+        "Invalid PL/pgSQL RAISE placeholder count; superseded by the idempotent "
+        "113_z_withheld_gates_repair.sql forward migration."
+    ),
+}
 
 
 def factory_migration_files() -> list[Path]:
@@ -37,7 +43,8 @@ def factory_migration_files() -> list[Path]:
     return [path for path in files
             if int(path.name.split("_", 1)[0]) > BASE_PREFIX
             and path.name not in PRODUCTION_ONLY
-            and path.name not in SQLITE_ONLY]
+            and path.name not in SQLITE_ONLY
+            and path.name not in REPLACED_MIGRATIONS]
 
 
 def bootstrap_development_database(engine) -> None:
