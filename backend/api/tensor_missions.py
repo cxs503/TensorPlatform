@@ -114,6 +114,7 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "acceptance_criteria_sha256": r.get("acceptance_criteria_sha256"),
         "acceptance_criteria_frozen_at": _iso(r.get("acceptance_criteria_frozen_at")),
         "acceptance_criteria_version": r.get("acceptance_criteria_version") or 1,
+        "acceptance_criteria_freeze_source": r.get("acceptance_criteria_freeze_source") or "legacy_unfrozen",
         "acceptance_criteria_status": (
             "declared" if r.get("acceptance_criteria") else "not_declared"
         ),
@@ -128,7 +129,8 @@ def _load_mission(db: Session, mission_id: int, user: dict | None = None, *, loc
                    model, agent_session_id, worker_role, campaign_id, campaign_phase, status, claim_token, claimed_by, session_id, result,
                    budget_used, fail_stage, created_by, created_at, heartbeat_at,
                    finished_at, acceptance_criteria, acceptance_criteria_sha256,
-                   acceptance_criteria_frozen_at, acceptance_criteria_version
+                   acceptance_criteria_frozen_at, acceptance_criteria_version,
+                   acceptance_criteria_freeze_source
             FROM tensor_dev_missions WHERE id = :mid
         """ + (" FOR UPDATE" if lock else "")),
         {"mid": mission_id},
@@ -267,10 +269,11 @@ def create_mission(
             INSERT INTO tensor_dev_missions
                 (organization_id, goal, repo, base_ref, co_repos, budget, runner,
                  origin, model, created_by, worker_role, task_key, agent_session_id,
-                 acceptance_criteria, acceptance_criteria_sha256, acceptance_criteria_frozen_at)
+                 acceptance_criteria, acceptance_criteria_sha256, acceptance_criteria_frozen_at,
+                 acceptance_criteria_freeze_source)
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
                     :runner, :origin, :model, :uid, :worker_role, :task_key, :agent_session_id,
-                    CAST(:criteria AS jsonb), :criteria_sha256, now())
+                    CAST(:criteria AS jsonb), :criteria_sha256, now(), 'mission_created')
             RETURNING id
         """),
         {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
@@ -444,10 +447,11 @@ def dispatch_mission(
             INSERT INTO tensor_dev_missions
                 (organization_id, goal, repo, base_ref, co_repos, budget, runner,
                  origin, model, parent_mission_id, created_by, acceptance_criteria,
-                 acceptance_criteria_sha256, acceptance_criteria_frozen_at)
+                 acceptance_criteria_sha256, acceptance_criteria_frozen_at,
+                 acceptance_criteria_freeze_source)
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
                     :runner, 'agent', :model, :parent, :uid, CAST(:criteria AS jsonb),
-                    :criteria_sha256, now())
+                    :criteria_sha256, now(), 'mission_created')
             RETURNING id
         """),
         {"org": org_id, "runner": parent["runner"], "goal": body.goal.strip(), "repo": body.repo.strip(),
@@ -548,7 +552,8 @@ def list_missions(
                    claimed_by, session_id, result, budget_used, fail_stage,
                    created_by, created_at, heartbeat_at, finished_at, task_key,
                    acceptance_criteria, acceptance_criteria_sha256,
-                   acceptance_criteria_frozen_at, acceptance_criteria_version
+                   acceptance_criteria_frozen_at, acceptance_criteria_version,
+                   acceptance_criteria_freeze_source
             FROM tensor_dev_missions WHERE {filters}
             ORDER BY id DESC LIMIT :limit OFFSET :offset
         """),
@@ -955,7 +960,8 @@ def claim_mission(
             RETURNING id, goal, repo, base_ref, co_repos, budget, runner, origin,
                       model, session_id, organization_id, worker_role, task_key, agent_session_id,
                       campaign_id, campaign_phase, acceptance_criteria,
-                      acceptance_criteria_sha256, acceptance_criteria_frozen_at
+                      acceptance_criteria_sha256, acceptance_criteria_frozen_at,
+                      acceptance_criteria_freeze_source
         """),
         {"tok": token, "agent": body.agent_id, "uid": user["id"], "org": org_id, "runner": body.runner,
          "claim_model": body.model, "claim_mission_id": body.mission_id, "worker_role": body.worker_role, "agent_session_id": str(body.agent_session_id) if body.agent_session_id else None},
@@ -991,6 +997,7 @@ def claim_mission(
             "acceptance_criteria_sha256": row["acceptance_criteria_sha256"],
             "acceptance_criteria_frozen_at": _iso(row["acceptance_criteria_frozen_at"]),
             "acceptance_criteria_version": 1,
+            "acceptance_criteria_freeze_source": row["acceptance_criteria_freeze_source"],
             "acceptance_criteria_status": (
                 "declared" if row["acceptance_criteria"] else "not_declared"
             ),
@@ -1009,7 +1016,8 @@ def _authorize_agent(db: Session, mission_id: int, claim_token: str, user: dict)
                    organization_id, session_id, runner, budget, created_at,
                    result, budget_used, fail_stage, goal, repo,
                    acceptance_criteria, acceptance_criteria_sha256,
-                   acceptance_criteria_frozen_at, acceptance_criteria_version
+                   acceptance_criteria_frozen_at, acceptance_criteria_version,
+                   acceptance_criteria_freeze_source
             FROM tensor_dev_missions WHERE id = :mid FOR UPDATE
         """),
         {"mid": mission_id},
@@ -1184,13 +1192,23 @@ def start_mission(
                 SET acceptance_criteria = CAST(:criteria AS jsonb),
                     acceptance_criteria_sha256 = :digest,
                     acceptance_criteria_frozen_at = now(),
+                    acceptance_criteria_freeze_source = 'legacy_start',
                     status = 'running', heartbeat_at = now()
                 WHERE id = :mid
+                RETURNING acceptance_criteria_frozen_at
             """),
             {"criteria": _dumps(criteria), "digest": digest, "mid": mission_id},
-        )
+        ).scalar()
+        frozen_at = frozen_at or datetime.now(timezone.utc)
     if row["session_id"]:
-        append_event(db, row["session_id"], "note", {"subtype": "mission_started"})
+        append_event(db, row["session_id"], "note", {
+            "subtype": "mission_started",
+            "acceptance_criteria_sha256": digest,
+            "acceptance_criteria_count": len(criteria),
+            "acceptance_criteria_freeze_source": (
+                row.get("acceptance_criteria_freeze_source") or "legacy_start"
+            ),
+        })
     db.commit()
     # ②注入环（fail-open）：干货包在开工时落账并随响应回传；runner 支持则拼入首条消息。
     loop_info = _memory_loop_start(mission_id, row.get("goal") or "", row.get("repo") or "",
@@ -1199,8 +1217,16 @@ def start_mission(
         "id": mission_id, "status": "running", "memory_loop": loop_info,
         "acceptance_criteria": criteria,
         "acceptance_criteria_sha256": digest,
-        "acceptance_criteria_frozen_at": _iso(frozen_at) if frozen_at is not None else "now",
-        "acceptance_criteria_status": "declared" if criteria and frozen_at is not None else "legacy_unfrozen" if criteria else "not_declared",
+        "acceptance_criteria_frozen_at": _iso(frozen_at),
+        "acceptance_criteria_freeze_source": (
+            row.get("acceptance_criteria_freeze_source")
+            if row.get("acceptance_criteria_frozen_at") is not None else "legacy_start"
+        ),
+        "acceptance_criteria_status": (
+            "declared" if criteria and row.get("acceptance_criteria_frozen_at") is not None
+            and row.get("acceptance_criteria_freeze_source") == "mission_created"
+            else "legacy_frozen_at_start" if criteria else "not_declared"
+        ),
     }
     if loop_info.get("block"):
         resp["context_block"] = loop_info.pop("block")
@@ -1390,9 +1416,12 @@ def complete_mission(
         "acceptance_criteria_sha256": criteria_digest,
         "acceptance_criteria_frozen_at": _iso(mission.get("acceptance_criteria_frozen_at")),
         "acceptance_criteria_version": mission.get("acceptance_criteria_version") or 1,
+        "acceptance_criteria_freeze_source": mission.get("acceptance_criteria_freeze_source") or "legacy_unfrozen",
         "acceptance_criteria_integrity": criteria_integrity,
         "acceptance_criteria_status": (
             "declared" if criteria and criteria_integrity == "verified"
+            and mission.get("acceptance_criteria_freeze_source") == "mission_created"
+            else "legacy_frozen_at_start" if criteria and criteria_integrity == "verified"
             else "not_declared" if not criteria else "legacy_unfrozen"
         ),
     }
