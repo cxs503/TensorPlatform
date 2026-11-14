@@ -3,8 +3,18 @@ from __future__ import annotations
 import os
 from pathlib import Path
 
-import psycopg2
 import pytest
+
+try:
+    import psycopg2
+except ModuleNotFoundError:
+    psycopg2 = None
+
+if psycopg2 is None or not os.environ.get("DATABASE_URL"):
+    pytest.skip(
+        "requires psycopg2 and an isolated PostgreSQL DATABASE_URL",
+        allow_module_level=True,
+    )
 
 
 ROOT = Path(__file__).resolve().parents[2]
