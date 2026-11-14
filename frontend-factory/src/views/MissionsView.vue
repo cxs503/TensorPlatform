@@ -62,6 +62,11 @@
         </el-form-item>
         <el-button :loading="drafting" :disabled="!modelReady || form.goal.trim().length < 10 || form.goal.length > 6000" @click="draftGoal">GPT 规划任务</el-button>
         <p class="tf-form-hint">将当前目标发送给模型生成草稿，确认后可填入目标；不会自动创建或执行任务。</p>
+        <el-form-item label="预声明验收标准（每行一条）">
+          <el-input v-model="form.acceptance_criteria_text" type="textarea" :rows="4"
+            placeholder="例：实现质量守恒检查\n补充可复现回归测试\n所有相关测试通过" />
+          <p class="tf-form-hint">任务创建时冻结；GPT 草稿中的验收标准会自动填入此处。留空则标记为未声明，不会自动判定通过。</p>
+        </el-form-item>
         <div v-if="draft" class="tf-draft-preview">
           <p><b>规划草稿</b> · {{ draftModel }}</p>
           <p>{{ draft.goal }}</p>
@@ -131,7 +136,7 @@ const filters = [
 ]
 const form = ref({
   agent_session_id: residentSessions.value.find(s => s.enabled)?.agent_session_id || '', goal: '', repo: repos.value[0] || '', base_ref: 'main',
-  max_tool_calls: 80, max_wall_minutes: 120,
+  max_tool_calls: 80, max_wall_minutes: 120, acceptance_criteria_text: '',
 })
 
 function goalBrief(goal: string) {
@@ -153,7 +158,7 @@ async function load() {
 
 function openCreate() {
   draft.value = null
-  form.value = { agent_session_id: residentSessions.value.find(s => s.enabled)?.agent_session_id || '', goal: '', repo: repos.value[0] || '', base_ref: 'main', max_tool_calls: 80, max_wall_minutes: 120 }
+  form.value = { agent_session_id: residentSessions.value.find(s => s.enabled)?.agent_session_id || '', goal: '', repo: repos.value[0] || '', base_ref: 'main', max_tool_calls: 80, max_wall_minutes: 120, acceptance_criteria_text: '' }
   createDialog.value = true
 }
 
@@ -169,16 +174,23 @@ async function draftGoal() {
   finally { drafting.value = false }
 }
 function applyDraft() {
-  form.value.goal = `${draft.value.goal}\n\n执行步骤：\n${draft.value.steps.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}\n\n验收标准：\n${draft.value.acceptance_criteria.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}`
+  form.value.goal = `${draft.value.goal}\n\n执行步骤：\n${draft.value.steps.map((s: string, i: number) => `${i + 1}. ${s}`).join('\n')}`
+  form.value.acceptance_criteria_text = (draft.value.acceptance_criteria || []).join('\n')
   draft.value = null
 }
 
 async function submit() {
   try {
+    const acceptanceCriteria = form.value.acceptance_criteria_text
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(statement => ({ statement, required: true, requires_code: true, requires_test: true }))
     const res = await missionApi.create({
       goal: form.value.goal.trim(),
       repo: form.value.repo,
       base_ref: form.value.base_ref.trim() || 'main',
+      ...(acceptanceCriteria.length ? { acceptance_criteria: acceptanceCriteria } : {}),
       runner: 'native',
       agent_session_id: form.value.agent_session_id || undefined,
       budget: {

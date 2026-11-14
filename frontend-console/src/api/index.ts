@@ -76,6 +76,15 @@ export const missionApi = {
     co_repos?: string[]
     budget?: Record<string, number>
     model?: string
+    acceptance_criteria?: Array<{
+      statement?: string
+      metric?: string
+      target?: string | number
+      tolerance?: string | number
+      required?: boolean
+      requires_code?: boolean
+      requires_test?: boolean
+    }>
   }) => http.post<any>('/tensor/missions', body),
   children: (id: number) => http.get<any>(`/tensor/missions/${id}/children`),
   stop: (id: number, reason?: string) =>

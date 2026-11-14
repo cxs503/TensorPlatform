@@ -55,6 +55,12 @@ from pathlib import Path
 from contextlib import closing
 from typing import Any
 
+from services.mission_acceptance import (
+    AcceptanceCriteriaError,
+    acceptance_criteria_sha256,
+    canonicalize_acceptance_criteria,
+)
+
 from fastapi import APIRouter, Depends, Header, HTTPException, Query, status
 from pydantic import BaseModel, Field, field_validator
 from sqlalchemy import text
@@ -100,6 +106,7 @@ except ModuleNotFoundError:  # pragma: no cover - standalone import
 MISSION_TABLE = "tensor_dev_missions"
 BATCH_TABLE = "tensor_mission_batches"
 MIGRATION_FILE = "docs/proposals/104_tensor_mission_batches.sql"
+CRITERIA_MIGRATION_FILE = "backend/migrations/111_mission_acceptance_criteria_freeze.sql"
 REGISTRY_ENV = "BATCH_MISSION_REGISTRY"
 DEFAULT_REGISTRY = "artifacts/batch_missions/registry.sqlite3"
 
@@ -135,6 +142,15 @@ class BatchMissionItem(BaseModel):
     runner: str | None = Field(default=None, max_length=120)
     co_repos: list[str] | None = None
     parent_mission_id: int | None = None
+    acceptance_criteria: list[dict[str, Any] | str] = Field(default_factory=list)
+
+    @field_validator("acceptance_criteria")
+    @classmethod
+    def _canonical_criteria(cls, value: list[dict[str, Any] | str]) -> list[dict[str, Any]]:
+        try:
+            return canonicalize_acceptance_criteria(value)
+        except AcceptanceCriteriaError as exc:
+            raise ValueError(str(exc)) from exc
 
     @field_validator("goal", "repo", "base_ref")
     @classmethod
@@ -176,11 +192,20 @@ def capabilities(db: Session) -> dict[str, Any]:
     has_batch_column = "batch_id" in columns
     has_batch_table = "batch_id" in batch_columns and "idempotency_key" in batch_columns
     atomic = bool(columns) and has_batch_column and has_batch_table
+    criteria_columns = {
+        "acceptance_criteria", "acceptance_criteria_sha256",
+        "acceptance_criteria_frozen_at", "acceptance_criteria_version",
+        "acceptance_criteria_freeze_source",
+    }
     return {
         "mission_table": MISSION_TABLE,
         "mission_table_present": bool(columns),
         "batch_id_column": has_batch_column,
         "batch_table": has_batch_table,
+        "acceptance_criteria_contract": criteria_columns <= columns,
+        "acceptance_criteria_migration_required": (
+            None if criteria_columns <= columns else CRITERIA_MIGRATION_FILE
+        ),
         "mode": MODE_ATOMIC if atomic else MODE_DEGRADED,
         "evidence": EVIDENCE[MODE_ATOMIC if atomic else MODE_DEGRADED],
         "schema_migration_required": None if atomic else MIGRATION_FILE,
@@ -307,6 +332,44 @@ def _insert_mission(
     if batch_id is not None:
         columns.append("batch_id")
         values.append(":batch_id")
+
+    criteria_columns = {
+        "acceptance_criteria", "acceptance_criteria_sha256",
+        "acceptance_criteria_frozen_at", "acceptance_criteria_version",
+        "acceptance_criteria_freeze_source",
+    }
+    present_criteria_columns = criteria_columns & _table_columns(db, MISSION_TABLE)
+    if present_criteria_columns and present_criteria_columns != criteria_columns:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="mission acceptance criteria schema is only partially migrated",
+        )
+    if present_criteria_columns == criteria_columns:
+        criteria = canonicalize_acceptance_criteria(item.acceptance_criteria)
+        criteria_digest = acceptance_criteria_sha256(criteria)
+        columns.extend([
+            "acceptance_criteria",
+            "acceptance_criteria_freeze_source",
+            "acceptance_criteria_frozen_at",
+            "acceptance_criteria_sha256",
+            "acceptance_criteria_version",
+        ])
+        values.extend([
+            _json_expr(dialect, ":acceptance_criteria"),
+            "'mission_created'",
+            ":acceptance_criteria_frozen_at",
+            ":acceptance_criteria_sha256",
+            ":acceptance_criteria_version",
+        ])
+    elif item.acceptance_criteria:
+        raise HTTPException(
+            status_code=status.HTTP_503_SERVICE_UNAVAILABLE,
+            detail="acceptance criteria require migration 111 before batch submission",
+        )
+    else:
+        criteria = []
+        criteria_digest = None
+
     for optional, value in (("model", item.model), ("runner", item.runner), ("parent_mission_id", item.parent_mission_id)):
         if value is not None:
             columns.append(optional)
@@ -324,6 +387,13 @@ def _insert_mission(
         "runner": item.runner,
         "parent_mission_id": item.parent_mission_id,
     }
+    if present_criteria_columns == criteria_columns:
+        params.update({
+            "acceptance_criteria": json.dumps(criteria, ensure_ascii=False),
+            "acceptance_criteria_sha256": criteria_digest,
+            "acceptance_criteria_frozen_at": datetime.now(timezone.utc).isoformat(),
+            "acceptance_criteria_version": 1,
+        })
     sql = (
         f"INSERT INTO {MISSION_TABLE} ({', '.join(columns)}) "
         f"VALUES ({', '.join(values)}) RETURNING id"

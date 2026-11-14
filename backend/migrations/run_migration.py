@@ -16,6 +16,9 @@ logger = logging.getLogger(__name__)
 MIGRATIONS_DIR = Path(__file__).resolve().parent
 MIGRATION_GLOB = "[0-9][0-9][0-9]_*.sql"
 
+# Invalid historical SQL files are skipped and replaced by idempotent
+# forward migrations with new version identifiers.
+
 
 def _migration_files() -> list[Path]:
     return sorted(MIGRATIONS_DIR.glob(MIGRATION_GLOB), key=lambda path: path.name)
@@ -61,8 +64,21 @@ def run_pending_migrations(*, baseline: bool = False) -> list[str]:
             ).fetchall()
         }
 
+        replaced_migrations = {
+            "099_capability_evidence_sql.sql": (
+                "SQLite AUTOINCREMENT/datetime syntax; replaced by "
+                "099_z_capability_evidence_postgres.sql"
+            ),
+            "113_withheld_gates.sql": (
+                "invalid PL/pgSQL RAISE placeholder count; replaced by "
+                "113_z_withheld_gates_repair.sql"
+            ),
+        }
         for path in files:
             version = path.name
+            if version in replaced_migrations:
+                logger.warning("Skipping superseded migration %s: %s", version, replaced_migrations[version])
+                continue
             checksum = _checksum(path)
             recorded_checksum = existing.get(version)
             if recorded_checksum:

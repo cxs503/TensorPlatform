@@ -32,7 +32,8 @@ from pathlib import Path
 import pytest
 from fastapi import FastAPI
 from fastapi.testclient import TestClient
-from sqlalchemy import text
+from sqlalchemy import create_engine, text
+from sqlalchemy.orm import Session, sessionmaker
 
 REPO_ROOT = Path(__file__).resolve().parents[1]
 SRC_DIR = REPO_ROOT / "src"
@@ -62,7 +63,22 @@ def _load_module():
 
 
 BATCH = _load_module()
-from database.config import engine  # noqa: E402  (same DATABASE_URL, imported after env is set)
+TEST_ENGINE = create_engine(
+    f"sqlite:///{_TMP / 'batch_api_test.db'}",
+    connect_args={"check_same_thread": False},
+)
+TestSessionLocal = sessionmaker(bind=TEST_ENGINE, autoflush=False, autocommit=False)
+
+
+def _test_get_db():
+    db = TestSessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
+
+
+BATCH.engine = TEST_ENGINE
 
 MISSION_DDL = """
 CREATE TABLE {table} (
@@ -77,7 +93,12 @@ CREATE TABLE {table} (
                                       'succeeded','failed','stopped')),
     result          TEXT NOT NULL DEFAULT '{{}}',
     created_by      TEXT,
-    created_at      TEXT NOT NULL DEFAULT (datetime('now')){extra}
+    created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+    acceptance_criteria TEXT NOT NULL DEFAULT '[]',
+    acceptance_criteria_sha256 TEXT,
+    acceptance_criteria_frozen_at TEXT,
+    acceptance_criteria_version INTEGER NOT NULL DEFAULT 1,
+    acceptance_criteria_freeze_source TEXT NOT NULL DEFAULT 'legacy_unfrozen'{extra}
 )
 """
 
@@ -96,7 +117,7 @@ CREATE TABLE tensor_mission_batches (
 
 
 def _reset_schema(atomic: bool) -> None:
-    with engine.begin() as conn:
+    with TEST_ENGINE.begin() as conn:
         conn.execute(text("DROP TABLE IF EXISTS tensor_dev_missions"))
         conn.execute(text("DROP TABLE IF EXISTS tensor_mission_batches"))
         extra = ",\n    batch_id        TEXT" if atomic else ""
@@ -129,6 +150,7 @@ def degraded_schema(registry):
 def _app(with_auth: bool = True) -> TestClient:
     app = FastAPI()
     app.include_router(BATCH.router)
+    app.dependency_overrides[BATCH.get_db] = _test_get_db
     if with_auth:
 
         def _user():
@@ -159,7 +181,7 @@ def _count_rows(where: str = "", params: dict | None = None) -> int:
     sql = "SELECT count(*) FROM tensor_dev_missions"
     if where:
         sql += f" WHERE {where}"
-    with engine.begin() as conn:
+    with TEST_ENGINE.begin() as conn:
         return int(conn.execute(text(sql), params or {}).scalar_one())
 
 
@@ -184,7 +206,7 @@ def test_submit_50_missions_is_atomic_and_all_rows_queued(client):
     assert _count_rows("batch_id = :b", {"b": body["batch_id"]}) == 50
     assert _count_rows("batch_id = :b AND status = 'queued'", {"b": body["batch_id"]}) == 50
     assert _count_rows() == 50
-    with engine.begin() as conn:
+    with TEST_ENGINE.begin() as conn:
         goals = [r[0] for r in conn.execute(text("SELECT goal FROM tensor_dev_missions ORDER BY id"))]
         budget = conn.execute(
             text("SELECT budget FROM tensor_dev_missions WHERE id = :i"), {"i": body["mission_ids"][0]}
@@ -229,7 +251,7 @@ def test_progress_summary_reports_status_counts(client):
     batch_id = resp.json()["batch_id"]
     ids = resp.json()["mission_ids"]
 
-    with engine.begin() as conn:
+    with TEST_ENGINE.begin() as conn:
         for mid in ids[:4]:
             conn.execute(text("UPDATE tensor_dev_missions SET status='succeeded' WHERE id=:i"), {"i": mid})
         conn.execute(text("UPDATE tensor_dev_missions SET status='running' WHERE id=:i"), {"i": ids[4]})
@@ -255,7 +277,7 @@ def test_progress_summary_reports_status_counts(client):
 def test_progress_finished_when_all_terminal(client):
     resp = client.post("/tensor/missions/batch", json=_payload(3))
     batch_id = resp.json()["batch_id"]
-    with engine.begin() as conn:
+    with TEST_ENGINE.begin() as conn:
         conn.execute(
             text("UPDATE tensor_dev_missions SET status='succeeded' WHERE batch_id=:b"),
             {"b": batch_id},
@@ -350,7 +372,57 @@ def test_degraded_mode_partial_failure_is_reported_honestly(degraded_schema):
 def test_capabilities_probe_matches_schema(atomic_schema):
     from sqlalchemy.orm import Session
 
-    with Session(engine) as session:
+    with Session(TEST_ENGINE) as session:
         caps = BATCH.capabilities(session)
     assert caps["mode"] == "atomic" and caps["evidence"] == "REAL"
     assert caps["batch_id_column"] is True and caps["batch_table"] is True
+    assert caps["acceptance_criteria_contract"] is True
+    assert caps["acceptance_criteria_migration_required"] is None
+
+def test_batch_submission_persists_predeclared_acceptance_contract(client):
+    items = _payload(1)
+    items[0]["acceptance_criteria"] = [
+        "Implement the requested solver change and include a reproducible regression test.",
+        {"metric": "relative_error", "target": "<0.03", "tolerance": "0.001"},
+    ]
+    response = client.post("/tensor/missions/batch", json=items)
+    assert response.status_code == 201, response.text
+    mission_id = response.json()["mission_ids"][0]
+    with TEST_ENGINE.begin() as conn:
+        row = conn.execute(text("""
+            SELECT acceptance_criteria, acceptance_criteria_sha256,
+                   acceptance_criteria_frozen_at, acceptance_criteria_freeze_source
+            FROM tensor_dev_missions WHERE id=:mid
+        """), {"mid": mission_id}).fetchone()
+    criteria = json.loads(row[0])
+    assert [item["criterion_id"] for item in criteria] == ["C001", "C002"]
+    assert row[1] and len(row[1]) == 64
+    assert row[2]
+    assert row[3] == "mission_created"
+    canonical = json.dumps(criteria, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    import hashlib
+    assert row[1] == hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def test_batch_rejects_blank_qualitative_acceptance_criterion(client):
+    items = _payload(1)
+    items[0]["acceptance_criteria"] = ["   "]
+    response = client.post("/tensor/missions/batch", json=items)
+    assert response.status_code == 422
+    assert _count_rows() == 0
+
+
+def test_batch_refuses_criteria_when_acceptance_schema_is_missing(client):
+    with TEST_ENGINE.begin() as conn:
+        for column in (
+            "acceptance_criteria", "acceptance_criteria_sha256",
+            "acceptance_criteria_frozen_at", "acceptance_criteria_version",
+            "acceptance_criteria_freeze_source",
+        ):
+            conn.execute(text(f"ALTER TABLE tensor_dev_missions DROP COLUMN {column}"))
+    items = _payload(1)
+    items[0]["acceptance_criteria"] = ["Must not be silently discarded"]
+    response = client.post("/tensor/missions/batch", json=items)
+    assert response.status_code == 503
+    assert "migration 111" in response.json()["detail"]
+    assert _count_rows() == 0
