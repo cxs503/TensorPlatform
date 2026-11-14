@@ -77,7 +77,12 @@ CREATE TABLE {table} (
                                       'succeeded','failed','stopped')),
     result          TEXT NOT NULL DEFAULT '{{}}',
     created_by      TEXT,
-    created_at      TEXT NOT NULL DEFAULT (datetime('now')){extra}
+    created_at      TEXT NOT NULL DEFAULT (datetime('now')),
+    acceptance_criteria TEXT NOT NULL DEFAULT '[]',
+    acceptance_criteria_sha256 TEXT,
+    acceptance_criteria_frozen_at TEXT,
+    acceptance_criteria_version INTEGER NOT NULL DEFAULT 1,
+    acceptance_criteria_freeze_source TEXT NOT NULL DEFAULT 'legacy_unfrozen'{extra}
 )
 """
 
@@ -354,3 +359,35 @@ def test_capabilities_probe_matches_schema(atomic_schema):
         caps = BATCH.capabilities(session)
     assert caps["mode"] == "atomic" and caps["evidence"] == "REAL"
     assert caps["batch_id_column"] is True and caps["batch_table"] is True
+
+def test_batch_submission_persists_predeclared_acceptance_contract(client):
+    items = _payload(1)
+    items[0]["acceptance_criteria"] = [
+        "Implement the requested solver change and include a reproducible regression test.",
+        {"metric": "relative_error", "target": "<0.03", "tolerance": "0.001"},
+    ]
+    response = client.post("/tensor/missions/batch", json=items)
+    assert response.status_code == 201, response.text
+    mission_id = response.json()["mission_ids"][0]
+    with engine.begin() as conn:
+        row = conn.execute(text("""
+            SELECT acceptance_criteria, acceptance_criteria_sha256,
+                   acceptance_criteria_frozen_at, acceptance_criteria_freeze_source
+            FROM tensor_dev_missions WHERE id=:mid
+        """), {"mid": mission_id}).fetchone()
+    criteria = json.loads(row[0])
+    assert [item["criterion_id"] for item in criteria] == ["C001", "C002"]
+    assert row[1] and len(row[1]) == 64
+    assert row[2]
+    assert row[3] == "mission_created"
+    canonical = json.dumps(criteria, sort_keys=True, ensure_ascii=False, separators=(",", ":"))
+    import hashlib
+    assert row[1] == hashlib.sha256(canonical.encode("utf-8")).hexdigest()
+
+
+def test_batch_rejects_blank_qualitative_acceptance_criterion(client):
+    items = _payload(1)
+    items[0]["acceptance_criteria"] = ["   "]
+    response = client.post("/tensor/missions/batch", json=items)
+    assert response.status_code == 422
+    assert _count_rows() == 0
