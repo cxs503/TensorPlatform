@@ -360,6 +360,7 @@ def test_capabilities_probe_matches_schema(atomic_schema):
     assert caps["mode"] == "atomic" and caps["evidence"] == "REAL"
     assert caps["batch_id_column"] is True and caps["batch_table"] is True
     assert caps["acceptance_criteria_contract"] is True
+    assert caps["acceptance_criteria_migration_required"] is None
 
 def test_batch_submission_persists_predeclared_acceptance_contract(client):
     items = _payload(1)
