@@ -3,6 +3,7 @@ from __future__ import annotations
 
 import hashlib
 import json
+import math
 from typing import Any, Mapping
 
 
@@ -33,11 +34,15 @@ def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
         if not isinstance(metric, str) or not metric.strip():
             raise AcceptanceCriteriaError(f"criterion {index} requires a non-empty metric")
         if target is None or isinstance(target, bool) or not isinstance(target, (str, int, float)):
-            raise AcceptanceCriteriaError(f"criterion {index} target must be a string or number")
+            raise AcceptanceCriteriaError(f"criterion {index} target must be a string or finite number")
+        if isinstance(target, float) and not math.isfinite(target):
+            raise AcceptanceCriteriaError(f"criterion {index} target must be finite")
         if isinstance(target, str) and not target.strip():
             raise AcceptanceCriteriaError(f"criterion {index} target must not be blank")
         if tolerance is None or isinstance(tolerance, bool) or not isinstance(tolerance, (str, int, float)):
-            raise AcceptanceCriteriaError(f"criterion {index} tolerance must be a string or number")
+            raise AcceptanceCriteriaError(f"criterion {index} tolerance must be a string or finite number")
+        if isinstance(tolerance, float) and not math.isfinite(tolerance):
+            raise AcceptanceCriteriaError(f"criterion {index} tolerance must be finite")
         if isinstance(tolerance, str) and not tolerance.strip():
             raise AcceptanceCriteriaError(f"criterion {index} tolerance must not be blank")
         criterion_id = item.get("criterion_id") or item.get("id") or f"C{index:03d}"
@@ -57,10 +62,13 @@ def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
 def acceptance_criteria_sha256(criteria: Any) -> str:
     """Return a stable digest of a canonical criteria list."""
     canonical = canonicalize_acceptance_criteria(criteria)
-    payload = json.dumps(
-        canonical, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
-        allow_nan=False,
-    ).encode("utf-8")
+    try:
+        payload = json.dumps(
+            canonical, sort_keys=True, ensure_ascii=False, separators=(",", ":"),
+            allow_nan=False,
+        ).encode("utf-8")
+    except (TypeError, ValueError) as exc:
+        raise AcceptanceCriteriaError(f"criteria must contain JSON-safe values: {exc}") from exc
     return hashlib.sha256(payload).hexdigest()
 
 
