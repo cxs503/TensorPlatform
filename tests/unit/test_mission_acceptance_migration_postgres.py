@@ -10,6 +10,11 @@ import pytest
 ROOT = Path(__file__).resolve().parents[2]
 MIGRATION = ROOT / "backend" / "migrations" / "111_mission_acceptance_criteria_freeze.sql"
 
+pytestmark = pytest.mark.skipif(
+    not os.environ.get("DATABASE_URL"),
+    reason="requires an isolated PostgreSQL DATABASE_URL",
+)
+
 
 @pytest.fixture()
 def connection():
