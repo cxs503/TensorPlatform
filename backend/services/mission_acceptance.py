@@ -16,7 +16,9 @@ def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
 
     Empty criteria remain legal for legacy/simple engineering work, but their
     absence is explicit and downstream evaluation must remain inconclusive.
-    When present, every criterion must be machine-checkable.
+    Criteria may be quantitative (metric/target/tolerance) or qualitative
+    (a non-empty statement); downstream evaluation decides whether the
+    corresponding evidence is sufficient.
     """
     if value is None:
         return []
