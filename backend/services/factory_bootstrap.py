@@ -17,8 +17,8 @@ BASE_PREFIX = 84
 # tensor_dev_missions.report_id / .fail_stage existed in prod, not in tests).
 PRODUCTION_ONLY: dict[str, str] = {}
 
-# SQLite-only schemas are self-created by their owning service and must never
-# be sent to the shared PostgreSQL migration runner or PostgreSQL test bootstrap.
+# Historical files with invalid PostgreSQL syntax are preserved for checksum
+# history and superseded by idempotent forward migrations.
 REPLACED_MIGRATIONS: dict[str, str] = {
     "099_capability_evidence_sql.sql": (
         "SQLite AUTOINCREMENT/datetime syntax; superseded by the PostgreSQL "
@@ -35,7 +35,8 @@ def factory_migration_files() -> list[Path]:
     """Every numbered migration after the console base, in filename order.
 
     Same ordering rule as ``backend/migrations/run_migration.py`` (lexicographic
-    on the zero-padded number), minus ``PRODUCTION_ONLY``.
+    on the zero-padded number), minus explicitly production-only and replaced
+    historical files.
     """
     files = sorted(MIGRATIONS_DIR.glob("[0-9][0-9][0-9]_*.sql"), key=lambda path: path.name)
     return [path for path in files
