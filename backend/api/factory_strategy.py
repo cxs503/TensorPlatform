@@ -259,7 +259,14 @@ def dispatch(cid:int,body:Dispatch,db:Session=Depends(get_db),user=Depends(requi
         target=targets[task.role]
         key=f"campaign:{cid}:{c['round']}:workstream:{task.role}"
         try:
-            frozen_criteria=canonicalize_acceptance_criteria(task.acceptance_criteria)
+            frozen_criteria=canonicalize_acceptance_criteria([
+                {
+                    "statement": criterion,
+                    "requires_code": task.execution_mode == "python-package",
+                    "requires_test": task.execution_mode == "python-package",
+                }
+                for criterion in task.acceptance_criteria
+            ])
             criteria_digest=acceptance_criteria_sha256(frozen_criteria)
         except AcceptanceCriteriaError as exc:
             raise HTTPException(422,str(exc)) from exc
