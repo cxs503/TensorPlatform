@@ -92,3 +92,10 @@ def test_qualitative_criteria_strings_are_canonicalized_for_campaign_tasks():
         "criterion_id": "C001",
     }]
     assert len(acceptance_criteria_sha256(criteria)) == 64
+
+
+def test_campaign_dispatch_persists_task_criteria_at_creation():
+    strategy_api = (ROOT / "backend" / "api" / "factory_strategy.py").read_text(encoding="utf-8")
+    assert "canonicalize_acceptance_criteria(task.acceptance_criteria)" in strategy_api
+    assert "acceptance_criteria_freeze_source" in strategy_api
+    assert "'mission_created'" in strategy_api
