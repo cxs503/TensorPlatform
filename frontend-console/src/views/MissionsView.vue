@@ -61,6 +61,11 @@
           <el-input v-model="form.goal" type="textarea" :rows="5"
             placeholder="例：检索 Couette 流解析 benchmark，在 TensorLBM 实现并用测试验证，全绿后提请验收" />
         </el-form-item>
+        <el-form-item label="预声明验收标准（每行一条）">
+          <el-input v-model="form.acceptance_criteria_text" type="textarea" :rows="3"
+            placeholder="例：实现质量守恒检查\n补充可复现回归测试\n所有相关测试通过" />
+          <p class="tf-form-hint">创建任务时冻结；留空的任务会标记为“未声明验收标准”，不会被自动判定通过。</p>
+        </el-form-item>
         <el-form-item label="仓库" required>
           <el-select v-model="form.repo" style="width: 220px">
             <el-option v-for="r in repos" :key="r" :label="r" :value="r" />
@@ -115,7 +120,7 @@ const filters = [
 ]
 const form = ref({
   goal: '', repo: 'TensorLBM', base_ref: 'main',
-  max_tool_calls: 80, max_wall_minutes: 120,
+  max_tool_calls: 80, max_wall_minutes: 120, acceptance_criteria_text: '',
 })
 
 function goalBrief(goal: string) {
@@ -136,16 +141,22 @@ async function load() {
 }
 
 function openCreate() {
-  form.value = { goal: '', repo: 'TensorLBM', base_ref: 'main', max_tool_calls: 80, max_wall_minutes: 120 }
+  form.value = { goal: '', repo: 'TensorLBM', base_ref: 'main', max_tool_calls: 80, max_wall_minutes: 120, acceptance_criteria_text: '' }
   createDialog.value = true
 }
 
 async function submit() {
   try {
+    const acceptanceCriteria = form.value.acceptance_criteria_text
+      .split(/\r?\n/)
+      .map(line => line.trim())
+      .filter(Boolean)
+      .map(statement => ({ statement, required: true, requires_code: true, requires_test: true }))
     const res = await missionApi.create({
       goal: form.value.goal.trim(),
       repo: form.value.repo,
       base_ref: form.value.base_ref.trim() || 'main',
+      ...(acceptanceCriteria.length ? { acceptance_criteria: acceptanceCriteria } : {}),
       budget: {
         max_tool_calls: form.value.max_tool_calls,
         max_wall_seconds: form.value.max_wall_minutes * 60,

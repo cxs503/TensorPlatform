@@ -17,17 +17,32 @@ BASE_PREFIX = 84
 # tensor_dev_missions.report_id / .fail_stage existed in prod, not in tests).
 PRODUCTION_ONLY: dict[str, str] = {}
 
+# Historical files with invalid PostgreSQL syntax are preserved for checksum
+# history and superseded by idempotent forward migrations.
+REPLACED_MIGRATIONS: dict[str, str] = {
+    "099_capability_evidence_sql.sql": (
+        "SQLite AUTOINCREMENT/datetime syntax; superseded by the PostgreSQL "
+        "099_z_capability_evidence_postgres.sql migration."
+    ),
+    "113_withheld_gates.sql": (
+        "Invalid PL/pgSQL RAISE placeholder count; superseded by the idempotent "
+        "113_z_withheld_gates_repair.sql forward migration."
+    ),
+}
+
 
 def factory_migration_files() -> list[Path]:
     """Every numbered migration after the console base, in filename order.
 
     Same ordering rule as ``backend/migrations/run_migration.py`` (lexicographic
-    on the zero-padded number), minus ``PRODUCTION_ONLY``.
+    on the zero-padded number), minus explicitly production-only and replaced
+    historical files.
     """
     files = sorted(MIGRATIONS_DIR.glob("[0-9][0-9][0-9]_*.sql"), key=lambda path: path.name)
     return [path for path in files
             if int(path.name.split("_", 1)[0]) > BASE_PREFIX
-            and path.name not in PRODUCTION_ONLY]
+            and path.name not in PRODUCTION_ONLY
+            and path.name not in REPLACED_MIGRATIONS]
 
 
 def bootstrap_development_database(engine) -> None:

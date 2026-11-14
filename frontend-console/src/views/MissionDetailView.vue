@@ -45,6 +45,34 @@
             :loading="stopping" @click="doStop">终止任务</el-button>
         </div>
 
+        <div class="tf-card" v-if="mission.acceptance_criteria_status">
+          <div class="tf-card-title">预声明验收标准</div>
+          <div class="tf-md-meta">
+            <div class="tf-md-row"><span>声明状态</span>
+              <span class="tf-mono">{{ mission.acceptance_criteria_status }}</span>
+            </div>
+            <div class="tf-md-row"><span>完整性</span>
+              <span class="tf-mono">{{ mission.acceptance_criteria_integrity || 'inconclusive' }}</span>
+            </div>
+            <div class="tf-md-row"><span>冻结来源</span>
+              <span class="tf-mono">{{ mission.acceptance_criteria_freeze_source || 'legacy_unfrozen' }}</span>
+            </div>
+            <div class="tf-md-row" v-if="mission.acceptance_criteria_frozen_at">
+              <span>冻结时间</span><span class="tf-mono">{{ fmtTime(mission.acceptance_criteria_frozen_at) }}</span>
+            </div>
+          </div>
+          <ol v-if="mission.acceptance_criteria?.length" class="tf-md-criteria">
+            <li v-for="(criterion, index) in mission.acceptance_criteria"
+              :key="criterion.criterion_id || index">
+              {{ criterion.statement || (criterion.metric + ': ' + criterion.target + ' ± ' + criterion.tolerance) }}
+            </li>
+          </ol>
+          <p v-else class="tf-dim">未声明验收标准；该任务不会仅凭完成声明获得通过评价。</p>
+          <div v-if="mission.acceptance_criteria_sha256" class="tf-md-evidence tf-mono">
+            SHA-256 {{ mission.acceptance_criteria_sha256.slice(0, 20) }}…
+          </div>
+        </div>
+
         <div class="tf-card" v-if="budget">
           <div class="tf-card-title">预算消耗</div>
           <div v-for="b in budgetBars" :key="b.label" class="tf-md-budget">
@@ -296,6 +324,7 @@ onUnmounted(() => { stopPolling(); if (clock) clearInterval(clock) })
 .tf-md-child { border-top: 1px solid var(--tf-line-200); padding: 8px 0; &:first-of-type { border-top: none; } }
 .tf-md-child .tf-rs { display: flex; align-items: center; gap: 10px; }
 .tf-md-child-goal { margin-top: 5px; font-size: 12px; color: var(--tf-ink-900); }
+ .tf-md-criteria { margin: 10px 0; padding-left: 22px; color: var(--tf-text-secondary); font-size: 13px; line-height: 1.6; }
 .tf-md-evidence {
   margin-top: 6px; font-size: 12px; color: var(--tf-ink-900);
   white-space: pre-wrap; word-break: break-word; max-height: 180px; overflow: auto;
