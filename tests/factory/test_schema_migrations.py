@@ -118,3 +118,9 @@ def test_withheld_gate_repair_corrects_plpgsql_raise_contract():
     repair = (MIGRATIONS_DIR / "113_z_withheld_gates_repair.sql").read_text()
     assert "withheld audit rows are append-only (% refused on gate_id=%)" in repair
     assert "%% refused on gate_id=%" not in repair
+
+
+def test_rbac_bootstrap_precedes_audit_view_migration():
+    names = [path.name for path in factory_migration_files()]
+    assert names.index("114_withheld_closure_binding.sql") < names.index("114_z_rbac_bootstrap.sql")
+    assert names.index("114_z_rbac_bootstrap.sql") < names.index("115_audit_readonly_views.sql")
