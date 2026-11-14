@@ -1183,8 +1183,10 @@ def start_mission(
     if frozen_at is not None:
         if not verify_frozen_acceptance_criteria(criteria, digest):
             raise HTTPException(status_code=409, detail="frozen acceptance criteria fingerprint mismatch")
+        criteria_freeze_source = row.get("acceptance_criteria_freeze_source") or "legacy_unfrozen"
         db.execute(text("UPDATE tensor_dev_missions SET status='running', heartbeat_at=now() WHERE id=:mid"), {"mid": mission_id})
     else:
+        criteria_freeze_source = "legacy_start"
         try:
             criteria = canonicalize_acceptance_criteria(criteria)
             digest = acceptance_criteria_sha256(criteria)
@@ -1204,7 +1206,12 @@ def start_mission(
         ).scalar()
     
     if row["session_id"]:
-        append_event(db, row["session_id"], "note", {"subtype": "mission_started"})
+        append_event(db, row["session_id"], "note", {
+            "subtype": "mission_started",
+            "acceptance_criteria_sha256": digest,
+            "acceptance_criteria_count": len(criteria),
+            "acceptance_criteria_freeze_source": criteria_freeze_source,
+        })
     db.commit()
     # ②注入环（fail-open）：干货包在开工时落账并随响应回传；runner 支持则拼入首条消息。
     loop_info = _memory_loop_start(mission_id, row.get("goal") or "", row.get("repo") or "",
@@ -1214,7 +1221,7 @@ def start_mission(
         "acceptance_criteria": criteria,
         "acceptance_criteria_sha256": digest,
         "acceptance_criteria_frozen_at": _iso(frozen_at),
-        "acceptance_criteria_freeze_source": row.get("acceptance_criteria_freeze_source") or "legacy_start",
+        "acceptance_criteria_freeze_source": criteria_freeze_source,
         "acceptance_criteria_status": (
             "declared" if criteria and row.get("acceptance_criteria_freeze_source") == "mission_created"
             else "legacy_frozen_at_start" if criteria else "not_declared"
