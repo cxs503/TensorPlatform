@@ -1633,7 +1633,11 @@ def reclaim_mission(
     require_factory_agent(user)
     _load_mission(db, mission_id, user, lock=True)
     row = db.execute(
-        text("SELECT id, status, claimed_by, claimed_user_id, session_id FROM tensor_dev_missions WHERE id = :mid"),
+        text("""SELECT id, status, claimed_by, claimed_user_id, session_id,
+                       acceptance_criteria, acceptance_criteria_sha256,
+                       acceptance_criteria_frozen_at, acceptance_criteria_version,
+                       acceptance_criteria_freeze_source
+                FROM tensor_dev_missions WHERE id = :mid"""),
         {"mid": mission_id},
     ).mappings().first()
     if not row:
@@ -1642,6 +1646,11 @@ def reclaim_mission(
         raise HTTPException(status_code=409, detail=f"cannot reclaim status {row['status']}")
     if row["claimed_by"] != body.agent_id or row["claimed_user_id"] != user["id"]:
         raise HTTPException(status_code=403, detail="claim belongs to another agent")
+    criteria = row.get("acceptance_criteria") or []
+    if row.get("acceptance_criteria_frozen_at") is not None and not verify_frozen_acceptance_criteria(
+        criteria, row.get("acceptance_criteria_sha256")
+    ):
+        raise HTTPException(status_code=409, detail="frozen acceptance criteria fingerprint mismatch")
     token = str(uuid.uuid4())
     new_status = "running" if row["status"] == "awaiting_acceptance" else row["status"]
     db.execute(
@@ -1656,7 +1665,21 @@ def reclaim_mission(
         append_event(db, row["session_id"], "note",
                      {"subtype": "mission_reclaimed", "agent": body.agent_id})
     db.commit()
-    return {"id": mission_id, "claim_token": token, "status": new_status}
+    return {
+        "id": mission_id,
+        "claim_token": token,
+        "status": new_status,
+        "acceptance_criteria": criteria,
+        "acceptance_criteria_sha256": row.get("acceptance_criteria_sha256"),
+        "acceptance_criteria_frozen_at": _iso(row.get("acceptance_criteria_frozen_at")),
+        "acceptance_criteria_version": row.get("acceptance_criteria_version") or 1,
+        "acceptance_criteria_freeze_source": row.get("acceptance_criteria_freeze_source") or "legacy_unfrozen",
+        "acceptance_criteria_status": (
+            "declared" if criteria and row.get("acceptance_criteria_freeze_source") == "mission_created"
+            else "legacy_frozen_at_start" if criteria and row.get("acceptance_criteria_freeze_source") == "legacy_start"
+            else "not_declared" if not criteria else "legacy_unfrozen"
+        ),
+    }
 
 
 class RefillRequest(BaseModel):
