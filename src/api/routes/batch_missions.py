@@ -191,11 +191,17 @@ def capabilities(db: Session) -> dict[str, Any]:
     has_batch_column = "batch_id" in columns
     has_batch_table = "batch_id" in batch_columns and "idempotency_key" in batch_columns
     atomic = bool(columns) and has_batch_column and has_batch_table
+    criteria_columns = {
+        "acceptance_criteria", "acceptance_criteria_sha256",
+        "acceptance_criteria_frozen_at", "acceptance_criteria_version",
+        "acceptance_criteria_freeze_source",
+    }
     return {
         "mission_table": MISSION_TABLE,
         "mission_table_present": bool(columns),
         "batch_id_column": has_batch_column,
         "batch_table": has_batch_table,
+        "acceptance_criteria_contract": criteria_columns <= columns,
         "mode": MODE_ATOMIC if atomic else MODE_DEGRADED,
         "evidence": EVIDENCE[MODE_ATOMIC if atomic else MODE_DEGRADED],
         "schema_migration_required": None if atomic else MIGRATION_FILE,
