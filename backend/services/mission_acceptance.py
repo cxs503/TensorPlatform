@@ -83,7 +83,8 @@ def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
         seen.add(criterion_id)
         item["criterion_id"] = criterion_id
         item.pop("id", None)
-        item["metric"] = metric.strip()
+        if metric is not None:
+            item["metric"] = metric.strip()
         normalized.append(item)
     return normalized
 
