@@ -115,13 +115,27 @@ def _mission_row(r: Any) -> dict[str, Any]:
         "acceptance_criteria_frozen_at": _iso(r.get("acceptance_criteria_frozen_at")),
         "acceptance_criteria_version": r.get("acceptance_criteria_version") or 1,
         "acceptance_criteria_freeze_source": r.get("acceptance_criteria_freeze_source") or "legacy_unfrozen",
+        "acceptance_criteria_integrity": (
+            "verified" if r.get("acceptance_criteria_frozen_at") is not None
+            and verify_frozen_acceptance_criteria(
+                r.get("acceptance_criteria") or [], r.get("acceptance_criteria_sha256")
+            ) else "inconclusive"
+        ),
         "acceptance_criteria_status": (
             "declared" if r.get("acceptance_criteria")
             and r.get("acceptance_criteria_freeze_source") == "mission_created"
+            and r.get("acceptance_criteria_frozen_at") is not None
+            and verify_frozen_acceptance_criteria(
+                r.get("acceptance_criteria") or [], r.get("acceptance_criteria_sha256")
+            )
             else "legacy_frozen_at_start" if r.get("acceptance_criteria")
             and r.get("acceptance_criteria_freeze_source") == "legacy_start"
+            and r.get("acceptance_criteria_frozen_at") is not None
+            and verify_frozen_acceptance_criteria(
+                r.get("acceptance_criteria") or [], r.get("acceptance_criteria_sha256")
+            )
             else "not_declared" if not r.get("acceptance_criteria")
-            else "legacy_unfrozen"
+            else "legacy_unverified"
         ),
     }
 
@@ -985,6 +999,15 @@ def claim_mission(
         append_event(db, row["session_id"], "note",
                      {"subtype": "mission_claimed", "agent": body.agent_id,
                       "hostname": body.hostname, "version": body.version})
+    criteria = row["acceptance_criteria"] or []
+    criteria_frozen = row["acceptance_criteria_frozen_at"] is not None
+    criteria_integrity = (
+        "verified" if criteria_frozen and verify_frozen_acceptance_criteria(
+            criteria, row["acceptance_criteria_sha256"]
+        ) else "inconclusive"
+    )
+    if criteria_frozen and criteria_integrity != "verified":
+        raise HTTPException(status_code=409, detail="frozen acceptance criteria fingerprint mismatch")
     db.commit()
     return {
         "claimed": True,
@@ -1003,18 +1026,19 @@ def claim_mission(
             "task_key": row["task_key"],
             "campaign_id": row["campaign_id"],
             "campaign_phase": row["campaign_phase"],
-            "acceptance_criteria": row["acceptance_criteria"] or [],
+            "acceptance_criteria": criteria,
             "acceptance_criteria_sha256": row["acceptance_criteria_sha256"],
             "acceptance_criteria_frozen_at": _iso(row["acceptance_criteria_frozen_at"]),
             "acceptance_criteria_version": row["acceptance_criteria_version"] or 1,
             "acceptance_criteria_freeze_source": row["acceptance_criteria_freeze_source"],
+            "acceptance_criteria_integrity": criteria_integrity,
             "acceptance_criteria_status": (
-                "declared" if row["acceptance_criteria"]
-                and row["acceptance_criteria_freeze_source"] == "mission_created"
-                else "legacy_frozen_at_start" if row["acceptance_criteria"]
+                "declared" if criteria and row["acceptance_criteria_freeze_source"] == "mission_created"
+                and criteria_integrity == "verified"
+                else "legacy_frozen_at_start" if criteria
                 and row["acceptance_criteria_freeze_source"] == "legacy_start"
-                else "not_declared" if not row["acceptance_criteria"]
-                else "legacy_unfrozen"
+                and criteria_integrity == "verified"
+                else "not_declared" if not criteria else "legacy_unverified"
             ),
             "claim_token": token,
         },
