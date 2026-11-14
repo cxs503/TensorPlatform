@@ -1004,7 +1004,12 @@ def claim_mission(
             "acceptance_criteria_version": 1,
             "acceptance_criteria_freeze_source": row["acceptance_criteria_freeze_source"],
             "acceptance_criteria_status": (
-                "declared" if row["acceptance_criteria"] else "not_declared"
+                "declared" if row["acceptance_criteria"]
+                and row["acceptance_criteria_freeze_source"] == "mission_created"
+                else "legacy_frozen_at_start" if row["acceptance_criteria"]
+                and row["acceptance_criteria_freeze_source"] == "legacy_start"
+                else "not_declared" if not row["acceptance_criteria"]
+                else "legacy_unfrozen"
             ),
             "claim_token": token,
         },
@@ -1191,7 +1196,7 @@ def start_mission(
             digest = acceptance_criteria_sha256(criteria)
         except AcceptanceCriteriaError as exc:
             raise HTTPException(status_code=409, detail=f"legacy acceptance criteria invalid: {exc}") from exc
-        db.execute(
+        frozen_at = db.execute(
             text("""
                 UPDATE tensor_dev_missions
                 SET acceptance_criteria = CAST(:criteria AS jsonb),
@@ -1203,8 +1208,7 @@ def start_mission(
                 RETURNING acceptance_criteria_frozen_at
             """),
             {"criteria": _dumps(criteria), "digest": digest, "mid": mission_id},
-        ).scalar()
-        frozen_at = frozen_at or datetime.now(timezone.utc)
+        ).scalar() or datetime.now(timezone.utc)
     if row["session_id"]:
         append_event(db, row["session_id"], "note", {
             "subtype": "mission_started",
