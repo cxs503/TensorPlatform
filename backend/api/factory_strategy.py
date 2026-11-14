@@ -16,6 +16,11 @@ from api.factory_residents import load
 from api.tensor_missions import _authorize_agent
 from services.factory_profile import get_factory_profile
 from database.config import get_db
+from services.mission_acceptance import (
+    AcceptanceCriteriaError,
+    acceptance_criteria_sha256,
+    canonicalize_acceptance_criteria,
+)
 
 router=APIRouter(prefix='/tensor/factory/campaigns',tags=['factory-strategy'])
 ROLES=['platform','data','models','applications','infrastructure','verifier']
@@ -253,12 +258,17 @@ def dispatch(cid:int,body:Dispatch,db:Session=Depends(get_db),user=Depends(requi
     for task in body.tasks:
         target=targets[task.role]
         key=f"campaign:{cid}:{c['round']}:workstream:{task.role}"
+        try:
+            frozen_criteria=canonicalize_acceptance_criteria(task.acceptance_criteria)
+            criteria_digest=acceptance_criteria_sha256(frozen_criteria)
+        except AcceptanceCriteriaError as exc:
+            raise HTTPException(422,str(exc)) from exc
         goal='执行模式：'+task.execution_mode+'\n'+task.goal+'\n验收标准：\n'+'\n'.join('- '+x for x in task.acceptance_criteria)
         budget=json.dumps(BUDGET)
         sid=db.execute(text("INSERT INTO tensor_agent_sessions(organization_id,agent_name,status,budget,started_by) VALUES(:org,:name,'active',CAST(:budget AS jsonb),:uid) RETURNING id"),{'org':c['organization_id'],'name':target['worker_id'],'budget':budget,'uid':user['id']}).scalar()
-        mid=db.execute(text("""INSERT INTO tensor_dev_missions(organization_id,goal,repo,base_ref,budget,runner,origin,model,parent_mission_id,created_by,worker_role,task_key,agent_session_id,session_id,campaign_id,campaign_phase)
-            VALUES(:org,:goal,:repo,'main',CAST(:budget AS jsonb),'native','agent',:model,:parent,:uid,:role,:key,:agent,:sid,:cid,'workstream') RETURNING id"""),{'org':c['organization_id'],'goal':goal,'repo':campaign_project(),'budget':budget,'model':target['model'],'parent':body.parent_id,'uid':user['id'],'role':task.role,'key':key,'agent':target['agent_session_id'],'sid':sid,'cid':cid}).scalar()
-        append_event(db,sid,'plan',{'mission_id':mid,'parent_mission_id':body.parent_id,'campaign_id':cid,'goal':goal,'worker_role':task.role,'agent_session_id':str(target['agent_session_id'])})
+        mid=db.execute(text("""INSERT INTO tensor_dev_missions(organization_id,goal,repo,base_ref,budget,runner,origin,model,parent_mission_id,created_by,worker_role,task_key,agent_session_id,session_id,campaign_id,campaign_phase,acceptance_criteria,acceptance_criteria_sha256,acceptance_criteria_frozen_at,acceptance_criteria_freeze_source)
+            VALUES(:org,:goal,:repo,'main',CAST(:budget AS jsonb),'native','agent',:model,:parent,:uid,:role,:key,:agent,:sid,:cid,'workstream',CAST(:criteria AS jsonb),:criteria_sha256,now(),'mission_created') RETURNING id"""),{'org':c['organization_id'],'goal':goal,'repo':campaign_project(),'budget':budget,'model':target['model'],'parent':body.parent_id,'uid':user['id'],'role':task.role,'key':key,'agent':target['agent_session_id'],'sid':sid,'cid':cid,'criteria':json.dumps(frozen_criteria,ensure_ascii=False),'criteria_sha256':criteria_digest}).scalar()
+        append_event(db,sid,'plan',{'mission_id':mid,'parent_mission_id':body.parent_id,'campaign_id':cid,'goal':goal,'worker_role':task.role,'agent_session_id':str(target['agent_session_id']),'acceptance_criteria':frozen_criteria,'acceptance_criteria_sha256':criteria_digest,'acceptance_criteria_freeze_source':'mission_created'})
         append_event(db,parent['session_id'],'note',{'subtype':'campaign-workstream-dispatched','child_id':mid,'role':task.role,'agent_session_id':str(target['agent_session_id'])})
         children.append({'id':mid,'worker_role':task.role})
     ids={child['worker_role']:child['id'] for child in children}
