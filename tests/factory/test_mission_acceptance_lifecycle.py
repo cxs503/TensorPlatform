@@ -30,7 +30,7 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
     }]
     client = factory["client"]
     created = client.post(
-        "/tensor/missions",
+        "/api/v1/tensor/missions",
         headers=factory["headers"](2),
         json={"goal": "Implement a verifiable numerical feature", "repo": "TensorPlatform",
               "acceptance_criteria": criteria},
@@ -38,7 +38,7 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
     assert created.status_code == 200, created.text
     mission_id = created.json()["id"]
 
-    detail = client.get(f"/tensor/missions/{mission_id}", headers=factory["headers"](1))
+    detail = client.get(f"/api/v1/tensor/missions/{mission_id}", headers=factory["headers"](1))
     assert detail.status_code == 200, detail.text
     assert detail.json()["acceptance_criteria"] == criteria
     digest = detail.json()["acceptance_criteria_sha256"]
@@ -46,7 +46,7 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
     assert detail.json()["acceptance_criteria_freeze_source"] == "mission_created"
 
     claimed = client.post(
-        "/tensor/missions/claim",
+        "/api/v1/tensor/missions/claim",
         headers=factory["headers"](3),
         json={"agent_id": "acceptance-contract-test", "runner": "openhands"},
     )
@@ -58,7 +58,7 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
     assert mission["acceptance_criteria_sha256"] == digest
 
     started = client.post(
-        f"/tensor/missions/{mission_id}/start",
+        f"/api/v1/tensor/missions/{mission_id}/start",
         headers=factory["headers"](3),
         json={"claim_token": mission["claim_token"]},
     )
@@ -67,7 +67,7 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
     assert started.json()["acceptance_criteria_status"] == "declared"
 
     completed = client.post(
-        f"/tensor/missions/{mission_id}/complete",
+        f"/api/v1/tensor/missions/{mission_id}/complete",
         headers=factory["headers"](3),
         json={
             "claim_token": mission["claim_token"],
@@ -84,7 +84,7 @@ def test_criteria_survive_create_claim_start_complete_and_cannot_be_mutated(fact
     assert completed.status_code == 200, completed.text
     assert completed.json()["status"] == "awaiting_acceptance"
 
-    after = client.get(f"/tensor/missions/{mission_id}", headers=factory["headers"](1))
+    after = client.get(f"/api/v1/tensor/missions/{mission_id}", headers=factory["headers"](1))
     evidence = after.json()["approval"]["evidence"]
     assert evidence["acceptance_criteria"] == criteria
     assert evidence["acceptance_criteria_sha256"] == digest
