@@ -17,6 +17,15 @@ BASE_PREFIX = 84
 # tensor_dev_missions.report_id / .fail_stage existed in prod, not in tests).
 PRODUCTION_ONLY: dict[str, str] = {}
 
+# SQLite-only schemas are self-created by their owning service and must never
+# be sent to the shared PostgreSQL migration runner or PostgreSQL test bootstrap.
+SQLITE_ONLY: dict[str, str] = {
+    "099_capability_evidence_sql.sql": (
+        "SQLite-only capability evidence store; capability_sql_tracer owns its "
+        "database path and initializes the schema itself."
+    ),
+}
+
 
 def factory_migration_files() -> list[Path]:
     """Every numbered migration after the console base, in filename order.
@@ -27,7 +36,8 @@ def factory_migration_files() -> list[Path]:
     files = sorted(MIGRATIONS_DIR.glob("[0-9][0-9][0-9]_*.sql"), key=lambda path: path.name)
     return [path for path in files
             if int(path.name.split("_", 1)[0]) > BASE_PREFIX
-            and path.name not in PRODUCTION_ONLY]
+            and path.name not in PRODUCTION_ONLY
+            and path.name not in SQLITE_ONLY]
 
 
 def bootstrap_development_database(engine) -> None:
