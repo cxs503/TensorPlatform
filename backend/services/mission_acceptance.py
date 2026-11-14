@@ -45,7 +45,9 @@ def canonicalize_acceptance_criteria(value: Any) -> list[dict[str, Any]]:
             raise AcceptanceCriteriaError(f"criterion {index} tolerance must be finite")
         if isinstance(tolerance, str) and not tolerance.strip():
             raise AcceptanceCriteriaError(f"criterion {index} tolerance must not be blank")
-        criterion_id = item.get("criterion_id") or item.get("id") or f"C{index:03d}"
+        criterion_id = item.get("criterion_id", item.get("id"))
+        if criterion_id is None:
+            criterion_id = f"C{index:03d}"
         if not isinstance(criterion_id, str) or not criterion_id.strip():
             raise AcceptanceCriteriaError(f"criterion {index} has an invalid criterion_id")
         criterion_id = criterion_id.strip()
