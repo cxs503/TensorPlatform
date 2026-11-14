@@ -359,6 +359,7 @@ def test_capabilities_probe_matches_schema(atomic_schema):
         caps = BATCH.capabilities(session)
     assert caps["mode"] == "atomic" and caps["evidence"] == "REAL"
     assert caps["batch_id_column"] is True and caps["batch_table"] is True
+    assert caps["acceptance_criteria_contract"] is True
 
 def test_batch_submission_persists_predeclared_acceptance_contract(client):
     items = _payload(1)
@@ -390,4 +391,20 @@ def test_batch_rejects_blank_qualitative_acceptance_criterion(client):
     items[0]["acceptance_criteria"] = ["   "]
     response = client.post("/tensor/missions/batch", json=items)
     assert response.status_code == 422
+    assert _count_rows() == 0
+
+
+def test_batch_refuses_criteria_when_acceptance_schema_is_missing(client):
+    with engine.begin() as conn:
+        for column in (
+            "acceptance_criteria", "acceptance_criteria_sha256",
+            "acceptance_criteria_frozen_at", "acceptance_criteria_version",
+            "acceptance_criteria_freeze_source",
+        ):
+            conn.execute(text(f"ALTER TABLE tensor_dev_missions DROP COLUMN {column}"))
+    items = _payload(1)
+    items[0]["acceptance_criteria"] = ["Must not be silently discarded"]
+    response = client.post("/tensor/missions/batch", json=items)
+    assert response.status_code == 503
+    assert "migration 111" in response.json()["detail"]
     assert _count_rows() == 0
