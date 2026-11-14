@@ -18,11 +18,6 @@ MIGRATION_GLOB = "[0-9][0-9][0-9]_*.sql"
 
 # SQLite-only capability evidence storage is initialized by its owning service.
 # It is not a PostgreSQL migration despite living in the numbered SQL directory.
-SQLITE_ONLY_MIGRATIONS = {
-    "099_capability_evidence_sql.sql": (
-        "SQLite-only capability evidence store; capability_sql_tracer initializes it."
-    ),
-}
 
 
 def _migration_files() -> list[Path]:
@@ -70,6 +65,10 @@ def run_pending_migrations(*, baseline: bool = False) -> list[str]:
         }
 
         replaced_migrations = {
+            "099_capability_evidence_sql.sql": (
+                "SQLite AUTOINCREMENT/datetime syntax; replaced by "
+                "099_z_capability_evidence_postgres.sql"
+            ),
             "113_withheld_gates.sql": (
                 "invalid PL/pgSQL RAISE placeholder count; replaced by "
                 "113_z_withheld_gates_repair.sql"
@@ -77,9 +76,6 @@ def run_pending_migrations(*, baseline: bool = False) -> list[str]:
         }
         for path in files:
             version = path.name
-            if version in SQLITE_ONLY_MIGRATIONS:
-                logger.info("Skipping SQLite-only migration %s", version)
-                continue
             if version in replaced_migrations:
                 logger.warning("Skipping superseded migration %s: %s", version, replaced_migrations[version])
                 continue
