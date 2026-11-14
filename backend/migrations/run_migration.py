@@ -16,6 +16,14 @@ logger = logging.getLogger(__name__)
 MIGRATIONS_DIR = Path(__file__).resolve().parent
 MIGRATION_GLOB = "[0-9][0-9][0-9]_*.sql"
 
+# SQLite-only capability evidence storage is initialized by its owning service.
+# It is not a PostgreSQL migration despite living in the numbered SQL directory.
+SQLITE_ONLY_MIGRATIONS = {
+    "099_capability_evidence_sql.sql": (
+        "SQLite-only capability evidence store; capability_sql_tracer initializes it."
+    ),
+}
+
 
 def _migration_files() -> list[Path]:
     return sorted(MIGRATIONS_DIR.glob(MIGRATION_GLOB), key=lambda path: path.name)
@@ -63,6 +71,9 @@ def run_pending_migrations(*, baseline: bool = False) -> list[str]:
 
         for path in files:
             version = path.name
+            if version in SQLITE_ONLY_MIGRATIONS:
+                logger.info("Skipping SQLite-only migration %s", version)
+                continue
             checksum = _checksum(path)
             recorded_checksum = existing.get(version)
             if recorded_checksum:
