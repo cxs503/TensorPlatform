@@ -14,7 +14,7 @@ import logging
 from pathlib import Path
 from typing import Any
 
-from fastapi import APIRouter, Depends, HTTPException, Query
+from fastapi import APIRouter, Depends, Query
 from sqlalchemy.orm import Session
 
 from api.deps import require_auth
@@ -67,16 +67,34 @@ _LEDGER_CACHE: dict | None = None
 _LEDGER_PATH = Path(__file__).resolve().parents[2] / "artifacts" / "capability_ledger" / "capability_ledger.json"
 
 
-def _load_ledger() -> dict:
-    """加载能力台账 JSON（带内存缓存）。"""
+def _load_ledger() -> tuple[dict, list[str]]:
+    """加载历史台账 JSON（带内存缓存）。缺失/损坏时 fail-soft（回退空台账 + warning）。"""
     global _LEDGER_CACHE
     if _LEDGER_CACHE is not None:
-        return _LEDGER_CACHE
-    if not _LEDGER_PATH.exists():
-        raise FileNotFoundError(f"Capability ledger not found: {_LEDGER_PATH}")
-    with open(_LEDGER_PATH, "r", encoding="utf-8") as f:
-        _LEDGER_CACHE = json.load(f)
-    return _LEDGER_CACHE
+        return _LEDGER_CACHE, []
+    warnings: list[str] = []
+    if _LEDGER_PATH.exists():
+        try:
+            with open(_LEDGER_PATH, "r", encoding="utf-8") as f:
+                _LEDGER_CACHE = json.load(f)
+            return _LEDGER_CACHE, warnings
+        except (json.JSONDecodeError, OSError) as e:
+            warnings.append(f"历史台账不可解析（fail-soft）：{_LEDGER_PATH}: {e}")
+    else:
+        warnings.append(f"历史台账缺失（fail-soft，仅用扫描复算等级）：{_LEDGER_PATH}")
+    _LEDGER_CACHE = {"capabilities": []}
+    return _LEDGER_CACHE, warnings
+
+
+def _recomputed_grades() -> tuple[dict[str, dict], list[str]]:
+    """扫描复算等级（tools/capability_ledger 引擎，产物缺失时引擎内部 fail-soft）。"""
+    try:
+        from services.capability_ledger_adapter import audit_payload
+
+        payload = audit_payload()
+        return {c["capability_id"]: c for c in payload.get("capabilities", [])}, list(payload.get("warnings", []))
+    except Exception as e:  # noqa: BLE001 — 查询接口不得因台账问题 5xx
+        return {}, [f"扫描复算不可用（fail-soft）：{e}"]
 
 
 def _get_reconciled_level(cap: dict) -> str:
@@ -99,8 +117,16 @@ def _get_reconciled_level(cap: dict) -> str:
 
 def _build_audit_matrix() -> dict[str, Any]:
     """构建 21 能力证据矩阵。"""
-    ledger = _load_ledger()
+    ledger, warnings = _load_ledger()
+    recomputed, rec_warnings = _recomputed_grades()
+    warnings = warnings + rec_warnings
     capabilities = ledger.get("capabilities", [])
+    if not capabilities and recomputed:
+        # 历史台账缺失：直接用复算结果构造成员
+        capabilities = [
+            {"id": cid, "registry_level": c.get("registry_level", "WITHHELD")}
+            for cid, c in recomputed.items()
+        ]
 
     matrix = []
     level_counts = {"REAL": 0, "MOCK": 0, "STUB": 0, "WITHHELD": 0, "NOT_SUPPORTED": 0}
@@ -109,8 +135,10 @@ def _build_audit_matrix() -> dict[str, Any]:
     for cap in capabilities:
         cap_id = cap.get("id", "unknown")
         domain = cap.get("domain", CAPABILITY_DOMAIN_MAP.get(cap_id, "未分类"))
-        reconciled_level = _get_reconciled_level(cap)
-        claimed_level = cap.get("claimed_level", "WITHHELD")
+        rec = recomputed.get(cap_id)
+        # 复算等级优先（单一真值 = 扫描引擎）；无复算结果时退回历史对账逻辑
+        reconciled_level = rec["evidence"] if rec else _get_reconciled_level(cap)
+        claimed_level = cap.get("claimed_level", cap.get("registry_level", "WITHHELD"))
 
         # 判断是否有分歧（overclaim）
         has_overclaim = (
@@ -122,7 +150,7 @@ def _build_audit_matrix() -> dict[str, Any]:
             "domain": domain,
             "claimed_level": claimed_level,
             "reconciled_level": reconciled_level,
-            "evidence_count": len(cap.get("evidence", [])),
+            "evidence_count": rec["evidence_count"] if rec else len(cap.get("evidence", [])),
             "has_overclaim": has_overclaim,
             "note": cap.get("note", ""),
             "action": cap.get("action", ""),
@@ -152,6 +180,8 @@ def _build_audit_matrix() -> dict[str, Any]:
         "domain_coverage": domain_stats,
         "withheld_count": level_counts.get("WITHHELD", 0),
         "audit_timestamp": ledger.get("evidence_source", {}).get("retrieved_at", ""),
+        "warnings": warnings,
+        "status": "degraded" if warnings else "ok",
     }
 
 
@@ -172,10 +202,7 @@ def audit_capabilities(
     - 九大学科覆盖统计
     - WITHHELD 计数（验收判据：≤3）
     """
-    try:
-        result = _build_audit_matrix()
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+    result = _build_audit_matrix()  # fail-soft：内部不再抛 FileNotFoundError
 
     # 按学科过滤
     if domain:
@@ -194,7 +221,8 @@ def audit_capabilities(
         result["total_capabilities"] = len(result["capabilities"])
 
     return {
-        "status": "ok",
+        "status": result.get("status", "ok"),
+        "warnings": result.get("warnings", []),
         "data": result,
     }
 
@@ -209,10 +237,7 @@ def audit_summary(
 
     返回精简摘要：等级分布 + 九大学科覆盖 + 验收判据。
     """
-    try:
-        matrix = _build_audit_matrix()
-    except FileNotFoundError as e:
-        raise HTTPException(status_code=503, detail=str(e))
+    matrix = _build_audit_matrix()  # fail-soft
 
     # 验收判据
     withheld_ok = matrix["withheld_count"] <= 3
