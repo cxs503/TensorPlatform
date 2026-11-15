@@ -514,6 +514,17 @@ from api import review_budget as _review_budget  # noqa: E402
 
 app.include_router(_review_budget.router, prefix="/api/v1")
 
+# ── 仿真成果资产楼（FEAT-SIM-DATAHOUSE 子件1）：捕获守护登记的场数据/几何/曲线清单
+# 读取面 /api/v1/assets/sim（分页 + repo/case/state/mission 过滤）。写路径只有守护
+# scripts/sim_asset_harvest.py，API 只读——避免伪造证据行。部署安全模式同 soul_runtime：
+# import 失败只告警，不阻断 app 启动。
+try:
+    from api import sim_assets as _sim_assets  # noqa: E402
+
+    app.include_router(_sim_assets.router, prefix="/api/v1")
+except Exception as _exc:  # pragma: no cover - 部署面兜底
+    logging.getLogger(__name__).warning("sim_assets router 接线跳过: %s", _exc)
+
 # ── 外部工具类接入面（探针→冒烟→不变式→证据；KPI-TOOLS-5 口径，零领域语义）──
 try:
     from api import external_tools as _external_tools  # noqa: E402
