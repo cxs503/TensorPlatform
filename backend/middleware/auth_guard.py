@@ -90,6 +90,13 @@ _SAFE_METHODS = {"GET", "HEAD", "OPTIONS"}
 # （#227 曾漏交本件——重部署后 401 复发实证，本次随 #232 集结入库）
 _FIGURES_PATH_RE = re.compile(r"^/api/v1/tensor/reports/\d+/figures/[A-Za-z0-9_.-]+$")
 
+# 云图演化动画 gallery 免登录只读（FEAT-SIM-DATAHOUSE, owner 2026-11-13）：
+# <video>/<img> 无法携带 Bearer → 复用 papers 免鉴权图床模式。
+# 仅 GET/HEAD 放行单文件；路由层另有文件名白名单正则 + 路径围栏兜底。
+_CLOUD_EVO_GALLERY_RE = re.compile(
+    r"^/api/v1/cloud-evo/gallery/[A-Za-z0-9_.-]+/(?:video|poster)$"
+)
+
 # 知识专栏证据直读免下登录只读（FEAT-TK-ASSET-OPS, owner 2026-11-10）：
 # 证据链要能"点开直读"源文件，链接直开无法携带 Bearer。
 # 仅 GET/HEAD 放行单文件；路由层另有扩展名白名单 + TK 仓库路径围栏 + 体积预算兜底。
@@ -120,6 +127,10 @@ def _should_skip_auth(path: str, method: str) -> bool:
 
     # 1.5 报告配图免登录只读（仅安全方法 + 单文件正则）
     if method.upper() in _SAFE_METHODS and _FIGURES_PATH_RE.match(path):
+        return True
+
+    # 1.5b 云图演化动画 gallery 免登录只读（仅安全方法 + 单文件正则）
+    if method.upper() in _SAFE_METHODS and _CLOUD_EVO_GALLERY_RE.match(path):
         return True
 
     # 1.6 知识对象证据源文件免登录只读（仅安全方法 + 单文件正则）
