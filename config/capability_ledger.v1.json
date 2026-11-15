@@ -1,0 +1,83 @@
+{
+  "schema_version": "capability-ledger-config/1.0",
+  "title": "能力证据台账（扫描→落盘→查询）管线配置",
+  "description": "零领域语义：等级判定只依赖 config/capabilities.json 的模式 + 报告元数据（scenario_key/tags/title/summary）与下列信号词表/阈值。代码中不出现任何能力名或等级表。",
+  "registry_path": "config/capabilities.json",
+  "snapshot_path": "artifacts/capability_ledger/platform_reports_index.json",
+  "ledger_output_path": "artifacts/capability_ledger/capability_ledger_v2.json",
+  "platform_expected_paths": [
+    "backend/platform_harness/capabilities.json",
+    "/root/ship-performance-platform-incoming/ship-performance-platform/backend/platform_harness/capabilities.json"
+  ],
+  "platform_root_env": "SHIP_PLATFORM_ROOT",
+  "report_api_path": "/tensor/reports",
+  "report_page_size": 100,
+  "mission_sweep": {
+    "enabled": true,
+    "from": 17500,
+    "to": 21950,
+    "note": "报告列表 API 只支持 limit(<=100) 不支持 offset，故按 mission_id 扫描窗口内全部任务报告；窗口外证据视为未扫描（诚实降级为 WITHHELD）"
+  },
+  "snapshot_summary_chars": 900,
+  "ledger_schema_version": "capability-ledger/2.1",
+  "harness_schema_version": "platform-harness-capabilities/1.1",
+  "thresholds": {
+    "max_reference_error_pct": 15.0,
+    "real_requires_no_fail_signal": true,
+    "min_strong_matches_for_grade": 1
+  },
+  "signals": {
+    "fail": [
+      "verdict\\s*[:：]\\s*fail",
+      "判\\s*fail",
+      "\\bfail\\b",
+      "越窗",
+      "越限",
+      "越\\s*\\d+(?:\\.\\d+)?\\s*%\\s*闸门",
+      "未计算",
+      "结构性缺陷",
+      "不通过",
+      "不可复现",
+      "superseded",
+      "new_defect"
+    ],
+    "real_claim": [
+      "→\\s*real",
+      "withheld\\s*→\\s*real",
+      "evidence\\s*level[^\\n]{0,24}real",
+      "等级\\s*[:：=]\\s*real"
+    ],
+    "stub": [
+      "notimplementederror",
+      "placeholder",
+      "stub",
+      "todo:"
+    ],
+    "verify": [
+      "误差",
+      "pytest",
+      "全部通过",
+      "对标",
+      "门内",
+      "复算",
+      "验证"
+    ],
+    "error_pct": "([+-]?\\d+(?:\\.\\d+)?(?:e-?\\d+)?)\\s*%",
+    "pass_ratio": "(\\d+)\\s*/\\s*(\\d+)\\s*(?:通过|点在|项|pass)"
+  },
+  "matching": {
+    "min_pattern_len": 4,
+    "stop_patterns": [],
+    "strong_first": true,
+    "strong_fields": [
+      "scenario_key",
+      "tags"
+    ],
+    "weak_fields": [
+      "scenario_key",
+      "tags",
+      "title"
+    ],
+    "strong_substring_min_len": 6
+  }
+}
