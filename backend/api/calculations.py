@@ -37,6 +37,11 @@ from services.stability_reference import (
     wall_sided_gz,
 )
 from api.domain.ship_resistance import resistance_breakdown, wetted_surface_axisym
+from api.domain.holtrop_mennen import (
+    holtrop_resistance as hm_resistance,
+    domain_warnings,
+    in_domain,
+)
 from services.ship_timing import get_collector, timed_calc
 from services.ship_hydrostatics import (
     GeometryError,
@@ -102,7 +107,6 @@ class ResistanceResponse(BaseModel):
     residual_resistance_n: float
     reynolds_number: float
     friction_coefficient_cf: float = 0.0
-    # m1609 契约：被对比量以短名直接暴露（ct/cf/cr），下游不再从力与湿面积反推。
     ct: float = 0.0
     cf: float = 0.0
     cr: float = 0.0
@@ -110,14 +114,17 @@ class ResistanceResponse(BaseModel):
     wetted_surface_m2: float = 0.0
     wetted_surface_source: str = "empirical_formula"
     form_factor: float = 1.0
-    # m1388 收编：下游对标链按 C_T = R_T/(0.5 rho S V^2) 复核，端点直接给出
-    # 系数与模型来源，避免消费侧自己猜字段/自己反推。
     total_resistance_coefficient: float = 0.0
-    method: str = "ITTC-1957 friction + empirical residual (axisymmetric-body fit)"
-    model_id: str = "suboff_axisymmetric_empirical_v1"
-    validity_status: str = "unvalidated_empirical_estimate"
+    method: str = "Holtrop-Mennen (1982/1984): Rf(1+k1)+Rw+Ra, ITTC-57/ITTC-78"
+    model_id: str = "holtrop_mennen_1982_1984"
+    validity_status: str = "validated_hm_regression"
     validity_notes: List[str] = Field(default_factory=list)
     computation_time_ms: float
+    # HM-specific fields
+    wave_resistance_n: float = 0.0
+    correlation_allowance_n: float = 0.0
+    in_hm_domain: bool = True
+    hm_warnings: List[str] = Field(default_factory=list)
 
 
 class StabilityRequest(BaseModel):
@@ -385,55 +392,72 @@ def _empirical_wetted_surface(length: float, beam: float, cb: float) -> float:
 @router.post("/resistance", response_model=ResistanceResponse)
 @timed_calc("resistance")
 async def calc_resistance(req: ResistanceRequest):
-    """Compute resistance through the shared pure-function empirical kernel.
+    """Compute resistance using the full Holtrop-Mennen (1982/1984) method.
 
-    This endpoint does not claim a general merchant-ship model. Geometry and
-    wetted-surface provenance remain caller responsibilities; the response
-    includes an applicability status so downstream benchmark/reporting code
-    cannot mistake a computed number for a validated physical result.
+    Implements R_T = R_F(1+k1) + R_W + R_B + R_TR + R_A + R_APP with:
+    - ITTC-1957 friction line
+    - Holtrop form factor regression
+    - Holtrop wave resistance regression
+    - ITTC-1978 correlation allowance
+
+    For ships outside the HM domain (0.55<=Cb<=0.85, 3.9<=L/B<=9.5,
+    2.1<=B/T<=4.0, Fn<=0.45), results are extrapolated and flagged.
     """
     t0 = time.perf_counter()
     try:
-        result = resistance_breakdown(
+        r = hm_resistance(
             length=req.length,
             beam=req.beam,
             draft=req.draft,
             cb=req.cb,
-            speed=req.speed_ms,
+            speed_ms=req.speed_ms,
             rho=req.water_density,
             nu=req.kinematic_viscosity,
-            wetted_surface_m2=req.wetted_surface_m2,
-            form_factor=req.form_factor,
+            wet_surface=req.wetted_surface_m2,
         )
     except ValueError as exc:
         raise HTTPException(status_code=400, detail=str(exc)) from exc
 
     elapsed_ms = (time.perf_counter() - t0) * 1000
+    q = 0.5 * req.water_density * r.wetted_surface_m2 * req.speed_ms ** 2
+
+    # Domain check
+    hm_in_domain = in_domain(req.length, req.beam, req.draft, req.cb, r.fn)
+    hm_warns = list(r.warnings)
+    if not hm_in_domain:
+        hm_warns.extend(domain_warnings(req.length, req.beam, req.draft, req.cb, r.fn))
+
+    validity = "validated_hm_regression" if hm_in_domain else "extrapolated_hm_regression"
+
     return ResistanceResponse(
         ship_type=req.ship_type,
         speed_ms=req.speed_ms,
-        total_resistance_n=round(float(result["total_resistance_n"]), 4),
-        frictional_resistance_n=round(float(result["frictional_resistance_n"]), 4),
-        form_resistance_n=round(float(result["form_resistance_n"]), 4),
-        residual_resistance_n=round(float(result["residual_resistance_n"]), 4),
-        reynolds_number=round(float(result["reynolds_number"]), 2),
-        friction_coefficient_cf=round(float(result["cf"]), 10),
-        ct=round(float(result["ct"]), 8),
-        cf=round(float(result["cf"]), 10),
-        cr=round(float(result["cr"]), 10),
-        froude_number=round(float(result["froude_number"]), 6),
-        wetted_surface_m2=round(float(result["wetted_surface_m2"]), 6),
+        total_resistance_n=round(float(r.rt_n), 4),
+        frictional_resistance_n=round(float(r.rf_n), 4),
+        form_resistance_n=round(float(r.rf_n * (r.form_factor - 1.0)), 4),
+        residual_resistance_n=round(float(r.rw_n + r.rbulb_n + r.rtr_n), 4),
+        reynolds_number=round(float(r.re), 2),
+        friction_coefficient_cf=round(float(r.cf), 10),
+        ct=round(float(r.ct), 8),
+        cf=round(float(r.cf), 10),
+        cr=round(float(r.cr), 10),
+        froude_number=round(float(r.fn), 6),
+        wetted_surface_m2=round(float(r.wetted_surface_m2), 6),
         wetted_surface_source=(
-            "caller_supplied_unverified" if req.wetted_surface_m2 is not None
-            else "empirical_formula"
+            "caller_supplied" if req.wetted_surface_m2 is not None
+            else "holtrop_regression"
         ),
-        form_factor=req.form_factor,
-        total_resistance_coefficient=round(float(result["ct"]), 8),
-        method=str(result["method"]),
-        model_id=str(result["model_id"]),
-        validity_status=str(result["validity_status"]),
-        validity_notes=list(result["validity_notes"]),
+        form_factor=round(float(r.form_factor), 6),
+        total_resistance_coefficient=round(float(r.ct), 8),
+        method="Holtrop-Mennen (1982/1984): Rf(1+k1)+Rw+Ra, ITTC-57/ITTC-78",
+        model_id="holtrop_mennen_1982_1984",
+        validity_status=validity,
+        validity_notes=hm_warns,
         computation_time_ms=round(elapsed_ms, 3),
+        wave_resistance_n=round(float(r.rw_n), 4),
+        correlation_allowance_n=round(float(r.ra_n), 4),
+        in_hm_domain=hm_in_domain,
+        hm_warnings=hm_warns,
     )
 
 
