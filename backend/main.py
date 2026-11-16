@@ -447,12 +447,39 @@ app.include_router(ship_seakeeping.router, prefix="/api/v1")
 # ``calculations/{vibration,noise}/*`` 端点从未被 import/挂载 → 线上 404，
 # 该域因此被判 NOT_SUPPORTED（"代码 REAL、能力不可达"）。此处补接线；
 # 证据见 docs/audit/m1849_vibration_wiring.md 与 artifacts/wiring_census/census.json。
-# 用 try/except 包住：任何 import 失败都不得阻断整个 app 启动（部署安全）。
+# 部署安全：import 失败不阻断 app 启动；但**不许静默**——r27-WP2 起把接线结果落成
+# 可判定状态 ``VIBRATION_DOMAIN_STATUS``（fail-closed）：缺域/缺端点时 pass=False，
+# 且以 ERROR 级日志留下原因，门禁测试 tests/test_r27_vibnoise_anchors.py 直接判红。
+# 历史问题：m1849 版此处只 logging.warning → 域静默缺失也能启动，线上 404 无人知。
+VIBRATION_DOMAIN_STATUS = {
+    "domain": "vibration_noise",
+    "pass": False,
+    "mounted": False,
+    "reason": "ship_vibration 接线尚未尝试",
+    "missing_endpoints": [],
+}
 try:
     from api.domain import ship_vibration as _ship_vibration  # noqa: E402
+
     app.include_router(_ship_vibration.router, prefix="/api/v1")
-except Exception as _exc:  # pragma: no cover - 部署面兜底
-    logging.getLogger(__name__).warning("ship_vibration router 接线跳过: %s", _exc)
+    VIBRATION_DOMAIN_STATUS = _ship_vibration.domain_status(
+        mounted=True,
+        reason=None,
+        router_paths=[getattr(r, "path", "") for r in _ship_vibration.router.routes],
+        app_paths=[getattr(r, "path", "") for r in app.routes],
+    )
+except Exception as _exc:  # pragma: no cover - 部署面兜底（但状态判红，不再静默）
+    VIBRATION_DOMAIN_STATUS = {
+        "domain": "vibration_noise",
+        "pass": False,
+        "mounted": False,
+        "reason": f"{type(_exc).__name__}: {_exc}",
+        "missing_endpoints": [],
+    }
+if not VIBRATION_DOMAIN_STATUS.get("pass"):
+    logging.getLogger(__name__).error(
+        "VIBRATION_DOMAIN_STATUS=RED（振动噪声域线上不可达）: %s", VIBRATION_DOMAIN_STATUS)
+app.state.vibration_domain_status = VIBRATION_DOMAIN_STATUS
 
 # ── 智能体协作平台（常驻 agent / 战役 / 模型）──────────────────────
 # LOCAL PATCH: 这三个 router 存在于 api/ 但 main.py 未挂载，导致
