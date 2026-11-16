@@ -436,6 +436,11 @@ app.include_router(misc.router, prefix="/api/v1")
 # ── 科研运行台（HPC + AI agent 操作面）──
 app.include_router(tensor.router, prefix="/api/v1")
 
+# ── 能力注册表（owner 令 11-16 微服务式动态注册）：agent 实时查家底 /
+# TensorPhysics 可调用清单 / 看板成熟度三态（成熟/开发中/未开发）──
+from api import tensor_capabilities as _tensor_capabilities  # noqa: E402
+app.include_router(_tensor_capabilities.router, prefix="/api/v1")
+
 # 船舶总体性能·耐波域（m1433 交付的 calculations/seakeeping_* 三个端点，m1649 复算发现
 # 该域模块从未被 import/挂载 → 线上 404；此处接线，证据见
 # docs/audit/m1649_seakeeping_verification_debt.md 与 docs/audits/seakeeping_verification_m1433.md）
