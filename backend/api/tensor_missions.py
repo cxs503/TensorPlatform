@@ -207,6 +207,10 @@ def create_mission(
         criteria_digest = acceptance_criteria_sha256(frozen_criteria)
     except AcceptanceCriteriaError as exc:
         raise HTTPException(status_code=422, detail=str(exc)) from exc
+    # v2 11-16 owner 令（预注册冻结空转定谳：八单全冻 sha256("[]") 空数组）：判据
+    # 声明→冻结（现行为不变）；未声明→存 NULL + freeze_source='not_declared'，
+    # 诚实呈现「未声明≠冻结空」。digest 仍按规范形计算，幂等重试比对不受影响。
+    _criteria_declared = bool(frozen_criteria)
     validate_projects(body.repo, body.co_repos)
     validate_base_ref(body.base_ref)
     _create_repos = [body.repo.strip()] + [r.strip() for r in (body.co_repos or [])]
@@ -278,6 +282,26 @@ def create_mission(
                 raise HTTPException(409, "task_key already identifies a different task")
             return {"id": existing["id"], "session_id": existing["session_id"],
                     "status": existing["status"], "budget": existing["budget"], "idempotent": True}
+
+    # ── 锚定单落表双件门（v2 11-16 owner 令）：同锚族先行 succeeded 单欠
+    # tensor_reports 报告行 → 拒发新单（先补件再派）。只对锚定单生效——selfstart
+    # 舰队 report 欠账为常态（36h 实测 1811 单走欠账清单线），不在本门 scope。
+    if body.task_key:
+        _debt = db.execute(text("""
+            SELECT m.id, m.task_key FROM tensor_dev_missions m
+            JOIN feature_ledger fl
+              ON (m.task_key = fl.slug OR m.task_key LIKE fl.slug || '-%')
+            WHERE m.organization_id = :org AND m.status = 'succeeded'
+              AND m.report_id IS NULL AND m.finished_at > now() - interval '7 days'
+              AND (fl.slug = :key OR :key LIKE fl.slug || '-%')
+              AND m.task_key IS DISTINCT FROM :key
+            ORDER BY m.id LIMIT 20
+        """), {"org": org_id, "key": body.task_key}).mappings().all()
+        if _debt:
+            raise HTTPException(status_code=422, detail={
+                "report_debt": [{"mission_id": r["id"], "task_key": r["task_key"]} for r in _debt],
+                "reason": "锚定单落表双件纪律：同锚族先行 succeeded 单未落 tensor_reports 报告行，先补件再派新单",
+            })
     budget = dict(DEFAULT_BUDGET)
     for key, lo, hi in (("max_tool_calls", 1, 2000),
                         ("max_wall_seconds", 60, 86400),
@@ -297,7 +321,9 @@ def create_mission(
                  acceptance_criteria_freeze_source)
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
                     :runner, :origin, :model, :uid, :worker_role, :task_key, :agent_session_id,
-                    CAST(:criteria AS jsonb), :criteria_sha256, now(), 'mission_created')
+                    CAST(:criteria AS jsonb), :criteria_sha256,
+                    CASE WHEN :criteria_sha256 IS NULL THEN NULL ELSE now() END,
+                    :freeze_source)
             RETURNING id
         """),
         {"org": org_id, "goal": body.goal.strip(), "repo": body.repo.strip(),
@@ -306,7 +332,9 @@ def create_mission(
          "origin": body.origin, "model": body.model, "uid": user.get("id"),
          "worker_role": body.worker_role, "task_key": body.task_key,
          "agent_session_id": str(body.agent_session_id) if body.agent_session_id else None,
-         "criteria": _dumps(frozen_criteria), "criteria_sha256": criteria_digest},
+         "criteria": _dumps(frozen_criteria) if _criteria_declared else None,
+         "criteria_sha256": criteria_digest if _criteria_declared else None,
+         "freeze_source": "mission_created" if _criteria_declared else "not_declared"},
     ).scalar()
 
     session_id = db.execute(
@@ -477,14 +505,18 @@ def dispatch_mission(
                  acceptance_criteria_freeze_source)
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
                     :runner, 'agent', :model, :parent, :uid, CAST(:criteria AS jsonb),
-                    :criteria_sha256, now(), 'mission_created')
+                    :criteria_sha256,
+                    CASE WHEN :criteria_sha256 IS NULL THEN NULL ELSE now() END,
+                    :freeze_source)
             RETURNING id
         """),
         {"org": org_id, "runner": parent["runner"], "goal": body.goal.strip(), "repo": body.repo.strip(),
          "ref": body.base_ref, "corepos": body.co_repos or None,
          "budget": _dumps(budget), "model": body.model, "parent": body.parent_id,
-         "uid": user.get("id"), "criteria": _dumps(child_criteria),
-         "criteria_sha256": child_criteria_digest},
+         "uid": user.get("id"),
+         "criteria": _dumps(child_criteria) if child_criteria else None,
+         "criteria_sha256": child_criteria_digest if child_criteria else None,
+         "freeze_source": "mission_created" if child_criteria else "not_declared"},
     ).scalar()
     session_id = db.execute(
         text("""
