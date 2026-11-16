@@ -115,8 +115,8 @@ def capability_summary(db: Session = Depends(require_auth_db_marker)):
         FROM tensor_capability_registry GROUP BY repo ORDER BY repo
     """)).mappings().all()
     ledger = db.execute(text("""
-        SELECT repo AS repo, count(*) AS ledger_anchors
-        FROM feature_ledger GROUP BY repo
+        SELECT domain AS repo, count(*) AS ledger_anchors
+        FROM feature_ledger GROUP BY domain
     """)).mappings().all()
     lmap = {r["repo"]: r["ledger_anchors"] for r in ledger}
     return {"repos": [
