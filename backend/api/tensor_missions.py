@@ -292,7 +292,8 @@ def create_mission(
             JOIN feature_ledger fl
               ON (m.task_key = fl.slug OR m.task_key LIKE fl.slug || '-%')
             WHERE m.organization_id = :org AND m.status = 'succeeded'
-              AND m.report_id IS NULL AND m.finished_at > now() - interval '7 days'
+              AND NOT EXISTS (SELECT 1 FROM tensor_reports tr WHERE tr.mission_id = m.id)
+              AND m.finished_at > now() - interval '7 days'
               AND (fl.slug = :key OR :key LIKE fl.slug || '-%')
               AND m.task_key IS DISTINCT FROM :key
             ORDER BY m.id LIMIT 20
