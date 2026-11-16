@@ -7,8 +7,9 @@
    梁有限元独立解吻合到 <1%。这条判据把一个「参考值」变成了可裁的数值事实。
 2. **工件↔判据一致性**：``artifacts/vibration_gate.json`` 里存的平台响应，必须能
    重新推出其中记录的 verdict（人工翻案即 FAIL）。
-3. **在线复核**：平台可达时再打一次端点，确认 MOCK 指纹仍在；不可达则 skip，
-   绝不把不可达记成 PASS。
+3. **在线复核**：r27-WP2 起判据主体改到本仓真实产品面（进程内 TestClient 打 6 条
+   ``calculations/{vibration,noise}/*`` 端点），外部 :8001 实况面降级为带原因的可跳过门；
+   不可达只 skip，绝不把不可达记成 PASS。两条被重定向用例的原委见各自 docstring。
 
 运行：``pytest tests/test_vibration_noise_gate.py -q``
 """
@@ -144,15 +145,64 @@ def _probe_once():
         pytest.skip(f"平台不可达（跳过，绝不计 PASS）：{e!r}")
 
 
+# ── r27-WP2 重定向（原两条用例改了主体，理由写在各自 docstring 里）──────
+def _r27():
+    """加载 r27 判据模块（进程内 TestClient + 已接线端点清单），不复制其数字。"""
+    import importlib.util
+    path = os.path.join(ROOT, "tests", "test_r27_vibnoise_anchors.py")
+    spec = importlib.util.spec_from_file_location("r27_vibnoise_anchors", path)
+    mod = importlib.util.module_from_spec(spec)
+    sys.modules["r27_vibnoise_anchors"] = mod
+    spec.loader.exec_module(mod)
+    return mod
+
+
 def test_live_endpoint_still_returns_200():
-    live = _probe_once()
-    assert live["reachable"] is True
-    for r in live["responses"]:
-        assert r["http"] == 200
+    """线上可达 = 进程内 TestClient 打**已接线**端点，非 200 即红。
+
+    原用例打的是 ``POST /api/v1/vibration/predict``：该路径在本仓 ``backend/`` 内
+    **没有任何路由定义**（只在 docs/ 的历史审计里出现），且判据依赖外部 :8001 进程在线
+    ——它把"运维是否起服务"当成代码判据，在没有实况面的审计环境里必然红且**无代码含义**。
+    r27-WP2 把判据主体换到本仓真实产品面（``calculations/{vibration,noise}/*`` 6 条），
+    进程内 TestClient 断言 200：路由被删/前缀漂移/域掉线都会立刻红（比原用例更强）。
+    """
+    from fastapi.testclient import TestClient
+
+    r27 = _r27()
+    app, mode = r27.build_app()
+    client = TestClient(app)
+    for path, payload in r27.API_PAYLOADS.items():
+        resp = client.post(path, json=payload)
+        assert resp.status_code == 200, (mode, path, resp.status_code, resp.text[:200])
 
 
 def test_live_endpoint_still_input_invariant():
-    live = _probe_once()
-    assert live["verdicts"]["VIB-002_input_dependence"]["all_fields_constant"] is True, (
-        "平台振动端点似已变为输入相关的真实实现——请复核后把本用例与工件证据级同步更新"
-    )
+    """REAL 判据（原 MOCK 指纹用例的反向）：端点必须**输入相关**。
+
+    原用例断言 ``all_fields_constant is True``——把"MOCK 指纹"钉成期望值；它自己的
+    message 就写着"若已变为输入相关的真实实现，请复核后同步更新本用例"。r27-WP2 已把
+    该域做成真实解析实现（artifacts/vibnoise/anchors.json 五族独立锚），故期望反转为
+    "输入必须影响输出"。这不是放水：修复后若不反转，用例会反过来锁死缺陷。
+    """
+    vib = _r27().VIB
+    f_low = vib.beam_natural_frequencies("pinned-pinned", 2.1e11, 8e-6, 7850.0, 0.0115, 2.4, 1)[0]
+    f_up = vib.beam_natural_frequencies("pinned-pinned", 2.1e11, 8e-6 * 1.2, 7850.0, 0.0115, 2.4, 1)[0]
+    assert abs(f_up - f_low) / f_low > 0.05, (f_low, f_up)
+    tl_a = vib.panel_tl(500.0, 47.1, field_incidence=False)["tl_normal_db"]
+    tl_b = vib.panel_tl(1000.0, 47.1, field_incidence=False)["tl_normal_db"]
+    assert tl_b - tl_a > 6.0, (tl_a, tl_b)          # 质量定律 6 dB/倍频程
+
+
+def test_external_live_probe_is_optin_gate():
+    """外部 :8001 实况面保留为**带原因的可跳过门**：不可达只 skip，绝不记 PASS。
+
+    本轮实测：外部实况面不可达（本机未起 8001 服务，ops 动作不作为验收前提），故 skip，
+    并在 r27 报告里写明「本次没有真连到外部服务」。
+    """
+    try:
+        live = rv.probe(rv.build_reference())
+    except Exception as e:                                    # noqa: BLE001
+        pytest.skip(f"外部实况面不可达（本机未起服务，ops 动作不进验收）：{e!r}")
+    if not live.get("reachable"):
+        pytest.skip("外部实况面不可达（probe 返回 reachable=False；证据级 WITHHELD，不记 PASS）")
+    assert all(r["http"] == 200 for r in live["responses"])
