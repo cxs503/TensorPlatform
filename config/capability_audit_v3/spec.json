@@ -1,0 +1,385 @@
+{
+  "schema_version": "3.0",
+  "title": "能力台账自动审计 v3：全量 21 项能力不变量探针覆盖",
+  "description": "v3 扩展：每项 WITHHELD/MOCK/STUB 能力至少 1 个不变量探针，判级与人工复核一致率 ≥95%",
+  "thresholds": {
+    "probe_min_contradictions": 1,
+    "exec_numeric_assertions_min": 1,
+    "sensitivity_min_change": 0.01,
+    "identity_tolerance": 0.01,
+    "determinism_tolerance": 1e-9,
+    "benchmark_tolerance": 0.15
+  },
+  "capabilities": {
+    "calc.resistance": {
+      "manual_grade": "MOCK",
+      "probes": [
+        {
+          "id": "RES-SENS-01",
+          "type": "SENSITIVITY",
+          "endpoint": "calculations/resistance",
+          "method": "POST",
+          "input_base": {"length": 100, "beam": 15, "draft": 5, "cb": 0.6, "displacement": 4500, "speed": 12},
+          "input_variants": [{"speed": 10}, {"speed": 14}],
+          "check_expr": "rel_change(ct1, ct2) > 0.01",
+          "tolerance": 0.01,
+          "description": "速度变化 → Ct 应变化"
+        },
+        {
+          "id": "RES-ID-01",
+          "type": "IDENTITY",
+          "endpoint": "calculations/resistance",
+          "method": "POST",
+          "input_base": {"length": 100, "beam": 15, "draft": 5, "cb": 0.6, "displacement": 4500, "speed": 12},
+          "check_expr": "rel_err(ct, cf_total + cr) < 0.20",
+          "tolerance": 0.20,
+          "description": "Ct ≈ Cf + Cr"
+        },
+        {
+          "id": "RES-DET-01",
+          "type": "DETERMINISM",
+          "endpoint": "calculations/resistance",
+          "method": "POST",
+          "input_base": {"length": 100, "beam": 15, "draft": 5, "cb": 0.6, "displacement": 4500, "speed": 12},
+          "check_expr": "rel_err(ct_run1, ct_run2) < 1e-9",
+          "tolerance": 1e-9,
+          "description": "同输入 → 同输出"
+        }
+      ]
+    },
+    "calc.stability": {
+      "manual_grade": "MOCK",
+      "probes": [
+        {
+          "id": "STAB-SENS-01",
+          "type": "SENSITIVITY",
+          "endpoint": "calculations/stability",
+          "method": "POST",
+          "input_base": {"length": 100, "beam": 15, "draft": 5, "cb": 0.6, "displacement": 4500, "kg": 8},
+          "input_variants": [{"kg": 7}, {"kg": 9}],
+          "check_expr": "rel_change(gm1, gm2) > 0.01",
+          "tolerance": 0.01,
+          "description": "KG 变化 → GM 应变化"
+        },
+        {
+          "id": "STAB-ID-01",
+          "type": "IDENTITY",
+          "endpoint": "calculations/stability",
+          "method": "POST",
+          "input_base": {"length": 100, "beam": 15, "draft": 5, "cb": 0.6, "displacement": 4500, "kg": 8},
+          "check_expr": "rel_err(km, kb + bm) < 1e-6",
+          "tolerance": 1e-6,
+          "description": "KM = KB + BM"
+        }
+      ]
+    },
+    "propeller.open_water": {
+      "manual_grade": "MOCK",
+      "probes": [
+        {
+          "id": "PROP-ID-01",
+          "type": "IDENTITY",
+          "endpoint": "propeller/open_water",
+          "method": "POST",
+          "input_base": {"j": 0.5, "p_d": 1.0, "z": 4, "ae_ao": 0.7},
+          "check_expr": "rel_err(eta0, J*KT/(2*pi*KQ)) < 0.01",
+          "tolerance": 0.01,
+          "description": "eta0 恒等式"
+        },
+        {
+          "id": "PROP-SENS-01",
+          "type": "SENSITIVITY",
+          "endpoint": "propeller/open_water",
+          "method": "POST",
+          "input_base": {"j": 0.5, "p_d": 1.0, "z": 4, "ae_ao": 0.7},
+          "input_variants": [{"j": 0.3}, {"j": 0.7}],
+          "check_expr": "rel_change(kt1, kt2) > 0.01",
+          "tolerance": 0.01,
+          "description": "J 变化 → KT 应变化"
+        }
+      ]
+    },
+    "geometry.hydro_curves": {
+      "manual_grade": "REAL",
+      "probes": [
+        {
+          "id": "HYDRO-SENS-01",
+          "type": "SENSITIVITY",
+          "endpoint": "calculations/hydro_curves",
+          "method": "POST",
+          "input_base": {"hull": "box", "length": 100, "beam": 15, "depth": 8, "draft_min": 3, "draft_max": 7, "draft_step": 1, "rho": 1025},
+          "check_expr": "rel_change(disp_min, disp_max) > 0.1",
+          "tolerance": 0.1,
+          "description": "吃水变化 → 排水量应变化"
+        },
+        {
+          "id": "HYDRO-ID-01",
+          "type": "IDENTITY",
+          "endpoint": "calculations/hydro_curves",
+          "method": "POST",
+          "input_base": {"hull": "box", "length": 100, "beam": 15, "depth": 8, "draft_min": 3, "draft_max": 7, "draft_step": 1, "rho": 1025},
+          "check_expr": "rel_err(displacement, rho * volume / 1000) < 0.01",
+          "tolerance": 0.01,
+          "description": "排水量 = rho * V"
+        }
+      ]
+    },
+    "gov.stats": {
+      "manual_grade": "MOCK",
+      "probes": [
+        {
+          "id": "GOV-SENS-01",
+          "type": "SENSITIVITY",
+          "endpoint": "governance/stats",
+          "method": "POST",
+          "input_base": {"period": "7d"},
+          "input_variants": [{"period": "30d"}],
+          "check_expr": "max_rel_diff > 0.01",
+          "tolerance": 0.01,
+          "description": "时间范围变化 → 统计值应变化"
+        }
+      ]
+    },
+    "knowledge.docs": {
+      "manual_grade": "MOCK",
+      "probes": [
+        {
+          "id": "KNOW-BOUND-01",
+          "type": "BOUNDARY",
+          "endpoint": "knowledge/docs",
+          "method": "POST",
+          "input_base": {"query": "resistance"},
+          "input_variants": [{"query": "stability"}],
+          "check_expr": "response1 != response2",
+          "tolerance": 1.0,
+          "description": "不同查询 → 不同结果"
+        }
+      ]
+    },
+    "misc.stubs": {
+      "manual_grade": "STUB",
+      "probes": [
+        {
+          "id": "STUB-BOUND-01",
+          "type": "BOUNDARY",
+          "endpoint": "misc/stubs",
+          "method": "POST",
+          "input_base": {},
+          "check_expr": "is_stub_response",
+          "tolerance": 1.0,
+          "description": "返回占位符"
+        }
+      ]
+    },
+    "ai.predict": {
+      "manual_grade": "NOT_SUPPORTED",
+      "probes": [
+        {
+          "id": "AI-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "ai/predict",
+          "method": "POST",
+          "input_base": {"input": [1, 2, 3]},
+          "check_expr": "status in (404, 501)",
+          "tolerance": 404.0,
+          "description": "端点不存在"
+        }
+      ]
+    },
+    "geometry.generate": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "GEO-GEN-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "geometry/generate",
+          "method": "POST",
+          "input_base": {"hull_type": "wigley", "length": 100},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "geometry.list_models": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "GEO-LIST-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "geometry/models",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "geometry.verify_official": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "GEO-VERIFY-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "geometry/verify",
+          "method": "POST",
+          "input_base": {"length": 100, "beam": 15, "draft": 5, "cb": 0.6, "displacement": 4500},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "shiphull.generate": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "SHIP-GEN-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "shiphull/generate",
+          "method": "POST",
+          "input_base": {"hull_type": "wigley"},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "stdmodels.lookup": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "STD-LOOKUP-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "stdmodels/lookup",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "methods.computation": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "METHODS-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "methods/computation",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.gate_5415": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-5415-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/gate_5415",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.git": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-GIT-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/git",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.logs": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-LOGS-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/logs",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.nginx_audit": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-NGINX-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/nginx_audit",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.probe": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-PROBE-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/probe",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.restart": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-RESTART-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/restart",
+          "method": "POST",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    },
+    "dev.services": {
+      "manual_grade": "WITHHELD",
+      "probes": [
+        {
+          "id": "DEV-SERVICES-EXIST-01",
+          "type": "EXISTENCE",
+          "endpoint": "dev/services",
+          "method": "GET",
+          "input_base": {},
+          "check_expr": "status == 200",
+          "tolerance": 200.0,
+          "description": "端点可达性"
+        }
+      ]
+    }
+  }
+}
