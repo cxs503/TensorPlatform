@@ -639,6 +639,7 @@ def main() -> None:
                  "summary": {"headline": f"worker 异常: {type(e).__name__}: {str(e)[:150]}",
                              "model": MODEL, "agent_session_id": sid,
                              "traceback_tail": traceback.format_exc()[-800:]},
+                 "fail_stage": "tool_loop",
                  "checks": {"gate": "worker-crash", "reason": str(e)[:300]}}, token)
             resident_beat(token, sid, "idle", error=f"crash: {str(e)[:200]}")
             if args.once:
@@ -661,6 +662,7 @@ def main() -> None:
                                     "agent_session_id": sid, "tool_calls": result["tool_calls"],
                                     "changed_files": result["changed_files"],
                                     "declared_summary": result["summary"][:300]},
+                        "fail_stage": "tool_loop",
                         "checks": {"gate": "no-evidence", "reason": reason}}, token)
             log(f"  记为 failed → {s} {str(d)[:100]}")
             if args.once:
