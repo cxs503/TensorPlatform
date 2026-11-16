@@ -76,6 +76,53 @@ def render_caps(payload: dict) -> str:
     raise ValueError("能力清单 schema 不可识别（缺 capabilities 段）")
 
 
+def ssot_cross_check(payload: dict) -> list[str]:
+    """SSoT 交叉核对（m22585 / r27-WP3）：工具侧读数与仓库产物逐项比对。
+
+    病根：本消费者只渲染「自己解析到的那一侧」，于是同一个 capability 在编排工具
+    与 ``artifacts/capability_ledger/capability_ledger_resolved.json`` 里可以是两个
+    相反的等级，而读者只看到其中一侧。此处用
+    :mod:`tools.capability_ledger.ssot` 的**同一解析器**把两侧摆到一行，
+    不一致时输出 ``[DIVERGENCE]`` 记录（两侧等级 + basis + line_sha256）。
+
+    fail-soft：任何异常都降级成一行说明，绝不改变工具正文的可用性。
+    """
+    try:
+        from tools.capability_ledger import ssot
+
+        art = ssot.artifact_levels()
+        if not art:
+            return ["[SSoT] canonical 产物不可读（capability_ledger_resolved.json 缺失/坏），"
+                    "本侧判读无法交叉核对 → 视作 UNKNOWN 侧，不据此宣称等级"]
+        caps = payload.get("capabilities")
+        if isinstance(caps, dict):
+            tool = ssot.parse_harness(payload)
+            side = "工具侧(harmess 载荷)"
+        else:
+            tool = {cid: {"level": r["reconciled_level"], "detail": {}}
+                    for cid, r in ssot.parse_resolved(payload).items()}
+            side = "工具侧(canonical 载荷)"
+        prov = {"path": "(本次渲染的载荷)", "sha256": ssot.sha256_of(payload)}
+        rows = ssot.layer2_matrix(art, tool, prov)
+        dis = [r for r in rows if not r["agree"]]
+        one = next(iter(art.values()))
+        lines = [f"[SSoT] canonical={one['artifact_path']} "
+                 f"sha256={one['artifact_sha256'][:16]} 比对侧={side} "
+                 f"一致={len(rows) - len(dis)} 分歧={len(dis)}"]
+        for r in dis:
+            d = r["divergence_record"]
+            lines.append(
+                f"[DIVERGENCE] {r['capability_id']}: 产物 {d['artifact_level']} ≠ "
+                f"工具 {d['tool_level']}（{d['direction']}）"
+                f"basis={str(d['artifact_basis'])[:48] or '-'} "
+                f"line_sha256={d['artifact_basis_line_sha256'] or '-'}")
+        if not dis:
+            lines.append("[SSoT] 两侧逐项一致：无沉默分歧")
+        return lines
+    except Exception as exc:  # noqa: BLE001 — 交叉核对失败不得影响工具可用性
+        return [f"[SSoT] 交叉核对不可用（fail-soft）：{type(exc).__name__}: {exc}"]
+
+
 def audit_capabilities() -> str:
     """agent 工具正文：按契约候选序取第一份可解析台账，尾部标注契约身份。"""
     ref = ledger_ref()
@@ -92,6 +139,8 @@ def audit_capabilities() -> str:
             tried.append(f"{path}: {type(exc).__name__}: {exc}")
             continue
         head_sha = (ref.get("sha256") or LP.sha256_file(path))[:12]
+        ssot_lines = ssot_cross_check(payload)
+        body = body + "\n" + "\n".join(ssot_lines)
         contract = (f"[台账契约] status={ref.get('status')} path={ref.get('path_rel')} "
                     f"sha256={head_sha} schema={ref.get('schema_version')} "
                     f"未证实={ref.get('unverified')} OVERCLAIM={ref.get('overclaim')} "
