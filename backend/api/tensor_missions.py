@@ -360,6 +360,8 @@ REPO_WHITELIST = (
     "TensorBench", "TensorData",
     # owner 2026-11-13 令：冰区航行示范项目 TensorIce 独立仓入生态派发
     "TensorIce",
+    # owner 2026-11-16 GPT 盘点采纳·P0 产品生产线令：两厂入生态派发（AppFactory 克隆已在生态，ProductFactory 已补克隆）
+    "TensorAppFactory", "TensorProductFactory",
 )
 
 # ── 仓可解析性门（fail-fast）：worker 侧 tp_worker.prepare_worktree 的同款解析，
