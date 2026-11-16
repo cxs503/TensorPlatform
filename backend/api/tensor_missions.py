@@ -323,7 +323,7 @@ def create_mission(
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
                     :runner, :origin, :model, :uid, :worker_role, :task_key, :agent_session_id,
                     CAST(:criteria AS jsonb), :criteria_sha256,
-                    CASE WHEN :criteria_sha256 IS NULL THEN NULL ELSE now() END,
+                    CASE WHEN CAST(:criteria_sha256 AS text) IS NULL THEN NULL ELSE now() END,
                     :freeze_source)
             RETURNING id
         """),
@@ -507,7 +507,7 @@ def dispatch_mission(
             VALUES (:org, :goal, :repo, :ref, :corepos, CAST(:budget AS jsonb),
                     :runner, 'agent', :model, :parent, :uid, CAST(:criteria AS jsonb),
                     :criteria_sha256,
-                    CASE WHEN :criteria_sha256 IS NULL THEN NULL ELSE now() END,
+                    CASE WHEN CAST(:criteria_sha256 AS text) IS NULL THEN NULL ELSE now() END,
                     :freeze_source)
             RETURNING id
         """),
