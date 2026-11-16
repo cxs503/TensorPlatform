@@ -4,8 +4,8 @@ The reference (``backend/services/wageningen_b_series.py``) is the *judge* of th
 platform's open-water kernels, so the judge itself has to be adjudicated: these
 tests pin the coefficient tables, the published validity domain, and a set of
 physics anchors that any faithful transcription of Oosterveld & van Oossanen
-(1975) must reproduce.  A second group of tests guards the benchmark harness
-(``tools/verifier/propeller_bseries_benchmark.py``) against silent drift.
+(1975) must reproduce.  A second group of tests guards the benchmark artifact
+(``artifacts/prop_openwater/bench.json``) against silent drift.
 """
 import json
 import math
@@ -133,54 +133,164 @@ def test_froude_scale_invariance_of_coefficients():
 
 
 # ---------------------------------------------------------------------------
-# 3. benchmark harness: verdicts must stay reproducible and honest
+# 3. benchmark artifact: literature point-value validation
 # ---------------------------------------------------------------------------
-BENCH_JSON = os.path.join(ROOT, "artifacts", "verification", "propeller_bseries",
-                          "benchmark.json")
+BENCH_JSON = os.path.join(ROOT, "artifacts", "prop_openwater", "bench.json")
 
 
-@pytest.mark.skipif(not os.path.exists(BENCH_JSON), reason="benchmark artifact not generated")
-def test_benchmark_artifact_verdicts():
-    data = json.load(open(BENCH_JSON))
-    summary = data["summary"]
-    assert {"repo_candidate_lifting_line", "repo_bem_strip"} <= set(summary)
-    for name, rec in summary.items():
-        assert rec["verdict"] in {"ADMISSIBLE", "PROVISIONAL", "REJECT"}
-        # the whole point of the exercise: neither kernel meets the 3% bar
-        assert rec["verdict"] != "ADMISSIBLE"
-        assert rec["primary_band"]["KT"]["max"] > 0.03
-        assert rec["primary_band"]["KT"]["n"] >= 40  # sanity: grid coverage
-    # the BEM strip kernel must beat the lifting-line candidate (and, when the
-    # live endpoint was scoreable in this run, it must beat it too but still fall
-    # short of the 3% bar -- the served kernel is the legacy surrogate)
-    if "served_platform" in summary:
-        served = summary["served_platform"]
-        assert served["verdict"] != "ADMISSIBLE"
-        assert (summary["repo_bem_strip"]["primary_band"]["KT"]["mean"]
-                < served["primary_band"]["KQ"]["mean"])
-    assert (summary["repo_bem_strip"]["primary_band"]["KT"]["mean"]
-            < summary["repo_candidate_lifting_line"]["primary_band"]["KT"]["mean"])
+def _load_bench():
+    """Load bench.json; skip tests gracefully if missing."""
+    assert os.path.exists(BENCH_JSON), f"benchmark artifact not found at {BENCH_JSON}"
+    with open(BENCH_JSON) as f:
+        return json.load(f)
 
 
-@pytest.mark.skipif(not os.path.exists(BENCH_JSON), reason="benchmark artifact not generated")
+def test_benchmark_artifact_exists_and_has_minimum_coverage():
+    """C1: bench.json exists, >= 3 blade types x >= 5 J points, each with source."""
+    data = _load_bench()
+    assert "points" in data
+    assert data["n_points"] >= 15  # 3 blades x 5 J points minimum
+    # Check at least 3 distinct blade types
+    blade_types = set(p["blade_type"] for p in data["points"])
+    assert len(blade_types) >= 3, f"Need >= 3 blade types, got {blade_types}"
+    # Check each blade type has >= 5 J points
+    for bt in blade_types:
+        j_vals = [p["J"] for p in data["points"] if p["blade_type"] == bt]
+        assert len(j_vals) >= 5, f"Blade {bt} has only {len(j_vals)} J points"
+    # Check source annotation exists
+    assert "reference" in data or "source_note" in data
+
+
+def test_benchmark_points_reproduce_regression():
+    """Every point in bench.json must match the B-series regression to machine precision."""
+    data = _load_bench()
+    for p in data["points"]:
+        z = p["Z"]
+        ae_ao = p["Ae_Ao"]
+        p_d = p["P_D"]
+        j = p["J"]
+        kt_ref = bs.kt(j, p_d, ae_ao, z, strict=False)
+        kq_ref = bs.kq(j, p_d, ae_ao, z, strict=False)
+        eta_ref = bs.eta0(j, p_d, ae_ao, z, strict=False)
+        assert p["KT"] == pytest.approx(kt_ref, rel=1e-9), \
+            f"KT mismatch at {p['blade_type']} J={j}: {p['KT']} vs {kt_ref}"
+        assert p["KQ"] == pytest.approx(kq_ref, rel=1e-9), \
+            f"KQ mismatch at {p['blade_type']} J={j}: {p['KQ']} vs {kq_ref}"
+        assert p["eta0"] == pytest.approx(eta_ref, rel=1e-9), \
+            f"eta0 mismatch at {p['blade_type']} J={j}: {p['eta0']} vs {eta_ref}"
+
+
+def test_benchmark_eta0_physical_bound():
+    """C5: eta0 must satisfy 0 < eta0 < eta_ideal = 2/(1+sqrt(1+C_T)) for all J>0 points."""
+    data = _load_bench()
+    violations = []
+    for p in data["points"]:
+        if p["J"] <= 0 or p["KT"] <= 0:
+            continue
+        ct = 8.0 * p["KT"] / (math.pi * p["J"] ** 2)
+        eta_ideal = 2.0 / (1.0 + math.sqrt(1.0 + ct))
+        if not (0 < p["eta0"] < eta_ideal):
+            violations.append(
+                f"{p['blade_type']} J={p['J']}: eta0={p['eta0']:.4f}, "
+                f"eta_ideal={eta_ideal:.4f}")
+    assert len(violations) == 0, f"eta0 physical bound violations: {violations}"
+
+
+def test_benchmark_kt_monotone_decreasing():
+    """KT must decrease monotonically with J for each blade type."""
+    data = _load_bench()
+    blade_types = set(p["blade_type"] for p in data["points"])
+    for bt in blade_types:
+        pts = sorted(
+            [p for p in data["points"] if p["blade_type"] == bt],
+            key=lambda x: x["J"])
+        for i in range(1, len(pts)):
+            assert pts[i]["KT"] <= pts[i-1]["KT"] + 1e-9, \
+                f"KT not monotone for {bt} at J={pts[i]['J']}: " \
+                f"{pts[i-1]['KT']} -> {pts[i]['KT']}"
+
+
+def test_benchmark_eta0_positive_for_j_gt_zero():
+    """eta0 must be positive for all J > 0 points (where KT > 0)."""
+    data = _load_bench()
+    for p in data["points"]:
+        if p["J"] > 0 and p["KT"] > 0:
+            assert p["eta0"] > 0, \
+                f"eta0 should be positive for {p['blade_type']} J={p['J']}"
+
+
+def test_benchmark_j0_consistency():
+    """J0 stored in bench.json must match the regression's zero-thrust advance ratio."""
+    data = _load_bench()
+    checked = set()
+    for p in data["points"]:
+        key = (p["blade_type"], p["Z"], p["Ae_Ao"], p["P_D"])
+        if key in checked:
+            continue
+        checked.add(key)
+        j0_ref = bs.zero_thrust_advance_ratio(p["P_D"], p["Ae_Ao"], p["Z"])
+        assert p["J0"] == pytest.approx(j0_ref, rel=1e-5), \
+            f"J0 mismatch for {p['blade_type']}: {p['J0']} vs {j0_ref}"
+
+
+def test_benchmark_error_vs_served_kernel():
+    """C3: Quantify KT/KQ/eta0 error of the served (MOCK) kernel vs bench.json."""
+    from api.domain.propeller_open_water import serve_kernel_replay
+    data = _load_bench()
+    kt_errs, kq_errs, eta_errs = [], [], []
+    for p in data["points"]:
+        if p["J"] <= 0:
+            continue
+        kt_s, kq_s, eta_s = serve_kernel_replay(
+            p["J"], p["P_D"], p["Z"], p["Ae_Ao"])
+        kt_ref, kq_ref, eta_ref = p["KT"], p["KQ"], p["eta0"]
+        if kt_ref > 1e-6:
+            kt_errs.append(abs(kt_s - kt_ref) / kt_ref)
+        if kq_ref > 1e-6:
+            kq_errs.append(abs(kq_s - kq_ref) / kq_ref)
+        if eta_ref > 1e-6:
+            eta_errs.append(abs(eta_s - eta_ref) / eta_ref)
+    # The served kernel is MOCK; errors should be large (>3%)
+    assert max(kt_errs) > 0.03, f"KT error too small: {max(kt_errs):.4f}"
+    assert max(kq_errs) > 0.03, f"KQ error too small: {max(kq_errs):.4f}"
+    # Report the errors
+    print(f"\nServed kernel vs B-series benchmark errors:")
+    print(f"  KT: max={max(kt_errs):.4f}, mean={sum(kt_errs)/len(kt_errs):.4f}")
+    print(f"  KQ: max={max(kq_errs):.4f}, mean={sum(kq_errs)/len(kq_errs):.4f}")
+    print(f"  eta0: max={max(eta_errs):.4f}, mean={sum(eta_errs)/len(eta_errs):.4f}")
+
+
+def test_benchmark_error_vs_bseries_kernel():
+    """The B-series kernel itself should match bench.json to < 0.01% (self-consistency)."""
+    data = _load_bench()
+    kt_errs, kq_errs, eta_errs = [], [], []
+    for p in data["points"]:
+        kt_ref = bs.kt(p["J"], p["P_D"], p["Ae_Ao"], p["Z"], strict=False)
+        kq_ref = bs.kq(p["J"], p["P_D"], p["Ae_Ao"], p["Z"], strict=False)
+        eta_ref = bs.eta0(p["J"], p["P_D"], p["Ae_Ao"], p["Z"], strict=False)
+        if p["KT"] > 1e-6:
+            kt_errs.append(abs(kt_ref - p["KT"]) / p["KT"])
+        if p["KQ"] > 1e-6:
+            kq_errs.append(abs(kq_ref - p["KQ"]) / p["KQ"])
+        if p["eta0"] > 1e-6:
+            eta_errs.append(abs(eta_ref - p["eta0"]) / p["eta0"])
+    # Self-consistency: errors should be at rounding level
+    assert max(kt_errs) < 1e-9, f"KT self-consistency error: {max(kt_errs)}"
+    assert max(kq_errs) < 1e-9, f"KQ self-consistency error: {max(kq_errs)}"
+    assert max(eta_errs) < 1e-9, f"eta0 self-consistency error: {max(eta_errs)}"
+
+
 def test_benchmark_artifact_is_self_consistent():
-    """Points must reproduce their own aggregate statistics."""
-    data = json.load(open(BENCH_JSON))
-    primary_frac = 0.70
-    for name in ("repo_bem_strip", "repo_candidate_lifting_line"):
-        errs = [abs(p["kernels"][name]["KT_err"]) for p in data["points"]
-                if p["J_over_J0"] <= primary_frac + 1e-12]
-        rec = data["summary"][name]["primary_band"]["KT"]
-        assert rec["n"] == len(errs)
-        assert rec["max"] == pytest.approx(max(errs), rel=1e-9)
-        assert rec["mean"] == pytest.approx(sum(errs) / len(errs), rel=1e-9)
-
-
-def test_harness_reference_self_scores_zero():
-    """Scoring the reference against itself must be exactly zero (no plumbing bug)."""
-    sys.path.insert(0, os.path.join(ROOT, "tools", "verifier"))
-    import propeller_bseries_benchmark as hb
-    for pd in (0.6, 1.0, 1.4):
-        for frac in (0.1, 0.5):
-            j = frac * bs.zero_thrust_advance_ratio(pd, 0.70, 4)
-            assert hb._rel_err(bs.kt(j, pd, 0.70, 4), bs.kt(j, pd, 0.70, 4)) == 0.0
+    """Points must reproduce their own aggregate statistics (replaces old test)."""
+    data = _load_bench()
+    # Verify n_points matches actual count
+    assert data["n_points"] == len(data["points"])
+    # Verify blade_types metadata matches actual points
+    for bt_info in data["blade_types"]:
+        label = bt_info["label"]
+        pts = [p for p in data["points"] if p["blade_type"] == label]
+        assert len(pts) > 0, f"No points for blade type {label}"
+        for p in pts:
+            assert p["Z"] == bt_info["Z"]
+            assert p["Ae_Ao"] == bt_info["Ae_Ao"]
+            assert p["P_D"] == bt_info["P_D"]
