@@ -137,11 +137,11 @@ def mission(pid, *, accepted=True, status="awaiting_pr_merge",
                          pr_number=pr, repo=REPO)
 
 
-def green_checks():
+def green_checks(sha="sha1"):
     return [{"name": "backend suite", "status": "completed",
-             "conclusion": "success"},
+             "conclusion": "success", "head_sha": sha},
             {"name": "pytest main", "status": "completed",
-             "conclusion": "success"}]
+             "conclusion": "success", "head_sha": sha}]
 
 
 def mk_pr(num, *, sha=None, mergeable=True, state="open", merged=False):
@@ -155,7 +155,7 @@ def make(path, prs, missions, *, checks=None, diffs=None, merger=None,
     audit = AuditLog(str(Path(path) / "audit.jsonl"))
     ledger = ledger or FakeLedger(missions)
     by_sha = checks if checks is not None else {
-        (REPO, pr.head_sha): green_checks() for pr in prs}
+        (REPO, pr.head_sha): green_checks(pr.head_sha) for pr in prs}
     d = diffs if diffs is not None else {(REPO, pr.number): CLEAN_DIFF
                                          for pr in prs}
     rec = Reconciler(queue=FakeQueue(prs), ledger=ledger,
@@ -195,7 +195,7 @@ def test_twelve_awaiting_prs_all_cleared_with_action_or_reason(tmp_path):
         pr = mk_pr(n)
         prs.append(pr)
         missions["%s#%d" % (REPO, n)] = mission(9100 + n, pr=n)
-        by_sha[(REPO, pr.head_sha)] = green_checks()
+        by_sha[(REPO, pr.head_sha)] = green_checks(pr.head_sha)
         diffs[(REPO, n)] = CLEAN_DIFF
     # 9 张各类留因
     bad_cases = {
@@ -221,7 +221,7 @@ def test_twelve_awaiting_prs_all_cleared_with_action_or_reason(tmp_path):
         prs.append(pr)
         if m is not None:
             missions["%s#%d" % (REPO, n)] = m
-        by_sha[(REPO, pr.head_sha)] = chk
+        by_sha[(REPO, pr.head_sha)] = [dict(c, head_sha=pr.head_sha) for c in chk]
         diffs[(REPO, n)] = df
     rec, _ledger, _audit = make(tmp_path, prs, missions, checks=by_sha,
                                 diffs=diffs, budget=Budget(max_merges=5,
@@ -283,23 +283,25 @@ def test_boundary_gate_fails_closed_when_diff_unavailable():
 
 
 # --------------------------------------------------------------------------- #
-# 4. 相对红口径：main 上早已红的检查不阻断（不把别人的红算到本 PR）
+# 4. 基线只作诊断：同名检查失败不能证明没有新增缺陷
 # --------------------------------------------------------------------------- #
-def test_baseline_red_not_blocking_but_new_red_is():
+def test_baseline_red_and_new_red_both_block_merge():
     checks = [{"name": "contract tests", "status": "completed",
-               "conclusion": "failure"}]
-    ok = G.gate_quality(checks, ["contract tests"])
-    assert ok.ok is True and ok.evidence["new_red"] == []
+               "conclusion": "failure", "head_sha": "sha1"}]
+    known = G.gate_quality(checks, ["contract tests"], head_sha="sha1")
+    assert known.ok is False and known.evidence["new_red"] == []
+    assert known.evidence["failed"] == ["contract tests"]
     bad = G.gate_quality(checks + [{"name": "backend suite",
                                     "status": "completed",
-                                    "conclusion": "failure"}],
-                         ["contract tests"])
+                                    "conclusion": "failure", "head_sha": "sha1"}],
+                         ["contract tests"], head_sha="sha1")
     assert bad.ok is False and bad.evidence["new_red"] == ["backend suite"]
 
 
 def test_pending_check_blocks_merge(tmp_path):
     pr = mk_pr(401)
     checks = {(REPO, pr.head_sha): [{"name": "backend suite",
+                                     "head_sha": pr.head_sha,
                                      "status": "in_progress",
                                      "conclusion": None}]}
     rec, _l, _a = make(tmp_path, [pr], {"%s#401" % REPO: mission(9401, pr=401)},

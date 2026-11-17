@@ -1,0 +1,24 @@
+name: Merge master evidence
+
+on:
+  pull_request:
+  push:
+    branches: [main]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  merge-master-tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.11"
+      - name: Install test dependencies
+        run: python -m pip install "pytest>=8,<10"
+      - name: Verify merge evidence and execution opt-in
+        run: python -m pytest -q tests/test_merge_master.py tests/test_merge_master_evidence.py

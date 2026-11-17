@@ -105,6 +105,7 @@ def _build_reconciler(args, env: Dict[str, Any], dry_run: bool,
                     max_mutations=args.max_mutations, max_prs=args.max_prs)
     gates = G.GateSuite(min_tests_passed=args.min_tests,
                         lexicon_path=args.lexicon or None,
+                        required_checks=args.required_check,
                         disabled=tuple(args.disable_gate or ()))
     ledger = env["ledger"]
     merger = GitHubMerger(gh, method=args.method)
@@ -258,6 +259,8 @@ def build_parser() -> argparse.ArgumentParser:
         p.add_argument("--max-merges", type=int, default=3)
         p.add_argument("--max-mutations", type=int, default=8)
         p.add_argument("--min-tests", type=int, default=1)
+        p.add_argument("--required-check", action="append", default=[],
+                       help="必须在当前 head 成功的检查名（精确匹配，可重复；多仓需同名）")
         p.add_argument("--lexicon", default="")
         p.add_argument("--method", default="merge",
                        choices=["merge", "squash", "rebase"])
