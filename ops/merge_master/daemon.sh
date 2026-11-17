@@ -18,10 +18,27 @@ INTERVAL="${TP_MM_INTERVAL:-300}"
 REPOS="${TP_MM_REPOS:-TensorPlatform}"
 MODE="${1:-plan}"
 
+# Treat repository configuration as data, never as additional CLI flags/globs.
+if [[ "$REPOS" == *$'\n'* || "$REPOS" == *$'\r'* ]]; then
+  echo "refused: TP_MM_REPOS must be a space-separated list of repository names" >&2
+  exit 2
+fi
+read -r -a repo_args <<< "$REPOS"
+if [ "${#repo_args[@]}" -eq 0 ]; then
+  echo "refused: TP_MM_REPOS contains no repository names" >&2
+  exit 2
+fi
+for repo in "${repo_args[@]}"; do
+  if [[ ! "$repo" =~ ^[a-zA-Z0-9_.][a-zA-Z0-9_.-]*$ || "$repo" == "." || "$repo" == ".." ]]; then
+    echo "refused: invalid repository name in TP_MM_REPOS" >&2
+    exit 2
+  fi
+done
+
 cd "$ROOT" || exit 14
 mkdir -p "$OUT"
 
-common=(--repos $REPOS --outdir "$OUT" --audit "$OUT/audit.jsonl"
+common=(--repos "${repo_args[@]}" --outdir "$OUT" --audit "$OUT/audit.jsonl"
         --max-merges "${TP_MM_MAX_MERGES:-3}"
         --max-mutations "${TP_MM_MAX_MUTATIONS:-8}")
 
@@ -38,11 +55,15 @@ case "$MODE" in
     exec python3 -m tools.merge_master.cli cycle "${common[@]}" --execute
     ;;
   loop)
+    execute_args=()
+    if [ "${TP_MM_ALLOW_EXECUTE:-0}" = "1" ]; then
+      execute_args=(--execute)
+    fi
     exec python3 -m tools.merge_master.cli daemon "${common[@]}" \
-         --interval "$INTERVAL" ${TP_MM_ALLOW_EXECUTE:+--execute}
+         --interval "$INTERVAL" "${execute_args[@]}"
     ;;
   selfcheck)
-    exec python3 -m tools.merge_master.cli selfcheck --repos $REPOS \
+    exec python3 -m tools.merge_master.cli selfcheck --repos "${repo_args[@]}" \
          --audit "$OUT/audit.jsonl"
     ;;
   verify)

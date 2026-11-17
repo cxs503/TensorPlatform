@@ -30,7 +30,7 @@ ALL_REPOS = DEFAULT_REPOS + SOLVER_REPOS
 REASON_ZH = {
     Reason.NO_MISSION: "任务系统无验收记录",
     Reason.ACCEPTANCE_MISSING: "验收未通过/记录不完整",
-    Reason.QUALITY_RED: "质量门出现新增红",
+    Reason.QUALITY_RED: "当前提交质量检查未通过",
     Reason.QUALITY_MISSING: "缺质量证据",
     Reason.BOUNDARY_FAIL: "边界门判越界",
     Reason.BOUNDARY_ERROR: "边界门故障（保守判拒）",
@@ -182,9 +182,11 @@ class Reconciler:
             if (self.checks and pr.head_sha) else []
         baseline = self.checks.main_failing(pr.repo) if self.checks else []
         outs = [G.gate_acceptance(mission),
-                G.gate_quality(checks, baseline),
+                G.gate_quality(checks, baseline, head_sha=pr.head_sha,
+                               required_checks=self.gates.required_checks),
                 G.gate_tests(mission, checks,
-                             min_passed=self.gates.min_tests_passed),
+                             min_passed=self.gates.min_tests_passed,
+                             head_sha=pr.head_sha),
                 G.gate_conflict(pr)]
         if pr.state == "open" and not pr.merged and all(o.ok for o in outs) \
                 and G.G5 not in self.gates.disabled:

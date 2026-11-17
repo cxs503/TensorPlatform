@@ -8,7 +8,7 @@
 协议族：
   Queue          —— 本轮要清算的 PR 清单（来源=GitHub open PR 或平台队列）
   MissionLedger  —— 任务系统验收记录（读）+ PR 合并回写（写）
-  CheckRuns      —— 分支检查结果 + main 基线失败集（相对红口径）
+  CheckRuns      —— 当前提交检查结果 + main 基线失败集（仅诊断）
   DiffSource     —— PR 净变更（喂边界扫描门）
   Merger         —— 真正执行合并的动作面
 """
@@ -135,12 +135,44 @@ class GitHub:
         return r.get("json") or [] if r.get("status") == 200 else []
 
     def check_runs(self, repo: str, sha: str) -> List[Dict[str, Any]]:
-        r = self.http.request(
-            "%s/repos/%s/%s/commits/%s/check-runs?per_page=100"
-            % (self.API, self.OWNER, repo, sha), headers=self.headers)
-        if r.get("status") != 200:
-            return []
-        return list((r.get("json") or {}).get("check_runs") or [])
+        """Read all latest runs; a partial/error response must never look green."""
+        def unavailable(error: str) -> List[Dict[str, Any]]:
+            # Keep the provider protocol list-shaped without returning a partial
+            # green prefix. Do not copy HTTP bodies (potential secrets) to audit.
+            return [{"name": "check-runs-fetch", "head_sha": sha,
+                     "status": "completed", "conclusion": "failure",
+                     "error": error}]
+
+        checks: List[Dict[str, Any]] = []
+        seen = set()
+        total = None
+        for page in range(1, 101):
+            r = self.http.request(
+                "%s/repos/%s/%s/commits/%s/check-runs?filter=latest&per_page=100&page=%d"
+                % (self.API, self.OWNER, repo, sha, page), headers=self.headers)
+            if r.get("status") != 200:
+                return unavailable("http_status=%s,page=%d" % (r.get("status"), page))
+            body = r.get("json")
+            if not isinstance(body, dict):
+                return unavailable("invalid_response")
+            count, batch = body.get("total_count"), body.get("check_runs")
+            if (type(count) is not int or count < 0 or not isinstance(batch, list)
+                    or any(not isinstance(c, dict) or type(c.get("id")) is not int
+                           for c in batch)):
+                return unavailable("invalid_check_runs")
+            if total is not None and total != count:
+                return unavailable("check_runs_changed_during_pagination")
+            total = count
+            ids = [c["id"] for c in batch]
+            if len(set(ids)) != len(ids) or seen.intersection(ids):
+                return unavailable("duplicate_check_runs")
+            seen.update(ids)
+            checks.extend(batch)
+            if len(checks) == total:
+                return checks
+            if len(checks) > total or len(batch) < 100:
+                return unavailable("incomplete_check_runs")
+        return unavailable("check_runs_page_limit")
 
     def main_sha(self, repo: str) -> Optional[str]:
         r = self.http.request(

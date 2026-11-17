@@ -15,7 +15,7 @@ class Reason:
 
     NO_MISSION = "no_mission_record"          # 找不到任务验收记录
     ACCEPTANCE_MISSING = "acceptance_missing"  # 任务记录在，但验收未通过
-    QUALITY_RED = "quality_red"               # 质量门红（新增失败检查）
+    QUALITY_RED = "quality_red"               # 当前提交质量检查未通过
     QUALITY_MISSING = "quality_evidence_missing"
     BOUNDARY_FAIL = "boundary_gate_fail"       # 边界扫描门判越界
     BOUNDARY_ERROR = "boundary_gate_error"     # 门自身跑不起来（保守判拒）

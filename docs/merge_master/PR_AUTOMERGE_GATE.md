@@ -6,7 +6,7 @@
 > 回滚路径），并在治理预算内动作。**零领域语义**：判据只认记录/证据/状态字段。
 
 代码：`tools/merge_master/`（9 个模块，纯 stdlib）
-测试：`tests/test_merge_master.py`（17 例）
+测试：`tests/test_merge_master.py`、`tests/test_merge_master_evidence.py`
 运行产物：`artifacts/merge_master/`（判决 JSON + 哈希链审计 + 证据图 + 证据摘要）
 守护：`ops/merge_master/daemon.sh`、`deploy/merge_master/compose.yml`
 
@@ -17,15 +17,30 @@
 | 门 | 输入（provider） | 判定口径 | 失败理由码 |
 |---|---|---|---|
 | **G1 acceptance** | 任务系统验收记录 | `accepted=true` 且（`decided_by` 或 `report_id` 存在），且状态不属 queued/running/failed | `no_mission_record` / `acceptance_missing` |
-| **G2 quality** | 分支 check-runs + main 基线 | 无「**新增**红」：失败检查名 ⊆ main 上已失败名；存在未完成检查亦不通过 | `quality_red` |
+| **G2 quality** | 当前 head 的 check-runs + 必需检查名 | 检查非空、均绑定当前 SHA、无失败或待完成项；指定的必需检查必须存在且 `success` | `quality_evidence_missing` / `quality_red` |
 | **G2b boundary** | PR 净变更 diff + `data/boundary/pr_boundary_lexicon.json` | `tools/boundary/pr_gate_scan.py` 判决必须 PASS；**拿不到 diff / 门自身故障 → 保守判拒** | `boundary_gate_fail` / `boundary_gate_error` |
-| **G3 tests** | 任务记录 `checks` 文本 + 测试类检查 | `N passed`（N≥`--min-tests`，默认 1）且无 failed；或测试类检查绿 | `test_evidence_missing` |
+| **G3 tests** | 当前 head 的测试类检查 + 任务记录辅助信息 | 至少一个测试类检查 `completed/success`；`skipped/neutral` 和报告文本不能独立放行；报告中明确的失败或低于 `--min-tests` 的数量仍阻断 | `test_evidence_missing` |
 | **G4 conflict** | GitHub 合并性 oracle | `mergeable=true` 且 `mergeable_state ∉ {dirty, conflicting}`；`mergeable=null`（异步未算完）视为未定 | `merge_conflict` / `pr_closed_unmerged` |
 
-「绝对红」口径会把 main 上早已存在的失败算到 PR 头上、使队列永久堵死；本节点沿用
-merge_master 既有经验，判 **PR 是否新增红**（责任边界）。边界门（plan 19 B1）作为
-**唯一的、永远阻断的**代码路径门接进 pre-merge 链：它不依赖 CI 是否配置、也不依赖
-任何人工 review。
+自 2026-11-17 修订起，main 上的同名失败仅作诊断，不能豁免 PR 的失败。
+同名 job 可能包含不同的失败项；仅比较名称无法证明没有回归。旧的「无新增红」
+判据已移除。没有 CI、API 错误、分页不完整、缺失或过期 SHA 都不能放行。
+provider 读取 API 返回的最新 check-runs 的全部分页，审计记录保留检查 ID、SHA、状态与结论。
+GitHub 端仅覆盖最近 1000 个 check suites；客户端最多读取 100 页，超限保守拒绝。
+
+用重复的 `--required-check` 指定必须成功的检查名（精确匹配）：
+
+```bash
+python3 -m tools.merge_master.cli plan --repos TensorBench \
+    --required-check unit-tests
+```
+
+未指定为必需项的 `skipped/neutral` 检查可以不阻断 G2，但不能满足 G3。
+配置的检查名应用于本次运行的所有仓库；名称不同的仓库分开运行。
+检查名来源应是维护者确认的 CI 配置，而非 PR 自报内容。缺省配置无法识别
+某个从未上报的特定 job，应配置必需检查，并配合 GitHub 分支保护。
+当前 provider 只读取 check-runs，不读取 legacy commit statuses。
+G3 的测试名称识别仍是启发式规则；绿灯不证明覆盖率或科学有效性。
 
 **幂等与崩溃恢复**：判据按 `head SHA` 记账；PR 已是 `merged` 事实时只补一次
 `pr-gate(merged)` 回写（任务状态 → `succeeded`），不再触发合并。合并成功后进程崩溃
@@ -52,7 +67,9 @@ commit>` + 验证门 + 状态修复），由 `tools/merge_master/rollback.py` �
 断了容器判不健康，而不是默默继续合并）+ 状态卷持久化。合并开关是环境变量
 `TP_MM_ALLOW_EXECUTE`（默认 0=只判不并），打开是治理决策，不需改代码。
 
-## 3 实测：真实队列 20 张 PR 清跑
+## 3 历史实测：旧判据下真实队列 20 张 PR 清跑
+
+以下记录保留历史事实，不代表修订后判据已在生产队列运行。
 
 数据来源：GitHub 开放 PR（ground truth）+ 平台任务账本最近 20 张带 PR 的任务记录，
 逐张取详情/检查结果/diff 过门。仓库 = `TensorPlatform`。
@@ -104,7 +121,7 @@ cycle_end 7），`verify-audit` 链校验通过，head=`ebd44687cf380c3c…`。
 ## 5 复现
 
 ```bash
-python3 -m pytest tests/test_merge_master.py -q                 # 17 passed
+python3 -m pytest tests/test_merge_master.py tests/test_merge_master_evidence.py -q
 python3 -m tools.merge_master.cli selfcheck                      # 判据件/词表/凭据自检
 python3 -m tools.merge_master.cli plan --repos TensorPlatform \
     --include-recent 20 --out plan_live.json                     # 真实队列清跑
@@ -112,10 +129,14 @@ python3 -m tools.merge_master.cli plan --rehearse --include-recent 20 \
     --out rehearsal.json                                         # 执行链路排练
 python3 -m tools.merge_master.cli verify-audit                   # 审计链校验
 python3 scripts/gen_merge_master_figures.py                      # 证据图
-python3 scripts/merge_master_evidence.py --pytest-passed 17      # 证据摘要
+python3 scripts/merge_master_evidence.py --pytest-passed <本次实际通过数>  # 证据摘要
 ```
 
 ## 6 runbook（出事怎么办）
+
+`TP_MM_ALLOW_EXECUTE` 只有字面值 `1` 开启执行；未设置、空值、`0`、`false`
+均不启用。Compose 的默认值 `0` 因此保持只判不并。
+`TP_MM_REPOS` 只接受空格分隔的仓库名；选项、通配符和多行值会被拒绝。
 
 | 事件 | 动作 |
 |---|---|
