@@ -2,13 +2,13 @@
 
 判据（任务书「续航军 R3」）：
   G1 acceptance —— 任务系统验收记录在案（accepted + 决策人 + 报告/PR 关联）
-  G2 quality    —— 质量门绿：CI 检查无「新增红」（相对 main 基线）+ **边界扫描门**
+  G2 quality    —— 当前 head 的 CI 无失败、无待完成项，指定的必需检查全部成功
                    （``tools/boundary/pr_gate_scan.py``）判 PASS 作为 pre-merge 阻断门
-  G3 tests      —— 测试证据：任务记录里的 pytest 通过数 / 测试类检查绿
+  G3 tests      —— 当前 head 至少有一个已完成且成功的测试类检查
   G4 conflict   —— 无冲突：GitHub 合并性 oracle（mergeable=True 且非 dirty）
 
-G2 的「相对红」口径来自既有 merge_master 的经验：绝对红会把 main 上早已存在的
-失败算到 PR 头上，导致队列永久堵死；判「是否新增红」才是 PR 的责任边界。
+main 的失败名只用于诊断，不能证明 PR 的同名失败没有新增缺陷。
+任务报告中的通过数是辅助信息，不能替代绑定当前提交的 CI 证据。
 """
 
 from __future__ import annotations
@@ -66,7 +66,7 @@ def gate_acceptance(mission: Optional[MissionRecord]) -> GateOutcome:
 
 
 # --------------------------------------------------------------------------- #
-# G2 质量门（CI 检查相对绿）
+# G2 质量门（缺证据即拒绝；基线失败不能豁免）
 # --------------------------------------------------------------------------- #
 def _conclusion(c: Dict[str, Any]) -> str:
     return str(c.get("conclusion") or "").lower()
@@ -82,23 +82,45 @@ def failing_names(checks: Sequence[Dict[str, Any]]) -> List[str]:
 
 
 def gate_quality(checks: Sequence[Dict[str, Any]],
-                 baseline_failing: Iterable[str] = ()) -> GateOutcome:
+                 baseline_failing: Iterable[str] = (), *,
+                 head_sha: str = "",
+                 required_checks: Sequence[str] = ()) -> GateOutcome:
     checks = list(checks or [])
     baseline: Set[str] = set(baseline_failing or ())
     if not checks:
-        return GateOutcome(G2, True, "该仓无 CI 检查（以边界门为质量阻断面）",
-                           {"ci": "absent", "baseline_failing": sorted(baseline)})
-    new_red = [n for n in failing_names(checks) if n not in baseline]
+        return GateOutcome(G2, False, "缺少当前提交的 CI 检查",
+                           {"ci": "absent", "head_sha": head_sha,
+                            "required_checks": sorted(set(required_checks)),
+                            "baseline_failing": sorted(baseline),
+                            "reason": Reason.QUALITY_MISSING})
+    failed = failing_names(checks)
+    new_red = [n for n in failed if n not in baseline]
     pending = [str(c.get("name")) for c in checks
                if str(c.get("status")) != "completed"]
-    ok = not new_red and not pending
-    detail = "质量门绿（无新增红）"
-    if new_red:
-        detail = "新增失败检查: " + ",".join(new_red)
-    elif pending:
-        detail = "检查未完成: " + ",".join(pending)
+    unbound = [str(c.get("name")) for c in checks
+               if not head_sha or c.get("head_sha") != head_sha]
+    names = {str(c.get("name")) for c in checks}
+    missing = sorted(set(required_checks) - names)
+    required_not_successful = sorted({str(c.get("name")) for c in checks
+        if c.get("name") in required_checks and
+        (c.get("status") != "completed" or _conclusion(c) != "success")})
+    problems = []
+    for label, items in (("失败检查", failed), ("检查未完成", pending),
+                         ("检查未绑定当前提交", unbound), ("缺少必需检查", missing),
+                         ("必需检查未成功", required_not_successful)):
+        if items:
+            problems.append(label + ": " + ",".join(items))
+    ok = not problems
+    detail = "当前提交的质量检查通过" if ok else "; ".join(problems)
     return GateOutcome(G2, ok, detail,
-                       {"total": len(checks), "new_red": new_red,
+                       {"total": len(checks), "head_sha": head_sha,
+                        "checks": [{k: c.get(k) for k in
+                                    ("id", "name", "head_sha", "status", "conclusion", "error")}
+                                   for c in checks],
+                        "failed": failed, "new_red": new_red,
+                        "unbound": unbound, "missing_required": missing,
+                        "required_checks": sorted(set(required_checks)),
+                        "required_not_successful": required_not_successful,
                         "baseline_failing": sorted(baseline),
                         "pending": pending,
                         "reason": "" if ok else Reason.QUALITY_RED})
@@ -151,20 +173,21 @@ def gate_boundary(diff_text: Optional[str],
 # --------------------------------------------------------------------------- #
 def gate_tests(mission: Optional[MissionRecord],
                checks: Sequence[Dict[str, Any]] = (),
-               *, min_passed: int = 1) -> GateOutcome:
+               *, min_passed: int = 1, head_sha: str = "") -> GateOutcome:
     text = (mission.checks_text if mission else "") or ""
     passed = _int_first(_PASSED_RE, text)
     failed = _int_first(_FAILED_RE, text)
     test_checks = [c for c in (checks or [])
                    if TEST_CHECK_RE.search(str(c.get("name", "")))]
     green = [str(c.get("name")) for c in test_checks
-             if _conclusion(c) in ("success", "skipped", "neutral")]
+             if head_sha and c.get("head_sha") == head_sha
+             and c.get("status") == "completed" and _conclusion(c) == "success"]
     evidence = {"pytest_passed": passed, "pytest_failed": failed,
+                "head_sha": head_sha,
                 "test_checks_green": green,
                 "test_checks_total": len(test_checks)}
-    ok_text = passed is not None and passed >= min_passed and not failed
-    ok_ci = bool(green) and (failed in (None, 0))
-    ok = bool(ok_text or ok_ci)
+    # 文本不能独立放行；存在失败数或低于显式门槛时仍保守拒绝。
+    ok = bool(green) and not failed and (passed is None or passed >= min_passed)
     if ok:
         return GateOutcome(G3, True, "测试证据在案（passed=%s, ci_green=%d）"
                            % (passed, len(green)), evidence)
@@ -210,10 +233,15 @@ class GateSuite:
     def __init__(self, *, min_tests_passed: int = 1,
                  lexicon_path: Optional[str] = None,
                  repo_root: Optional[Path] = None,
+                 required_checks: Sequence[str] = (),
                  disabled: Sequence[str] = ()):
         self.min_tests_passed = min_tests_passed
         self.lexicon_path = lexicon_path
         self.repo_root = repo_root
+        if isinstance(required_checks, str) or any(
+                not isinstance(name, str) or not name.strip() for name in required_checks):
+            raise ValueError("required_checks must contain nonempty check names")
+        self.required_checks = tuple(required_checks)
         # 消融实验用：显式关掉某道门（只允许在 plan/排练里用，执行路径不开口子）
         self.disabled = set(disabled or ())
 
@@ -223,8 +251,10 @@ class GateSuite:
                  baseline_failing: Iterable[str] = (),
                  diff_text: Optional[str] = None) -> List[GateOutcome]:
         out = [gate_acceptance(mission),
-               gate_quality(checks, baseline_failing),
-               gate_tests(mission, checks, min_passed=self.min_tests_passed),
+               gate_quality(checks, baseline_failing, head_sha=pr.head_sha,
+                            required_checks=self.required_checks),
+               gate_tests(mission, checks, min_passed=self.min_tests_passed,
+                          head_sha=pr.head_sha),
                gate_conflict(pr)]
         # 已合并 / 已关闭的 PR 不再白跑 diff 扫描（省 API 预算）
         if pr.state == "open" and not pr.merged:
