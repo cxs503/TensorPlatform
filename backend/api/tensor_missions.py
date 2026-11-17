@@ -60,7 +60,7 @@ _CLAIM_REAP_BOOT_GRACE = timedelta(seconds=300)
 
 router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
-DEFAULT_BUDGET = {"max_tool_calls": 80, "max_wall_seconds": 7200, "max_tokens": 3_000_000}
+DEFAULT_BUDGET = {"max_tool_calls": 200, "max_wall_seconds": 10800, "max_tokens": 3_000_000}
 # G-A 单一契约源（docs/architecture/migration_disposition_2026-11.md §3）：
 # 词表从 backend/contracts/mission_status_vocab.v1.json 派生，与 086+095 的 DB CHECK
 # 终态由 backend/tests/test_status_contracts.py 对拍锁定。
@@ -408,8 +408,7 @@ def _repo_resolvable(name: str) -> bool:
 
 DISPATCH_MAX_CHILDREN = 8          # per orchestrator mission
 DISPATCH_DAILY_CAP = 24            # agent-originated missions per 24h (global)
-DISPATCH_BUDGET_CAPS = {"max_tool_calls": 80, "max_wall_seconds": 7200,
-                        "max_tokens": 3_000_000}
+DISPATCH_BUDGET_CAPS = {"max_tool_calls": 200, "max_wall_seconds": 10800, "max_tokens": 3_000_000}
 
 
 class MissionDispatch(BaseModel):
@@ -1789,14 +1788,24 @@ def refill_mission(
     # infra 类终局可续班（m50 实证：LLM 端点抖动→agent_crash，检查点完好
     # 却无资格 refill）；honest FAIL 类（finished_without_acceptance/
     # owner_stopped）仍拒绝——那是 agent 自身结论，重派而非续班
-    if stop not in ("agent_lost", "budget_exceeded", "agent_crash",
-                    "gateway_unavailable"):
+    # 11-18 扩词（owner 批准）：worker 死因只落 evidence.checks.fail_stage
+    # 不写 stop_condition——fail_stage 的 infra 词同权放行，免逐单 DB 归一；
+    # no_progress 与 *+forced_finish 仍拒 = agent 自身终局。
+    _ev = (result or {}).get("evidence")
+    _ch = _ev.get("checks") if isinstance(_ev, dict) else {}
+    fail_stage = ((_ch or {}).get("fail_stage")
+                  or (result or {}).get("fail_stage"))
+    if (stop not in ("agent_lost", "budget_exceeded", "agent_crash",
+                     "gateway_unavailable")
+            and fail_stage not in ("llm_error", "wall_exhausted",
+                                   "budget_exhausted")):
         raise HTTPException(
             status_code=409,
-            detail=f"stop_condition={stop!r} 非 infra 类终局"
-                   "（agent_lost/budget_exceeded/agent_crash/"
-                   "gateway_unavailable）——agent 自身终局（如 honest FAIL）"
-                   "请重新派发，不要 refill")
+            detail=f"stop_condition={stop!r} fail_stage={fail_stage!r} "
+                   "非 infra 类终局（stop_condition: agent_lost/budget_exceeded/"
+                   "agent_crash/gateway_unavailable；fail_stage: llm_error/"
+                   "wall_exhausted/budget_exhausted）——agent 自身终局（如 "
+                   "honest FAIL）请重新派发，不要 refill")
     if (body.add_tool_calls, body.add_wall_seconds, body.add_tokens,
             body.model) == (0, 0, 0, None):
         raise HTTPException(status_code=422, detail="refill 至少补一项预算或换 model")
