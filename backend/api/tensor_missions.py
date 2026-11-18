@@ -60,7 +60,7 @@ _CLAIM_REAP_BOOT_GRACE = timedelta(seconds=300)
 
 router = APIRouter(prefix="/tensor/missions", tags=["开发任务"])
 
-DEFAULT_BUDGET = {"max_tool_calls": 200, "max_wall_seconds": 10800, "max_tokens": 3_000_000}
+DEFAULT_BUDGET = {"max_tool_calls": 600, "max_wall_seconds": 86400, "max_tokens": 50_000_000}  # 2026-11-18 owner 令资源全放开
 # G-A 单一契约源（docs/architecture/migration_disposition_2026-11.md §3）：
 # 词表从 backend/contracts/mission_status_vocab.v1.json 派生，与 086+095 的 DB CHECK
 # 终态由 backend/tests/test_status_contracts.py 对拍锁定。
@@ -408,7 +408,7 @@ def _repo_resolvable(name: str) -> bool:
 
 DISPATCH_MAX_CHILDREN = 8          # per orchestrator mission
 DISPATCH_DAILY_CAP = 24            # agent-originated missions per 24h (global)
-DISPATCH_BUDGET_CAPS = {"max_tool_calls": 200, "max_wall_seconds": 10800, "max_tokens": 3_000_000}
+DISPATCH_BUDGET_CAPS = {"max_tool_calls": 2000, "max_wall_seconds": 172800, "max_tokens": 200_000_000}  # 2026-11-18 owner 令资源全放开
 
 
 class MissionDispatch(BaseModel):
