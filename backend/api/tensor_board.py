@@ -418,10 +418,29 @@ def board_release(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    """释放锚租约（完单/放弃）。带 holder 时只有持有者能释放。"""
+    """Release only leases claimed by this authenticated principal in this tenant.
+
+    The holder label is not an authorization credential. Legacy feeder leases
+    without a recorded principal require their dedicated service workflow.
+    """
+    org_id = resolved_org(None, user, db)
     AL.ensure_schema(db)
     holder = body.holder or f"user:{user.get('username') or user.get('id')}"
-    n = AL.release(db, slug, holder=holder, reason=body.reason)
+    principal = user.get("id")
+    if principal is None:
+        raise HTTPException(status_code=403, detail="authenticated principal ID required")
+    # A single conditional UPDATE is atomic and prevents a TOCTOU release race.
+    result = db.execute(
+        text(
+            "UPDATE anchor_leases SET released_at = now(), release_reason = :reason "
+            "WHERE anchor_slug = :slug AND released_at IS NULL "
+            "AND organization_id = :org AND source = :source "
+            "AND holder = :holder AND meta->>'user' = :principal"
+        ),
+        {"slug": slug, "org": org_id, "source": SOURCE_BOARD_CLAIM,
+         "holder": holder, "principal": str(principal), "reason": body.reason},
+    )
+    n = int(result.rowcount or 0)
     db.commit()
     return {"released": n, "anchor": slug, "holder": holder}
 
