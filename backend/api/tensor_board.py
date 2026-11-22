@@ -405,9 +405,29 @@ def board_leases(
     db: Session = Depends(get_db),
     user: dict = Depends(require_auth),
 ):
-    """活租约视图（诊断「这个锚被谁占着」）。"""
+    """Tenant-scoped lease diagnostics; never expose another principal's holder metadata."""
+    org_id = resolved_org(None, user, db)
+    principal = user.get("id")
+    if principal is None:
+        raise HTTPException(status_code=403, detail="authenticated principal ID required")
     AL.ensure_schema(db)
-    leases = AL.live_leases(db, anchor)
+    rows = db.execute(
+        text(
+            "SELECT id, anchor_slug, mission_id, expires_at "
+            "FROM anchor_leases WHERE released_at IS NULL "
+            "AND organization_id = :org AND source = :source "
+            "AND meta->>'user' = :principal "
+            "AND (CAST(:anchor AS text) IS NULL OR anchor_slug = :anchor) "
+            "ORDER BY anchor_slug"
+        ),
+        {"org": org_id, "source": SOURCE_BOARD_CLAIM,
+         "principal": str(principal), "anchor": anchor},
+    ).all()
+    leases = [
+        {"lease_id": int(r[0]), "anchor": r[1], "mission_id": r[2],
+         "expires_at": r[3].isoformat() if r[3] else None}
+        for r in rows
+    ]
     return {"count": len(leases), "leases": leases}
 
 
