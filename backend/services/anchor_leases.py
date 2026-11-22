@@ -197,13 +197,11 @@ def release(
     reason: str = "released",
     lease_id: int | None = None,
 ) -> int:
-    """释放租约。``holder`` 非空时只允许持有者自己释放；返回释放行数。"""
+    """释放指定锚的租约。即使传入 lease_id，也必须匹配 slug；holder 非空时还需匹配持有者。"""
     sql = (
         "UPDATE anchor_leases SET released_at = now(), release_reason = :reason "
-        "WHERE released_at IS NULL AND ("
-        "  (:lease_id IS NOT NULL AND id = :lease_id) OR "
-        "  (:lease_id IS NULL AND anchor_slug = :slug)"
-        ") "
+        "WHERE released_at IS NULL AND anchor_slug = :slug "
+        "AND (:lease_id IS NULL OR id = :lease_id) "
     )
     params: dict[str, Any] = {"slug": slug, "reason": reason, "lease_id": lease_id}
     if holder is not None:
