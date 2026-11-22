@@ -335,3 +335,48 @@ def test_f_dry_run_does_not_write(engine, db):
 
     assert int(db.execute(text("SELECT count(*) FROM tensor_dev_missions")).scalar()) == 0
     assert int(db.execute(text("SELECT count(*) FROM anchor_leases")).scalar()) == 0
+
+def test_release_denies_cross_principal_and_cross_tenant(db):
+    """Real PostgreSQL regression for board release authorization."""
+    from services.anchor_leases import acquire, ensure_schema
+    from api.tensor_board import board_release, LeaseReleaseRequest
+    from sqlalchemy import text
+
+    ensure_schema(db)
+    lease = acquire(
+        db, "FEAT-AUTH-ISOLATION", holder="agent-original",
+        organization_id=ORG_ID, meta={"via": "board/claim", "user": "101"},
+    )
+    assert lease.acquired
+    db.commit()
+
+    # The attacker knows the holder string but has a different principal.
+    denied = board_release(
+        "FEAT-AUTH-ISOLATION",
+        LeaseReleaseRequest(holder="agent-original"),
+        db, {"id": 202, "username": "other", "organization_id": ORG_ID},
+    )
+    assert denied["released"] == 0
+
+    # A principal in a different tenant cannot release the lease either.
+    # Patch only org resolution to isolate the SQL-level tenant predicate.
+    from unittest.mock import patch
+    with patch("api.tensor_board.resolved_org", return_value=ORG_ID + 1):
+        denied_org = board_release(
+            "FEAT-AUTH-ISOLATION",
+            LeaseReleaseRequest(holder="agent-original"),
+            db, {"id": 101, "username": "owner"},
+        )
+    assert denied_org["released"] == 0
+
+    assert db.execute(
+        text("SELECT count(*) FROM anchor_leases WHERE id=:id AND released_at IS NULL"),
+        {"id": lease.lease_id},
+    ).scalar_one() == 1
+
+    allowed = board_release(
+        "FEAT-AUTH-ISOLATION",
+        LeaseReleaseRequest(holder="agent-original"),
+        db, {"id": 101, "username": "owner", "organization_id": ORG_ID},
+    )
+    assert allowed["released"] == 1
