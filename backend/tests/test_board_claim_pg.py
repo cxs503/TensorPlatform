@@ -335,3 +335,31 @@ def test_f_dry_run_does_not_write(engine, db):
 
     assert int(db.execute(text("SELECT count(*) FROM tensor_dev_missions")).scalar()) == 0
     assert int(db.execute(text("SELECT count(*) FROM anchor_leases")).scalar()) == 0
+
+def test_release_by_id_cannot_release_a_different_anchor(db):
+    """Database regression: a valid lease ID cannot bypass anchor identity."""
+    from services.anchor_leases import acquire, ensure_schema, release
+    from sqlalchemy import text
+
+    ensure_schema(db)
+    first = acquire(db, "FEAT-SCOPE-A", holder="agent-a")
+    second = acquire(db, "FEAT-SCOPE-B", holder="agent-b")
+    db.commit()
+    assert first.acquired and second.acquired
+
+    # Wrong slug with the correct lease ID must not release B.
+    assert release(db, "FEAT-SCOPE-A", lease_id=second.lease_id) == 0
+    db.commit()
+    still_live = db.execute(
+        text("SELECT count(*) FROM anchor_leases WHERE id = :id AND released_at IS NULL"),
+        {"id": second.lease_id},
+    ).scalar_one()
+    assert still_live == 1
+
+    # Correct slug and holder release precisely B.
+    assert release(db, "FEAT-SCOPE-B", lease_id=second.lease_id, holder="agent-b") == 1
+    db.commit()
+    assert db.execute(
+        text("SELECT count(*) FROM anchor_leases WHERE id = :id AND released_at IS NULL"),
+        {"id": first.lease_id},
+    ).scalar_one() == 1
